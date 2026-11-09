@@ -1,7 +1,7 @@
 # module-isolation
 
 Compiles files, jca, discovery, config, preparation and benchmark each on its own and runs its tests from the module directory.
-`architecture` checks their classes against `layers.yaml`; `handoff_check.py` checks androidTest and cli sources ([rules](../../docs/contributing/code.md#dependency-rules)).
+`architecture` checks their classes against `layers.yaml`; `handoff_check.py` checks androidTest and cli sources; `names_check.py` checks that Kotlin's `:files` names equal Python's and no file name is written by hand ([rules](../../docs/contributing/code.md#dependency-rules)).
 
 ```
 ../../apps/benchmark/gradlew -p . test                          # all four and architecture

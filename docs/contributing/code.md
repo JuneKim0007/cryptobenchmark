@@ -9,7 +9,7 @@
 - capability: probe a per-device difference, record it in the trial or facts, and select behaviour from the recorded value; never branch on a provider name.
 - dependency: add no project dependency beyond the table in `docs/architecture.md`.
 - dependency: `:jca`, `:settings` and `:files` depend on no project; `:environment:discovery` depends only on `:jca` and `:files`.
-- files: every file and folder name a Kotlin stage names is a constant of `:files`.
+- files: every file and folder name a Kotlin stage names is a constant of `:files`; `tools/module-isolation/names_check.py` checks them against Python's `CONTRACT` and `CONTRACT_PARTS` and bans hand-written names outside the module.
 - contract: a stage reads another stage's output from its file (capture, trial, inventory, effective, prepared, benchmark.json), never through that stage's classes.
 - shared code: a module compiles against another module's classes only through the handoff types below; widening a list is a reviewed change to this guide.
 - shared code: `:environment:discovery` and `:preparation` use jca's `Attempt`, `ErrorText`; `:benchmark` and `:android` androidTest use jca's `Attempt`; it is the one catch rule (an Exception or LinkageError is a result, any other Error escapes), never copied.
@@ -35,6 +35,6 @@
 
 ## Dependency rules
 - rules: `tools/module-isolation/layers.yaml` holds the module edges, the handoff lists above, package cycles and forbidden package edges as data; a list change edits it and this guide together.
-- check: `tools/module-isolation/architecture` checks the compiled module classes with ArchUnit; `tools/module-isolation/handoff_check.py` checks androidTest and cli sources; `.github/workflows/modules.yml` runs both.
+- check: `tools/module-isolation/architecture` checks the compiled module classes with ArchUnit; `tools/module-isolation/handoff_check.py` checks androidTest and cli sources; `tools/module-isolation/names_check.py` checks file names, which ArchUnit cannot see; `.github/workflows/modules.yml` runs both.
 - frozen: violations that predate the rules live in `tools/module-isolation/architecture/frozen/` and `tools/module-isolation/handoff-frozen.txt`; a new violation fails and never joins them.
 - frozen: the stores only shrink: a fixed violation leaves its store in the same change (`-Darchunit.freeze.store.default.allowStoreUpdate=true`, `handoff_check.py --shrink`); both are empty by the end of H3.

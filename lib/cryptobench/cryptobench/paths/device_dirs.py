@@ -4,8 +4,8 @@ from __future__ import annotations
 from pathlib import PurePosixPath
 
 PACKAGE = "io.github.junekim0007.cryptobench"
-PLAN_DIRECTORY = "cryptobench"  # DeviceDirectory.NAME
-SCOPE_KEYS = "scope-keys"  # ScopeKeys.FOLDER
+PLAN_DIRECTORY = "cryptobench"  # Folders.DEVICE_PLAN
+SCOPE_KEYS = "scope-keys"  # Folders.SCOPE_KEYS
 MEDIA_FROM_SDK = 29
 
 

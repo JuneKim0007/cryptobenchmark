@@ -90,4 +90,5 @@ python3 apps/benchmark-runner/analysis/charts.py <benchmark.json> <prepared.yaml
 | `apps/benchmark/gradlew -p tools/module-isolation test -Dexamples.update=true` | regenerates `example/` outputs |
 
 - Subprojects and classpaths: [architecture.md](architecture.md#isolation-build).
+- `python3 tools/module-isolation/names_check.py`: Kotlin's `:files` names against Python's `CONTRACT` and `CONTRACT_PARTS`; no file name written by hand outside the module.
 

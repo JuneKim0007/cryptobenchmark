@@ -9,7 +9,7 @@ from ..document import AT_PATH, DocumentKind
 from .grouping import provider_of
 from .glossary import names_problems
 
-CATALOG = paths.repo().algorithms / "algorithm-names.yaml"
+CATALOG = paths.repo().algorithms / paths.ALGORITHM_NAMES
 SCHEMA_VERSION = 1
 NAME_CONFLICT = "name_conflict"
 

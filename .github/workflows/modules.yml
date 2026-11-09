@@ -2,7 +2,7 @@ name: modules
 
 # Each module is built alone against its own example/ files: snakeyaml, JUnit, and settings sources except discovery.
 # A module that reaches into another stops compiling here; benchmark also compiles with preparation.
-# architecture checks layers.yaml over the compiled classes against its frozen store; handoff checks androidTest and cli.
+# architecture checks layers.yaml over the compiled classes against its frozen store; handoff checks androidTest and cli; names checks Kotlin file names against Python's.
 on:
   push:
     branches: ['master', 'module/**']
@@ -40,4 +40,5 @@ jobs:
           python-version: '3.12'
       - run: python3 -m pip install -e ./lib/cryptobench 'PyYAML>=6' 'pytest>=8'
       - run: python3 tools/module-isolation/handoff_check.py
+      - run: python3 tools/module-isolation/names_check.py
       - run: python3 -m pytest tools/module-isolation/tests

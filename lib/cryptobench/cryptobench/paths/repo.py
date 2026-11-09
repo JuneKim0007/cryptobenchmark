@@ -5,8 +5,11 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from . import roots
+from .names import CONFIG_FOLDER, ENGINE_OPERATIONS, GLOBAL
 
-_ENGINE_OPERATIONS = "modules/preparation/src/main/resources/io/github/junekim0007/cryptobench/preparation/engine/engine-operations.yaml"
+_ENGINE_OPERATIONS = "modules/preparation/src/main/resources/io/github/junekim0007/cryptobench/preparation/engine/" + ENGINE_OPERATIONS
+_KOTLIN_NAME_USERS = ("modules/environment/discovery/src/main/kotlin", "modules/config/src/main/kotlin", "modules/preparation/src/main/kotlin",
+                      "modules/benchmark/src/main/kotlin", "modules/android/src/androidTest/kotlin", "cli/src/main/kotlin")
 _APK = "modules/android/build/outputs/apk/release/android-release.apk"
 
 
@@ -15,8 +18,8 @@ class Repo:
     root: Path
 
     algorithms = property(lambda self: self.root / roots.ALGORITHMS)
-    config = property(lambda self: self.root / "config")
-    default_global = property(lambda self: self.config / "global.yaml")
+    config = property(lambda self: self.root / CONFIG_FOLDER)
+    default_global = property(lambda self: self.config / GLOBAL)
     default_results = property(lambda self: self.root / "results")
     runner = property(lambda self: self.root / roots.RUNNER)
     pipeline = property(lambda self: self.root / roots.PIPELINE)
@@ -25,6 +28,8 @@ class Repo:
     gradle_root = property(lambda self: self.root / "apps/benchmark")
     gradlew = property(lambda self: self.gradle_root / "gradlew")
     benchmark_cli = property(lambda self: self.gradle_root / "cli")
+    kotlin_files_module = property(lambda self: self.gradle_root / "modules/files/src/main/kotlin")
+    kotlin_name_users = property(lambda self: tuple(self.gradle_root / s for s in _KOTLIN_NAME_USERS))
     apk = property(lambda self: self.gradle_root / _APK)
     engine_operations = property(lambda self: self.gradle_root / _ENGINE_OPERATIONS)
     preparation_resources = property(lambda self: self.gradle_root / "modules/preparation/src/main/resources")

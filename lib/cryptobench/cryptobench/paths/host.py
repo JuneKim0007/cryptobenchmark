@@ -4,13 +4,15 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+from .names import GLOBAL
+
 
 def home() -> Path:
     return Path.home()
 
 
 def user_global() -> Path:
-    return home() / ".config/cryptobench/global.yaml"
+    return home() / ".config/cryptobench" / GLOBAL
 
 
 def android_home() -> Path:
