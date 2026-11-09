@@ -64,7 +64,6 @@ apps/benchmark-runner/failure.py : one error line and exit; an error as one line
 apps/benchmark-runner/global_file.py : the global.yaml a run reads: --config, CRYPTOBENCH_CONFIG, the user's, the repository's
 apps/benchmark-runner/gradle_runner.py : runs one command of apps/benchmark/cli by its main class; filters its failure to the tool's own lines
 apps/benchmark-runner/pipeline.py : run driver: options and refusals, stage order, one coded failure line; --probe (discover and configure only), --identify (device id, input and harness code digests, nothing written)
-apps/benchmark-runner/repo.py : the repository root, the benchmark's Gradle root and the runner's folder every runner module resolves paths against
 apps/benchmark-runner/results/__init__.py : package of a run's results folder: layout, manifest, input digests, device selection, per-case files
 apps/benchmark-runner/results/case_files.py : process-N/cases/<case>.json: the path of a case's pulled benchmarkData, the folder emptied per process, benchmarkData.json merged from the files
 apps/benchmark-runner/results/layout.py : results/<device_id>/: staging, publishing into the device folder, the atomic manifest write, the temporary-folder warning

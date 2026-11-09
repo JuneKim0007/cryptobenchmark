@@ -8,6 +8,7 @@ from pathlib import Path
 
 import yaml
 
+from cryptobench import paths
 from ..ai.runtime.prompt.library import PromptLibrary
 from ..app.facts.target_set import listed_entries, resolve_targets
 from ..config.load import Loaded, load
@@ -16,7 +17,6 @@ from ..inputs.check import target_path, target_root
 from ..inputs.table import FILE_CHAIN, ROWS, Row
 from ..screen.catalog import load_catalog
 
-PACKAGE = Path(__file__).resolve().parents[1]
 TARGETS_KEY = "apps.targets"
 SCREENING_KEY, PROMPTS_KEY = "device.screening.catalog", "paths.prompts"
 # a key in the wrong file: the sections each other file owns
@@ -106,4 +106,4 @@ def llm_tree(file: Path) -> LlmTree:
 
 
 def packaged_catalogs() -> list[Path]:
-    return sorted(PACKAGE.rglob("*.yaml"))
+    return sorted(paths.PERFREPAIR.path.rglob("*.yaml"))

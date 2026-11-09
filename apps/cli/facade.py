@@ -3,7 +3,7 @@
 import argparse
 import sys
 
-import facade  # noqa: F401  first: it puts the benchmark runner on the path
+import facade  # noqa: F401  first: it names a missing library and puts the benchmark runner on the path
 
 # isort: split
 import dependencies  # noqa: F401  next: it reports a missing PyYAML, which everything below needs

@@ -10,13 +10,8 @@ import subprocess
 import sys
 
 from failure import fail
-from global_file import global_config
-from repo import RUNNER
 
-sys.path.append(str(RUNNER / "energy"))
-from capture import capture, source
-
-BASE = ("yaml",)
+BASE = ("yaml", "cryptobench")
 ANALYSIS = "matplotlib"
 ENERGY = {"rails": "perfetto", "manafa": "manafa"}
 ENERGY_CAPTURES = ("measured", "dry")
@@ -39,6 +34,16 @@ def require(module, python=sys.executable):
 
 def require_energy(source_name, python=sys.executable):
     require(ENERGY[source_name], python)
+
+
+for _module in BASE:
+    require(_module)
+
+from cryptobench import paths  # noqa: E402
+from global_file import global_config  # noqa: E402
+
+paths.add_energy_imports()
+from capture import capture, source  # noqa: E402
 
 
 def _run_of(configuration):
@@ -69,9 +74,6 @@ def main():
     options.energy_python = sys.executable
     check(options, global_config(options.config))
 
-
-for _module in BASE:
-    require(_module)
 
 if __name__ == "__main__":
     main()

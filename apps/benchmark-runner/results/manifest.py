@@ -5,10 +5,10 @@ from device import clocks
 from device.capture import runtime as capture_runtime
 from device.identity import device_id
 from results import layout as results_layout
-from repo import BENCHMARK
+from cryptobench import paths
 from results import run_inputs
 
-ENGINE_OPERATIONS = BENCHMARK / "modules/preparation/src/main/resources/io/github/junekim0007/cryptobench/preparation/engine/engine-operations.yaml"
+ENGINE_OPERATIONS = paths.repo().engine_operations
 
 
 def runtime(measured, captured, files):

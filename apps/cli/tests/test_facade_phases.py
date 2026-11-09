@@ -8,7 +8,10 @@ import pytest
 import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
-from facade import ROOT, phases
+from cryptobench import paths
+from facade import phases
+
+ROOT = paths.code_root()
 from facade.index import read_index
 
 FIXTURES = ROOT / "apps/perf-repair/tests/fixtures"

@@ -3,13 +3,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+from cryptobench import paths
 from cryptobench.document import DocumentKind
 from ....dto.prompt import Charter, CorrectionPrompt, Lifetime, SystemPrompt, fill
 from ....stop.halt import Coded
 from ....files import read_yaml
 
-PACKAGED = Path(__file__).resolve().parents[3] / "prompts"
-REGISTRY = "prompts.yaml"
 CORRECTION = "shared/rejection"
 SCHEMA_VERSION = 1
 PACKAGED_ORIGIN = "packaged"
@@ -49,9 +48,10 @@ class PromptLibrary:
 
     @classmethod
     def load(cls, override: Path | None = None) -> "PromptLibrary":
-        entries = read_registry(PACKAGED / REGISTRY)
+        packaged = paths.PROMPTS.path
+        entries = read_registry(paths.PROMPTS_REGISTRY.path)
         by_file = {e.file: e.name for e in entries.values()}
-        sources = {name: PACKAGED / e.file for name, e in entries.items()}
+        sources = {name: packaged / e.file for name, e in entries.items()}
         if override is not None:
             override = Path(override)
             if not override.is_dir():
@@ -59,7 +59,7 @@ class PromptLibrary:
             for path in sorted(p for p in override.rglob("*") if p.is_file()):
                 relative = path.relative_to(override).as_posix()
                 if relative not in by_file:
-                    raise PromptError(f"prompt_unknown: {path} matches no prompt in {REGISTRY} (known: {', '.join(sorted(by_file))})")
+                    raise PromptError(f"prompt_unknown: {path} matches no prompt in {paths.PROMPTS_REGISTRY.path.name} (known: {', '.join(sorted(by_file))})")
                 sources[by_file[relative]] = path
         absent = [str(p) for p in sources.values() if not p.is_file()]
         if absent:
@@ -79,7 +79,7 @@ class PromptLibrary:
     def origin(self, name: str) -> str:
         """`packaged`, or the override file the prompt was read from."""
         path = self.sources[name]
-        return PACKAGED_ORIGIN if path == PACKAGED / self.entries[name].file else str(path)
+        return PACKAGED_ORIGIN if path == paths.PROMPTS.path / self.entries[name].file else str(path)
 
     def source(self, name: str) -> Path:
         return self.sources[name]

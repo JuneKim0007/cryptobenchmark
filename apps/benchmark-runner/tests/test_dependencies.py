@@ -126,11 +126,11 @@ def test_the_command_exits_with_the_line_before_a_second_passes(tmp_path):
 
 
 def test_a_failed_chart_script_is_a_warning_and_analysis_goes_on(tmp_path, monkeypatch, capsys):
-    tools = tmp_path / "analysis"
+    tools = tmp_path / "apps/benchmark-runner/analysis"
     tools.mkdir(parents=True)
     (tools / "analyze.py").write_text("import no_such_module_at_all\n")
     (tools / "charts.py").write_text("raise SystemExit('never reached')\n")
-    monkeypatch.setattr(benchmark, "RUNNER", tmp_path)
+    monkeypatch.setattr(benchmark.paths, "repo", lambda: benchmark.paths.Repo(tmp_path))
     files = {}
     benchmark.analyse(tmp_path, files, tmp_path / "effective.yaml", tmp_path / "preparation", tmp_path / "benchmark", [], 1)
     out = capsys.readouterr().out

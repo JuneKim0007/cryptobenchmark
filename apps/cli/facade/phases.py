@@ -8,7 +8,7 @@ import sys
 import tempfile
 from dataclasses import dataclass
 
-from facade import LIBRARY, ROOT, SOURCE
+from cryptobench import paths
 
 RESUME = "resume"
 
@@ -26,7 +26,7 @@ def child_env(index, root):
     env = {k: v for k, v in os.environ.items() if k != "CRYPTOBENCH_CONFIG"}
     env["PERFREPAIR_CONFIG"] = str(index.llm_config)
     env["CRYPTOBENCH_ROOT"] = str(root)
-    env["PYTHONPATH"] = os.pathsep.join(p for p in (str(SOURCE), str(LIBRARY), env.get("PYTHONPATH")) if p)
+    env["PYTHONPATH"] = os.pathsep.join(p for p in (str(paths.repo().perf_repair_source), str(paths.repo().library), env.get("PYTHONPATH")) if p)
     return env
 
 
@@ -48,7 +48,7 @@ def guided_flags(crypto):
 
 def _guide(index, flags, settings_file, outcome_file, root):
     command = [sys.executable, "-m", "perfrepair", "guide", *common_flags(index, settings_file, outcome_file), *flags]
-    code = subprocess.run(command, cwd=ROOT, env=child_env(index, root), check=False).returncode
+    code = subprocess.run(command, cwd=paths.code_root(), env=child_env(index, root), check=False).returncode
     if not outcome_file.is_file():
         return Outcome(code)
     done = json.loads(outcome_file.read_text())
@@ -59,8 +59,9 @@ def _why(outcome):
     return f"{outcome.stop or 'no_code'} exit={outcome.code}"
 
 
-def run_phases(index, tree_document, root=ROOT, echo=print):
+def run_phases(index, tree_document, root=None, echo=print):
     """The worst exit of the phases that ran."""
+    root = paths.code_root() if root is None else root
     with tempfile.TemporaryDirectory(prefix="facade-") as folder:
         folder = pathlib.Path(folder)
         settings_file = folder / "settings.json"

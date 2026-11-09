@@ -7,7 +7,9 @@ import pytest
 import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
-from facade import ROOT
+from cryptobench import paths
+
+ROOT = paths.code_root()
 from facade import check as check_module
 from facade.check import check
 from facade.tree import OVERRIDDEN, PACKAGED, direction_problems

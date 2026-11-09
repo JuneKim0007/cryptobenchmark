@@ -10,7 +10,7 @@ import sys
 import yaml
 
 import effective_view
-from repo import ROOT
+from cryptobench import paths
 from results import select
 
 SECTIONS = ("run", "policy", "analysis")
@@ -48,8 +48,8 @@ def explain(global_file, effective_file):
 
 def main():
     parser = argparse.ArgumentParser(description="show each resolved setting and where it came from")
-    parser.add_argument("--config", default=str(ROOT / "config/global.yaml"), help="the global file the run used")
-    parser.add_argument("--results", default=str(ROOT / "results"), help="results root (default: results/)")
+    parser.add_argument("--config", default=str(paths.repo().default_global), help="the global file the run used")
+    parser.add_argument("--results", default=str(paths.repo().default_results), help="results root (default: results/)")
     parser.add_argument("--device-id", help="the folder under the results root; needed when it holds several")
     options = parser.parse_args()
     effective = select.device_folder(options.results, options.device_id) / "configuration" / "effective.yaml"

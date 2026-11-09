@@ -9,7 +9,7 @@ from device.capture import CaptureError
 from device.identity import DeviceIdError, device_id
 from failure import fail, one_line
 from global_file import global_config
-from repo import BENCHMARK, ROOT
+from cryptobench import paths
 from results import layout as results_layout
 from results import run_inputs
 from results.manifest import manifest
@@ -77,7 +77,7 @@ def identify(options, configuration, device):
 
 
 def results_root(options):
-    return pathlib.Path(options.results or ROOT / "results").expanduser().resolve()
+    return pathlib.Path(options.results or paths.repo().default_results).expanduser().resolve()
 
 
 def main():
@@ -88,7 +88,7 @@ def main():
     if not options.identify:
         config_check.parsed(configuration)
     dependencies.check(options, configuration)
-    device = Device(BENCHMARK, options.stream, options.stacktrace) if options.device else None
+    device = Device(paths.repo().gradle_root, options.stream, options.stacktrace) if options.device else None
     if device:
         device.connect()
     if options.identify:

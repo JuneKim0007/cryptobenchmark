@@ -6,12 +6,12 @@ from perfrepair.catalog.screening import SCREENING
 from perfrepair.guide.settings_tree import llm_tree, packaged_catalogs
 from stages.config_check import ConfigCheckError, parse_all
 
-from facade import ROOT
+from cryptobench import paths
 from facade import tree as settings_tree
 from facade.index import Index, SettingsIndexError, read_index
 from facade.tree import CATALOG, CRYPTO, LLM, OVERRIDDEN, PACKAGED, ROOT_SIDE, Node
 
-CRYPTO_CATALOGS = ROOT / "apps/benchmark/modules/preparation/src/main/resources"
+CRYPTO_CATALOGS = paths.repo().preparation_resources
 SCREENING_KEY = "device.screening.catalog"
 
 

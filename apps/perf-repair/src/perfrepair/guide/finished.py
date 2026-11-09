@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from cryptobench import paths
 from ..ai.select.job import NAME as SELECT
 from ..catalog.upgrades import CATALOG as UPGRADES
 from ..app.find.sources import BUILD_NAMES, CATALOG, walk
@@ -14,22 +15,21 @@ from ..stop.halt import Coded
 from .app_steps import device_config
 from .state import Guide
 
-PACKAGE = Path(__file__).resolve().parents[1]
 # the code that turns an app tree into scopes, dossiers, edits and a harness.yaml: a change reruns the app
 SCOPER = ("app", "scope", "source", "result", "repair")
 
 
 def _scoper_files(name: str) -> list[Path]:
     # a renamed package would silently leave the digest, and no app would rerun
-    files = sorted(p for p in (PACKAGE / name).rglob("*") if p.suffix in (".py", ".yaml"))
+    files = sorted(p for p in (paths.PERFREPAIR.path / name).rglob("*") if p.suffix in (".py", ".yaml"))
     if not files:
-        raise Coded(f"missing_file: {PACKAGE / name} holds no scoper code; finished.SCOPER names it")
+        raise Coded(f"missing_file: {paths.PERFREPAIR.path / name} holds no scoper code; finished.SCOPER names it")
     return files
 
 
 def scoper_version() -> str:
     files = [p for name in SCOPER for p in _scoper_files(name)]
-    return sha256_text("\n".join(f"{p.relative_to(PACKAGE)} {sha256_file(p)}" for p in files))
+    return sha256_text("\n".join(f"{p.relative_to(paths.PERFREPAIR.path)} {sha256_file(p)}" for p in files))
 
 
 def _harness_version(g: Guide) -> str:

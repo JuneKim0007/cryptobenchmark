@@ -1,7 +1,7 @@
 """The digest of the code from a harness.yaml to a checked harness: perf-repair reads it from --identify, and a change reruns its apps."""
 import hashlib
 
-from repo import ROOT
+from cryptobench import paths
 
 CODE = ("apps/benchmark-runner/scope/*.py", "apps/benchmark-runner/scope_generate.py", "apps/benchmark/modules/android/src/androidTest/**/Scope*.kt")
 
@@ -14,8 +14,9 @@ def _sha256(data):
     return hashlib.sha256(data).hexdigest()
 
 
-def digest(root=ROOT, patterns=CODE):
+def digest(root=None, patterns=CODE):
     """A pattern that matches nothing is an error: after a move the digest would stop seeing those files, and no app would rerun."""
+    root = paths.code_root() if root is None else root
     lines = []
     for pattern in patterns:
         files = sorted(root.glob(pattern))

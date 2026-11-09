@@ -12,19 +12,17 @@ from typing import Callable
 from ...child.deadline import Deadline
 from ...child.env import child_env
 from ...config.timeouts import pipeline_seconds
+from cryptobench import paths
 from cryptobench.coded import InputError, code_in
 from ...log import run_id
 from ...stop import terminate
 from ...run_dir import PIPELINE_LOGS
 
-PIPELINE = Path("apps/benchmark-runner/pipeline.py")
-DEPENDENCIES = Path("apps/benchmark-runner/dependencies.py")
 MISSING_DEPENDENCY = "missing_dependency: "
 # the id is known only to the run, so the run says where its manifest went
 WROTE_MANIFEST = re.compile(r"^wrote:\s+(.*/manifest\.yaml)$")
 IDENTITY = re.compile(r"^identity:\s+(\{.*\})$")
 STAGES = {"configure": [], "bench": ["--bench"], "device": ["--device"]}
-CHECKOUT = Path(__file__).resolve().parents[6]
 
 
 class BenchmarkRunError(RuntimeError):
@@ -36,10 +34,7 @@ class BenchmarkRunError(RuntimeError):
 
 
 def benchmark_root(explicit: Path | str | None = None) -> Path:
-    root = Path(explicit or os.environ.get("CRYPTOBENCH_ROOT") or CHECKOUT)
-    if not (root / PIPELINE).is_file():
-        raise BenchmarkRunError(f"no {PIPELINE} under {root}: pass the benchmark root or set CRYPTOBENCH_ROOT")
-    return root.resolve()
+    return paths.benchmark_root(explicit, error=BenchmarkRunError)
 
 
 def _chosen(config: Path | None) -> list[str]:
@@ -50,7 +45,7 @@ def _chosen(config: Path | None) -> list[str]:
 def check_dependencies(config: Path | None, on_device: bool, benchmark: Path | str | None = None) -> None:
     """apps/benchmark-runner/dependencies.py: the modules this device stage's pipeline would need, before anything spawns it."""
     root = benchmark_root(benchmark)
-    command = [sys.executable, str(root / DEPENDENCIES), *_chosen(config), "--device" if on_device else "--bench"]
+    command = [sys.executable, str(paths.repo(root).dependencies), *_chosen(config), "--device" if on_device else "--bench"]
     done = subprocess.run(command, cwd=root, capture_output=True, text=True, env=child_env(), check=False)
     if done.returncode == 0:
         return
@@ -64,7 +59,7 @@ def check_dependencies(config: Path | None, on_device: bool, benchmark: Path | s
 def identify(config: Path | None, on_device: bool, benchmark: Path | str | None = None) -> dict:
     """pipeline.py --identify: deviceId, mode, config and input digests, before any probe; nothing is written."""
     root = benchmark_root(benchmark)
-    command = [sys.executable, str(root / PIPELINE), *_chosen(config), "--identify", *(["--device"] if on_device else [])]
+    command = [sys.executable, str(paths.repo(root).pipeline), *_chosen(config), "--identify", *(["--device"] if on_device else [])]
     seconds = pipeline_seconds()
     with subprocess.Popen(command, cwd=root, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
                           env=child_env(), start_new_session=True) as process, Deadline(process, seconds) as deadline:
@@ -135,7 +130,7 @@ def run_pipeline(config: Path | None, results: Path | None, stage: str = "config
         raise ValueError(f"stage {stage!r} is not one of {tuple(STAGES)}")
     root = benchmark_root(benchmark)
     target = ["--harness", str(harness)] if harness else ["--results", str(Path(results).resolve())]
-    command = [sys.executable, str(root / PIPELINE), *_chosen(config), *target, *STAGES[stage], *extra]
+    command = [sys.executable, str(paths.repo(root).pipeline), *_chosen(config), *target, *STAGES[stage], *extra]
     log_path = transcript(device)
     # the call's first line, so a reference lands on this call among the run's others
     ref = f"{log_path}:{_lines(log_path) + 1}"

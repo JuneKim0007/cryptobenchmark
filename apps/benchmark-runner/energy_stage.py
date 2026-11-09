@@ -6,9 +6,9 @@ import yaml
 import timeouts
 from device.adb import DeviceError, android_home
 from failure import one_line
-from repo import RUNNER
+from cryptobench import paths
 
-sys.path.append(str(RUNNER / "energy"))
+paths.add_energy_imports()
 from capture import capture, source as source_of  # noqa: E402
 from sources import SOURCES  # noqa: E402
 from sources.runner import EnergyError, Host  # noqa: E402

@@ -9,7 +9,7 @@ from typing import NamedTuple
 def packaged(package: str, name: str = "") -> Path:
     """The package's own folder when name is empty."""
     root = files(package)
-    return Path(str(root.joinpath(name) if name else root))
+    return Path(str(root.joinpath(name) if name else root)).resolve()
 
 
 class PackagedFile(NamedTuple):

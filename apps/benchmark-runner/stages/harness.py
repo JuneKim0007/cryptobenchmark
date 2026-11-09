@@ -5,7 +5,7 @@ import yaml
 
 from device.identity import capture_id
 from failure import fail
-from repo import BENCHMARK
+from cryptobench import paths
 from results import layout as results_layout
 from results.manifest import manifest
 from scope import generate as scope_generate
@@ -21,7 +21,7 @@ FAILED_PLAN = "scoped-plan.failed.yaml"
 
 def generate_scopes(options, scoped):
     started = time.monotonic()
-    plan, compiled = scope_generate.generate(options.harness, BENCHMARK, scoped)
+    plan, compiled = scope_generate.generate(options.harness, paths.repo().gradle_root, scoped)
     elapsed(f"generate and compile {len(compiled)} scopes", started)
     if not compiled:
         fail(f"nothing_to_check: no scope compiled, see {scoped.parent / FAILED_PLAN}")
@@ -78,7 +78,7 @@ def harness_run(options, configuration, device, results):
                 raise
             manifest(results, "device", configuration, files)
     finally:
-        scope_generate.clean(BENCHMARK)
+        scope_generate.clean(paths.repo().gradle_root)
 
 
 def checked_folder(options):

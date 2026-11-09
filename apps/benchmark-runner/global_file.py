@@ -3,7 +3,7 @@ import os
 import pathlib
 
 from failure import fail
-from repo import ROOT
+from cryptobench import paths
 
 
 def global_config(argument):
@@ -12,7 +12,7 @@ def global_config(argument):
             if not pathlib.Path(named).is_file():
                 fail(f"missing_file: {named} ({where})")
             return pathlib.Path(named).resolve()
-    for candidate in (pathlib.Path.home() / ".config/cryptobench/global.yaml", ROOT / "config/global.yaml"):
+    for candidate in (paths.user_global(), paths.repo().default_global):
         if candidate.is_file():
             return candidate.resolve()
     fail("no global.yaml: pass --config, set CRYPTOBENCH_CONFIG, or keep config/global.yaml")

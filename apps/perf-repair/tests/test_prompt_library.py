@@ -2,7 +2,9 @@ import pytest
 
 from perfrepair.dto.prompt import CorrectionPrompt
 from perfrepair.ai.runtime.prompt import PromptError, PromptLibrary
-from perfrepair.ai.runtime.prompt.library import PACKAGED
+from cryptobench import paths
+
+PACKAGED = paths.PROMPTS.path
 
 
 def test_packaged_prompts_load_and_fill_only_declared_values():

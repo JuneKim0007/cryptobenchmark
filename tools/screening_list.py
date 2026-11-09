@@ -4,9 +4,11 @@ import pathlib
 
 import yaml
 
-ROOT = pathlib.Path(__file__).resolve().parent.parent
+from cryptobench import paths
 
-CATALOG = ROOT / "apps/perf-repair/src/perfrepair/catalog/screening.yaml"
+ROOT = paths.code_root()
+
+CATALOG = paths.repo().perf_repair_source / "perfrepair/catalog/screening.yaml"
 DOC = ROOT / "apps/perf-repair/docs/screening-list.md"
 UNSOURCED = "unsourced"
 

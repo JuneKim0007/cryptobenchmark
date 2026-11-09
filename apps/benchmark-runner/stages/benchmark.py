@@ -4,7 +4,7 @@ import subprocess, sys, time
 import bundled, dependencies, effective_view, energy_stage, gradle_runner, timeouts
 from energy_session import DRY_CALLS, EnergySession
 from failure import fail, one_line
-from repo import RUNNER
+from cryptobench import paths
 from session import case_isolation, energy_hook, passes, variant_order, warmup
 from session import measure as measure_session
 from stages import guide, not_measured
@@ -39,7 +39,7 @@ def measure_on_device(run, one, captures, preparation, isolation, repetitions, f
 def dry_pass(session, into, preparation, problems, guarded):
     """Beside a timed run its failure costs only energy; alone it is the whole measurement."""
     print("measure:   EnergyDryBenchmark inside a host trace session")
-    step = lambda: session.dry_pass(RUNNER / "energy/energy.pbtx", into / "traces/dry.pftrace", into / DRY_CALLS, preparation)
+    step = lambda: session.dry_pass(paths.repo().energy / "energy.pbtx", into / "traces/dry.pftrace", into / DRY_CALLS, preparation)
     energy_stage.guarded(problems, step) if guarded else step()
 
 
@@ -61,7 +61,7 @@ def analyse(results, files, effective, preparation, benchmark, written, repetiti
 def drawing_failed(script, *arguments):
     """The reason this analysis script failed, else None; what it says on stderr still reaches the run's output."""
     try:
-        done = timeouts.run("analysis", [sys.executable, str(RUNNER / script), *arguments], stderr=subprocess.PIPE, text=True, check=False)
+        done = timeouts.run("analysis", [sys.executable, str(paths.repo().runner / script), *arguments], stderr=subprocess.PIPE, text=True, check=False)
     except timeouts.StepTimeout as error:
         return one_line(error)
     if done.returncode == 0:

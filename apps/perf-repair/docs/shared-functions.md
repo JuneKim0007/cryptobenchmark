@@ -11,11 +11,6 @@
 | `args_schema(properties, required)` | `src/perfrepair/ai/tools/tool.py` | `{'type': 'object', 'properties': properties, 'required': list(required), 'additionalProperties': False}` | ai.review.job, ai.select.job, ai.tools.catalogue_read |
 | `app_id(device, path)` | `src/perfrepair/app/facts/path_id.py` | The folder for --app: its own id, else the unit of a multi-root folder that recorded this path as its root. | ai.__main__, repair.__main__, report.__main__ |
 | `path_id(path)` | `src/perfrepair/app/facts/path_id.py` | - | app.__main__, guide.state, guide.target_file |
-| `algorithm_id(engine_type, canonical)` | `../../lib/cryptobench/cryptobench/catalogue/algorithms.py` | `f'{engine_type}{SEPARATOR}{canonical}'` | catalog.groups, catalog.views, probe.identified, validation.catalogue_entry |
-| `algorithms()` | `../../lib/cryptobench/cryptobench/catalogue/algorithms.py` | `load()` | catalog.groups, catalog.types, catalog.views |
-| `group_catalog()` | `../../lib/cryptobench/cryptobench/catalogue/groups.py` | `load(CATALOG)` | ai.parse.grouping_assign.render, catalog.identity, catalog.views, grouping.report.candidates +6 |
-| `interchange()` | `../../lib/cryptobench/cryptobench/catalogue/interchange.py` | `load()` | ai.parse.grouping_assign.render, catalog.groups, catalog.signature |
-| `fold(name)` | `../../lib/cryptobench/cryptobench/catalogue/names.py` | `name.upper()` | catalog.algorithms, catalog.deviations, catalog.groups, catalog.screening +11 |
 | `function_parameters(resolved)` | `src/perfrepair/catalog/resolved.py` | Each value by its canonical digest name: providers report one digest under different spellings. | catalog.signature, grouping.report.rules, probe.identified |
 | `types()` | `src/perfrepair/catalog/types.py` | `of_catalogues(algorithms())` | catalog.upgrades, repair.dossier, validation.boundary |
 | `add_config_arg(parser)` | `src/perfrepair/config/args.py` | - | ai.runtime.gateway.args, app.__main__, data_handler.inbound.__main__, grouping.__main__ +3 |
@@ -33,14 +28,7 @@
 | `write_used(device, apps)` | `src/perfrepair/device/used.py` | - | device.stage, device.stage_pass, guide.device_steps, guide.gate_steps |
 | `admits(max_change, change)` | `src/perfrepair/dto/change.py` | `change in CHANGES and CHANGES.index(change) <= CHANGES.index(max_change)` | ai.select.unit_candidates, result.candidates, validation.dossiers.document, validation.dossiers.dossier +1 |
 | `output_changes(diff)` | `src/perfrepair/dto/change.py` | `diff is not None and diff.output != SAME` | result.change, result.options, validation.dossiers.dossier |
-| `parse_yaml(text, where, code, shape, error)` | `../../lib/cryptobench/cryptobench/document.py` | An empty text is an empty shape; YAML that does not parse, or parses to another shape, is `<code>: <where>: ...`. | catalog.bundled_providers, catalog.screening, files |
 | `reason_code(reason)` | `src/perfrepair/dto/dossier.py` | A noOptions reason's code; `no_evidence` names its metrics after a colon, `person_judges` its reject reasons. | ai.select.upgrades, repair.dossier, result.configurations, validation.dossiers.document |
-| `algorithm_of(item)` | `../../lib/cryptobench/cryptobench/catalogue/grouping.py` | `parse_qualified(item)[1]` | ai.select.options, ai.select.render, ai.select.upgrade_render, result.upgrades +1 |
-| `parse_qualified(text)` | `../../lib/cryptobench/cryptobench/catalogue/grouping.py` | - | ai.select.rows, device.delta_config, device.delta_estimate, device.measured_check +5 |
-| `provider_of(item)` | `../../lib/cryptobench/cryptobench/catalogue/grouping.py` | `parse_qualified(item)[2]` | ai.select.options, ai.select.render, ai.select.upgrade_render, catalog.names +6 |
-| `qualified(engine_type, name, provider)` | `../../lib/cryptobench/cryptobench/catalogue/grouping.py` | `SEPARATOR.join((engine_type, name, provider))` | catalog.identity, device.measured_check, device.missing_rows, device.selection_adds +8 |
-| `read_items(doc)` | `../../lib/cryptobench/cryptobench/catalogue/grouping.py` | - | ai.parse.grouping_assign.kind, check.device, check.grouping, device.gate +7 |
-| `read_profiles(doc)` | `../../lib/cryptobench/cryptobench/catalogue/grouping.py` | - | ai.parse.grouping_assign.kind, grouping.interop_plan, review.sheet, validation.grouping.output |
 | `code_made(group)` | `src/perfrepair/dto/grouping_state.py` | `group.startswith(CODE_PREFIX)` | ai.parse.grouping_assign.command, grouping.report.rules, validation.grouping.code_groups, validation.grouping.knowledge |
 | `pair_status(groups, a, b)` | `src/perfrepair/dto/interop.py` | - | result.options, result.unit_dossiers, validation.dossiers.against_run |
 | `required_risks(scope, option)` | `src/perfrepair/dto/replacement.py` | Each risk the scope facts, and the chosen option's when given, imply, with the plain words that imply it. | ai.select.options, ai.select.render, ai.select.unit_candidates, result.upgrades +1 |

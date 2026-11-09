@@ -6,15 +6,15 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Mapping
 
+from cryptobench import paths
 from cryptobench.coded import InputError
 from ..files import read_yaml
 from ..inputs.resolve import CLI, Candidate, choose
 from ..inputs.table import ROLE_KEYS, Layer, RoleRow, Row
-from .dotenv import ROOT
 from .settings import ConfigError, Settings, parse
 
 LOG = logging.getLogger(__name__)
-DEFAULT_FILE = ROOT / "perfrepair.yaml"
+DEFAULT_FILE = paths.repo().perfrepair_settings
 CONFIG_ENV = "PERFREPAIR_CONFIG"
 GATEWAY_ENV = {"gateway": "PERFREPAIR_AGENT", "auth": "PERFREPAIR_AUTH", "model": "PERFREPAIR_MODEL", "effort": "PERFREPAIR_EFFORT"}
 

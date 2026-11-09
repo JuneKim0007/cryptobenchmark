@@ -6,10 +6,10 @@ import sys
 import timeouts
 
 from failure import fail, one_line
-from repo import BENCHMARK
+from cryptobench import paths
 
-WRAPPER = BENCHMARK / "gradlew"
-CLI = BENCHMARK / "cli"
+WRAPPER = paths.repo().gradlew
+CLI = paths.repo().benchmark_cli
 PASSED_ON = ("warning:", "skipped:", "reused:", "iterations_not_applied:", "allocation_runs_changed:", "not_in_plan:", "no_metrics:",
              "not_converted:", "not_merged:", "energy_not_joined:")
 # the wrapper prints these on stdout the first time it unpacks a distribution, before the tool runs

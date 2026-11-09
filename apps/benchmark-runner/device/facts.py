@@ -5,11 +5,11 @@ import yaml
 
 from device import capture as captured, clocks
 from device.adb import PACKAGE
-from repo import BENCHMARK
+from cryptobench import paths
 
 FACTS = "facts.yaml"
 NATIVE_LIBRARY = "libaffinity.so"
-APK = BENCHMARK / "modules/android/build/outputs/apk/release/android-release.apk"
+APK = paths.repo().apk
 
 
 def rooted(device):

@@ -9,8 +9,10 @@ import sys
 
 import yaml
 
-HERE = pathlib.Path(__file__).resolve().parent
-ROOT = HERE.parents[1]
+from cryptobench import paths
+
+ROOT = paths.code_root()
+HERE = ROOT / "tools/module-isolation"
 LAYERS = HERE / "layers.yaml"
 FROZEN = HERE / "handoff-frozen.txt"
 

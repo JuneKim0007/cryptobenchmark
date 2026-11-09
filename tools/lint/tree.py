@@ -6,10 +6,11 @@ import posixpath
 import re
 import subprocess
 
+from cryptobench import paths
 from lint.markdown import BACKTICK, LINK, clean, map_blocks
 from lint.paths import ENTRY, ROUTERS, graphed, join, local, router_of
 
-ROOT = pathlib.Path(__file__).resolve().parents[2]
+ROOT = paths.code_root()
 
 
 def tracked() -> list[str]:
