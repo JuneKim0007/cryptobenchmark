@@ -16,6 +16,7 @@ dependencies {
     implementation 'org.yaml:snakeyaml:2.3'
     api project(':settings')
     api project(':jca')
+    implementation project(':files')
     testImplementation 'junit:junit:4.13.2'
 }
 

@@ -1,6 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery.write
 
 import io.github.junekim0007.cryptobench.discovery.contract.TrialReport
+import io.github.junekim0007.cryptobench.files.StampedName
 import java.io.File
 
 class TrialYamlWriter(
@@ -12,7 +13,7 @@ class TrialYamlWriter(
 
     fun toYaml(report: TrialReport): String = codec.dump(toDocument(report))
 
-    fun fileName(capturedAtMillis: Long): String = ProbeFileName.of("trial", capturedAtMillis)
+    fun fileName(capturedAtMillis: Long): String = StampedName.of(StampedName.TRIAL, capturedAtMillis)
 
     fun write(report: TrialReport): File =
         directory.create(fileName(report.capturedAtMillis), toYaml(report))

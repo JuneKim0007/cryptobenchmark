@@ -21,7 +21,7 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
 }
 
-val checkedModules = listOf("jca", "discovery", "config", "preparation", "benchmark")
+val checkedModules = listOf("files", "jca", "discovery", "config", "preparation", "benchmark")
 checkedModules.forEach { evaluationDependsOn(":$it") }
 
 tasks.test {

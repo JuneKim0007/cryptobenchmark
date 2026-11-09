@@ -1,6 +1,6 @@
 # module-isolation
 
-Compiles jca, discovery, config, preparation and benchmark each on its own and runs its tests from the module directory.
+Compiles files, jca, discovery, config, preparation and benchmark each on its own and runs its tests from the module directory.
 `architecture` checks their classes against `layers.yaml`; `handoff_check.py` checks androidTest and cli sources ([rules](../../docs/contributing/code.md#dependency-rules)).
 
 ```

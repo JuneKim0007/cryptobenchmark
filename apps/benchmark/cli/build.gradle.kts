@@ -27,6 +27,7 @@ sourceSets {
     main {
         kotlin.setSrcDirs(listOf(
             "../modules/jca/src/main/kotlin",
+            "../modules/files/src/main/kotlin",
             "../modules/environment/discovery/src/main/kotlin",
             "../modules/settings/src/main/kotlin",
             "../modules/config/src/main/kotlin",

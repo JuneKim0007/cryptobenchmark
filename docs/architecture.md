@@ -29,17 +29,18 @@ config/global.yaml + config/testsets/*.yaml
 
 | project | directory | project dependencies | libraries |
 |---|---|---|---|
+| `:files` | `apps/benchmark/modules/files` | none | none |
 | `:jca` | `apps/benchmark/modules/jca` | none | none |
-| `:environment:discovery` | `apps/benchmark/modules/environment/discovery` | `api :jca` | snakeyaml 2.3 |
+| `:environment:discovery` | `apps/benchmark/modules/environment/discovery` | `api :jca`, `implementation :files` | snakeyaml 2.3 |
 | `:settings` | `apps/benchmark/modules/settings` | none | none |
-| `:config` | `apps/benchmark/modules/config` | `implementation :settings` | snakeyaml 2.3 |
-| `:preparation` | `apps/benchmark/modules/preparation` | `api :settings`, `api :jca` | snakeyaml 2.3 |
-| `:benchmark` | `apps/benchmark/modules/benchmark` | `api :preparation` | snakeyaml 2.3 |
-| `:android` | `apps/benchmark/modules/android` | `androidTestImplementation :benchmark`, `:environment:discovery` | benchmark-junit4 1.5.0; androidTest: androidx.test:runner 1.5.2, junit 4.13.2 |
+| `:config` | `apps/benchmark/modules/config` | `implementation :settings`, `implementation :files` | snakeyaml 2.3 |
+| `:preparation` | `apps/benchmark/modules/preparation` | `api :settings`, `api :jca`, `implementation :files` | snakeyaml 2.3 |
+| `:benchmark` | `apps/benchmark/modules/benchmark` | `api :preparation`, `implementation :files` | snakeyaml 2.3 |
+| `:android` | `apps/benchmark/modules/android` | `androidTestImplementation :benchmark`, `:environment:discovery`, `:files` | benchmark-junit4 1.5.0; androidTest: androidx.test:runner 1.5.2, junit 4.13.2 |
 
 - JVM modules test with junit 4.13.2.
 
-- `apps/benchmark/settings.gradle` includes the six projects; `rootProject.name = cryptobenchmark`.
+- `apps/benchmark/settings.gradle` includes the seven projects; `rootProject.name = cryptobenchmark`.
 - Package root: `io.github.junekim0007.cryptobench`.
 - Root buildscript pins AGP 8.13.2 and Kotlin plugin 2.2.21.
 - One wrapper, `apps/benchmark/gradlew`: Gradle 9.5.1.
@@ -71,11 +72,12 @@ config/global.yaml + config/testsets/*.yaml
 
 | subproject | compiled sources | libraries |
 |---|---|---|
-| `discovery` | `apps/benchmark/modules/environment/discovery/src/main/kotlin` | snakeyaml 2.3; junit 4.13.2 (test) |
-| `config` | `apps/benchmark/modules/config` + `apps/benchmark/modules/settings` | same |
-| `preparation` | `apps/benchmark/modules/preparation` + `apps/benchmark/modules/settings` | same |
-| `benchmark` | `apps/benchmark/modules/benchmark` + `apps/benchmark/modules/preparation` + `apps/benchmark/modules/settings` | same |
-| `architecture` | tests only: the four subprojects' compiled classes against `tools/module-isolation/layers.yaml` | archunit 1.5.1, snakeyaml 2.3, junit 4.13.2 (test) |
+| `files` | `apps/benchmark/modules/files/src/main/kotlin` | junit 4.13.2 (test) |
+| `discovery` | `apps/benchmark/modules/environment/discovery/src/main/kotlin` + `apps/benchmark/modules/files` | snakeyaml 2.3; junit 4.13.2 (test) |
+| `config` | `apps/benchmark/modules/config` + `apps/benchmark/modules/settings` + `apps/benchmark/modules/files` | same |
+| `preparation` | `apps/benchmark/modules/preparation` + `apps/benchmark/modules/settings` + `apps/benchmark/modules/files` | same |
+| `benchmark` | `apps/benchmark/modules/benchmark` + `apps/benchmark/modules/preparation` + `apps/benchmark/modules/settings` + `apps/benchmark/modules/files` | same |
+| `architecture` | tests only: the module subprojects' compiled classes against `tools/module-isolation/layers.yaml` | archunit 1.5.1, snakeyaml 2.3, junit 4.13.2 (test) |
 
 - `:settings` and `:android` are not subprojects.
 - `config` resources: `algorithms/algorithm-names.yaml`, on the classpath of every build that compiles `apps/benchmark/modules/config` (root, isolation, cli); perf-repair packages a copy its tests compare with it.

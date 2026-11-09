@@ -2,20 +2,25 @@
 root: io.github.junekim0007.cryptobench
 
 modules:
+  files:
+    uses: {}
   jca:
     uses: {}
   discovery:
     uses:
       jca: [failure.Attempt, failure.ErrorText]
+      files: all
   settings:
     uses: {}
   config:
     uses:
       settings: [Facts, HarnessSettings, Metric, Unsupported]
+      files: all
   preparation:
     uses:
       jca: [failure.Attempt, failure.ErrorText]
       settings: [HarnessSettings, Metric]
+      files: all
   benchmark:
     uses:
       jca: [failure.Attempt]
@@ -23,6 +28,7 @@ modules:
         prepare.Listing, prepare.PreparationException, prepare.StoppedOnFailureException, record.PreparedFile, report.Skip, report.SkipFile,
         global.GlobalSettings, global.OnFailure, shared.FailureText]
       settings: [HarnessSettings, EnergySettings, CpuSettings, Metric]
+      files: all
 
 # The one file that may name each androidx entry point: a second config or loop would bypass the collection between samples.
 owned:
@@ -44,11 +50,13 @@ consumers:
         run.CaseSettings, run.compose.CaseRuns, run.energy.Energy, run.energy.WindowMarker]
       settings: [CpuSettings, Metric]
       jca: [failure.Attempt]
+      files: all
       discovery: [Discovery, bundled.BundledInstaller, bundled.BundledProviders, bundled.ProviderFactory, write.ProbeDirectory, write.YamlCodec]
   cli:
     sources: apps/benchmark/cli/src/main/kotlin
     uses:
       jca: all
+      files: all
       discovery: all
       settings: all
       config: all

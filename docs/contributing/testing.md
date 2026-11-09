@@ -5,10 +5,10 @@
 - `docs/tools.md` : tools/ builds, commands and outputs
 
 ## Rules
-- isolation: a change to jca, discovery, config, preparation or benchmark passes `apps/benchmark/gradlew -p tools/module-isolation :<m>:test` for each touched module (`jca`, `discovery`, `config`, `preparation`, `benchmark`).
+- isolation: a change to jca, discovery, config, preparation or benchmark passes `apps/benchmark/gradlew -p tools/module-isolation :<m>:test` for each touched module (`files`, `jca`, `discovery`, `config`, `preparation`, `benchmark`).
 - isolation: a module that needs another module's classes outside the table in `docs/architecture.md` fails here; fix the dependency, never the isolation build.
 - contract: a change to discovery, settings or config passes `apps/benchmark/gradlew -p apps/benchmark/cli test`.
-- android api: a change to jca, discovery, settings, preparation or benchmark passes `apps/benchmark/gradlew -p tools/android-api-check compileKotlin`; pass `-PandroidJar=<android.jar>` when `$ANDROID_HOME/platforms/android-36/android.jar` is absent.
+- android api: a change to files, jca, discovery, settings, preparation or benchmark passes `apps/benchmark/gradlew -p tools/android-api-check compileKotlin`; pass `-PandroidJar=<android.jar>` when `$ANDROID_HOME/platforms/android-36/android.jar` is absent.
 - settings: a change to `:settings` passes `apps/benchmark/gradlew -p apps/benchmark :settings:test`.
 - android: a change under `apps/benchmark/modules/android/` passes `apps/benchmark/gradlew -p apps/benchmark build :android:compileReleaseAndroidTestKotlin` (needs `ANDROID_HOME`).
 - examples: regenerate committed `example/` files only after a schema change: `apps/benchmark/gradlew -p tools/module-isolation test -Dexamples.update=true`; review the diff before committing.

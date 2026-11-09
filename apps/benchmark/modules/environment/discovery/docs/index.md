@@ -78,7 +78,6 @@ apps/benchmark/modules/environment/discovery/src/main/kotlin/write/CaptureDocume
 apps/benchmark/modules/environment/discovery/src/main/kotlin/write/DocumentFields.kt : typed reads of document keys
 apps/benchmark/modules/environment/discovery/src/main/kotlin/write/EnvironmentYamlWriter.kt : writes probe_<utc>.yaml
 apps/benchmark/modules/environment/discovery/src/main/kotlin/write/ProbeDirectory.kt : output directory: create-new, newest, sibling lookup
-apps/benchmark/modules/environment/discovery/src/main/kotlin/write/ProbeFileName.kt : <prefix>_<yyyyMMddTHHmmssZ>.yaml naming
 apps/benchmark/modules/environment/discovery/src/main/kotlin/write/RequirementDocument.kt : requirements YAML schema (of, parse)
 apps/benchmark/modules/environment/discovery/src/main/kotlin/write/RequirementYamlWriter.kt : writes requirements_<utc>.yaml
 apps/benchmark/modules/environment/discovery/src/main/kotlin/write/TrialDocument.kt : trial YAML schema (of, parse)

@@ -15,6 +15,7 @@ kotlin {
 dependencies {
     implementation 'org.yaml:snakeyaml:2.3'
     implementation project(':settings')
+    implementation project(':files')
     testImplementation 'junit:junit:4.13.2'
 }
 

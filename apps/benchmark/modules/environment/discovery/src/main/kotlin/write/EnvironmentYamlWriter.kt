@@ -1,6 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery.write
 
 import io.github.junekim0007.cryptobench.discovery.contract.CapturedEnvironment
+import io.github.junekim0007.cryptobench.files.StampedName
 import java.io.File
 
 class EnvironmentYamlWriter(
@@ -12,7 +13,7 @@ class EnvironmentYamlWriter(
 
     fun toYaml(environment: CapturedEnvironment): String = codec.dump(toDocument(environment))
 
-    fun fileName(capturedAtMillis: Long): String = ProbeFileName.of("probe", capturedAtMillis)
+    fun fileName(capturedAtMillis: Long): String = StampedName.of(StampedName.PROBE, capturedAtMillis)
 
     fun write(environment: CapturedEnvironment): File =
         directory.create(fileName(environment.capturedAtMillis), toYaml(environment))

@@ -8,10 +8,12 @@
 - generality: module main code names no device, provider or algorithm; selection comes from `config/` and the recorded capture and trial; tests, fixtures and `config/` may name them.
 - capability: probe a per-device difference, record it in the trial or facts, and select behaviour from the recorded value; never branch on a provider name.
 - dependency: add no project dependency beyond the table in `docs/architecture.md`.
-- dependency: `:jca` and `:settings` depend on no project; `:environment:discovery` depends only on `:jca`.
+- dependency: `:jca`, `:settings` and `:files` depend on no project; `:environment:discovery` depends only on `:jca` and `:files`.
+- files: every file and folder name a Kotlin stage names is a constant of `:files`.
 - contract: a stage reads another stage's output from its file (capture, trial, inventory, effective, prepared, benchmark.json), never through that stage's classes.
 - shared code: a module compiles against another module's classes only through the handoff types below; widening a list is a reviewed change to this guide.
 - shared code: `:environment:discovery` and `:preparation` use jca's `Attempt`, `ErrorText`; `:benchmark` and `:android` androidTest use jca's `Attempt`; it is the one catch rule (an Exception or LinkageError is a result, any other Error escapes), never copied.
+- shared code: `:environment:discovery`, `:config`, `:preparation`, `:benchmark` and `:android` androidTest use `:files` without a list; it holds names and pure rules only.
 - shared code: `:config` uses settings' `Facts`, `HarnessSettings`, `Metric`, `Unsupported`.
 - shared code: `:preparation` uses settings' `HarnessSettings`, `Metric`.
 - shared code: `:benchmark` uses preparation's `BenchmarkCase`, `Operation`, `PreparedCase`, `Invocations`, `Invocation`, and for `RunnablePlan` `Preparation`, `Listing`, `PreparationException`, `StoppedOnFailureException`, `PreparedFile`, `Skip`, `SkipFile`, `GlobalSettings`, `OnFailure`, `FailureText`, and settings' `HarnessSettings`, `EnergySettings`, `CpuSettings`, `Metric`.

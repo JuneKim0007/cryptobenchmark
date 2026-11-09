@@ -10,6 +10,7 @@
 - discovery: probe, trial, capture fields → `apps/benchmark/modules/environment/discovery/docs/index.md`
 - config: authored files, inventory, effective, precedence → `apps/benchmark/modules/config/docs/index.md`
 - settings: harness key table, device support → `apps/benchmark/modules/settings/docs/index.md`
+- files: every Kotlin file and folder name, stamps, beside-a-file rules → `apps/benchmark/modules/files/docs/index.md`
 - jca: the catch rule, provider error text → `apps/benchmark/modules/jca/docs/index.md`
 - preparation: cases, keys, inputs, parameters → `apps/benchmark/modules/preparation/docs/index.md`
 - benchmark: plan check, measurement, `benchmark.json` → `apps/benchmark/modules/benchmark/docs/index.md`
@@ -107,6 +108,7 @@ apps/benchmark/modules/android/ : instrumentation app: Jetpack harness, device p
 apps/benchmark/modules/benchmark/ : plan check and measurement of prepared cases; benchmark.json
 apps/benchmark/modules/config/ : capture and trial to inventory.yaml; inventory and config/ to effective.yaml
 apps/benchmark/modules/environment/discovery/ : provider and service probe, default-run and requirement trials, capture, trial and requirements YAML
+apps/benchmark/modules/files/ : every Kotlin file and folder name, stamps and beside-a-file rules; python's CONTRACT agrees
 apps/benchmark/modules/jca/ : the one catch rule and the provider-message scrubber every module that calls a provider shares
 apps/benchmark/modules/preparation/ : effective.yaml to prepared cases, each called once; prepared.yaml, skipped.yaml
 apps/benchmark/modules/settings/ : harness key table shared by config, preparation and benchmark

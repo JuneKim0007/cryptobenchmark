@@ -18,6 +18,7 @@ import io.github.junekim0007.cryptobench.discovery.write.RequirementYamlWriter
 import io.github.junekim0007.cryptobench.discovery.write.TrialDocument
 import io.github.junekim0007.cryptobench.discovery.write.TrialYamlWriter
 import io.github.junekim0007.cryptobench.discovery.write.YamlCodec
+import io.github.junekim0007.cryptobench.files.StampedName
 import java.io.File
 import java.security.Provider
 
@@ -50,13 +51,13 @@ class Discovery(
     }
 
     fun reusable(runtime: RuntimeInfo = DeviceRuntimeReader.read()): ReusedRun? {
-        val captureFile = directory.newest("probe") ?: return null
+        val captureFile = directory.newest(StampedName.PROBE) ?: return null
         val capture = Attempt.of { CaptureDocument.parse(codec.load(captureFile.readText())) }.getOrNull() ?: return null
         if (capture.runtime != runtime) {
             return null
         }
-        val trialFile = directory.named("trial", captureFile)
-        val requirementsFile = directory.named(RequirementYamlWriter.PREFIX, captureFile)
+        val trialFile = directory.named(StampedName.TRIAL, captureFile)
+        val requirementsFile = directory.named(StampedName.REQUIREMENTS, captureFile)
         if (!trialFile.isFile || !requirementsFile.isFile) {
             return null
         }
