@@ -39,7 +39,8 @@ Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 | | `thermalThrottleSleepSeconds` | unset | `>= 0`, else `negative`; `--device`: passed as `-e androidx.benchmark.thermalThrottle.sleepDurationSeconds`; unset keeps Jetpack's default |
 | | `warmup` | `{iterations: 10, jobs: []}` | `iterations >= 0`, else `negative`, 0 off; `jobs` test-set rules, resolved to the entries they select; `[]` the plan's first 3 cases; `--device` only ([device-session.md](../../../../../docs/device-session.md#warm-up)) |
 | | `caseCooldownSeconds` | `0` | `>= 0`, else `negative`; `--device`: host sleep before every measured case but a session's first, between processes with `isolation: run` ([device-session.md](../../../../../docs/device-session.md#cool-down-and-frequency-caps)) |
-| | `thermalGate` | absent: off | `{enabled?: true, sensors, marginCelsius?: 5, pollSeconds?: 5, timeoutSeconds?: 300}`; `sensors` non-empty when enabled (`missing_field`), the device's thermal HAL names; margin `>= 0`, timeout `>= 0` (`negative`), poll `>= 1` (`not_positive`); `enabled: false` off; written to `effective.yaml` only when set; `--device` only ([device-session.md](../../../../../docs/device-session.md#thermal-gate)) |
+| | `thermalGate` | absent: off | keys in `example/config_global_example.yaml`; needs `isolation: case` |
+| | `launchRetries` | `2` | extra launches of a run that failed for a reason other than heat |
 | | `harness` | empty | key table in `apps/benchmark/modules/settings/docs/settings.md`; energy keys in `docs/energy.md` |
 | `policy` | `onFailure` | `skip` | `stop` or `skip`, case-insensitive; other: `invalid: policy.onFailure` |
 | `analysis` | `charts` | `[iqrBars, throughput, latency, stability]` | names from that list, no duplicates; `[]` draws none; another name fails `invalid: analysis.charts` |

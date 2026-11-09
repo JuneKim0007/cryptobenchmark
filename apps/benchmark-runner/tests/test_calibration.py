@@ -1,7 +1,9 @@
 import json
 import sys
+import types
 
-from session import calibration, case_isolation  # noqa: E402
+from session import calibration, case_isolation, dynamic_temperature  # noqa: E402
+from session import launch as launch_module  # noqa: E402
 
 
 def data(tmp_path, repeat=70_000, ns=1600.0, warmup=1000):
@@ -30,16 +32,17 @@ def launches(monkeypatch, tmp_path, repeats):
         calls.append(1)
         data(tmp_path, repeat=repeats[len(calls) - 1]).rename(pulled)
     monkeypatch.setattr(case_isolation, "launch_case", launch)
-    return case_isolation.measure_case(None, "T", (), "a", file), len(calls)
+    plan = types.SimpleNamespace(gate=dynamic_temperature.Off(), retries=2, test_class="T", arguments=())
+    return launch_module.run_of_case(None, plan, None, "a", [], file), len(calls)
 
 
 def test_a_collapsed_launch_is_measured_again_and_kept_if_the_second_is_good(monkeypatch, tmp_path):
     assert launches(monkeypatch, tmp_path, [1, 70_000]) == (None, 2)
 
 
-def test_two_collapsed_launches_fail_the_case(monkeypatch, tmp_path):
-    failure, count = launches(monkeypatch, tmp_path, [1, 1])
-    assert count == 2 and failure.startswith("case_failed: a: miscalibrated")
+def test_a_launch_collapsed_three_times_fails_the_case(monkeypatch, tmp_path):
+    failure, count = launches(monkeypatch, tmp_path, [1, 1, 1])
+    assert count == 3 and failure.startswith("case_failed: a: miscalibrated")
 
 
 def test_a_good_launch_runs_once(monkeypatch, tmp_path):

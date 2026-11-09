@@ -32,7 +32,6 @@ class EffectiveView(unittest.TestCase):
             "run.isolation": lambda: effective_view.isolation({"run": {}}),
             "run.processRepetitions": lambda: effective_view.process_repetitions({}),
             "run.caseCooldownSeconds": lambda: effective_view.case_cooldown({"run": {}}),
-            "run.thermalGate.enabled": lambda: effective_view.thermal_gate({"run": {"thermalGate": {"sensors": ["s"]}}}),
             "run.warmup.iterations": lambda: warmup.settings({"run": {"warmup": {"jobs": []}}}),
             "run.warmup.jobs": lambda: warmup.settings({"run": {"warmup": {"iterations": 1}}}),
             "run.metrics": lambda: passes.read({"run": {}}, {"none"}),

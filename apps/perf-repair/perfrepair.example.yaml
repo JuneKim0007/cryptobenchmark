@@ -56,7 +56,7 @@ apps:                      # per app: the guide, `ai replace`
 
 timeouts:                  # seconds a child process may run before it is killed with its children
   claude: 3600             # one claude -p call; past it claude_cli_timeout
-  pipeline: 86400          # one pipeline.py call; a device benchmark runs for hours; past it pipeline_timeout
+  pipeline: 518400         # seconds (144 hours), or unlimited; one pipeline.py call; a temperature-gated device benchmark can run for days; past it pipeline_timeout
 
 stops:                     # per code, what it does when it fires (docs/stops.md); a fixed code set here is warned about, ignored
   bundled_missing: warn    # warn: logged, the run goes on | stop: before the benchmark, listing each provider

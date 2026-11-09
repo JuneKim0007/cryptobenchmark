@@ -20,7 +20,7 @@ object GlobalReader {
     // Host-only keys (isolation, passes, warmup, ...) are known here but read by the runner.
     private val RUN_KEYS = listOf(
         "inputSizes", "phases", "metrics", "variants", "processRepetitions", "isolation", "seed", "passes",
-        "thermalThrottleSleepSeconds", "caseCooldownSeconds", "warmup", "thermalGate", "harness",
+        "thermalThrottleSleepSeconds", "caseCooldownSeconds", "warmup", "thermalGate", "launchRetries", "harness",
     )
     private val POLICY_KEYS = listOf("onFailure")
 

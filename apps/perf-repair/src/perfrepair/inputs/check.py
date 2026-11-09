@@ -38,6 +38,14 @@ def check_positive(name: str, value: Any) -> None:
     _check(name, value, isinstance(value, int) and not isinstance(value, bool) and value > 0, "a positive integer")
 
 
+UNLIMITED = "unlimited"
+
+
+def check_positive_or_unlimited(name: str, value: Any) -> None:
+    if value != UNLIMITED:
+        check_positive(name, value)
+
+
 # a run id names runs/run_<id>.json: one path segment
 RUN_ID_FORM = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*")
 

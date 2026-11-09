@@ -4,7 +4,7 @@ import dataclasses, pathlib, time
 import effective_view, gradle_runner
 from device.adb import Device, measure_arguments
 from energy_session import EnergySession
-from session import clocks_hook, cooldown_hook, thermal_gate, thermal_hook
+from session import clocks_hook, cooldown_hook, dynamic_temperature, thermal_gate, thermal_hook
 from stages.took import elapsed
 from cryptobench import paths
 
@@ -22,6 +22,7 @@ class Measuring:
     throttle_sleep: int | None = None
     cooldown: int = 0
     gate: object = None
+    retries: int = 0
 
 
 def convert(run, arguments):
@@ -32,7 +33,7 @@ def convert(run, arguments):
 
 
 def gated(run, document):
-    return dataclasses.replace(run, gate=thermal_gate.start(run.device, effective_view.thermal_gate(document)))
+    return dataclasses.replace(run, gate=dynamic_temperature.opened(run.device, effective_view.thermal_gate(document), run.problems), retries=effective_view.launch_retries(document))
 
 
 def session_arguments(run, document):
@@ -43,11 +44,10 @@ def pass_arguments(run, one):
     return tuple(measure_arguments(run.options.suppress_errors, one.metrics, run.throttle_sleep)) + one.arguments()
 
 
-def timed_hooks(run, one, isolation):
-    """The cool-down, then the gate, so a case's start temperature and clocks are read after both."""
+def timed_hooks(run, one, isolation, gate):
+    """The gate holds in the launch loop, before these; its records join thermal.json here."""
     per_case = isolation == effective_view.CASE_ISOLATION
-    gate = [thermal_gate.Gate(run.gate, run.device, one.label, per_case, run.problems)] if run.gate else []
-    return [cooldown_hook.Cooldown(run.cooldown, one.label, per_case), *gate, clocks_hook.Clocks(run.device), thermal_hook.Thermal(run.device, one.label)]
+    return [cooldown_hook.Cooldown(run.cooldown, one.label, per_case), thermal_gate.GateRecords(gate), clocks_hook.Clocks(run.device), thermal_hook.Thermal(run.device, one.label, gate)]
 
 
 def thermal_flag(process):

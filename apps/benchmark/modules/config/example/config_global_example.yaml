@@ -11,7 +11,23 @@ run:                                     # optional — every key falls back to 
   metrics: [TIME]                        # optional, default [TIME] — TIME | ALLOCATION | CPU_EVENTS
   processRepetitions: 1                  # optional, default 1
   seed: 42                               # optional, default 0
-  thermalGate: {sensors: [BIG, MID, LITTLE], timeoutSeconds: 120}   # optional, default absent = off — --device only
+  thermalGate:                           # optional, absent = off; --device only
+    temperatureKeptCelsius: 36.0         # required: phone skin temperature no run may reach; a run ending at or above it is discarded
+    cooldownMinutes: 3                   # optional, default 3: wait this long, without reading the phone, when it is too hot
+    pollMinutes: 1                       # optional, default 1: then read it this often
+    pollTerminateMinutes: 30             # optional, default 30: still too hot after this long: stop the benchmark
+    discardLimit: 5                      # optional, default 5: runs of one case discarded for heat before giving up on it
+    onDiscardLimit: nextCase             # optional, default nextCase: nextCase | stop
+    readRetries: 2                       # optional, default 2: extra attempts when a temperature reading fails
+    readRetrySeconds: 1                  # optional, default 1: seconds between those attempts
+    startMargin:                         # optional: how many Celsius BELOW temperatureKeptCelsius a run must START
+      dynamic: true                      # optional, default true: adjust during the session; false stays at initialCelsius
+      initialCelsius: 0.25               # optional, default 0.25: start with this margin, so 36.0 - 0.25 = start at or below 35.75
+      backoffFactor: 2                   # optional, default 2: after a discarded run, multiply the margin by this
+      maximumCelsius: 3.0                # optional, default 3.0: the margin never grows past this
+      cleanRunsToRecover: 10             # optional, default 10: this many clean runs in a row narrow the margin...
+      recoveryCelsius: 0.05              # optional, default 0.05: ...by this much, never below initialCelsius
+  launchRetries: 2                       # optional, default 2: a run that failed for a reason other than heat is launched this many more times
   # harness: {iterations: 50, warmupIterations: null, profiling: none}   # optional — omitted here, the harness's defaults apply
 
 policy:                                  # optional

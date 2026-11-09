@@ -3,7 +3,7 @@ import subprocess, sys, time
 
 import bundled, dependencies, effective_view, energy_stage, gradle_runner, timeouts
 from energy_session import EnergySession
-from failure import fail, one_line
+from failure import fail, one_line, warn
 from cryptobench import paths
 from session import case_isolation, energy_hook, passes, variant_order, warmup
 from session import measure as measure_session
@@ -16,9 +16,10 @@ from stages.took import elapsed
 def measure_on_device(run, one, captures, preparation, isolation, repetitions, folder, written):
     device, captures = run.device, one.captures(captures)
     timed = captures - {"dry"}
-    hooks = timed_hooks(run, one, isolation) if timed else []
+    gate = run.gate.session(one.label)
+    hooks = timed_hooks(run, one, isolation, gate) if timed else []
     if captures - {"none"}:
-        dry = lambda into, guarded: dry_pass(run.session, into, preparation, run.problems, guarded)
+        dry = lambda into, guarded: (gate.hold("energy dry pass"), dry_pass(run.session, into, preparation, run.problems, guarded))[1]
         hooks.insert(0, energy_hook.EnergyCapture(run.source, run.session, captures, run.discovery, preparation, run.problems, dry, bool(timed)))
 
     def converted(process):
@@ -32,7 +33,8 @@ def measure_on_device(run, one, captures, preparation, isolation, repetitions, f
     arguments = pass_arguments(run, one)
     plan = measure_session.Plan("CryptoBenchmark", arguments, timed=bool(timed), order=variant_order.interleaved,
                                 cleared=(paths.PREPARED, paths.SKIPPED), stale=(paths.Preparation(preparation).prepared, paths.Preparation(preparation).skipped),
-                                pull_plan=lambda process: (device.pull_plan(preparation), device.pull_pins(process.into)), after_process=converted)
+                                pull_plan=lambda process: (device.pull_plan(preparation), device.pull_pins(process.into)), after_process=converted,
+                                gate=gate, retries=run.retries)
     measure_session.run_session(device, plan, repetitions, isolation, hooks, folder, run.problems)
 
 
@@ -101,10 +103,9 @@ def device_cases(run, document, plan_files, captures, benchmark, preparation):
     """Every pass of the run on the device; the per-process files for the manifest and how many processes ran."""
     chosen, repetitions = passes.read(document, captures), effective_view.process_repetitions(document)
     energy = any(one.captures(captures) - {"none"} for one in chosen)
+    run = gated(run, document)
     push(run.device, run.options, plan_files, (lambda: energy_preflight(run.options, run.source, run.session, run.discovery, run.files)) if energy else None)
     isolation = effective_view.isolation(document)
-    # idle baseline first: after the warm-up the device is hot and the target would never be reached
-    run = gated(run, document)
     warm_up(run, document, preparation)
     measure_one = lambda one, folder, written: measure_on_device(run, one, captures, preparation, isolation, repetitions, folder, written)
     return passes.run_all(chosen, repetitions, benchmark, measure_one, run.options), repetitions * len(chosen)
@@ -119,7 +120,7 @@ def warm_up(run, document, preparation):
     planned = case_isolation.listed(run.device.instrument("CryptoBenchmark", *arguments, "-e", "log", "true"))
     run.device.pull_plan(preparation)
     cases = (yaml.safe_load((paths.Preparation(preparation).prepared).read_text()) or {}).get("cases") or []
-    warmup.run(run.device, "CryptoBenchmark", arguments, planned, cases, document)
+    warmup.run(run.device, "CryptoBenchmark", arguments, planned, cases, document, run.gate.session("warm-up"))
 
 
 def host_cases(options, document, capture, trial, effective, benchmark, preparation, files, problems):
@@ -127,7 +128,7 @@ def host_cases(options, document, capture, trial, effective, benchmark, preparat
     if (document.get("run") or {}).get("passes"):
         print("warning: run.passes: only a --device run measures in passes; this run measures once per process")
     if effective_view.thermal_gate(document):
-        print("warning: thermal_gate_off: run.thermalGate: only a --device run reads temperatures; this run measures without the gate")
+        warn("TEMPERATURE SET BUT DEVICE CAN'T POLL: host_runtime; running without it", problems)
     for repetition in range(1, repetitions + 1):
         into = measure_session.process_folder(benchmark, repetition, repetitions)
         measure_session.process_line(repetition, repetitions)

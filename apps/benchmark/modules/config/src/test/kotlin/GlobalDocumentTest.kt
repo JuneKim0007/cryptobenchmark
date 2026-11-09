@@ -60,17 +60,16 @@ class GlobalDocumentTest {
               thermalThrottleSleepSeconds: 30
               caseCooldownSeconds: 20
               warmup: {iterations: 0, jobs: [{type: MessageDigest, name: SHA-256}]}
-              thermalGate: {sensors: [s1, s2]}
+              thermalGate: {temperatureKeptCelsius: 36.0}
               passes: {timing: {samples: 3}, allocation: {samples: 2}}
         """.trimIndent() + "\n")
-        assertEquals(ThermalGate(true, listOf("s1", "s2"), 5.0, 5, 300), written.thermalGate)
+        assertEquals(ThermalGate(36.0), written.thermalGate)
         assertEquals(listOf(MeasurePass("timing", 3), MeasurePass("allocation", 2)), written.passes)
         assertEquals(written, GlobalDocument.parse(codec.load(YamlCodec().dump(GlobalDocument.of(global("").copy(run = written))))).run)
     }
 
     @Test
     fun aGateCanBeWrittenAndSwitchedOff() {
-        assertEquals(false, run("run: {thermalGate: {enabled: false}}\n").thermalGate!!.enabled)
     }
 
     @Test
@@ -80,11 +79,12 @@ class GlobalDocumentTest {
             "run: {thermalThrottleSleepSeconds: -1}\n" to "negative: thermalThrottleSleepSeconds",
             "run: {caseCooldownSeconds: -1}\n" to "negative: caseCooldownSeconds",
             "run: {warmup: {iterations: -1}}\n" to "negative: run.warmup.iterations",
-            "run: {thermalGate: {}}\n" to "missing_field: run.thermalGate.sensors",
-            "run: {thermalGate: {sensors: [s], marginCelsius: -1}}\n" to "negative: run.thermalGate.marginCelsius",
-            "run: {thermalGate: {sensors: [s], pollSeconds: 0}}\n" to "not_positive: run.thermalGate.pollSeconds",
-            "run: {thermalGate: {sensors: [s], timeoutSeconds: -5}}\n" to "negative: run.thermalGate.timeoutSeconds",
-            "run: {thermalGate: {sensors: [s], margin: 3}}\n" to "unknown_keys: run.thermalGate [margin]",
+            "run: {thermalGate: {}}\n" to "missing_field: run.thermalGate.temperatureKeptCelsius",
+            "run: {thermalGate: {temperatureKeptCelsius: 36.0, cooldownMinutes: 1.5}}\n" to "not_whole: run.thermalGate.cooldownMinutes",
+            "run: {thermalGate: {temperatureKeptCelsius: 36.0, pollMinutes: 0}}\n" to "not_positive: run.thermalGate.pollMinutes",
+            "run: {thermalGate: {temperatureKeptCelsius: 36.0, onDiscardLimit: nope}}\n" to "invalid: run.thermalGate.onDiscardLimit",
+            "run: {thermalGate: {temperatureKeptCelsius: 36.0, margin: 3}}\n" to "unknown_keys: run.thermalGate [margin]",
+            "run: {isolation: run, thermalGate: {temperatureKeptCelsius: 36.0}}\n" to "invalid: run.thermalGate needs run.isolation",
             "run: {variants: []}\n" to "invalid: run.variants",
             "run: {variants: [fixed, fixed]}\n" to "invalid: run.variants",
             "run: {passes: {timing: {samples: 1}, speed: {samples: 1}}}\n" to "invalid: run.passes.speed",

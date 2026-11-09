@@ -14,6 +14,7 @@ from results import layout as results_layout
 from results import run_inputs
 from results.manifest import manifest
 from scope import code_digest
+from session.dynamic_temperature import Terminated
 from scope import results as scope_results
 from stages import config_check
 from stages.benchmark import measure_cases
@@ -109,7 +110,7 @@ def main():
 
 
 KNOWN = (DeviceError, DeviceIdError, CaptureError, energy_stage.EnergyError, bundled.BundledError, config_check.ConfigCheckError,
-         scope_results.ScopeResultError, code_digest.CodeDigestError, timeouts.StepTimeout)
+         scope_results.ScopeResultError, code_digest.CodeDigestError, timeouts.StepTimeout, Terminated)
 
 
 def failure_line(error):

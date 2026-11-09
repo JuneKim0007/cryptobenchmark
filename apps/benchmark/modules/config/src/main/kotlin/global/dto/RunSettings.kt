@@ -22,6 +22,8 @@ data class RunSettings(
     val warmup: Warmup = Warmup(),
     // null: no gate, the run starts every case as soon as the last one ends
     val thermalGate: ThermalGate? = null,
+    // a run of a case that failed for a reason other than heat is launched this many more times, then the next case goes on
+    val launchRetries: Int = LAUNCH_RETRIES,
     val harness: HarnessSettings = HarnessSettings(),
 ) {
 
@@ -42,11 +44,14 @@ data class RunSettings(
         }
         require(thermalThrottleSleepSeconds == null || thermalThrottleSleepSeconds >= 0) { "negative: thermalThrottleSleepSeconds $thermalThrottleSleepSeconds" }
         require(caseCooldownSeconds >= 0) { "negative: caseCooldownSeconds $caseCooldownSeconds" }
+        require(launchRetries >= 0) { "negative: launchRetries $launchRetries" }
+        require(thermalGate == null || isolation == CASE) { "invalid: run.thermalGate needs run.isolation $CASE, a whole-session process has no single run to discard" }
         require(isolation in ISOLATIONS) { "invalid: run.isolation $isolation, expected one of $ISOLATIONS" }
     }
 
     companion object {
         const val CASE = "case"
+        const val LAUNCH_RETRIES = 2
         val ISOLATIONS = listOf(CASE, "run")
         val VARIANTS = listOf("fixed", "notFixed")
     }

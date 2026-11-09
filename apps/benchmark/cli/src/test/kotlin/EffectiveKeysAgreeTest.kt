@@ -42,7 +42,7 @@ class EffectiveKeysAgreeTest {
               thermalThrottleSleepSeconds: 1
               caseCooldownSeconds: 1
               warmup: {iterations: 1, jobs: []}
-              thermalGate: {enabled: true, sensors: [BIG], marginCelsius: 5.0, pollSeconds: 5, timeoutSeconds: 120}
+              thermalGate: {temperatureKeptCelsius: 36.0}
               harness: {iterations: 2}
             policy: {onFailure: skip}
             analysis: {charts: [latency]}

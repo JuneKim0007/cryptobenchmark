@@ -5,7 +5,7 @@ import dataclasses, pathlib, re
 import effective_view
 from failure import one_line
 from results import case_files
-from session import calibration, case_isolation
+from session import calibration, case_isolation, dynamic_temperature, launch
 from device.adb import PASSED, DeviceError
 from cryptobench import paths
 
@@ -26,6 +26,8 @@ class Plan:
     stale: tuple = ()
     pull_plan: object = lambda _process: None
     after_process: object = lambda _process: None
+    gate: object = dynamic_temperature.Off()
+    retries: int = 0
 
 
 @dataclasses.dataclass
@@ -146,8 +148,7 @@ def each_case(device, plan, process, hooks):
     case_files.cleared(process.into)
     measured = []
     for number, case in enumerate(process.cases, 1):
-        failure = hooked_case(process, case, hooks, lambda: case_isolation.measure_case(device, plan.test_class, plan.arguments, case,
-                                                                                         case_files.path(process.into, case)))
+        failure = launch.run_of_case(device, plan, process, case, hooks, case_files.path(process.into, case))
         print(f"case:      {number} of {len(process.cases)} {case} {'failed' if failure else 'ok'}")
         if failure:
             print(failure)
@@ -158,29 +159,6 @@ def each_case(device, plan, process, hooks):
             case_files.merge(process.into, measured, process.data)
     if not measured:
         raise DeviceError(f"{plan.test_class} failed on the device for every case:\n" + "\n".join(process.failures or ["no case planned"]))
-
-
-def hooked_case(process, case, hooks, run_case):
-    """A hook that fails around a case costs that case its result, a case_failed line, never the session; the hooks it started still close."""
-    started, failure = [], None
-    for hook in hooks:
-        try:
-            hook.before_case(process, case)
-        except Exception as error:
-            failure = hook_failed(case, hook, "before_case", error)
-            break
-        started.append(hook)
-    failure = failure or run_case()
-    for hook in reversed(started):
-        try:
-            hook.after_case(process, case, failure)
-        except Exception as error:
-            failure = failure or hook_failed(case, hook, "after_case", error)
-    return failure
-
-
-def hook_failed(case, hook, step, error):
-    return f"case_failed: {case}: hook_failed: {type(hook).__name__}.{step}: {type(error).__name__}: {one_line(error)}"
 
 
 def all_cases(device, plan, process):

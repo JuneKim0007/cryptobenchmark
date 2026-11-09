@@ -2,6 +2,7 @@
 starts; without settings, or with a bad value (one warning), the row's default."""
 from __future__ import annotations
 
+from ..inputs.check import UNLIMITED
 from ..inputs.table import TIMEOUT_CLAUDE, TIMEOUT_PIPELINE, Row
 from . import current
 
@@ -15,5 +16,7 @@ def claude_seconds() -> int:
     return _seconds(TIMEOUT_CLAUDE)
 
 
-def pipeline_seconds() -> int:
-    return _seconds(TIMEOUT_PIPELINE)
+def pipeline_seconds() -> int | None:
+    """None waits with no cap."""
+    seconds = _seconds(TIMEOUT_PIPELINE)
+    return None if seconds == UNLIMITED else seconds

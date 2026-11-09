@@ -17,7 +17,7 @@ def steps(phone):
 
 
 # The run section as :config writes it; a test overrides what it is about.
-RUN = {"metrics": ["TIME"], "processRepetitions": 1, "isolation": "case", "caseCooldownSeconds": 0, "warmup": {"iterations": 0, "jobs": []}}
+RUN = {"metrics": ["TIME"], "processRepetitions": 1, "isolation": "case", "caseCooldownSeconds": 0, "launchRetries": 0, "warmup": {"iterations": 0, "jobs": []}}
 
 
 def layout(tmp_path, run):

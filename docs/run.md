@@ -122,7 +122,7 @@ The benchmark measures through one device session: [device-session.md](device-se
 | temperature | `dumpsys thermalservice` before and after every process and case, into `benchmark.json` per case | two `dumpsys` calls per case, under a second |
 | warm-up | `run.warmup`: a pre-flight of a few cases once per session, never measured | about 2 s plus 1 s per case at 10 samples, once per run |
 | cool-down | `run.caseCooldownSeconds`: host sleep between measured cases | `(cases - 1) x seconds` per pass |
-| thermal gate | `run.thermalGate`: host wait before each case process while the device is hotter than its idle baseline ([device-session.md](device-session.md#thermal-gate)) | unknown until measured; at most `timeoutSeconds x cases` per pass |
+| thermal gate | `run.thermalGate`: keeps every run of a case under a skin temperature ([device-session.md](device-session.md#thermal-gate)) | unknown until measured |
 | frequency caps | capped cores per case at its start and end in `clocks.yaml` | two sysfs reads per case, tens of ms |
 
 ### Recover a metric without a device

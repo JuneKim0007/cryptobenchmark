@@ -68,7 +68,7 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 |---|---|
 | cool-down | `run.caseCooldownSeconds` (0): the host sleeps before every measured case but each session's first, before the case's temperature and clocks are read; `isolation: run` has no case boundary, so it sleeps between processes |
 | printed | `cool-down: <pass>: <n> x <s> s = <t> s between cases` per pass when set |
-| with the gate | the cool-down sleeps first, then `run.thermalGate` waits while the device is above its target ([Thermal gate](#thermal-gate)) |
+| with the gate | the cool-down sleeps first, with the gate, the hold comes first ([Thermal gate](#thermal-gate)) |
 | cost | `(cases - 1) x seconds` per pass; at 20 s and 50 cases about 16 min a pass |
 | caps | `clocks.yaml` `cases`: per case the online cores whose `scaling_max_freq` is below `cpuinfo_max_freq` at its start and end; `clocks:    <n> of <m> cases started or ended with a core capped below its maximum` per process |
 | what caps show | boundary snapshots, one sysfs read each (tens of ms); a cap that rose and fell inside a case is not seen; unrooted, a cap cannot be lifted, only recorded |
@@ -76,27 +76,20 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 
 ## Thermal gate
 
-Why: a case that starts on a device still hot from the last one runs on throttled clocks, so its time reads slower than the same case on a cool device; a fixed cool-down guesses how long cooling takes, the gate reads it.
+Why: the phone's power controller lowers the CPU limit once skin reaches its own threshold, 36 C on a Pixel 10. A run that crosses it measures two speeds.
 
-| rule | value |
+| step | rule |
 |---|---|
-| on | `run.thermalGate` set and not `enabled: false` ([config.md](../apps/benchmark/modules/config/docs/config.md)); absent, every case starts as soon as the last ends |
-| baseline | once per run, before the warm-up and the first case (after the energy pre-flight's idle settle): the hottest of `sensors` (`apps/benchmark-runner/device/thermal.py`); target = baseline + `marginCelsius`; printed `gate:      baseline <c> C, the hottest of <sensors>; a case starts at or below <t> C and status 0`, recorded in each `thermal.json` as `gate: {sensors, baseline, target}`; with `CRYPTOBENCH_THERMAL_BASELINE` set (perf-repair's delta session) that stored baseline is used instead of a new reading |
-| wait | before each case process (`isolation: case`), or before each process (`isolation: run`, no case boundary): read every `pollSeconds` while the hottest of `sensors` is above target or `Thermal Status` is above 0 |
-| timeout | past `timeoutSeconds` the case starts anyway; `thermal_gate_timeout: <id>: <pass>: started after <s> s at <c> C, status <n>, target <t> C` in `manifest.yaml` `problems` (`process-<n>` for `isolation: run`) |
-| sensors | names in config (device facts), never in code; one absent from a reading is skipped; none present at the baseline turns the gate off for the run with one `warning: thermal_gate_off: ...`; a poll with no gated sensor and no status does not hold a case |
-| order | `caseCooldownSeconds` first (fixed), then the gate, then the case's temperature and clocks are read; the warm-up is not gated |
-| record | `benchmark.json` per case: `gate: {waitedSeconds, target, timedOut}` ([results.md](results.md#benchmarkjson-case-fields)) |
-| per pass | `gate:      <pass>: <n> of <m> cases gated, <s> s waited, max <s> s, <n> timed out` |
-| `--bench` | no temperatures on a host: one `warning: thermal_gate_off: ...` and the run measures ungated |
-| cost | worst case `timeoutSeconds x cases` per pass; one `dumpsys` per poll |
-
-What it does not fix:
-- heat inside a case: the timed loop is untouched, so a long case still warms the device while it measures, and Jetpack's own heat pause still applies.
-- a hot idle: the baseline is the device before the warm-up, not a cold device; a run started warm gates to a warm target. Read after the warm-up the baseline can sit above every case's start, so the gate never waits.
-- skin and battery heat: only the named sensors and the status count; a warm battery under a cool CPU does not wait.
-- stale readings: with only `Cached temperatures` ([Temperature](#temperature)) the gate can see an old value and start or wait wrongly.
-- frequency caps: a cap the governor keeps after the device cools is recorded in `clocks.yaml`, never waited out.
+| on | `run.thermalGate` set; needs `isolation: case`; a `--device` run only |
+| startup | once, before the build: `device/thermal.py` `capability`: live type-3 (SKIN) sensors, or one reason. Anything else prints `TEMPERATURE SET BUT DEVICE CAN'T POLL` and the run goes on |
+| start limit | `temperatureKeptCelsius` minus the start margin. `session/dynamic_temperature.py` is the facade; the arithmetic is in `lib/cryptobench/cryptobench/measure/equations.py` |
+| hold | before every launch of a run, the warm-up and the energy dry pass: above the limit, wait `cooldownMinutes`, then read every `pollMinutes` |
+| end | a run ending at or above `temperatureKeptCelsius` is discarded and measured again; the margin widens by `backoffFactor`, up to `maximumCelsius`; `cleanRunsToRecover` clean runs narrow it by `recoveryCelsius`, never below `initialCelsius` |
+| stop | still too hot after `pollTerminateMinutes`: the benchmark stops with `temperature_gate_timeout` |
+| limit | `discardLimit` discards of one run: `onDiscardLimit` |
+| unreadable | a reading is retried `readRetries` times; still unreadable: logged, that run is dropped, the next case goes on; a failed reading is never a pass |
+| other failures | crash, timeout, no data, collapsed calibration: `launchRetries` more launches, then the next case |
+| order | hold, then the case hooks, launch, hooks, verdict (`session/launch.py`) |
 
 ## Warm-up
 

@@ -56,9 +56,12 @@ def case_cooldown(document):
 
 
 def thermal_gate(document):
-    """run.thermalGate as :config validated it, or None when absent or enabled false."""
-    gate = (document.get("run") or {}).get("thermalGate")
-    return gate if gate and required(document, "run.thermalGate.enabled") else None
+    """run.thermalGate as :config validated it, or None when absent."""
+    return (document.get("run") or {}).get("thermalGate")
+
+
+def launch_retries(document):
+    return required(document, "run.launchRetries")
 
 
 def process_repetitions(document):

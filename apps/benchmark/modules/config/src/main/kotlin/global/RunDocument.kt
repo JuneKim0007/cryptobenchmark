@@ -30,6 +30,7 @@ object RunDocument {
     private const val CASE_COOLDOWN = "caseCooldownSeconds"
     private const val WARMUP = "warmup"
     private const val THERMAL_GATE = "thermalGate"
+    private const val LAUNCH_RETRIES = "launchRetries"
     private const val ITERATIONS = "iterations"
     private const val JOBS = "jobs"
     private const val SAMPLES = "samples"
@@ -46,13 +47,14 @@ object RunDocument {
     ).apply {
         run.thermalThrottleSleepSeconds?.let { put(THROTTLE_SLEEP, it) }
         put(CASE_COOLDOWN, run.caseCooldownSeconds)
+        put(LAUNCH_RETRIES, run.launchRetries)
         put(WARMUP, linkedMapOf<String, Any>(ITERATIONS to run.warmup.iterations, JOBS to run.warmup.jobs.map { RuleDocument.of(it) }))
         run.thermalGate?.let { put(THERMAL_GATE, ThermalGateDocument.of(it)) }
         if (run.passes.isNotEmpty()) put(PASSES, run.passes.associateTo(LinkedHashMap()) { it.name to mapOf(SAMPLES to it.samples) })
  if (!run.harness.isEmpty) put(HARNESS, HarnessSettings.write(run.harness)) }
 
     fun parse(document: Map<String, Any>, path: String): RunSettings {
-        expectKeys(document, listOf(INPUT_SIZES, PHASES, METRICS, VARIANTS, PROCESS_REPETITIONS, ISOLATION, SEED, PASSES, THROTTLE_SLEEP, CASE_COOLDOWN, WARMUP, THERMAL_GATE, HARNESS), path)
+        expectKeys(document, listOf(INPUT_SIZES, PHASES, METRICS, VARIANTS, PROCESS_REPETITIONS, ISOLATION, SEED, PASSES, THROTTLE_SLEEP, CASE_COOLDOWN, WARMUP, THERMAL_GATE, LAUNCH_RETRIES, HARNESS), path)
         val defaults = RunSettings()
         return RunSettings(
             inputSizes = optional(document, INPUT_SIZES, defaults.inputSizes, ::numbers),
@@ -64,6 +66,7 @@ object RunDocument {
             seed = optionalNumber(document, SEED)?.toLong() ?: defaults.seed,
             thermalThrottleSleepSeconds = optionalNumber(document, THROTTLE_SLEEP)?.toInt(),
             caseCooldownSeconds = optionalNumber(document, CASE_COOLDOWN)?.toInt() ?: defaults.caseCooldownSeconds,
+            launchRetries = optionalNumber(document, LAUNCH_RETRIES)?.toInt() ?: defaults.launchRetries,
             warmup = optionalSection(document, WARMUP)?.let { warmup(it, "$path.$WARMUP") } ?: defaults.warmup,
             thermalGate = optionalSection(document, THERMAL_GATE)?.let { ThermalGateDocument.parse(it, "$path.$THERMAL_GATE") },
             passes = optionalSection(document, PASSES)?.let { passes(it, "$path.$PASSES") } ?: defaults.passes,

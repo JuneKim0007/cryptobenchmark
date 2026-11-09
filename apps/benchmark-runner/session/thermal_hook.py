@@ -29,8 +29,8 @@ def sleeps(data):
 class Thermal(Hooks):
     """With one process for every case there is no case boundary: each case gets the process's reading, scope run."""
 
-    def __init__(self, device, label):
-        self.device, self.label = device, label
+    def __init__(self, device, label, gate=None):
+        self.device, self.label, self.gate = device, label, gate
         self.process_start, self.case_start, self.cases, self.paused = None, None, {}, {}
 
     def before_session(self):
@@ -40,10 +40,14 @@ class Thermal(Hooks):
         self.process_start = thermal.read(self.device)
 
     def before_case(self, _process, _case):
-        self.case_start = thermal.read(self.device)
+        # the gate's own reading when it just took one, so a run is read once at each end
+        self.case_start = (self.gate.take_start() if self.gate else None) or thermal.read(self.device)
 
     def after_case(self, process, case, _failure):
-        self.cases.setdefault(process.repetition, {})[case] = record(self.case_start, thermal.read(self.device))
+        end = thermal.read(self.device)
+        if self.gate:
+            self.gate.note_end(end)
+        self.cases.setdefault(process.repetition, {})[case] = record(self.case_start, end)
 
     def after_process(self, process):
         end = thermal.read(self.device)

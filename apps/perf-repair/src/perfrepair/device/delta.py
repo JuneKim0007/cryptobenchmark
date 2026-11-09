@@ -42,7 +42,6 @@ from .setup_fingerprint import (
 )
 
 RESULTS = "results"
-BASELINE_ENV = "CRYPTOBENCH_THERMAL_BASELINE"
 DRIFT_METRIC = "timeNs"
 
 
@@ -65,15 +64,6 @@ class Delta:
     def summary(self) -> dict:
         return {"session": self.session, "added": list(self.cases), "anchors": list(self.anchors),
                 "mismatch": list(self.mismatch), "comparison": self.comparison, "drift": list(self.drift)}
-
-
-def _stored_baseline(folder: Path) -> str | None:
-    """The stored run's thermal gate baseline, so the delta waits for the same target."""
-    for path in sorted((Path(folder) / "benchmark").rglob("thermal.json")):
-        gate = read_json(path).get("gate") or {}
-        if gate.get("baseline") is not None:
-            return str(gate["baseline"])
-    return None
 
 
 def _measurements(folder: Path) -> dict:
@@ -139,7 +129,6 @@ def run_delta(folder: Path, gaps: tuple[Gap, ...], anchors: frozenset[str], sess
     root = folder / DELTA / RESULTS
     shutil.rmtree(root, ignore_errors=True)
     root.mkdir(parents=True)
-    baseline = _stored_baseline(folder)
     stage = "device" if on_device else "bench"
     staged = root / folder.name
     # a setup that differs is refused before the session, not after hours of it
@@ -149,7 +138,7 @@ def run_delta(folder: Path, gaps: tuple[Gap, ...], anchors: frozenset[str], sess
     if early:
         return Delta(session, mismatch=early, lines=[line])
     run_pipeline(config, root, stage, benchmark=benchmark, echo=echo, device=folder,
-                 extra=() if on_device else ("--discovery", "reuse"), env={BASELINE_ENV: baseline} if baseline else None)
+                 extra=() if on_device else ("--discovery", "reuse"))
     stored_cases = {c["id"] for c in read_json(folder / manifest.files["benchmark"]).get("cases") or []}
     staged_doc = read_json(staged / read_manifest(RunTree(staged).manifest)[0].files["benchmark"])
     staged_cases = {c["id"] for c in staged_doc.get("cases") or []}

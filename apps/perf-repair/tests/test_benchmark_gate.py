@@ -141,7 +141,7 @@ def test_a_type_with_no_harness_operation_is_coded_from_the_harness_list(device)
     ("run.inputSizes", lambda m, e: e["run"].update(inputSizes=[1])),
     ("run.harness.iterations", lambda m, e: e["run"].update(harness={"iterations": 2})),
     ("run.passes.timing.samples", lambda m, e: e["run"].update(passes={"timing": {"samples": 3}})),
-    ("run.thermalGate.marginCelsius", lambda m, e: e["run"].update(thermalGate={"marginCelsius": 9})),
+    ("run.thermalGate.temperatureKeptCelsius", lambda m, e: e["run"].update(thermalGate={"temperatureKeptCelsius": 9})),
 ])
 def test_a_setup_field_that_differs_is_named(device, field, edit):
     stored = fingerprint(device)

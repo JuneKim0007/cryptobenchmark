@@ -4,7 +4,7 @@ import time
 import effective_view
 import timeouts
 from session import case_isolation
-from session import passes
+from session import dynamic_temperature, passes
 from device import thermal
 from device.adb import PASSED, DeviceError
 
@@ -36,7 +36,7 @@ def off(document):
     return False
 
 
-def run(device, test_class, arguments, planned, cases, document):
+def run(device, test_class, arguments, planned, cases, document, gate=dynamic_temperature.Off()):
     """One process over the chosen cases; a failure warns and the session goes on. Returns the cases it ran."""
     if off(document):
         return []
@@ -45,6 +45,7 @@ def run(device, test_class, arguments, planned, cases, document):
     if not selected:
         print("warning: WARM-UP SKIPPED: run.warmup.jobs select no planned case; measuring without a warm-up")
         return []
+    gate.hold("warm-up")
     before, started = thermal.read(device), time.monotonic()
     named = ("-e", case_isolation.CASE_ARGUMENT, ",".join(selected), "-e", passes.PASS_ARGUMENT, WARMUP_PASS, "-e", passes.SAMPLES_ARGUMENT, str(iterations))
     try:

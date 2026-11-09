@@ -22,6 +22,7 @@ from .check import (
     check_path,
     check_perf_mode,
     check_positive,
+    check_positive_or_unlimited,
     check_targets,
     check_text,
 )
@@ -124,7 +125,7 @@ APPS_REVIEW = Row("apps.review", check_bool, default=False)
 
 # seconds before a hung child is killed; a device benchmark call runs for hours, a model call for minutes
 TIMEOUT_CLAUDE = Row("timeouts.claude", check_positive, default=3600)
-TIMEOUT_PIPELINE = Row("timeouts.pipeline", check_positive, default=86400)
+TIMEOUT_PIPELINE = Row("timeouts.pipeline", check_positive_or_unlimited, default=518400)
 
 # stops.<code>: an overridable code's action; a bad value warns and keeps the code's default
 STOP_ROWS = {c.code: Row(f"stops.{c.code}", partial(check_one_of, choices=c.allowed), default=c.action) for c in OVERRIDABLE}

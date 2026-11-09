@@ -21,11 +21,11 @@
 | `read(device)` | `apps/benchmark-runner/device/clocks.py` | `parse(device.shell(READ))` | device.facts, session.clocks_hook |
 | `capture_id(capture)` | `apps/benchmark-runner/device/identity.py` | `device_id(captured.read_runtime(capture))` | stages.discover, stages.harness, stages.interop |
 | `device_id(runtime)` | `apps/benchmark-runner/device/identity.py` | - | pipeline, results.manifest, stages.discover |
-| `read(device)` | `apps/benchmark-runner/device/thermal.py` | - | session.thermal_gate, session.thermal_hook, session.warmup |
+| `read(device)` | `apps/benchmark-runner/device/thermal.py` | - | session.dynamic_temperature, session.thermal_hook, session.warmup |
 | `entry_count(document)` | `apps/benchmark-runner/effective_view.py` | `sum((len(names) for types in (document.get('providers') or {}).values() for names in types.values()))` | explain, stages.discover |
 | `metrics(document)` | `apps/benchmark-runner/effective_view.py` | - | session.passes, stages.measuring |
 | `read(effective_file)` | `apps/benchmark-runner/effective_view.py` | - | stages.benchmark, stages.discover |
-| `thermal_gate(document)` | `apps/benchmark-runner/effective_view.py` | run.thermalGate as :config validated it, or None when absent or enabled false. | stages.benchmark, stages.measuring |
+| `thermal_gate(document)` | `apps/benchmark-runner/effective_view.py` | run.thermalGate as :config validated it, or None when absent. | stages.benchmark, stages.measuring |
 | `capture(node, default)` | `apps/benchmark-runner/energy/capture.py` | `_energy(node).get('capture', default)` | dependencies, energy, energy_stage |
 | `source(node, default)` | `apps/benchmark-runner/energy/capture.py` | `_energy(node).get('source', default)` | dependencies, energy_stage |
 | `one_line(error)` | `apps/benchmark-runner/energy/energy.py` | `' '.join(str(error).split())[:200] or type(error).__name__` | none |
@@ -33,7 +33,8 @@
 | `case_arguments(captures_found, capability, preparation, data, traces, dry_calls, out)` | `apps/benchmark-runner/energy/sources/runner.py` | - | sources.manafa_source, sources.rails_source |
 | `guarded(problems, step)` | `apps/benchmark-runner/energy_stage.py` | An energy step that fails costs this process its energy, never its timing: one error line, recorded. | session.energy_hook, stages.benchmark |
 | `fail(message)` | `apps/benchmark-runner/failure.py` | - | dependencies, effective_view, global_file, gradle_runner +10 |
-| `one_line(error)` | `apps/benchmark-runner/failure.py` | `' '.join(str(error).split())[:500]` | energy_stage, facade.py, gradle_runner, pipeline +2 |
+| `one_line(error)` | `apps/benchmark-runner/failure.py` | `' '.join(str(error).split())[:500]` | energy_stage, facade.py, gradle_runner, pipeline +3 |
+| `warn(line, problems)` | `apps/benchmark-runner/failure.py` | A warning on the terminal and, when the run keeps a list, in its manifest. | session.dynamic_temperature, stages.benchmark |
 | `global_config(argument)` | `apps/benchmark-runner/global_file.py` | - | dependencies, pipeline |
 | `run(arguments, stacktrace, stream, main_class, notices, properties, failed)` | `apps/benchmark-runner/gradle_runner.py` | notices, when given, collects every passed-on line, so a caller can record it; properties are -P build properties; | session.passes, stages.benchmark, stages.check, stages.discover +2 |
 | `publish(stage, target, discovery_mode)` | `apps/benchmark-runner/results/layout.py` | Everything staged moves in; the old manifest goes first, because a folder with one is a finished run. | stages.discover, stages.interop |
@@ -45,7 +46,7 @@
 | `expression(parameter, scope, side)` | `apps/benchmark-runner/scope/inputs.py` | `side` picks the provider a key pair is decoded by: another provider's key class is converted at every init, a cost on one side only. | scope.generate, scope.wrapper |
 | `kind(type_text)` | `apps/benchmark-runner/scope/inputs.py` | `KINDS.get(normalised(type_text))` | scope.interop, scope.wrapper |
 | `of(name)` | `apps/benchmark-runner/scope/languages.py` | `LANGUAGES[name]` | scope.dependencies, scope.generate, scope.wrapper |
-| `short_samples(data_file)` | `apps/benchmark-runner/session/calibration.py` | One coded line per benchmark whose calls per sample collapsed. | session.case_isolation, session.measure |
+| `short_samples(data_file)` | `apps/benchmark-runner/session/calibration.py` | One coded line per benchmark whose calls per sample collapsed. | session.launch, session.measure |
 | `listed(output)` | `apps/benchmark-runner/session/case_isolation.py` | The timed cases the device planned, in its order: AndroidJUnitRunner's -e log true lists them and runs none. | session.measure, stages.benchmark |
 | `process_folder(root, repetition, repetitions)` | `apps/benchmark-runner/session/measure.py` | `root if repetitions == 1 else paths.Measurement(root).process(repetition).root` | session.passes, stages.benchmark |
 | `parsed(global_file)` | `apps/benchmark-runner/stages/config_check.py` | `parse_all([pathlib.Path(global_file)])[0]` | pipeline, stages.discover |
