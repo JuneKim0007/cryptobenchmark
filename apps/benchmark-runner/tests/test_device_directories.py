@@ -2,7 +2,14 @@ import pathlib
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
-from device.adb import PACKAGE, directories  # noqa: E402
+from cryptobench import paths  # noqa: E402
+
+PACKAGE = paths.DeviceDirs.PACKAGE
+
+
+def directories(sdk):
+    dirs = paths.DeviceDirs(sdk)
+    return str(dirs.plan), str(dirs.output)
 
 
 def test_from_api_29_plan_and_output_share_the_media_directory():

@@ -4,10 +4,8 @@ import os, pathlib, re, subprocess, time
 import timeouts
 from cryptobench import paths
 
-PACKAGE = "io.github.junekim0007.cryptobench"
+PACKAGE = paths.DeviceDirs.PACKAGE
 RUNNER = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
-PLAN_DIRECTORY = "cryptobench"   # DeviceDirectory.NAME
-SCOPE_KEYS = "scope-keys"   # ScopeKeys.FOLDER
 # androidx falls back to MethodTracing when a case's ProfilerConfig is null, so "profiling: none" needs
 # the default set to None; a case asking for a profiler still gets one.
 NO_DEFAULT_PROFILER = ["-e", "androidx.benchmark.profiling.mode", "None"]
@@ -27,15 +25,6 @@ def measure_arguments(suppress, metrics, throttle_sleep=None):
 
 class DeviceError(Exception):
     pass
-
-
-def directories(sdk):
-    """(plan directory, androidx output directory) at this API level; paired with DeviceDirectory.kt."""
-    if sdk >= 29:
-        media = f"/sdcard/Android/media/{PACKAGE}"
-        return f"{media}/{PLAN_DIRECTORY}", media
-    data = f"/sdcard/Android/data/{PACKAGE}"
-    return f"{data}/files/{PLAN_DIRECTORY}", f"{data}/cache"
 
 
 def android_home():
@@ -91,8 +80,8 @@ class Device:
         sdk = self.shell("getprop ro.build.version.sdk").strip()
         if not sdk.isdigit():
             raise DeviceError(f"no_sdk: getprop ro.build.version.sdk printed {sdk!r}")
-        self.files, self.media = directories(int(sdk))
-        self.data = f"{self.media}/{PACKAGE}-benchmarkData.json"
+        dirs = paths.DeviceDirs(int(sdk))
+        self.files, self.media, self.data = str(dirs.plan), str(dirs.output), str(dirs.benchmark_data)
 
     def identity(self):
         """The runtime fields device_id reads, by getprop: Build.MODEL and Build.FINGERPRINT read these properties."""
@@ -189,7 +178,7 @@ class Device:
         interop.unlink(missing_ok=True)
         into.mkdir(parents=True, exist_ok=True)
         self.shell(f"rm -f {self.files}/{paths.SCOPED_INTEROP}")
-        self.shell(f"rm -rf {self.files}/{SCOPE_KEYS}")
+        self.shell(f"rm -rf {self.files}/{paths.DeviceDirs.SCOPE_KEYS}")
         output = self.instrument("ScopedInterop")
         if not ONE_PASSED.search(output):
             raise DeviceError("ScopedInterop failed on the device:\n" + instrumentation_report(output))

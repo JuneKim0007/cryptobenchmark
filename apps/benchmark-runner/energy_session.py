@@ -3,8 +3,7 @@
 from cryptobench import paths
 from device.adb import NO_DEFAULT_PROFILER, PASSED, DeviceError, instrumentation_report
 
-TRACES = "/data/misc/perfetto-traces"   # where the shell user's perfetto may write
-SCRATCH = "/data/local/tmp"
+TRACES, SCRATCH = paths.DeviceDirs.TRACES, paths.DeviceDirs.SCRATCH
 
 
 class EnergySession:

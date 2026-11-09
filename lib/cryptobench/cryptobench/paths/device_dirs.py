@@ -4,13 +4,18 @@ from __future__ import annotations
 from pathlib import PurePosixPath
 
 PACKAGE = "io.github.junekim0007.cryptobench"
-PLAN_DIRECTORY = "cryptobench"
-SCOPE_KEYS = "scope-keys"
+PLAN_DIRECTORY = "cryptobench"  # DeviceDirectory.NAME
+SCOPE_KEYS = "scope-keys"  # ScopeKeys.FOLDER
 MEDIA_FROM_SDK = 29
 
 
 class DeviceDirs:
     """Paths on the device stay POSIX whatever the host is."""
+
+    PACKAGE, SCOPE_KEYS = PACKAGE, SCOPE_KEYS
+    # where the shell user's perfetto may write
+    TRACES = PurePosixPath("/data/misc/perfetto-traces")
+    SCRATCH = PurePosixPath("/data/local/tmp")
 
     def __init__(self, sdk: int):
         self.sdk = sdk
@@ -26,7 +31,6 @@ class DeviceDirs:
     @property
     def output(self) -> PurePosixPath:
         return self._app if self.sdk >= MEDIA_FROM_SDK else self._app / "cache"
-
     @property
-    def scope_keys(self) -> PurePosixPath:
-        return self.plan / SCOPE_KEYS
+    def benchmark_data(self) -> PurePosixPath:
+        return self.output / f"{PACKAGE}-benchmarkData.json"
