@@ -6,6 +6,7 @@ import io.github.junekim0007.cryptobench.benchmark.report.MetricSamples
 import io.github.junekim0007.cryptobench.benchmark.report.PassMerge
 import io.github.junekim0007.cryptobench.benchmark.report.ReportedStats
 import io.github.junekim0007.cryptobench.benchmark.report.ResultRow
+import io.github.junekim0007.cryptobench.files.FileNames
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
@@ -29,6 +30,18 @@ class BenchmarkJsonRoundTripTest {
         MetricSamples.TIME to MetricSamples(listOf(1191.0, 1180.0, 1204.0), 8192),
         MetricSamples.ALLOCATIONS to MetricSamples(listOf(2.0, 2.0, 3.0), 1),
     )
+
+    @Test
+    fun writeCreatesTheFolderReplacesTheFileAndLeavesNoPartial() {
+        val folder = java.io.File(output.root, "new/folder")
+        val json = BenchmarkJson(folder)
+        json.write(runtime, emptyList())
+        val rows = listOf(row("a", both))
+        val written = json.write(runtime, rows)
+        assertEquals(FileNames.BENCHMARK_JSON, written.name)
+        assertEquals(json.text(runtime, rows), written.readText())
+        assertEquals(listOf(FileNames.BENCHMARK_JSON), folder.list()!!.toList())
+    }
 
     @Test
     fun aNameWithQuotesBackslashesOrControlCharactersStaysValidJson() {
