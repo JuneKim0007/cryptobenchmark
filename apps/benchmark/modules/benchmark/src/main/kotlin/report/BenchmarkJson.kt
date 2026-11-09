@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.benchmark.report
 
+import io.github.junekim0007.cryptobench.files.FileNames
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
@@ -7,14 +8,14 @@ import java.nio.file.StandardCopyOption
 
 class BenchmarkJson(private val directory: File) {
 
-    val file: File get() = File(directory, NAME)
+    val file: File get() = File(directory, FileNames.BENCHMARK_JSON)
 
     fun write(runtime: Map<String, String>, rows: List<ResultRow>): File {
         if (!directory.exists() && !directory.mkdirs()) {
             throw IOException("cannot create ${directory.absolutePath}")
         }
         // Whole or not at all: a file rewritten as each case finishes is never left half written by a JVM that dies.
-        val partial = File.createTempFile(".$NAME.", ".partial", directory)
+        val partial = File.createTempFile(".${FileNames.BENCHMARK_JSON}.", ".partial", directory)
         partial.writeText(text(runtime, rows), Charsets.UTF_8)
         Files.move(partial.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE)
         return file
@@ -83,7 +84,6 @@ class BenchmarkJson(private val directory: File) {
     }
 
     companion object {
-        const val NAME = "benchmark.json"
         const val PARAMETERS = "parameters"
     }
 }

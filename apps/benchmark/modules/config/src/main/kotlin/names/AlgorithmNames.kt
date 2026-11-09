@@ -2,6 +2,7 @@ package io.github.junekim0007.cryptobench.config.names
 
 import io.github.junekim0007.cryptobench.config.names.dto.Canonical
 import io.github.junekim0007.cryptobench.config.yaml.YamlCodec
+import io.github.junekim0007.cryptobench.files.FileNames
 import java.util.Locale
 
 class AlgorithmNames private constructor(
@@ -58,7 +59,7 @@ class AlgorithmNames private constructor(
 
     companion object {
 
-        const val RESOURCE = "/algorithm-names.yaml"
+        const val RESOURCE = "/" + FileNames.ALGORITHM_NAMES
         private const val SCHEMA_VERSION = 1
 
         val catalog: AlgorithmNames by lazy {

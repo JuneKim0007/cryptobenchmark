@@ -2,6 +2,7 @@ package io.github.junekim0007.cryptobench.benchmark.check
 
 import io.github.junekim0007.cryptobench.benchmark.RefusedPlanException
 import io.github.junekim0007.cryptobench.benchmark.run.energy.Energy
+import io.github.junekim0007.cryptobench.files.FileNames
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.report.Skip
@@ -55,7 +56,7 @@ class PlanCheck(
     private fun energyRefusal(cases: List<BenchmarkCase>): String? {
         if (cases.none { readsRails(it) }) return null
         val capability = energyCapability()
-            ?: return "energy_capability_unknown: push ${EnergyCapability.FILE} from the pre-flight"
+            ?: return "energy_capability_unknown: push ${FileNames.ENERGY_CAPABILITY} from the pre-flight"
         return capability.refusal()
     }
 

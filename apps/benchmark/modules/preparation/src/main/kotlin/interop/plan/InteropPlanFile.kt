@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation.interop.plan
 
+import io.github.junekim0007.cryptobench.files.FileNames
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.expectKeys
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.number
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.section
@@ -11,7 +12,6 @@ import java.io.File
 // interop_plan.yaml is written by perf-repair from its groups.
 object InteropPlanFile {
 
-    const val NAME = "interop_plan.yaml"
     private val PAIR_KEYS = listOf("id", "group", "a", "b", "keySize", "inputSize")
     private val MEMBER_KEYS = listOf("type", "algorithm", "provider")
 
@@ -30,7 +30,7 @@ object InteropPlanFile {
             }
         }.also { pairs ->
             val ids = pairs.map { it.id }
-            require(ids.size == ids.toSet().size) { "duplicate_id: interop_plan.yaml pair ids repeat" }
+            require(ids.size == ids.toSet().size) { "duplicate_id: ${FileNames.INTEROP_PLAN} pair ids repeat" }
         }
 
     private fun member(document: Map<String, Any>, path: String): Member {

@@ -8,6 +8,7 @@ import io.github.junekim0007.cryptobench.benchmark.verify.record.RecordDiff
 import io.github.junekim0007.cryptobench.preparation.measurement.Variant
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import io.github.junekim0007.cryptobench.files.FileNames
 import java.nio.file.Files
 
 class RecordDiffTest {
@@ -15,7 +16,7 @@ class RecordDiffTest {
     private val check = CaseCheck(CaseCheck.oracles(KnownAnswerFile.read(CheckFixture.knownAnswers), CheckFixture.alone, HostHarness.ONCE), HostHarness.ONCE)
 
     private fun written(vararg variants: Variant): List<Map<String, Any>> {
-        val file = Files.createTempDirectory("check").resolve(CheckFile.NAME).toFile()
+        val file = Files.createTempDirectory("check").resolve(FileNames.CHECK_RESULT).toFile()
         CheckFile.write(file, variants.flatMap { listOf(check.check(CheckFixture.digest(it)), check.check(CheckFixture.gcmEncrypt(it))) }, mapOf("harness" to "test"))
         return CheckFile.cases(file)
     }

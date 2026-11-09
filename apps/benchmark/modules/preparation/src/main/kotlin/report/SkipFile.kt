@@ -1,12 +1,13 @@
 package io.github.junekim0007.cryptobench.preparation.report
 
+import io.github.junekim0007.cryptobench.files.FileNames
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFile
 import java.io.File
 
 class SkipFile(private val directory: File) {
 
-    val file: File get() = File(directory, NAME)
+    val file: File get() = File(directory, FileNames.SKIPPED)
 
     fun write(skipped: List<Skip>): File {
         val document = linkedMapOf<String, Any>(
@@ -33,7 +34,6 @@ class SkipFile(private val directory: File) {
         }
 
     companion object {
-        const val NAME = "skipped.yaml"
         private const val SCHEMA_VERSION = 1
     }
 }

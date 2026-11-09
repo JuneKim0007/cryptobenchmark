@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.benchmark.verify.known
 
+import io.github.junekim0007.cryptobench.files.FileNames
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFile
@@ -8,7 +9,6 @@ import java.io.File
 // Reads config/known-answers.yaml; {hex: ...} inside a parameter tree becomes bytes.
 object KnownAnswerFile {
 
-    const val NAME = "known-answers.yaml"
     private val KEYS = listOf("id", "source", "type", "algorithm", "aliases", "operations", "key", "parameters", "input", "output", "compare", "provider", "origin", "unexpressible")
     private val SECRET_KEYS = listOf("algorithm", "secret")
     private val PAIR_KEYS = listOf("algorithm", "private", "public")
@@ -34,7 +34,7 @@ object KnownAnswerFile {
                 DocumentFields.optionalString(vector, "unexpressible").ifEmpty { null },
             )
         }.also { vectors ->
-            require(vectors.map { it.id to it.provider + it.algorithms.first() }.toSet().size == vectors.size) { "duplicate_id: $NAME vector ids repeat" }
+            require(vectors.map { it.id to it.provider + it.algorithms.first() }.toSet().size == vectors.size) { "duplicate_id: ${FileNames.KNOWN_ANSWERS} vector ids repeat" }
         }
 
     private fun key(document: Map<String, Any>, path: String): KnownAnswer.RawKey {

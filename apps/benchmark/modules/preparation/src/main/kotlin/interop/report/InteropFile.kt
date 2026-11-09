@@ -7,7 +7,6 @@ import java.io.File
 // interop.yaml is read back by perf-repair, which matches each row to its plan pair by id and members.
 object InteropFile {
 
-    const val NAME = "interop.yaml"
 
     fun document(verdicts: List<InteropVerdict>, plan: String, capture: String): Map<String, Any> = linkedMapOf(
         "schemaVersion" to 1,

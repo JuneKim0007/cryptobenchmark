@@ -11,6 +11,8 @@ import io.github.junekim0007.cryptobench.config.source.CaptureSource
 import io.github.junekim0007.cryptobench.config.source.TrialSource
 import io.github.junekim0007.cryptobench.config.yaml.YamlCodec
 import io.github.junekim0007.cryptobench.config.yaml.YamlFiles
+import io.github.junekim0007.cryptobench.files.Beside
+import io.github.junekim0007.cryptobench.files.FileNames
 import io.github.junekim0007.cryptobench.settings.Facts
 import java.io.File
 import java.nio.file.Files
@@ -22,11 +24,11 @@ class Configuration(
     private val effectiveBuilder: EffectiveBuilder = EffectiveBuilder(),
 ) {
 
-    val inventoryFile: File get() = File(output, INVENTORY)
+    val inventoryFile: File get() = File(output, FileNames.INVENTORY)
 
-    val effectiveFile: File get() = File(output, EFFECTIVE)
+    val effectiveFile: File get() = File(output, FileNames.EFFECTIVE)
 
-    val reportFile: File get() = File(output, REPORT)
+    val reportFile: File get() = File(output, FileNames.CONFIG_REPORT)
 
     fun inventory(captureFile: File, trialFile: File): File {
         Files.deleteIfExists(inventoryFile.toPath())
@@ -50,7 +52,7 @@ class Configuration(
     /** The settings, with what the run noticed joined back from the report file beside them when there is one. */
     fun readEffective(file: File = effectiveFile): EffectiveConfig {
         val effective = files.at(file, EffectiveDocument).read()
-        val report = File(file.absoluteFile.parentFile, REPORT).takeIf { it.isFile } ?: return effective
+        val report = Beside.file(file, FileNames.CONFIG_REPORT).takeIf { it.isFile } ?: return effective
         val noticed = files.at(report, ReportDocument).read()
         return effective.copy(warnings = effective.warnings + noticed.warnings, skipped = effective.skipped + noticed.skipped)
     }
@@ -63,11 +65,5 @@ class Configuration(
             if (malformed is IllegalArgumentException) throw malformed
             throw IllegalArgumentException("unreadable_yaml: ${file.path}: ${malformed.message}", malformed)
         }
-    }
-
-    companion object {
-        const val INVENTORY = "inventory.yaml"
-        const val EFFECTIVE = "effective.yaml"
-        const val REPORT = "report.yaml"
     }
 }

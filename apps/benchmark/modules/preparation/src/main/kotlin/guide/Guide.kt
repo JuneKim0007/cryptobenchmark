@@ -1,5 +1,7 @@
 package io.github.junekim0007.cryptobench.preparation.guide
 
+import io.github.junekim0007.cryptobench.files.Beside
+import io.github.junekim0007.cryptobench.files.FileNames
 import io.github.junekim0007.cryptobench.preparation.request.Selection
 import io.github.junekim0007.cryptobench.preparation.resolve.Rejection
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields
@@ -41,11 +43,10 @@ class Guide(private val items: Map<String, Map<String, Any>>) {
 
     companion object {
 
-        const val NAME = "guide.yaml"
         private const val SCHEMA_NAME = "guide"
         private const val SUPPORTED_SCHEMA_VERSION = 1
 
-        fun beside(effectiveFile: File): Guide = read(File(effectiveFile.absoluteFile.parentFile, NAME))
+        fun beside(effectiveFile: File): Guide = read(Beside.file(effectiveFile, FileNames.GUIDE))
 
         fun read(file: File): Guide {
             val items = LinkedHashMap<String, Map<String, Any>>()

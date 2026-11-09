@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation.engine
 
+import io.github.junekim0007.cryptobench.files.FileNames
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields
 import io.github.junekim0007.cryptobench.preparation.shared.YamlCodec
@@ -14,7 +15,7 @@ class EngineTypes private constructor(
     companion object {
 
         // perf-repair reads the same file to know which used items the harness cannot time
-        const val RESOURCE = "engine-operations.yaml"
+        const val RESOURCE = FileNames.ENGINE_OPERATIONS
 
         private val loaded: EngineTypes by lazy {
             val text = EngineTypes::class.java.getResourceAsStream(RESOURCE)?.use { it.readBytes().toString(Charsets.UTF_8) }

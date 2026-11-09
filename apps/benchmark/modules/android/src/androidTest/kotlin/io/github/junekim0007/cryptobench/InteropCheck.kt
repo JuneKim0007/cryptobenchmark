@@ -1,10 +1,10 @@
 package io.github.junekim0007.cryptobench
 
 import io.github.junekim0007.cryptobench.discovery.write.ProbeDirectory
+import io.github.junekim0007.cryptobench.files.FileNames
+import io.github.junekim0007.cryptobench.files.StampedName
 import io.github.junekim0007.cryptobench.preparation.adapter.DiscoveryCapability
 import io.github.junekim0007.cryptobench.preparation.interop.InteropRun
-import io.github.junekim0007.cryptobench.preparation.interop.plan.InteropPlanFile
-import io.github.junekim0007.cryptobench.preparation.interop.report.InteropFile
 import org.junit.Test
 import java.io.File
 
@@ -14,12 +14,12 @@ class InteropCheck {
     @Test
     fun checksEveryPlannedPair() {
         val directory = DevicePlan.directory
-        val effective = File(directory, "effective.yaml")
+        val effective = File(directory, FileNames.EFFECTIVE)
         check(effective.isFile) { "missing_file: ${effective.absolutePath}" }
         Bundled.installFrom(effective)
-        val capture = newest(directory, "probe")
-        InteropRun.run(DiscoveryCapability(capture, ProbeDirectory(directory).named("trial", capture)), File(directory, InteropPlanFile.NAME), capture,
-                       File(directory, InteropFile.NAME))
+        val capture = newest(directory, StampedName.PROBE)
+        InteropRun.run(DiscoveryCapability(capture, ProbeDirectory(directory).named(StampedName.TRIAL, capture)), File(directory, FileNames.INTEROP_PLAN), capture,
+                       File(directory, FileNames.INTEROP_RESULT))
     }
 
     private fun newest(directory: File, prefix: String): File =

@@ -5,6 +5,7 @@ import io.github.junekim0007.cryptobench.benchmark.report.ResultRow
 import io.github.junekim0007.cryptobench.benchmark.run.HostHarness
 import io.github.junekim0007.cryptobench.discovery.write.CaptureDocument
 import io.github.junekim0007.cryptobench.discovery.write.YamlCodec
+import io.github.junekim0007.cryptobench.files.FileNames
 import io.github.junekim0007.cryptobench.preparation.Preparation
 import io.github.junekim0007.cryptobench.preparation.adapter.DiscoveryCapability
 import java.io.File
@@ -36,6 +37,6 @@ fun main(arguments: Array<String>) = command {
         rows += measured.row()
         output.write(runtime, rows)
     }
-    check(rows.isNotEmpty()) { "nothing_measured: every prepared case failed, see ${File(preparationDirectory, "skipped.yaml")}" }
+    check(rows.isNotEmpty()) { "nothing_measured: every prepared case failed, see ${File(preparationDirectory, FileNames.SKIPPED)}" }
     println(output.file.path)
 }

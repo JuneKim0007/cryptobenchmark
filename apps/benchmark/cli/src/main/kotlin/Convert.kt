@@ -2,6 +2,7 @@ import io.github.junekim0007.cryptobench.benchmark.report.BenchmarkJson
 import io.github.junekim0007.cryptobench.benchmark.report.MetricSamples
 import io.github.junekim0007.cryptobench.benchmark.report.energy.EnergyWindows
 import io.github.junekim0007.cryptobench.benchmark.report.jetpack.JetpackResults
+import io.github.junekim0007.cryptobench.files.FileNames
 import java.io.File
 import kotlin.system.exitProcess
 
@@ -14,7 +15,7 @@ private val FLAGS = listOf(METRICS, SAMPLES, THERMAL, UNCLEANED)
 fun main(arguments: Array<String>) {
     val (flags, positional) = arguments.partition { it.startsWith("--") }
     if (positional.size < 3 || flags.any { flag -> FLAGS.none { flag.startsWith(it) } }) {
-        System.err.println("usage: <benchmarkData.json> <prepared.yaml> <output directory> [energy.json] [--metrics=TIME,...] [--samples=n] [--thermal=thermal.json] [--uncleaned]")
+        System.err.println("usage: <benchmarkData.json> <${FileNames.PREPARED}> <output directory> [${FileNames.ENERGY_JSON}] [--metrics=TIME,...] [--samples=n] [--thermal=thermal.json] [--uncleaned]")
         exitProcess(2)
     }
     val metrics = flags.lastOrNull { it.startsWith(METRICS) }?.removePrefix(METRICS)?.split(',')

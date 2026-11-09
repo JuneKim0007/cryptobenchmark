@@ -7,6 +7,7 @@ import io.github.junekim0007.cryptobench.benchmark.verify.CaseCheck
 import io.github.junekim0007.cryptobench.benchmark.verify.known.KnownAnswerFile
 import io.github.junekim0007.cryptobench.benchmark.verify.record.CaseRecord
 import io.github.junekim0007.cryptobench.benchmark.verify.record.CheckFile
+import io.github.junekim0007.cryptobench.files.FileNames
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import org.junit.AfterClass
 import org.junit.Test
@@ -32,7 +33,7 @@ class EndToEndCheck(caseId: String, private val case: BenchmarkCase) : JetpackCa
         private const val DRY_RUN = "androidx.benchmark.dryRunMode.enable"
         private val records = mutableListOf<CaseRecord>()
         private val started = System.nanoTime()
-        private val vectors by lazy { KnownAnswerFile.read(File(DevicePlan.directory, KnownAnswerFile.NAME)) }
+        private val vectors by lazy { KnownAnswerFile.read(File(DevicePlan.directory, FileNames.KNOWN_ANSWERS)) }
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
@@ -41,7 +42,7 @@ class EndToEndCheck(caseId: String, private val case: BenchmarkCase) : JetpackCa
         @JvmStatic
         @AfterClass
         fun write() {
-            CheckFile.write(File(DevicePlan.directory, CheckFile.NAME), records + CaseRecord.fromSkips(DevicePlan.skipped),
+            CheckFile.write(File(DevicePlan.directory, FileNames.CHECK_RESULT), records + CaseRecord.fromSkips(DevicePlan.skipped),
                 mapOf("harness" to "device", "millis" to (System.nanoTime() - started) / 1_000_000))
         }
     }

@@ -1,12 +1,13 @@
 import io.github.junekim0007.cryptobench.benchmark.verify.record.CheckFile
 import io.github.junekim0007.cryptobench.benchmark.verify.record.RecordDiff
+import io.github.junekim0007.cryptobench.files.FileNames
 import java.io.File
 import kotlin.system.exitProcess
 
 // Two check.yaml files, baseline first: every difference on stdout; exit 1 when there is any, so a change shows its diff or none.
 fun main(arguments: Array<String>) {
     if (arguments.size != 2) {
-        System.err.println("usage: <baseline check.yaml> <current check.yaml>")
+        System.err.println("usage: <baseline ${FileNames.CHECK_RESULT}> <current ${FileNames.CHECK_RESULT}>")
         exitProcess(2)
     }
     val differences = RecordDiff.of(CheckFile.cases(File(arguments[0])), CheckFile.cases(File(arguments[1])))

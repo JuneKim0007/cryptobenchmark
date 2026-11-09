@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench
 
+import io.github.junekim0007.cryptobench.files.Folders
 import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterial
 import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterialGenerator
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyPlanner
@@ -16,7 +17,6 @@ import java.security.spec.X509EncodedKeySpec
 /** Key pairs for generated scopes: from the key planner once per run and kept on the device; each side decodes the same bytes through its own provider. */
 object ScopeKeys {
     // Paired with apps/benchmark-runner/device/adb.py SCOPE_KEYS; ScopedInterop's run starts without it.
-    const val FOLDER = "scope-keys"
 
     private val pairs = HashMap<String, KeyPair>()
 
@@ -31,7 +31,7 @@ object ScopeKeys {
         }
 
     private fun kept(recipe: KeyRecipe.Pair, decoder: String): KeyPair {
-        val folder = File(DevicePlan.directory, FOLDER).also(File::mkdirs)
+        val folder = File(DevicePlan.directory, Folders.SCOPE_KEYS).also(File::mkdirs)
         val public = File(folder, "${recipe.algorithm}-${recipe.keySize}-${recipe.provider}.public")
         val private = File(folder, "${recipe.algorithm}-${recipe.keySize}-${recipe.provider}.private")
         if (!public.isFile || !private.isFile) {

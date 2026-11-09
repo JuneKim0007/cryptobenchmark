@@ -1,3 +1,5 @@
+import io.github.junekim0007.cryptobench.files.FileNames
+import io.github.junekim0007.cryptobench.files.Folders
 import java.io.File
 import kotlin.system.exitProcess
 
@@ -14,4 +16,4 @@ internal fun command(block: () -> Unit) = try {
 }
 
 internal fun committedGlobal(): File? =
-    generateSequence(File("").absoluteFile) { it.parentFile }.map { File(it, "config/global.yaml") }.firstOrNull { it.exists() }
+    generateSequence(File("").absoluteFile) { it.parentFile }.map { File(File(it, Folders.CONFIG), FileNames.GLOBAL) }.firstOrNull { it.exists() }

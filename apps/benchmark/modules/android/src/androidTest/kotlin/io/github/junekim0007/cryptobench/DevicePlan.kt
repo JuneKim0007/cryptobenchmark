@@ -5,6 +5,8 @@ import io.github.junekim0007.cryptobench.benchmark.check.PlanCheck
 import io.github.junekim0007.cryptobench.benchmark.check.RunnablePlan
 import io.github.junekim0007.cryptobench.benchmark.run.CaseSettings
 import io.github.junekim0007.cryptobench.benchmark.run.energy.Energy
+import io.github.junekim0007.cryptobench.files.FileNames
+import io.github.junekim0007.cryptobench.files.StampedName
 import io.github.junekim0007.cryptobench.preparation.Preparation
 import io.github.junekim0007.cryptobench.preparation.adapter.DiscoveryCapability
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
@@ -19,15 +21,13 @@ import java.io.File
  */
 object DevicePlan {
 
-    private const val EFFECTIVE = "effective.yaml"
-
     private val plan: RunnablePlan by lazy {
         RunnablePlan(Preparation(capability), PlanCheck(JetpackConfig.METRICS, energyCapability = ::energyCapability), directory)
     }
 
     private val listed: List<BenchmarkCase> by lazy {
-        val effective = File(directory, EFFECTIVE)
-        check(effective.isFile) { "missing_file: ${effective.absolutePath}, push $EFFECTIVE with the capture and the trial" }
+        val effective = File(directory, FileNames.EFFECTIVE)
+        check(effective.isFile) { "missing_file: ${effective.absolutePath}, push ${FileNames.EFFECTIVE} with the capture and the trial" }
         Bundled.installFrom(effective)
         plan.list(effective, written = !CaseFilter.named).also { plan.stopIfSkipped() }
     }
@@ -48,8 +48,8 @@ object DevicePlan {
 
     // The pushed capture and its trial: what preparation and the key planner may use on this device.
     val capability: DiscoveryCapability by lazy {
-        val capture = newest("probe")
-        DiscoveryCapability(capture, paired("trial", capture))
+        val capture = newest(StampedName.PROBE)
+        DiscoveryCapability(capture, paired(StampedName.TRIAL, capture))
     }
 
     // Null when the case could not be prepared: its skip is logged and in skipped.yaml.
@@ -60,7 +60,7 @@ object DevicePlan {
     fun skipOf(case: BenchmarkCase): Skip? = plan.skipped.lastOrNull { it.reason.startsWith("${case.id}: ") }
 
     private fun energyCapability(): EnergyCapability? =
-        File(directory, EnergyCapability.FILE).takeIf { it.isFile }?.let { EnergyCapability.parse(it.readText()) }
+        File(directory, FileNames.ENERGY_CAPABILITY).takeIf { it.isFile }?.let { EnergyCapability.parse(it.readText()) }
 
     private fun newest(prefix: String): File =
         ProbeDirectory(directory).newest(prefix)

@@ -1,5 +1,7 @@
 package io.github.junekim0007.cryptobench.benchmark.verify.record
 
+import io.github.junekim0007.cryptobench.files.FileNames
+
 /** Two check.yaml case lists: every case only in one, and every field path whose value differs, one line each. */
 object RecordDiff {
 
@@ -20,7 +22,7 @@ object RecordDiff {
     }
 
     private fun byId(cases: List<Map<String, Any>>): Map<String, Map<String, Any>> =
-        cases.associateBy { it["id"].toString() }.also { require(it.size == cases.size) { "duplicate_id: a check.yaml repeats a case id" } }
+        cases.associateBy { it["id"].toString() }.also { require(it.size == cases.size) { "duplicate_id: a ${FileNames.CHECK_RESULT} repeats a case id" } }
 
     private fun flat(value: Any?, prefix: String = ""): Map<String, String> = when (value) {
         is Map<*, *> -> value.entries.fold(LinkedHashMap()) { all, (key, inner) -> all.apply { putAll(flat(inner, if (prefix.isEmpty()) "$key" else "$prefix.$key")) } }

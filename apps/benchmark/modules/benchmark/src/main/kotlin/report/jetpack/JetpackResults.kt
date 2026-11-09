@@ -5,6 +5,7 @@ import io.github.junekim0007.cryptobench.benchmark.report.MetricKeys
 import io.github.junekim0007.cryptobench.benchmark.report.MetricSamples
 import io.github.junekim0007.cryptobench.benchmark.report.ResultRow
 import io.github.junekim0007.cryptobench.benchmark.report.energy.EnergyWindows
+import io.github.junekim0007.cryptobench.files.FileNames
 import io.github.junekim0007.cryptobench.settings.Metric
 
 object JetpackResults {
@@ -80,7 +81,7 @@ object JetpackResults {
 
     private fun requestedOf(id: String, listed: Any?): List<String> {
         val names = (listed as? List<*>)?.map { it.toString() } ?: throw IllegalArgumentException("missing_field: metrics for $id")
-        return Metric.read(names, "prepared.yaml $id metrics").flatMap(MetricKeys::of)
+        return Metric.read(names, "${FileNames.PREPARED} $id metrics").flatMap(MetricKeys::of)
     }
 
     // androidx divides allocationCount by its own unpublished inner loop before writing,
@@ -90,7 +91,7 @@ object JetpackResults {
 
     private fun resolvedParametersOf(id: String, case: Map<String, Any>): Map<String, Any> =
         CaseDocument.optionalSection(case[RESOLVED_PARAMETERS])
-            ?: throw IllegalArgumentException("missing_field: $RESOLVED_PARAMETERS for $id; prepared.yaml predates schemaVersion 2")
+            ?: throw IllegalArgumentException("missing_field: $RESOLVED_PARAMETERS for $id; ${FileNames.PREPARED} predates schemaVersion 2")
 
     // thermal.json of apps/benchmark-runner/session/thermal_hook.py: {"cases": {"<id>": {start, end, startStatus, endStatus, note?, gate?}}}
     @Suppress("UNCHECKED_CAST")

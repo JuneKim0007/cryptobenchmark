@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation.operation
 
+import io.github.junekim0007.cryptobench.files.FileNames
 import io.github.junekim0007.cryptobench.preparation.engine.EngineTypeName
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.measurement.Variant
@@ -45,7 +46,7 @@ internal class SetupCatalog(document: Map<String, Any>) {
         private const val FIXED = "fixed"
         private const val BY_MODE = "byMode"
         private const val BY_SUFFIX = "bySuffix"
-        const val RESOURCE = "setup-catalog.yaml"
+        const val RESOURCE = FileNames.SETUP_CATALOG
 
         val standard: SetupCatalog by lazy {
             val text = SetupCatalog::class.java.getResourceAsStream(RESOURCE)?.use { it.readBytes().toString(Charsets.UTF_8) }

@@ -7,7 +7,6 @@ import java.io.File
 // check.yaml: the end-to-end check's per-case records and their counts; read back by RecordDiff and apps/benchmark-runner/stages/check.py.
 object CheckFile {
 
-    const val NAME = "check.yaml"
     private const val SCHEMA = 1
 
     fun write(file: File, records: List<CaseRecord>, generatedFrom: Map<String, Any>): File = DocumentFile.write(file, linkedMapOf(

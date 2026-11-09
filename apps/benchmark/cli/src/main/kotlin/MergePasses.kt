@@ -1,11 +1,12 @@
 import io.github.junekim0007.cryptobench.benchmark.report.BenchmarkJson
 import io.github.junekim0007.cryptobench.benchmark.report.PassMerge
+import io.github.junekim0007.cryptobench.files.FileNames
 import java.io.File
 import kotlin.system.exitProcess
 
 fun main(arguments: Array<String>) {
     if (arguments.size < 2 || arguments.drop(2).any { '=' !in it }) {
-        System.err.println("usage: <output directory> <base benchmark.json> [<metric key>=<benchmark.json> ...]")
+        System.err.println("usage: <output directory> <base ${FileNames.BENCHMARK_JSON}> [<metric key>=<${FileNames.BENCHMARK_JSON}> ...]")
         exitProcess(2)
     }
     val owned = arguments.drop(2).map { it.substringBefore('=') to File(it.substringAfter('=')).readText() }

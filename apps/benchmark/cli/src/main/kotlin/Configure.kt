@@ -1,4 +1,6 @@
 import io.github.junekim0007.cryptobench.config.Configuration
+import io.github.junekim0007.cryptobench.files.FileNames
+import io.github.junekim0007.cryptobench.files.Folders
 import java.io.File
 import java.io.IOException
 import kotlin.system.exitProcess
@@ -8,7 +10,7 @@ import kotlin.system.exitProcess
 fun main(arguments: Array<String>) {
     val paths = arguments.filterNot { it.startsWith("--") }
     if (paths.size < 3) {
-        System.err.println("usage: configure <probe_*.yaml> <trial_*.yaml> <configuration output directory> [<global.yaml>] [--facts=<facts.yaml>]")
+        System.err.println("usage: configure <probe_*.yaml> <trial_*.yaml> <configuration output directory> [<${FileNames.GLOBAL}>] [--facts=<facts.yaml>]")
         exitProcess(2)
     }
     val captureFile = File(paths[0])
@@ -27,7 +29,7 @@ fun main(arguments: Array<String>) {
         val inventoryFile = configuration.inventory(captureFile, trialFile)
         println(inventoryFile)
         if (globalFile == null) {
-            System.err.println("warning: no config/global.yaml found; effective.yaml not written")
+            System.err.println("warning: no ${Folders.CONFIG}/${FileNames.GLOBAL} found; ${FileNames.EFFECTIVE} not written")
             return
         }
         val effectiveFile = configuration.effective(globalFile, inventoryFile, factsFile)

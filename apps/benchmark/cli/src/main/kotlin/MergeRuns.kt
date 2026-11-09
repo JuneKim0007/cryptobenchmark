@@ -1,11 +1,12 @@
 import io.github.junekim0007.cryptobench.benchmark.report.BenchmarkJson
 import io.github.junekim0007.cryptobench.benchmark.report.Merge
+import io.github.junekim0007.cryptobench.files.FileNames
 import java.io.File
 import kotlin.system.exitProcess
 
 fun main(arguments: Array<String>) {
     if (arguments.size < 2) {
-        System.err.println("usage: <output directory> <benchmark.json> [<benchmark.json> ...]")
+        System.err.println("usage: <output directory> <${FileNames.BENCHMARK_JSON}> [<${FileNames.BENCHMARK_JSON}> ...]")
         exitProcess(2)
     }
     val merged = Merge.merge(arguments.drop(1).map { File(it).readText() })
