@@ -26,7 +26,7 @@ def child_env(index, root):
     env = {k: v for k, v in os.environ.items() if k != "CRYPTOBENCH_CONFIG"}
     env["PERFREPAIR_CONFIG"] = str(index.llm_config)
     env["CRYPTOBENCH_ROOT"] = str(root)
-    env["PYTHONPATH"] = os.pathsep.join(p for p in (str(paths.repo().perf_repair_source), str(paths.repo().library), env.get("PYTHONPATH")) if p)
+    env["PYTHONPATH"] = paths.child_python_path(env.get("PYTHONPATH"))
     return env
 
 

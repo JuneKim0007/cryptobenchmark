@@ -3,7 +3,7 @@ name = "perfrepair"
 version = "0.1.0"
 description = "LLM-guided crypto performance repair over cryptobenchmark results"
 requires-python = ">=3.10"
-dependencies = ["pyyaml>=6"]
+dependencies = ["pyyaml>=6", "cryptobench-lib"]
 
 [project.optional-dependencies]
 test = ["pytest>=8"]
@@ -22,5 +22,5 @@ where = ["src"]
 perfrepair = ["prompts/**/*.md", "**/*.yaml"]
 
 [tool.pytest.ini_options]
-pythonpath = ["src", "tests", "tests/grouping", "../../lib/cryptobench"]
+pythonpath = ["src", "tests", "tests/grouping"]
 testpaths = ["tests"]

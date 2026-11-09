@@ -1,13 +1,11 @@
 """After effective.yaml says what runs: picks exactly those items from the implementation guide, beside it, for preparation."""
 import pathlib
-import sys
 
 import yaml
 
-sys.path.append(str(pathlib.Path(__file__).resolve().parents[3] / "lib/cryptobench"))
-from cryptobench import paths  # noqa: E402
-from cryptobench.catalogue.guide_items import guide_items  # noqa: E402
-from cryptobench.catalogue import vectors  # noqa: E402
+from cryptobench import paths
+from cryptobench.catalogue.guide_items import guide_items
+from cryptobench.catalogue import vectors
 
 def file_beside(effective):
     return paths.Configuration(pathlib.Path(effective).parent).guide

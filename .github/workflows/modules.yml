@@ -38,6 +38,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: python3 -m pip install 'PyYAML>=6' 'pytest>=8'
+      - run: python3 -m pip install -e ./lib/cryptobench 'PyYAML>=6' 'pytest>=8'
       - run: python3 tools/module-isolation/handoff_check.py
       - run: python3 -m pytest tools/module-isolation/tests
