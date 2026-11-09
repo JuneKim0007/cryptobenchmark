@@ -2,12 +2,11 @@
 import os, pathlib, re, subprocess, time
 
 import timeouts
+from cryptobench import paths
 
 PACKAGE = "io.github.junekim0007.cryptobench"
 RUNNER = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
 PLAN_DIRECTORY = "cryptobench"   # DeviceDirectory.NAME
-CPU_PINS = "cpu-pins.yaml"   # CorePins.FILE
-SCOPED_INTEROP = "scoped-interop.yaml"   # ScopeInteropFile.FILE
 SCOPE_KEYS = "scope-keys"   # ScopeKeys.FOLDER
 # androidx falls back to MethodTracing when a case's ProfilerConfig is null, so "profiling: none" needs
 # the default set to None; a case asking for a profiler still gets one.
@@ -171,28 +170,28 @@ class Device:
 
     def clear_outputs(self, plan_files=()):
         """androidx's outputs and the plan directory's per-run files, so nothing of an earlier process is pulled as this one's."""
-        planned = " ".join(f"{self.files}/{name}" for name in (*plan_files, CPU_PINS))
+        planned = " ".join(f"{self.files}/{name}" for name in (*plan_files, paths.CPU_PINS))
         self.shell(f"rm -f {self.media}/*-benchmarkData.json {self.media}/*.perfetto-trace {self.media}/*.trace {planned}")
 
     def pull_pins(self, into):
         """The per-case core pins a timed process writes beside its results."""
-        (into / CPU_PINS).unlink(missing_ok=True)
-        self.run("pull", f"{self.files}/{CPU_PINS}", str(into / CPU_PINS), check=False)
+        paths.Measurement(into).cpu_pins.unlink(missing_ok=True)
+        self.run("pull", f"{self.files}/{paths.CPU_PINS}", str(paths.Measurement(into).cpu_pins), check=False)
 
     def pull_plan(self, preparation):
         preparation.mkdir(parents=True, exist_ok=True)
-        self.pull(f"{self.files}/prepared.yaml", preparation / "prepared.yaml")
-        self.pull(f"{self.files}/skipped.yaml", preparation / "skipped.yaml")
+        self.pull(f"{self.files}/{paths.PREPARED}", paths.Preparation(preparation).prepared)
+        self.pull(f"{self.files}/{paths.SKIPPED}", paths.Preparation(preparation).skipped)
 
     def check_scopes(self, into):
         """ScopedInterop in its own process: every scope's verdict."""
-        interop = into / SCOPED_INTEROP
+        interop = paths.Scoped(into).interop
         interop.unlink(missing_ok=True)
         into.mkdir(parents=True, exist_ok=True)
-        self.shell(f"rm -f {self.files}/{SCOPED_INTEROP}")
+        self.shell(f"rm -f {self.files}/{paths.SCOPED_INTEROP}")
         self.shell(f"rm -rf {self.files}/{SCOPE_KEYS}")
         output = self.instrument("ScopedInterop")
         if not ONE_PASSED.search(output):
             raise DeviceError("ScopedInterop failed on the device:\n" + instrumentation_report(output))
-        self.pull(f"{self.files}/{SCOPED_INTEROP}", interop)
+        self.pull(f"{self.files}/{paths.SCOPED_INTEROP}", interop)
         return interop

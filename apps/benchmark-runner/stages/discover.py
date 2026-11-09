@@ -5,6 +5,7 @@ import effective_view, gradle_runner
 from device import facts
 from device.identity import capture_id, device_id
 from failure import fail
+from cryptobench import paths
 from results import layout as results_layout
 import bundled
 from stages import capture_files, config_check, guide
@@ -21,7 +22,7 @@ def summary(effective):
 
 
 def discover(options, configuration, device, results):
-    discovery, configured = results / "discovery", results / "configuration"
+    discovery, configured = paths.RunTree(results).discovery.root, paths.RunTree(results).configuration.root
     if options.discovery == "overwrite" and discovery.exists():
         shutil.rmtree(discovery)
     discovery.mkdir(parents=True, exist_ok=True)
@@ -47,7 +48,7 @@ def discover(options, configuration, device, results):
             capture_files.reprobed(before, capture)
     for path in written:
         print(f"wrote:     {path}")
-    effective = configured / "effective.yaml"
+    effective = paths.Configuration(configured).effective
     if not effective.is_file():
         fail(f"missing_file: {effective}")
     bundled.check_effective(effective, shipped)
@@ -58,19 +59,19 @@ def discover(options, configuration, device, results):
 
 def located(results, capture_name):
     """By the name discover() returned: after a publish into a kept discovery/ the folder holds older captures too."""
-    discovery, configured = results / "discovery", results / "configuration"
+    discovery, configured = paths.RunTree(results).discovery.root, paths.RunTree(results).configuration.root
     capture, trial = capture_files.pair(discovery / capture_name)
-    effective = configured / "effective.yaml"
-    files = {key: path for key, path in (("probe", capture), ("trial", trial), ("requirements", capture_files.requirements(capture)), ("inventory", configured / "inventory.yaml"),
-                                         ("effective", effective), ("report", configured / "report.yaml")) if path and path.is_file()}
+    effective = paths.Configuration(configured).effective
+    files = {key: path for key, path in (("probe", capture), ("trial", trial), ("requirements", capture_files.requirements(capture)), ("inventory", paths.Configuration(configured).inventory),
+                                         ("effective", effective), ("report", paths.Configuration(configured).report)) if path and path.is_file()}
     return discovery, effective, capture, trial, files
 
 
 def seed_reuse(options, root, stage):
     """--discovery reuse names no folder until the JVM's id is known; ProbeKt --reuse still decides whether the capture fits."""
-    existing = root / device_id(host_runtime(options)) / results_layout.DISCOVERY
+    existing = paths.Results(root).device(device_id(host_runtime(options))).discovery.root
     if existing.is_dir():
-        results_layout.merge_folder(existing, stage / results_layout.DISCOVERY)
+        results_layout.merge_folder(existing, paths.RunTree(stage).discovery.root)
 
 
 def discover_staged(options, configuration, device, root, stage):

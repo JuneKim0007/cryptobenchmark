@@ -4,6 +4,7 @@ import json
 import yaml
 
 from chart_model import AUDIT_TOLERANCE, short, size_label, variant
+from cryptobench import paths
 
 
 def summary_table(cases):
@@ -51,7 +52,7 @@ def write(root, cases, cfg, written, counts=None):
     text = summary_table(cases)
     for metric, rows in (counts or {}).items():
         text += f"\n## {metric}: {rows[0]['label']} (n = {','.join(str(n) for n in sorted({r['stats']['n'] for r in rows}))} runs per case)\n\n" + count_table(rows)
-        (root / f"chart-data-{metric}.json").write_text(json.dumps(rows, indent=1))
-    (root / "summary.md").write_text(text)
-    (root / "chart-data.json").write_text(json.dumps(cases, indent=1))
-    (root / "manifest.yaml").write_text(yaml.safe_dump(manifest(cases, cfg, written, root, counts), sort_keys=False))
+        paths.Charts(root).metric_data(metric).write_text(json.dumps(rows, indent=1))
+    paths.Charts(root).summary.write_text(text)
+    paths.Charts(root).data.write_text(json.dumps(cases, indent=1))
+    paths.Charts(root).manifest.write_text(yaml.safe_dump(manifest(cases, cfg, written, root, counts), sort_keys=False))

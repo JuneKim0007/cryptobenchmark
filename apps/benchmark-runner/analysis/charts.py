@@ -18,6 +18,7 @@ import chart_draw  # noqa: E402
 import chart_input  # noqa: E402
 import chart_model  # noqa: E402
 import chart_report  # noqa: E402
+from cryptobench import paths
 
 
 def build(benchmark_file, prepared_file, effective_file, results):
@@ -32,7 +33,7 @@ def build(benchmark_file, prepared_file, effective_file, results):
     if mismatches:
         print(f"warning: {len(mismatches)} cases disagree with the statistics androidx reported for the same runs "
               f"(first: {mismatches[0]}); see auditAgainstJetpack in manifest.yaml", file=sys.stderr)
-    root = pathlib.Path(cfg["dir"].replace("<run-id>", cfg["run_id"])) if cfg["dir"] else pathlib.Path(results) / "chart" / cfg["run_id"]
+    root = pathlib.Path(cfg["dir"].replace("<run-id>", cfg["run_id"])) if cfg["dir"] else paths.RunTree(pathlib.Path(results)).charts / cfg["run_id"]
     root.mkdir(parents=True, exist_ok=True)
     written = []
     if "iqrBars" in cfg["charts"]:
@@ -40,7 +41,7 @@ def build(benchmark_file, prepared_file, effective_file, results):
         for c in cases:
             by_chart[(c["group"], c["groupLabel"], c["operation"], c["inputSize"])].append(c)
         for (group_id, group_label, operation, size), items in sorted(by_chart.items(), key=lambda kv: (kv[0][0], kv[0][2], kv[0][3] or 0)):
-            written.append(chart_draw.iqr_bars(items, group_label, operation, size, root / f"{group_id}-{group_label}"))
+            written.append(chart_draw.iqr_bars(items, group_label, operation, size, paths.Charts(root).group(group_id, group_label)))
     counts = {m: [r for r in (chart_model.summarize_count(c, groups, m) for c in raw) if r] for m in chart_model.count_metrics(raw)}
     if counts and cfg["countBars"]:
         for metric, rows in counts.items():
@@ -48,7 +49,7 @@ def build(benchmark_file, prepared_file, effective_file, results):
             for r in rows:
                 by_chart[(r["group"], r["groupLabel"], r["operation"], r["inputSize"])].append(r)
             for (group_id, group_label, operation, size), items in sorted(by_chart.items(), key=lambda kv: (kv[0][0], kv[0][2], kv[0][3] or 0)):
-                written.append(chart_draw.count_bars(items, items[0]["label"], group_label, operation, size, root / f"{group_id}-{group_label}", metric))
+                written.append(chart_draw.count_bars(items, items[0]["label"], group_label, operation, size, paths.Charts(root).group(group_id, group_label), metric))
     chart_report.write(root, cases, cfg, written, counts)
     return root, written
 

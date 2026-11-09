@@ -1,7 +1,8 @@
 """How the host runs apps/benchmark-runner/energy: the interpreter that has its packages, and the arguments of a run's cases."""
 import dataclasses, os, pathlib, subprocess
+from cryptobench import paths
 
-TOOLS = pathlib.Path(__file__).resolve().parent.parent
+TOOLS = paths.repo().energy
 
 
 class EnergyError(Exception):
@@ -43,7 +44,7 @@ class Host:
 def case_arguments(captures_found, capability, preparation, data, traces, dry_calls, out):
     arguments = ["--capability", capability, "-o", out]
     if "measured" in captures_found:
-        arguments += ["--prepared", preparation / "prepared.yaml", "--benchmark-data", data, "--traces", traces]
+        arguments += ["--prepared", paths.Preparation(preparation).prepared, "--benchmark-data", data, "--traces", traces]
     if "dry" in captures_found:
-        arguments += ["--dry-trace", traces / "dry.pftrace", "--dry-calls", dry_calls]
+        arguments += ["--dry-trace", traces / paths.DRY_TRACE, "--dry-calls", dry_calls]
     return arguments

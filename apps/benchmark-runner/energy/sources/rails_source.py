@@ -2,6 +2,7 @@
 import contextlib, time
 
 from .runner import case_arguments
+from cryptobench import paths
 
 PREFLIGHT_SECONDS = 3
 # The busy window spins every core; the first case must not start on that heat.
@@ -17,13 +18,13 @@ class RailsSource:
         self.host = host
 
     def preflight(self, session, discovery, accept_unresponsive):
-        folder = discovery / "energy-preflight"
+        folder = paths.Discovery(discovery).energy_preflight
         folder.mkdir(exist_ok=True)
-        config = folder / "rails.pbtx"
+        config = paths.Discovery(discovery).rails_config
         config.write_text(RAILS_CONFIG.replace("{millis}", str(PREFLIGHT_SECONDS * 1000)))
-        session.preflight(config, folder / "idle.pftrace", folder / "busy.pftrace")
-        capability = discovery / "energy.yaml"
-        self.host.tool("preflight.py", folder / "idle.pftrace", folder / "busy.pftrace", PREFLIGHT_SECONDS, capability,
+        session.preflight(config, paths.Discovery(discovery).idle_trace, paths.Discovery(discovery).busy_trace)
+        capability = paths.Discovery(discovery).energy
+        self.host.tool("preflight.py", paths.Discovery(discovery).idle_trace, paths.Discovery(discovery).busy_trace, PREFLIGHT_SECONDS, capability,
                        *(["--accept-unresponsive"] if accept_unresponsive else []))
         time.sleep(SETTLE_SECONDS)
         return capability

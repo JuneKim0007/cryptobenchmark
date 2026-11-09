@@ -1,7 +1,7 @@
 """run.thermalGate: before each case process the host waits while the device is hotter than its idle baseline; the timed loop is untouched."""
 import dataclasses, json, os, time
 
-from session import thermal_hook
+from cryptobench import paths
 from device import thermal
 from session.measure import Hooks
 
@@ -92,7 +92,7 @@ class Gate(Hooks):
 
     def after_process(self, process):
         # after_* run in reverse, so thermal_hook has written thermal.json by now; the gate joins its records to that file
-        path = process.into / thermal_hook.FILE
+        path = paths.Measurement(process.into).thermal
         if not path.is_file():
             return
         document, records = json.loads(path.read_text()), self.records.get(process.repetition, {})

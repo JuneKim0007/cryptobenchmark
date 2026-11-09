@@ -5,6 +5,7 @@ import effective_view
 import gradle_runner
 from failure import fail
 from session.measure import process_folder
+from cryptobench import paths
 
 PASS_ARGUMENT = "cryptobench.pass"        # PassArguments.PASS
 SAMPLES_ARGUMENT = "cryptobench.samples"  # PassArguments.SAMPLES
@@ -80,7 +81,7 @@ def run_all(chosen, repetitions, root, measure_one, options):
         measure_one(one, lambda repetition, into=into: process_folder(into, repetition, repetitions), written)
         if repetitions > 1 and written:
             merge_runs(into, written, options)
-        results[one] = (into / "benchmark.json", written)
+        results[one] = (paths.Measurement(into).json, written)
         print(f"pass:      {one.label}: {repetitions} process{'es' if repetitions > 1 else ''}, {duration(time.monotonic() - started)} on the device")
     if chosen[0].name is None:
         return results[chosen[0]][1]
@@ -99,7 +100,7 @@ def merged(results, root, repetitions, options):
     def merge(out, base_file, others):
         arguments = [str(out), str(base_file)] + [f"{key}={path}" for key, path in others]
         gradle_runner.run(" ".join(arguments), options.stacktrace, options.stream, main_class="MergePassesKt")
-        return out / "benchmark.json"
+        return paths.Measurement(out).json
     merge(root, results[base][0], [(key, files[0]) for key, files in owned])
     if repetitions == 1:
         return []

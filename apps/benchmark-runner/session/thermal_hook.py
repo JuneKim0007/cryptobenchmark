@@ -3,8 +3,8 @@ import json
 
 from device import thermal
 from session.measure import Hooks
+from cryptobench import paths
 
-FILE = "thermal.json"
 SCHEMA_VERSION = 1
 
 
@@ -53,7 +53,7 @@ class Thermal(Hooks):
             cases.setdefault(case, record(self.process_start, end, scope="run"))
         self.paused[process.repetition] = paused
         document = {"schemaVersion": SCHEMA_VERSION, "process": record(self.process_start, end), "cases": cases}
-        (process.into / FILE).write_text(json.dumps(document, indent=1))
+        paths.Measurement(process.into).thermal.write_text(json.dumps(document, indent=1))
 
     def after_session(self, _processes):
         print(summary(self.label, [c for cases in self.cases.values() for c in cases.values()],

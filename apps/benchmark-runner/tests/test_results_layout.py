@@ -38,12 +38,12 @@ def test_a_failed_run_leaves_no_stage(tmp_path):
 def test_overwrite_replaces_discovery_and_drops_the_old_manifest_but_nothing_of_perf_repair(tmp_path):
     target = tmp_path / "device"
     write(target / "discovery/probe_old.yaml")
-    write(target / layout.MANIFEST)
+    write(target / layout.paths.MANIFEST)
     write(target / "grouping/groups.json")
     layout.publish(stage_with(tmp_path), target, "overwrite")
     assert [p.name for p in (target / "discovery").iterdir()] == ["probe_new.yaml"]
     assert (target / "configuration/effective.yaml").read_text() == "new"
-    assert not (target / layout.MANIFEST).exists() and (target / "grouping/groups.json").is_file()
+    assert not (target / layout.paths.MANIFEST).exists() and (target / "grouping/groups.json").is_file()
 
 
 @pytest.mark.parametrize("mode", ["keep", "reuse"])
@@ -66,7 +66,7 @@ def test_interop_beside_a_finished_run_keeps_its_configuration_and_adds_to_its_m
     manifest.add_to_manifest(target, {"interop": target / "interop/interop.yaml"})
     assert (target / "configuration/effective.yaml").read_text() == "old"
     assert (target / "discovery/probe_new.yaml").is_file()
-    files = yaml.safe_load((target / layout.MANIFEST).read_text())["files"]
+    files = yaml.safe_load((target / layout.paths.MANIFEST).read_text())["files"]
     assert files == {"probe": "discovery/probe_old.yaml", "interop": "interop/interop.yaml"}
 
 
@@ -103,7 +103,7 @@ def test_a_temporary_root_warns_and_any_other_does_not(tmp_path, capsys):
 
 def harness_in(folder, device):
     harness = write(folder / "app-00000000/harness.yaml")
-    write(folder / layout.MANIFEST, yaml.safe_dump({"deviceId": device}))
+    write(folder / layout.paths.MANIFEST, yaml.safe_dump({"deviceId": device}))
     return harness
 
 
@@ -126,14 +126,14 @@ def test_a_harness_run_takes_no_results_root():
 
 
 def test_a_write_that_fails_midway_leaves_the_old_manifest_whole_and_no_temporary(tmp_path, monkeypatch):
-    path = write(tmp_path / layout.MANIFEST, "old: whole\n")
+    path = write(tmp_path / layout.paths.MANIFEST, "old: whole\n")
 
     def broken(_descriptor):
         raise OSError("disk full")
     monkeypatch.setattr(layout.os, "fsync", broken)
     with pytest.raises(OSError):
         layout.write_atomic(path, "new: half\n")
-    assert path.read_text() == "old: whole\n" and [p.name for p in tmp_path.iterdir()] == [layout.MANIFEST]
+    assert path.read_text() == "old: whole\n" and [p.name for p in tmp_path.iterdir()] == [layout.paths.MANIFEST]
     monkeypatch.undo()
     layout.write_atomic(path, "new: whole\n")
     assert path.read_text() == "new: whole\n"

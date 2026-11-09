@@ -7,7 +7,6 @@ from device import capture as captured, clocks
 from device.adb import PACKAGE
 from cryptobench import paths
 
-FACTS = "facts.yaml"
 NATIVE_LIBRARY = "libaffinity.so"
 APK = paths.repo().apk
 
@@ -43,6 +42,6 @@ def collect(device, capture):
 
 
 def gather(device, discovery, capture):
-    path = discovery / FACTS
+    path = paths.Discovery(discovery).facts
     path.write_text(yaml.safe_dump(collect(device, capture), sort_keys=False))
     return path

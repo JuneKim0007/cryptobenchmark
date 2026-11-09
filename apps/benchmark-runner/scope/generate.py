@@ -11,8 +11,8 @@ from scope import interop as scope_interop
 from scope import languages as scope_languages
 from scope import signature as scope_signature
 from scope import wrapper as scope_wrapper
+from cryptobench import paths
 
-PLAN = "scoped-plan.yaml"
 GENERATED_MARK = "/cryptobench/scoped/"
 
 
@@ -119,6 +119,6 @@ def generate(harness_path, root, out, compiler=scope_compile.gradle):
     out.mkdir(parents=True, exist_ok=True)
     document = {"schemaVersion": 1, "app": harness.app, "harness": str(pathlib.Path(harness_path).resolve()),
                 "seed": scope_inputs.SEED, "scopes": list(records.values())}
-    (out / PLAN).write_text(yaml.safe_dump(document, sort_keys=False))
-    return out / PLAN, list(compiled)
+    paths.Scoped(out).plan.write_text(yaml.safe_dump(document, sort_keys=False))
+    return paths.Scoped(out).plan, list(compiled)
 

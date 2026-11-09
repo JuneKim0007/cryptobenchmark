@@ -1,19 +1,13 @@
 """<results root>/<device_id>/: the probe names the folder, so a run stages its discovery beside it until then."""
 import contextlib, os, pathlib, shutil, tempfile
 
-MANIFEST = "manifest.yaml"
-DISCOVERY, INTEROP = "discovery", "interop"
+from cryptobench import paths
+
 STAGING_PREFIX = ".staging-"
-TEMP_ROOTS = ("/tmp", "/var/tmp", "/var/folders")
-
-
-def in_temp(path):
-    real = pathlib.Path(path).resolve()
-    return any(real.is_relative_to(pathlib.Path(root).resolve()) for root in (*TEMP_ROOTS, tempfile.gettempdir()))
 
 
 def warn_if_temp(path):
-    if in_temp(path):
+    if paths.in_temp(path):
         print(f"warning: results_in_temp: {path} is under a temporary folder the system may wipe; keep results elsewhere")
 
 
@@ -73,16 +67,16 @@ def merge_folder(source, target):
 def publish(stage, target, discovery_mode):
     """Everything staged moves in; the old manifest goes first, because a folder with one is a finished run."""
     target.mkdir(parents=True, exist_ok=True)
-    (target / MANIFEST).unlink(missing_ok=True)
+    paths.RunTree(target).manifest.unlink(missing_ok=True)
     for folder in stage.iterdir():
-        if folder.name == DISCOVERY and discovery_mode != "overwrite":
-            merge_folder(folder, target / DISCOVERY)
+        if folder.name == paths.DISCOVERY and discovery_mode != "overwrite":
+            merge_folder(folder, paths.RunTree(target).discovery.root)
         else:
             replace_folder(folder, target / folder.name)
 
 
 def publish_interop(stage, target):
     """Beside a finished run: its capture joins discovery/, and its configuration and manifest stay what they were."""
-    merge_folder(stage / DISCOVERY, target / DISCOVERY)
-    replace_folder(stage / INTEROP, target / INTEROP)
+    merge_folder(paths.RunTree(stage).discovery.root, paths.RunTree(target).discovery.root)
+    replace_folder(paths.RunTree(stage).interop.root, paths.RunTree(target).interop.root)
 

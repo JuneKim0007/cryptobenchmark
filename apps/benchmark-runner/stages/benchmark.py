@@ -2,7 +2,7 @@
 import subprocess, sys, time
 
 import bundled, dependencies, effective_view, energy_stage, gradle_runner, timeouts
-from energy_session import DRY_CALLS, EnergySession
+from energy_session import EnergySession
 from failure import fail, one_line
 from cryptobench import paths
 from session import case_isolation, energy_hook, passes, variant_order, warmup
@@ -23,15 +23,15 @@ def measure_on_device(run, one, captures, preparation, isolation, repetitions, f
 
     def converted(process):
         if timed:
-            joules = process.into / "energy.json"
+            joules = paths.Measurement(process.into).energy
             joined = f" {joules}" if "measured" in captures and joules.is_file() else ""
-            convert(run, f"{process.data} {preparation / 'prepared.yaml'} {process.into}{joined}{one.convert_flags()}{thermal_flag(process)}")
-            written.append(process.into / "benchmark.json")
+            convert(run, f"{process.data} {paths.Preparation(preparation).prepared} {process.into}{joined}{one.convert_flags()}{thermal_flag(process)}")
+            written.append(paths.Measurement(process.into).json)
         record(run.files, process.into, captures, device)
 
     arguments = pass_arguments(run, one)
     plan = measure_session.Plan("CryptoBenchmark", arguments, timed=bool(timed), order=variant_order.interleaved,
-                                cleared=("prepared.yaml", "skipped.yaml"), stale=(preparation / "prepared.yaml", preparation / "skipped.yaml"),
+                                cleared=(paths.PREPARED, paths.SKIPPED), stale=(paths.Preparation(preparation).prepared, paths.Preparation(preparation).skipped),
                                 pull_plan=lambda process: (device.pull_plan(preparation), device.pull_pins(process.into)), after_process=converted)
     measure_session.run_session(device, plan, repetitions, isolation, hooks, folder, run.problems)
 
@@ -39,19 +39,19 @@ def measure_on_device(run, one, captures, preparation, isolation, repetitions, f
 def dry_pass(session, into, preparation, problems, guarded):
     """Beside a timed run its failure costs only energy; alone it is the whole measurement."""
     print("measure:   EnergyDryBenchmark inside a host trace session")
-    step = lambda: session.dry_pass(paths.repo().energy / "energy.pbtx", into / "traces/dry.pftrace", into / DRY_CALLS, preparation)
+    step = lambda: session.dry_pass(paths.repo().energy / "energy.pbtx", paths.Measurement(into).dry_trace, paths.Measurement(into).energy_dry, preparation)
     energy_stage.guarded(problems, step) if guarded else step()
 
 
 def analyse(results, files, effective, preparation, benchmark, written, repetitions):
-    print(f"wrote:     {benchmark / 'benchmark.json'}")
-    files["benchmark"] = benchmark / "benchmark.json"
+    print(f"wrote:     {paths.Measurement(benchmark).json}")
+    files["benchmark"] = paths.Measurement(benchmark).json
     if repetitions > 1:
         files["processes"] = written
     started = time.monotonic()
-    data, prepared = str(benchmark / "benchmark.json"), str(preparation / "prepared.yaml")
+    data, prepared = str(paths.Measurement(benchmark).json), str(paths.Preparation(preparation).prepared)
     # charts only show a benchmark already paid for: a failure warns, the first ends them, and the run keeps its files
-    failed = (drawing_failed("analysis/analyze.py", data, str(results / "analysis"), str(effective), prepared)
+    failed = (drawing_failed("analysis/analyze.py", data, str(paths.RunTree(results).analysis.root), str(effective), prepared)
               or drawing_failed("analysis/charts.py", data, prepared, str(effective), str(results)))
     if failed:
         print(f"warning: charts_failed: {failed}")
@@ -73,7 +73,7 @@ def drawing_failed(script, *arguments):
 
 
 def measure_cases(options, device, results, discovery, effective, capture, trial, files, problems):
-    benchmark, preparation = results / "benchmark", results / "preparation"
+    benchmark, preparation = paths.RunTree(results).benchmark.root, paths.RunTree(results).preparation.root
     started = time.monotonic()
     document = effective_view.read(effective)["document"]
     repetitions, captures = effective_view.process_repetitions(document), energy_stage.captures(effective)
@@ -89,11 +89,11 @@ def measure_cases(options, device, results, discovery, effective, capture, trial
         written, processes = device_cases(run, document, [effective, guide.file_beside(effective), capture, trial], captures, benchmark, preparation)
     else:
         written, processes = host_cases(options, document, capture, trial, effective, benchmark, preparation, files, problems), repetitions
-    print(f"wrote:     {preparation / 'prepared.yaml'}")
+    print(f"wrote:     {paths.Preparation(preparation).prepared}")
     elapsed("prepare and measure", started)
     collapse(files, preparation, processes)
     if timed:
-        not_measured.report(preparation / "prepared.yaml", benchmark / "benchmark.json", problems)
+        not_measured.report(paths.Preparation(preparation).prepared, paths.Measurement(benchmark).json, problems)
         analyse(results, files, effective, preparation, benchmark, written, repetitions)
 
 
@@ -118,7 +118,7 @@ def warm_up(run, document, preparation):
     arguments = session_arguments(run, document)
     planned = case_isolation.listed(run.device.instrument("CryptoBenchmark", *arguments, "-e", "log", "true"))
     run.device.pull_plan(preparation)
-    cases = (yaml.safe_load((preparation / "prepared.yaml").read_text()) or {}).get("cases") or []
+    cases = (yaml.safe_load((paths.Preparation(preparation).prepared).read_text()) or {}).get("cases") or []
     warmup.run(run.device, "CryptoBenchmark", arguments, planned, cases, document)
 
 
@@ -131,11 +131,11 @@ def host_cases(options, document, capture, trial, effective, benchmark, preparat
     for repetition in range(1, repetitions + 1):
         into = measure_session.process_folder(benchmark, repetition, repetitions)
         measure_session.process_line(repetition, repetitions)
-        (into / "benchmark.json").unlink(missing_ok=True)
+        (paths.Measurement(into).json).unlink(missing_ok=True)
         gradle_runner.run(f"{capture} {trial} {effective} {into} {preparation}", options.stacktrace, options.stream, main_class="BenchKt",
                           properties=bundled.gradle_properties(document.get(bundled.KEY) or []),
                           failed=lambda message: kept(into, message, problems))
-        written.append(into / "benchmark.json")
+        written.append(paths.Measurement(into).json)
         record(files, into, {"none"}, None)
     if repetitions > 1:
         passes.merge_runs(benchmark, written, options)
@@ -144,7 +144,7 @@ def host_cases(options, document, capture, trial, effective, benchmark, preparat
 
 def kept(into, message, problems):
     """BenchKt writes each case's row as it finishes: when it dies, the rows it wrote are this run's, and its failure one problem line."""
-    if not (into / "benchmark.json").is_file():
+    if not (paths.Measurement(into).json).is_file():
         fail(message)
     line = f"bench_failed: {one_line(message)}"
     print(f"warning: {line}")
@@ -152,5 +152,5 @@ def kept(into, message, problems):
 
 
 def collapse(files, preparation, repetitions):
-    files.update(prepared=preparation / "prepared.yaml", skipped=preparation / "skipped.yaml")
+    files.update(prepared=paths.Preparation(preparation).prepared, skipped=paths.Preparation(preparation).skipped)
     singles(files, repetitions)

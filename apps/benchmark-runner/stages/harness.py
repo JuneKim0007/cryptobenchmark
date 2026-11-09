@@ -16,7 +16,6 @@ from stages.measuring import push
 from stages.took import elapsed
 
 # beside scoped/, which a failed run rolls back: the plan a failure line points at
-FAILED_PLAN = "scoped-plan.failed.yaml"
 
 
 def generate_scopes(options, scoped):
@@ -24,14 +23,14 @@ def generate_scopes(options, scoped):
     plan, compiled = scope_generate.generate(options.harness, paths.repo().gradle_root, scoped)
     elapsed(f"generate and compile {len(compiled)} scopes", started)
     if not compiled:
-        fail(f"nothing_to_check: no scope compiled, see {scoped.parent / FAILED_PLAN}")
+        fail(f"nothing_to_check: no scope compiled, see {scoped.parent / paths.SCOPED_PLAN_FAILED}")
     print(f"wrote:     {plan}")
     return plan
 
 
 def require_harness_device(harness, capture):
     """A harness belongs to one device's folder; another device's numbers there would read as that device's."""
-    built_for = harness.parent.parent / results_layout.MANIFEST
+    built_for = paths.RunTree(harness.parent.parent).manifest
     if built_for.is_file():
         wanted, attached = (yaml.safe_load(built_for.read_text()) or {}).get("deviceId"), capture_id(capture)
         if wanted != attached:
@@ -57,16 +56,16 @@ def check_scopes(options, configuration, device, results, scoped, plan):
 
 def keep_failed_plan(scoped):
     """The rollback removes scoped/; the plan of the failed run is kept beside it."""
-    plan, kept = scoped / scope_generate.PLAN, scoped.parent / FAILED_PLAN
+    plan, kept = paths.Scoped(scoped).plan, paths.RunTree(scoped.parent).scoped_plan_failed
     if plan.is_file():
         shutil.copyfile(plan, kept)
         print(f"kept:      {kept}")
 
 
 def harness_run(options, configuration, device, results):
-    (results / FAILED_PLAN).unlink(missing_ok=True)
+    paths.RunTree(results).scoped_plan_failed.unlink(missing_ok=True)
     try:
-        with results_layout.kept_until_replaced(results / "scoped") as scoped:
+        with results_layout.kept_until_replaced(paths.RunTree(results).scoped.root) as scoped:
             try:
                 plan = generate_scopes(options, scoped)
                 files = check_scopes(options, configuration, device, results, scoped, plan)
@@ -84,6 +83,6 @@ def harness_run(options, configuration, device, results):
 def checked_folder(options):
     if options.results:
         fail("--results: a --harness run writes checked/ beside its harness.yaml")
-    checked = pathlib.Path(options.harness).resolve().parent / "checked"
+    checked = pathlib.Path(options.harness).resolve().parent / paths.CHECKED
     results_layout.warn_if_temp(checked)
     return checked

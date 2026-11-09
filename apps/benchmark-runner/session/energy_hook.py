@@ -2,8 +2,8 @@
 import contextlib
 
 import energy_stage
-from energy_session import DRY_CALLS
 from session.measure import Hooks
+from cryptobench import paths
 
 
 class EnergyCapture(Hooks):
@@ -15,8 +15,8 @@ class EnergyCapture(Hooks):
         self.dry_pass, self.timed, self.stack, self.opened = dry_pass, timed, None, False
 
     def before_process(self, process):
-        (process.into / "energy.json").unlink(missing_ok=True)
-        for stale in (process.into / "traces").glob("*.perfetto-trace"):
+        paths.Measurement(process.into).energy.unlink(missing_ok=True)
+        for stale in paths.Measurement(process.into).traces.glob("*.perfetto-trace"):
             stale.unlink()
         self.stack, self.opened = contextlib.ExitStack(), False
         step = lambda: self.open(process.into)
@@ -34,7 +34,7 @@ class EnergyCapture(Hooks):
         if self.opened and "measured" in self.captures and self.timed:
             expected = process.cases.index(case) + 1
             pulled = []
-            energy_stage.guarded(self.problems, lambda: pulled.append(self.session.pull_traces(process.into / "traces", fresh=False)))
+            energy_stage.guarded(self.problems, lambda: pulled.append(self.session.pull_traces(paths.Measurement(process.into).traces, fresh=False)))
             count = pulled[0] if pulled else 0
             print(f"traces:    {case}: {count} pulled" + ("" if count >= expected else f", {expected} expected"))
 
@@ -43,9 +43,9 @@ class EnergyCapture(Hooks):
             return
         with self.stack:
             if "measured" in self.captures and self.timed:
-                energy_stage.guarded(self.problems, lambda: print(f"traces:    {self.session.pull_traces(process.into / 'traces', fresh=False)} pulled"))
+                energy_stage.guarded(self.problems, lambda: print(f"traces:    {self.session.pull_traces(paths.Measurement(process.into).traces, fresh=False)} pulled"))
             if "dry" in self.captures:
                 self.dry_pass(process.into, guarded=self.timed)
-        energy_stage.guarded(self.problems, lambda: self.source.joules(self.captures, self.discovery / "energy.yaml", self.preparation,
-                                                                       process.data, process.into / "traces", process.into / DRY_CALLS,
-                                                                       process.into / "energy.json"))
+        energy_stage.guarded(self.problems, lambda: self.source.joules(self.captures, paths.Discovery(self.discovery).energy, self.preparation,
+                                                                       process.data, paths.Measurement(process.into).traces, paths.Measurement(process.into).energy_dry,
+                                                                       paths.Measurement(process.into).energy))

@@ -8,13 +8,12 @@ from device.adb import NO_DEFAULT_PROFILER, PASSED, DeviceError, instrumentation
 from failure import fail
 from results.manifest import manifest
 from stages import guide
+from cryptobench import paths
 from cryptobench.catalogue import vectors
 from stages.discover import device_discover
 from stages.took import elapsed
 import bundled
 
-FOLDER = "check"
-RESULT = "check.yaml"   # CheckFile.NAME
 # androidx.benchmark 1.5.0: one call per measureRepeated, no warm-up, no timing, no output file
 DRY_RUN = ["-e", "androidx.benchmark.dryRunMode.enable", "true"]
 
@@ -23,7 +22,7 @@ def check_run(options, configuration, device, root):
     if not (options.bench or device) or options.harness or options.interop:
         fail("--check: the cases are checked on a --bench (host JVM) or a --device run, without --harness or --interop")
     results, (_, effective, capture, trial, files) = device_discover(options, configuration, device, root)
-    into = results / FOLDER
+    into = paths.RunTree(results).check.root
     shutil.rmtree(into, ignore_errors=True)
     into.mkdir(parents=True)
     known_answers = guide.write_known_answers(effective, capture, configuration)
@@ -34,10 +33,10 @@ def check_run(options, configuration, device, root):
     else:
         on_host(options, effective, capture, trial, known_answers, into)
     elapsed("end-to-end check", started)
-    failed = summary(into / RESULT)
-    manifest(results, "device" if device else "host", configuration, files | {"check": into / RESULT})
+    failed = summary(paths.CheckFolder(into).result)
+    manifest(results, "device" if device else "host", configuration, files | {"check": paths.CheckFolder(into).result})
     if failed:
-        fail(f"check_failed: {failed} cases failed or errored, see {into / RESULT}")
+        fail(f"check_failed: {failed} cases failed or errored, see {paths.CheckFolder(into).result}")
 
 
 def on_host(options, effective, capture, trial, known_answers, into):
@@ -46,14 +45,14 @@ def on_host(options, effective, capture, trial, known_answers, into):
 
 
 def on_device(device, options, effective, capture, trial, known_answers, into):
-    device.clear_outputs((RESULT,))
+    device.clear_outputs((paths.CHECK_RESULT,))
     device.push_plan(effective, guide.file_beside(effective), capture, trial, known_answers)
     suppressed = ["-e", "androidx.benchmark.suppressErrors", options.suppress_errors] if options.suppress_errors else []
     output = device.instrument("EndToEndCheck", *NO_DEFAULT_PROFILER, *DRY_RUN, *suppressed)
     if not PASSED.search(output):
         raise DeviceError("EndToEndCheck failed on the device:\n" + instrumentation_report(output))
-    device.pull(f"{device.files}/{RESULT}", into / RESULT)
-    device.pull_plan(into / "preparation")
+    device.pull(f"{device.files}/{paths.CHECK_RESULT}", paths.CheckFolder(into).result)
+    device.pull_plan(paths.CheckFolder(into).preparation.root)
 
 
 def summary(result):

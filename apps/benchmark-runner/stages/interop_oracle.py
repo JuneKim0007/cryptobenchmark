@@ -4,18 +4,17 @@ import shutil
 import yaml
 
 import gradle_runner
+from cryptobench import paths
 from device.adb import ONE_PASSED, DeviceError, instrumentation_report
 
-PLAN = "interop_plan.yaml"   # InteropPlanFile.NAME
-RESULT = "interop.yaml"      # InteropFile.NAME
 
 
 def stage_plan(plan, into):
     into.mkdir(parents=True, exist_ok=True)
-    staged = into / PLAN
+    staged = paths.InteropFolder(into).plan
     if plan.resolve() != staged.resolve():
         shutil.copyfile(plan, staged)
-    (into / RESULT).unlink(missing_ok=True)
+    paths.InteropFolder(into).result.unlink(missing_ok=True)
     return staged
 
 
@@ -24,12 +23,12 @@ def on_host(capture, trial, plan, out, stacktrace, stream):
 
 
 def on_device(device, effective, capture, trial, plan, out):
-    device.shell(f"rm -f {device.files}/{RESULT}")
+    device.shell(f"rm -f {device.files}/{paths.INTEROP_RESULT}")
     device.run("push", str(effective), str(capture), str(trial), str(plan), f"{device.files}/")
     output = device.instrument("InteropCheck")
     if not ONE_PASSED.search(output):
         raise DeviceError("InteropCheck failed on the device:\n" + instrumentation_report(output))
-    device.pull(f"{device.files}/{RESULT}", out)
+    device.pull(f"{device.files}/{paths.INTEROP_RESULT}", out)
 
 
 def summary(out):

@@ -4,6 +4,7 @@ import pathlib
 import yaml
 
 from failure import fail
+from cryptobench import paths
 
 CASE_ISOLATION = "case"
 
@@ -11,7 +12,7 @@ CASE_ISOLATION = "case"
 def read(effective_file):
     effective = pathlib.Path(effective_file)
     document = yaml.safe_load(effective.read_text()) or {}
-    report_file = effective.parent / "report.yaml"
+    report_file = paths.Configuration(effective.parent).report
     report = (yaml.safe_load(report_file.read_text()) or {}) if report_file.is_file() else {}
     return {
         "document": document,

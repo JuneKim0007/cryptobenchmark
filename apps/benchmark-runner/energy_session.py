@@ -1,10 +1,10 @@
 """Perfetto sessions on the device for energy; rails are read by apps/benchmark-runner/energy, this only starts, stops and pulls."""
 
+from cryptobench import paths
 from device.adb import NO_DEFAULT_PROFILER, PASSED, DeviceError, instrumentation_report
 
 TRACES = "/data/misc/perfetto-traces"   # where the shell user's perfetto may write
 SCRATCH = "/data/local/tmp"
-DRY_CALLS = "energy-dry.yaml"           # EnergyDryBenchmark.CALLS
 
 
 class EnergySession:
@@ -40,7 +40,7 @@ class EnergySession:
 
     def dry_pass(self, config, trace, calls, preparation, test_class="EnergyDryBenchmark"):
         """No Jetpack trace runs in this pass, so none kills the host session."""
-        self.device.shell(f"rm -f {self.device.files}/{DRY_CALLS}")
+        self.device.shell(f"rm -f {self.device.files}/{paths.ENERGY_DRY}")
         self.device.run("push", str(config), f"{SCRATCH}/{config.name}")
         remote = f"{TRACES}/{trace.name}"
         printed = self.device.shell(f"cat {SCRATCH}/{config.name} | perfetto --txt -c - -o {remote} --background-wait")
@@ -55,5 +55,5 @@ class EnergySession:
             raise DeviceError(f"{test_class} failed on the device:\n" + instrumentation_report(output))
         trace.parent.mkdir(parents=True, exist_ok=True)
         self.device.pull(remote, trace)
-        self.device.pull(f"{self.device.files}/{DRY_CALLS}", calls)
+        self.device.pull(f"{self.device.files}/{paths.ENERGY_DRY}", calls)
         self.device.pull_plan(preparation)

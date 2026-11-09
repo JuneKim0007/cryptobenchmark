@@ -1,7 +1,7 @@
 """Session hook: the clock state around every process and case of a device session."""
 from device import clocks
-from device.clocks import CLOCKS
 from session.measure import Hooks
+from cryptobench import paths
 
 
 class Clocks(Hooks):
@@ -20,7 +20,7 @@ class Clocks(Hooks):
         self.cases[case] = {"start": self.case_start, "end": clocks.capped(clocks.read(self.device))}
 
     def after_process(self, process):
-        clocks.write(process.into / CLOCKS, self.before, clocks.read(self.device), self.cases)
+        clocks.write(paths.Measurement(process.into).clocks, self.before, clocks.read(self.device), self.cases)
         if self.cases:
             hit = sum(1 for c in self.cases.values() if c["start"] or c["end"])
             print(f"clocks:    {hit} of {len(self.cases)} cases started or ended with a core capped below its maximum")

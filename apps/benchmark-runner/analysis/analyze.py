@@ -14,6 +14,7 @@ import chart_model  # noqa: E402
 import display_units  # noqa: E402
 import stats  # noqa: E402
 from outliers import split  # noqa: E402
+from cryptobench import paths
 
 RUN_LEVEL = ("throughput", "latency", "stability")
 
@@ -45,7 +46,7 @@ def summary(rows, out, units, note=None):
     for r in sorted(rows, key=lambda r: (r["type"], r["algorithm"], r["operation"], r["inputSize"] or 0, r.get("variant") or "")):
         lines.append(f"| {r['algorithm']} | {r['operation']}{chart_model.variant(r)} | {r['keySize'] or '-'} | {r['inputSize'] or '-'} "
                      f"| {display_units.number(r['latency'])} | {display_units.number(r['rate'])} | {r['cov']:.1%} | {r['removed']} | {_cleaning_cells(r)} |")
-    (out / "summary.md").write_text("\n".join(lines + (["", note] if note else [])) + "\n")
+    paths.Analysis(out).summary.write_text("\n".join(lines + (["", note] if note else [])) + "\n")
     if note:
         print(f"note: {note}")
 

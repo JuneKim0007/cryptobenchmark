@@ -42,7 +42,7 @@ class Phone(device_module.Device):
             self.log.append("pull data")
             pathlib.Path(local).write_text(json.dumps({"context": {"build": {"model": "fake"}}, "benchmarks": [jetpack_case(c) for c in self.written]}))
             return OK
-        if remote.endswith(device_module.CPU_PINS):
+        if remote.endswith(device_module.paths.CPU_PINS):
             self.log.append("pull pins")
             return MISSING
             return OK
@@ -57,7 +57,7 @@ class Phone(device_module.Device):
             pathlib.Path(local).write_text("cases:\n" + "".join(f"- {{id: {c}, type: T, algorithm: {c}, provider: P}}\n" for c in self.cases))
         elif remote.endswith("skipped.yaml"):
             pathlib.Path(local).write_text("skipped: []\n")
-        elif remote.endswith(device_module.SCOPED_INTEROP):
+        elif remote.endswith(device_module.paths.SCOPED_INTEROP):
             pathlib.Path(local).write_text("{}\n")
         elif remote == self.data:
             self.pulled(remote, local, True)

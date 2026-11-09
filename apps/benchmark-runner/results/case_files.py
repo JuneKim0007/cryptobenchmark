@@ -2,17 +2,18 @@
 import json
 import shutil
 
-FOLDER = "cases"
+from cryptobench import paths
 
 
 def path(into, case):
-    return into / FOLDER / f"{case}.json"
+    return paths.Measurement(into).case(case)
 
 
 def cleared(into):
     """An earlier run's files would read as this process's cases."""
-    shutil.rmtree(into / FOLDER, ignore_errors=True)
-    (into / FOLDER).mkdir(parents=True)
+    cases = paths.Measurement(into).cases
+    shutil.rmtree(cases, ignore_errors=True)
+    cases.mkdir(parents=True)
 
 
 def merge(into, cases, data):

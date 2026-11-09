@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 import display_units  # noqa: E402
 from chart_model import op_slug, short, size_label, variant  # noqa: E402
+from cryptobench import paths
 
 NOISY_COLOR, CALM_COLOR = "#e07a1f", "#57068c"
 
@@ -89,7 +90,7 @@ def count_vs_time(pairs, metric_label, out, metric, units):
     ax.grid(alpha=.3, which="both")
     ax.legend(fontsize=7)
     fig.tight_layout()
-    path = out / f"{metric}-vs-time.png"
+    path = paths.Analysis(out).metric_against_time(metric)
     fig.savefig(path, dpi=140)
     plt.close(fig)
     return path
@@ -135,7 +136,7 @@ def throughput(rows, out, units):
     axes[0].set_ylabel(units["throughput"])
     fig.suptitle("Throughput vs input size")
     fig.tight_layout()
-    path = out / "throughput.png"
+    path = paths.Analysis(out).throughput
     fig.savefig(path, dpi=140)
     plt.close(fig)
     return path
@@ -148,7 +149,7 @@ def latency(rows, out, units):
     names = [f"{label(r)} {r['operation'].lower()}" + (f" {r['inputSize']}B" if r["inputSize"] else "") for r in slow]
     plt.barh(names, [r["latency"] for r in slow], color="#4c72b0")
     plt.xscale("log"); plt.xlabel(f"mean time, {display_units.latency_label(units)} (log)"); plt.title("Asymmetric operations and key generation")
-    path = out / "latency.png"
+    path = paths.Analysis(out).latency
     plt.grid(axis="x", alpha=.3); plt.tight_layout(); plt.savefig(path, dpi=140, bbox_inches="tight"); plt.close()
     return path
 
@@ -169,6 +170,6 @@ def stability(rows, out, limit):
         plt.gca().text(0.98, 0.95, note, transform=plt.gca().transAxes, fontsize=8,
                        va="top", ha="right", family="monospace",
                        bbox=dict(boxstyle="round", facecolor="#fde9c8", edgecolor="#8a4b00"))
-    path = out / "stability.png"
+    path = paths.Analysis(out).stability
     plt.legend(); plt.grid(axis="y", alpha=.3); plt.tight_layout(); plt.savefig(path, dpi=140); plt.close()
     return path

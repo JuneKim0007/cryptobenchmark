@@ -1,6 +1,7 @@
 """The manafa source on the host: its process (manafa_session.py), started around the measured window."""
 import json, pathlib, subprocess
 
+from cryptobench import paths
 from .runner import TOOLS, EnergyError, case_arguments
 
 SESSION = TOOLS / "manafa_session.py"
@@ -25,9 +26,9 @@ class ManafaSource:
         return str(pathlib.Path(self.host.python).absolute()) if "/" in self.host.python else self.host.python
 
     def preflight(self, _session, discovery, _accept_unresponsive):
-        folder = discovery / "energy-preflight"
+        folder = paths.Discovery(discovery).energy_preflight
         folder.mkdir(exist_ok=True)
-        capability = (discovery / "energy.yaml").resolve()
+        capability = paths.Discovery(discovery).energy.resolve()
         try:
             result = subprocess.run([self.python(), str(SESSION), "--check", str(PREFLIGHT_SECONDS), "--capability", str(capability)],
                                     capture_output=True, text=True, cwd=folder, env=self.host.adb_environment(), timeout=self.host.timeout)
@@ -38,10 +39,10 @@ class ManafaSource:
                 print(result.stderr)
             raise EnergyError(_last_line(result.stdout) or f"{CANNOT_START}: {_last_line(result.stderr)}")
         print(result.stdout.rstrip())
-        return discovery / "energy.yaml"
+        return paths.Discovery(discovery).energy
 
     def window(self, folder):
-        return ManafaWindow(self, pathlib.Path(folder).resolve() / "manafa")
+        return ManafaWindow(self, paths.Measurement(pathlib.Path(folder).resolve()).manafa)
 
     def joules(self, *case_paths):
         if self.process is None:

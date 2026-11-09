@@ -3,7 +3,6 @@ import re
 
 import yaml
 
-CLOCKS = "clocks.yaml"
 
 READ = ('for c in /sys/devices/system/cpu/cpu[0-9]*; do f=$c/cpufreq; '
         'echo "${c##*/} $(cat $c/online 2>/dev/null || echo 1) $(cat $f/scaling_governor 2>/dev/null || echo -) '

@@ -44,5 +44,5 @@ def test_a_failed_generate_leaves_the_plan_its_failure_line_names(tmp_path, monk
     with pytest.raises(SystemExit):
         harness.harness_run(types.SimpleNamespace(harness=str(tmp_path / "harness.yaml")), None, None, results)
     named = capsys.readouterr().err.split("see ")[-1].strip()
-    assert named == str(results / harness.FAILED_PLAN) and pathlib.Path(named).read_text() == "scopes: []\n"
+    assert named == str(results / harness.paths.SCOPED_PLAN_FAILED) and pathlib.Path(named).read_text() == "scopes: []\n"
     assert not (results / "scoped").exists()

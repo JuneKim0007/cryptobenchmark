@@ -41,17 +41,17 @@
 | `warn_if_temp(path)` | `apps/benchmark-runner/results/layout.py` | - | pipeline, stages.harness |
 | `manifest(results, mode, configuration, files, problems)` | `apps/benchmark-runner/results/manifest.py` | - | pipeline, stages.check, stages.harness, stages.interop |
 | `digests(global_file)` | `apps/benchmark-runner/results/run_inputs.py` | Parsed, not raw: a comment or a reordered key reruns nothing; the bundled list is its own input; analysis only | pipeline, results.manifest |
-| `device_folders(root)` | `apps/benchmark-runner/results/select.py` | - | none |
+| `device_folders(root)` | `apps/benchmark-runner/results/select.py` | `paths.Results(root).devices()` | none |
 | `generate(harness_path, root, out, compiler)` | `apps/benchmark-runner/scope/generate.py` | No scope compiled still writes an empty catalog, so no failed scope's source is left to break the test APK. | scope_generate, stages.harness |
 | `expression(parameter, scope, side)` | `apps/benchmark-runner/scope/inputs.py` | `side` picks the provider a key pair is decoded by: another provider's key class is converted at every init, a cost on one side only. | scope.generate, scope.wrapper |
 | `kind(type_text)` | `apps/benchmark-runner/scope/inputs.py` | `KINDS.get(normalised(type_text))` | scope.interop, scope.wrapper |
 | `of(name)` | `apps/benchmark-runner/scope/languages.py` | `LANGUAGES[name]` | scope.dependencies, scope.generate, scope.wrapper |
 | `short_samples(data_file)` | `apps/benchmark-runner/session/calibration.py` | One coded line per benchmark whose calls per sample collapsed. | session.case_isolation, session.measure |
 | `listed(output)` | `apps/benchmark-runner/session/case_isolation.py` | The timed cases the device planned, in its order: AndroidJUnitRunner's -e log true lists them and runs none. | session.measure, stages.benchmark |
-| `process_folder(root, repetition, repetitions)` | `apps/benchmark-runner/session/measure.py` | `root if repetitions == 1 else root / f'process-{repetition}'` | session.passes, stages.benchmark |
+| `process_folder(root, repetition, repetitions)` | `apps/benchmark-runner/session/measure.py` | `root if repetitions == 1 else paths.Measurement(root).process(repetition).root` | session.passes, stages.benchmark |
 | `parsed(global_file)` | `apps/benchmark-runner/stages/config_check.py` | `parse_all([pathlib.Path(global_file)])[0]` | pipeline, stages.discover |
 | `device_discover(options, configuration, device, root)` | `apps/benchmark-runner/stages/discover.py` | A failed probe or configure leaves nothing; from here on the folder has its real name and no manifest until the run ends. | pipeline, stages.check |
-| `file_beside(effective)` | `apps/benchmark-runner/stages/guide.py` | `pathlib.Path(effective).with_name(NAME)` | stages.benchmark, stages.check |
+| `file_beside(effective)` | `apps/benchmark-runner/stages/guide.py` | `paths.Configuration(pathlib.Path(effective).parent).guide` | stages.benchmark, stages.check |
 | `push(device, options, plan, energy)` | `apps/benchmark-runner/stages/measuring.py` | dex2oat runs in the AOT compile, so the energy settle comes after it, never before; energy.yaml follows the settle. | stages.benchmark, stages.harness |
 | `elapsed(label, started)` | `apps/benchmark-runner/stages/took.py` | - | stages.benchmark, stages.check, stages.discover, stages.harness +2 |
 | `run(step, command)` | `apps/benchmark-runner/timeouts.py` | - | device.adb, gradle_runner, scope.compile, stages.benchmark |

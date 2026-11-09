@@ -7,6 +7,7 @@ from failure import one_line
 from results import case_files
 from session import calibration, case_isolation
 from device.adb import PASSED, DeviceError
+from cryptobench import paths
 
 COUNTED = re.compile(r"^Tests run: (\d+),\s+Failures: (\d+)", re.M)
 
@@ -36,7 +37,7 @@ class Process:
 
     @property
     def data(self):
-        return self.into / "benchmarkData.json"
+        return paths.Measurement(self.into).data
 
 
 class Hooks:
@@ -65,7 +66,7 @@ class Hooks:
 
 
 def process_folder(root, repetition, repetitions):
-    return root if repetitions == 1 else root / f"process-{repetition}"
+    return root if repetitions == 1 else paths.Measurement(root).process(repetition).root
 
 
 def process_line(repetition, repetitions):

@@ -19,7 +19,7 @@ def test_unreadable_is_unknown_not_locked():
 
 
 def test_a_lock_released_mid_run_is_not_a_lock(tmp_path):
-    path = clocks.write(tmp_path / clocks.CLOCKS, clocks.parse(PINNED), clocks.parse(SCALING))
+    path = clocks.write(tmp_path / "clocks.yaml", clocks.parse(PINNED), clocks.parse(SCALING))
     assert clocks.runtime_locked([path]) == "false"
 
 

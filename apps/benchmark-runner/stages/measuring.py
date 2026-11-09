@@ -2,11 +2,11 @@
 import dataclasses, pathlib, time
 
 import effective_view, gradle_runner
-from device.adb import CPU_PINS, Device, measure_arguments
-from device.clocks import CLOCKS
+from device.adb import Device, measure_arguments
 from energy_session import EnergySession
 from session import clocks_hook, cooldown_hook, thermal_gate, thermal_hook
 from stages.took import elapsed
+from cryptobench import paths
 
 
 @dataclasses.dataclass(frozen=True)
@@ -51,7 +51,7 @@ def timed_hooks(run, one, isolation):
 
 
 def thermal_flag(process):
-    reading = process.into / thermal_hook.FILE
+    reading = paths.Measurement(process.into).thermal
     return f" --thermal={reading}" if reading.is_file() else ""
 
 
@@ -73,14 +73,14 @@ def push(device, options, plan, energy=None):
 
 
 def record(files, into, captures, device):
-    if captures - {"none"} and (into / "energy.json").is_file():
-        files.setdefault("energy", []).append(into / "energy.json")
+    if captures - {"none"} and paths.Measurement(into).energy.is_file():
+        files.setdefault("energy", []).append(paths.Measurement(into).energy)
     if device and captures - {"dry"}:
-        files.setdefault("clocks", []).append(into / CLOCKS)
-        if (into / CPU_PINS).is_file():
-            files.setdefault("cpuPins", []).append(into / CPU_PINS)
+        files.setdefault("clocks", []).append(paths.Measurement(into).clocks)
+        if paths.Measurement(into).cpu_pins.is_file():
+            files.setdefault("cpuPins", []).append(paths.Measurement(into).cpu_pins)
             import yaml
-            for case, pin in (yaml.safe_load((into / CPU_PINS).read_text()) or {}).items():
+            for case, pin in (yaml.safe_load(paths.Measurement(into).cpu_pins.read_text()) or {}).items():
                 if "failed" in pin:
                     print(f"warning: cpu_pin_failed: {case}: {pin['failed']}")
 
