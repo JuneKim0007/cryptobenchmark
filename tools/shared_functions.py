@@ -1,7 +1,9 @@
-"""Writes the shared-functions index of each code root: the functions other modules import, with their callers."""
+"""Writes the shared-functions index of each code root: the functions other modules import, with their callers; --check fails when a written index differs."""
+import argparse
 import ast
 import collections
 import pathlib
+import sys
 import textwrap
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -126,7 +128,25 @@ def index(title, router, roots, least):
     return "\n".join([f"# Shared functions: {title}", "", "| function | module | rule | callers |", "|---|---|---|---|", *rows, ""])
 
 
-if __name__ == "__main__":
+def stale(path, text):
+    return not path.is_file() or path.read_text() != text
+
+
+def main(check):
+    drifted = 0
     for title, router, doc, roots, least in INDEXES:
-        (ROOT / router / doc).write_text(index(title, router, roots, least))
-        print(f"wrote:     {router}/{doc}".replace(":     /", ":     "))
+        path, text = ROOT / router / doc, index(title, router, roots, least)
+        name = path.relative_to(ROOT)
+        if not check:
+            path.write_text(text)
+            print(f"wrote:     {name}")
+        elif stale(path, text):
+            drifted += 1
+            print(f"stale:     {name}; run python3 tools/shared_functions.py")
+    return 1 if drifted else 0
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--check", action="store_true", help="write nothing; exit 1 when an index differs from the code")
+    sys.exit(main(parser.parse_args().check))

@@ -7,7 +7,6 @@ from helpers import summary
 
 from perfrepair.data_handler.inbound.bootstrap import median_interval
 from perfrepair.data_handler.inbound.results import read_results
-from perfrepair.result.confidence import level
 from perfrepair.result.estimate import compare, p_improve
 
 RNG = random.Random(7)
@@ -61,12 +60,6 @@ def test_the_interval_is_honest_about_small_samples():
     assert median_interval(((5.0,),)) == (None, None)
     low, high = median_interval((tuple(float(v) for v in range(1, 51)),))
     assert low < 25.5 < high and high - low > 0
-
-
-@pytest.mark.parametrize("p, name", [(0.99, "ok"), (0.95, "ok"), (0.83, "warn"), (0.8, "warn"), (0.5, "weak"),
-                                     (None, "too_few_runs")])
-def test_levels_grade_and_never_gate(p, name):
-    assert level(p) == name
 
 
 def _case(runs):

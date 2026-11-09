@@ -18,13 +18,8 @@ local.properties
 __pycache__/
 env/
 /results
-/decision.md
 /.idea/
 /apps/benchmark/.idea/
-/CryptoBenchmark.config
-/docs/REFACTOR-BACKLOG.md
-/docs/benchmark-methodology.md
-/test_pair.md
 /tools/module-isolation/.gradle
 /tools/module-isolation/build
 /tools/module-isolation/*/build

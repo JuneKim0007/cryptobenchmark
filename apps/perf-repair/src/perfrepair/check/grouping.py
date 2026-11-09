@@ -1,7 +1,6 @@
 """The replay's grouping checks: the grouping outbox and knowledge, screen.json and its classify review."""
 from __future__ import annotations
 
-from pathlib import Path
 
 import yaml
 
