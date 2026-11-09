@@ -1,25 +1,14 @@
 package io.github.junekim0007.cryptobench.benchmark.report
 
 import io.github.junekim0007.cryptobench.files.FileNames
+import io.github.junekim0007.cryptobench.preparation.shared.DocumentFile
 import java.io.File
-import java.io.IOException
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
 
 class BenchmarkJson(private val directory: File) {
 
     val file: File get() = File(directory, FileNames.BENCHMARK_JSON)
 
-    fun write(runtime: Map<String, String>, rows: List<ResultRow>): File {
-        if (!directory.exists() && !directory.mkdirs()) {
-            throw IOException("cannot create ${directory.absolutePath}")
-        }
-        // Whole or not at all: a file rewritten as each case finishes is never left half written by a JVM that dies.
-        val partial = File.createTempFile(".${FileNames.BENCHMARK_JSON}.", ".partial", directory)
-        partial.writeText(text(runtime, rows), Charsets.UTF_8)
-        Files.move(partial.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE)
-        return file
-    }
+    fun write(runtime: Map<String, String>, rows: List<ResultRow>): File = DocumentFile.writeText(file, text(runtime, rows))
 
     fun text(runtime: Map<String, String>, rows: List<ResultRow>): String {
         val document = StringBuilder("{\n  \"runtime\": {")

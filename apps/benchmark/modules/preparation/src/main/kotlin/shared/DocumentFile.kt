@@ -26,14 +26,16 @@ object DocumentFile {
         return document
     }
 
-    fun write(file: File, document: Any): File {
+    fun write(file: File, document: Any): File = writeText(file, YamlCodec().dump(document))
+
+    fun writeText(file: File, text: String): File {
         val directory = file.parentFile
         if (!directory.exists() && !directory.mkdirs()) {
             throw IOException("cannot create ${directory.absolutePath}")
         }
         // Whole or not at all: a file rewritten as each case finishes is never left half written by a process that dies.
         val partial = File.createTempFile(".${file.name}.", ".partial", directory)
-        partial.writeText(YamlCodec().dump(document), Charsets.UTF_8)
+        partial.writeText(text, Charsets.UTF_8)
         Files.move(partial.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE)
         return file
     }

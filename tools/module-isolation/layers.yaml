@@ -26,7 +26,7 @@ modules:
       jca: [failure.Attempt]
       preparation: [parameter.bind.BindException, measurement.BenchmarkCase, measurement.Operation, prepare.PreparedCase, operation.Invocations, operation.Invocation, Preparation,
         prepare.Listing, prepare.PreparationException, prepare.StoppedOnFailureException, record.PreparedFile, report.Skip, report.SkipFile,
-        global.GlobalSettings, global.OnFailure, shared.FailureText]
+        global.GlobalSettings, global.OnFailure, shared.FailureText, shared.DocumentFile]
       settings: [HarnessSettings, EnergySettings, CpuSettings, Metric]
       files: all
 

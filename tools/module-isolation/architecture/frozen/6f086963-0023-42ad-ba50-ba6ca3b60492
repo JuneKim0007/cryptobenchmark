@@ -4,7 +4,6 @@ benchmark.verify.CaseCheck -> preparation.interop.report.Outcome
 benchmark.verify.CaseCheck -> preparation.key.generate.KeyMaterial
 benchmark.verify.CaseCheck -> preparation.port.DeviceCapability
 benchmark.verify.known.KnownAnswerFile -> preparation.shared.DocumentFields
-benchmark.verify.known.KnownAnswerFile -> preparation.shared.DocumentFile
 benchmark.verify.known.RawMaterial -> preparation.input.OperationInput
 benchmark.verify.known.RawMaterial -> preparation.key.generate.KeyMaterial
 benchmark.verify.known.RawMaterial -> preparation.parameter.bind.BoundParameters
@@ -64,5 +63,4 @@ benchmark.verify.record.CaseRecord -> preparation.interop.report.Outcome
 benchmark.verify.record.CaseRecord -> preparation.measurement.Variant
 benchmark.verify.record.CaseRecord -> preparation.operation.PerCall
 benchmark.verify.record.CheckFile -> preparation.shared.DocumentFields
-benchmark.verify.record.CheckFile -> preparation.shared.DocumentFile
 config.effective.EffectiveBuilder -> settings.Section
