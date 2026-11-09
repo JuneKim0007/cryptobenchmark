@@ -7,7 +7,6 @@ PACKAGE = "io.github.junekim0007.cryptobench"
 RUNNER = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
 PLAN_DIRECTORY = "cryptobench"   # DeviceDirectory.NAME
 CPU_PINS = "cpu-pins.yaml"   # CorePins.FILE
-NATIVE_CLEANUP = "native-cleanup.yaml"   # NativeCleanups.FILE
 SCOPED_INTEROP = "scoped-interop.yaml"   # ScopeInteropFile.FILE
 SCOPE_KEYS = "scope-keys"   # ScopeKeys.FOLDER
 # androidx falls back to MethodTracing when a case's ProfilerConfig is null, so "profiling: none" needs
@@ -172,14 +171,13 @@ class Device:
 
     def clear_outputs(self, plan_files=()):
         """androidx's outputs and the plan directory's per-run files, so nothing of an earlier process is pulled as this one's."""
-        planned = " ".join(f"{self.files}/{name}" for name in (*plan_files, CPU_PINS, NATIVE_CLEANUP))
+        planned = " ".join(f"{self.files}/{name}" for name in (*plan_files, CPU_PINS))
         self.shell(f"rm -f {self.media}/*-benchmarkData.json {self.media}/*.perfetto-trace {self.media}/*.trace {planned}")
 
-    def pull_records(self, into):
-        """The per-case lines a timed process writes beside its results: core pins and the native budget's paused cleanups."""
-        for name in (CPU_PINS, NATIVE_CLEANUP):
-            (into / name).unlink(missing_ok=True)
-            self.run("pull", f"{self.files}/{name}", str(into / name), check=False)
+    def pull_pins(self, into):
+        """The per-case core pins a timed process writes beside its results."""
+        (into / CPU_PINS).unlink(missing_ok=True)
+        self.run("pull", f"{self.files}/{CPU_PINS}", str(into / CPU_PINS), check=False)
 
     def pull_plan(self, preparation):
         preparation.mkdir(parents=True, exist_ok=True)

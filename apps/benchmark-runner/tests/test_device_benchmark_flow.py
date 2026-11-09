@@ -71,11 +71,15 @@ def test_repetitions_each_write_their_folder_and_merge(tmp_path, monkeypatch):
     assert (results / "benchmark/process-1/benchmark.json").is_file() and (results / "benchmark/process-2/benchmark.json").is_file()
 
 
+MEASURED = {"isolation": "case", "harness": {"energy": {"capture": "measured"}}, "passes": {"energy": {"samples": 3}, "timing": {"samples": 3}}}
+
+
 def test_measured_capture_runs_inside_the_window_with_a_preflight_first(tmp_path, monkeypatch):
-    phone, files, _problems, results = measured(tmp_path, monkeypatch, {"isolation": "case", "harness": {"energy": {"capture": "measured"}}})
+    phone, files, _problems, results = measured(tmp_path, monkeypatch, MEASURED)
     assert steps(phone)[:5] == ["adb push effective.yaml probe_1.yaml trial_1.yaml", "compile cryptobench", "compile test", "preflight",
                              "adb push energy.yaml"]
-    assert "window open" in steps(phone) and steps(phone)[-4:] == ["pull traces", "window close", "joules", "convert"]
+    closing = len(steps(phone)) - 1 - steps(phone)[::-1].index("pull traces")
+    assert "window open" in steps(phone) and steps(phone)[closing:closing + 4] == ["pull traces", "window close", "joules", "convert"]
     assert files["energyCapability"] == results / "discovery/energy.yaml"
 
 
@@ -83,9 +87,9 @@ def test_an_energy_window_that_cannot_open_costs_the_process_its_energy_never_it
     def refused(_self, _folder):
         raise benchmark.energy_stage.EnergyError("manafa_cannot_start: no session")
     monkeypatch.setattr(Energy, "window", refused)
-    phone, _files, problems, results = measured(tmp_path, monkeypatch, {"isolation": "case", "harness": {"energy": {"capture": "measured"}}})
+    phone, _files, problems, results = measured(tmp_path, monkeypatch, MEASURED)
     assert problems == ["energy_failed: manafa_cannot_start: no session"]
-    assert "joules" not in steps(phone) and "pull traces" not in steps(phone) and steps(phone)[-1] == "convert"
+    assert "joules" not in steps(phone) and "pull traces" not in steps(phone) and steps(phone)[-1] == "merge passes"
     assert [c["id"] for c in json.loads((results / "benchmark/benchmark.json").read_text())["cases"]] == ["a", "b"]
 
 
@@ -95,7 +99,7 @@ def test_a_clock_read_that_fails_before_the_process_closes_the_open_energy_windo
     monkeypatch.setattr(clocks_hook.clocks, "read", unreadable)
     phone = Phone(tmp_path)
     with pytest.raises(DeviceError, match="device offline"):
-        measured(tmp_path, monkeypatch, {"isolation": "case", "harness": {"energy": {"capture": "measured"}}}, phone=phone)
+        measured(tmp_path, monkeypatch, MEASURED, phone=phone)
     assert steps(phone)[-2:] == ["window open", "window close"]
 
 
@@ -105,9 +109,9 @@ def test_a_clock_record_that_fails_after_the_process_still_closes_the_window_and
     monkeypatch.setattr(clocks_hook.clocks, "write", unwritable)
     phone = Phone(tmp_path)
     with pytest.raises(OSError, match="no space left"):
-        measured(tmp_path, monkeypatch, {"isolation": "case", "harness": {"energy": {"capture": "measured"}}}, phone=phone)
+        measured(tmp_path, monkeypatch, MEASURED, phone=phone)
     assert steps(phone)[-4:] == ["pull traces", "window close", "joules", "convert"]
-    assert [c["id"] for c in json.loads((tmp_path / "results/benchmark/benchmark.json").read_text())["cases"]] == ["a", "b"]
+    assert [c["id"] for c in json.loads((tmp_path / "results/benchmark/energy/benchmark.json").read_text())["cases"]] == ["a", "b"]
 
 
 def test_a_crash_and_a_hang_cost_only_their_cases(tmp_path, monkeypatch):
@@ -115,15 +119,6 @@ def test_a_crash_and_a_hang_cost_only_their_cases(tmp_path, monkeypatch):
                                                  crash=("crash",), hang=("hang",))
     assert [line.split(":")[1].strip() for line in problems if line.startswith("case_failed")] == ["crash", "hang"]
     assert "force-stop" in steps(phone) and "not_measured: crash" in problems
-
-
-def test_the_native_budgets_cleanups_reach_the_conversion_and_the_manifest_files(tmp_path, monkeypatch):
-    cleanups = '"a": {everyCalls: 50000, cleanups: 2, pausedNanos: 900}\n'
-    phone, files, _problems, results = measured(tmp_path, monkeypatch, {"isolation": "case"}, cleanups=cleanups)
-    assert phone.converted[0].endswith(f" --cleanup={results / 'benchmark/native-cleanup.yaml'}")
-    assert files["nativeCleanup"] == results / "benchmark/native-cleanup.yaml"
-    phone, files, _problems, _results = measured(tmp_path / "none", monkeypatch, {"isolation": "case"})
-    assert "--cleanup=" not in phone.converted[0] and "nativeCleanup" not in files
 
 
 def test_every_case_failing_stops_the_run(tmp_path, monkeypatch):
@@ -138,7 +133,7 @@ def test_each_pass_is_its_own_session_and_every_metric_comes_from_its_pass(tmp_p
     named = [args[args.index("cryptobench.pass") + 1] + ":" + args[args.index("cryptobench.samples") + 1] for args in phone.arguments]
     assert named == ["timing:300", "timing:300", "energy:100", "energy:100", "allocation:100", "allocation:100"]
     assert steps(phone).count("window open") == 1 and steps(phone).index("window open") > steps(phone).index("instrument CryptoBenchmark b")
-    assert [c.split("--metrics=")[1].split(" --thermal")[0] for c in phone.converted] == ["TIME --samples=300", "TIME --samples=100", "TIME,ALLOCATION --samples=100"]
+    assert [c.split("--metrics=")[1].split(" --thermal")[0] for c in phone.converted] == ["TIME --samples=300", "TIME --samples=100 --uncleaned", "TIME,ALLOCATION --samples=100"]
     merged = json.loads((results / "benchmark/benchmark.json").read_text())["cases"][0]["metrics"]
     assert merged == {"timeNs": {"runs": [1.0]}, "energyJ": {"runs": [2.0]}, "allocationCount": {"runs": [3.0]}}
     assert len(files["clocks"]) == 3 and files["clocks"][0] == results / "benchmark/timing/clocks.yaml"
@@ -149,6 +144,11 @@ def test_the_throttle_sleep_reaches_every_process_and_unset_passes_nothing(tmp_p
     assert all(args[args.index("androidx.benchmark.thermalThrottle.sleepDurationSeconds") + 1] == "30" for args in phone.arguments)
     phone, _files, _problems, _results = measured(tmp_path / "unset", monkeypatch, {})
     assert not any("androidx.benchmark.thermalThrottle.sleepDurationSeconds" in args for args in phone.arguments)
+
+
+def test_measured_energy_without_its_own_pass_is_refused(tmp_path, monkeypatch):
+    with pytest.raises(SystemExit):
+        measured(tmp_path, monkeypatch, {"isolation": "case", "harness": {"energy": {"capture": "measured"}}})
 
 
 def test_dry_capture_is_refused_with_passes(tmp_path, monkeypatch):

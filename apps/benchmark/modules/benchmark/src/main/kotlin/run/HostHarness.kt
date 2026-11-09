@@ -1,6 +1,5 @@
 package io.github.junekim0007.cryptobench.benchmark.run
 
-import io.github.junekim0007.cryptobench.benchmark.budget.NativeBudget
 import io.github.junekim0007.cryptobench.preparation.operation.Invocations
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
 import io.github.junekim0007.cryptobench.settings.Metric
@@ -9,27 +8,27 @@ class HostHarness(
     private val warmupNanos: Long = WARMUP_NANOS,
     private val runNanos: Long = RUN_NANOS,
     private val runs: Int = RUNS,
-    private val cleanupEvery: Int = NativeBudget.CALLS,
+    // The JVM's own count; passed in because this module also compiles for Android, which has no java.lang.management.
+    private val collectionCount: () -> Long,
 ) {
 
     fun measure(prepared: PreparedCase): CaseMeasurement {
         val invocation = Invocations.of(prepared)
-        val budget = NativeBudget(cleanupEvery)
         val warmupStart = System.nanoTime()
-        val warmupIterations = TimedLoop.run(invocation, warmupNanos, budget = budget)
+        val warmupIterations = TimedLoop.run(invocation, warmupNanos)
         val observedNanos = (System.nanoTime() - warmupStart).toDouble() / maxOf(1L, warmupIterations)
         val iterations = maxOf(1, (runNanos / maxOf(1.0, observedNanos)).toInt())
         val samples = prepared.case.harness.iterations ?: runs
+        val cleaning = SampleCleaning(collectionCount)
         val nanosPerOperation = (1..samples).map {
-            var paused = 0L
+            cleaning.beforeSample()
             val start = System.nanoTime()
-            repeat(iterations) {
-                BlackHole.consume(invocation.perIteration())
-                if (budget.due()) paused += budget.clean()
-            }
-            (System.nanoTime() - start - paused).toDouble() / iterations
+            repeat(iterations) { BlackHole.consume(invocation.perIteration()) }
+            val elapsed = System.nanoTime() - start
+            cleaning.afterSample()
+            elapsed.toDouble() / iterations
         }
-        return CaseMeasurement(prepared.case, prepared.recipe.kind, iterations, nanosPerOperation, prepared.resolvedParameters, budget.spent)
+        return CaseMeasurement(prepared.case, prepared.recipe.kind, iterations, nanosPerOperation, prepared.resolvedParameters, cleaning.cleaned)
     }
 
     companion object {

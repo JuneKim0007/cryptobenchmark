@@ -20,11 +20,16 @@ fun main(arguments: Array<String>) = command {
     val runnable = plan.preparedAll(effective)
     val check = CaseCheck(CaseCheck.oracles(KnownAnswerFile.read(knownAnswers), capability, HostHarness.ONCE), HostHarness.ONCE)
     val started = System.nanoTime()
-    val checked = runnable.mapNotNull { prepared -> plan.guarded(prepared.case, RunnablePlan.CHECK, RunnablePlan.CHECK_FAILED) { check.check(prepared) } }
-    val records = checked + CaseRecord.notRun(plan.skipped)
-    val millis = (System.nanoTime() - started) / 1_000_000
-    val written = CheckFile.write(File(out, CheckFile.NAME), records,
-        mapOf("harness" to "host", "effective" to effective.name, "capture" to capture.name, "knownAnswers" to knownAnswers.name, "millis" to millis))
-    System.err.println("checked=${checked.size} notRun=${records.size - checked.size} millis=$millis")
-    println(written.path)
+    val checked = mutableListOf<CaseRecord>()
+    // In finally: a check that ran out of memory stops here and still leaves its records.
+    try {
+        runnable.forEach { prepared -> plan.guarded(prepared.case, RunnablePlan.CHECK, RunnablePlan.CHECK_FAILED) { check.check(prepared) }?.let(checked::add) }
+    } finally {
+        val records = checked + CaseRecord.fromSkips(plan.skipped)
+        val millis = (System.nanoTime() - started) / 1_000_000
+        val file = CheckFile.write(File(out, CheckFile.NAME), records,
+            mapOf("harness" to "host", "effective" to effective.name, "capture" to capture.name, "knownAnswers" to knownAnswers.name, "millis" to millis))
+        System.err.println("checked=${checked.size} notRun=${records.size - checked.size} millis=$millis")
+        println(file.path)
+    }
 }

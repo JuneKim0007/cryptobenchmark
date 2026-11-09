@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.benchmark
 
+import io.github.junekim0007.cryptobench.benchmark.report.MetricSamples
 import io.github.junekim0007.cryptobench.benchmark.run.CaseMeasurement
 import io.github.junekim0007.cryptobench.benchmark.run.HostHarness
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
@@ -26,7 +27,7 @@ class HostHarnessTest {
         OperationInput.Message(InputBytes.of(7, 64)),
     )
 
-    private val quick = HostHarness(warmupNanos = 2_000_000L, runNanos = 1_000_000L, runs = 3)
+    private val quick = HostHarness(warmupNanos = 2_000_000L, runNanos = 1_000_000L, runs = 3, collectionCount = { 0L })
 
     @Test
     fun aCaseYieldsAsManySamplesAsTheHarnessSettingsAskFor() {
@@ -42,13 +43,11 @@ class HostHarnessTest {
     }
 
     @Test
-    fun thePausedCleanupsAreLeftOutOfTheSamplesAndReportedBesideThem() {
-        val cleaned = HostHarness(warmupNanos = 2_000_000L, runNanos = 1_000_000L, runs = 3, cleanupEvery = 100).measure(digest(HarnessSettings()))
-        val cleanup = cleaned.row().cleanup!!
-        assertEquals(100, cleanup.everyCalls)
-        assertTrue("cleanups ${cleanup.cleanups}", cleanup.cleanups > 0)
-        assertTrue("paused ${cleanup.pausedNanos}", cleanup.pausedNanos > 0)
-        assertTrue("median ${cleaned.medianNanos}", cleaned.medianNanos > 0)
+    fun eachSampleHasACollectionBesideItOutsideItsTime() {
+        val row = quick.measure(digest(HarnessSettings())).row()
+        assertEquals(3, row.metrics.getValue(MetricSamples.GC_PAUSE).runs.size)
+        assertEquals(3, row.metrics.getValue(MetricSamples.GC_COUNT).runs.size)
+        assertTrue(row.metrics.getValue(MetricSamples.GC_PAUSE).runs.all { it > 0 })
     }
 
     @Test

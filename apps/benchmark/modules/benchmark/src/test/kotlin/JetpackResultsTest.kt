@@ -1,12 +1,12 @@
 package io.github.junekim0007.cryptobench.benchmark
 
-import io.github.junekim0007.cryptobench.benchmark.budget.NativeCleanup
 import io.github.junekim0007.cryptobench.benchmark.report.CaseDocument
 import io.github.junekim0007.cryptobench.benchmark.report.BenchmarkJson
 import io.github.junekim0007.cryptobench.benchmark.report.jetpack.JetpackResults
 import io.github.junekim0007.cryptobench.benchmark.report.MetricKeys
 import io.github.junekim0007.cryptobench.benchmark.report.MetricSamples
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.yaml.snakeyaml.Yaml
 import java.io.File
@@ -23,12 +23,14 @@ class JetpackResultsTest {
 
     private val digest = converted.rows.single { it.algorithm == "SHA-256" }
 
+    private val CLEANED = setOf(MetricSamples.GC_PAUSE, MetricSamples.GC_COUNT, MetricSamples.GC_BLOCKING)
+
     @Test
     fun convertingAgainWithAllocationRecoversWhatAndroidxAlreadyMeasured() {
         val timeOnly = plan().replace(Regex("metrics: \\[[^]]*]"), "metrics: [TIME]")
         val again = JetpackResults.convert(data(), timeOnly, metrics = listOf("TIME", "ALLOCATION"))
-        assertEquals(setOf(MetricSamples.TIME, MetricSamples.ALLOCATIONS), again.rows.single { it.algorithm == "SHA-256" }.metrics.keys)
-        JetpackResults.convert(data(), timeOnly).rows.forEach { row -> assertEquals(setOf(MetricSamples.TIME), row.metrics.keys) }
+        assertEquals(setOf(MetricSamples.TIME, MetricSamples.ALLOCATIONS) + CLEANED, again.rows.single { it.algorithm == "SHA-256" }.metrics.keys)
+        JetpackResults.convert(data(), timeOnly).rows.forEach { row -> assertEquals(setOf(MetricSamples.TIME) + CLEANED, row.metrics.keys) }
     }
 
     @Test
@@ -41,14 +43,20 @@ class JetpackResultsTest {
     }
 
     @Test
-    fun aCasesPausedCleanupsFromTheDeviceFileReachItsRowAndTheWrittenFile() {
-        val cleanups = JetpackResults.cleanupsOf("\"${digest.id}\": {everyCalls: 50000, cleanups: 4, pausedNanos: 812345}\n")
-        val joined = JetpackResults.convert(data(), plan(), cleanups = cleanups).rows
-        assertEquals(NativeCleanup(50_000, 4, 812_345), joined.single { it.id == digest.id }.cleanup)
-        assertEquals(listOf(null), joined.filter { it.id != digest.id }.map { it.cleanup }.distinct())
-        val written = BenchmarkJson(File("build")).text(converted.runtime, joined)
-        assertEquals(NativeCleanup(50_000, 4, 812_345), CaseDocument.sections(CaseDocument.load(written)["cases"]).single { it["id"] == digest.id }
-            .let { NativeCleanup.read(it[NativeCleanup.FIELD]) })
+    fun aRowWithoutTheCollectionBetweenItsSamplesIsRefusedExceptInTheEnergyPass() {
+        val uncleaned = data().replace(Regex("\"(gcCleanNs|gcCount|gcBlockingCount)\": \\{[^}]*},?\\s*"), "")
+        val bare = JetpackResults.convert(uncleaned, plan())
+        assertTrue(bare.dropped.toString(), bare.rows.isEmpty() && bare.dropped.filter { it.startsWith("not_converted") }.all { "missing_field: metrics.${MetricSamples.GC_PAUSE}" in it })
+        val energyPass = JetpackResults.convert(uncleaned, plan(), cleaned = false)
+        assertTrue(energyPass.rows.isNotEmpty() && energyPass.rows.none { MetricSamples.GC_PAUSE in it.metrics })
+    }
+
+    @Test
+    fun theCollectionBetweenSamplesReachesEachRowPerSample() {
+        val pause = digest.metrics.getValue(MetricSamples.GC_PAUSE)
+        assertEquals(1, pause.iterations)
+        assertEquals(digest.metrics.getValue(MetricSamples.TIME).runs.size, pause.runs.size)
+        assertTrue(MetricSamples.GC_COUNT in digest.metrics)
     }
 
     @Test
@@ -74,7 +82,7 @@ class JetpackResultsTest {
         val events = MetricKeys.CPU_EVENTS.joinToString("") { "\"$it\": {\"runs\": [10.0, 11.0]}, " }
         val written = data().replaceFirst("\"allocationCount\": {", "$events\"allocationCount\": {")
         val row = JetpackResults.convert(written, counted).rows.single { it.algorithm == "SHA-256" }
-        assertEquals(listOf(MetricSamples.TIME) + MetricKeys.CPU_EVENTS, row.metrics.keys.toList())
+        assertEquals(listOf(MetricSamples.TIME) + MetricKeys.CPU_EVENTS + CLEANED, row.metrics.keys.toList())
         assertEquals(MetricSamples(listOf(10.0, 11.0), 8192), row.metrics.getValue("instructions"))
     }
 
@@ -106,9 +114,9 @@ class JetpackResultsTest {
   "runtime": {"model": "Pixel 9", "fingerprint": "google/tokay/tokay:16/BP3A.250905.014/13718934:user/release-keys", "sdkInt": "36", "jetpackCpuLocked": "false", "sustainedPerformanceModeEnabled": "true", "compilationMode": "DEFAULT", "thermalThrottleSleepSeconds": "90"},
   "cases": [
     {"id": "MessageDigest_SHA-256_DIGEST_AndroidOpenSSL_i1024_WARM_fixed", "type": "MessageDigest", "algorithm": "SHA-256", "provider": "AndroidOpenSSL", "operation": "DIGEST", "keySize": null, "inputSize": 1024, "keyKind": "none", "variant": "fixed", "parameters": {}, "thermalThrottleSleepSeconds": 0,
-     "metrics": {"timeNs": {"iterations": 8192, "runs": [1191.0, 1180.0, 1256.0, 1188.0, 1193.0], "reported": {"minimum": 1180.0, "maximum": 1256.0, "median": 1191.0, "coefficientOfVariation": 0.019}}, "allocationCount": {"iterations": 1, "runs": [2.0, 2.0, 3.0, 2.0, 2.0], "reported": {"minimum": 2.0, "maximum": 3.0, "median": 2.0, "coefficientOfVariation": 0.183}}}},
+     "metrics": {"timeNs": {"iterations": 8192, "runs": [1191.0, 1180.0, 1256.0, 1188.0, 1193.0], "reported": {"minimum": 1180.0, "maximum": 1256.0, "median": 1191.0, "coefficientOfVariation": 0.019}}, "gcCleanNs": {"iterations": 1, "runs": [12288000.0, 12288000.0, 12288000.0, 12288000.0, 12288000.0]}, "gcCount": {"iterations": 1, "runs": [0.0, 0.0, 0.0, 0.0, 0.0]}, "gcBlockingCount": {"iterations": 1, "runs": [0.0, 0.0, 0.0, 0.0, 0.0]}, "allocationCount": {"iterations": 1, "runs": [2.0, 2.0, 3.0, 2.0, 2.0], "reported": {"minimum": 2.0, "maximum": 3.0, "median": 2.0, "coefficientOfVariation": 0.183}}}},
     {"id": "Cipher_AES-GCM-NoPadding_ENCRYPT_AndroidOpenSSL_k128_i1024_WARM_p81667fe4_fixed", "type": "Cipher", "algorithm": "AES/GCM/NoPadding", "provider": "AndroidOpenSSL", "operation": "ENCRYPT", "keySize": 128, "inputSize": 1024, "keyKind": "secret", "variant": "fixed", "parameters": {"mode": "GCM", "padding": "NoPadding", "ivBytes": 12, "tagBits": 128, "keyBits": 128}, "thermalThrottleSleepSeconds": 90,
-     "metrics": {"timeNs": {"iterations": 4096, "runs": [2401.0, 2380.0, 2611.0, 2396.0, 2410.0], "reported": {"minimum": 2380.0, "maximum": 2611.0, "median": 2401.0, "coefficientOfVariation": 0.031}}}}
+     "metrics": {"timeNs": {"iterations": 4096, "runs": [2401.0, 2380.0, 2611.0, 2396.0, 2410.0], "reported": {"minimum": 2380.0, "maximum": 2611.0, "median": 2401.0, "coefficientOfVariation": 0.031}}, "gcCleanNs": {"iterations": 1, "runs": [6144000.0, 6144000.0, 6144000.0, 6144000.0, 6144000.0]}, "gcCount": {"iterations": 1, "runs": [0.0, 0.0, 0.0, 0.0, 0.0]}, "gcBlockingCount": {"iterations": 1, "runs": [0.0, 0.0, 0.0, 0.0, 0.0]}}}
   ]
 }
 """),

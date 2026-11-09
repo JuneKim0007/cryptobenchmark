@@ -42,7 +42,7 @@ Paths relative to the device folder.
 | `benchmark/` | `benchmark.json` | `--bench`, `--device`, at least one case not `dry` |
 | `benchmark/process-<n>/` | one run's files; with `run.passes`, the n-th process of every pass merged | `processRepetitions` > 1 |
 | `benchmark/<pass>/` | one pass's files, `process-<n>/` under it; `benchmark/benchmark.json` merges them per metric | `run.passes` ([device-session.md](device-session.md#passes)) |
-| `benchmark/` | `benchmarkData.json`, `clocks.yaml`, `thermal.json`, `cpu-pins.yaml`, `native-cleanup.yaml` when written | `--device` |
+| `benchmark/` | `benchmarkData.json`, `clocks.yaml`, `thermal.json`, `cpu-pins.yaml` when written | `--device` |
 | `benchmark/cases/` | `<id>.json`: one case's pulled `benchmarkData.json`, in each process folder | `--device` with `run.isolation: case` ([device-session.md](device-session.md#one-process-per-case)) |
 | `benchmark/` | `energy.json`, `traces/` (`*.perfetto-trace`, `dry.pftrace`), `energy-dry.yaml`; `manafa/` (`manafa.log`, power profile) with `energy.source: manafa` | energy capture |
 | `scoped/` | `scoped-plan.yaml` with each scope's interop verdict merged in, `scoped-interop.yaml` (the device's verdicts); a failed run keeps only `scoped-plan.failed.yaml` beside `scoped/` | `--harness`, under `checked/`: [scoped.md](../apps/benchmark/modules/android/docs/scoped.md) |
@@ -69,9 +69,9 @@ Paths relative to the device folder.
 | `counts` | `prepared` (`prepared.cases`), `skipped` (`skipped.skipped`), `measured` (`benchmark.cases`) |
 | `operations` | per engine type the operations the harness times, from preparation's `engine-operations.yaml`; a type absent falls back to `TYPE_DEFAULT`, which times nothing |
 
-- `files` keys: `probe`, `trial`, `inventory`, `effective`, `report`, `energyCapability`, `energy`, `clocks`, `cpuPins`, `nativeCleanup`, `prepared`, `skipped`, `benchmark`, `processes`; `--harness` adds `scopedPlan`, `scopedInterop`; `--interop` adds `interopPlan`, `interop`.
+- `files` keys: `probe`, `trial`, `inventory`, `effective`, `report`, `energyCapability`, `energy`, `clocks`, `cpuPins`, `prepared`, `skipped`, `benchmark`, `processes`; `--harness` adds `scopedPlan`, `scopedInterop`; `--interop` adds `interopPlan`, `interop`.
 - A key is absent when its stage did not run.
-- `energy`, `clocks`, `cpuPins`, `nativeCleanup` are single paths when `processRepetitions` = 1, lists otherwise.
+- `energy`, `clocks`, `cpuPins` are single paths when `processRepetitions` = 1, lists otherwise.
 - `problems`: coded lines of what the run survived, absent when there were none: `energy_failed: <message>` ([energy.md](energy.md#outputs)); `case_failed: <id>: <reason>` for a case whose own process, or a hook around it (`hook_failed: ...`), failed under `run.isolation: case` ([device-session.md](device-session.md#one-process-per-case)); `bench_failed: <message>` when a host `BenchKt` died after writing some rows, which the run keeps; `iterations_not_applied: <id> asked for <n>, timeNs has <m> runs` from `ConvertKt` on a device run; `thermal_gate_timeout: <id>: <pass>: ...` for a case the thermal gate started past its timeout ([device-session.md](device-session.md#thermal-gate)); `not_measured: <id>` for each case of `prepared.yaml` not `dry` that the final `benchmark.json` lacks, whatever lost it (the device run, `ConvertKt`'s `not_in_plan`/`no_metrics`/`not_converted`, `MergeRunsKt`'s `not_merged`, a plan-check refusal in `skipped.yaml`); each is also printed.
 - A run whose energy is estimated has a top-level `energy: {source, kind: estimated}`; any other run has no `energy` key.
 
@@ -86,7 +86,7 @@ Beside `metrics` and `parameters` ([measure.md](../apps/benchmark/modules/benchm
 | `thermalNote` | present when a reading is missing (its reason), cached (`source: cached`) or the process's (`scope: run`) |
 | `gate` | `{waitedSeconds: <s>, target: <C>, timedOut: <bool>}`: the host's wait before the case ([device-session.md](device-session.md#thermal-gate)); `waitedSeconds` 0 when it started at once; with `isolation: run` the process's wait on every case; merged processes add `waitedSeconds`, `timedOut` if any did, the first `target`; the merged file keeps the timing pass's, each pass's own under `benchmark/<pass>/`; absent when no gate ran |
 
-Every timed case (host and device) carries `nativeCleanup: {everyCalls: <K>, cleanups: <n>, pausedNanos: <ns>}`: the forced GC and finalization its harness ran every `K` calls with the timer paused ([measure.md](../apps/benchmark/modules/benchmark/docs/native-budget.md)); never part of a metric; merged processes add `cleanups` and `pausedNanos`; a reader compares `pausedNanos` with the case's timed total to see what the cleanup cost.
+Every timing and allocation row (host and device) carries `gcCleanNs` and `gcCount` in `metrics`, `iterations` 1, one value per sample: the pause of the forced GC and finalization between samples, and the GCs that still landed inside the sample; the device adds `gcBlockingCount`. Neither is part of `timeNs`; `analysis` shows both in `summary.md`. The energy pass collects nothing between samples and has neither.
 
 Every case (host and device) also carries `variant` ([measure.md](../apps/benchmark/modules/benchmark/docs/measure.md#benchmarkjson)): one key after `keyKind`, `"variant": "fixed"` or `"variant": "notFixed"`. A reader (perf-repair's side) groups by the case id without its last part `_<variant>` for the item, and never mixes the two values: `fixed` is the call with the setup the API lets a caller keep, kept (`prepared.yaml` `perCall` names exactly what it still redoes: `operation` or `initAndOperation`), `notFixed` is `getInstance` + init + operation per call. Key generation rows are `fixed` only.
 

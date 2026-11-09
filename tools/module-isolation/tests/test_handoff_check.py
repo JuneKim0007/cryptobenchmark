@@ -5,7 +5,7 @@ import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
-from handoff_check import LAYERS, ROOT, check, violations  # noqa: E402
+from handoff_check import LAYERS, ROOT, check, owned_violations, violations  # noqa: E402
 
 LAYERS_DOC = {
     "root": "io.x",
@@ -55,3 +55,14 @@ def test_shrink_drops_fixed_and_never_adds(tmp_path):
 def test_repository_matches_its_frozen_list():
     found = violations(yaml.safe_load(LAYERS.read_text()), ROOT)
     assert check(found, LAYERS.parent / "handoff-frozen.txt", shrink=False) == []
+
+
+def test_an_entry_point_named_outside_its_owner_fails_and_a_comment_does_not(tmp_path):
+    layers = {"owned": {"sources": "src", "entries": {"BenchmarkRule": "Owner.kt"}}}
+    source = tmp_path / "src"
+    source.mkdir()
+    (source / "Owner.kt").write_text("val rule = BenchmarkRule()\n")
+    (source / "Note.kt").write_text("// BenchmarkRule is built elsewhere\n")
+    assert owned_violations(layers, tmp_path) == set()
+    (source / "Rogue.kt").write_text("val rule = BenchmarkRule()\n")
+    assert owned_violations(layers, tmp_path) == {"owned: Rogue.kt names BenchmarkRule, only Owner.kt may"}

@@ -33,6 +33,8 @@ class RunnablePlan(
 
     private var refused: List<Skip> = emptyList()
 
+    private var exhausted: OutOfMemoryError? = null
+
     // written: false in a process given its cases by name, which adds to the files the listing wrote instead of replacing them.
     fun list(effective: File, written: Boolean): List<BenchmarkCase> {
         listing = preparation.list(effective)
@@ -58,8 +60,10 @@ class RunnablePlan(
         return prepared
     }
 
-    fun <T> guarded(case: BenchmarkCase, stage: String, code: String, onFailure: () -> Unit = {}, block: () -> T): T? =
-        try {
+    // Memory exhausted during the check: the failing case is recorded, then every later case stops the run.
+    fun <T> guarded(case: BenchmarkCase, stage: String, code: String, onFailure: () -> Unit = {}, block: () -> T): T? {
+        exhausted?.let { throw it }
+        return try {
             block()
         } catch (failure: Throwable) {
             val reason = (failure as? PreparationException)?.reason ?: FailureText.of(failure, "$code: ")
@@ -69,8 +73,10 @@ class RunnablePlan(
                 skipFile.added(skip)
                 log(skip)
             }
+            if (failure is OutOfMemoryError && stage == CHECK) exhausted = failure
             null
         }
+    }
 
     // onFailure: stop: a rejected selection or a case preparation could not build stops the run, with every skip so far.
     fun stopIfSkipped() {

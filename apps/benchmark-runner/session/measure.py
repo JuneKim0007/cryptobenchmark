@@ -5,7 +5,7 @@ import dataclasses, pathlib, re
 import effective_view
 from failure import one_line
 from results import case_files
-from session import case_isolation
+from session import calibration, case_isolation
 from device.adb import PASSED, DeviceError
 
 COUNTED = re.compile(r"^Tests run: (\d+),\s+Failures: (\d+)", re.M)
@@ -191,3 +191,5 @@ def all_cases(device, plan, process):
             raise DeviceError(f"{plan.test_class} failed on the device:\n" + device.report(output))
         print(f"warning: {plan.test_class}: " + device.report(output).replace("\n", "\nwarning: "))
     device.pull(device.data, process.data)
+    # one process for every case: nothing to measure again without repeating them all
+    process.failures.extend(f"case_failed: {line}" for line in calibration.short_samples(process.data))

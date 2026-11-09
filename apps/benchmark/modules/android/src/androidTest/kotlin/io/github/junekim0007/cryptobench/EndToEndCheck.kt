@@ -41,7 +41,7 @@ class EndToEndCheck(caseId: String, private val case: BenchmarkCase) : JetpackCa
         @JvmStatic
         @AfterClass
         fun write() {
-            CheckFile.write(File(DevicePlan.directory, CheckFile.NAME), records + CaseRecord.notRun(DevicePlan.skipped),
+            CheckFile.write(File(DevicePlan.directory, CheckFile.NAME), records + CaseRecord.fromSkips(DevicePlan.skipped),
                 mapOf("harness" to "device", "millis" to (System.nanoTime() - started) / 1_000_000))
         }
     }

@@ -34,7 +34,9 @@ class Pass:
         return captures if self.name in (None, ENERGY) else {"none"}
 
     def convert_flags(self):
-        return "" if self.name is None else f" --metrics={','.join(self.metrics)} --samples={self.samples}"
+        if self.name is None:
+            return ""
+        return f" --metrics={','.join(self.metrics)} --samples={self.samples}" + (" --uncleaned" if self.name == ENERGY else "")
 
 
 def read(document, captures):
@@ -42,6 +44,8 @@ def read(document, captures):
     run = document.get("run") or {}
     metrics, configured = effective_view.metrics(document), run.get("passes") or {}
     if not configured:
+        if "measured" in captures:
+            fail("not_supported: energy.capture measured without run.passes.energy; energy is always measured in its own pass")
         return [Pass(None, None, tuple(metrics))]
     if "dry" in captures:
         fail("not_supported: energy.capture dry with run.passes; the energy pass measures `measured` cases and its samples set the window")

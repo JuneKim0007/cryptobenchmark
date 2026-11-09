@@ -33,6 +33,7 @@
           "coefficientOfVariation": 0.019,
           "runs": [1191.0, 1180.0, 1256.0, 1188.0, 1193.0]
         },
+        "gcCleanNs": {"minimum": 1500.0, "maximum": 1500.0, "median": 1500.0, "coefficientOfVariation": 0.0, "runs": [1500.0, 1500.0, 1500.0, 1500.0, 1500.0]}, "gcCount": {"minimum": 0.0, "maximum": 0.0, "median": 0.0, "coefficientOfVariation": 0.0, "runs": [0.0, 0.0, 0.0, 0.0, 0.0]}, "gcBlockingCount": {"minimum": 0.0, "maximum": 0.0, "median": 0.0, "coefficientOfVariation": 0.0, "runs": [0.0, 0.0, 0.0, 0.0, 0.0]},
         "allocationCount": {
           "minimum": 2.0,
           "maximum": 3.0,
@@ -59,7 +60,8 @@
           "median": 2401.0,
           "coefficientOfVariation": 0.031,
           "runs": [2401.0, 2380.0, 2611.0, 2396.0, 2410.0]
-        }
+        },
+        "gcCleanNs": {"minimum": 1500.0, "maximum": 1500.0, "median": 1500.0, "coefficientOfVariation": 0.0, "runs": [1500.0, 1500.0, 1500.0, 1500.0, 1500.0]}, "gcCount": {"minimum": 0.0, "maximum": 0.0, "median": 0.0, "coefficientOfVariation": 0.0, "runs": [0.0, 0.0, 0.0, 0.0, 0.0]}, "gcBlockingCount": {"minimum": 0.0, "maximum": 0.0, "median": 0.0, "coefficientOfVariation": 0.0, "runs": [0.0, 0.0, 0.0, 0.0, 0.0]}
       },
       "sampledMetrics": {},
       "warmupIterations": 2048,
@@ -73,7 +75,8 @@
       "className": "io.github.junekim0007.cryptobench.CryptoBenchmark",
       "totalRunTimeNs": 900000000,
       "metrics": {
-        "timeNs": {"minimum": 1900.0, "maximum": 1980.0, "median": 1920.0, "coefficientOfVariation": 0.015, "runs": [1920.0, 1900.0, 1980.0]}
+        "timeNs": {"minimum": 1900.0, "maximum": 1980.0, "median": 1920.0, "coefficientOfVariation": 0.015, "runs": [1920.0, 1900.0, 1980.0]},
+        "gcCleanNs": {"minimum": 1500.0, "maximum": 1500.0, "median": 1500.0, "coefficientOfVariation": 0.0, "runs": [1500.0, 1500.0, 1500.0]}, "gcCount": {"minimum": 0.0, "maximum": 0.0, "median": 0.0, "coefficientOfVariation": 0.0, "runs": [0.0, 0.0, 0.0]}, "gcBlockingCount": {"minimum": 0.0, "maximum": 0.0, "median": 0.0, "coefficientOfVariation": 0.0, "runs": [0.0, 0.0, 0.0]}
       },
       "sampledMetrics": {},
       "warmupIterations": 2048,

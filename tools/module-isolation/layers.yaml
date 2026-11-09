@@ -24,6 +24,15 @@ modules:
         global.GlobalSettings, global.OnFailure, shared.FailureText]
       settings: [HarnessSettings, EnergySettings, CpuSettings, Metric]
 
+# The one file that may name each androidx entry point: a second config or loop would bypass the collection between samples.
+owned:
+  sources: apps/benchmark/modules/android/src/androidTest/kotlin
+  entries:
+    MicrobenchmarkConfig: JetpackConfig.kt
+    BenchmarkRule: JetpackCase.kt
+    measureRepeated: JetpackCase.kt
+    BenchmarkState: JetpackCase.kt
+
 consumers:
   androidTest:
     sources: apps/benchmark/modules/android/src/androidTest/kotlin
@@ -31,7 +40,7 @@ consumers:
       preparation: [Preparation, adapter.DiscoveryCapability, interop.InteropRun, interop.plan.InteropPlanFile, interop.report.InteropFile,
         operation.Invocations, prepare.PreparedCase, report.Skip, measurement.BenchmarkCase,
         measurement.Operation, key.plan.KeyPlanner, key.plan.KeyRecipe, key.generate.KeyMaterial, key.generate.KeyMaterialGenerator]
-      benchmark: [budget.NativeBudget, budget.NativeCleanup, check.PlanCheck, check.RunnablePlan, check.Refusal, check.EnergyCapability,
+      benchmark: [report.MetricSamples, check.PlanCheck, check.RunnablePlan, check.Refusal, check.EnergyCapability,
         run.CaseSettings, run.compose.CaseRuns, run.energy.Energy, run.energy.WindowMarker]
       settings: [CpuSettings, Metric]
       jca: [failure.Attempt]

@@ -85,9 +85,18 @@ skipped: []
         val plan = plan
         val prepared = plan.preparedAll(effective())
         ThrowingProvider.armed = true
-        val measured = prepared.mapNotNull { case -> plan.guarded(case.case, RunnablePlan.BENCHMARK, RunnablePlan.MEASURE_FAILED) { HostHarness(1_000_000, 1_000_000, 2).measure(case) } }
+        val measured = prepared.mapNotNull { case -> plan.guarded(case.case, RunnablePlan.BENCHMARK, RunnablePlan.MEASURE_FAILED) { HostHarness(1_000_000, 1_000_000, 2, collectionCount = { 0L }).measure(case) } }
         assertEquals(listOf("SHA-256"), measured.map { it.case.algorithm })
         assertEquals(3, logged.count { it.stage == RunnablePlan.BENCHMARK && "measure_failed" in it.reason })
+    }
+
+    @Test
+    fun runningOutOfMemoryDuringTheCheckRecordsTheCaseThenStops() {
+        val plan = plan
+        val case = plan.list(effective(), written = true).first()
+        assertEquals(null, plan.guarded<Unit>(case, RunnablePlan.CHECK, RunnablePlan.CHECK_FAILED) { throw OutOfMemoryError("native") })
+        assertEquals(RunnablePlan.CHECK, plan.skipped.last().stage)
+        assertThrows(OutOfMemoryError::class.java) { plan.guarded(case, RunnablePlan.CHECK, RunnablePlan.CHECK_FAILED) { } }
     }
 
     @Test

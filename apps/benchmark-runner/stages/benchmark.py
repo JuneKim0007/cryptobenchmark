@@ -8,7 +8,7 @@ from repo import RUNNER
 from session import case_isolation, energy_hook, passes, variant_order, warmup
 from session import measure as measure_session
 from stages import not_measured
-from stages.measuring import (Measuring, cleanup_flag, convert, energy_preflight, gated, pass_arguments, push, record, session_arguments, singles,
+from stages.measuring import (Measuring, convert, energy_preflight, gated, pass_arguments, push, record, session_arguments, singles,
                               thermal_flag, timed_hooks)
 from stages.took import elapsed
 
@@ -25,14 +25,14 @@ def measure_on_device(run, one, captures, preparation, isolation, repetitions, f
         if timed:
             joules = process.into / "energy.json"
             joined = f" {joules}" if "measured" in captures and joules.is_file() else ""
-            convert(run, f"{process.data} {preparation / 'prepared.yaml'} {process.into}{joined}{one.convert_flags()}{thermal_flag(process)}{cleanup_flag(process)}")
+            convert(run, f"{process.data} {preparation / 'prepared.yaml'} {process.into}{joined}{one.convert_flags()}{thermal_flag(process)}")
             written.append(process.into / "benchmark.json")
         record(run.files, process.into, captures, device)
 
     arguments = pass_arguments(run, one)
     plan = measure_session.Plan("CryptoBenchmark", arguments, timed=bool(timed), order=variant_order.interleaved,
                                 cleared=("prepared.yaml", "skipped.yaml"), stale=(preparation / "prepared.yaml", preparation / "skipped.yaml"),
-                                pull_plan=lambda process: (device.pull_plan(preparation), device.pull_records(process.into)), after_process=converted)
+                                pull_plan=lambda process: (device.pull_plan(preparation), device.pull_pins(process.into)), after_process=converted)
     measure_session.run_session(device, plan, repetitions, isolation, hooks, folder, run.problems)
 
 

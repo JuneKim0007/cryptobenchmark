@@ -68,6 +68,8 @@ def summarize_case(case, groups, cfg):
 
 TIME = "timeNs"
 ENERGY = "energyJ"
+GC_PAUSE, GC_COUNT, GC_BLOCKING = "gcCleanNs", "gcCount", "gcBlockingCount"     # MetricSamples; reported beside the time, never charted
+CLEANING = {GC_PAUSE, GC_COUNT, GC_BLOCKING}
 COUNT_LABELS = {"allocationCount": "allocations per call"}      # any other non-time metric (a CPU event) is labelled by its own name
 
 
@@ -76,9 +78,18 @@ def count_metrics(raw_cases):
     names = []
     for case in raw_cases:
         for name, block in (case.get("metrics") or {}).items():
-            if name != TIME and (block or {}).get("runs") and name not in names:
+            if name != TIME and name not in CLEANING and (block or {}).get("runs") and name not in names:
                 names.append(name)
     return names
+
+
+def cleaning(case):
+    """What the time excludes: the median collection pause per iter in ms and the share of iters a GC still landed in; None for a row without them."""
+    metrics = case.get("metrics") or {}
+    pauses, counts = (metrics.get(GC_PAUSE) or {}).get("runs"), (metrics.get(GC_COUNT) or {}).get("runs")
+    if not pauses or not counts:
+        return None
+    return {"pauseMs": stats.summarize(pauses)["median"] / 1e6, "itersWithGc": sum(count > 0 for count in counts) / len(counts)}
 
 
 def estimated_energy(raw_cases):

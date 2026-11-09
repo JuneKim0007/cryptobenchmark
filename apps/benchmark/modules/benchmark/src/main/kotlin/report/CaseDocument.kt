@@ -1,6 +1,5 @@
 package io.github.junekim0007.cryptobench.benchmark.report
 
-import io.github.junekim0007.cryptobench.benchmark.budget.NativeCleanup
 import org.yaml.snakeyaml.LoaderOptions
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.SafeConstructor
@@ -50,8 +49,7 @@ internal object CaseDocument {
     @Suppress("UNCHECKED_CAST")
     fun row(case: Map<String, Any>, metrics: Map<String, MetricSamples>, parameters: Map<String, Any>,
             sleep: Long? = (case[SLEEP] as? Number)?.toLong(), thermal: Map<String, Any?>? = case[THERMAL] as? Map<String, Any?>,
-            note: String? = case[THERMAL_NOTE]?.toString(), gate: Map<String, Any?>? = case[GATE] as? Map<String, Any?>,
-            cleanup: NativeCleanup? = NativeCleanup.read(case[NativeCleanup.FIELD])): ResultRow = ResultRow(
+            note: String? = case[THERMAL_NOTE]?.toString(), gate: Map<String, Any?>? = case[GATE] as? Map<String, Any?>): ResultRow = ResultRow(
         id = case["id"].toString(),
         type = case["type"].toString(),
         algorithm = case["algorithm"].toString(),
@@ -67,7 +65,6 @@ internal object CaseDocument {
         thermalNote = note,
         gate = gate,
         variant = case[VARIANT]?.toString(),
-        cleanup = cleanup,
     )
 
     const val SLEEP = "thermalThrottleSleepSeconds"

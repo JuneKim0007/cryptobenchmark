@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.benchmark.verify.record
 
+import io.github.junekim0007.cryptobench.benchmark.check.RunnablePlan
 import io.github.junekim0007.cryptobench.benchmark.verify.observe.ObservedCall
 import io.github.junekim0007.cryptobench.benchmark.verify.oracle.Judgement
 import io.github.junekim0007.cryptobench.preparation.interop.report.Outcome
@@ -40,21 +41,22 @@ class CaseRecord(
         }
 
         // Skips sharing an id are numbered in the order of their fields, not of the skip list, so a rerun names each the same.
-        fun notRun(skips: List<Skip>): List<CaseRecord> {
-            val records = skips.map(::notRun)
+        fun fromSkips(skips: List<Skip>): List<CaseRecord> {
+            val records = skips.map(::fromSkip)
             val numbered = records.groupBy { it.id }.values.filter { it.size > 1 }.flatMap { same ->
                 same.sortedBy { it.fields.toString() }.mapIndexed { n, record -> record to "${record.id}#${n + 1}" }
             }.toMap()
             return records.map { record -> numbered[record]?.let { CaseRecord(it, record.outcome, record.fields) } ?: record }
         }
 
-        private fun notRun(skip: Skip): CaseRecord {
+        // A case that ran and broke during the check is an error; a case stopped before it never ran.
+        private fun fromSkip(skip: Skip): CaseRecord {
             // A preparation skip names its case first; a rejection before expansion has only its service and code.
             val reason = FailureText.stable(skip.reason)
             val head = reason.substringBefore(": ")
             val id = if (skip.type != null && head.startsWith(skip.type + "_")) head
             else listOfNotNull(skip.stage, skip.provider, skip.type, skip.name, head).joinToString("|")
-            return CaseRecord(id, NOT_RUN, linkedMapOf<String, Any>("stage" to skip.stage, "reason" to reason).apply {
+            return CaseRecord(id, if (skip.stage == RunnablePlan.CHECK) ERROR else NOT_RUN, linkedMapOf<String, Any>("stage" to skip.stage, "reason" to reason).apply {
                 skip.provider?.let { put("provider", it) }
                 skip.type?.let { put("type", it) }
                 skip.name?.let { put("algorithm", it) }

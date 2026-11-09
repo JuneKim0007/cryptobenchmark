@@ -1,6 +1,5 @@
 package io.github.junekim0007.cryptobench.benchmark.report.jetpack
 
-import io.github.junekim0007.cryptobench.benchmark.budget.NativeCleanup
 import io.github.junekim0007.cryptobench.benchmark.report.CaseDocument
 import io.github.junekim0007.cryptobench.benchmark.report.MetricKeys
 import io.github.junekim0007.cryptobench.benchmark.report.MetricSamples
@@ -15,9 +14,10 @@ object JetpackResults {
     // dropped: one coded line per benchmark that gave no row: not_in_plan, no_metrics, not_converted
     class Converted(val runtime: Map<String, String>, val rows: List<ResultRow>, val dropped: List<String>, val notApplied: List<String> = emptyList())
 
-    // metrics: a set the run reports instead of each case's own; samples: a pass's own count; thermal: thermal.json's readings by case id
+    // metrics: a set the run reports instead of each case's own; samples: a pass's own count; thermal: thermal.json's readings by case id;
+    // cleaned: false only for the energy pass, the one pass that collects no garbage between samples
     fun convert(benchmarkDataText: String, preparedText: String, energy: Map<String, MetricSamples> = emptyMap(), metrics: List<String>? = null,
-                samples: Int? = null, thermal: Map<String, Map<String, Any?>> = emptyMap(), cleanups: Map<String, NativeCleanup> = emptyMap()): Converted {
+                samples: Int? = null, thermal: Map<String, Map<String, Any?>> = emptyMap(), cleaned: Boolean = true): Converted {
         val data = CaseDocument.load(benchmarkDataText)
         val prepared = CaseDocument.load(preparedText)
         val cases = CaseDocument.sections(prepared["cases"]).associateBy { case -> case["id"].toString() }
@@ -32,7 +32,7 @@ object JetpackResults {
                 continue
             }
             try {
-                val measured = metricsOf(benchmark, requestedOf(id, metrics ?: case["metrics"]))
+                val measured = metricsOf(benchmark, requestedOf(id, metrics ?: case["metrics"]), cleaned)
                 if (measured.isEmpty()) {
                     dropped += "no_metrics: $id"
                     continue
@@ -40,7 +40,7 @@ object JetpackResults {
                 energy[id]?.let { measured[MetricSamples.ENERGY] = it }
                 val reading = thermal[id]
                 rows += CaseDocument.row(case, measured, resolvedParametersOf(id, case), (benchmark[CaseDocument.SLEEP] as? Number)?.toLong(),
-                    reading?.filterKeys { it in CaseDocument.THERMAL_KEYS }, reading?.get(CaseDocument.NOTE)?.toString(), gateOf(reading), cleanups[id])
+                    reading?.filterKeys { it in CaseDocument.THERMAL_KEYS }, reading?.get(CaseDocument.NOTE)?.toString(), gateOf(reading))
                 notApplied += RunCountAudit.findings(id, samples ?: CaseDocument.requestedIterations(case), measured, sampledAllocations(benchmark))
             } catch (unusable: RuntimeException) {
                 dropped += "not_converted: $id: ${unusable.message ?: unusable.javaClass.simpleName}"
@@ -49,7 +49,7 @@ object JetpackResults {
         return Converted(runtime(data), rows, dropped, notApplied)
     }
 
-    private fun metricsOf(benchmark: Map<String, Any>, requested: List<String>): MutableMap<String, MetricSamples> {
+    private fun metricsOf(benchmark: Map<String, Any>, requested: List<String>, cleaned: Boolean): MutableMap<String, MetricSamples> {
         val blocks = CaseDocument.optionalSection(benchmark["metrics"]) ?: return LinkedHashMap()
         val metrics = LinkedHashMap<String, MetricSamples>()
         if (blocks.isEmpty()) return metrics
@@ -59,7 +59,20 @@ object JetpackResults {
             require(runs.isNotEmpty()) { "missing_field: metrics.$metric for ${caseIdOf(benchmark)}; androidx wrote ${blocks.keys}" }
             metrics[metric] = MetricSamples(runs, iterationsOf(metric, benchmark), CaseDocument.reportedStats(block))
         }
+        if (cleaned) metrics += cleaningOf(benchmark, blocks)
         return metrics
+    }
+
+    // A row without the collection between its samples was measured some other way and is refused.
+    private fun cleaningOf(benchmark: Map<String, Any>, blocks: Map<String, Any>): Map<String, MetricSamples> {
+        val iterations = CaseDocument.iterations(benchmark["repeatIterations"])
+        val side = (MetricSamples.CLEANING + MetricSamples.GC_BLOCKING).filter { it in MetricSamples.CLEANING || it in blocks }
+        return side.associateWith { metric ->
+            val runs = CaseDocument.optionalSamples(CaseDocument.optionalSection(blocks[metric])?.get("runs"))
+            require(runs.isNotEmpty()) { "missing_field: metrics.$metric for ${caseIdOf(benchmark)}; no collection between its samples" }
+            // androidx divided each value by the sample's calls; these are per sample.
+            MetricSamples(runs.map { it * iterations }, 1)
+        }
     }
 
     private fun sampledAllocations(benchmark: Map<String, Any>): Boolean =
@@ -83,10 +96,6 @@ object JetpackResults {
     @Suppress("UNCHECKED_CAST")
     fun thermalOf(text: String): Map<String, Map<String, Any?>> =
         (CaseDocument.optionalSection(CaseDocument.load(text)["cases"]) ?: emptyMap()).mapValues { (_, reading) -> reading as Map<String, Any?> }
-
-    // native-cleanup.yaml of the device's NativeCleanups: {"<id>": {everyCalls, cleanups, pausedNanos}}
-    fun cleanupsOf(text: String): Map<String, NativeCleanup> =
-        CaseDocument.load(text).mapNotNull { (id, fields) -> NativeCleanup.read(fields)?.let { id to it } }.toMap()
 
     @Suppress("UNCHECKED_CAST")
     private fun gateOf(reading: Map<String, Any?>?): Map<String, Any?>? = reading?.get(CaseDocument.GATE) as? Map<String, Any?>

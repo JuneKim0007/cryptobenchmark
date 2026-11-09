@@ -84,6 +84,7 @@ apps/benchmark-runner/scope/signature.py : Java method and Kotlin function heade
 apps/benchmark-runner/scope/wrapper.py : renders the per-variant wrappers and the GeneratedScopes catalog
 apps/benchmark-runner/scope_generate.py : generate and compile a harness's scopes alone, sources left in place
 apps/benchmark-runner/session/__init__.py : package of one device measuring session: processes, cases, passes, order, warm-up, hooks
+apps/benchmark-runner/session/calibration.py : whether androidx's warm-up left usable samples: collapsed calls per sample, a warm-up near its time limit
 apps/benchmark-runner/session/case_isolation.py : run.isolation case: one case's instrumentation process and its pull, the device's case listing
 apps/benchmark-runner/session/clocks_hook.py : session hook: the clock state around every process and case into clocks.yaml
 apps/benchmark-runner/session/cooldown_hook.py : session hook: run.caseCooldownSeconds of host sleep between measured cases, one line per pass

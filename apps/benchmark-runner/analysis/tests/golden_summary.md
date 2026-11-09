@@ -1,19 +1,19 @@
-| case | op | key | input | ms/op | MB/s | CoV | outliers |
-|---|---|---|---|---|---|---|---|
-| AES/GCM/NoPadding | ENCRYPT | 128 | 64 | 0.001321 | 48.44 | 8.7% | 5 |
-| AES/GCM/NoPadding | ENCRYPT | 128 | 1024 | 0.001805 | 567.4 | 2.4% | 4 |
-| AES/GCM/NoPadding | ENCRYPT | 128 | 16384 | 0.008117 | 2,018 | 3.5% | 6 |
-| ChaCha20 | ENCRYPT | - | 64 | 0.0008093 | 79.09 | 3.0% | 7 |
-| ChaCha20 | ENCRYPT | - | 1024 | 0.001425 | 718.5 | 1.6% | 6 |
-| ChaCha20 | ENCRYPT | - | 16384 | 0.0105 | 1,561 | 2.3% | 6 |
-| RSA/ECB/PKCS1Padding | ENCRYPT | 2048 | 32 | 0.009199 | 3.479 | 1.2% | 5 |
-| RSA/ECB/PKCS1Padding | ENCRYPT | 4096 | 32 | 0.02959 | 1.081 | 0.5% | 5 |
-| EC | GENERATE_KEY_PAIR | - | - | 0.01952 | - | 0.6% | 2 |
-| HmacSHA256 | COMPUTE_MAC | - | 64 | 0.0002517 | 254.3 | 0.8% | 4 |
-| HmacSHA256 | COMPUTE_MAC | - | 1024 | 0.0005604 | 1,827 | 1.0% | 7 |
-| HmacSHA256 | COMPUTE_MAC | - | 16384 | 0.00518 | 3,163 | 1.1% | 3 |
-| SHA-256 | DIGEST | - | 64 | 0.0002191 | 292.1 | 2.5% | 5 |
-| SHA-256 | DIGEST | - | 1024 | 0.000543 | 1,886 | 10.0% | 6 |
-| SHA-256 | DIGEST | - | 16384 | 0.005163 | 3,173 | 1.2% | 9 |
-| SHA256withRSA | SIGN | 2048 | 64 | 0.4042 | 0.1583 | 0.7% | 6 |
-| SHA256withRSA | SIGN | 2048 | 1024 | 0.4018 | 2.549 | 0.4% | 5 |
+| case | op | key | input | ms/op | MB/s | CoV | outliers | GC pause (ms/iter) | iters with a GC |
+|---|---|---|---|---|---|---|---|---|---|
+| AES/GCM/NoPadding | ENCRYPT | 128 | 64 | 0.001321 | 48.44 | 8.7% | 5 | - | - |
+| AES/GCM/NoPadding | ENCRYPT | 128 | 1024 | 0.001805 | 567.4 | 2.4% | 4 | - | - |
+| AES/GCM/NoPadding | ENCRYPT | 128 | 16384 | 0.008117 | 2,018 | 3.5% | 6 | - | - |
+| ChaCha20 | ENCRYPT | - | 64 | 0.0008093 | 79.09 | 3.0% | 7 | - | - |
+| ChaCha20 | ENCRYPT | - | 1024 | 0.001425 | 718.5 | 1.6% | 6 | - | - |
+| ChaCha20 | ENCRYPT | - | 16384 | 0.0105 | 1,561 | 2.3% | 6 | - | - |
+| RSA/ECB/PKCS1Padding | ENCRYPT | 2048 | 32 | 0.009199 | 3.479 | 1.2% | 5 | - | - |
+| RSA/ECB/PKCS1Padding | ENCRYPT | 4096 | 32 | 0.02959 | 1.081 | 0.5% | 5 | - | - |
+| EC | GENERATE_KEY_PAIR | - | - | 0.01952 | - | 0.6% | 2 | - | - |
+| HmacSHA256 | COMPUTE_MAC | - | 64 | 0.0002517 | 254.3 | 0.8% | 4 | - | - |
+| HmacSHA256 | COMPUTE_MAC | - | 1024 | 0.0005604 | 1,827 | 1.0% | 7 | - | - |
+| HmacSHA256 | COMPUTE_MAC | - | 16384 | 0.00518 | 3,163 | 1.1% | 3 | - | - |
+| SHA-256 | DIGEST | - | 64 | 0.0002191 | 292.1 | 2.5% | 5 | - | - |
+| SHA-256 | DIGEST | - | 1024 | 0.000543 | 1,886 | 10.0% | 6 | - | - |
+| SHA-256 | DIGEST | - | 16384 | 0.005163 | 3,173 | 1.2% | 9 | - | - |
+| SHA256withRSA | SIGN | 2048 | 64 | 0.4042 | 0.1583 | 0.7% | 6 | - | - |
+| SHA256withRSA | SIGN | 2048 | 1024 | 0.4018 | 2.549 | 0.4% | 5 | - | - |

@@ -2,7 +2,7 @@
 import dataclasses, pathlib, time
 
 import effective_view, gradle_runner
-from device.adb import CPU_PINS, NATIVE_CLEANUP, Device, measure_arguments
+from device.adb import CPU_PINS, Device, measure_arguments
 from device.clocks import CLOCKS
 from energy_session import EnergySession
 from session import clocks_hook, cooldown_hook, thermal_gate, thermal_hook
@@ -55,11 +55,6 @@ def thermal_flag(process):
     return f" --thermal={reading}" if reading.is_file() else ""
 
 
-def cleanup_flag(process):
-    cleanups = process.into / NATIVE_CLEANUP
-    return f" --cleanup={cleanups}" if cleanups.is_file() else ""
-
-
 def energy_preflight(options, source, session, discovery, files):
     started = time.monotonic()
     capability = source.preflight(session, discovery, options.energy_accept_unresponsive)
@@ -82,8 +77,6 @@ def record(files, into, captures, device):
         files.setdefault("energy", []).append(into / "energy.json")
     if device and captures - {"dry"}:
         files.setdefault("clocks", []).append(into / CLOCKS)
-        if (into / NATIVE_CLEANUP).is_file():
-            files.setdefault("nativeCleanup", []).append(into / NATIVE_CLEANUP)
         if (into / CPU_PINS).is_file():
             files.setdefault("cpuPins", []).append(into / CPU_PINS)
             import yaml
@@ -93,6 +86,6 @@ def record(files, into, captures, device):
 
 
 def singles(files, repetitions):
-    for single in ("energy", "clocks", "cpuPins", "nativeCleanup"):
+    for single in ("energy", "clocks", "cpuPins"):
         if single in files and repetitions == 1:
             files[single] = files[single][0]

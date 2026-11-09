@@ -33,6 +33,18 @@ def violations(layers: dict, repo: pathlib.Path) -> set[str]:
     return found
 
 
+def owned_violations(layers: dict, repo: pathlib.Path) -> set[str]:
+    owned = layers.get("owned") or {}
+    if not owned:
+        return set()
+    found = set()
+    for path in sorted((repo / owned["sources"]).rglob("*.kt")):
+        body = "\n".join(line for line in path.read_text(encoding="utf-8").splitlines() if not line.strip().startswith(("//", "/*", "*")))
+        found |= {f"owned: {path.name} names {entry}, only {owner} may" for entry, owner in owned["entries"].items()
+                  if path.name != owner and re.search(rf"\b{entry}\b", body)}
+    return found
+
+
 def check(found: set[str], frozen: pathlib.Path, shrink: bool) -> list[str]:
     kept = {line for line in frozen.read_text().splitlines() if line.strip()} if frozen.is_file() else set()
     stale = kept - found
@@ -47,7 +59,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--shrink", action="store_true", help=f"drop fixed entries from {FROZEN.name}; never adds one")
     args = parser.parse_args()
-    found = violations(yaml.safe_load(LAYERS.read_text()), ROOT)
+    layers = yaml.safe_load(LAYERS.read_text())
+    found = violations(layers, ROOT) | owned_violations(layers, ROOT)
     problems = check(found, FROZEN, args.shrink)
     for line in problems:
         print(line)

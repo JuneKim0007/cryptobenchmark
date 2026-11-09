@@ -36,8 +36,21 @@ python3 apps/cli/facade.py --settings settings.yaml                   # benchmar
 | [docs/index.md](docs/index.md) | every cross-module doc |
 | [apps/perf-repair/README.md](apps/perf-repair/README.md) | crypto replacements worth testing in an app |
 
-## Limitations
+## Fixed behavior
 
-- AOT is assumed: the benchmark app, and every provider bundled in it, is compiled ahead of time (`speed`) before measuring. Real apps start JIT- or profile-compiled, so first calls in a real app can be slower than the numbers here.
-- Only a controlled core environment is assumed: the measuring thread is pinned and samples are taken in steady state. A real app's thread moves between core types under the scheduler, which is hard to predict, so its timings can spread wider than reported.
-- Garbage is collected between samples, outside the timer, so each sample is measured in a controlled, stabilised setting; a real app pays that collection cost inside its own work.
+These are not settings.
+
+- GC stays on; a full collection is forced between iters with the timer stopped, so one rarely lands inside an iter, and the pause is reported beside the time.
+- The app and every bundled provider are compiled ahead of time (`speed`) before measuring.
+- Energy is always measured in its own pass, traced and without forced collections; timing is never traced.
+- A process prepares only the case it runs, so another case's keys or failures can't affect it.
+- A launch whose warm-up left unusably short iters is measured once more, then recorded as failed.
+
+## Assumptions
+
+- AOT: real apps start JIT- or profile-compiled, so their first calls can be slower than these numbers.
+- Garbage collection: a real app pays for collection inside its own work; this cost is reported beside the number, not in it.
+- CPU: the measuring thread stays on one big core; a real app's thread moves between core types.
+- Clocks: on an unrooted phone clocks can't be locked, so numbers assume the governor holds the core at full speed.
+- Temperature: the phone is assumed not to be throttling; temperature is recorded for each case, and held to a limit only with `run.thermalGate`.
+- Keys: each launch generates its own key, so key-dependent algorithms (RSA, ECDSA) also vary from key to key.

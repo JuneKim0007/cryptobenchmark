@@ -7,12 +7,9 @@ apps/benchmark/modules/benchmark/build.gradle : Kotlin/JVM 17 library; api :prep
 apps/benchmark/modules/benchmark/docs/check.md : the end-to-end check: one call per case, oracles, measured decisions, check.yaml, the diff
 apps/benchmark/modules/benchmark/docs/index.md : this map
 apps/benchmark/modules/benchmark/docs/measure.md : plan check, host harness, benchmark.json, merge, Jetpack conversion
-apps/benchmark/modules/benchmark/docs/native-budget.md : the forced GC and finalization every K timed calls: why, when, how it stays out of the timer, nativeCleanup
 apps/benchmark/modules/benchmark/example/benchmark_jetpack_example.json : example androidx benchmarkData.json
 apps/benchmark/modules/benchmark/example/benchmark_prepared_example.yaml : prepared.yaml paired with the Jetpack example
 apps/benchmark/modules/benchmark/src/main/kotlin/RefusedPlanException.kt : a run-wide refusal, or no case left, from PlanCheck.runnable
-apps/benchmark/modules/benchmark/src/main/kotlin/budget/NativeBudget.kt : every K timed calls the caller pauses its timer for a GC and the finalizers; counts the cleanups and their paused time
-apps/benchmark/modules/benchmark/src/main/kotlin/budget/NativeCleanup.kt : one case's paused cleanups (everyCalls, cleanups, pausedNanos); benchmark.json's nativeCleanup
 apps/benchmark/modules/benchmark/src/main/kotlin/check/EnergyCapability.kt : parses energy.yaml; derives the energy refusal
 apps/benchmark/modules/benchmark/src/main/kotlin/check/PlanCheck.kt : pre-preparation refusals for the listed cases; the runnable cases with the refused ones left out, and those as skips
 apps/benchmark/modules/benchmark/src/main/kotlin/check/Refusal.kt : one refusal (caseId, reason)
@@ -35,6 +32,7 @@ apps/benchmark/modules/benchmark/src/main/kotlin/run/CaseSettings.kt : harness s
 apps/benchmark/modules/benchmark/src/main/kotlin/run/HostHarness.kt : host JVM timing loop; ONCE, the check's one untimed call
 apps/benchmark/modules/benchmark/src/main/kotlin/run/OneCall.kt : fun interface call(invocation, hook): one untimed call through a harness
 apps/benchmark/modules/benchmark/src/main/kotlin/run/OutputHook.kt : check mode only: the outputs a call handed over, never built by a timed run
+apps/benchmark/modules/benchmark/src/main/kotlin/run/SampleCleaning.kt : the host loop's forced GC and finalization before each sample, the pause and GC count reported beside the time
 apps/benchmark/modules/benchmark/src/main/kotlin/run/TimedLoop.kt : calls once() until a nanosecond budget is spent; returns the call count
 apps/benchmark/modules/benchmark/src/main/kotlin/run/compose/CaseRuns.kt : composes a CaseRun from the energy capture mode
 apps/benchmark/modules/benchmark/src/main/kotlin/run/decorate/Cooldown.kt : sleeps after the inner run

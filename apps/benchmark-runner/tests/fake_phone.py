@@ -15,18 +15,18 @@ CRASHED = "INSTRUMENTATION_RESULT: shortMsg=Process crashed.\nINSTRUMENTATION_CO
 
 
 def jetpack_case(case, sleep=0):
-    return {"name": f"measure[{case}]", "repeatIterations": 10, "thermalThrottleSleepSeconds": sleep, "totalRunTimeNs": 10**9,
-            "metrics": {"timeNs": {"minimum": 1.0, "maximum": 1.0, "median": 1.0, "coefficientOfVariation": 0.0, "runs": [1.0]}}}
+    return {"name": f"measure[{case}]", "repeatIterations": 10, "warmupIterations": 100, "thermalThrottleSleepSeconds": sleep, "totalRunTimeNs": 10**9,
+            "metrics": {"timeNs": {"minimum": 1e7, "maximum": 1e7, "median": 1e7, "coefficientOfVariation": 0.0, "runs": [1e7]}}}
 
 
 class Phone(device_module.Device):
 
-    def __init__(self, folder, cases=("a", "b"), crash=(), hang=(), thermal=None, cleanups=None):
+    def __init__(self, folder, cases=("a", "b"), crash=(), hang=(), thermal=None):
         super().__init__(pathlib.Path(folder), False, False)
         self.files, self.media, self.data = "/plan", "/media", "/media/data.json"
         self.cases, self.crash, self.hang = list(cases), set(crash), set(hang)
         self.written, self.log, self.ran, self.arguments, self.converted = [], [], [], [], []
-        self.thermal, self.notices, self.cleanups = thermal, [], cleanups
+        self.thermal, self.notices = thermal, []
 
     def run(self, *arguments, check=True):
         if arguments[0] == "pull":
@@ -45,8 +45,6 @@ class Phone(device_module.Device):
         if remote.endswith(device_module.CPU_PINS):
             self.log.append("pull pins")
             return MISSING
-        if remote.endswith(device_module.NATIVE_CLEANUP) and self.cleanups:
-            pathlib.Path(local).write_text(self.cleanups)
             return OK
         if check:
             raise device_module.DeviceError(f"adb pull {remote}: not found")

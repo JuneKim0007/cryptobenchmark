@@ -6,6 +6,7 @@ import androidx.benchmark.ProfilerConfig
 import androidx.benchmark.TimeCapture
 import androidx.test.platform.app.InstrumentationRegistry
 import io.github.junekim0007.cryptobench.benchmark.run.CaseSettings
+import io.github.junekim0007.cryptobench.benchmark.run.energy.Energy
 import io.github.junekim0007.cryptobench.settings.Metric
 
 @OptIn(ExperimentalBenchmarkConfigApi::class)
@@ -16,18 +17,20 @@ internal object JetpackConfig {
 
     val METRICS: Set<Metric> = Metric.entries.toSet()
 
-    // Default metrics: androidx adds its CPU event capture itself when the launch argument enabled it; an allocation pass adds its own.
+    // Only the energy pass measures energy (PassArguments.applied), and it alone keeps the trace and skips the collection between samples.
+    fun measuresEnergy(settings: CaseSettings): Boolean = settings.energy.capture == Energy.Capture.MEASURED
+
+    // MicrobenchmarkConfig's default list carries the CPU event capture when the launch argument enabled it; an allocation pass adds its own.
     fun of(settings: CaseSettings): MicrobenchmarkConfig {
         val profiler = when (settings.profiling) {
             CaseSettings.Profiling.NONE -> null
             CaseSettings.Profiling.METHOD_TRACING -> ProfilerConfig.MethodTracing()
             CaseSettings.Profiling.STACK_SAMPLING -> ProfilerConfig.StackSampling()
         }
-        if (PassArguments.countsAllocations) {
-            return MicrobenchmarkConfig(metrics = listOf(TimeCapture(), SampledAllocations()), profiler = profiler,
-                warmupCount = settings.warmupIterations, measurementCount = settings.iterations)
-        }
-        return MicrobenchmarkConfig(profiler = profiler, warmupCount = settings.warmupIterations, measurementCount = settings.iterations)
+        val captures = if (PassArguments.countsAllocations) listOf(TimeCapture(), SampledAllocations()) else MicrobenchmarkConfig().metrics
+        val cleaning = if (measuresEnergy(settings)) emptyList() else listOf(CleaningCapture())
+        return MicrobenchmarkConfig(metrics = captures + cleaning, profiler = profiler,
+            warmupCount = settings.warmupIterations, measurementCount = settings.iterations)
     }
 
     // Checks the launch argument, not androidx's own decision; a counter androidx drops anyway fails the conversion.

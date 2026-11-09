@@ -9,6 +9,7 @@ apps/benchmark/modules/android/docs/scoped.md : scoped interop check: generated 
 apps/benchmark/modules/android/src/androidTest/java/.gitignore : ignores the generated scoped/ sources
 apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/Bundled.kt : installs the bundledProviders of a pushed effective.yaml into the process
 apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/CaseFilter.kt : the `case` argument: one id or an ordered comma list; absent keeps every case
+apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/CleaningCapture.kt : a forced GC and finalization between samples, the pause and GC counts reported beside the time
 apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/CorePin.kt : pins the measuring thread to one core and restores on close
 apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/CorePins.kt : appends one line per pinned case to cpu-pins.yaml
 apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/CryptoBenchmark.kt : parameterised Jetpack measurement per timed case
@@ -20,7 +21,6 @@ apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryp
 apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/InteropCheck.kt : installs bundled providers; runs the pushed interop_plan.yaml into interop.yaml
 apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/JetpackCase.kt : base of a Jetpack-timed case: its rule, the counter check, the pin, the timed loop; once() for the check, its output to the hook
 apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/JetpackConfig.kt : CaseSettings to MicrobenchmarkConfig; reportable metrics, CPU event counter argument check
-apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/NativeCleanups.kt : appends one line per timed case to native-cleanup.yaml: its NativeBudget's paused cleanups
 apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/PassArguments.kt : the run.passes pass and samples the host names, applied over a case's settings
 apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/PinnedCase.kt : one timed case under its cpu pin and energy setting
 apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/SampledAllocations.kt : allocation counting inside the timed phase for an allocation pass

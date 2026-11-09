@@ -8,6 +8,7 @@ import io.github.junekim0007.cryptobench.discovery.write.YamlCodec
 import io.github.junekim0007.cryptobench.preparation.Preparation
 import io.github.junekim0007.cryptobench.preparation.adapter.DiscoveryCapability
 import java.io.File
+import java.lang.management.ManagementFactory
 
 // Every case prepared, then measured in turn; benchmark.json is rewritten as each case finishes, so a later failure, or this JVM's death, loses no earlier row.
 fun main(arguments: Array<String>) = command {
@@ -27,7 +28,7 @@ fun main(arguments: Array<String>) = command {
         "osName" to capture.runtime.osName,
         "osArch" to capture.runtime.osArch,
     )
-    val harness = HostHarness()
+    val harness = HostHarness(collectionCount = { ManagementFactory.getGarbageCollectorMXBeans().sumOf { maxOf(0L, it.collectionCount) } })
     val rows = mutableListOf<ResultRow>()
     for (prepared in runnable) {
         val measured = plan.guarded(prepared.case, RunnablePlan.BENCHMARK, RunnablePlan.MEASURE_FAILED) { harness.measure(prepared) } ?: continue

@@ -3,6 +3,7 @@ import re
 
 import timeouts
 from device.adb import ONE_PASSED
+from session import calibration
 
 CASE_ARGUMENT = "case"   # CaseFilter.ARGUMENT
 LISTED = re.compile(r"^INSTRUMENTATION_STATUS: test=measure\[(.+)\]\s*$", re.M)
@@ -18,7 +19,25 @@ def one_line(text):
 
 
 def measure_case(device, test_class, arguments, case, pulled):
-    """None, or the failure line, for one case in its own process; its benchmarkData stays at pulled."""
+    """None, or the failure line, for one case in its own process; a launch whose calibration collapsed is measured once more, then fails."""
+    failure = launch_case(device, test_class, arguments, case, pulled)
+    if failure:
+        return failure
+    if calibration.short_samples(pulled):
+        print(f"warning: {calibration.short_samples(pulled)[0]}; measuring the case again")
+        failure = launch_case(device, test_class, arguments, case, pulled)
+        if failure:
+            return failure
+        short = calibration.short_samples(pulled)
+        if short:
+            return f"case_failed: {case}: {short[0]}"
+    for line in calibration.near_cap(pulled):
+        print(line)
+    return None
+
+
+def launch_case(device, test_class, arguments, case, pulled):
+    """None, or the failure line; the case's benchmarkData stays at pulled."""
     device.shell(f"rm -f {device.data}")
     try:
         output = device.instrument(test_class, *arguments, "-e", CASE_ARGUMENT, case, step="case")
