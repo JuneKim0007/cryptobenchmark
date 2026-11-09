@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
 
-from cryptobench.catalogue.document import DocumentKind
+from cryptobench.document import DocumentKind
 
 # 2: every row carries its benchmark variant and perCall
 ROWS_SCHEMA_VERSION = 2

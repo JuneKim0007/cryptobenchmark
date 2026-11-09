@@ -2,12 +2,13 @@
 from __future__ import annotations
 
 from .paths import DATA
+import re
 from dataclasses import dataclass, field
 from functools import cache
 from pathlib import Path
 
-from .coded import InputError
-from .document import AT_PATH, DocumentKind
+from ..coded import InputError
+from ..document import AT_PATH, DocumentKind
 from .glossary import build_problems
 
 CATALOG = DATA / "provider-builds.yaml"
@@ -54,6 +55,18 @@ class ProviderBuilds:
         if len(named) == 1:
             return named[0]
         raise ProviderBuildError(f"{UNKNOWN}: {provider!r} is {'one of ' + str(named) if named else 'no build the catalogues have measured'}")
+
+    def nearest(self, provider: str, platform: str | None, artifact: str | None) -> tuple[str | None, bool]:
+        """The build of a provider here and whether it is exactly this one; else the nearest at or below this platform, else its latest."""
+        keys = sorted(k for k, b in self.builds.items() if b["name"] == provider)
+        for exact in (f"{provider} @ {platform}", f"{provider} @ {artifact}"):
+            if exact in keys:
+                return exact, True
+        match = re.fullmatch(r"(\w+)-(\d+)", platform or "")
+        same_kind = sorted((int(k.rsplit("-", 1)[1]), k) for k in keys if match and re.search(rf" @ {match[1]}-\d+$", k))
+        if same_kind:
+            return ([k for n, k in same_kind if n <= int(match[2])] or [same_kind[0][1]])[-1], False
+        return (keys[-1], False) if keys else (None, False)
 
 
 def load(path: Path = CATALOG) -> ProviderBuilds:

@@ -102,6 +102,7 @@ apps/benchmark-runner/timeouts.py : ceilings of the host's subprocess steps (adb
 apps/benchmark/build.gradle : root buildscript: Android Gradle plugin and Kotlin plugin versions
 apps/benchmark/cli/ : the host commands: probe, configure, parse-only check, bench, end-to-end check and its diff, convert, merges, interop; JCA contract tests
 apps/benchmark/gradle.properties : Gradle daemon JVM args and AndroidX flags
+apps/benchmark/gradle/guide-resources.gradle : puts the guide's names file on the classpath of the build that applies it
 apps/benchmark/gradlew : the one Gradle wrapper, for the benchmark's root build, its CLI build and every tools/ build
 apps/benchmark/modules/android/ : instrumentation app: Jetpack harness, device plan, native core affinity
 apps/benchmark/modules/benchmark/ : plan check and measurement of prepared cases; benchmark.json

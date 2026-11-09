@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 
-from .coded import InputError
-from .document import NAMED, DocumentKind
+from ..coded import InputError
+from ..document import NAMED, DocumentKind
 from .signature import Signature
 
 SCHEMA_VERSION = 1

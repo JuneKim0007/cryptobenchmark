@@ -5,7 +5,7 @@ import fcntl
 import os
 from pathlib import Path
 
-from cryptobench.catalogue.coded import InputError
+from cryptobench.coded import InputError
 from .layout import LOCK
 
 # flock conflicts between two descriptors of one process too, so the guide and its probe_device share one

@@ -8,6 +8,7 @@ class GuideTest {
     private val gcm = mapOf("class" to "javax.crypto.spec.GCMParameterSpec", "arguments" to listOf(128, "fresh(12)"))
     private val guide = Guide(mapOf(
         "P/Cipher/AES/GCM/NoPadding" to mapOf("parameters" to gcm, "keySizes" to listOf(128, 256)),
+        "P/Cipher/Held" to mapOf("refused" to "key_inside_provider: this provider keeps its own keys"),
         "P/Cipher/Broken" to mapOf("problem" to "guide_recipe_unbuildable: nonce has no length"),
     ))
 
@@ -20,6 +21,17 @@ class GuideTest {
         assertEquals(emptyList<Selection>(), ready)
         assertEquals("not_in_guide: add an entry to measure it", refused.single().reason)
     }
+
+    @Test
+    fun anItemTheGuideDoesNotHoldIsDroppedEvenWithItsOwnParameters() {
+        val (ready, refused) = guide.joined(listOf(selection("Unknown", parameters = mapOf("class" to "own"))))
+        assertEquals(emptyList<Selection>(), ready)
+        assertEquals("not_in_guide: add an entry to measure it", refused.single().reason)
+    }
+
+    @Test
+    fun aRefusalHoldsEvenWithItsOwnParameters() =
+        assertEquals("key_inside_provider: this provider keeps its own keys", guide.joined(listOf(selection("Held", parameters = mapOf("class" to "own")))).second.single().reason)
 
     @Test
     fun theGuideSaysHowAnItemIsBuilt() = assertEquals(gcm, guide.joined(listOf(selection("AES/GCM/NoPadding"))).first.single().parameters)

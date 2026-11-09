@@ -10,7 +10,7 @@ import yaml
 from cryptobench.catalogue.algorithms import DIRECTORY, SUFFIX, load
 from cryptobench.catalogue.families import Families
 from cryptobench.catalogue.groups import CATALOG as GROUPS, load as load_groups
-from cryptobench.catalogue.coded import InputError
+from cryptobench.coded import InputError
 from perfrepair.validation.catalogue_entry import catalogue_check
 
 LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)

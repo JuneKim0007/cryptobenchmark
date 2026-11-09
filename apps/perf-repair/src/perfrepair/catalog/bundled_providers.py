@@ -6,8 +6,8 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-from cryptobench.catalogue.coded import InputError
-from cryptobench.catalogue.document import parse_yaml
+from cryptobench.coded import InputError
+from cryptobench.document import parse_yaml
 
 BUNDLED_PROVIDERS = Path(__file__).with_name("bundled-providers.yaml")
 SCHEMA_VERSION = 1

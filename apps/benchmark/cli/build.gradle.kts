@@ -21,7 +21,7 @@ kotlin {
     compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
 }
 
-tasks.processResources { from("../../../algorithms") { include("algorithm-names.yaml") } }
+apply(from = "../gradle/guide-resources.gradle")
 
 sourceSets {
     main {
@@ -34,7 +34,7 @@ sourceSets {
             "../modules/benchmark/src/main/kotlin",
             "src/main/kotlin",
         ))
-        resources.setSrcDirs(listOf("../modules/config/src/main/resources", "../modules/preparation/src/main/resources"))
+        resources.setSrcDirs(listOf("../modules/preparation/src/main/resources"))
     }
     test {
         kotlin.setSrcDirs(listOf("../modules/jca/src/test/kotlin", "../modules/environment/discovery/src/test/kotlin", "../modules/config/src/test/kotlin", "src/test/kotlin"))

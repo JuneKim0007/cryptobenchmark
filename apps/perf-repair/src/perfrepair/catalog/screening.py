@@ -3,8 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from cryptobench.catalogue.coded import InputError
-from cryptobench.catalogue.document import AT_PATH, DocumentKind, parse_yaml
+from cryptobench.coded import InputError
+from cryptobench.document import AT_PATH, DocumentKind, parse_yaml
 from cryptobench.catalogue.names import Names, fold
 
 SCREENING = Path(__file__).with_name("screening.yaml")

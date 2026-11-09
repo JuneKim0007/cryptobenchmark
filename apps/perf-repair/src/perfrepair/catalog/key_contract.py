@@ -3,7 +3,7 @@ from __future__ import annotations
 from functools import cache
 from pathlib import Path
 
-from cryptobench.catalogue.document import AT_PATH, DocumentKind
+from cryptobench.document import AT_PATH, DocumentKind
 
 CATALOG = Path(__file__).with_name("key-contract.yaml")
 SCHEMA_VERSION = 1

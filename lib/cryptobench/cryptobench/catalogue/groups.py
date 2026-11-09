@@ -9,8 +9,8 @@ from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 
-from .coded import InputError
-from .document import AT_PATH, DocumentKind
+from ..coded import InputError
+from ..document import AT_PATH, DocumentKind
 from .signature import CONVENTION, UNKNOWN, Signature
 from .algorithms import (
     CONTRACT_KEY,

@@ -5,8 +5,8 @@ from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 
-from cryptobench.catalogue.coded import InputError
-from cryptobench.catalogue.document import AT_PATH, DocumentKind
+from cryptobench.coded import InputError
+from cryptobench.document import AT_PATH, DocumentKind
 from cryptobench.catalogue.families import Families
 from cryptobench.catalogue.names import Names, fold
 from .screening import ACCEPTED, DEPRECATED, Screening

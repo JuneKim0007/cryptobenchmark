@@ -33,7 +33,7 @@
 | `write_used(device, apps)` | `src/perfrepair/device/used.py` | - | device.stage, device.stage_pass, guide.device_steps, guide.gate_steps |
 | `admits(max_change, change)` | `src/perfrepair/dto/change.py` | `change in CHANGES and CHANGES.index(change) <= CHANGES.index(max_change)` | ai.select.unit_candidates, result.candidates, validation.dossiers.document, validation.dossiers.dossier +1 |
 | `output_changes(diff)` | `src/perfrepair/dto/change.py` | `diff is not None and diff.output != SAME` | result.change, result.options, validation.dossiers.dossier |
-| `parse_yaml(text, where, code, shape, error)` | `../../lib/cryptobench/cryptobench/catalogue/document.py` | An empty text is an empty shape; YAML that does not parse, or parses to another shape, is `<code>: <where>: ...`. | catalog.bundled_providers, catalog.screening, files |
+| `parse_yaml(text, where, code, shape, error)` | `../../lib/cryptobench/cryptobench/document.py` | An empty text is an empty shape; YAML that does not parse, or parses to another shape, is `<code>: <where>: ...`. | catalog.bundled_providers, catalog.screening, files |
 | `reason_code(reason)` | `src/perfrepair/dto/dossier.py` | A noOptions reason's code; `no_evidence` names its metrics after a colon, `person_judges` its reject reasons. | ai.select.upgrades, repair.dossier, result.configurations, validation.dossiers.document |
 | `algorithm_of(item)` | `../../lib/cryptobench/cryptobench/catalogue/grouping.py` | `parse_qualified(item)[1]` | ai.select.options, ai.select.render, ai.select.upgrade_render, result.upgrades +1 |
 | `parse_qualified(text)` | `../../lib/cryptobench/cryptobench/catalogue/grouping.py` | - | ai.select.rows, device.delta_config, device.delta_estimate, device.measured_check +5 |

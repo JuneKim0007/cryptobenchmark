@@ -2,8 +2,8 @@
 import pathlib
 from dataclasses import dataclass
 
-from cryptobench.catalogue.coded import InputError
-from cryptobench.catalogue.document import parse_yaml
+from cryptobench.coded import InputError
+from cryptobench.document import parse_yaml
 from perfrepair.inputs.check import RUN_ID_FORM
 from perfrepair.run_dir.run_record import ON_EXISTING, OVERWRITE
 

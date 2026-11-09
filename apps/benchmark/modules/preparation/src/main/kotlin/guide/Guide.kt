@@ -14,12 +14,21 @@ class Guide(private val items: Map<String, Map<String, Any>>) {
         val refused = mutableListOf<Rejection>()
         for (selection in selections) {
             val item = items["${selection.provider}/${selection.type}/${selection.algorithm}"]
-            val problem = if (item == null) "not_in_guide: add an entry to measure it" else DocumentFields.optionalString(item, "problem")
+            if (item == null) {
+                refused += Rejection(selection, selection.provider, "not_in_guide: add an entry to measure it")
+                continue
+            }
+            val never = DocumentFields.optionalString(item, "refused")
+            if (never.isNotEmpty()) {
+                refused += Rejection(selection, selection.provider, never)
+                continue
+            }
+            val problem = DocumentFields.optionalString(item, "problem")
             if (problem.isNotEmpty() && selection.parameters.isEmpty()) {
                 refused += Rejection(selection, selection.provider, problem)
                 continue
             }
-            val guided = item.orEmpty()
+            val guided = item
             val accepted = DocumentFields.optionalNumbers(guided, "keySizes")
             val unsupported = if (accepted.isEmpty()) emptyList() else selection.keySizes - accepted.toSet()
             if (unsupported.isNotEmpty()) refused += Rejection(selection, selection.provider, "key_size_not_in_guide: $unsupported, the guide lists $accepted")

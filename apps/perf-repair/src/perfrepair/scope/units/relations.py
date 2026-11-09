@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 
-from cryptobench.catalogue.document import DocumentKind
+from cryptobench.document import DocumentKind
 from ...dto.site import Scope
 from ...files import read_yaml
 

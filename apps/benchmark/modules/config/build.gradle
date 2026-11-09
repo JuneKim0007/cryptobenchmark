@@ -25,6 +25,4 @@ tasks.withType(Test).configureEach {
     }
 }
 
-processResources {
-    from('../../../../algorithms') { include 'algorithm-names.yaml' }
-}
+apply from: '../../gradle/guide-resources.gradle'

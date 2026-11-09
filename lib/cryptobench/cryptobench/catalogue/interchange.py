@@ -8,8 +8,8 @@ from pathlib import Path
 
 import yaml
 
-from .coded import InputError
-from .document import AT_PATH, DocumentKind
+from ..coded import InputError
+from ..document import AT_PATH, DocumentKind
 
 CATALOG = DATA / "interchange.yaml"
 SCHEMA_VERSION = 1

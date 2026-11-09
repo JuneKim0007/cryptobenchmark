@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from cryptobench.catalogue.names import fold
-from cryptobench.catalogue.document import DocumentKind
+from cryptobench.document import DocumentKind
 from ._services import services
 
 SUPPORTED_SCHEMA = 1

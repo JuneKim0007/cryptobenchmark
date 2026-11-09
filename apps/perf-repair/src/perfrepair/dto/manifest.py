@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from cryptobench.catalogue.document import DocumentKind
+from cryptobench.document import DocumentKind
 from .units import DisplayUnits
 
 SCHEMA_VERSION = 1

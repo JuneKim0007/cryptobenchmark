@@ -1,7 +1,7 @@
 """Halt: the one exception terminate raises; code_of: the code a failure carries in its field."""
 from __future__ import annotations
 
-from cryptobench.catalogue.coded import InputError
+from cryptobench.coded import InputError
 
 
 class Halt(Exception):

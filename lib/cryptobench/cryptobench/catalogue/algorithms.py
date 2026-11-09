@@ -6,8 +6,8 @@ from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 
-from .coded import InputError
-from .document import AT_PATH, DocumentKind
+from ..coded import InputError
+from ..document import AT_PATH, DocumentKind
 from .types import NO_NONCE, NO_PARAMETERS, OUTPUT_KINDS
 from .deviations import CATALOG as DEVIATIONS, Deviations, load as load_deviations
 from .families import Families

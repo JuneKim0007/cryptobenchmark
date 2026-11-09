@@ -6,9 +6,9 @@ import pytest
 
 import perfrepair
 from cryptobench.catalogue.names import NAMES_DOC, NamesError
-from cryptobench.catalogue.coded import InputError
+from cryptobench.coded import InputError
 from perfrepair.dto.decision import OUTBOX_RECORD_DOC
-from cryptobench.catalogue.document import DocumentKind
+from cryptobench.document import DocumentKind
 from perfrepair.dto.site import SCOPES_DOC
 from perfrepair.files import read_versioned, write_json
 from perfrepair.stop import CODES, code_of
@@ -64,7 +64,7 @@ def test_read_yaml_refuses_bad_yaml_and_a_non_mapping_with_invalid_yaml_at_its_l
     (tmp_path / "list.yaml").write_text("- a\n")
     with pytest.raises(InputError, match=r"^invalid_yaml: "):
         read_yaml(tmp_path / "list.yaml")
-    from cryptobench.catalogue.document import parse_yaml
+    from cryptobench.document import parse_yaml
     assert read_yaml(tmp_path / "list.yaml", list) == ["a"] and parse_yaml("", "x") == {}
     with pytest.raises(NamesError, match="^names_schema: x: .* at line 1 column 5$"):
         parse_yaml("a: [", "x", "names_schema", error=NamesError)

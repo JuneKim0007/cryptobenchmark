@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from typing import Callable
 
-from cryptobench.catalogue.coded import CODE
+from cryptobench.coded import CODE
 from ..dto.event import BUG, END, ERROR, FINDING, RUN_END, RUN_START, Event
 from ..run_dir import BUG_LOG
 

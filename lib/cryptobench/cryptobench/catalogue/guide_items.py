@@ -1,26 +1,13 @@
 """What the guide says for exactly the items of one effective.yaml, at the builds this device runs: preparation's guide.yaml."""
 from __future__ import annotations
 
-from .algorithms import algorithms, algorithm_id
-from .names import Names
-from .provider_builds import ProviderBuilds, provider_builds
+from .algorithms import KEY_PROVIDER, algorithms, algorithm_id
+from .names import Names, fold
+from .provider_builds import provider_builds
 from .recipes import load as load_recipes
 from .views import view_for
 
 SCHEMA_VERSION = 1
-ANDROID = " @ android-"
-
-
-def build_of(provider: str, sdk: int | None, artifact: str | None, builds: ProviderBuilds) -> tuple[str | None, bool]:
-    """The build key of a provider here, and whether it is exactly this one; without one, the nearest Android build at or below this sdk."""
-    keys = [k for k, b in builds.builds.items() if b["name"] == provider]
-    exact = f"{provider}{ANDROID}{sdk}" if sdk else f"{provider} @ {artifact}"
-    if exact in keys:
-        return exact, True
-    android = sorted((int(k.split(ANDROID)[1]), k) for k in keys if ANDROID in k)
-    if sdk and android:
-        return ([k for s, k in android if s <= sdk] or [android[0][1]])[-1], False
-    return (sorted(keys)[-1], False) if keys else (None, False)
 
 
 def _argument(argument: dict, rows: dict, recipes: dict):
@@ -53,6 +40,8 @@ def _tree(recipe_id: str, rows: dict, recipes: dict) -> dict:
 def _item(view: dict, build: str | None, exact: bool, recipes: dict) -> dict:
     rows = {r["name"]: r for r in view["required"]}
     item: dict = {"build": build, "exactBuild": exact}
+    if (view.get("key") or {}).get("origin") == KEY_PROVIDER:
+        return {**item, "refused": "key_inside_provider: this provider keeps its own keys; the harness cannot create them yet"}
     carried = sorted({r["recipe"] for r in view["required"] if r.get("recipe") and r.get("passedTo") == "init"})
     if len(carried) > 1:
         return {**item, "problem": f"guide_recipe_unbuildable: {carried} are several objects for one init"}
@@ -67,19 +56,19 @@ def _item(view: dict, build: str | None, exact: bool, recipes: dict) -> dict:
     return item
 
 
-def guide_items(effective: dict, sdk: int | None) -> dict:
+def guide_items(effective: dict, platform: str | None) -> dict:
     """An item the guide does not hold is left out, and preparation logs and drops it."""
     names, builds, recipes = Names.load(), provider_builds(), load_recipes().by_id
-    known = {e.id.upper() for e in algorithms().entries}
+    known = {fold(e.id) for e in algorithms().entries}
     artifacts = {b.get("alias"): b["artifact"] for b in effective.get("bundledProviders") or []}
     items: dict = {}
     for provider, types in (effective.get("providers") or {}).items():
-        build, exact = build_of(provider, sdk, artifacts.get(provider), builds)
+        build, exact = builds.nearest(provider, platform, artifacts.get(provider))
         for engine_type, entries in types.items():
             for key in entries:
                 name = key.split("@")[0]
                 identifier = algorithm_id(engine_type, names.canonical(engine_type, name).name)
-                if identifier.upper() not in known:
+                if fold(identifier) not in known:
                     continue
                 view = view_for(identifier, build, builds=builds) if build else view_for(identifier)
                 items.setdefault(provider, {}).setdefault(engine_type, {})[name] = _item(view, build, exact, recipes)

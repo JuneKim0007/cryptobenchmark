@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
 
-from cryptobench.catalogue.document import DocumentKind
+from cryptobench.document import DocumentKind
 from .dossier import Dossier
 from .replacement import Edit, Replacement
 

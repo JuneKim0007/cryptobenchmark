@@ -8,7 +8,7 @@ from pathlib import Path
 
 import yaml
 
-from cryptobench.catalogue.coded import InputError
+from cryptobench.coded import InputError
 from ..dto.device import DeviceRecord
 from ..files import read_json, read_yaml, sha256_file, write_json, write_text
 from .layout import DEVICE, MANIFEST, REPORT, REPORT_MD, RUNS, AppPaths, app_dirs

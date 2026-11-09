@@ -606,8 +606,8 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/Cipher'}
     providers:
-      AndroidKeyStoreBCWorkaround @ android-33: {contract.key: app, key.origin: app}
-      AndroidKeyStoreBCWorkaround @ android-36: {conditions.roundTrip: {value: false, source: measured}, contract.key: app, key.origin: app}
+      AndroidKeyStoreBCWorkaround @ android-33: {contract.key: app, key.origin: provider}
+      AndroidKeyStoreBCWorkaround @ android-36: {conditions.roundTrip: {value: false, source: measured}, contract.key: app, key.origin: provider}
       AndroidOpenSSL @ android-36: {conditions.roundTrip: {value: false, source: measured}}
     provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|RSA/ECB/OAEPPadding:
@@ -632,8 +632,8 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/Cipher'}
     providers:
-      AndroidKeyStoreBCWorkaround @ android-33: {key.origin: app}
-      AndroidKeyStoreBCWorkaround @ android-36: {key.origin: app}
+      AndroidKeyStoreBCWorkaround @ android-33: {key.origin: provider}
+      AndroidKeyStoreBCWorkaround @ android-36: {key.origin: provider}
     provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|RSA/ECB/OAEPWithSHA-1AndMGF1Padding:
     key: {type: RSA, origin: app, source: measured}
@@ -657,8 +657,8 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: 10, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/Cipher'}
     providers:
-      AndroidKeyStoreBCWorkaround @ android-33: {key.origin: app}
-      AndroidKeyStoreBCWorkaround @ android-36: {key.origin: app}
+      AndroidKeyStoreBCWorkaround @ android-33: {key.origin: provider}
+      AndroidKeyStoreBCWorkaround @ android-36: {key.origin: provider}
     provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|RSA/ECB/OAEPWithSHA-224AndMGF1Padding:
     key: {type: RSA, origin: app, source: measured}
@@ -684,8 +684,8 @@ algorithms:
     providers:
       AndroidKeyStoreBCWorkaround @ android-26: {conditions.spellingRuns: {value: RSA/None/OAEPWithSHA-224AndMGF1Padding is this provider's SHA-256 OAEP service, source: inferred}}
       AndroidKeyStoreBCWorkaround @ android-30: {conditions.spellingRuns: {value: RSA/None/OAEPWithSHA-224AndMGF1Padding is this provider's SHA-256 OAEP service, source: inferred}}
-      AndroidKeyStoreBCWorkaround @ android-33: {conditions.spellingRuns: {value: RSA/None/OAEPWithSHA-224AndMGF1Padding is this provider's SHA-256 OAEP service, source: measured}, key.origin: app}
-      AndroidKeyStoreBCWorkaround @ android-36: {conditions.spellingRuns: {value: RSA/None/OAEPWithSHA-224AndMGF1Padding is this provider's SHA-256 OAEP service, source: measured}, key.origin: app}
+      AndroidKeyStoreBCWorkaround @ android-33: {conditions.spellingRuns: {value: RSA/None/OAEPWithSHA-224AndMGF1Padding is this provider's SHA-256 OAEP service, source: measured}, key.origin: provider}
+      AndroidKeyStoreBCWorkaround @ android-36: {conditions.spellingRuns: {value: RSA/None/OAEPWithSHA-224AndMGF1Padding is this provider's SHA-256 OAEP service, source: measured}, key.origin: provider}
     provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|RSA/ECB/OAEPWithSHA-256AndMGF1Padding:
     key: {type: RSA, origin: app, source: measured}
@@ -711,8 +711,8 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: 10, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/Cipher'}
     providers:
-      AndroidKeyStoreBCWorkaround @ android-33: {key.origin: app}
-      AndroidKeyStoreBCWorkaround @ android-36: {key.origin: app}
+      AndroidKeyStoreBCWorkaround @ android-33: {key.origin: provider}
+      AndroidKeyStoreBCWorkaround @ android-36: {key.origin: provider}
     provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|RSA/ECB/OAEPWithSHA-384AndMGF1Padding:
     key: {type: RSA, origin: app, source: measured}
@@ -736,8 +736,8 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: 23, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/Cipher'}
     providers:
-      AndroidKeyStoreBCWorkaround @ android-33: {key.origin: app}
-      AndroidKeyStoreBCWorkaround @ android-36: {key.origin: app}
+      AndroidKeyStoreBCWorkaround @ android-33: {key.origin: provider}
+      AndroidKeyStoreBCWorkaround @ android-36: {key.origin: provider}
     provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|RSA/ECB/OAEPWithSHA-512AndMGF1Padding:
     key: {type: RSA, origin: app, source: measured}
@@ -761,8 +761,8 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: 23, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/Cipher'}
     providers:
-      AndroidKeyStoreBCWorkaround @ android-33: {key.origin: app}
-      AndroidKeyStoreBCWorkaround @ android-36: {key.origin: app}
+      AndroidKeyStoreBCWorkaround @ android-33: {key.origin: provider}
+      AndroidKeyStoreBCWorkaround @ android-36: {key.origin: provider}
     provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|RSA/ECB/PKCS1Padding:
     key: {type: RSA, origin: app, source: measured}
@@ -784,8 +784,8 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/Cipher'}
     providers:
-      AndroidKeyStoreBCWorkaround @ android-33: {contract.key: app, key.origin: app}
-      AndroidKeyStoreBCWorkaround @ android-36: {contract.key: app, key.origin: app}
+      AndroidKeyStoreBCWorkaround @ android-33: {contract.key: app, key.origin: provider}
+      AndroidKeyStoreBCWorkaround @ android-36: {contract.key: app, key.origin: provider}
     provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|RSA/NONE/ISO9796-1Padding:
     key: {type: RSA, origin: app, source: inferred}

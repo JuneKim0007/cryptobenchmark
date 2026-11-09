@@ -133,7 +133,7 @@ deviations:
     set: {conditions.wrapOnly: {value: false, source: measured}}
   builds.nonceChaCha20:
     fact: "On these builds they need nonce of 12 through jca.nonceIvSpec."
-    builds: [AndroidOpenSSL @ android-30, AndroidOpenSSL @ android-33, BC @ jdk-25, BundledBC, BundledConscrypt]
+    builds: [AndroidOpenSSL @ android-30, AndroidOpenSSL @ android-33, AndroidOpenSSL @ android-36, BC @ jdk-25, BundledBC, BundledConscrypt]
     names: [Cipher|ChaCha20]
     set: {required.nonce: {name: nonce, recipe: jca.nonceIvSpec, bytes: 12, rule: unique, use: decrypt, passedTo: init, source: measured}}
   builds.reuseRefusedChaCha20Poly1305:

@@ -263,7 +263,8 @@ def test_the_keystore_born_pairs_are_keyed_by_build():
     assert all(gcm[f"AndroidKeyStoreBCWorkaround @ android-{a}"]["contract.key"] == "provider" for a in (26, 30, 33, 36))
     oaep = algorithms().of("cipher.pair", "Cipher|RSA/ECB/OAEPWithSHA-256AndMGF1Padding").raw["providers"]
     assert oaep["AndroidKeyStoreBCWorkaround @ android-26"]["key.origin"] == "provider"
-    assert oaep["AndroidKeyStoreBCWorkaround @ android-33"]["key.origin"] == "app"
+    # an app key "works" here only because the provider hands it to a software cipher; the key it can use itself stays inside
+    assert oaep["AndroidKeyStoreBCWorkaround @ android-33"]["key.origin"] == "provider"
 
 
 def test_a_password_cipher_with_an_iv_takes_one_object_holding_the_iv():

@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Mapping
 
-from cryptobench.catalogue.coded import InputError
+from cryptobench.coded import InputError
 from ..files import read_yaml
 from ..inputs.resolve import CLI, Candidate, choose
 from ..inputs.table import ROLE_KEYS, Layer, RoleRow, Row

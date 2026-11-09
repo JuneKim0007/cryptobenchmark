@@ -3,7 +3,7 @@ from __future__ import annotations
 from .paths import DATA
 from pathlib import Path
 
-from .document import AT_PATH, DocumentKind
+from ..document import AT_PATH, DocumentKind
 from .grouping import Family
 
 CATALOG = DATA / "families.yaml"

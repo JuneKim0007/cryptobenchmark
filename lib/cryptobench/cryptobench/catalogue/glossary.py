@@ -5,8 +5,8 @@ from .paths import DATA
 import re
 from functools import cache
 
-from .coded import InputError
-from .document import AT_PATH, DocumentKind
+from ..coded import InputError
+from ..document import AT_PATH, DocumentKind
 
 CATALOG = DATA / "glossary.yaml"
 SCHEMA_VERSION = 1

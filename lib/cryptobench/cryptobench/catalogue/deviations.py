@@ -5,8 +5,8 @@ from .paths import DATA
 from dataclasses import dataclass
 from pathlib import Path
 
-from .coded import InputError
-from .document import AT_PATH, DocumentKind
+from ..coded import InputError
+from ..document import AT_PATH, DocumentKind
 from .glossary import deviation_problems
 from .names import fold
 from .overrides import override_parent

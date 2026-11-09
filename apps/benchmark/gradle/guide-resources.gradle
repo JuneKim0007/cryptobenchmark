@@ -1,0 +1,5 @@
+// Puts the implementation guide's names file on the classpath of the build that applies this; the one place that knows where it is.
+def guide = new File(buildscript.sourceFile.parentFile.parentFile.parentFile.parentFile, 'algorithms')
+tasks.matching { it.name == 'processResources' }.configureEach {
+    from(guide) { include 'algorithm-names.yaml' }
+}

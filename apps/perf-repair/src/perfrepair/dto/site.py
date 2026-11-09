@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 from dataclasses import asdict, dataclass
 
-from cryptobench.catalogue.document import DocumentKind
+from cryptobench.document import DocumentKind
 from .lifecycle import Lifecycle
 from .pattern import NOT_FIXED, UNKNOWN_DEFAULT
 

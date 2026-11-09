@@ -2,7 +2,7 @@ import pytest
 
 from perfrepair.catalog.sdk_constants import sdk_constants
 from perfrepair.catalog.upgrades import Upgrades
-from cryptobench.catalogue.coded import InputError
+from cryptobench.coded import InputError
 
 
 # Catalogue files read through DocumentKind.read: bad YAML is a coded input error, not a raw parser error.
