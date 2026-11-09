@@ -4,11 +4,11 @@ from __future__ import annotations
 import argparse
 import functools
 import logging
-import tempfile
 from pathlib import Path
 
 from cryptobench.paths import Results, RunTree
 from cryptobench.paths import DEVICE, MANIFEST, MEASUREMENTS, PRIMITIVES, ROWS, RUN_LOG
+from cryptobench import paths
 from .. import run_dir as rd
 from ..inputs.table import DEVICE_ID
 from ..stop.halt import Coded
@@ -16,7 +16,6 @@ from .args import load_settings
 from .load import Loaded
 
 LOG = logging.getLogger(__name__)
-TEMP_ROOTS = ("/tmp", "/var/tmp", "/var/folders")
 HELP = "the device's results folder, <results root>/<device id>; default: --results-root, with device.id when it holds several"
 
 
@@ -39,8 +38,7 @@ def select_device(root: Path, wanted: str | None) -> Path:
 # cached: a guide calling other commands in-process still warns once
 @functools.lru_cache(maxsize=None)
 def _warn_if_temp(folder: Path) -> None:
-    real = folder.resolve()
-    if any(real.is_relative_to(Path(root).resolve()) for root in (*TEMP_ROOTS, tempfile.gettempdir())):
+    if paths.in_temp(folder):
         LOG.warning("results_in_temp: %s is under a temporary folder the system may wipe; keep results elsewhere", folder)
 
 

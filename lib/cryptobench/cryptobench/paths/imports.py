@@ -22,6 +22,7 @@ def add_app_imports() -> None:
             sys.path.insert(0, str(folder))
 
 
-def child_python_path(existing: str | None = None) -> str:
-    """perf-repair's source for a child, ahead of what the environment already names."""
-    return os.pathsep.join(p for p in (str(repo().perf_repair_source), existing) if p)
+def with_app_imports(env: dict[str, str]) -> dict[str, str]:
+    """A child's environment with perf-repair's source on its import path, ahead of what the environment already names."""
+    existing = env.get("PYTHONPATH")
+    return {**env, "PYTHONPATH": os.pathsep.join(p for p in (str(repo().perf_repair_source), existing) if p)}

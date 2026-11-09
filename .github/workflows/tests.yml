@@ -19,6 +19,8 @@ jobs:
         run: make -C apps/perf-repair check
       - name: runner and cli
         run: python3 -m pytest apps/benchmark-runner/tests apps/benchmark-runner/energy/tests apps/benchmark-runner/analysis/tests apps/cli/tests
+      - name: paths check
+        run: python3 tools/paths_check.py
       - name: standalone
         run: |
           python3 apps/benchmark-runner/tests/test_manifest.py

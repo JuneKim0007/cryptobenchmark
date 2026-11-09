@@ -8,7 +8,7 @@ from pathlib import Path
 
 import yaml
 
-from cryptobench.paths import RunTree
+from cryptobench.paths import BENCHMARK_JSON, RunTree
 from ..dto.dossier import SETUP_DRIFT
 from ..files import json_text, read_json, read_yaml, write_text_making_parents
 from ..stop.halt import Coded
@@ -110,9 +110,9 @@ def merge_delta(folder: Path, staged: Path, ids: set[str], session: str, compari
             texts[key] = yaml.safe_dump(_plan_file(key, read_yaml(folder / files[key]), read_yaml(staged / delta["files"][key])),
                                         sort_keys=False)
     for key, text in texts.items():
-        name = f"{key}/benchmark.json" if key.startswith("process-") else f"{key}.yaml" if key in PLANNED else "benchmark.json"
+        name = f"{key}/{BENCHMARK_JSON}" if key.startswith("process-") else f"{key}.yaml" if key in PLANNED else BENCHMARK_JSON
         write_text_making_parents(folder / out / name, text)
-    files.update({k: str(out / (f"{k}.yaml" if k in PLANNED else "benchmark.json")) for k in texts if not k.startswith("process-")})
+    files.update({k: str(out / (f"{k}.yaml" if k in PLANNED else BENCHMARK_JSON)) for k in texts if not k.startswith("process-")})
     if files.get("processes"):
         files["processes"] = [str(out / f"process-{n}/benchmark.json") for n in range(1, len(files["processes"]) + 1)]
     counts = dict(manifest.get("counts") or {})

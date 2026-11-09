@@ -25,9 +25,8 @@ def child_env(index, root):
     """Pins what a child's own lookups could find: an in-process step takes no --perfrepair-config, so the variable says it."""
     env = {k: v for k, v in os.environ.items() if k != "CRYPTOBENCH_CONFIG"}
     env["PERFREPAIR_CONFIG"] = str(index.llm_config)
-    env["CRYPTOBENCH_ROOT"] = str(root)
-    env["PYTHONPATH"] = paths.child_python_path(env.get("PYTHONPATH"))
-    return env
+    env[paths.BENCHMARK_ROOT_ENV] = str(root)
+    return paths.with_app_imports(env)
 
 
 def common_flags(index, settings_file, outcome_file):

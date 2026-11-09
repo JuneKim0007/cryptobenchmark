@@ -81,7 +81,7 @@ def require_connected(folder: Path, config: Path | None, on_device: bool, doing:
 
 def transcript(device: Path) -> Path:
     """<device>/log/pipeline/<run id>.log: every pipeline call of one run appends to it."""
-    path = RunTree(Path(device).resolve()).log.pipeline / f"{run_id()}.log"
+    path = RunTree(Path(device).resolve()).log.pipeline_run(run_id())
     path.parent.mkdir(parents=True, exist_ok=True)
     return path
 

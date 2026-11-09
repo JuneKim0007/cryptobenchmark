@@ -4,7 +4,7 @@ import sys
 import yaml
 
 import timeouts
-from device.adb import DeviceError, android_home
+from device.adb import DeviceError
 from failure import one_line
 from cryptobench import paths
 
@@ -40,7 +40,7 @@ def source_name(effective):
 
 
 def source(effective, python, stacktrace=False):
-    return SOURCES[source_name(effective)](Host(python, stacktrace, android_home() / "platform-tools", timeouts.SECONDS["energy"]))
+    return SOURCES[source_name(effective)](Host(python, stacktrace, paths.android_home() / "platform-tools", timeouts.SECONDS["energy"]))
 
 
 def guarded(problems, step):

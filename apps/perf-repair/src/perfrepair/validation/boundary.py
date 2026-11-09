@@ -4,7 +4,7 @@ from __future__ import annotations
 from collections import Counter
 from pathlib import Path
 
-from cryptobench.paths import GroupingTree, RunTree
+from cryptobench.paths import BENCHMARK_JSON, GroupingTree, RunTree
 from cryptobench.catalogue.groups import group_catalog
 from ..catalog.identity import case_id_pattern, resolve
 from cryptobench.catalogue.names import Names
@@ -51,7 +51,7 @@ def ids_agree(device: Path, rows: list[dict]) -> list[Violation]:
         found += _found("ids_agree", BLOCKING, "measurements.json", [f"{i}: only one side" for i in ids ^ keys], "rebuild rows and measurements together")
     cases = _results_cases(device)
     if rows and cases is not None:
-        found += _found("ids_agree", BLOCKING, "benchmark.json", [f"{i}: only one side" for i in ids ^ {c["id"] for c in cases}], "rebuild rows from these results")
+        found += _found("ids_agree", BLOCKING, BENCHMARK_JSON, [f"{i}: only one side" for i in ids ^ {c["id"] for c in cases}], "rebuild rows from these results")
     return found
 
 

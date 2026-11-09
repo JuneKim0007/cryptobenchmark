@@ -1,5 +1,5 @@
 """The device half of pipeline.py --device: adb, the instrumentation classes, and the files they leave."""
-import os, pathlib, re, subprocess, time
+import os, re, subprocess, time
 
 import timeouts
 from cryptobench import paths
@@ -27,10 +27,6 @@ class DeviceError(Exception):
     pass
 
 
-def android_home():
-    return pathlib.Path(os.environ.get("ANDROID_HOME") or pathlib.Path.home() / "Library/Android/sdk")
-
-
 def instrumentation_report(output):
     stacks = {}
     for line in output.splitlines():
@@ -56,8 +52,8 @@ class Device:
 
     def __init__(self, root, stream, stacktrace):
         self.root, self.stream, self.stacktrace = root, stream, stacktrace
-        self.environment = dict(os.environ, ANDROID_HOME=str(android_home()))
-        self.adb = android_home() / "platform-tools/adb"
+        self.environment = dict(os.environ, ANDROID_HOME=str(paths.android_home()))
+        self.adb = paths.android_home() / "platform-tools/adb"
 
     def run(self, *arguments, check=True):
         result = timeouts.run("adb", [str(self.adb), *arguments], capture_output=True, text=True)

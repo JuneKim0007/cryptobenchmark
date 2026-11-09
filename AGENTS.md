@@ -123,6 +123,7 @@ config/ : authored run configuration: global settings and test sets
 docs/ : cross-module fact docs
 docs/contributing/ : directive guides
 lib/cryptobench/ : the Python library the runner and perf-repair share: the guide's readers; map in its AGENTS.md
+pytest.ini : the Python apps' source folders on the test path, for pytest from the repository root
 requirements.txt : every host Python dependency
 settings.example.yaml : template for `settings.yaml`, the facade's root index
 tools/android-api-check/ : compiles jca, discovery, settings, preparation, benchmark against android.jar without the JDK
@@ -136,6 +137,9 @@ tools/lint/markdown.py : a guide's or doc's sections, fenced blocks, map lines a
 tools/lint/paths.py : routers, guides, docs and graphed files by path
 tools/lint/tree.py : the files git lists, their folders and markdown, and each named path resolved against them
 tools/module-isolation/ : per-module isolated compile and test
+tools/paths-frozen.txt : what tools/paths_check.py still finds, each with its reason; only shrinks
+tools/paths_check.py : path rules outside lib/cryptobench/cryptobench/paths/ and the linkage of every data file to a production reader; frozen list only shrinks
 tools/screening_list.py : writes apps/perf-repair/docs/screening-list.md from the screening catalog
 tools/shared_functions.py : writes docs/shared-functions.md and apps/perf-repair/docs/shared-functions.md from the import graph; --check fails on drift
+tools/tests/ : pytest for the repo tools
 ```

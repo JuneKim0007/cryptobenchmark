@@ -1,14 +1,11 @@
 """Compiles the android test sources with Gradle; returns the compiler's error lines, empty when it passed."""
-import os, pathlib, re
+import os, re
 
 import timeouts
+from cryptobench import paths
 
 TASK = ":android:compileReleaseAndroidTestJavaWithJavac"
 ERROR = re.compile(r"^(e: |.*\.java:\d+: error: )")
-
-
-def android_home():
-    return pathlib.Path(os.environ.get("ANDROID_HOME") or pathlib.Path.home() / "Library/Android/sdk")
 
 
 def errors(output, root):
@@ -18,7 +15,7 @@ def errors(output, root):
 
 def gradle(root):
     command = [str(root / "gradlew"), "-p", str(root), TASK, "-q"]
-    result = timeouts.run("compile", command, capture_output=True, text=True, env=dict(os.environ, ANDROID_HOME=str(android_home())))
+    result = timeouts.run("compile", command, capture_output=True, text=True, env=dict(os.environ, ANDROID_HOME=str(paths.android_home())))
     if result.returncode == 0:
         return []
     output = result.stdout + result.stderr

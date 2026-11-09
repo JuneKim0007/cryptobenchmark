@@ -1,0 +1,32 @@
+# entries of tools/paths_check.py allowed to stay: <file>: <rule> # why; this list only shrinks (--shrink)
+apps/benchmark-runner/energy/manafa_session.py: repo path apps/benchmark-runner/energy/requirements-manafa.txt # energy scripts run under --energy-python, which may not have the library; printed text
+apps/benchmark-runner/scope/code_digest.py: repo path apps/benchmark-runner/scope/*.py # the code digest's glob patterns, matched under the root it is given
+apps/benchmark-runner/scope/code_digest.py: repo path apps/benchmark-runner/scope_generate.py # the code digest's glob patterns, matched under the root it is given
+apps/benchmark-runner/scope/code_digest.py: repo path apps/benchmark/modules/android/src/androidTest/**/Scope*.kt # the code digest's glob patterns, matched under the root it is given
+tools/dead_code.py: repo path apps/benchmark-runner # the folders the dead-code tool scans
+tools/dead_code.py: repo path apps/cli # the folders the dead-code tool scans
+tools/dead_code.py: repo path apps/perf-repair/src # the folders the dead-code tool scans
+tools/dead_code.py: repo path lib/cryptobench # the folders the dead-code tool scans
+tools/dead_code.py: repo path tools/dead-code-allow.txt # the folders the dead-code tool scans
+tools/lint/claims.py: repo path apps/ # the docs lint's knowledge of repo paths: a checker's own table
+tools/lint/claims.py: repo path apps/perf-repair # the docs lint's knowledge of repo paths: a checker's own table
+tools/lint/claims.py: repo path apps/perf-repair/docs/screening-list.md # the docs lint's knowledge of repo paths: a checker's own table
+tools/lint/claims.py: repo path apps/perf-repair/docs/shared-functions.md # the docs lint's knowledge of repo paths: a checker's own table
+tools/lint/claims.py: repo path apps/perf-repair/docs/stops.md # the docs lint's knowledge of repo paths: a checker's own table
+tools/lint/claims.py: repo path apps/perf-repair/src/perfrepair/config/settings.py # the docs lint's knowledge of repo paths: a checker's own table
+tools/lint/claims.py: repo path apps/perf-repair/src/perfrepair/inputs/table.py # the docs lint's knowledge of repo paths: a checker's own table
+tools/lint/claims.py: repo path apps/perf-repair/src/perfrepair/stop/codes.py # the docs lint's knowledge of repo paths: a checker's own table
+tools/lint/claims.py: repo path tools/lint/external-names.txt # the docs lint's knowledge of repo paths: a checker's own table
+tools/lint/paths.py: repo path apps/benchmark-runner/analysis/tests/golden_summary.md # the docs lint's knowledge of repo paths: a checker's own table
+tools/lint/paths.py: repo path apps/perf-repair # the docs lint's knowledge of repo paths: a checker's own table
+tools/module-isolation/handoff_check.py: repo path tools/module-isolation # the isolation check's own folder name
+tools/screening_list.py: repo path apps/perf-repair/docs/screening-list.md # the document this tool writes
+tools/shared_functions.py: repo path apps/benchmark-runner # the folders and files the shared-functions tool indexes
+tools/shared_functions.py: repo path apps/benchmark-runner/analysis # the folders and files the shared-functions tool indexes
+tools/shared_functions.py: repo path apps/benchmark-runner/device/adb.py # the folders and files the shared-functions tool indexes
+tools/shared_functions.py: repo path apps/benchmark-runner/energy # the folders and files the shared-functions tool indexes
+tools/shared_functions.py: repo path apps/benchmark-runner/energy/energy.py # the folders and files the shared-functions tool indexes
+tools/shared_functions.py: repo path apps/benchmark-runner/energy/manafa_estimate.py # the folders and files the shared-functions tool indexes
+tools/shared_functions.py: repo path apps/benchmark-runner/failure.py # the folders and files the shared-functions tool indexes
+tools/shared_functions.py: repo path apps/cli # the folders and files the shared-functions tool indexes
+tools/shared_functions.py: repo path apps/perf-repair # the folders and files the shared-functions tool indexes
