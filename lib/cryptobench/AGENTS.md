@@ -30,18 +30,20 @@ cryptobench/catalogue/signature.py : Signature and its components, known, conven
 cryptobench/catalogue/types.py : TypeRow: an algorithm's output kind, Properties, Strength, minSdk and their sources
 cryptobench/catalogue/vectors.py : known answers: read and checked whole, filled per provider for one run, --check's coverage lines
 cryptobench/catalogue/views.py : what an agent is shown: one entry with only its provider build's overrides (view_for), the groups' ids, descriptions and exemplars (list_groups), one group's members a page at a time (get_group)
-cryptobench/paths/__init__.py : one interface to every path the Python modules use: `from cryptobench import paths`
-cryptobench/paths/roots.py : code_root (this checkout), benchmark_root (the checkout a run measures), each with its environment variable
-cryptobench/paths/repo.py : Repo and repo(root): one checkout's named locations
-cryptobench/paths/packaged.py : packaged(package, name) through importlib and a named constant per data file a package ships
-cryptobench/paths/host.py : the user's and host's locations: home, the user's global.yaml, the Android SDK
-cryptobench/paths/settings.py : against(settings_file, value), the one rule for a path a settings file names; in_temp
-cryptobench/paths/names.py : the file and folder names of a results folder, and CONTRACT: those shared with Kotlin
-cryptobench/paths/run_tree.py : RunTree: every file of one results folder; its sections Configuration, Discovery, Preparation, Measurement, Analysis, Charts, CheckFolder, InteropFolder, Scoped, Logs, Review; AppTree, GroupingTree
-cryptobench/paths/results.py : Results(root): the device folders of a results root
-cryptobench/paths/device_dirs.py : DeviceDirs(sdk): folders on a device per API level, POSIX paths
-cryptobench/paths/imports.py : the apps' source folders on the import path, for this process and a child
 cryptobench/coded.py : CODE and code_in, the code word a failure message starts with; InputError, the one coded error a refused input raises (`.code`, `.path`, `.detail`)
 cryptobench/document.py : parse_yaml, a YAML text as its one shape (a mapping unless named) or invalid_yaml at its line and column; DocumentKind: a versioned document's accepted schemaVersion (one or several), its reader's refusal text and error type; check, the one schemaVersion check every reader calls
+cryptobench/measure/__init__.py : package of how a benchmark session decides
+cryptobench/measure/equations.py : every calculation the temperature gate and the run count use; no I/O
+cryptobench/paths/__init__.py : one interface to every path the Python modules use: `from cryptobench import paths`
+cryptobench/paths/device_dirs.py : DeviceDirs(sdk): folders on a device per API level, POSIX paths
+cryptobench/paths/host.py : the user's and host's locations: home, the user's global.yaml, the Android SDK
+cryptobench/paths/imports.py : the apps' source folders on the import path, for this process and a child
+cryptobench/paths/names.py : the file and folder names of a results folder, and CONTRACT: those shared with Kotlin
+cryptobench/paths/packaged.py : packaged(package, name) through importlib and a named constant per data file a package ships
+cryptobench/paths/repo.py : Repo and repo(root): one checkout's named locations
+cryptobench/paths/results.py : Results(root): the device folders of a results root
+cryptobench/paths/roots.py : code_root (this checkout), benchmark_root (the checkout a run measures), each with its environment variable
+cryptobench/paths/run_tree.py : RunTree: every file of one results folder; its sections Configuration, Discovery, Preparation, Measurement, Analysis, Charts, CheckFolder, InteropFolder, Scoped, Logs, Review; AppTree, GroupingTree
+cryptobench/paths/settings.py : against(settings_file, value), the one rule for a path a settings file names; in_temp
 pyproject.toml : the shared library's package metadata
 ```
