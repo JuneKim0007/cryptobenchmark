@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from .. import run_dir as rd
+from cryptobench.paths import RunTree
 from ..data_handler.inbound import read_manifest
 from ..data_handler.inbound.manifest import manifest_file
 from ..files import read_yaml
@@ -34,14 +34,14 @@ def _bundled(manifest, base: Path) -> list[str]:
 
 def fingerprint(folder: Path) -> dict:
     """Flat `field: value` pairs; a field one folder lacks reads None."""
-    manifest, base = read_manifest(Path(folder) / rd.MANIFEST)
+    manifest, base = read_manifest(RunTree(folder).manifest)
     effective = manifest_file(manifest, base, "effective")
     prepared = manifest_file(manifest, base, "prepared")
     run = (read_yaml(effective).get("run") or {}) if effective else {}
     planned = (read_yaml(prepared).get("run") or {}) if prepared else {}
     # energy: the source and kind of an estimated run, a top-level mark BenchmarkManifest does not keep
     out = {"deviceId": manifest.deviceId, "mode": manifest.mode, "bundled": _bundled(manifest, base),
-           "processes": len(manifest.files.get("processes") or ()), "energy": read_yaml(base / rd.MANIFEST).get("energy")}
+           "processes": len(manifest.files.get("processes") or ()), "energy": read_yaml(RunTree(base).manifest).get("energy")}
     # a probe writes a field it cannot know as empty, and a capture may hold a number the benchmark writes as text
     out.update({f"runtime.{k}": str(manifest.runtime[k]) if manifest.runtime.get(k) not in (None, "") else None for k in RUNTIME})
     return _flat("prepared", planned, _flat("run", run, out))
@@ -54,7 +54,7 @@ def provider_setup(folder: Path) -> dict:
 
 def case_setups(folder: Path) -> dict[str, dict]:
     """Per planned case, what the test set's overrides set on it; an anchor must have been planned alike."""
-    manifest, base = read_manifest(Path(folder) / rd.MANIFEST)
+    manifest, base = read_manifest(RunTree(folder).manifest)
     prepared = manifest_file(manifest, base, "prepared")
     cases = (read_yaml(prepared).get("cases") or []) if prepared else []
     return {c["id"]: {k: c.get(k) for k in CASE_FIELDS} for c in cases}

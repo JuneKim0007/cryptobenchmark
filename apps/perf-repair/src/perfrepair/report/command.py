@@ -4,7 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from .. import run_dir as rd
+from cryptobench.paths import AppTree, RunTree
+from cryptobench.paths import APP_REPORT, SUMMARY
 from ..files import read_json, write_json, write_text
 from ..log import step
 from ..result.modes import Mode
@@ -17,10 +18,10 @@ from .summary import build_summary
 
 
 def app_report(device: Path, app: str, mode: Mode, echo=print) -> dict:
-    paths = rd.AppPaths(device, app)
+    paths = AppTree(device, app)
     with step("report", "app", app=app) as s:
         doc = build_report(paths, mode)
-        require(rd.REPORT, validate_report(doc, app))
+        require(APP_REPORT, validate_report(doc, app))
         write_json(paths.report, doc)
         write_text(paths.report_md, report_markdown(doc))
         s.count(**doc["funnel"])
@@ -32,14 +33,14 @@ def app_report(device: Path, app: str, mode: Mode, echo=print) -> dict:
 
 
 def device_summary(device: Path, echo=print) -> dict:
-    reports = [read_json(d / rd.REPORT) for d in rd.app_dirs(device) if (d / rd.REPORT).is_file()]
+    reports = [read_json(AppTree.at(d).report) for d in RunTree(device).apps() if (AppTree.at(d).report).is_file()]
     device = Path(device)
     with step("report", "summary") as s:
         doc = build_summary(reports)
-        require(rd.SUMMARY, validate_summary(doc, reports))
-        write_json(device / rd.SUMMARY, doc)
-        write_text(device / rd.SUMMARY_MD, summary_markdown(doc))
+        require(SUMMARY, validate_summary(doc, reports))
+        write_json(RunTree(device).summary, doc)
+        write_text(RunTree(device).summary_md, summary_markdown(doc))
         s.count(apps=len(doc["apps"]), interopPassed=doc["funnel"]["interopPassed"])
-        s.wrote(device / rd.SUMMARY, device / rd.SUMMARY_MD)
-    echo(f"{device / rd.SUMMARY}: {len(doc['apps'])} apps, {doc['funnel']['interopPassed']} scopes interop passed")
+        s.wrote(RunTree(device).summary, RunTree(device).summary_md)
+    echo(f"{RunTree(device).summary}: {len(doc['apps'])} apps, {doc['funnel']['interopPassed']} scopes interop passed")
     return doc

@@ -9,8 +9,8 @@ from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 
+from cryptobench.paths import BUG_LOG
 from ..dto.event import RUN_END, RUN_START
-from ..run_dir import BUG_LOG
 from .emit import elapsed_ms, emit
 from .sink import EventSink
 from .stderr import Stderr, stderr_handler

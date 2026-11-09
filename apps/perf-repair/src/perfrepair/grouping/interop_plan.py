@@ -4,6 +4,7 @@ from itertools import combinations
 
 import yaml
 
+from cryptobench.paths import GroupingTree
 from .. import run_dir as rd
 from cryptobench.catalogue.names import same_engine
 from cryptobench.catalogue.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD, Profile, read_profiles
@@ -12,7 +13,6 @@ from ..dto.screen import Verdict
 from ..files import read_json, write_text
 from ..validation import require
 from ..validation.grouping.interop import validate_plan
-from ..run_dir import GroupingPaths
 from ..validation.grouping.output import read_groups
 from .report.rules import common_key_sizes
 
@@ -63,13 +63,13 @@ def across_key_contracts(groups: dict, first_id: int, screen: dict[int, Verdict]
                             NOT_CHECKABLE, ACROSS_KEY_CONTRACTS) for n, (gid, a, b) in enumerate(found))
 
 
-def plan_for(paths: GroupingPaths, sites: frozenset[str] | None = None) -> dict:
+def plan_for(paths: GroupingTree, sites: frozenset[str] | None = None) -> dict:
     groups, screen = read_groups(paths), rd.load_screen(paths) or {}
     pairs = plan(groups, read_profiles(read_json(paths.profiles)), screen, sites)
     return plan_document(pairs, across_key_contracts(groups, len(pairs) + 1, screen, sites))
 
 
-def write_plan(paths: GroupingPaths, sites: frozenset[str] | None = None) -> list[PlannedPair]:
+def write_plan(paths: GroupingTree, sites: frozenset[str] | None = None) -> list[PlannedPair]:
     document = plan_for(paths, sites)
     require("grouping/interop_plan.yaml", validate_plan(document, read_groups(paths)))
     write_text(paths.interop_plan, yaml.safe_dump(document, sort_keys=False))

@@ -1,11 +1,11 @@
 import pytest
 
+from cryptobench.paths import AppTree
 from perfrepair.dto.site import Scope, scope_id
 from perfrepair.dto.unit import Unit, unit_id
 
 from perfrepair.repair.edit import edit_app
 from perfrepair.repair.edit.specs import load
-from perfrepair.run_dir import AppPaths
 from perfrepair.validation.repair import validate_edits
 from repair_fixture import APP, JAVA, KOTLIN, ROOT, algorithm, digests, pins, provider, replace, scope
 
@@ -26,7 +26,7 @@ def solo(scopes):
 
 
 def run(tmp_path, *replacements, scopes=ALL, units=None):
-    out = AppPaths(tmp_path, APP)
+    out = AppTree(tmp_path, APP)
     doc = edit_app({s.id: s for s in scopes}, list(replacements), ROOT, out, load(), solo(scopes) if units is None else units)
     assert validate_edits(doc, APP, {s.id for s in scopes}) == []
     return doc, out
@@ -195,7 +195,7 @@ def _own_app(tmp_path, file, text, function, call):
     line = next(i for i in range(start, end + 1) if "getInstance(" in lines[i - 1])
     s = Scope(scope_id(APP, file, function, line, call), APP, file, line, call, function, start, end,
               "Cipher", None, None, "default")
-    doc = edit_app({s.id: s}, [replace(s, provider("Fast"))], root, AppPaths(tmp_path / "run", APP), load(), solo([s]))
+    doc = edit_app({s.id: s}, [replace(s, provider("Fast"))], root, AppTree(tmp_path / "run", APP), load(), solo([s]))
     return doc["edits"][0]
 
 

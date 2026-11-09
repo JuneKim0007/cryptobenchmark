@@ -4,6 +4,7 @@ from __future__ import annotations
 import shutil
 from pathlib import Path
 
+from cryptobench.paths import AppTree
 from ..dto.site import HARNESS_SCHEMA_VERSION, NO_OPERATION, Scope
 from ..dto.replacement import Replacement
 from ..dto.unit import Unit, units_by_scope
@@ -11,7 +12,6 @@ from ..files import write_text_making_parents
 from ..source.code import Code
 from ..stop.halt import Coded
 from .dependencies import dependencies, load
-from ..run_dir import AppPaths
 from .edit import function_lines, import_lines, language, read_source
 from .imports import used_imports
 from .inputs import scope_inputs
@@ -19,13 +19,13 @@ from .inverses import inverse_partners
 from .operation import has_operation
 
 
-def _extract(out: AppPaths, scope: Scope, side: str, text: str) -> str:
+def _extract(out: AppTree, scope: Scope, side: str, text: str) -> str:
     path = out.extracts / scope.id / f"{side}{Path(scope.file).suffix}"
     write_text_making_parents(path, function_lines(text, scope.start, scope.end))
     return str(path.relative_to(out.root))
 
 
-def harness(out: AppPaths, scopes: dict[str, Scope], replacements: dict[str, Replacement], edits: dict,
+def harness(out: AppTree, scopes: dict[str, Scope], replacements: dict[str, Replacement], edits: dict,
             dossiers: dict[str, dict], effective: dict, units: list[Unit], upgraded: frozenset[str] = frozenset()) -> dict:
     """Paths in the document are relative to harness.yaml's folder; `dossiers` is each scope's dossier by scope id; `upgraded`:
     the broken uses' scopes, whose output changes by definition."""

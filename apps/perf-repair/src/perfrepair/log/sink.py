@@ -8,9 +8,10 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
+from cryptobench.paths import RunTree
+from cryptobench.paths import EVENTS
 from ..dto.event import FINDING, LOG, Event
 from ..files import append_line
-from ..run_dir import EVENTS
 from .emit import EVENT_ATTR
 from .views import VIEWS
 
@@ -96,7 +97,7 @@ class EventSink(logging.Handler):
             data = {**data, "files": {self._relative(p): d for p, d in data["files"].items()}}
         event = dataclasses.replace(event, ref=self._relative(event.ref), data=data)
         # default=str: a value of a shape no writer planned is written as text, never lost with its event
-        cut = [EVENTS] if append_line(self.folder / EVENTS, json.dumps(event.to_json(), default=str)) else []
+        cut = [EVENTS] if append_line(RunTree(self.folder).log.events, json.dumps(event.to_json(), default=str)) else []
         for name, view in VIEWS:
             line = view(event)
             if line is not None and append_line(self.folder / name, line):

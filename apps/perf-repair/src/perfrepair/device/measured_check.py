@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from cryptobench.paths import RunTree
 from .. import run_dir as rd
 from ..data_handler.inbound import read_manifest
 from ..data_handler.inbound.manifest import manifest_file
@@ -55,7 +56,7 @@ class _Run:
     """The device folder's plan, rows, summaries and run log, read once."""
 
     def __init__(self, device: Path):
-        manifest, base = read_manifest(device / rd.MANIFEST)
+        manifest, base = read_manifest(RunTree(device).manifest)
         self.manifest = manifest
         prepared = manifest_file(manifest, base, "prepared")
         cases = (read_yaml(prepared).get("cases") or []) if prepared else []
@@ -67,7 +68,7 @@ class _Run:
         self.refused_item = {qualified(e.type, e.algorithm, e.provider): e.reason or e.status for e in log
                              if e.status in REFUSING and e.type and e.algorithm and e.provider}
         # a case a delta already measured again: the run that lost it twice ended, and no later run spends another delta
-        self.retried = set(read_yaml(device / rd.MANIFEST).get("retried") or ())
+        self.retried = set(read_yaml(RunTree(device).manifest).get("retried") or ())
         self.planned: dict[str, list[dict]] = {}
         for c in cases:
             self.planned.setdefault(qualified(c["type"], c["algorithm"], c["provider"]), []).append(c)

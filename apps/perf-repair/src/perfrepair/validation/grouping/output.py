@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from collections import Counter
 
+from cryptobench.paths import GroupingTree
 from cryptobench.catalogue.grouping import Item, Profile, read_items, read_profiles
 from ...dto.grouping_output import GROUPS_SCHEMA_VERSION
 from ...dto.grouping_state import Group
 from ...dto.screen import Verdict
 from ...files import read_json
-from ...run_dir import GroupingPaths
 from ..failure import require
 from ..screen import read_checked_screen
 from .code_groups import validate_code_groups
@@ -58,7 +58,7 @@ def _screen_problems(doc: dict, items: dict[int, Item], screen: dict[int, Verdic
     return problems + validate_code_groups(groups, items, screen, profiles or {})
 
 
-def read_groups(paths: GroupingPaths) -> dict:
+def read_groups(paths: GroupingTree) -> dict:
     document = read_json(paths.groups)
     screen = read_checked_screen(paths)
     profiles = read_profiles(read_json(paths.profiles)) if screen is not None else {}

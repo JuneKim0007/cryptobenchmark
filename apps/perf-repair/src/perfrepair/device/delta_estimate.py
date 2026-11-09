@@ -5,7 +5,7 @@ import re
 import statistics
 from pathlib import Path
 
-from .. import run_dir as rd
+from cryptobench.paths import RunTree
 from ..dto.benchmark_coverage import Gap
 from cryptobench.catalogue.grouping import parse_qualified
 
@@ -26,7 +26,7 @@ def _whole_run_took(lines: list[str]) -> list[float]:
 
 def seconds_per_case(folder: Path, measured: int) -> float | None:
     """The last whole benchmark's measuring time over its cases; None without a took: line."""
-    logs = sorted((Path(folder) / rd.PIPELINE_LOGS).glob("*.log")) if (Path(folder) / rd.PIPELINE_LOGS).is_dir() else []
+    logs = sorted((RunTree(folder).log.pipeline).glob("*.log")) if (RunTree(folder).log.pipeline).is_dir() else []
     took = [t for p in logs for t in _whole_run_took(p.read_text(errors="replace").splitlines())]
     return took[-1] / measured if took and measured else None
 

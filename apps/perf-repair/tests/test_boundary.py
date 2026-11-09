@@ -3,12 +3,11 @@ from pathlib import Path
 
 import pytest
 import yaml
-from perfrepair import run_dir as rd
+from cryptobench.paths import GroupingTree, RunTree
 from cryptobench.catalogue.groups import group_catalog
 from perfrepair.catalog.identity import UNSAFE, case_id_pattern, resolve
 from cryptobench.catalogue.names import Names
 from perfrepair.files import write_json
-from perfrepair.run_dir import GroupingPaths
 from perfrepair.validation.boundary import boundary_violations
 from perfrepair.validation.finding import ADVISORY, BLOCKING
 
@@ -23,13 +22,13 @@ VERDICT = {"status": "accepted", "canonical": "AES/CBC/PKCS5Padding"}
 
 @pytest.fixture
 def device(tmp_path):
-    paths = GroupingPaths(tmp_path)
+    paths = GroupingTree(tmp_path)
     paths.root.mkdir()
-    write_json(tmp_path / rd.ROWS, {"rows": [ROW]})
-    write_json(tmp_path / rd.MEASUREMENTS, {"measurements": {CASE_ID: {}}})
+    write_json(RunTree(tmp_path).rows, {"rows": [ROW]})
+    write_json(RunTree(tmp_path).measurements, {"measurements": {CASE_ID: {}}})
     write_json(paths.items, {"items": [ITEM]})
     write_json(paths.screen, {"verdicts": {"1": VERDICT}})
-    write_json(tmp_path / rd.USED, {"items": [{"item": "Cipher|AES/CBC/PKCS5Padding|AndroidOpenSSL"}]})
+    write_json(RunTree(tmp_path).used, {"items": [{"item": "Cipher|AES/CBC/PKCS5Padding|AndroidOpenSSL"}]})
     return tmp_path
 
 
@@ -47,37 +46,37 @@ def test_a_folder_with_nothing_yet_has_no_finding(tmp_path):
 
 @pytest.mark.parametrize("change", [{"keySize": 256}, {"provider": "BC"}, {"algorithm": "AES/GCM/NoPadding"}, {"variant": "notFixed"}])
 def test_an_id_that_differs_from_its_row_is_blocking(device, change):
-    write_json(device / rd.ROWS, {"rows": [{**ROW, **change}]})
+    write_json(RunTree(device).rows, {"rows": [{**ROW, **change}]})
     assert "case_id_reads_back" in invariants(boundary_violations(device, NAMES), BLOCKING)
 
 
 def test_rows_and_measurements_holding_other_ids_are_blocking(device):
-    write_json(device / rd.MEASUREMENTS, {"measurements": {"other": {}}})
+    write_json(RunTree(device).measurements, {"measurements": {"other": {}}})
     assert "ids_agree" in invariants(boundary_violations(device, NAMES), BLOCKING)
 
 
 def test_two_rows_in_one_table_cell_are_blocking(device):
     other = {**ROW, "rowId": CASE_ID.replace("p16e64aab", "p00000000")}
-    write_json(device / rd.ROWS, {"rows": [ROW, other]})
-    write_json(device / rd.MEASUREMENTS, {"measurements": {CASE_ID: {}, other["rowId"]: {}}})
+    write_json(RunTree(device).rows, {"rows": [ROW, other]})
+    write_json(RunTree(device).measurements, {"measurements": {CASE_ID: {}, other["rowId"]: {}}})
     assert "primitives_cell_is_one_row" in invariants(boundary_violations(device, NAMES), BLOCKING)
 
 
 def test_a_measured_case_with_no_item_is_blocking(device):
-    write_json(GroupingPaths(device).items, {"items": [{**ITEM, "provider": "BC"}]})
+    write_json(GroupingTree(device).items, {"items": [{**ITEM, "provider": "BC"}]})
     assert {"measured_case_is_an_item", "used_is_an_item"} <= invariants(boundary_violations(device, NAMES), BLOCKING)
 
 
 def test_a_registered_name_holding_the_separator_is_blocking(device):
-    write_json(GroupingPaths(device).items, {"items": [ITEM, {**ITEM, "id": 2, "name": "my cipher|v2"}]})
+    write_json(GroupingTree(device).items, {"items": [ITEM, {**ITEM, "id": 2, "name": "my cipher|v2"}]})
     assert "item_id_parses" in invariants(boundary_violations(device, NAMES), BLOCKING)
 
 
 def test_catalog_gaps_are_advisory_and_a_used_item_with_no_measurement_is_reported(device):
-    write_json(GroupingPaths(device).items, {"items": [ITEM, {**ITEM, "id": 2, "name": "FUTURE-KEM", "type": "KeyPairGenerator", "family": "keypairgen.none"},
+    write_json(GroupingTree(device).items, {"items": [ITEM, {**ITEM, "id": 2, "name": "FUTURE-KEM", "type": "KeyPairGenerator", "family": "keypairgen.none"},
                                                        {**ITEM, "id": 3, "name": "AES/GCM/NoPadding"}]})
-    write_json(GroupingPaths(device).screen, {"verdicts": {"1": VERDICT, "2": {"canonical": "FUTURE-KEM"}, "3": {"canonical": "AES/GCM/NoPadding"}}})
-    write_json(device / rd.USED, {"items": [{"item": "Cipher|AES/CBC/PKCS5Padding|AndroidOpenSSL"}, {"item": "Cipher|AES/GCM/NoPadding|AndroidOpenSSL"}]})
+    write_json(GroupingTree(device).screen, {"verdicts": {"1": VERDICT, "2": {"canonical": "FUTURE-KEM"}, "3": {"canonical": "AES/GCM/NoPadding"}}})
+    write_json(RunTree(device).used, {"items": [{"item": "Cipher|AES/CBC/PKCS5Padding|AndroidOpenSSL"}, {"item": "Cipher|AES/GCM/NoPadding|AndroidOpenSSL"}]})
     found = boundary_violations(device, NAMES)
     assert {"names_agree", "name_is_in_its_group", "used_is_measured"} <= invariants(found, ADVISORY)
     assert not invariants(found, BLOCKING)

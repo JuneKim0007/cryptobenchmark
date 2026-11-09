@@ -4,7 +4,7 @@ import logging
 import yaml
 from test_device_flows import APP, Flow, flow  # noqa: F401  the fixture
 
-from perfrepair import run_dir as rd
+from cryptobench.paths import AppTree, RunTree
 from perfrepair.app.facts.path_id import path_id
 from perfrepair.device.interop import check_pairs
 from perfrepair.dto.interop import failed_pairs
@@ -21,7 +21,7 @@ def oracle_runs(f: Flow) -> list[int]:
 
 
 def dossiers(f: Flow) -> dict:
-    return read_json(rd.AppPaths(f.device, path_id(APP)).dossiers)
+    return read_json(AppTree(f.device, path_id(APP)).dossiers)
 
 
 def coded(caplog, code: str) -> int:
@@ -70,10 +70,10 @@ def test_a_pair_the_plan_holds_back_counts_among_the_pairs_and_reads_not_checkab
 def test_an_unchanged_rerun_runs_no_oracle_and_writes_nothing(flow):
     flow.run()
     [pairs] = oracle_runs(flow)
-    before = flow.paths.interop.stat().st_mtime_ns, (flow.device / rd.MANIFEST).stat().st_mtime_ns
+    before = flow.paths.interop.stat().st_mtime_ns, (RunTree(flow.device).manifest).stat().st_mtime_ns
     flow.run()
     assert oracle_runs(flow) == [pairs] and flow.ended("inbound")[0] == flow.ended("screen")[0] == "reused"
-    assert (flow.paths.interop.stat().st_mtime_ns, (flow.device / rd.MANIFEST).stat().st_mtime_ns) == before
+    assert (flow.paths.interop.stat().st_mtime_ns, (RunTree(flow.device).manifest).stat().st_mtime_ns) == before
 
 
 def test_another_setup_runs_the_check_again(flow):

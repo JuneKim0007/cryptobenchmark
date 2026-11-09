@@ -12,6 +12,7 @@ from test_guide_targets import Base, apps, steps
 from test_run_lock import HOLD, SRC
 from test_stages import run  # noqa: F401  the recorded run, grouped
 
+from cryptobench.paths import AppTree, RunTree
 from perfrepair.ai.select.command import dry_run
 from perfrepair.app.facts.path_id import path_id
 from perfrepair.dto.perf_mode import PerfMode
@@ -21,7 +22,6 @@ from perfrepair.guide import app_steps
 from perfrepair.guide.state import Guide
 from perfrepair.guide.targets import run_targets
 from perfrepair.result.modes import mode_of
-from perfrepair.run_dir import APPS_INDEX, ROWS, RUNS, SUMMARY, TARGETS, AppPaths
 from perfrepair.run_dir.run_record import STOPPED
 
 THROUGHPUT = mode_of(PerfMode.parse(["throughput"]))
@@ -48,7 +48,7 @@ class Probe(Base):
         return code, events
 
     def paths(self, root):
-        return AppPaths(self.run_dir, path_id(root))
+        return AppTree(self.run_dir, path_id(root))
 
     def two_units(self, name):
         root = self.app(name)
@@ -56,7 +56,7 @@ class Probe(Base):
         return root
 
     def record(self):
-        return read_json(max((self.run_dir / RUNS).glob("run_*.json"), key=lambda p: p.stat().st_mtime_ns))
+        return read_json(max((RunTree(self.run_dir).runs).glob("run_*.json"), key=lambda p: p.stat().st_mtime_ns))
 
 
 @pytest.fixture
@@ -97,10 +97,10 @@ def test_s3_ctrl_c_mid_app_still_writes_the_summary_and_index_then_raises(p, mon
     _touch(a)
     monkeypatch.setattr(app_steps, "repair_main", lambda argv: (_ for _ in ()).throw(KeyboardInterrupt()))
     g = Guide(p.run_dir, None, LATENCY, p.answer, LIBRARY, echo=lambda _: None)
-    (p.run_dir / APPS_INDEX).unlink()
+    (RunTree(p.run_dir).apps_index).unlink()
     with captured_events() as events, pytest.raises(KeyboardInterrupt):
         run_targets(g, [a, b], False, True)
-    assert "summary" in steps(events) and (p.run_dir / APPS_INDEX).is_file()
+    assert "summary" in steps(events) and (RunTree(p.run_dir).apps_index).is_file()
     assert [(app, outcome) for app, outcome, _ in apps(events)] == [(path_id(a), "stop")]
     assert p.record()["apps"][path_id(a)] == {"status": STOPPED, "step": "edit", "reason": "interrupted"}
     assert not p.paths(a).finished.exists()
@@ -115,11 +115,11 @@ def test_s4_the_summary_holds_no_report_of_an_app_that_stopped_on_the_latest_run
     monkeypatch.setenv("CRYPTOBENCH_ROOT", str(FAKE_ROOT))
     a, b = p.app("a"), p.app("b")
     p.go([a, b], device=True)
-    assert set(read_json(p.run_dir / SUMMARY)["apps"]) == {path_id(a), path_id(b)}
+    assert set(read_json(RunTree(p.run_dir).summary)["apps"]) == {path_id(a), path_id(b)}
     _touch(a)
     _no_options(monkeypatch, path_id(a))
     p.go([a, b], device=True)
-    assert not p.paths(a).report.exists() and list(read_json(p.run_dir / SUMMARY)["apps"]) == [path_id(b)]
+    assert not p.paths(a).report.exists() and list(read_json(RunTree(p.run_dir).summary)["apps"]) == [path_id(b)]
 
 
 def test_s5_another_harness_config_is_another_measurement(p, monkeypatch, tmp_path):
@@ -187,7 +187,7 @@ def test_s7_a_folder_an_interrupted_benchmark_left_is_refused_by_a_standalone_co
     """Before: its 14 older files were read as current. After: not_device_results."""
     left = tmp_path / "left"
     left.mkdir()
-    (left / ROWS).write_text((p.run_dir / ROWS).read_text())
+    (RunTree(left).rows).write_text((RunTree(p.run_dir).rows).read_text())
     assert grouping(["build", "--device-results", str(left)]) == 1
     assert capsys.readouterr().err.splitlines()[-1].startswith("error not_device_results: ")
 
@@ -220,6 +220,6 @@ def test_skip_runs_nothing(p):
 
 
 def test_an_app_run_removes_an_earlier_targets_file(p):
-    (p.run_dir / TARGETS).write_text("apps: []\n")
+    (RunTree(p.run_dir).targets).write_text("apps: []\n")
     p.go([p.app("a")], reuse=False)
-    assert not (p.run_dir / TARGETS).exists()
+    assert not (RunTree(p.run_dir).targets).exists()

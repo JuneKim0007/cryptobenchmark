@@ -6,6 +6,7 @@ import pytest
 import yaml
 from helpers import with_results, LIBRARY, QUIET
 
+from cryptobench.paths import GroupingTree
 from perfrepair.ai.parse.algorithm_classify.command import Reviewer, dry_run
 from perfrepair.ai.parse.grouping_assign.kind import GroupingKind
 from perfrepair.ai.runtime.agent import ScriptedConversations
@@ -17,7 +18,6 @@ from perfrepair.dto.screen import UNKNOWN, Verdict, refused_target, read_screen,
 from perfrepair.grouping.__main__ import main as grouping_main
 from perfrepair.grouping.build import stage
 from perfrepair.grouping.build.stage import build_stage
-from perfrepair.run_dir import GroupingPaths
 from perfrepair.screen.catalog import load_catalog
 from perfrepair.screen.evidence import batches
 from perfrepair.validation import ValidationFailed
@@ -191,10 +191,10 @@ def test_the_command_reviews_only_with_ai_review_on(tmp_path, capsys):
     assert grouping_main(["build", "--device-results", str(with_results(run)), "--perfrepair-config", str(config),
                           "--agent", "dry-run"]) == 0
     assert "aiReview on" in capsys.readouterr().err
-    doc = json.loads(GroupingPaths(run).screen.read_text())
-    assert "review" in doc and GroupingPaths(run).classified.is_file()
+    doc = json.loads(GroupingTree(run).screen.read_text())
+    assert "review" in doc and GroupingTree(run).classified.is_file()
     assert grouping_main(["build", "--device-results", str(with_results(tmp_path / "off"))]) == 0
-    assert "review" not in json.loads(GroupingPaths(tmp_path / "off").screen.read_text())
+    assert "review" not in json.loads(GroupingTree(tmp_path / "off").screen.read_text())
 
 
 def _fewer_items(monkeypatch):

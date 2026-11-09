@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from typing import Callable
 
+from cryptobench.paths import BUG_LOG, STATUS_LOG
 from ..dto.event import BUG, Event
-from ..run_dir import BUG_LOG, STATUS_LOG
 from .status import status_line
 
 

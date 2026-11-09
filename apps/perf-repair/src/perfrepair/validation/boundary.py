@@ -4,7 +4,7 @@ from __future__ import annotations
 from collections import Counter
 from pathlib import Path
 
-from .. import run_dir as rd
+from cryptobench.paths import GroupingTree, RunTree
 from cryptobench.catalogue.groups import group_catalog
 from ..catalog.identity import case_id_pattern, resolve
 from cryptobench.catalogue.names import Names
@@ -12,7 +12,6 @@ from ..catalog.types import types as type_catalog
 from ..data_handler.inbound.manifest import read_manifest
 from cryptobench.catalogue.grouping import SEPARATOR, qualified
 from ..files import read_json
-from ..run_dir import GroupingPaths
 from .finding import ADVISORY, BLOCKING, Violation
 
 EVIDENCE = 8
@@ -25,14 +24,14 @@ def _found(invariant: str, severity: str, subject: str, lines: list[str], fix: s
 
 
 def _rows(device: Path) -> list[dict]:
-    rows = read_json(device / rd.ROWS)["rows"] if (device / rd.ROWS).is_file() else []
+    rows = read_json(RunTree(device).rows)["rows"] if (RunTree(device).rows).is_file() else []
     return [r for r in rows if "rowId" in r]
 
 
 def _results_cases(device: Path) -> list[dict] | None:
-    if not (device / rd.MANIFEST).is_file():
+    if not (RunTree(device).manifest).is_file():
         return None
-    manifest, base = read_manifest(device / rd.MANIFEST)
+    manifest, base = read_manifest(RunTree(device).manifest)
     path = base / manifest.files["benchmark"] if manifest.files.get("benchmark") else None
     return read_json(path).get("cases") or [] if path and path.is_file() else None
 
@@ -47,8 +46,8 @@ def ids_agree(device: Path, rows: list[dict]) -> list[Violation]:
     ids, found = {r["rowId"] for r in rows}, []
     repeated = [i for i, n in Counter(r["rowId"] for r in rows).items() if n > 1]
     found += _found("case_ids_unique", BLOCKING, "rows.json", repeated, "two rows share an id")
-    if rows and (device / rd.MEASUREMENTS).is_file():
-        keys = set(read_json(device / rd.MEASUREMENTS)["measurements"])
+    if rows and (RunTree(device).measurements).is_file():
+        keys = set(read_json(RunTree(device).measurements)["measurements"])
         found += _found("ids_agree", BLOCKING, "measurements.json", [f"{i}: only one side" for i in ids ^ keys], "rebuild rows and measurements together")
     cases = _results_cases(device)
     if rows and cases is not None:
@@ -95,9 +94,9 @@ def catalogs_agree(items: list[dict], verdicts: dict[str, dict], names: Names) -
 
 
 def used_items_exist(device: Path, rows: list[dict], items: set[str]) -> list[Violation]:
-    if not (device / rd.USED).is_file():
+    if not (RunTree(device).used).is_file():
         return []
-    used = [u["item"] for u in read_json(device / rd.USED)["items"]]
+    used = [u["item"] for u in read_json(RunTree(device).used)["items"]]
     found = _found("used_is_an_item", BLOCKING, "used.json", [u for u in used if u not in items], "rebuild the used set from this grouping")
     if rows:
         measured = {qualified(r["type"], r["algorithm"], r["provider"]) for r in rows}
@@ -108,7 +107,7 @@ def used_items_exist(device: Path, rows: list[dict], items: set[str]) -> list[Vi
 
 def stage_violations(device: Path, names: Names | None = None) -> list[Violation]:
     """What the guide's gate checks: the ids of one stage against the next."""
-    device, paths = Path(device), GroupingPaths(device)
+    device, paths = Path(device), GroupingTree(device)
     rows = _rows(device)
     found = ids_agree(device, rows) + compaction_keeps_rows_apart(rows)
     if not paths.items.is_file():

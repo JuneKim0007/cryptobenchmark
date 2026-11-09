@@ -3,13 +3,13 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from cryptobench.paths import GroupingTree, RunTree
 from cryptobench import paths
 from ..ai.select.job import NAME as SELECT
 from ..catalog.upgrades import CATALOG as UPGRADES
 from ..app.find.sources import BUILD_NAMES, CATALOG, walk
 from ..data_handler.outbound.benchmark_runner import BenchmarkRunError, identify
 from ..files import sha256_file, sha256_text
-from ..run_dir import MEASUREMENTS, ROWS, GroupingPaths
 from ..source.language import SOURCE_SUFFIXES
 from ..stop.halt import Coded
 from .app_steps import device_config
@@ -51,8 +51,8 @@ def _tree_digest(g: Guide) -> str:
 
 def inputs(g: Guide, device: bool) -> dict:
     return {"tree": _tree_digest(g), "scopes": sha256_file(g.paths.scopes), "units": sha256_file(g.paths.units), **g.code_versions,
-            "groups": sha256_file(GroupingPaths(g.device).groups),
-            "rows": sha256_file(g.device / ROWS), "measurements": sha256_file(g.device / MEASUREMENTS),
+            "groups": sha256_file(GroupingTree(g.device).groups),
+            "rows": sha256_file(RunTree(g.device).rows), "measurements": sha256_file(RunTree(g.device).measurements),
             "screening": g.catalog.sha256, "select": sha256_text(g.library.system(SELECT).text), "upgrades": sha256_file(UPGRADES), "perfMode": g.mode.name, "device": device,
             "maxChange": g.max_change, **_device_config(g, device)}
 

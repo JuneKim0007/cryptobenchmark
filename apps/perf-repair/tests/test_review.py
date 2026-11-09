@@ -6,7 +6,7 @@ import yaml
 
 import pytest
 
-from perfrepair import run_dir as rd
+from cryptobench.paths import AppTree, GroupingTree, RunTree
 from perfrepair.dto.change import PairDiff
 from perfrepair.dto.decision import OutboxRecord
 from cryptobench.catalogue.grouping import Item, Profile, items_document, profiles_document
@@ -37,7 +37,7 @@ def _turn(status="accepted"):
 
 
 def _log(device, job, *attempts):
-    path = rd.ai_log(device, job)
+    path = RunTree(device).log.ai(job)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(yaml.safe_dump({"schemaVersion": 1, "job": job,
                                     "attempts": [{"n": n, "item": item, "turns": turns} for n, (item, turns) in enumerate(attempts, 1)]}))
@@ -45,7 +45,7 @@ def _log(device, job, *attempts):
 
 @pytest.fixture
 def device(tmp_path):
-    grouping = rd.GroupingPaths(tmp_path)
+    grouping = GroupingTree(tmp_path)
     grouping.root.mkdir()
     grouping.items.write_text(json.dumps(items_document([ITEM])))
     grouping.profiles.write_text(json.dumps(profiles_document(
@@ -53,7 +53,7 @@ def device(tmp_path):
     _outbox(grouping.root, OutboxRecord(1, ITEM.key, "decided", 1, 1, {"group": "g1", "newGroup": {"id": "", "description": ""}, "reason": "same"}, (), AGENT),
             OutboxRecord(2, "other", "dropped", 1, 3, None, ("no json",), AGENT))
     _log(tmp_path, "grouping", (ITEM.key, [_turn(), _turn()]), ("x", [_turn(), _turn(), _turn("rejected")]))
-    paths = rd.AppPaths(tmp_path, "app")
+    paths = AppTree(tmp_path, "app")
     paths.replace.mkdir(parents=True)
     paths.root.joinpath("app.json").write_text("{}")
     d = Dossier(SCOPE, "src", "TypeA|ALG|P1", (Option("R1", OPTION, {}, "not_planned", change="local-edit", diff=PairDiff("same", "same", "bytes", "local")),))
@@ -66,7 +66,7 @@ def device(tmp_path):
 
 def test_a_row_per_decision_with_code_facts_pick_reason_and_empty_verdict(device):
     rows = {(r["kind"], r["item"]): r for r in write_sheet(device)}
-    assert rd.review_sheet(device).read_text().splitlines()[0].split("\t") == list(COLUMNS) and "concerns" not in COLUMNS
+    assert RunTree(device).review.decisions.read_text().splitlines()[0].split("\t") == list(COLUMNS) and "concerns" not in COLUMNS
     # riskiest first: a replace before any other kind
     assert list(rows) == [("replace", SCOPE.id), ("grouping", ITEM.key), ("grouping", "other")]
     group = rows[("grouping", ITEM.key)]
@@ -80,7 +80,7 @@ def test_a_row_per_decision_with_code_facts_pick_reason_and_empty_verdict(device
 
 
 def _fill(device, verdicts):
-    path = rd.review_sheet(device)
+    path = RunTree(device).review.decisions
     rows = read_sheet(path)
     for r in rows:
         r["verdict"], r["note"] = verdicts.get(r["kind"], ("", ""))
@@ -95,7 +95,7 @@ def test_a_rebuild_keeps_what_a_person_filled_and_clears_a_changed_pick(device):
     _fill(device, {"grouping": ("ok", "looks right")})
     kept = {r["item"]: r for r in write_sheet(device)}
     assert (kept[ITEM.key]["verdict"], kept[ITEM.key]["note"]) == ("ok", "looks right")
-    outbox = rd.GroupingPaths(device).root / "outbox" / FP / "000001.json"
+    outbox = GroupingTree(device).root / "outbox" / FP / "000001.json"
     raw = json.loads(outbox.read_text())
     raw["decision"]["group"] = "g9"
     outbox.write_text(json.dumps(raw))
@@ -110,7 +110,7 @@ def test_score_counts_only_judged_rows(device):
     assert doc["decisions"] == 3
     assert doc["groupingPrecision"]["value"] == 1.0 and doc["groupingPrecision"]["judged"] == 2
     assert doc["pickAccuracy"] == {"value": 0.0, "right": 0, "judged": 1}
-    assert json.loads(rd.review_score(device).read_text()) == doc
+    assert json.loads(RunTree(device).review.score.read_text()) == doc
 
 
 
@@ -131,7 +131,7 @@ def test_a_verdict_outside_the_vocabulary_is_refused(device):
 
 def test_the_command_writes_the_sheet_and_prints_the_score(device, capsys):
     assert main(["score", str(device)]) == 0
-    assert json.loads(capsys.readouterr().out)["decisions"] == 3 and rd.review_sheet(device).is_file()
+    assert json.loads(capsys.readouterr().out)["decisions"] == 3 and RunTree(device).review.decisions.is_file()
 
 
 

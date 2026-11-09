@@ -41,7 +41,6 @@
 | `warn_if_temp(path)` | `apps/benchmark-runner/results/layout.py` | - | pipeline, stages.harness |
 | `manifest(results, mode, configuration, files, problems)` | `apps/benchmark-runner/results/manifest.py` | - | pipeline, stages.check, stages.harness, stages.interop |
 | `digests(global_file)` | `apps/benchmark-runner/results/run_inputs.py` | Parsed, not raw: a comment or a reordered key reruns nothing; the bundled list is its own input; analysis only | pipeline, results.manifest |
-| `device_folders(root)` | `apps/benchmark-runner/results/select.py` | `paths.Results(root).devices()` | none |
 | `generate(harness_path, root, out, compiler)` | `apps/benchmark-runner/scope/generate.py` | No scope compiled still writes an empty catalog, so no failed scope's source is left to break the test APK. | scope_generate, stages.harness |
 | `expression(parameter, scope, side)` | `apps/benchmark-runner/scope/inputs.py` | `side` picks the provider a key pair is decoded by: another provider's key class is converted at every init, a cost on one side only. | scope.generate, scope.wrapper |
 | `kind(type_text)` | `apps/benchmark-runner/scope/inputs.py` | `KINDS.get(normalised(type_text))` | scope.interop, scope.wrapper |

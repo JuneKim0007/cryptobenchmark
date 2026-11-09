@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 
+from cryptobench.paths import GroupingTree
 from cryptobench.catalogue.names import NAME_CONFLICT
 from ..dto.classify import Answer
 from .. import run_dir as rd
@@ -69,7 +70,7 @@ def validate_screen_document(doc: dict, items: list[Item], built: dict) -> list[
     return problems + _catalog_problems(catalog) + ([] if problems else validate_screen(verdicts, items, review))
 
 
-def read_checked_screen(paths: rd.GroupingPaths) -> dict[int, Verdict] | None:
+def read_checked_screen(paths: GroupingTree) -> dict[int, Verdict] | None:
     """screen.json's verdicts, refused unless valid and built with this run's items and profiles; None without it."""
     if not paths.screen.exists():
         return None

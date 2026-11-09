@@ -3,7 +3,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from .. import run_dir as rd
+from cryptobench.paths import RunTree
+from cryptobench.paths import MEASUREMENTS, ROWS, RUN_LOG
 from ..data_handler.inbound import build_run_log, comparability, manifest_file, read_manifest, read_prepared, read_results
 from ..data_handler.inbound.results import ended_throttled, thermal_of
 from ..dto import Measurements
@@ -20,12 +21,12 @@ def write_inbound(device: Path) -> list[str]:
     with step("inbound", "inbound") as s:
         lines, counts = _write_inbound(device)
         s.count(**counts)
-        s.wrote(*(Path(device) / name for name in (rd.ROWS, rd.MEASUREMENTS, rd.RUN_LOG)))
+        s.wrote(*(Path(device) / name for name in (ROWS, MEASUREMENTS, RUN_LOG)))
     return lines
 
 
 def _write_inbound(device: Path) -> tuple[list[str], dict]:
-    path = Path(device) / rd.MANIFEST
+    path = RunTree(device).manifest
     manifest, base = read_manifest(path)
     require(str(path), validate_manifest(manifest, base))
     benchmark = manifest_file(manifest, base, "benchmark")
@@ -47,13 +48,13 @@ def _write_inbound(device: Path) -> tuple[list[str], dict]:
     if throttled:
         terminate("thermal_throttled_at_end", f"{len(throttled)} cases ended throttled: " + ", ".join(throttled),
                   stage="inbound", step="results", data={"cases": throttled})
-    require(rd.ROWS, validate_rows(rows))
-    require(rd.MEASUREMENTS, validate_measurements(summaries, rows))
-    require(rd.RUN_LOG, validate_run_log(log, rows))
+    require(ROWS, validate_rows(rows))
+    require(MEASUREMENTS, validate_measurements(summaries, rows))
+    require(RUN_LOG, validate_run_log(log, rows))
 
-    write_json(Path(device) / rd.ROWS, {"schemaVersion": ROWS_SCHEMA_VERSION, "rows": [r.to_json() for r in rows]})
-    write_json(Path(device) / rd.MEASUREMENTS, summaries.to_json())
-    write_json(Path(device) / rd.RUN_LOG, log.to_json())
+    write_json(RunTree(device).rows, {"schemaVersion": ROWS_SCHEMA_VERSION, "rows": [r.to_json() for r in rows]})
+    write_json(RunTree(device).measurements, summaries.to_json())
+    write_json(RunTree(device).run_log, log.to_json())
     return [f"{device}: {len(rows)} rows, {len(log.entries)} log entries from {raw} records",
             *(f"  warning {note}" for note in notes)], {"rows": len(rows), "logEntries": len(log.entries),
                                                         "records": raw, "warnings": len(notes)}

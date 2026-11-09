@@ -7,6 +7,8 @@ import logging
 import tempfile
 from pathlib import Path
 
+from cryptobench.paths import Results, RunTree
+from cryptobench.paths import DEVICE, MANIFEST, MEASUREMENTS, PRIMITIVES, ROWS, RUN_LOG
 from .. import run_dir as rd
 from ..inputs.table import DEVICE_ID
 from ..stop.halt import Coded
@@ -24,11 +26,11 @@ def add_device_results_arg(parser: argparse.ArgumentParser) -> None:
 
 
 def select_device(root: Path, wanted: str | None) -> Path:
-    found = rd.device_folders(root)
+    found = Results(root).devices()
     if wanted and wanted not in found:
         raise Coded(f"device_not_in_results: {wanted}; {root} holds {found}")
     if not found:
-        raise Coded(f"no_device_results: {root} holds no <device id>/{rd.MANIFEST}; run the benchmark")
+        raise Coded(f"no_device_results: {root} holds no <device id>/{MANIFEST}; run the benchmark")
     if not wanted and len(found) > 1:
         raise Coded(f"several_device_results: {root} holds {', '.join(found)}; set device.id or pass --device-results")
     return root / (wanted or found[0])
@@ -59,11 +61,11 @@ def device_root(parser: argparse.ArgumentParser, args: argparse.Namespace, loade
 
 
 # a benchmark that did not end removed the manifest first; these files of the earlier run stay behind
-STAGE_FILES = (rd.DEVICE, rd.ROWS, rd.MEASUREMENTS, rd.RUN_LOG, rd.PRIMITIVES)
+STAGE_FILES = (DEVICE, ROWS, MEASUREMENTS, RUN_LOG, PRIMITIVES)
 
 
 def _unfinished(folder: Path) -> bool:
-    return not (folder / rd.MANIFEST).is_file() and any((folder / f).exists() for f in STAGE_FILES)
+    return not (RunTree(folder).manifest).is_file() and any((folder / f).exists() for f in STAGE_FILES)
 
 
 def fill_device_results(parser: argparse.ArgumentParser, args: argparse.Namespace, loaded: Loaded | None = None) -> None:
@@ -71,6 +73,6 @@ def fill_device_results(parser: argparse.ArgumentParser, args: argparse.Namespac
         loaded = loaded or load_settings(parser, args)
         args.device_results = select_device(_results_root(parser, args), loaded.read(DEVICE_ID))
     args.device_results = args.device_results.expanduser()
-    if rd.device_folders(args.device_results) or _unfinished(args.device_results):
+    if Results(args.device_results).devices() or _unfinished(args.device_results):
         raise Coded(rd.not_device_results(args.device_results))
     _warn_if_temp(args.device_results)

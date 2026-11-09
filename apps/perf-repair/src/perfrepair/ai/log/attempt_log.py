@@ -6,11 +6,11 @@ from pathlib import Path
 
 import yaml
 
+from cryptobench.paths import RunTree
 from cryptobench.document import DocumentKind
 from ...dto.event import DECISION
 from ...files import append_line, write_text_making_parents
 from ...log import emit, run_id
-from ...run_dir import ai_log
 from .where import Where
 
 SCHEMA_VERSION = 1
@@ -24,7 +24,7 @@ class AttemptLog:
 
     def __init__(self, device: Path, job: str, where: Where, echo=print):
         self.device, self.job, self.where, self.echo = Path(device), job, where, echo
-        self.path = ai_log(device, job)
+        self.path = RunTree(device).log.ai(job)
         self.count: int | None = None
 
     def open(self) -> "AttemptLog":

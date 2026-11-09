@@ -5,7 +5,7 @@ import shutil
 import pytest
 from test_device_flows import APP, F, Flow, run_targets
 
-from perfrepair import run_dir as rd
+from cryptobench.paths import AppTree, RunTree
 from perfrepair.app.facts.path_id import path_id
 from perfrepair.dto.primitives import PrimitivesTable
 from perfrepair.files import read_json
@@ -60,7 +60,7 @@ def _has_parser() -> bool:
 
 
 def _ratio(device, variant: str) -> float:
-    rows, m = read_json(device / rd.ROWS)["rows"], read_json(device / rd.MEASUREMENTS)["measurements"]
+    rows, m = read_json(RunTree(device).rows)["rows"], read_json(RunTree(device).measurements)["measurements"]
     median = {r["provider"]: m[r["rowId"]]["timeNs"]["median"] for r in rows
               if r["variant"] == variant and r["type"] == "Cipher" and r["operation"] == "ENCRYPT"}
     return median["Fast"] / median["Slow"]
@@ -69,12 +69,12 @@ def _ratio(device, variant: str) -> float:
 def test_both_variants_reach_every_stage_apart_and_a_scope_reads_its_own(flow):
     root = _app(flow)
     run_targets(flow, root)
-    rows = read_json(flow.device / rd.ROWS)["rows"]
+    rows = read_json(RunTree(flow.device).rows)["rows"]
     assert {(r["rowId"].rsplit("_", 1)[1], r["variant"], r["perCall"]) for r in rows} == {
         ("fixed", "fixed", "initAndOperation"), ("notFixed", "notFixed", "getInstanceInitAndOperation")}
-    assert {line.variant for line in PrimitivesTable.from_tsv((flow.device / rd.PRIMITIVES).read_text()).lines} == {
+    assert {line.variant for line in PrimitivesTable.from_tsv((RunTree(flow.device).primitives).read_text()).lines} == {
         "fixed", "notFixed"}
-    paths = rd.AppPaths(flow.device, path_id(root))
+    paths = AppTree(flow.device, path_id(root))
     pattern = {s["function"]: s["pattern"] for s in read_json(paths.scopes)["scopes"]}
     assert pattern == {"open": "fixed" if _has_parser() else "notFixed", "once": "notFixed"}
     doc = read_json(paths.dossiers)

@@ -4,8 +4,9 @@ import logging
 
 import pytest
 
+from cryptobench.paths import RunTree
+from cryptobench.paths import AI_LOGS
 from perfrepair import failure
-from perfrepair import run_dir as rd
 from perfrepair.dto.event import FIELDS, SCHEMA_VERSION, Event
 from perfrepair.log import attach, emit, step
 from perfrepair.log.attach import SINK
@@ -34,7 +35,7 @@ def _lines(path):
 
 def test_every_line_carries_every_field_of_the_schema(tmp_path, logger):
     _run(tmp_path, lambda: emit("grouping", "build", "end", outcome="ok", durationMs=3, data={"counts": {"items": 2}}))
-    lines = _lines(tmp_path / rd.EVENTS)
+    lines = _lines(RunTree(tmp_path).log.events)
     assert [e["event"] for e in lines] == ["run_start", "end", "run_end"]
     for line in lines:
         assert set(line) == set(FIELDS) and line["schemaVersion"] == SCHEMA_VERSION
@@ -51,7 +52,7 @@ def test_records_before_the_folder_is_known_are_kept_in_order(tmp_path, logger):
         logging.getLogger("perfrepair.inputs").info("after")
 
     failure.reported(body)
-    lines = _lines(tmp_path / rd.EVENTS)
+    lines = _lines(RunTree(tmp_path).log.events)
     assert [e["detail"] for e in lines if e["event"] == "log"] == ["setting a: 1 (default)", "after"]
     assert lines[0]["event"] == "run_start" and lines[1]["outcome"] == "debug" and lines[1]["stage"] == "config"
 
@@ -80,7 +81,7 @@ def test_a_step_emits_start_and_end_with_counts_and_file_digests(tmp_path, logge
             s.wrote(written)
 
     _run(tmp_path, body)
-    end = [e for e in _lines(tmp_path / rd.EVENTS) if e["event"] == "end"][0]
+    end = [e for e in _lines(RunTree(tmp_path).log.events) if e["event"] == "end"][0]
     assert end["outcome"] == "ok" and end["durationMs"] >= 0
     assert end["data"] == {"counts": {"items": 4},
                            "files": {"out.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"}}
@@ -92,7 +93,7 @@ def test_a_failing_step_ends_failed(tmp_path, logger):
             raise ValueError("missing_file: x")
 
     assert _run(tmp_path, body) == 1
-    ends = [e for e in _lines(tmp_path / rd.EVENTS) if e["event"] == "end"]
+    ends = [e for e in _lines(RunTree(tmp_path).log.events) if e["event"] == "end"]
     assert ends[0]["outcome"] == "failed" and "missing_file" in ends[0]["detail"]
 
 
@@ -107,12 +108,12 @@ def _model_turns(tmp_path):
 
 def test_each_view_is_the_render_of_the_events_it_was_written_from(tmp_path, logger):
     _model_turns(tmp_path)
-    events = read_events(tmp_path / rd.EVENTS)
+    events = read_events(RunTree(tmp_path).log.events)
     for name, lines in render(events).items():
         path = tmp_path / name
         assert (path.read_text() if path.exists() else "") == "".join(line + "\n" for line in lines)
     # the attempt log is the AI view: no view of events copies it
-    assert not (tmp_path / rd.AI_LOGS).exists() and not (tmp_path / "log/grouping").exists()
+    assert not (tmp_path / AI_LOGS).exists() and not (tmp_path / "log/grouping").exists()
 
 
 def test_a_coded_error_is_no_bug(tmp_path, logger, capsys):
@@ -121,8 +122,8 @@ def test_a_coded_error_is_no_bug(tmp_path, logger, capsys):
 
     assert _run(tmp_path, body) == 1
     assert capsys.readouterr().err.startswith("error missing_file: ")
-    assert not (tmp_path / rd.BUG_LOG).exists()
-    lines = _lines(tmp_path / rd.EVENTS)
+    assert not (RunTree(tmp_path).log.bug).exists()
+    lines = _lines(RunTree(tmp_path).log.events)
     assert [e["event"] for e in lines] == ["run_start", "error", "run_end"] and lines[-1]["outcome"] == "error"
 
 
@@ -133,9 +134,9 @@ def test_an_uncoded_exception_is_one_line_and_its_traceback_in_bug_log(tmp_path,
     assert _run(tmp_path, body) == 1
     err = capsys.readouterr().err
     assert err.startswith("error bug: ") and "Traceback" not in err
-    bug = (tmp_path / rd.BUG_LOG).read_text()
+    bug = (RunTree(tmp_path).log.bug).read_text()
     assert "KeyError: 'oops'" in bug and "Traceback (most recent call last)" in bug
-    assert _lines(tmp_path / rd.EVENTS)[-1]["outcome"] == "bug"
+    assert _lines(RunTree(tmp_path).log.events)[-1]["outcome"] == "bug"
 
 
 def test_a_bug_before_the_folder_is_known_prints_its_traceback(logger, capsys):
@@ -151,5 +152,5 @@ def test_a_command_called_by_another_joins_its_run(tmp_path, logger):
         return failure.reported(lambda: emit("app", "detect", "end"))
 
     _run(tmp_path, inner)
-    lines = _lines(tmp_path / rd.EVENTS)
+    lines = _lines(RunTree(tmp_path).log.events)
     assert [e["event"] for e in lines] == ["run_start", "end", "run_end"] and len({e["run"] for e in lines}) == 1

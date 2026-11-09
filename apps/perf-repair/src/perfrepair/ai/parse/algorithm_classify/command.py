@@ -5,11 +5,11 @@ from dataclasses import dataclass
 
 import yaml
 
+from cryptobench.paths import GroupingTree
 from ....dto.classify import UNSURE, Batch, batch_ids, batches_document, read_batches
 from ....dto.prompt import TaskPrompt
 from ....dto.screen import Verdict
 from ....files import read_json, write_json, write_text
-from ....run_dir import GroupingPaths
 from ...runtime.agent import Conversations, ScriptedConversations
 from ...runtime.engine.ask import Limits
 from ...runtime.engine.decide import decide
@@ -36,7 +36,7 @@ class Reviewer:
     limits: Limits = Limits()
 
 
-def classify(paths: GroupingPaths, batches: list[Batch], verdicts: dict[int, Verdict], reviewer: Reviewer,
+def classify(paths: GroupingTree, batches: list[Batch], verdicts: dict[int, Verdict], reviewer: Reviewer,
              echo=print) -> tuple[dict[int, Verdict], str]:
     """The verdicts with the model's answers applied, and the outbox fingerprint they are sourced by."""
     paths.classify.mkdir(parents=True, exist_ok=True)

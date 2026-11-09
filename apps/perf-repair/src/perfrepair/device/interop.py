@@ -8,6 +8,7 @@ from pathlib import Path
 
 import yaml
 
+from cryptobench.paths import GroupingTree, RunTree
 from .. import run_dir as rd
 from ..data_handler.inbound import manifest_file, read_manifest
 from ..data_handler.outbound.benchmark_runner import require_connected, run_pipeline
@@ -16,7 +17,6 @@ from ..files import read_yaml, write_text
 from ..grouping.interop_plan import plan_for, write_plan
 from ..grouping.interop_read import imported, write_results
 from ..grouping.report.checks import report
-from ..run_dir import GroupingPaths
 from .setup_fingerprint import provider_setup
 
 DEVICE_MODE = "device"
@@ -32,7 +32,7 @@ class Checked:
     results: tuple[PairResult, ...] = ()
 
 
-def _kept(paths: GroupingPaths, setup: dict) -> dict[tuple, dict]:
+def _kept(paths: GroupingTree, setup: dict) -> dict[tuple, dict]:
     """A verdict holds for its setup and the key size it ran at."""
     doc = read_yaml(paths.interop) if paths.interop.exists() else {}
     if doc.get("setup") != setup:
@@ -42,7 +42,7 @@ def _kept(paths: GroupingPaths, setup: dict) -> dict[tuple, dict]:
 
 def unreachable(folder: Path, on_device: bool) -> str | None:
     """Why this run cannot run the oracle on the folder's target; None when it can."""
-    manifest, _ = read_manifest(folder / rd.MANIFEST)
+    manifest, _ = read_manifest(RunTree(folder).manifest)
     if manifest.mode == DEVICE_MODE and not on_device:
         return "a device folder's pairs need --device or apps.device"
     return None if Path(manifest.config).is_file() else f"the config the benchmark ran with is gone: {manifest.config}"
@@ -50,19 +50,19 @@ def unreachable(folder: Path, on_device: bool) -> str | None:
 
 def _oracle(folder: Path, plan: Path, echo: Callable[[str], None]) -> dict[int, dict]:
     """The benchmark's own config and mode, so the check sees the providers it measured."""
-    manifest, _ = read_manifest(folder / rd.MANIFEST)
+    manifest, _ = read_manifest(RunTree(folder).manifest)
     config, on_device = Path(manifest.config), manifest.mode == DEVICE_MODE
     require_connected(folder, config, on_device, "the pair check runs on the device the benchmark did")
     run_pipeline(config, folder.parent, "device" if on_device else "bench", echo=echo, extra=("--interop", str(plan)),
                  device=folder)
     rd.vouch_manifest(folder)
-    manifest, base = read_manifest(folder / rd.MANIFEST)
+    manifest, base = read_manifest(RunTree(folder).manifest)
     return {int(r["id"]): r for r in read_yaml(manifest_file(manifest, base, "interop")).get("pairs") or []}
 
 
 def check_pairs(folder: Path, sites: frozenset[str] | None, run: bool, echo: Callable[[str], None]) -> Checked:
     """run False: no oracle runs, and pending says how many pairs still need one; an unchanged rerun writes nothing."""
-    paths, setup = GroupingPaths(folder), provider_setup(folder)
+    paths, setup = GroupingTree(folder), provider_setup(folder)
     kept = _kept(paths, setup)
     document = plan_for(paths, sites)
     planned = [PlannedPair.from_json(p) for p in document["pairs"]]
@@ -83,19 +83,19 @@ def check_pairs(folder: Path, sites: frozenset[str] | None, run: bool, echo: Cal
     return Checked(len(planned) + held_back, len(planned) - len(todo), 0, len(todo), tuple(imported(paths)))
 
 
-def _drop_other_setup(paths: GroupingPaths, setup: dict) -> None:
+def _drop_other_setup(paths: GroupingTree, setup: dict) -> None:
     """Verdicts of another setup must not stay on the options; a hand import names no setup and stays."""
     if paths.interop.exists() and read_yaml(paths.interop).get("setup") not in (None, setup):
         paths.interop.unlink()
         report(paths)
 
 
-def _current(paths: GroupingPaths, document: dict, results: dict) -> bool:
+def _current(paths: GroupingTree, document: dict, results: dict) -> bool:
     return all(f.exists() for f in (paths.interop_plan, paths.interop)) and read_yaml(paths.interop_plan) == document \
         and read_yaml(paths.interop) == results
 
 
-def _run(folder: Path, paths: GroupingPaths, todo: list[PlannedPair], echo: Callable[[str], None]) -> dict[int, dict]:
+def _run(folder: Path, paths: GroupingTree, todo: list[PlannedPair], echo: Callable[[str], None]) -> dict[int, dict]:
     write_text(paths.interop_pending, yaml.safe_dump(plan_document(todo), sort_keys=False))
     try:
         return _oracle(folder, paths.interop_pending, echo)

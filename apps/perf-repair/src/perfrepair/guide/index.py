@@ -8,7 +8,8 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from .. import run_dir as rd
+from cryptobench.paths import AppTree, RunTree
+from cryptobench.paths import APP_REPORT, CHECKED, DOSSIERS, EDITS, HARNESS, REPLACEMENTS, SCOPED_PLAN, SCOPES
 from ..app.facts.project import gradle_name
 from ..config.device_results import add_device_results_arg, fill_device_results
 from ..dto.change import CHANGES, TRACKS
@@ -20,8 +21,8 @@ from ..log import attach
 from ..log.read import read_events
 
 # the step an app reached: the last of an unbroken run of files in guide order, each no older than the one before
-STAGES = (("app", rd.SCOPES), ("dossier", rd.DOSSIERS), ("replace", rd.REPLACEMENTS), ("edit", rd.EDITS),
-          ("harness", rd.HARNESS), ("device", f"{rd.CHECKED}/{rd.SCOPED_PLAN}"), ("report", rd.REPORT))
+STAGES = (("app", SCOPES), ("dossier", DOSSIERS), ("replace", REPLACEMENTS), ("edit", EDITS),
+          ("harness", HARNESS), ("device", f"{CHECKED}/{SCOPED_PLAN}"), ("report", APP_REPORT))
 ORDER = [name for name, _ in STAGES]
 COLUMNS = ("app", "project", "source", "sites", "scopes", *PATTERNS, UNKNOWN_DEFAULT, "stage", "stop", "reason", *CHANGES,
            *TRACKS, "notOffered", "replace", "checked")
@@ -29,7 +30,7 @@ COLUMNS = ("app", "project", "source", "sites", "scopes", *PATTERNS, UNKNOWN_DEF
 
 def _stops(device: Path) -> dict[str, tuple[str, str]]:
     """Each app's stop in its latest guide run, (code, reason); an app whose latest run stopped nowhere has none."""
-    events = Path(device) / rd.EVENTS
+    events = RunTree(device).log.events
     latest: dict[str, tuple[str, str, str]] = {}
     for e in read_events(events) if events.is_file() else []:
         if e.stage != "guide" or not e.app or e.event != END or e.step == "target":
@@ -71,7 +72,7 @@ def _reached(stage: str, step: str) -> bool:
 
 def _row(folder: Path, project: str, stops: dict) -> dict:
     """A column read from a later step's file counts only when the reached stage covers that step."""
-    paths, facts = rd.AppPaths(folder.parent, folder.name), read_json(folder / rd.APP)
+    paths, facts = AppTree(folder.parent, folder.name), read_json(AppTree.at(folder).facts)
     stage = _stage(folder)
     dossiers = read_json(paths.dossiers) if _reached(stage, "dossier") else {"dossiers": [], "notOffered": []}
     options = [o for d in dossiers["dossiers"] for o in d["options"]]
@@ -95,12 +96,12 @@ def _project(root: str, common: str | None) -> str:
 
 
 def write_index(device: Path) -> Path:
-    roots = {f: read_json(f / rd.APP)["root"] for f in rd.app_dirs(device)}
+    roots = {f: read_json(AppTree.at(f).facts)["root"] for f in RunTree(device).apps()}
     common = os.path.commonpath(list(roots.values())) if len(roots) > 1 else None
     stops = _stops(device)
     rows = [_row(f, _project(r, common), stops) for f, r in roots.items()]
     lines = ["\t".join(COLUMNS)] + ["\t".join(_cell(r[c]) for c in COLUMNS) for r in rows]
-    return write_text(Path(device) / rd.APPS_INDEX, "\n".join(lines) + "\n")
+    return write_text(RunTree(device).apps_index, "\n".join(lines) + "\n")
 
 
 def main(argv: list[str] | None = None) -> int:

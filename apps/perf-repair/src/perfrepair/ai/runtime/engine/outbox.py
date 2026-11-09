@@ -3,11 +3,11 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from cryptobench.paths import RunTree
 from ....dto.decision import OutboxRecord
 from ....stop.halt import Coded
 from ....dto.prompt import Charter
 from ....files import TEMP_SUFFIX, read_json, write_json, write_text
-from ....run_dir import CHARTER
 from . import charter_file
 
 OUTBOXES, ACTIVE = "outbox", "active"
@@ -95,7 +95,7 @@ def activate(root: Path, charter: Charter) -> tuple[Outbox, Outbox | None]:
         raise OutboxError(f"outbox_fingerprint_invalid: {fingerprint!r}")
     previous = active_fingerprint(root)
     outbox = _outbox(root, fingerprint).open()
-    charter_file.record(outbox.directory / CHARTER, charter)
+    charter_file.record(RunTree(outbox.directory).charter, charter)
     if previous == fingerprint:
         return outbox, None
     write_text(Path(root) / OUTBOXES / ACTIVE, fingerprint + "\n", durable=True)

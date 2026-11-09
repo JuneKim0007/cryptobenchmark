@@ -7,6 +7,7 @@ import yaml
 from conftest import LIBRARY, QUIET
 from helpers import CATALOG as SCREEN_CATALOG
 
+from cryptobench.paths import GroupingTree
 from perfrepair.ai.parse.grouping_assign.kind import GroupingKind, charter
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.decide import decide
@@ -40,7 +41,7 @@ from perfrepair.files import read_document, write_json
 from perfrepair.grouping.build.items import build
 from perfrepair.grouping.report.checks import report
 from perfrepair.grouping.report.rules import check
-from perfrepair.run_dir import GroupingPaths, built
+from perfrepair.run_dir import built
 from perfrepair.screen.handler import ScreeningHandler
 from perfrepair.validation.parse.grouping_assign import SLUG
 
@@ -69,7 +70,7 @@ TRIAL = {"services": [{"provider": p["name"], "type": s["type"], "algorithm": s[
 
 @pytest.fixture
 def paths(tmp_path):
-    paths = GroupingPaths(tmp_path)
+    paths = GroupingTree(tmp_path)
     paths.root.mkdir()
     names = PROBE.names(NAMES)
     items, profiles = build(PROBE, names, TRIAL, FAMILIES)

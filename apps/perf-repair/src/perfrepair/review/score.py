@@ -4,7 +4,8 @@ from __future__ import annotations
 from collections import defaultdict
 from pathlib import Path
 
-from .. import run_dir as rd
+from cryptobench.paths import RunTree
+from cryptobench.paths import AI_LOGS
 from ..ai.log.attempt_log import read_log
 from ..files import write_json
 from .sheet import GROUPING, read_sheet
@@ -39,16 +40,16 @@ def _rejections(calls: dict[str, int], rejected: dict[str, int]) -> dict:
 
 def score(device: Path) -> dict:
     device = Path(device)
-    judged = _verdicts(read_sheet(rd.review_sheet(device)))
+    judged = _verdicts(read_sheet(RunTree(device).review.decisions))
     calls, rejected = defaultdict(int), defaultdict(int)
-    for path in sorted((device / rd.AI_LOGS).glob("*.yaml")):
+    for path in sorted((device / AI_LOGS).glob("*.yaml")):
         doc = read_log(path)
         for turn in (t for a in doc["attempts"] for t in a.get("turns") or ()):
             calls[doc["job"]] += 1
             rejected[doc["job"]] += turn["status"] in REJECTED
-    doc = {"decisions": len(read_sheet(rd.review_sheet(device))),
+    doc = {"decisions": len(read_sheet(RunTree(device).review.decisions)),
            "groupingPrecision": _judged([r for r in judged if r["kind"] == GROUPING]),
            "pickAccuracy": _judged([r for r in judged if r["kind"] != GROUPING]),
            "gateRejections": _rejections(calls, rejected)}
-    write_json(rd.review_score(device), doc)
+    write_json(RunTree(device).review.score, doc)
     return doc

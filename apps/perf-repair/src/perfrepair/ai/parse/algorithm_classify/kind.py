@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import json
 
+from cryptobench.paths import GroupingTree
 from ....dto.classify import Batch
 from ....dto.decision import OutboxRecord
 from ....dto.prompt import Charter, TaskPrompt
-from ....run_dir import GroupingPaths
 from ....validation.classified import validate_classified
 from ....validation.parse.algorithm_classify import check_reply
 from ...runtime.engine.kind import replay_problems
@@ -25,7 +25,7 @@ class ClassifyKind:
     name = "classify"
     schema = SCHEMA
 
-    def __init__(self, batches: list[Batch], paths: GroupingPaths):
+    def __init__(self, batches: list[Batch], paths: GroupingTree):
         self.batches, self.paths = batches, paths
 
     @property

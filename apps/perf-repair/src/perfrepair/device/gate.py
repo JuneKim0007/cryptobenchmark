@@ -6,7 +6,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
-from .. import run_dir as rd
+from cryptobench.paths import GroupingTree
 from ..dto.benchmark_coverage import (
     GAP_DELTA,
     GAP_STOP,
@@ -40,7 +40,7 @@ class GatePolicy:
 
 def anchors(folder: Path, used: UsedSet, gaps: tuple[Gap, ...]) -> frozenset[str]:
     """The comparators of each gap: used items of its family sharing an app with it, measured already."""
-    items = {i.qualified: i for i in read_items(read_json(rd.GroupingPaths(folder).items))}
+    items = {i.qualified: i for i in read_items(read_json(GroupingTree(folder).items))}
     apps = {u.item: set(u.apps) for u in used.items}
     missing = {g.item for g in gaps}
     return frozenset(u.item for u in used.items for g in missing if u.item not in missing and u.item in items

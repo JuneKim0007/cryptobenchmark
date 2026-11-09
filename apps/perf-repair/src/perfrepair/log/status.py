@@ -5,9 +5,9 @@ from __future__ import annotations
 import re
 from typing import Callable
 
+from cryptobench.paths import BUG_LOG
 from cryptobench.coded import CODE
 from ..dto.event import BUG, END, ERROR, FINDING, RUN_END, RUN_START, Event
-from ..run_dir import BUG_LOG
 
 DEVICE_OUTCOMES = ("ran", "reused", "failed")
 AT_STEP = re.compile(r"^at (\S+): ")

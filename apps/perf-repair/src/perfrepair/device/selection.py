@@ -6,7 +6,7 @@ from pathlib import Path
 
 import yaml
 
-from .. import run_dir as rd
+from cryptobench.paths import RunTree
 from ..dto.device import DeviceRecord
 from cryptobench.catalogue.grouping import Item
 from ..dto.screen import Verdict
@@ -74,7 +74,7 @@ def write_config(base: Path, folder: Path, rules: list[dict], adds: list[dict] =
     selection = {**document["selection"], "exclude": list(document["selection"].get("exclude") or []) + rules}
     if adds and selection.get("testSet"):
         selection["testSet"] = str(write_test_set(Path(selection["testSet"]), folder, list(adds)))
-    return generated(Path(folder) / rd.USED_CONFIG, base, "device.filterByApps", {**document, "selection": selection})
+    return generated(RunTree(folder).used_config, base, "device.filterByApps", {**document, "selection": selection})
 
 
 def section(manifest_config: str, keep: frozenset[str]) -> dict:

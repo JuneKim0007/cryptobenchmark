@@ -4,6 +4,8 @@ from __future__ import annotations
 from collections import Counter
 from pathlib import Path
 
+from cryptobench.paths import AppTree, GroupingTree, RunTree
+from cryptobench.paths import DOSSIERS, MEASUREMENTS
 from .. import run_dir as rd
 from ..catalog.bundled_providers import BundledCatalog
 from cryptobench.catalogue.names import NamesError
@@ -19,7 +21,6 @@ from ..dto.dossier import reason_code
 from ..dto.unit import read_units
 from ..files import read_json, write_json
 from ..log import step
-from ..run_dir import GroupingPaths
 from ..screen.catalog import Catalog
 from ..validation.grouping.output import read_groups
 from ..result.candidates import Family
@@ -43,15 +44,15 @@ def _available(run: Path, facts: dict) -> tuple[set[str] | None, frozenset[str],
     """The providers in the app's process, those of them the app ships, and the provider each site is on; without a
     manifest (None, its names, None)."""
     named = frozenset(shipped_names(facts))
-    if not (Path(run) / rd.MANIFEST).is_file():
+    if not (RunTree(run).manifest).is_file():
         return None, named, None
-    probe = RunContext.load(Path(run) / rd.MANIFEST).probe
+    probe = RunContext.load(RunTree(run).manifest).probe
     available = available_providers(probe.platform_providers(), probe.harness_artifacts(), facts)
     on = site_providers(probe.harness_artifacts(), facts, BundledCatalog.load())
     return available, frozenset(available - probe.platform_providers()) | named, on
 
 
-def family(grouping: GroupingPaths, catalog: Catalog, facts: dict, max_change: str, bundled: frozenset[str]) -> Family:
+def family(grouping: GroupingTree, catalog: Catalog, facts: dict, max_change: str, bundled: frozenset[str]) -> Family:
     """Each item's family from items.json, its canonical name from screen.json, else the names catalog."""
     screen = rd.load_screen(grouping) or {}
     family_of, canonical_of = {}, {}
@@ -66,11 +67,11 @@ def dossier(run: Path, app: str, source: Path, catalog: Catalog, perf: PerfMode,
             max_change: str = DROP_IN) -> dict:
     """max_change: apps.maxChange; the classes above it are recorded in notOffered, never offered."""
     rows, measurements = rd.load_rows(run), rd.load_measurements(run)
-    require(rd.MEASUREMENTS, validate_measurements(measurements, rows))
-    grouping = GroupingPaths(run)
+    require(MEASUREMENTS, validate_measurements(measurements, rows))
+    grouping = GroupingTree(run)
     catalog.require_same(rd.load_screen_catalog(grouping))
     groups = read_groups(grouping)
-    paths = rd.AppPaths(run, app)
+    paths = AppTree(run, app)
     scopes = [Scope.from_json(s) for s in rd.read_scopes(paths.scopes)["scopes"]]
     units = read_units(read_json(paths.units))
     facts = read_json(paths.facts)
@@ -80,7 +81,7 @@ def dossier(run: Path, app: str, source: Path, catalog: Catalog, perf: PerfMode,
         doc = by_unit(build_dossiers(app, scopes, facts, groups, rows, measurements.byRow, source, verdicts, perf,
                                     family(grouping, catalog, facts, max_change, shipped), available, on), units,
                      scopes, groups)
-        require(rd.DOSSIERS, validate_dossiers(doc, scopes, groups, verdicts) + validate_dossier_units(doc, units, scopes, groups))
+        require(DOSSIERS, validate_dossiers(doc, scopes, groups, verdicts) + validate_dossier_units(doc, units, scopes, groups))
         write_json(paths.dossiers, doc)
         s.count(scopes=len(scopes), units=len(doc["units"]), dossiers=len(doc["dossiers"]), options=sum(len(d["options"]) for d in doc["dossiers"]),
                 noOptions=dict(Counter(n["reason"] for n in doc["noOptions"])),

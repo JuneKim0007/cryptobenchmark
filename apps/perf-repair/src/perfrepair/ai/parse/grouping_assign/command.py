@@ -1,10 +1,10 @@
 """Stage: grouping/items.json + profiles.json + screen.json → GroupingKind on the engine → knowledge, cursor, errors."""
 from __future__ import annotations
 
+from cryptobench.paths import GroupingTree
 from ....dto.grouping_state import Knowledge, code_made
 from ....files import sha256_text
 from ....dto.prompt import TaskPrompt
-from ....run_dir import GroupingPaths
 from ...runtime.agent import Conversations, ScriptedConversations
 from ...runtime.engine.ask import Limits
 from ...runtime.engine.decide import decide
@@ -23,7 +23,7 @@ def dry_run() -> ScriptedConversations:
     return ScriptedConversations(_dry_run)
 
 
-def assign(paths: GroupingPaths, conversations: Conversations, library: PromptLibrary, limits: Limits = Limits(),
+def assign(paths: GroupingTree, conversations: Conversations, library: PromptLibrary, limits: Limits = Limits(),
            limit: int | None = None, echo=print) -> Knowledge:
     kind = GroupingKind(paths)
     knowledge = decide(kind, charter(library), conversations, paths.root, limits, limit, where=Where("grouping", "assign"), device=paths.root.parent)

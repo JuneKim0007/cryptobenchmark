@@ -5,7 +5,7 @@ from dataclasses import replace
 import pytest
 from helpers import LIBRARY, QUIET, logged, row, summary
 
-from perfrepair import run_dir as rd
+from cryptobench.paths import AppTree
 from perfrepair.ai.select.command import select_upgrades
 from perfrepair.ai.select.upgrade_render import render
 from perfrepair.ai.runtime.agent import ScriptedConversations
@@ -66,7 +66,7 @@ def _doc(tmp_path, s=None, names=ITEMS, family=None, verdicts=VERDICTS, units=No
 
 
 def _write(tmp_path, doc):
-    paths = rd.AppPaths(tmp_path, APP)
+    paths = AppTree(tmp_path, APP)
     paths.root.mkdir(parents=True, exist_ok=True)
     paths.dossiers.write_text(json.dumps(doc))
     return paths

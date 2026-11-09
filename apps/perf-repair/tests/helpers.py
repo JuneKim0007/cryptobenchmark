@@ -5,7 +5,7 @@ from dataclasses import replace
 from contextlib import contextmanager
 from pathlib import Path
 
-from perfrepair import run_dir as rd
+from cryptobench.paths import RunTree
 from perfrepair.ai.log.attempt_log import read_log
 from perfrepair.dto import PrimitiveRow, Summary
 from perfrepair.dto.prompt import SystemPrompt, TaskPrompt
@@ -29,7 +29,7 @@ def first_candidate(task, *_):
 
 def logged(device, job):
     """log/ai/<job>.yaml's attempts; none when the job never ran."""
-    path = rd.ai_log(device, job)
+    path = RunTree(device).log.ai(job)
     return read_log(path)["attempts"] if path.is_file() else []
 
 

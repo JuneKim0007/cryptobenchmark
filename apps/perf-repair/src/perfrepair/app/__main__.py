@@ -6,7 +6,8 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from .. import run_dir as rd
+from cryptobench.paths import AppTree, app_dir
+from cryptobench.paths import APP, SCOPES, UNITS
 from cryptobench.catalogue.names import Names, NamesError
 from ..config.args import add_config_arg, load_settings
 from ..dto.shipped import shipped_names
@@ -60,7 +61,7 @@ def _app(ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
     if len(units) != len(apps):
         ap.error(f"{a.app}: project roots {[app.projectRoot for app in apps]} collide as unit names")
     try:
-        dirs = {name: rd.app_dir(a.device_results, name) for name in units}
+        dirs = {name: app_dir(a.device_results, name) for name in units}
     except ValueError as e:
         ap.error(str(e))
     try:
@@ -90,16 +91,16 @@ def write_unit(name: str, pid: str, app: AppRoot, out_dir: Path, found: Detectio
     with step("app", "scope", app=name) as s:
         scoping = build_scopes(name, app.path, found.sites)
         scopes = scoping.document(name)
-        require(rd.APP, validate_app_facts(facts))
-        require(rd.SCOPES, validate_scopes(scopes, scoping.lines))
+        require(APP, validate_app_facts(facts))
+        require(SCOPES, validate_scopes(scopes, scoping.lines))
 
         out_dir.mkdir(parents=True, exist_ok=True)
-        write_json(out_dir / rd.SITES, {"schemaVersion": SITES_SCHEMA_VERSION, "app": name, "root": str(app.path),
+        write_json(AppTree.at(out_dir).sites, {"schemaVersion": SITES_SCHEMA_VERSION, "app": name, "root": str(app.path),
                                         "sites": found.sites, "dropped": found.dropped})
-        write_json(out_dir / rd.APP, facts)
-        write_json(out_dir / rd.SCOPES, scopes)
+        write_json(AppTree.at(out_dir).facts, facts)
+        write_json(AppTree.at(out_dir).scopes, scopes)
         s.count(scopes=len(scoping.scopes), unscoped=len(scoping.unscoped), lifecycle=scoping.statuses())
-        s.wrote(out_dir / rd.SITES, out_dir / rd.APP, out_dir / rd.SCOPES)
+        s.wrote(AppTree.at(out_dir).sites, AppTree.at(out_dir).facts, AppTree.at(out_dir).scopes)
     print(f"{out_dir}: {len(found.sites)} sites in {found.files} files ({found.testFiles} test files not scanned), "
           f"{len(found.dropped)} dropped by import, {found.folded} folded from constants, "
           f"{len(scoping.scopes)} scopes, {len(scoping.unscoped)} without a function; lifecycle "
@@ -121,10 +122,10 @@ def _write_units(name: str, app: AppRoot, out_dir: Path, scoping: Scoping) -> No
     with step("app", "units", app=name) as s:
         units = build_units(name, scoping.scopes, app.path)
         doc = units_document(name, units)
-        require(rd.UNITS, validate_units(doc, [x.to_json() for x in scoping.scopes]))
-        write_json(out_dir / rd.UNITS, doc)
+        require(UNITS, validate_units(doc, [x.to_json() for x in scoping.scopes]))
+        write_json(AppTree.at(out_dir).units, doc)
         s.count(**unit_counts(units))
-        s.wrote(out_dir / rd.UNITS)
+        s.wrote(AppTree.at(out_dir).units)
 
 if __name__ == "__main__":
     sys.exit(main())

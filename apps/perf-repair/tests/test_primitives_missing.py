@@ -13,7 +13,7 @@ from test_device_flows import (  # noqa: F401  the flows' fixtures
     target,
 )
 
-from perfrepair import run_dir as rd
+from cryptobench.paths import AppTree, GroupingTree, RunTree
 from perfrepair.device import missing_rows
 from perfrepair.device.missing_rows import (
     bundled_rows,
@@ -43,7 +43,6 @@ from perfrepair.dto.site import SITES_SCHEMA_VERSION
 from perfrepair.files import write_json
 from perfrepair.log.read import read_events
 from perfrepair.result.primitives import NotScreened, build_table
-from perfrepair.run_dir import AppPaths, GroupingPaths
 from perfrepair.stop import CODES, policy
 from perfrepair.stop.codes import STOP
 
@@ -53,7 +52,7 @@ def row(primitive="Cipher AES", provider="P", reason="not_on_device", apps=("a",
 
 
 def listed(device):
-    return yaml.safe_load((device / rd.PRIMITIVES_MISSING).read_text())
+    return yaml.safe_load((RunTree(device).log.primitives_missing).read_text())
 
 
 def site(resolution, engine="Cipher", algorithm="AES", provider=None, missing=None):
@@ -62,14 +61,14 @@ def site(resolution, engine="Cipher", algorithm="AES", provider=None, missing=No
 
 
 def app_files(device, sites, facts=None, app="a"):
-    paths = AppPaths(device, app)
+    paths = AppTree(device, app)
     paths.root.mkdir(parents=True, exist_ok=True)
     write_json(paths.sites, {"schemaVersion": SITES_SCHEMA_VERSION, "app": app, "sites": sites})
     write_json(paths.facts, facts or {})
 
 
 def test_open_leaves_an_empty_list_over_a_stale_file(tmp_path):
-    stale = tmp_path / rd.PRIMITIVES_MISSING
+    stale = RunTree(tmp_path).log.primitives_missing
     stale.parent.mkdir(parents=True)
     stale.write_text("schemaVersion: 1\nrun: old\nmissing: [{primitive: x}]\n")
     MissingList().open(tmp_path)
@@ -95,7 +94,7 @@ def test_the_pointer_is_one_event_and_announced_only_with_rows(tmp_path, capsys)
     missing.put("one", [row()])
     missing.put("two", [row(primitive="Cipher DES")])
     missing.announce(said.append)
-    assert said == [pointer_line(tmp_path / rd.PRIMITIVES_MISSING)]
+    assert said == [pointer_line(RunTree(tmp_path).log.primitives_missing)]
 
 
 def test_every_unscreened_name_is_reported_with_the_count_and_the_first():
@@ -123,8 +122,8 @@ def test_a_not_on_device_site_follows_its_setting_and_an_absent_one_only_skips(t
 
 def test_a_site_on_a_device_provider_no_item_holds_is_listed(tmp_path, monkeypatch):
     app_files(tmp_path, [site("explicit", provider="P"), site("default", algorithm="B", provider="P")])
-    GroupingPaths(tmp_path).items.parent.mkdir(parents=True)
-    write_json(GroupingPaths(tmp_path).items, {})
+    GroupingTree(tmp_path).items.parent.mkdir(parents=True)
+    write_json(GroupingTree(tmp_path).items, {})
     monkeypatch.setattr(missing_rows, "read_items", lambda _: [type("I", (), {"qualified": "Cipher|B|P"})()])
     [lost] = site_rows(tmp_path, "a")
     assert (lost.reason, lost.primitive, lost.provider) == ("no_device_item", "Cipher AES", "P")
@@ -133,7 +132,7 @@ def test_a_site_on_a_device_provider_no_item_holds_is_listed(tmp_path, monkeypat
 def test_the_run_log_names_a_site_item_never_measured_unless_a_case_of_it_was(tmp_path):
     app_files(tmp_path, [site("default", provider="P"), site("default", algorithm="B", provider="P")])
     entry = {"stage": "trial", "provider": "P", "type": "Cipher", "occurrences": 1, "rowIds": []}
-    write_json(tmp_path / rd.RUN_LOG, {"schemaVersion": 1, "entries": [
+    write_json(RunTree(tmp_path).run_log, {"schemaVersion": 1, "entries": [
         {**entry, "status": "not_runnable", "algorithm": "AES", "reason": "needs_a_key_in_the_store"},
         {**entry, "status": "skipped", "algorithm": "B", "reason": "one_size"}, {**entry, "status": "measured", "algorithm": "B", "reason": None}]})
     [lost] = measured_rows(tmp_path, "a")
@@ -173,14 +172,14 @@ def test_a_provider_row_says_when_the_host_cannot_build_it(policy_, on_device, c
 
 
 def _pointers(flow_):
-    return [e for e in read_events(flow_.device / rd.EVENTS) if e.data.get("pointer")]
+    return [e for e in read_events(RunTree(flow_.device).log.events) if e.data.get("pointer")]
 
 
 def test_host_apply_says_nothing_is_applied_and_lists_the_row(scoped, capsys):  # noqa: F811
     scoped.bundled = {"fromApps": "apply"}
     root = target(scoped, "tls", SHA, ships=CONSCRYPT)
     run_targets(scoped, root)
-    assert not (scoped.device / rd.BUNDLED_CONFIG).exists()
+    assert not (RunTree(scoped.device).bundled_config).exists()
     rows = {r["provider"]: r for r in listed(scoped.device)["missing"] if r["primitive"] is None}
     assert rows["Conscrypt"]["reason"] == HOST_CANNOT_BUILD and rows["Conscrypt"]["coordinates"] == [CONSCRYPT]
     assert rows["BC"]["reason"] == BUNDLED_MISSING and "duplicate_name" in rows["BC"]["next"]
@@ -229,7 +228,7 @@ def test_not_screened_stops_with_every_name_listed_and_next_naming_the_file(scop
     scoped.bundled = {}
     monkeypatch.setattr(primitives, "status_of", lambda _: {})
     run_targets(scoped, scoped.sha)
-    path = scoped.device / rd.PRIMITIVES_MISSING
+    path = RunTree(scoped.device).log.primitives_missing
     failed = json.dumps([e for e in scoped.events() if e["data"].get("code") == "prerequisites_failed"])
     assert "primitive_not_screened" in failed and str(path) in failed
     rows = [r for r in listed(scoped.device)["missing"] if r["reason"] == "not_screened"]

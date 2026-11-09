@@ -6,7 +6,8 @@ from pathlib import Path
 
 import yaml
 
-from .. import run_dir as rd
+from cryptobench.paths import RunTree
+from cryptobench.paths import BENCHMARK_COVERAGE
 from ..dto.benchmark_coverage import Coverage, coverage_document
 from ..files import write_text_making_parents
 from ..log import run_id
@@ -24,10 +25,10 @@ class CoverageFile:
         self.attempts[point] = self.attempts.get(point, 0) + bool(delta)
         self.deltas += [delta] if delta else []
         doc = coverage_document(run_id(), point, self.attempts, coverage, self.deltas)
-        require(rd.BENCHMARK_COVERAGE, validate_coverage(doc))
-        return write_text_making_parents(Path(device) / rd.BENCHMARK_COVERAGE, yaml.safe_dump(doc, sort_keys=False))
+        require(BENCHMARK_COVERAGE, validate_coverage(doc))
+        return write_text_making_parents(RunTree(device).log.benchmark_coverage, yaml.safe_dump(doc, sort_keys=False))
 
 
 def clear_coverage(device: Path) -> None:
     """No used set, so no check ran: nothing an earlier run left may read as this run's."""
-    (Path(device) / rd.BENCHMARK_COVERAGE).unlink(missing_ok=True)
+    (RunTree(device).log.benchmark_coverage).unlink(missing_ok=True)

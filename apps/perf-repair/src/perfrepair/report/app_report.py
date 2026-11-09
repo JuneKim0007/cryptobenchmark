@@ -2,13 +2,14 @@
 is `not_run`; sites.json and scopes.json are required."""
 from __future__ import annotations
 
+from cryptobench.paths import AppTree
 from ..dto.report import BROKEN_USES, SCHEMA_VERSION, stayed, unit_counts
 from ..dto.unit import read_units, units_by_scope
 from ..dto.upgrade import STATUSES as UPGRADE_STATUSES, UPGRADED
 from ..files import read_json, read_yaml
 from ..result.modes import Mode
 from ..app.facts.project import project_name
-from ..run_dir import AppPaths, load_upgrades, read_scopes, read_sites
+from ..run_dir import load_upgrades, read_scopes, read_sites
 from ..stop.halt import Coded
 from .device_check import read_device_check
 from .recommendations import recommendations
@@ -35,7 +36,7 @@ def _with_units(rows: list[dict], of_unit: dict) -> list[dict]:
     return [{**r, "stayed": stays[r["unit"]]} for r in rows]
 
 
-def _named(paths: AppPaths) -> dict:
+def _named(paths: AppTree) -> dict:
     """The project and source beside the id: two projects can share a last folder name."""
     doc = _optional(paths.facts) or {}
     root = doc.get("root")
@@ -50,7 +51,7 @@ def _broken_uses(upgrades: list, scopes: list[dict]) -> dict:
     return {"counts": {s: sum(r["status"] == s for r in rows) for s in UPGRADE_STATUSES}, "rows": rows}
 
 
-def build_report(paths: AppPaths, mode: Mode) -> dict:
+def build_report(paths: AppTree, mode: Mode) -> dict:
     for required in (paths.sites, paths.scopes, paths.units):
         if not required.is_file():
             raise Coded(f"missing_step: {required} absent; run `python3 -m perfrepair.app` first")

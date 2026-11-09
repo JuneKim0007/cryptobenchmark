@@ -12,6 +12,7 @@ import argparse
 import sys
 from pathlib import Path
 
+from cryptobench.paths import GroupingTree, RunTree
 from ..ai.runtime.engine.ask import Limits
 from ..ai.runtime.gateway.args import add_agent_args
 from ..ai.runtime.gateway.spawn import spawn
@@ -30,8 +31,6 @@ from .interop_read import import_results
 from ..ai.parse.algorithm_classify import command as classify_cmd
 from ..ai.parse.algorithm_classify.command import Reviewer
 from ..ai.parse.grouping_assign import command as assign_cmd
-from .. import run_dir as rd
-from ..run_dir import GroupingPaths
 from .report.checks import report
 
 
@@ -71,7 +70,7 @@ def _assign(ap: argparse.ArgumentParser, args: argparse.Namespace) -> None:
     settings = _with_device(ap, args)
     library = load_prompts(ap, args, settings)
     fill(settings, args, {"turns": GROUPING_TURNS, "sessions": GROUPING_SESSIONS, "limit": GROUPING_LIMIT})
-    assign_cmd.assign(GroupingPaths(args.device_results), spawn(args, settings, assign_cmd.dry_run()), library,
+    assign_cmd.assign(GroupingTree(args.device_results), spawn(args, settings, assign_cmd.dry_run()), library,
                       Limits(args.turns, args.sessions), args.limit)
 
 
@@ -100,13 +99,13 @@ def _build(ap: argparse.ArgumentParser, step: argparse.ArgumentParser, args: arg
         reviewer = Reviewer(spawn(args, settings, classify_cmd.dry_run()), load_prompts(ap, args, settings))
     elif given := [f"--{name}" for name in BUILD_MODEL_FLAGS if getattr(args, name) is not None]:
         step.error(f"{', '.join(given)} only apply with device.screening.aiReview; build alone calls no model")
-    paths = build_stage(args.device_results / rd.MANIFEST, args.device_results, screening_catalog(settings), reviewer)
+    paths = build_stage(RunTree(args.device_results).manifest, args.device_results, screening_catalog(settings), reviewer)
     print(f"wrote {paths.items}, {paths.profiles} and {paths.screen}")
 
 
 def _file_step(ap: argparse.ArgumentParser, args: argparse.Namespace) -> None:
     _with_device(ap, args)
-    paths = GroupingPaths(args.device_results)
+    paths = GroupingTree(args.device_results)
     if args.step == "report":
         document = report(paths)
         print(f"{len(document['groups'])} contract rows, {len(document['dropped'])} dropped -> {paths.groups}")

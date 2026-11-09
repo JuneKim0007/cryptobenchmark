@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from cryptobench.paths import AppTree
 from ... import run_dir as rd
 from ...dto.decision import OutboxRecord
 from ...dto.dossier import NO_SECURE_OPTION, PERSON_JUDGES, reason_code
@@ -34,7 +35,7 @@ def _unreached(n: dict) -> Upgrade:
 class UpgradeSource:
 
     def __init__(self, run_path: Path, app: str):
-        paths = rd.AppPaths(run_path, app)
+        paths = AppTree(run_path, app)
         self.app, self.paths, self.folder = app, paths, paths.upgrade
         self.doc = rd.read_dossiers(paths.dossiers)
         self.perf = perf_of(self.doc) or GENERIC_MODE

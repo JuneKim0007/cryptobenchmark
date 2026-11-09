@@ -4,7 +4,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from ... import run_dir as rd
+from cryptobench.paths import AppTree, RunTree
 from ...files import read_json, sha256_text
 
 _UNSAFE = re.compile(r"[^A-Za-z0-9._-]+")
@@ -27,7 +27,7 @@ def app_id(device: Path, path: Path | str) -> str:
     """The folder for --app: its own id, else the unit of a multi-root folder that recorded this path as its root."""
     own, real = path_id(path), str(absolute(path))
     if not (Path(device) / own).is_dir():
-        for folder in rd.app_dirs(device):
-            if read_json(folder / rd.APP)["root"] == real:
+        for folder in RunTree(device).apps():
+            if read_json(AppTree.at(folder).facts)["root"] == real:
                 return folder.name
     return own

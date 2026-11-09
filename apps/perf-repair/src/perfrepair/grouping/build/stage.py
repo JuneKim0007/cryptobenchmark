@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections import Counter
 from pathlib import Path
 
+from cryptobench.paths import GroupingTree
 from ...ai.parse.algorithm_classify.command import Reviewer, classify
 from cryptobench.catalogue.families import Families
 from cryptobench.catalogue.names import Names
@@ -12,7 +13,6 @@ from ...dto.screen import CODE_GROUPED, screen_document
 from ...files import json_text, sha256_text, write_texts
 from ...log import step
 from ...probe.identified import alias_conflicts, identified
-from ...run_dir import GroupingPaths
 from ...screen.catalog import Catalog
 from ...screen.evidence import batches, unknown_evidence
 from ...screen.stage import screen_items
@@ -26,7 +26,7 @@ OPTIONAL = ("inventory", "prepared", "benchmark")
 
 
 def build_stage(manifest_path: Path, run: Path, catalog: Catalog, reviewer: Reviewer | None = None,
-                families: Families | None = None, echo=print) -> GroupingPaths:
+                families: Families | None = None, echo=print) -> GroupingTree:
     """reviewer: given only with device.screening.aiReview; it classifies the unknown items before screen.json is written."""
     with step("grouping", "build") as s:
         paths, items, verdicts, names = _build(manifest_path, run, catalog, reviewer, families, echo)
@@ -49,7 +49,7 @@ def _screened(context: RunContext, items, profiles, catalog: Catalog) -> dict:
 
 
 def _build(manifest_path: Path, run: Path, catalog: Catalog, reviewer: Reviewer | None, families: Families | None,
-           echo) -> tuple[GroupingPaths, list, dict, Names]:
+           echo) -> tuple[GroupingTree, list, dict, Names]:
     context = RunContext.load(manifest_path, families=families)
     missing = [k for k in INPUTS if context.file(k) is None]
     require(str(manifest_path), [f"files.{k}: absent; the grouping stage needs it" for k in missing])
@@ -58,7 +58,7 @@ def _build(manifest_path: Path, run: Path, catalog: Catalog, reviewer: Reviewer 
     require("items", validate_items(items, profiles, context.families))
     verdicts = _screened(context, items, profiles, catalog)
     require("screen", validate_screen(verdicts, items))
-    paths = GroupingPaths(run)
+    paths = GroupingTree(run)
     paths.root.mkdir(parents=True, exist_ok=True)
     review = None
     if reviewer is not None:

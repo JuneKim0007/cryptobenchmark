@@ -4,12 +4,13 @@ from pathlib import Path
 
 import pytest
 
+from cryptobench.paths import RunTree
 from perfrepair.app.facts.path_id import app_id, path_id, unit_id
 from perfrepair.config.args import add_config_arg, load_settings
+from cryptobench.paths import Results
 from perfrepair.config.device_results import (_warn_if_temp, add_device_results_arg, device_root, fill_device_results,
                                               select_device)
 from perfrepair.inputs.resolve import InputError
-from perfrepair.run_dir import app_dirs, device_folders
 
 
 def device(root, name):
@@ -39,7 +40,7 @@ def test_only_a_folder_with_a_manifest_is_a_device(tmp_path):
     (tmp_path / "failed" / "discovery").mkdir(parents=True)
     (tmp_path / ".staging-x" / "discovery").mkdir(parents=True)
     (tmp_path / "pipeline.log").write_text("")
-    assert device_folders(tmp_path) == ["a"]
+    assert Results(tmp_path).devices() == ["a"]
 
 
 def test_the_only_device_is_used_without_a_setting(tmp_path):
@@ -121,7 +122,7 @@ def test_a_project_root_finds_its_unit_of_a_multi_root_folder(tmp_path):
     folder.mkdir(parents=True)
     (folder / "app.json").write_text(json.dumps({"root": str((mono / "sub/android").resolve())}))
     (tmp_path / "device" / "grouping").mkdir()
-    assert folder.name.endswith(".sub.android") and app_dirs(tmp_path / "device") == [folder]
+    assert folder.name.endswith(".sub.android") and RunTree(tmp_path / "device").apps() == [folder]
     assert app_id(tmp_path / "device", mono / "sub/android") == folder.name
     assert app_id(tmp_path / "device", tmp_path / "elsewhere") == path_id(tmp_path / "elsewhere")
 

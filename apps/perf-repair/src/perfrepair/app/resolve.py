@@ -4,7 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from .. import run_dir as rd
+from cryptobench.paths import RunTree
 from cryptobench.catalogue.names import Names, NamesError
 from ..data_handler.inbound import Probe, RunContext
 from ..dto import ProviderEntry
@@ -61,7 +61,7 @@ class Primitives:
 
     @classmethod
     def load(cls, device: Path) -> "Primitives":
-        context = RunContext.load(Path(device) / rd.MANIFEST)
+        context = RunContext.load(RunTree(device).manifest)
         if context.file("probe") is None:
             raise Coded(f"missing_probe: {context.path}: no probe file; resolving a site needs the device's providers")
         return cls(context)

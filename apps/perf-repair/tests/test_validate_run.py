@@ -3,13 +3,13 @@ import json
 
 from test_stages import run  # noqa: F401  (the stage fixture)
 
-from perfrepair.run_dir import GroupingPaths
+from cryptobench.paths import GroupingTree
 from perfrepair.check.run import validate_run
 from perfrepair.screen.catalog import screening_catalog
 
 
 def test_a_hand_edited_knowledge_is_caught(run):
-    path = GroupingPaths(run).knowledge
+    path = GroupingTree(run).knowledge
     doc = json.loads(path.read_text())
     doc["dropped"].append(999)
     path.write_text(json.dumps(doc))
@@ -18,7 +18,7 @@ def test_a_hand_edited_knowledge_is_caught(run):
 
 @pytest.mark.usefixtures("asked_by_model")
 def test_an_active_switched_to_an_older_outbox_is_caught(run):
-    root = GroupingPaths(run).root / "outbox"
+    root = GroupingTree(run).root / "outbox"
     current = (root / "active").read_text().strip()
     older = root / "0123456789ab"
     older.mkdir()
@@ -28,12 +28,12 @@ def test_an_active_switched_to_an_older_outbox_is_caught(run):
 
 
 def test_a_broken_active_is_reported_not_raised(run):
-    (GroupingPaths(run).root / "outbox" / "active").write_text("../elsewhere\n")
+    (GroupingTree(run).root / "outbox" / "active").write_text("../elsewhere\n")
     assert any("outbox_active_invalid" in p for p in validate_run(run, screening_catalog(None))["grouping"])
 
 
 def _charter_path(run):
-    root = GroupingPaths(run).root / "outbox"
+    root = GroupingTree(run).root / "outbox"
     return root / (root / "active").read_text().strip() / "charter.json"
 
 

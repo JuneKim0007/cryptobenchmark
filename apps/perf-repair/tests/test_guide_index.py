@@ -6,17 +6,17 @@ from test_guide import APP, FAKE_ROOT
 from test_guide_targets import base  # noqa: F401  the recorded run and two-app loop
 from test_stages import run  # noqa: F401
 
+from cryptobench.paths import AppTree, RunTree
 from perfrepair import failure
 from perfrepair.ai.select.command import dry_run
 from perfrepair.app.facts.path_id import path_id
 from perfrepair.guide import app_steps as guide_steps
 from perfrepair.guide.index import main as index_main
 from perfrepair.log import attach
-from perfrepair.run_dir import APPS_INDEX, EDITS
 
 
 def _rows(device):
-    with open(device / APPS_INDEX, newline="") as f:
+    with open(RunTree(device).apps_index, newline="") as f:
         return {r["app"]: r for r in csv.DictReader(f, delimiter="\t")}
 
 
@@ -61,8 +61,8 @@ def test_a_later_run_that_stops_nowhere_clears_the_stop_and_the_command_rewrites
     with monkeypatch.context() as m:
         m.setattr(guide_steps, "repair_main", lambda argv: 1)
         assert _go(base, [a], reuse=False) == 1 and _rows(base.run_dir)[path_id(a)]["stage"] == "replace"
-    assert (base.run_dir / path_id(a) / EDITS).is_file()
-    (base.run_dir / APPS_INDEX).unlink()
+    assert AppTree.at(base.run_dir / path_id(a)).edits.is_file()
+    (RunTree(base.run_dir).apps_index).unlink()
     assert index_main(["--device-results", str(base.run_dir)]) == 0 and path_id(a) in _rows(base.run_dir)
 
 

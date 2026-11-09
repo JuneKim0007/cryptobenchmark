@@ -8,10 +8,10 @@ from pathlib import Path
 
 import yaml
 
+from cryptobench.paths import DEVICE, AppTree, RunTree
 from cryptobench.coded import InputError
 from ..dto.device import DeviceRecord
 from ..files import read_json, read_yaml, sha256_file, write_json, write_text
-from .layout import DEVICE, MANIFEST, REPORT, REPORT_MD, RUNS, AppPaths, app_dirs
 from .lock import DeviceLock
 
 OVERWRITE, RESUME, SKIP = "overwrite", "resume", "skip"
@@ -23,7 +23,7 @@ STAMP = "%Y%m%dT%H%M%SZ"
 
 def load_device_record(device: Path) -> tuple[DeviceRecord | None, str | None]:
     """The record, or None and why: absent, or unreadable; either means every stage it would vouch for reruns."""
-    path = Path(device) / DEVICE
+    path = RunTree(device).device
     if not path.is_file():
         return None, f"no {DEVICE}"
     try:
@@ -33,25 +33,25 @@ def load_device_record(device: Path) -> tuple[DeviceRecord | None, str | None]:
 
 
 def write_device_record(device: Path, record: DeviceRecord) -> Path:
-    return write_text(Path(device) / DEVICE, yaml.safe_dump(record.to_json(), sort_keys=False), durable=True)
+    return write_text(RunTree(device).device, yaml.safe_dump(record.to_json(), sort_keys=False), durable=True)
 
 
 def vouch_manifest(device: Path) -> None:
     """A step that only added files to manifest.yaml: device.yaml records its digest again, so no stage reruns for it."""
     record, _ = load_device_record(device)
     if record is not None:
-        write_device_record(device, replace(record, manifest=sha256_file(Path(device) / MANIFEST)))
+        write_device_record(device, replace(record, manifest=sha256_file(RunTree(device).manifest)))
 
 
 def drop_device_record(device: Path) -> None:
-    (Path(device) / DEVICE).unlink(missing_ok=True)
+    (RunTree(device).device).unlink(missing_ok=True)
 
 
 def run_path(device: Path, run_id: str) -> Path:
-    return Path(device) / RUNS / f"run_{run_id}.json"
+    return RunTree(device).run_record(run_id)
 
 
-def _finished(paths: AppPaths) -> dict | None:
+def _finished(paths: AppTree) -> dict | None:
     """None when absent or unreadable, so a cut or hand-edited file reruns the app instead of failing it every run."""
     try:
         doc = read_json(paths.finished)
@@ -125,8 +125,8 @@ class RunRecord:
 
     @staticmethod
     def _clear(device: Path) -> None:
-        for folder in app_dirs(device):
-            AppPaths(device, folder.name).finished.unlink(missing_ok=True)
+        for folder in RunTree(device).apps():
+            AppTree(device, folder.name).finished.unlink(missing_ok=True)
         drop_device_record(device)
 
     def _write(self) -> None:
@@ -142,32 +142,32 @@ class RunRecord:
         """The first step of an app this run: its done mark and its report go, so a stop leaves no stale one."""
         if app not in self.started:
             self.started.add(app)
-            paths = AppPaths(self.device, app)
-            for path in (paths.finished, paths.root / REPORT, paths.root / REPORT_MD):
+            paths = AppTree(self.device, app)
+            for path in (paths.finished, paths.report, paths.report_md):
                 path.unlink(missing_ok=True)
         self.doc["apps"][app] = {"status": RUNNING, "step": step}
         self._write()
 
     def app_done(self, app: str, inputs: dict, outcome: str) -> None:
         """A terminal outcome: the same inputs on a later run need no step."""
-        write_json(AppPaths(self.device, app).finished,
+        write_json(AppTree(self.device, app).finished,
                    {"schemaVersion": FINISHED_SCHEMA, "inputs": inputs, "outcome": outcome}, durable=True)
         self.doc["apps"][app] = {**self.doc["apps"].get(app, {}), "status": DONE, "outcome": outcome}
         self._write()
 
     def app_failed(self, app: str, step: str, reason: str, status: str = FAILED) -> None:
-        AppPaths(self.device, app).finished.unlink(missing_ok=True)
+        AppTree(self.device, app).finished.unlink(missing_ok=True)
         self.doc["apps"][app] = {"status": status, "step": step, "reason": reason}
         self._write()
 
     def is_done(self, app: str, inputs: dict) -> bool:
-        doc = _finished(AppPaths(self.device, app))
+        doc = _finished(AppTree(self.device, app))
         # a JSON round trip, so a tuple in the inputs compares as the list the file holds
         return doc is not None and doc["inputs"] == json.loads(json.dumps(inputs))
 
     def app_reused(self, app: str) -> str:
         """The outcome the reused app reached when it was done."""
-        outcome = (_finished(AppPaths(self.device, app)) or {}).get("outcome", "")
+        outcome = (_finished(AppTree(self.device, app)) or {}).get("outcome", "")
         self.doc["apps"][app] = {"status": DONE, "outcome": outcome, "reused": True}
         self._write()
         return outcome

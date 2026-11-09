@@ -74,7 +74,7 @@ def test_only_a_folder_with_a_manifest_is_a_device(tmp_path):
     write(tmp_path / "a/manifest.yaml")
     write(tmp_path / "failed/discovery/probe.yaml")
     write(tmp_path / ".staging-x/discovery/probe.yaml")
-    assert select.device_folders(tmp_path) == ["a"]
+    assert select.paths.Results(tmp_path).devices() == ["a"]
     assert select.device_folder(tmp_path) == tmp_path / "a"
 
 

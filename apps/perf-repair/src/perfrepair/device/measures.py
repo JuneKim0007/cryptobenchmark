@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from .. import run_dir as rd
+from cryptobench.paths import RunTree
 from ..dto.event import LOG
 from ..dto.metrics import ENERGY, METRICS, Metric
 from ..dto.perf_mode import PerfMode
@@ -81,7 +81,7 @@ def _metrics_changed(run: dict, owned: dict) -> bool:
 def owned_config(base: Path, folder: Path, perf: PerfMode, on_device: bool) -> Path:
     """base when it already measures what perfMode needs, so its digest stays; else <folder>/metrics-global.yaml, which
     the device stage then treats as its base."""
-    path = Path(folder) / rd.METRICS_CONFIG
+    path = RunTree(folder).metrics_config
     run = ((read_yaml(base) or {}).get("run") or {}) if Path(base).is_file() else {}
     owned = _owned_run(run, perf, harness_of(on_device))
     if not Path(base).is_file() or not (_metrics_changed(run, owned) or _beside_metrics_changed(run, owned)):

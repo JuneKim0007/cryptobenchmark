@@ -8,7 +8,7 @@ from pathlib import Path
 
 import yaml
 
-from .. import run_dir as rd
+from cryptobench.paths import RunTree
 from ..dto.dossier import SETUP_DRIFT
 from ..files import json_text, read_json, read_yaml, write_text_making_parents
 from ..stop.halt import Coded
@@ -94,7 +94,7 @@ def merge_delta(folder: Path, staged: Path, ids: set[str], session: str, compari
     """ids: the delta's cases to add; one already stored refuses the merge, never replaces a case; retried: the lost cases
     this delta measured again; fill: per stored case the metrics it lacks, taken from the delta's same case."""
     folder, staged, fill = Path(folder), Path(staged), fill or {}
-    manifest, delta = read_yaml(folder / rd.MANIFEST), read_yaml(staged / rd.MANIFEST)
+    manifest, delta = read_yaml(RunTree(folder).manifest), read_yaml(RunTree(staged).manifest)
     files = dict(manifest["files"])
     mine = [read_json(folder / p) for p in [files["benchmark"], *(files.get("processes") or ())]]
     theirs = [read_json(staged / p) for p in [delta["files"]["benchmark"], *(delta["files"].get("processes") or ())]]
@@ -123,6 +123,6 @@ def merge_delta(folder: Path, staged: Path, ids: set[str], session: str, compari
     deltas = list(manifest.get("deltas") or []) + [{"session": session, "cases": sorted(ids), "comparison": comparison,
                                                      "from": str(staged), **({"filled": filled} if filled else {})}]
     tried = sorted(set(manifest.get("retried") or ()) | set(retried))
-    write_text_making_parents(folder / rd.MANIFEST, yaml.safe_dump({**manifest, "files": files, "counts": counts, "deltas": deltas,
+    write_text_making_parents(RunTree(folder).manifest, yaml.safe_dump({**manifest, "files": files, "counts": counts, "deltas": deltas,
                                                                     **({"retried": tried} if tried else {})}, sort_keys=False))
     return Merged(tuple(sorted(ids)), str(out))

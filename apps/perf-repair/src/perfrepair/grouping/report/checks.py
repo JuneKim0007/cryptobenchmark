@@ -4,6 +4,7 @@ from pathlib import Path
 
 import yaml
 
+from cryptobench.paths import GroupingTree
 from ...dto.grouping_output import checks_document
 from ...files import write_json, write_text
 from ...log import step
@@ -13,7 +14,6 @@ from ...validation import require
 from ...validation.grouping.output import validate_output
 from cryptobench.catalogue.families import Families
 from ...ai.parse.grouping_assign.kind import GroupingKind
-from ...run_dir import GroupingPaths
 from ...ai.parse.grouping_assign.state import cursor
 from ..interop_read import imported
 from .candidates import candidates
@@ -21,7 +21,7 @@ from .output import assemble
 from .rules import check, check_interop
 
 
-def report(paths: GroupingPaths, families: Families | None = None) -> dict:
+def report(paths: GroupingTree, families: Families | None = None) -> dict:
     with step("grouping", "report") as s:
         document = _report(paths, families)
         s.count(groups=len(document["groups"]), dropped=len(document["dropped"]))
@@ -29,7 +29,7 @@ def report(paths: GroupingPaths, families: Families | None = None) -> dict:
     return document
 
 
-def _report(paths: GroupingPaths, families: Families | None) -> dict:
+def _report(paths: GroupingTree, families: Families | None) -> dict:
     kind, records, knowledge, findings, documents = _finished(paths, families)
     for path, doc in documents.items():
         write_json(path, doc)
@@ -39,12 +39,12 @@ def _report(paths: GroupingPaths, families: Families | None) -> dict:
     return documents[paths.groups]
 
 
-def report_documents(paths: GroupingPaths, families: Families | None = None) -> dict[Path, dict]:
+def report_documents(paths: GroupingTree, families: Families | None = None) -> dict[Path, dict]:
     """What the finished grouping's files should hold, the outbox being the commit; nothing written."""
     return _finished(paths, families)[-1]
 
 
-def _finished(paths: GroupingPaths, families: Families | None):
+def _finished(paths: GroupingTree, families: Families | None):
     kind = GroupingKind(paths, families)
     records = active_outbox(paths.root).records()
     knowledge = project(kind, records)

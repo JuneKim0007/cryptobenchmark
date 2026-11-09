@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 
 from cryptobench.coded import InputError
-from .layout import LOCK
+from cryptobench.paths import RunTree
 
 # flock conflicts between two descriptors of one process too, so the guide and its probe_device share one
 _HELD: dict[Path, list] = {}
@@ -26,7 +26,7 @@ class DeviceLock:
         if key in _HELD:
             _HELD[key][1] += 1
             return cls(key)
-        fd = os.open(key / LOCK, os.O_RDWR | os.O_CREAT, 0o644)
+        fd = os.open(RunTree(key).lock, os.O_RDWR | os.O_CREAT, 0o644)
         try:
             fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError:

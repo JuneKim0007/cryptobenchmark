@@ -136,6 +136,12 @@ class AppTree:
     report_md = property(lambda self: self.root / n.APP_REPORT_MD)
     finished = property(lambda self: self.root / n.FINISHED)
 
+    @classmethod
+    def at(cls, folder: Path | str) -> "AppTree":
+        """The tree of an app folder known by its path."""
+        folder = Path(folder)
+        return cls(folder.parent, folder.name)
+
     def alone(self, unit: str) -> Path:
         """Files with only this unit's edits, for a unit applied in a function another applied unit shares."""
         return self.alone_root / unit

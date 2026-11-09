@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
-from .. import run_dir as rd
+from cryptobench.paths import AppTree
 from ..ai.runtime.agent import Conversations
 from ..ai.runtime.engine.ask import Limits
 from ..ai.runtime.prompt import PromptLibrary
@@ -84,8 +84,8 @@ class Guide:
         return path_id(self.app_root) if self.app_root else None
 
     @property
-    def paths(self) -> rd.AppPaths:
-        return rd.AppPaths(self.device, self.app_id)
+    def paths(self) -> AppTree:
+        return AppTree(self.device, self.app_id)
 
 
 def halt(g: Guide, code: str, detail: str, inner: str | None = None) -> None:

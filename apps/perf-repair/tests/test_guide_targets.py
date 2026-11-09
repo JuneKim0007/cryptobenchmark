@@ -9,6 +9,7 @@ from helpers import first_candidate, model_calls, LIBRARY, captured_events, guid
 from test_guide import APP, F, FAKE_ROOT
 from test_stages import run  # noqa: F401  the recorded run, grouped
 
+from cryptobench.paths import AppTree
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.gateway.claude_cli import ClaudeCliError
 from perfrepair.ai.select.command import dry_run
@@ -25,7 +26,6 @@ from perfrepair.result.modes import mode_of
 from perfrepair.guide.state import Guide
 from perfrepair.guide.targets import run_targets
 from helpers import LATENCY
-from perfrepair.run_dir import AppPaths
 
 
 class Base:
@@ -112,7 +112,7 @@ def test_a_changed_source_runs_that_app_again_and_only_it(base):
 def test_changed_scopes_or_a_changed_scoper_run_the_app_again(base, monkeypatch):
     a = base.app("a")
     base.go([a])
-    scopes = AppPaths(base.run_dir, path_id(a)).scopes
+    scopes = AppTree(base.run_dir, path_id(a)).scopes
     scopes.write_text(scopes.read_text() + "\n")
     _, events = base.go([a])
     assert apps(events) == [(path_id(a), "ok", None)]
@@ -168,7 +168,7 @@ def test_a_missing_target_says_why_and_the_others_go_on_and_its_results_stay(bas
     a, b = base.app("a"), base.app("b")
     base.go([b])
     shutil.rmtree(b)
-    kept = AppPaths(base.run_dir, path_id(b)).dossiers
+    kept = AppTree(base.run_dir, path_id(b)).dossiers
     assert kept.is_file()
     code, events = base.go([b, a])
     assert code == 1 and kept.is_file()
@@ -180,7 +180,7 @@ def test_a_stop_code_is_recorded_and_the_loop_continues(base):
     code, events = base.go([a, b], conversations=dry_run())
     assert code == 1 and [o for _, *o in apps(events)] == [["stop", "no_replacement"]] * 2
     # a terminal stop is done: the rerun repeats no static step and exits 0
-    assert read_json(AppPaths(base.run_dir, path_id(a)).finished)["outcome"] == "no_replacement"
+    assert read_json(AppTree(base.run_dir, path_id(a)).finished)["outcome"] == "no_replacement"
     code, events = base.go([a, b], conversations=dry_run())
     assert code == 0 and apps(events) == [(path_id(r), "reused", None) for r in (a, b)]
 
@@ -218,7 +218,7 @@ def test_a_provider_failure_stops_the_whole_loop(base):
     code, events = base.go([a, b, c], conversations=Failing())
     assert code == 1
     assert apps(events) == [(path_id(a), "stop", "replace_failed"), (path_id(b), "not_run", None), (path_id(c), "not_run", None)]
-    assert not list(AppPaths(base.run_dir, path_id(b)).root.glob("*"))
+    assert not list(AppTree(base.run_dir, path_id(b)).root.glob("*"))
 
 
 def test_a_device_stage_stop_runs_no_app(tmp_path):
@@ -309,7 +309,7 @@ def test_a_target_with_its_own_perf_mode_uses_it_in_its_dossier_and_its_record(b
     a, b = base.app("a"), base.app("b")
     code, _ = base.go([a, b], app_modes={b: mode_of(PerfMode.parse(["throughput"]))})
     assert code == 0
-    of = {r: AppPaths(base.run_dir, path_id(r)) for r in (a, b)}
+    of = {r: AppTree(base.run_dir, path_id(r)) for r in (a, b)}
     assert read_json(of[a].dossiers)["perfMode"] == ["latency"] and read_json(of[b].dossiers)["perfMode"] == ["throughput"]
     assert read_json(of[a].finished)["inputs"]["perfMode"] == "latency"
     assert read_json(of[b].finished)["inputs"]["perfMode"] == "throughput"

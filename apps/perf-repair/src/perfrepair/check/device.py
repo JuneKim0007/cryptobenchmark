@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from cryptobench.paths import GroupingTree, RunTree
+from cryptobench.paths import BENCHMARK_COVERAGE, BUNDLED_SUGGESTIONS, EVENTS, MANIFEST, MEASUREMENTS, PRIMITIVES, PRIMITIVES_MISSING, RUN_LOG, USED
 from .. import run_dir as rd
 from ..ai.runtime.engine import charter_file
 from ..ai.runtime.engine.outbox import FINGERPRINT, OUTBOXES
@@ -11,7 +13,6 @@ from ..data_handler.inbound.primitives import read_primitives
 from ..device.primitives import status_of
 from cryptobench.catalogue.grouping import read_items
 from ..files import read_json, read_yaml
-from ..run_dir import GroupingPaths
 from ..validation.benchmark_coverage import validate_coverage
 from ..validation.bundled import validate_suggestions
 from ..validation.events import validate_events
@@ -25,8 +26,8 @@ from ..validation.used import validate_used
 
 def check_beside_rows(run: Path, rows) -> dict[str, list[str]]:
     out = {}
-    for name, load, check in ((rd.MEASUREMENTS, rd.load_measurements, validate_measurements),
-                              (rd.RUN_LOG, rd.load_run_log, validate_run_log)):
+    for name, load, check in ((MEASUREMENTS, rd.load_measurements, validate_measurements),
+                              (RUN_LOG, rd.load_run_log, validate_run_log)):
         if (run / name).exists():
             doc = parsed(load, run)
             out[name] = [doc] if isinstance(doc, str) else check(doc, rows)
@@ -34,15 +35,15 @@ def check_beside_rows(run: Path, rows) -> dict[str, list[str]]:
 
 
 def check_manifest(run: Path) -> dict[str, list[str]]:
-    if not (run / rd.MANIFEST).is_file():
+    if not (RunTree(run).manifest).is_file():
         return {}
-    read = parsed(lambda r: read_manifest(r / rd.MANIFEST), run)
-    return {rd.MANIFEST: [read] if isinstance(read, str) else validate_manifest(*read)}
+    read = parsed(lambda r: read_manifest(RunTree(r).manifest), run)
+    return {MANIFEST: [read] if isinstance(read, str) else validate_manifest(*read)}
 
 
 def check_details(run: Path) -> dict[str, list[str]]:
     out = {}
-    for name, check in ((rd.PRIMITIVES_MISSING, validate_missing), (rd.BENCHMARK_COVERAGE, validate_coverage)):
+    for name, check in ((PRIMITIVES_MISSING, validate_missing), (BENCHMARK_COVERAGE, validate_coverage)):
         if (run / name).is_file():
             doc = parsed(lambda r: read_yaml(r / name), run)
             out[name] = [doc] if isinstance(doc, str) else check(doc)
@@ -50,29 +51,29 @@ def check_details(run: Path) -> dict[str, list[str]]:
 
 
 def check_primitives(run: Path, rows) -> dict[str, list[str]]:
-    if not (run / rd.PRIMITIVES).is_file():
+    if not (RunTree(run).primitives).is_file():
         return {}
     try:
         table, measurements = read_primitives(run), rd.load_measurements(run)
         made_from = status_of(run)
     except (KeyError, TypeError, ValueError) as e:
-        return {rd.PRIMITIVES: [f"does not read: {type(e).__name__} {e}"]}
-    return {rd.PRIMITIVES: validate_primitives(table, rows, measurements, made_from)}
+        return {PRIMITIVES: [f"does not read: {type(e).__name__} {e}"]}
+    return {PRIMITIVES: validate_primitives(table, rows, measurements, made_from)}
 
 
 def check_suggestions(run: Path) -> dict[str, list[str]]:
-    path = run / rd.BUNDLED_SUGGESTIONS
-    return {rd.BUNDLED_SUGGESTIONS: validate_suggestions(read_yaml(path))} if path.is_file() else {}
+    path = RunTree(run).bundled_suggestions
+    return {BUNDLED_SUGGESTIONS: validate_suggestions(read_yaml(path))} if path.is_file() else {}
 
 
-def check_used(run: Path, grouping: GroupingPaths) -> dict[str, list[str]]:
-    if not (run / rd.USED).is_file():
+def check_used(run: Path, grouping: GroupingTree) -> dict[str, list[str]]:
+    if not (RunTree(run).used).is_file():
         return {}
     try:
         used = rd.load_used(run)
     except (KeyError, TypeError, ValueError) as e:
-        return {rd.USED: [f"does not read: {type(e).__name__} {e}"]}
-    return {rd.USED: validate_used(used, {i.qualified for i in read_items(read_json(grouping.items))})}
+        return {USED: [f"does not read: {type(e).__name__} {e}"]}
+    return {USED: validate_used(used, {i.qualified for i in read_items(read_json(grouping.items))})}
 
 
 def check_charters(run: Path) -> dict[str, list[str]]:
@@ -80,12 +81,12 @@ def check_charters(run: Path) -> dict[str, list[str]]:
     out = {}
     for directory in sorted(run.rglob(f"{OUTBOXES}/*")):
         if directory.is_dir() and FINGERPRINT.fullmatch(directory.name):
-            out[str((directory / rd.CHARTER).relative_to(run))] = charter_file.problems(directory / rd.CHARTER, directory.name)
+            out[str((RunTree(directory).charter).relative_to(run))] = charter_file.problems(RunTree(directory).charter, directory.name)
     return out
 
 
 def check_events(run: Path) -> dict[str, list[str]]:
-    return {rd.EVENTS: validate_events(run / rd.EVENTS)} if (run / rd.EVENTS).is_file() else {}
+    return {EVENTS: validate_events(RunTree(run).log.events)} if (RunTree(run).log.events).is_file() else {}
 
 
 def parsed(load, run: Path):

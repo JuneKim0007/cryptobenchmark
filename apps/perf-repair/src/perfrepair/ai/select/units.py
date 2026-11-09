@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from cryptobench.paths import AppTree, RunTree
 from ... import run_dir as rd
 from ...data_handler.inbound.manifest import display_units
 from ...data_handler.inbound.primitives import read_primitives
@@ -46,13 +47,13 @@ class UnitSource:
     """One app's units; a unit with no applicable candidate is still asked, with none as its only answer."""
 
     def __init__(self, run_path: Path, app: str):
-        paths = rd.AppPaths(run_path, app)
+        paths = AppTree(run_path, app)
         self.app, self.paths, self.folder = app, paths, paths.replace
         self.doc = rd.read_dossiers(paths.dossiers)
-        self.table = read_primitives(run_path) if (Path(run_path) / rd.PRIMITIVES).is_file() else None
+        self.table = read_primitives(run_path) if (RunTree(run_path).primitives).is_file() else None
         self.display = display_units(run_path)
         # a folder before measurements.json has no run warnings to show
-        self.warnings = tuple(rd.load_measurements(run_path).comparability) if (Path(run_path) / rd.MEASUREMENTS).is_file() else ()
+        self.warnings = tuple(rd.load_measurements(run_path).comparability) if (RunTree(run_path).measurements).is_file() else ()
         self.units, self.no_options, self.problems = parse_dossiers(self.doc, app)
         self.perf = perf_of(self.doc) or GENERIC_MODE
         self.max_change = self.doc.get("maxChange", DROP_IN)

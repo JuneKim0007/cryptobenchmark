@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 import yaml
 
+from cryptobench.paths import AppTree
 from perfrepair.dto.site import (DOSSIERS_SCHEMA_VERSION, SCOPES_SCHEMA_VERSION, Scope, scope_id,
                                  REPLACEMENTS_SCHEMA_VERSION)
 from perfrepair.dto.replacement import Edit, read_replacements
@@ -14,7 +15,6 @@ from perfrepair.repair.edit import edit_app, load_specs
 from perfrepair.repair.harness import harness
 from perfrepair.repair.inputs import read_effective
 from perfrepair.repair.inverses import inverse_partners
-from perfrepair.run_dir import AppPaths
 from perfrepair.source import language
 from perfrepair.validation.repair import validate_edits, validate_harness
 from repair_fixture import APP, JAVA, KOTLIN, ROOT, digests, pins, provider, replace, scope
@@ -31,7 +31,7 @@ SCOPES = [LITERAL, NESTED, TWICE, TEMPLATE]
 
 
 def setup_run(tmp_path):
-    paths = AppPaths(tmp_path, APP)
+    paths = AppTree(tmp_path, APP)
     paths.root.mkdir(parents=True)
     with_results(tmp_path)
     write_json(paths.facts, {"root": str(ROOT.resolve())})
@@ -183,7 +183,7 @@ def test_two_units_in_one_function_are_each_measured_swapped_alone(tmp_path):
     (root / "V.java").write_text(TWO)
     a, b = _in_two(3), _in_two(4)
     units = [Unit(unit_id(APP, [s.id]), (s.id,)) for s in (a, b)]
-    paths, scopes = AppPaths(tmp_path, APP), {s.id: s for s in (a, b)}
+    paths, scopes = AppTree(tmp_path, APP), {s.id: s for s in (a, b)}
     chosen = {s.id: replace(s, provider("Fast"), option=FAST) for s in (a, b)}
     edits = edit_app(scopes, list(chosen.values()), root, paths, load_specs(), units)
     assert {e["status"] for e in edits["edits"]} == {"applied"}
@@ -201,7 +201,7 @@ def test_a_rerun_with_one_unit_left_drops_the_alone_copies(tmp_path):
     (root / "V.java").write_text(TWO)
     a, b = _in_two(3), _in_two(4)
     units = [Unit(unit_id(APP, [s.id]), (s.id,)) for s in (a, b)]
-    paths, scopes = AppPaths(tmp_path, APP), {s.id: s for s in (a, b)}
+    paths, scopes = AppTree(tmp_path, APP), {s.id: s for s in (a, b)}
     edit_app(scopes, [replace(a, provider("Fast")), replace(b, provider("Fast"))], root, paths, load_specs(), units)
     assert paths.alone_root.exists()
     edit_app(scopes, [replace(a, provider("Fast"))], root, paths, load_specs(), units)

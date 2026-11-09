@@ -7,7 +7,7 @@ import pytest
 
 from helpers import captured_events
 
-from perfrepair import run_dir as rd
+from cryptobench.paths import PIPELINE_LOGS
 from perfrepair.config.load import load
 from perfrepair.config.stops import install_stops
 from perfrepair.stop import Halt
@@ -33,7 +33,7 @@ def test_runner_passes_stage_and_returns_manifest(bench_root, tmp_path, stage, f
     argv = json.loads((tmp_path / "benchmark" / "argv.json").read_text())["argv"]
     assert argv[argv.index("--config") + 1] == str(config.resolve())
     assert ("--bench" in argv, "--device" in argv) == (flag == "--bench", flag == "--device")
-    logs = list((tmp_path / "d" / rd.PIPELINE_LOGS).iterdir())
+    logs = list((tmp_path / "d" / PIPELINE_LOGS).iterdir())
     assert seen[0] == "line 0" and len(logs) == 1 and logs[0].read_text().startswith(f"# {stage}\n$ ")
     assert not (tmp_path / "benchmark" / "pipeline.log").exists()
 
@@ -42,11 +42,11 @@ def test_a_run_keeps_every_pipeline_call_in_its_own_transcript(bench_root, tmp_p
     config = tmp_path / "c.yaml"
     monkeypatch.setattr(benchmark_runner, "run_id", lambda: "r1")
     run_pipeline(config, tmp_path / "benchmark", "configure", bench_root, echo=None, device=tmp_path / "d")
-    first = (tmp_path / "d" / rd.PIPELINE_LOGS / "r1.log").read_text().count("\n")
+    first = (tmp_path / "d" / PIPELINE_LOGS / "r1.log").read_text().count("\n")
     monkeypatch.setenv("FAKE_EXIT", "3")
-    with pytest.raises(Halt, match=rf"full log {tmp_path / 'd' / rd.PIPELINE_LOGS / 'r1.log'}:{first + 1};"):
+    with pytest.raises(Halt, match=rf"full log {tmp_path / 'd' / PIPELINE_LOGS / 'r1.log'}:{first + 1};"):
         run_pipeline(config, tmp_path / "benchmark", "bench", bench_root, echo=None, device=tmp_path / "d")
-    assert (tmp_path / "d" / rd.PIPELINE_LOGS / "r1.log").read_text().splitlines()[first] == "# bench"
+    assert (tmp_path / "d" / PIPELINE_LOGS / "r1.log").read_text().splitlines()[first] == "# bench"
 
 
 def test_runner_failure_carries_the_tail(bench_root, tmp_path, monkeypatch):

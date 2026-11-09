@@ -4,6 +4,7 @@ from __future__ import annotations
 from collections import Counter
 from pathlib import Path
 
+from cryptobench.paths import AppTree, GroupingTree, RunTree
 from .. import run_dir as rd
 from ..dto.benchmark_coverage import CODED, Coverage
 from ..dto.bundled import APPLY, BundledPolicy, Suggestions
@@ -31,7 +32,7 @@ from ..dto.run_log import RunLog
 from ..dto.shipped import shipped, shipped_names
 from ..dto.used import UsedSet
 from ..files import read_json
-from ..run_dir import AppPaths, GroupingPaths, read_sites
+from ..run_dir import read_sites
 from ..stop import CODES
 from ..stop.codes import STOP
 from ..stop.policy import action
@@ -53,12 +54,12 @@ def _primitive(engine_type: str, algorithm: str | None) -> str:
 
 
 def _sites(device: Path, app: str) -> list[dict]:
-    path = AppPaths(device, app).sites
+    path = AppTree(device, app).sites
     return read_sites(path)["sites"] if path.is_file() else []
 
 
 def _facts(device: Path, app: str) -> dict:
-    path = AppPaths(device, app).facts
+    path = AppTree(device, app).facts
     return read_json(path) if path.is_file() else {}
 
 
@@ -91,7 +92,7 @@ def _rows(sites: list[dict], app: str, facts: dict, reason: str, how: str, step)
 
 
 def _no_item_rows(device: Path, app: str, sites: list[dict], facts: dict) -> list[MissingRow]:
-    items = GroupingPaths(device).items
+    items = GroupingTree(device).items
     if not items.is_file():
         return []
     held = {i.qualified for i in read_items(read_json(items))}
@@ -144,7 +145,7 @@ def not_screened_rows(device: Path, names: tuple[str, ...], apps: list[str]) -> 
 
 def measured_rows(device: Path, app: str) -> list[MissingRow]:
     """A site's item the run log says was never measured: skipped, not runnable, or planned with no samples."""
-    path = Path(device) / rd.RUN_LOG
+    path = RunTree(device).run_log
     if not path.is_file():
         return []
     entries = RunLog.from_json(read_json(path)).entries
@@ -161,7 +162,7 @@ def variant_rows(device: Path, app: str, no_options: list[dict]) -> list[Missing
     ids = {n["scope"] for n in no_options if n["reason"] == VARIANT_NOT_MEASURED}
     if not ids:
         return []
-    scopes = rd.read_scopes(AppPaths(device, app).scopes)["scopes"]
+    scopes = rd.read_scopes(AppTree(device, app).scopes)["scopes"]
     named = Counter((s["engineType"], s.get("algorithm"), s.get("provider")) for s in scopes if s["id"] in ids)
     return [MissingRow(_primitive(engine, algorithm), provider, VARIANT_NOT_MEASURED, (app,), n, SKIPPED, (), VARIANT_NEXT)
             for (engine, algorithm, provider), n in named.items()]

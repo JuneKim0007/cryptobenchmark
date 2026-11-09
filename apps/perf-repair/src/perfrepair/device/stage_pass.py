@@ -5,6 +5,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field, replace
 from pathlib import Path
 
+from cryptobench.paths import GroupingTree, RunTree
 from .. import run_dir as rd
 from ..data_handler.inbound import RunContext, read_manifest
 from ..dto.bundled import entries_digest
@@ -12,7 +13,6 @@ from ..dto.event import END
 from cryptobench.catalogue.grouping import read_items
 from ..files import read_json
 from ..log import emit, step
-from ..run_dir import GroupingPaths
 from .bundled import check_bundled
 from .bundled_config import bundled_config, configured
 from .plan import STAGES, Seen, mapped_inputs, plan
@@ -33,7 +33,7 @@ def _probe_current(r: Run, steps: dict, base: Path) -> dict:
     # a host probe never holds them, whatever the base lists: probing again could not change that
     if not r.on_device:
         return steps
-    harness = RunContext.load(r.folder / rd.MANIFEST).probe.harness_artifacts()
+    harness = RunContext.load(RunTree(r.folder).manifest).probe.harness_artifacts()
     if set(harness.values()) == set(configured(base)):
         return steps
     rd.drop_device_record(r.folder)
@@ -43,7 +43,7 @@ def _probe_current(r: Run, steps: dict, base: Path) -> dict:
 
 def _measured_set(r: Run, keep: frozenset[str], base: Path) -> Path:
     with step("device", "selection") as s:
-        paths = GroupingPaths(r.folder)
+        paths = GroupingTree(r.folder)
         items = read_items(read_json(paths.items))
         rules = exclusions(items, rd.load_screen(paths), keep)
         adds = includes(items, keep, not_runnable(r.folder))
@@ -106,7 +106,7 @@ def scoped_pass(r: Run, before: Seen, current: dict, refresh: bool, detect: Call
     base = bundled_config(r.config, r.folder, entries)
     steps = _probe_current(r, steps, base)
     used = write_used(r.folder, apps)
-    manifest, _ = read_manifest(r.folder / rd.MANIFEST)
+    manifest, _ = read_manifest(RunTree(r.folder).manifest)
     lack = lacking(before.record, mapped_inputs(manifest.inputs, before.record).get("config"), current["config"])
     changed = APPLIED_CHANGED if applied != before.applied else None
     forced = lack or changed

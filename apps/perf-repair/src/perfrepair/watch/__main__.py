@@ -6,7 +6,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from .. import run_dir as rd
+from cryptobench.paths import RunTree
 from ..log.watch import watch
 
 
@@ -17,7 +17,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--interval", type=float, default=0.5, help="seconds between polls; default 0.5")
     a = ap.parse_args(argv)
     try:
-        return watch(a.device_results.expanduser() / rd.EVENTS, a.from_start, sys.stdout, sys.stdout.isatty(), a.interval)
+        return watch(RunTree(a.device_results.expanduser()).log.events, a.from_start, sys.stdout, sys.stdout.isatty(), a.interval)
     except KeyboardInterrupt:
         print(file=sys.stdout)
         return 130

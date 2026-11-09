@@ -8,6 +8,7 @@ from pathlib import Path
 
 import yaml
 
+from cryptobench.paths import AppTree, RunTree
 from ..app.facts.path_id import absolute, app_id
 from ..dto.replacement import Replacement, read_replacements
 from ..dto.site import Scope
@@ -15,7 +16,6 @@ from ..dto.unit import read_units
 from ..dto.upgrade import UPGRADED
 from ..files import read_json, write_json, write_text
 from .. import run_dir as rd
-from ..run_dir import AppPaths
 from ..config.args import add_config_arg, load_settings, perf_mode
 from ..config.device_results import add_device_results_arg, fill_device_results
 from ..log import attach, step
@@ -58,7 +58,7 @@ def _dossier(ap: argparse.ArgumentParser, a: argparse.Namespace) -> None:
             max_change=a.max_change)
 
 
-def _load(paths: AppPaths) -> tuple[dict[str, Scope], dict[str, Replacement]]:
+def _load(paths: AppTree) -> tuple[dict[str, Scope], dict[str, Replacement]]:
     scopes = {s["id"]: Scope.from_json(s) for s in rd.read_scopes(paths.scopes)["scopes"]}
     replacements = read_replacements(read_json(paths.replacements))
     # an upgraded broken use is applied like a replace; replacements.json holds its static keep
@@ -72,7 +72,7 @@ def _report(path: Path, problems: list[str]) -> int:
 
 
 def _edit(_ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
-    paths = AppPaths(a.device_results, a.app)
+    paths = AppTree(a.device_results, a.app)
     scopes, replacements = _load(paths)
     with step("repair", "edit", app=a.app) as s:
         doc = edit_app(scopes, list(replacements.values()), a.source, paths, load_specs(), read_units(read_json(paths.units)))
@@ -90,13 +90,13 @@ def _edit(_ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
 
 
 def _harness(_ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
-    paths = AppPaths(a.device_results, a.app)
+    paths = AppTree(a.device_results, a.app)
     scopes, replacements = _load(paths)
     edits = rd.read_edits(paths.edits)
     doc = rd.read_dossiers(paths.dossiers)
     dossiers = {d["scope"]["id"]: d for d in doc["dossiers"] + doc["upgrades"]}
     with step("repair", "harness", app=a.app) as s:
-        doc = harness(paths, scopes, replacements, edits, dossiers, read_effective(a.device_results / rd.MANIFEST),
+        doc = harness(paths, scopes, replacements, edits, dossiers, read_effective(RunTree(a.device_results).manifest),
                       read_units(read_json(paths.units)), frozenset(r["scope"]["id"] for r in doc["upgrades"]))
         problems = validate_harness(doc, a.app, paths.root, edits)
         if problems:

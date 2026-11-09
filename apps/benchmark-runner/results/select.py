@@ -5,13 +5,9 @@ from failure import fail
 from cryptobench import paths
 
 
-def device_folders(root):
-    return paths.Results(root).devices()
-
-
 def device_folder(root, wanted=None):
     root = pathlib.Path(root)
-    found = device_folders(root)
+    found = paths.Results(root).devices()
     if wanted and wanted not in found:
         fail(f"device_not_in_results: {wanted}; {root} holds {found}")
     if not wanted and not found:

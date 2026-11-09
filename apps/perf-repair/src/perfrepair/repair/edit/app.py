@@ -8,13 +8,13 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from cryptobench.paths import AppTree
 from ...dto.event import FINDING
 from ...dto.replacement import Replacement
 from ...dto.site import EDITS_SCHEMA_VERSION, Scope
 from ...dto.unit import Unit, units_by_scope
 from ...files import write_text_making_parents
 from ...log import emit
-from ...run_dir import AppPaths
 from ...source.code import Code
 from .alone import write_alone
 from .plan import language, plan
@@ -101,7 +101,7 @@ def _rejected(scope_id: str, rejected: dict[str, str]) -> dict:
             "blockedBy": f"{first}: {rejected[first]}"}
 
 
-def edit_app(scopes: dict[str, Scope], replacements: list[Replacement], root: Path, out: AppPaths,
+def edit_app(scopes: dict[str, Scope], replacements: list[Replacement], root: Path, out: AppTree,
              table: Table, units: list[Unit]) -> dict:
     chosen = sorted((r for r in replacements if r.decision == "replace"), key=lambda r: r.scope)
     _refused(chosen, scopes, out.app)

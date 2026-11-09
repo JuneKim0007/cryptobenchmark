@@ -7,7 +7,8 @@ from pathlib import Path
 
 import yaml
 
-from .. import run_dir as rd
+from cryptobench.paths import RunTree
+from cryptobench.paths import PRIMITIVES_MISSING
 from ..dto.event import FINDING
 from ..dto.primitives_missing import MissingRow, missing_document, pointer_line
 from ..files import write_text_making_parents
@@ -24,7 +25,7 @@ class MissingList:
 
     @property
     def path(self) -> Path | None:
-        return self.device / rd.PRIMITIVES_MISSING if self.device else None
+        return RunTree(self.device).log.primitives_missing if self.device else None
 
     def open(self, device: Path) -> None:
         """The folder is known: a clean run ends on an empty list, never on the last run's."""
@@ -48,7 +49,7 @@ class MissingList:
         if self.device is None:
             return
         doc = missing_document(run_id(), self.rows())
-        require(rd.PRIMITIVES_MISSING, validate_missing(doc))
+        require(PRIMITIVES_MISSING, validate_missing(doc))
         write_text_making_parents(self.path, yaml.safe_dump(doc, sort_keys=False))
 
     def _point(self) -> None:
@@ -56,7 +57,7 @@ class MissingList:
         if self._pointed or self.device is None or not self.rows():
             return
         self._pointed = True
-        emit("device", "primitives_missing", FINDING, detail=pointer_line(self.path), ref=rd.PRIMITIVES_MISSING,
+        emit("device", "primitives_missing", FINDING, detail=pointer_line(self.path), ref=PRIMITIVES_MISSING,
              data={"pointer": True})
 
     def announce(self, echo: Callable[[str], None]) -> None:

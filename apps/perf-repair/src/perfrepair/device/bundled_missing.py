@@ -5,16 +5,17 @@ from __future__ import annotations
 from collections import Counter
 from pathlib import Path
 
+from cryptobench.paths import AppTree
 from ..dto.bundled import Coordinate, MissingProvider
 from ..dto.dossier import NOT_ON_DEVICE
 from ..dto.shipped import shipped as app_shipped
 from ..files import read_json
-from ..run_dir import AppPaths, read_sites
+from ..run_dir import read_sites
 
 
 def _app_needs(device: Path, app: str) -> tuple[dict[str, list[tuple[str, str | None]]], Counter]:
     """Per provider name the app ships: its (artifact, pinned version); and per provider its not_on_device sites."""
-    paths = AppPaths(device, app)
+    paths = AppTree(device, app)
     shipped: dict[str, list[tuple[str, str | None]]] = {}
     facts = read_json(paths.facts) if paths.facts.is_file() else {}
     for s in app_shipped(facts):

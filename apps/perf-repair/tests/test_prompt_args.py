@@ -2,12 +2,12 @@ from pathlib import Path
 
 import pytest
 
+from cryptobench.paths import GroupingTree
 from perfrepair.ai.parse.grouping_assign.kind import charter as assign_charter
 from perfrepair.ai.runtime.engine.outbox import active_fingerprint
 from perfrepair.ai.runtime.prompt import PromptLibrary
 from perfrepair.data_handler.inbound.__main__ import main as inbound
 from perfrepair.grouping.__main__ import main as grouping
-from perfrepair.run_dir import GroupingPaths
 from helpers import with_results
 
 F = Path(__file__).parent / "fixtures" / "results" / "test-api36-00000000" / "manifest.yaml"
@@ -41,11 +41,11 @@ def test_a_typo_file_exits_2_before_any_work(run, tmp_path, capsys):
         grouping(["assign", "--device-results", str(run), *DRY, "--prompts", str(typo)])
     assert exit_.value.code == 2
     assert "error: prompt_unknown" in capsys.readouterr().err
-    assert sorted(p.name for p in GroupingPaths(run).root.iterdir()) == ["items.json", "profiles.json", "screen.json"]
+    assert sorted(p.name for p in GroupingTree(run).root.iterdir()) == ["items.json", "profiles.json", "screen.json"]
 
 
 def test_assign_with_an_override_decides_into_a_new_outbox_beside_the_default(run, tmp_path):
-    root = GroupingPaths(run).root
+    root = GroupingTree(run).root
     assert grouping(["assign", "--device-results", str(run), *DRY]) == 0
     default = active_fingerprint(root)
     assert default == assign_charter(PromptLibrary.load()).fingerprint

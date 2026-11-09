@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from .. import run_dir as rd
+from cryptobench.paths import RunTree
 from ..dto.bundled import applied_entries
 from ..files import read_yaml
 from ..stop.halt import Coded
@@ -22,20 +22,20 @@ def configured(base: Path) -> frozenset[str]:
 
 
 def last_applied(folder: Path) -> list[dict]:
-    path = Path(folder) / rd.BUNDLED_SUGGESTIONS
+    path = RunTree(folder).bundled_suggestions
     return applied_entries(read_yaml(path)) if path.is_file() else []
 
 
 def harness_config(device: Path, chosen: Path | None, app_folder: Path) -> Path | None:
     """chosen: --harness-config; unset, the device stage's own bundled-global.yaml already holds the entries."""
-    made = Path(device) / rd.BUNDLED_CONFIG
+    made = RunTree(device).bundled_config
     if not made.is_file():
         return chosen
     return bundled_config(chosen, app_folder, last_applied(device)) if chosen else made
 
 
 def bundled_config(base: Path, folder: Path, entries: list[dict]) -> Path:
-    path = Path(folder) / rd.BUNDLED_CONFIG
+    path = RunTree(folder).bundled_config
     if not entries:
         path.unlink(missing_ok=True)
         return Path(base)

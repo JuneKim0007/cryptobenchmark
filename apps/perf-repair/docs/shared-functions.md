@@ -58,10 +58,8 @@
 | `operations(scope)` | `src/perfrepair/result/configurations.py` | The operations the lifecycle performs; empty, meaning every one, when it does not know. | ai.select.rows, result.options, result.upgrades |
 | `by_change(estimates, change)` | `src/perfrepair/result/gain.py` | The metrics with an estimate of this change, in estimate order, each once. | ai.select.options, ai.select.unit_candidates, ai.select.units |
 | `option_label(estimates)` | `src/perfrepair/result/gain.py` | `label_of([change_of(e.ratio, e.pImprove) for e in estimates])` | ai.select.options, ai.select.upgrade_render, review.sheet |
-| `app_dirs(device)` | `src/perfrepair/run_dir/layout.py` | Device-level folders sit beside the apps, so an app's folder is the one holding app.json. | app.facts.path_id, check.apps, check.run, guide.device_steps +4 |
-| `device_folders(root)` | `src/perfrepair/run_dir/layout.py` | The finished devices of a results root: a folder without a manifest is a run that did not end. | config.device_results |
-| `load_measurements(device)` | `src/perfrepair/run_dir/read.py` | `Measurements.from_json(read_json(Path(device) / MEASUREMENTS))` | ai.select.units, check.device, device.delta, device.measured_check +3 |
-| `load_rows(device)` | `src/perfrepair/run_dir/read.py` | `[PrimitiveRow.from_json(r) for r in read_versioned(ROWS_DOC, Path(device) / ROWS)['rows']]` | check.run, device.measured_check, device.primitives, device.seen +1 |
+| `load_measurements(device)` | `src/perfrepair/run_dir/read.py` | `Measurements.from_json(read_json(RunTree(device).measurements))` | ai.select.units, check.device, device.delta, device.measured_check +3 |
+| `load_rows(device)` | `src/perfrepair/run_dir/read.py` | `[PrimitiveRow.from_json(r) for r in read_versioned(ROWS_DOC, RunTree(device).rows)['rows']]` | check.run, device.measured_check, device.primitives, device.seen +1 |
 | `load_screen(paths)` | `src/perfrepair/run_dir/read.py` | `read_screen(read_json(paths.screen)) if paths.screen.exists() else None` | check.grouping, check.run, device.primitives, device.stage_pass +2 |
 | `load_screen_catalog(paths)` | `src/perfrepair/run_dir/read.py` | `read_screen_catalog(read_json(paths.screen)) if paths.screen.exists() else None` | check.grouping, guide.device_steps, repair.dossier |
 | `load_upgrades(path)` | `src/perfrepair/run_dir/read.py` | What each broken use became; none before the upgrade step ran. | guide.app_steps, repair.__main__, report.app_report |

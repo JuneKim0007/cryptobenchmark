@@ -3,9 +3,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from cryptobench.paths import AppTree, GroupingTree, RunTree
+from cryptobench.paths import APP_REPORT, ROWS, SUMMARY
 from .. import run_dir as rd
 from ..files import read_json
-from ..run_dir import GroupingPaths
 from ..screen.catalog import Catalog
 from ..validation.grouping.output import read_groups
 from ..validation.app import validate_app_dir
@@ -22,24 +23,24 @@ from .grouping import check_grouping, check_screen
 
 def validate_run(run: Path, catalog: Catalog) -> dict[str, list[str]]:
     run, out = Path(run), {}
-    if not (run / rd.ROWS).is_file():
-        return {rd.ROWS: [f"missing: {run / rd.ROWS}"]}
+    if not (RunTree(run).rows).is_file():
+        return {ROWS: [f"missing: {RunTree(run).rows}"]}
     rows = parsed(rd.load_rows, run)
     if isinstance(rows, str):
-        return {rd.ROWS: [rows]}
-    out[rd.ROWS] = validate_rows(rows)
+        return {ROWS: [rows]}
+    out[ROWS] = validate_rows(rows)
     out |= check_beside_rows(run, rows)
     out |= check_manifest(run) | check_details(run) | check_repair(run)
     out |= check_charters(run) | check_events(run) | check_suggestions(run)
     reports = []
-    for directory in rd.app_dirs(run):
+    for directory in RunTree(run).apps():
         out |= validate_app_dir(directory)
-        if (directory / rd.REPORT).is_file():
-            reports.append(read_json(directory / rd.REPORT))
-            out[f"{directory.name}/{rd.REPORT}"] = validate_report(reports[-1], directory.name)
-    if (run / rd.SUMMARY).is_file():
-        out[rd.SUMMARY] = validate_summary(read_json(run / rd.SUMMARY), reports)
-    grouping = GroupingPaths(run)
+        if (AppTree.at(directory).report).is_file():
+            reports.append(read_json(AppTree.at(directory).report))
+            out[f"{directory.name}/{APP_REPORT}"] = validate_report(reports[-1], directory.name)
+    if (RunTree(run).summary).is_file():
+        out[SUMMARY] = validate_summary(read_json(RunTree(run).summary), reports)
+    grouping = GroupingTree(run)
     if grouping.items.exists():
         out["grouping"] = check_grouping(grouping)
         out |= check_screen(grouping, catalog) | check_used(run, grouping)

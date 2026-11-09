@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from cryptobench.paths import AppTree
 from ..files import read_yaml
-from ..run_dir import AppPaths
 from ..stop.halt import Coded
 
 
@@ -15,7 +15,7 @@ class DeviceCheck:
     plan: dict[str, dict] = field(default_factory=dict)
 
 
-def read_device_check(paths: AppPaths, harness_ids: list[str]) -> DeviceCheck:
+def read_device_check(paths: AppTree, harness_ids: list[str]) -> DeviceCheck:
     if not paths.scoped_plan.is_file():
         return DeviceCheck(f"no_device_run: {paths.scoped_plan.relative_to(paths.root)} absent")
     plan = {r["id"]: r for r in read_yaml(paths.scoped_plan).get("scopes") or []}

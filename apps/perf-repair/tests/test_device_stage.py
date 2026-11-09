@@ -4,6 +4,8 @@ from pathlib import Path
 import pytest
 import yaml
 
+from cryptobench.paths import RunTree
+from cryptobench.paths import PRIMITIVES
 from perfrepair import run_dir as rd
 from perfrepair.catalog.screening import SCREENING
 from perfrepair.check.run import validate_run
@@ -13,7 +15,6 @@ from perfrepair.device.stage_pass import DEVICE_PROBES
 from perfrepair.device.stage import probe_device
 from perfrepair.dto.event import END
 from perfrepair.dto.metrics import TIME
-from perfrepair.run_dir import METRICS_CONFIG
 from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.screen.catalog import load_catalog, screening_catalog
 from perfrepair.config.load import load
@@ -64,14 +65,14 @@ def test_the_primitives_table_is_written_and_recorded_with_its_input_digests(set
     root, config = setup
     done = device(root, config)
     record, _ = rd.load_device_record(done.folder)
-    assert (done.folder / rd.PRIMITIVES).read_text().startswith("#schemaVersion\t3\ntype\talgorithm\t")
+    assert (RunTree(done.folder).primitives).read_text().startswith("#schemaVersion\t3\ntype\talgorithm\t")
     assert set(record.primitives) == {"rows", "measurements", "screen"} and all(record.primitives.values())
 
 
 def test_a_hand_edited_measurements_json_rebuilds_only_the_table(setup):
     root, config = setup
     first = device(root, config)
-    path = first.folder / rd.MEASUREMENTS
+    path = RunTree(first.folder).measurements
     path.write_text(path.read_text().replace('"comparability": [', '"comparability": ["edited", ', 1))
     done = device(root, config)
     assert done.ran == ["primitives"]
@@ -82,9 +83,9 @@ def test_refresh_rebuilds_only_the_table_and_a_record_without_its_digests_does_t
     first = device(root, config)
     done = device(root, config, refresh=True)
     assert done.ran == ["primitives"] and len(runs(root)) == 1
-    record = yaml.safe_load((first.folder / rd.DEVICE).read_text())
+    record = yaml.safe_load((RunTree(first.folder).device).read_text())
     del record["primitives"]
-    (first.folder / rd.DEVICE).write_text(yaml.safe_dump(record))
+    (RunTree(first.folder).device).write_text(yaml.safe_dump(record))
     done = device(root, config)
     assert done.ran == ["primitives"]
 
@@ -92,17 +93,17 @@ def test_refresh_rebuilds_only_the_table_and_a_record_without_its_digests_does_t
 def test_the_folder_validator_checks_the_table_against_its_inputs(setup):
     root, config = setup
     first = device(root, config)
-    assert validate_run(first.folder, screening_catalog(None))[rd.PRIMITIVES] == []
-    path = first.folder / rd.PRIMITIVES
+    assert validate_run(first.folder, screening_catalog(None))[PRIMITIVES] == []
+    path = RunTree(first.folder).primitives
     lines = path.read_text().splitlines()
     path.write_text("\n".join(lines[:-1]) + "\n")
-    assert validate_run(first.folder, screening_catalog(None))[rd.PRIMITIVES][0].endswith(": missing")
+    assert validate_run(first.folder, screening_catalog(None))[PRIMITIVES][0].endswith(": missing")
 
 
 def test_a_table_in_an_older_schema_is_rebuilt_alone(setup):
     root, config = setup
     first = device(root, config)
-    path = first.folder / rd.PRIMITIVES
+    path = RunTree(first.folder).primitives
     path.write_text(path.read_text().replace("#schemaVersion\t3", "#schemaVersion\t2", 1))
     done = device(root, config)
     assert done.ran == ["primitives"]
@@ -137,7 +138,7 @@ def test_an_edited_screening_catalog_rescreens_only(setup, tmp_path):
 def test_measurements_of_an_older_schema_rerun_inbound_without_a_device_run(setup):
     root, config = setup
     first = device(root, config)
-    path = first.folder / rd.MEASUREMENTS
+    path = RunTree(first.folder).measurements
     path.write_text(path.read_text().replace('"schemaVersion": 4', '"schemaVersion": 3'))
     done = device(root, config)
     assert done.ran == ["inbound", "primitives"] and len(runs(root)) == 1
@@ -178,7 +179,7 @@ def test_an_interrupted_benchmark_leaves_no_record_and_the_next_call_runs_it_all
     monkeypatch.setenv("FAKE_INTERRUPT", "1")
     with pytest.raises(Halt, match="^pipeline_failed: "):
         device(root, config)
-    assert not (first.folder / rd.DEVICE).exists() and not (first.folder / rd.MANIFEST).exists()
+    assert not (RunTree(first.folder).device).exists() and not (RunTree(first.folder).manifest).exists()
     monkeypatch.delenv("FAKE_INTERRUPT")
     done = device(root, config)
     assert done.ran == ALL_RAN
@@ -194,7 +195,7 @@ def test_an_interrupted_grouping_build_leaves_no_record_claiming_it(setup, monke
     monkeypatch.setattr(stage_run, "build_stage", lost)
     with pytest.raises(KeyboardInterrupt):
         device(root, config)
-    assert not (first.folder / rd.DEVICE).exists()
+    assert not (RunTree(first.folder).device).exists()
     monkeypatch.undo()
     done = device(root, config)
     assert done.ran == ["inbound", "screen", "primitives"]
@@ -220,7 +221,7 @@ def _probe(root, config, perf, on_device=False):
 
 
 def _measured_metrics(made):
-    generated = made.folder / METRICS_CONFIG
+    generated = RunTree(made.folder).metrics_config
     return yaml.safe_load(generated.read_text())["run"]["metrics"] if generated.is_file() else None
 
 
@@ -309,7 +310,7 @@ def test_what_the_config_would_refuse_beside_the_metrics_goes_too(setup, tmp_pat
     _with_run(config, "run: {metrics: [TIME, ALLOCATION], passes: {timing: {samples: 3}, allocation: {samples: 2}}, "
                       "harness: {energy: {capture: measured}}}\n")
     made = _probe(root, config, "generic")
-    run = yaml.safe_load((made.folder / METRICS_CONFIG).read_text())["run"]
+    run = yaml.safe_load((RunTree(made.folder).metrics_config).read_text())["run"]
     assert run["metrics"] == ["TIME"] and list(run["passes"]) == ["timing"] and run["harness"]["energy"]["capture"] == "none"
 
 

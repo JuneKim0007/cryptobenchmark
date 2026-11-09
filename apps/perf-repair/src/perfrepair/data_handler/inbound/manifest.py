@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from cryptobench.paths import RunTree
 from ... import run_dir as rd
 from ...dto import BenchmarkManifest
 from ...dto.units import DisplayUnits
@@ -30,5 +31,5 @@ def manifest_file(manifest: BenchmarkManifest, base: Path, key: str) -> Path | N
 
 def display_units(device: Path) -> DisplayUnits:
     """The units every view of this device folder shows; a folder without a manifest (a test, a hand-made one) the defaults."""
-    path = Path(device) / rd.MANIFEST
+    path = RunTree(device).manifest
     return read_manifest(path)[0].units if path.is_file() else DisplayUnits()

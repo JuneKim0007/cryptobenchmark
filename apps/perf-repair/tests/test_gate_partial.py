@@ -6,7 +6,7 @@ from dataclasses import replace
 import pytest
 import yaml
 from helpers import summary
-from perfrepair import run_dir as rd
+from cryptobench.paths import RunTree
 from perfrepair.device.delta import _drift
 from perfrepair.device.delta_config import narrowed, write_delta_config
 from perfrepair.device.delta_merge import merge_delta
@@ -41,7 +41,7 @@ def test_a_partial_case_gets_only_its_missing_metric_and_keeps_its_samples(devic
     before = {c["id"]: c for c in read_json(device / "benchmark/benchmark.json")["cases"]}
     (coverage, merged), _ = gate(device, GCM_SLOW, perf=GENERIC_MODE)
     assert merged and coverage.items() == {GCM_SLOW: MEASURED}
-    manifest = read_yaml(device / rd.MANIFEST)
+    manifest = read_yaml(RunTree(device).manifest)
     after = {c["id"]: c for c in read_json(device / manifest["files"]["benchmark"])["cases"]}
     assert after["g_slow"]["metrics"]["timeNs"] == before["g_slow"]["metrics"]["timeNs"]
     assert "allocationCount" in after["g_slow"]["metrics"] and after["g_fast"] == before["g_fast"]
@@ -111,9 +111,9 @@ def test_a_merge_takes_a_new_items_own_override_of_its_samples(device, tmp_path)
 
 def test_a_merge_takes_another_process_file_count_by_its_cases_samples(device, tmp_path):  # noqa: F811
     staged = staged_copy(device, tmp_path)
-    manifest = read_yaml(staged / rd.MANIFEST)
+    manifest = read_yaml(RunTree(staged).manifest)
     manifest["files"]["processes"] = ["benchmark/benchmark.json"]
-    (staged / rd.MANIFEST).write_text(yaml.safe_dump(manifest))
+    (RunTree(staged).manifest).write_text(yaml.safe_dump(manifest))
     with pytest.raises(Coded, match=r"unequal_samples: added\.\w+: per process"):
         merge_delta(device, staged, {"added"}, "s", "checked")
 

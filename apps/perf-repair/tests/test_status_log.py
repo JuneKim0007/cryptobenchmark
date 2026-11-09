@@ -6,8 +6,9 @@ from test_guide import F, _from_root
 from test_guide_targets import FAKE_ROOT, base  # noqa: F401  the guide over fake apps
 from test_stages import run  # noqa: F401  the recorded run, grouped
 
+from cryptobench.paths import RunTree
+from cryptobench.paths import PIPELINE_LOGS, STATUS_LOG
 from perfrepair import failure
-from perfrepair import run_dir as rd
 from perfrepair.app.facts.path_id import path_id
 from perfrepair.dto.event import BUG, END, ERROR, FINDING, RUN_END, RUN_START, Event
 from perfrepair.log import attach
@@ -80,8 +81,8 @@ def test_a_guide_run_renders_exactly_its_outcomes(base, logger, monkeypatch):  #
     monkeypatch.setenv("FAKE_FAIL_APP", path_id(b))
     attach()
     assert failure.reported(lambda: (attach(base.run_dir), base.go([a, b], device=True)[0])[1]) == 1
-    status = (base.run_dir / rd.STATUS_LOG).read_text().splitlines()
-    assert status == render(read_events(base.run_dir / rd.EVENTS))[rd.STATUS_LOG]
+    status = (RunTree(base.run_dir).log.status).read_text().splitlines()
+    assert status == render(read_events(RunTree(base.run_dir).log.events))[STATUS_LOG]
     last = status[max(n for n, line in enumerate(status) if line.startswith("run ")):]
     pa, pb = path_id(a), path_id(b)
     assert ": exit 1 (" in last[-1]
@@ -99,8 +100,8 @@ def test_a_first_run_whose_pipeline_fails_still_reports_it_in_the_device_folder(
     monkeypatch.setenv("FAKE_INTERRUPT", "1")
     code, _ = _from_root(tmp_path, capsys)
     device = tmp_path / "results" / "fake-api36-00000000"
-    status = (device / rd.STATUS_LOG).read_text().splitlines()
-    assert code == 1 and not (device / rd.MANIFEST).exists()
+    status = (RunTree(device).log.status).read_text().splitlines()
+    assert code == 1 and not (RunTree(device).manifest).exists()
     # one line for the failure: no `failed device probe`, no `prerequisites_failed` after it
     assert [line.split()[0] for line in status] == ["run", "pipeline_failed", "end"]
-    assert (device / f"{rd.PIPELINE_LOGS}/{status[0].split()[1]}.log").is_file()
+    assert (device / f"{PIPELINE_LOGS}/{status[0].split()[1]}.log").is_file()

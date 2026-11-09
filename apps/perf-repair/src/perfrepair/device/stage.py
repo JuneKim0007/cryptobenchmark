@@ -5,6 +5,7 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Callable
 
+from cryptobench.paths import RunTree
 from .. import run_dir as rd
 from cryptobench.catalogue.names import CATALOG
 from ..data_handler.inbound import read_manifest
@@ -55,12 +56,12 @@ def _reused(done: Pass, on_device: bool) -> dict:
 
 
 def _record(folder: Path, identity: dict, current: dict, done: Pass) -> None:
-    manifest, _ = read_manifest(folder / rd.MANIFEST)
+    manifest, _ = read_manifest(RunTree(folder).manifest)
     scoped = section(manifest.inputs.get("config"), done.keep) if done.keep else done.kept
     bundled = {"applied": done.applied, "bundled": manifest.inputs.get("bundled"),
                "config": manifest.inputs.get("config")} if done.applied else {}
     rd.write_device_record(folder, DeviceRecord(identity["deviceId"], identity["mode"], runtime_summary(manifest.runtime),
-                                                current, sha256_file(folder / rd.MANIFEST), primitive_inputs(folder), scoped,
+                                                current, sha256_file(RunTree(folder).manifest), primitive_inputs(folder), scoped,
                                                 bundled))
 
 

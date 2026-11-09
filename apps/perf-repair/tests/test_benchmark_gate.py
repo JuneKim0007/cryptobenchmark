@@ -6,6 +6,8 @@ from pathlib import Path
 import pytest
 import yaml
 from helpers import TIMING, with_results
+from cryptobench.paths import RunTree
+from cryptobench.paths import MANIFEST
 from perfrepair import run_dir as rd
 from perfrepair.device import delta_merge
 from perfrepair.device.delta_estimate import seconds_per_case
@@ -48,10 +50,10 @@ def device(tmp_path, monkeypatch):
     config = tmp_path / "global.yaml"
     config.write_text("schemaVersion: 1\nselection: {testSet: set.yaml}\nproviders: {bundled: []}\n")
     folder = with_results(tmp_path / "results" / FOLDER)
-    manifest = read_yaml(folder / rd.MANIFEST)
+    manifest = read_yaml(RunTree(folder).manifest)
     manifest.update(deviceId=FOLDER, config=str(config))
     del manifest["retried"]
-    (folder / rd.MANIFEST).write_text(yaml.safe_dump(manifest, sort_keys=False))
+    (RunTree(folder).manifest).write_text(yaml.safe_dump(manifest, sort_keys=False))
     # the recorded lost case's item: the probe holds it, so a delta's row has a verdict
     path = folder / manifest["files"]["probe"]
     probe = read_yaml(path)
@@ -65,7 +67,7 @@ def device(tmp_path, monkeypatch):
     inventory["providers"]["Slow"]["MessageDigest"] = {"SHA-256": {"runs": True}}
     (folder / manifest["files"]["inventory"]).write_text(yaml.safe_dump(inventory, sort_keys=False))
     write_inbound(folder)
-    build_stage(folder / rd.MANIFEST, folder, screening_catalog(None), echo=lambda _: None)
+    build_stage(RunTree(folder).manifest, folder, screening_catalog(None), echo=lambda _: None)
     return folder
 
 
@@ -96,8 +98,8 @@ def test_a_used_item_nothing_plans_is_never_planned(device):
 def test_a_planned_case_without_rows_is_lost_once_then_repeats(device):
     first = check(device, SHA_LOST)
     assert first.items() == {SHA_LOST: LOST} and first.gaps[0].case == "d_slow" and first.gaps[0].action == "delta"
-    manifest = read_yaml(device / rd.MANIFEST)
-    (device / rd.MANIFEST).write_text(yaml.safe_dump({**manifest, "retried": ["d_slow"]}, sort_keys=False))
+    manifest = read_yaml(RunTree(device).manifest)
+    (RunTree(device).manifest).write_text(yaml.safe_dump({**manifest, "retried": ["d_slow"]}, sort_keys=False))
     again = check(device, SHA_LOST)
     assert again.items() == {SHA_LOST: REPEATS} and again.delta() == () and again.gaps[0].action == "coded"
 
@@ -117,8 +119,8 @@ def test_a_metric_the_case_planned_and_lacks_is_partial(device):
 
 
 def test_the_operations_come_from_the_benchmarks_manifest(device):
-    manifest = read_yaml(device / rd.MANIFEST)
-    (device / rd.MANIFEST).write_text(yaml.safe_dump({**manifest, "operations": {"Cipher": ["ENCRYPT"]}}, sort_keys=False))
+    manifest = read_yaml(RunTree(device).manifest)
+    (RunTree(device).manifest).write_text(yaml.safe_dump({**manifest, "operations": {"Cipher": ["ENCRYPT"]}}, sort_keys=False))
     assert check(device, SHA).items() == {SHA: NO_OPERATION} and check(device, GCM).items() == {GCM: MEASURED}
 
 
@@ -143,16 +145,16 @@ def test_a_type_with_no_harness_operation_is_coded_from_the_harness_list(device)
 ])
 def test_a_setup_field_that_differs_is_named(device, field, edit):
     stored = fingerprint(device)
-    manifest, effective = read_yaml(device / rd.MANIFEST), read_yaml(device / "configuration/effective.yaml")
+    manifest, effective = read_yaml(RunTree(device).manifest), read_yaml(device / "configuration/effective.yaml")
     edit(manifest, effective)
-    (device / rd.MANIFEST).write_text(yaml.safe_dump(manifest))
+    (RunTree(device).manifest).write_text(yaml.safe_dump(manifest))
     (device / "configuration/effective.yaml").write_text(yaml.safe_dump(effective))
     assert any(line.startswith(f"{field}:") for line in differing(stored, fingerprint(device)))
 
 
 def test_a_new_bundled_provider_differs(device):
     stored = fingerprint(device)
-    path = device / read_yaml(device / rd.MANIFEST)["files"]["probe"]
+    path = device / read_yaml(RunTree(device).manifest)["files"]["probe"]
     probe = read_yaml(path)
     probe["providers"].append({"name": "New", "version": "1", "origin": "bundled", "artifact": "g:a:1", "services": []})
     path.write_text(yaml.safe_dump(probe))
@@ -177,12 +179,12 @@ def test_a_lost_case_is_measured_once_merged_and_the_benchmark_keeps_its_rows(de
     before = {c["id"] for c in read_json(device / "benchmark/benchmark.json")["cases"]}
     (coverage, merged), lines = gate(device, GCM, SHA_LOST)
     assert merged and coverage.items() == {GCM: MEASURED, SHA_LOST: MEASURED}
-    manifest = read_yaml(device / rd.MANIFEST)
+    manifest = read_yaml(RunTree(device).manifest)
     cases = {c["id"]: c for c in read_json(device / manifest["files"]["benchmark"])["cases"]}
     assert set(cases) == before | {"d_slow"} and cases["d_slow"]["session"] == manifest["deltas"][0]["session"]
     assert "session" not in cases["g_fast"] and any(line.startswith("delta:     ") for line in lines)
     assert {r.rowId: r.session for r in rd.load_rows(device)}["d_slow"] == manifest["deltas"][0]["session"]
-    doc = read_yaml(device / rd.BENCHMARK_COVERAGE)
+    doc = read_yaml(RunTree(device).log.benchmark_coverage)
     assert doc["attempts"] == {"used": 1} and doc["deltas"][0]["added"] == ["d_slow"] and doc["totals"]["gaps"] == 0
 
 
@@ -195,7 +197,7 @@ def test_on_gap_stop_measures_nothing_and_lists_every_gap(device):
     with pytest.raises(Halt) as e:
         gate(device, SHA_LOST, "KeyGenerator|HmacX|Fast", policy=GatePolicy(on_gap="stop"))
     assert e.value.code == "not_benchmarked" and "KeyGenerator|HmacX|Fast" in e.value.detail and SHA_LOST in e.value.detail
-    assert "deltas" not in read_yaml(device / rd.MANIFEST)
+    assert "deltas" not in read_yaml(RunTree(device).manifest)
 
 
 def test_a_coded_gap_alone_starts_no_delta_and_does_not_stop(device):
@@ -205,16 +207,16 @@ def test_a_coded_gap_alone_starts_no_delta_and_does_not_stop(device):
 
 def test_a_setup_that_differs_refuses_the_delta_naming_the_field_before_the_measuring_session(device, monkeypatch):
     monkeypatch.setenv("FAKE_FINGERPRINT", "another-build")
-    manifest = read_yaml(device / rd.MANIFEST)
+    manifest = read_yaml(RunTree(device).manifest)
     manifest["runtime"]["fingerprint"] = "the-stored-build"
-    (device / rd.MANIFEST).write_text(yaml.safe_dump(manifest, sort_keys=False))
-    before = (device / rd.MANIFEST).read_bytes()
+    (RunTree(device).manifest).write_text(yaml.safe_dump(manifest, sort_keys=False))
+    before = (RunTree(device).manifest).read_bytes()
     with pytest.raises(Halt) as e:
         gate(device, SHA_LOST)
     assert e.value.code == "setup_mismatch" and "runtime.fingerprint" in e.value.detail
-    assert (device / rd.MANIFEST).read_bytes() == before
+    assert (RunTree(device).manifest).read_bytes() == before
     # only the probe ran: its manifest lists no benchmark
-    assert "benchmark" not in read_yaml(device / "delta/results" / FOLDER / rd.MANIFEST)["files"]
+    assert "benchmark" not in read_yaml(device / "delta/results" / RunTree(FOLDER).manifest)["files"]
 
 
 def test_on_setup_mismatch_rerun_measures_the_whole_benchmark_with_the_gap_added(device, monkeypatch):
@@ -222,12 +224,12 @@ def test_on_setup_mismatch_rerun_measures_the_whole_benchmark_with_the_gap_added
     monkeypatch.setenv("FAKE_HEAL", "1")
     (coverage, merged), lines = gate(device, SHA_LOST, policy=GatePolicy(on_mismatch="rerun"))
     assert merged and coverage.items() == {SHA_LOST: MEASURED} and any("the whole benchmark" in line for line in lines)
-    manifest = read_yaml(device / rd.MANIFEST)
+    manifest = read_yaml(RunTree(device).manifest)
     assert manifest["runtime"]["fingerprint"] == "another-build" and manifest["deltas"][0]["rerun"] is True
 
 
 def test_the_estimate_ignores_a_delta_call_and_counts_the_whole_run(tmp_path):
-    logs = tmp_path / rd.PIPELINE_LOGS
+    logs = RunTree(tmp_path).log.pipeline
     logs.mkdir(parents=True)
     (logs / "a.log").write_text("# bench\n$ pipeline --results /r\ntook:      prepare and measure in 80.0s\n"
                                 "# bench\n$ pipeline --results /r/d/delta/results\ntook:      prepare and measure in 2.0s\n")
@@ -248,7 +250,7 @@ def test_anchors_that_drift_mark_the_delta_setup_drift_and_its_estimates_are_not
     assert merged and any("setup_drift" in line and "d_fast" in line for line in lines)
     rows = {r.rowId: r for r in rd.load_rows(device)}
     assert rows["d_slow"].drift and not rows["d_fast"].drift
-    assert read_yaml(device / rd.MANIFEST)["deltas"][0]["comparison"] == "setup_drift"
+    assert read_yaml(RunTree(device).manifest)["deltas"][0]["comparison"] == "setup_drift"
 
 
 def test_anchors_that_agree_leave_the_delta_undrifted(device, monkeypatch):
@@ -263,8 +265,8 @@ def test_a_delta_with_no_anchor_is_unchecked_and_says_why(device, monkeypatch):
     monkeypatch.setenv("FAKE_SELECT", "1")
     (_, merged), lines = gate(device, SHA_LOST)
     assert merged and any(line.startswith("device gate: unchecked:") and "no anchor" in line for line in lines)
-    assert read_yaml(device / rd.MANIFEST)["deltas"][0]["comparison"] == "unchecked"
-    assert read_yaml(device / rd.BENCHMARK_COVERAGE)["deltas"][0]["comparison"] == "unchecked"
+    assert read_yaml(RunTree(device).manifest)["deltas"][0]["comparison"] == "unchecked"
+    assert read_yaml(RunTree(device).log.benchmark_coverage)["deltas"][0]["comparison"] == "unchecked"
     assert any("unchecked" in line and "drifted, unchecked" in line for line in lines)
     rows = {r.rowId: r for r in rd.load_rows(device)}
     config = Config("digest", None, 1024, None)
@@ -276,13 +278,13 @@ def test_anchors_whose_cases_the_overrides_changed_leave_the_delta_unchecked(dev
     monkeypatch.setenv("FAKE_RENAME_CASES", "1")
     (_, merged), lines = gate(device, SHA, SHA_LOST)
     assert merged and any(line.startswith("device gate: unchecked:") and "overrides" in line for line in lines)
-    assert read_yaml(device / rd.MANIFEST)["deltas"][0]["comparison"] == "unchecked"
+    assert read_yaml(RunTree(device).manifest)["deltas"][0]["comparison"] == "unchecked"
 
 
 def test_a_delta_on_a_host_says_drift_is_unreliable_there(device, monkeypatch):
     monkeypatch.setenv("FAKE_HEAL", "1")
-    manifest = read_yaml(device / rd.MANIFEST)
-    (device / rd.MANIFEST).write_text(yaml.safe_dump({**manifest, "mode": "host"}, sort_keys=False))
+    manifest = read_yaml(RunTree(device).manifest)
+    (RunTree(device).manifest).write_text(yaml.safe_dump({**manifest, "mode": "host"}, sort_keys=False))
     lines = []
     benchmark_gate(device, "used", used(SHA, SHA_LOST), TIMING, GatePolicy(), False, lines.append, F / "device")
     assert any("drift is unreliable on a host" in line for line in lines if line.startswith("device gate (used): delta"))
@@ -308,11 +310,11 @@ def test_a_merge_refuses_an_id_the_benchmark_holds(device, tmp_path):
 
 
 def test_an_interrupted_merge_leaves_the_stored_benchmark_whole(device, tmp_path, monkeypatch):
-    before = {name: (device / name).read_bytes() for name in (rd.MANIFEST, "benchmark/benchmark.json", "preparation/prepared.yaml")}
+    before = {name: (device / name).read_bytes() for name in (MANIFEST, "benchmark/benchmark.json", "preparation/prepared.yaml")}
     real = delta_merge.write_text_making_parents
 
     def dies_at_the_switch(path, text):
-        if Path(path).name == rd.MANIFEST:
+        if Path(path).name == MANIFEST:
             raise KeyboardInterrupt
         return real(path, text)
     monkeypatch.setattr(delta_merge, "write_text_making_parents", dies_at_the_switch)

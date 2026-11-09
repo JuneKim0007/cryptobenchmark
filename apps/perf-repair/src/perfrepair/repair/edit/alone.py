@@ -5,10 +5,10 @@ from __future__ import annotations
 import shutil
 from collections import defaultdict
 
+from cryptobench.paths import AppTree
 from ...dto.site import Scope
 from ...dto.unit import Unit
 from ...files import write_text_making_parents
-from ...run_dir import AppPaths
 from .splice import Splice, apply
 
 
@@ -21,7 +21,7 @@ def _sharing(applied: dict[str, dict[str, list[Splice]]], units: dict[str, Unit]
 
 
 def write_alone(applied: dict[str, dict[str, list[Splice]]], units: list[Unit], scopes: dict[str, Scope],
-                text_of: dict[str, str], out: AppPaths) -> None:
+                text_of: dict[str, str], out: AppTree) -> None:
     """applied: per unit id, its splices per file; text_of: each edited file's original text."""
     shutil.rmtree(out.alone_root, ignore_errors=True)
     by_id = {u.id: u for u in units}

@@ -7,7 +7,8 @@ from typing import Callable
 
 import yaml
 
-from .. import run_dir as rd
+from cryptobench.paths import RunTree
+from cryptobench.paths import BUNDLED_SUGGESTIONS
 from ..catalog.bundled_providers import BUNDLED_PROVIDERS, BundledCatalog
 from ..data_handler.inbound import RunContext
 from ..dto.bundled import APPLY, OFF, BundledPolicy, Suggestions
@@ -27,12 +28,12 @@ CATALOG = f"catalog/{BUNDLED_PROVIDERS.name}"
 
 
 def _write(folder: Path, policy: BundledPolicy, found: Suggestions) -> Path | None:
-    path = Path(folder) / rd.BUNDLED_SUGGESTIONS
+    path = RunTree(folder).bundled_suggestions
     if policy.fromApps == OFF:
         path.unlink(missing_ok=True)
         return None
     doc = found.to_json(policy.fromApps, CATALOG)
-    require(rd.BUNDLED_SUGGESTIONS, validate_suggestions(doc))
+    require(BUNDLED_SUGGESTIONS, validate_suggestions(doc))
     return write_text(path, yaml.safe_dump(doc, sort_keys=False))
 
 
@@ -52,7 +53,7 @@ def check_bundled(folder: Path, apps: list[str], base: Path, policy: BundledPoli
     missing = missing or MissingList()
     in_base = configured(base)
     with step("device", "bundled") as s:
-        platform = RunContext.load(Path(folder) / rd.MANIFEST).probe.platform_providers()
+        platform = RunContext.load(RunTree(folder).manifest).probe.platform_providers()
         found = suggest(missing_set(folder, apps, platform, in_base if on_device else frozenset()), BundledCatalog.load(),
                         on_device and policy.fromApps == APPLY)
         written = _write(folder, policy, found)

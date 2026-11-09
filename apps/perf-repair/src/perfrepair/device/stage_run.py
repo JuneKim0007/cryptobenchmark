@@ -6,7 +6,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from .. import run_dir as rd
+from cryptobench.paths import RunTree
 from ..data_handler.outbound.benchmark_runner import run_pipeline
 from ..dto.bundled import BundledPolicy
 from ..dto.event import END
@@ -60,7 +60,7 @@ def _ran(stage: str, reason: str):
 def _screen(r: Run, steps: dict) -> None:
     if steps["screen"]:
         with _ran("screen", steps["screen"]):
-            build_stage(r.folder / rd.MANIFEST, r.folder, r.catalog, echo=r.echo)
+            build_stage(RunTree(r.folder).manifest, r.folder, r.catalog, echo=r.echo)
 
 
 def run_stages(r: Run, steps: dict) -> None:

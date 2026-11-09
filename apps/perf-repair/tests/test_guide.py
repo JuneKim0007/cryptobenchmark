@@ -11,7 +11,8 @@ from helpers import captured_events, first_candidate, guide_ends, with_results, 
 from repair_fixture import digests
 from test_stages import run  # noqa: F401  the recorded run, grouped
 
-from perfrepair import run_dir as rd
+from cryptobench.paths import AppTree, GroupingTree
+from cryptobench.paths import BENCHMARK_COVERAGE, EDITS, EVENTS, HARNESS, MANIFEST, PRIMITIVES_MISSING, REPLACEMENTS
 from perfrepair.__main__ import main as top
 from perfrepair.ai.parse.grouping_assign import command as assign_cmd
 from perfrepair.ai.parse.grouping_assign.kind import GroupingKind, charter
@@ -20,13 +21,11 @@ from perfrepair.ai.runtime.engine.decide import decide
 from perfrepair.ai.select.command import dry_run
 from perfrepair.ai.runtime.engine.outbox import active_outbox
 from perfrepair.files import read_json, write_json
-from perfrepair.run_dir import GroupingPaths
 from perfrepair.grouping.report.checks import report
 from perfrepair.guide.run import run_app, run_sequence
 from perfrepair.guide.device_steps import DEVICE_LEVEL
 from perfrepair.guide.state import Guide
 from helpers import LATENCY
-from perfrepair.run_dir import AppPaths
 from perfrepair.check.run import validate_run
 from perfrepair.validation.dossiers.parse import parse_dossiers
 from perfrepair.screen.catalog import screening_catalog
@@ -57,7 +56,7 @@ def first_option(run_dir, app_root=None):
     """A model that takes each item's first candidate; with app_root, it also shifts a unit's file by a line, so the edit
     can no longer find the call."""
     def answer(task, *_):
-        doc = read_json(AppPaths(run_dir, path_id(app_root or APP)).dossiers)
+        doc = read_json(AppTree(run_dir, path_id(app_root or APP)).dossiers)
         unit = next((u for u in parse_dossiers(doc, doc["app"])[0] if u.key == task.item), None)
         if app_root is not None and unit is not None:
             path = app_root / unit.dossiers[0].scope.file
@@ -132,12 +131,12 @@ def _damage_decision(path):
 
 
 @pytest.mark.parametrize("artifact, damage, problem", [
-    (lambda g: rd.MANIFEST, _damage_manifest, "does not exist"),
-    (lambda g: rd.PRIMITIVES_MISSING, _damage_yaml, "schemaVersion"),
-    (lambda g: rd.BENCHMARK_COVERAGE, _damage_yaml, "schemaVersion"),
-    (lambda g: f"{g.app_id}/{rd.REPLACEMENTS}", _damage_decision, "is not one of"),
-    (lambda g: f"{g.app_id}/{rd.EDITS}", _damage_json, "another"),
-    (lambda g: f"{g.app_id}/{rd.HARNESS}", _damage_yaml, "schema"),
+    (lambda g: MANIFEST, _damage_manifest, "does not exist"),
+    (lambda g: PRIMITIVES_MISSING, _damage_yaml, "schemaVersion"),
+    (lambda g: BENCHMARK_COVERAGE, _damage_yaml, "schemaVersion"),
+    (lambda g: f"{g.app_id}/{REPLACEMENTS}", _damage_decision, "is not one of"),
+    (lambda g: f"{g.app_id}/{EDITS}", _damage_json, "another"),
+    (lambda g: f"{g.app_id}/{HARNESS}", _damage_yaml, "schema"),
 ], ids=["manifest", "primitives_missing", "benchmark_coverage", "replacements", "edits", "harness"])
 def test_the_replay_checks_each_artifact_it_used_to_skip_and_finds_it_damaged(run, artifact, damage, problem):
     g = guide(run, ScriptedConversations(first_option(run)))
@@ -152,7 +151,7 @@ def test_a_malformed_repair_file_is_its_problem_in_the_replay(run):
     g = guide(run, ScriptedConversations(first_option(run)))
     assert run_steps(g, device=False) == 0
     (g.paths.replacements).write_text("[1]")
-    assert "does not parse" in validate_run(run, screening_catalog(None))[f"{g.app_id}/{rd.REPLACEMENTS}"][0]
+    assert "does not parse" in validate_run(run, screening_catalog(None))[f"{g.app_id}/{REPLACEMENTS}"][0]
 
 
 def test_a_failing_device_run_stops_with_its_code(run, monkeypatch):
@@ -165,7 +164,7 @@ def test_a_failing_device_run_stops_with_its_code(run, monkeypatch):
 
 
 def test_a_run_without_grouping_says_how_to_make_it(run):
-    shutil.rmtree(GroupingPaths(run).root)
+    shutil.rmtree(GroupingTree(run).root)
     g = guide(run, dry_run())
     assert run_steps(g, device=False) == 1
     assert stopped() == ("grouping", "missing_device_stage")
@@ -173,18 +172,18 @@ def test_a_run_without_grouping_says_how_to_make_it(run):
 
 @pytest.mark.usefixtures("asked_by_model")
 def test_a_named_folder_with_items_undecided_asks_them(run):
-    shutil.rmtree(GroupingPaths(run).root / "outbox")
+    shutil.rmtree(GroupingTree(run).root / "outbox")
     g = guide(run, dry_run())
     g = with_field(g, grouping_args=("--agent", "dry-run"))
     run_steps(g, device=False)
-    assert ("grouping", "ok", None) in ENDS and active_outbox(GroupingPaths(run).root).records()
+    assert ("grouping", "ok", None) in ENDS and active_outbox(GroupingTree(run).root).records()
 
 
 def test_a_named_folder_whose_groups_json_went_missing_is_rebuilt_with_no_call(run):
-    GroupingPaths(run).groups.unlink()
+    GroupingTree(run).groups.unlink()
     g = guide(run, ScriptedConversations(first_option(run)))
     assert run_steps(g, device=False) == 0
-    assert GroupingPaths(run).groups.is_file()
+    assert GroupingTree(run).groups.is_file()
 
 
 @pytest.mark.usefixtures("asked_by_model")
@@ -193,7 +192,7 @@ def test_singleton_groups_leave_no_options(tmp_path):
     from perfrepair.grouping.build.stage import build_stage
     assert inbound(["--device-results", str(with_results(tmp_path))]) == 0
     build_stage(RESULTS / "manifest.yaml", tmp_path, screening_catalog(None))
-    paths = GroupingPaths(tmp_path)
+    paths = GroupingTree(tmp_path)
     decide(GroupingKind(paths), charter(LIBRARY), assign_cmd.dry_run(), paths.root, echo=lambda _: None)
     report(paths)
     g = guide(tmp_path, dry_run())
@@ -241,7 +240,7 @@ def _from_root(tmp_path, capsys):
         (tmp_path / "global.yaml").write_text("schemaVersion: 1\nproviders: {bundled: []}\n")
     code = top(["guide", "--app", str(APP), "--agent", "dry-run", "--perf-mode", "latency,throughput", "--perfrepair-config", str(settings),
                 "--config", str(tmp_path / "global.yaml"), "--results-root", str(tmp_path / "results")])
-    events = [json.loads(e) for e in (tmp_path / "results" / "fake-api36-00000000" / rd.EVENTS).read_text().splitlines()]
+    events = [json.loads(e) for e in (tmp_path / "results" / "fake-api36-00000000" / EVENTS).read_text().splitlines()]
     last = [e for e in events if e["run"] == events[-1]["run"]]
     return code, {(e["stage"], e["step"], e["outcome"], e["data"].get("code")) for e in last if e["event"] in ("end", "finding")}
 

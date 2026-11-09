@@ -4,7 +4,7 @@ import json
 from helpers import QUIET, logged
 from test_engine import CHARTER, LabelKind, label_of
 
-from perfrepair import run_dir as rd
+from cryptobench.paths import RunTree
 from perfrepair.ai.runtime.agent.conversation import LifetimeGuarded
 from perfrepair.ai.runtime.agent.reply import AgentReply
 from perfrepair.ai.runtime.engine.decide import decide
@@ -31,7 +31,7 @@ def _events(tmp_path, **kw):
     attach()
     attach(tmp_path)
     decide(LabelKind(), CHARTER, Billed(), tmp_path / "role", where=Where("grouping", "assign"), **QUIET, **kw)
-    return read_events(tmp_path / rd.EVENTS)
+    return read_events(RunTree(tmp_path).log.events)
 
 
 def test_each_attempt_is_one_event_pointing_to_its_log_entry_with_no_text(tmp_path):

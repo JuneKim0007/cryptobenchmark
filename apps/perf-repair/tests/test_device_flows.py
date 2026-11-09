@@ -8,6 +8,7 @@ import pytest
 import yaml
 from helpers import model_calls
 
+from cryptobench.paths import AppTree, GroupingTree, RunTree
 from perfrepair import run_dir as rd
 from perfrepair.ai.runtime.engine.outbox import active_fingerprint
 from perfrepair.check.run import validate_run
@@ -16,7 +17,6 @@ from cryptobench.catalogue import groups as group_catalog_file
 from perfrepair.catalog import signature
 from perfrepair.app.facts.path_id import path_id
 from perfrepair.guide.command import main as guide
-from perfrepair.run_dir import GroupingPaths
 from perfrepair.screen.catalog import screening_catalog
 
 F = Path(__file__).parent / "fixtures"
@@ -41,7 +41,7 @@ class Flow:
         self.tmp, self.capsys = tmp_path, capsys
         self.root, self.global_yaml = tmp_path / "results", tmp_path / "global.yaml"
         self.device = self.root / FOLDER
-        self.paths = GroupingPaths(self.device)
+        self.paths = GroupingTree(self.device)
         self.global_yaml.write_text("schemaVersion: 1\nselection: {testSet: x.yaml}\nproviders: {bundled: []}\n")
         self.grouping = {}
         self.filter = False
@@ -174,7 +174,7 @@ def test_derived_files_deleted_are_rebuilt_with_no_call(flow):
 
 def test_a_deleted_device_yaml_keeps_the_measured_run_redoes_the_rest_and_asks_nothing(flow):
     flow.run()
-    (flow.device / rd.DEVICE).unlink()
+    (RunTree(flow.device).device).unlink()
     flow.run()
     assert flow.ended("benchmark")[0] == "reused" and flow.ended("inbound")[0] == "ran" and flow.device_runs() == 1
     assert flow.ended("grouping")[0] == "reused" and flow.calls() == OLD_ITEMS and flow.problems() == {}
@@ -222,7 +222,7 @@ def excluded(flow):
 
 
 def used(flow):
-    return {u["item"]: u["via"] for u in read_json(flow.device / rd.USED)["items"]}
+    return {u["item"]: u["via"] for u in read_json(RunTree(flow.device).used)["items"]}
 
 
 def test_filter_a_first_target_groups_and_measures_only_what_it_uses(scoped):
@@ -246,7 +246,7 @@ def test_filter_a_new_target_asks_only_its_new_items_and_reruns_no_benchmark_for
     run_targets(scoped, scoped.sha, scoped.hmac)
     # the used set grew by an item the preparation refused: a coded gap, no delta and no whole rerun
     assert scoped.calls() == 2 and scoped.device_runs() == 2 and scoped.ended("benchmark")[0] == "reused"
-    coverage = yaml.safe_load((scoped.device / rd.BENCHMARK_COVERAGE).read_text())
+    coverage = yaml.safe_load((RunTree(scoped.device).log.benchmark_coverage).read_text())
     assert coverage["items"][HMAC] == "refused" and coverage["totals"]["refused"] == 1
     assert scoped.ended("grouping") == ("ran", {"items": 2, "asked": 1, "notUsed": 2})
     assert scoped.problems() == {}
@@ -258,7 +258,7 @@ def test_filter_a_target_removed_keeps_its_groups_and_rows_and_asks_nothing(scop
     run_targets(scoped, scoped.hmac)
     assert scoped.calls() == 2 and scoped.device_runs() == 2 and scoped.ended("benchmark")[0] == "reused"
     assert used(scoped) == {HMAC: "site"} and _group_by_name(scoped.paths)[SHA] == kept
-    assert SHA in {f"{r['type']}|{r['algorithm']}|{r['provider']}" for r in read_json(scoped.device / rd.ROWS)["rows"]}
+    assert SHA in {f"{r['type']}|{r['algorithm']}|{r['provider']}" for r in read_json(RunTree(scoped.device).rows)["rows"]}
     record, _ = rd.load_device_record(scoped.device)
     assert set(record.benchmark["items"]) == {SHA, HMAC} and scoped.problems() == {}
 
@@ -268,7 +268,7 @@ def test_filter_off_asks_and_measures_every_item(scoped):
     scoped.filter = False
     run_targets(scoped, scoped.sha)
     assert scoped.calls() == OLD_ITEMS and scoped.device_runs() == 3 and excluded(scoped) == []
-    assert not (scoped.device / rd.USED).exists() and "notUsed" not in read_json(scoped.paths.groups)
+    assert not (RunTree(scoped.device).used).exists() and "notUsed" not in read_json(scoped.paths.groups)
     record, _ = rd.load_device_record(scoped.device)
     assert record.benchmark == {} and scoped.problems() == {}
 
@@ -277,25 +277,25 @@ CONSCRYPT = "org.conscrypt:conscrypt-android:2.5.2"
 
 
 def suggestions(flow):
-    return yaml.safe_load((flow.device / rd.BUNDLED_SUGGESTIONS).read_text())
+    return yaml.safe_load((RunTree(flow.device).bundled_suggestions).read_text())
 
 
 def applied(flow):
-    used = yaml.safe_load((flow.device / rd.USED_CONFIG).read_text())
+    used = yaml.safe_load((RunTree(flow.device).used_config).read_text())
     return used["providers"]["bundled"]
 
 
 def test_bundled_stop_halts_before_the_benchmark_naming_each_provider(scoped):
     scoped.stops = {"bundled_missing": "stop"}
     run_targets(scoped, scoped.sha)
-    assert scoped.device_runs() == 1 and not (scoped.device / rd.USED_CONFIG).exists()
+    assert scoped.device_runs() == 1 and not (RunTree(scoped.device).used_config).exists()
     assert scoped.found("bundled_missing") == [("bundled", "stop", ["BC"])]
 
 
 def test_bundled_warn_logs_and_the_run_goes_on(scoped):
     run_targets(scoped, scoped.sha)
     assert scoped.found("bundled_missing") == [("bundled", "warn", ["BC"])] and scoped.device_runs() == 2
-    assert not (scoped.device / rd.BUNDLED_SUGGESTIONS).exists() and scoped.problems() == {}
+    assert not (RunTree(scoped.device).bundled_suggestions).exists() and scoped.problems() == {}
 
 
 def test_bundled_suggest_writes_the_matched_the_blocked_and_applies_nothing(scoped):
@@ -334,7 +334,7 @@ def test_bundled_apply_turned_off_reruns_the_benchmark_on_the_base_set(scoped):
     # the kept probe still holds the provider: probed again without it, then measured
     assert scoped.device_runs() == 5 and applied(scoped) == [] and scoped.ended("benchmark")[0] == "ran"
     record, _ = rd.load_device_record(scoped.device)
-    assert record.bundled == {} and not (scoped.device / rd.BUNDLED_CONFIG).exists()
+    assert record.bundled == {} and not (RunTree(scoped.device).bundled_config).exists()
 
 
 def test_bundled_apply_measures_only_the_algorithms_the_sites_name_and_groups_them_with_the_platform(scoped, monkeypatch):
@@ -352,7 +352,7 @@ def test_bundled_apply_measures_only_the_algorithms_the_sites_name_and_groups_th
 
 
 def _sha_options(flow, root):
-    doc = read_json(rd.AppPaths(flow.device, path_id(root)).dossiers)
+    doc = read_json(AppTree(flow.device, path_id(root)).dossiers)
     [d] = [d for d in doc["dossiers"] if d["current"].startswith("MessageDigest|SHA-256|")]
     return d["current"], {o["item"]: (o["track"], o["needsReview"]) for o in d["options"]}
 
@@ -379,7 +379,7 @@ def test_a_bad_bundled_value_warns_and_takes_the_default(scoped, caplog, value):
     with caplog.at_level(logging.WARNING, "perfrepair"):
         run_targets(scoped, scoped.sha)
     assert scoped.found("bundled_missing") == [("bundled", "warn", ["BC"])] and scoped.device_runs() == 2
-    assert not (scoped.device / rd.BUNDLED_SUGGESTIONS).exists()
+    assert not (RunTree(scoped.device).bundled_suggestions).exists()
     assert {m.split(" ")[1] for m in caplog.messages if m.startswith("invalid: device.bundled.")} == {"device.bundled.fromApps"}
 
 

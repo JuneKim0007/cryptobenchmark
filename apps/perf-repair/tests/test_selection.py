@@ -2,7 +2,7 @@ from pathlib import Path
 
 import yaml
 
-from perfrepair import run_dir as rd
+from cryptobench.paths import RunTree
 from perfrepair.device.selection import UNKNOWN, bundled_named, exclusions, lacking, section, write_config
 from perfrepair.dto.device import DeviceRecord
 from cryptobench.catalogue.grouping import Item
@@ -45,7 +45,7 @@ def test_the_used_set_adds_an_include_per_item_the_test_set_lacks_in_the_declare
     adds = [{"provider": "P", "type": "T", "name": "A"}, {"provider": "P", "type": "K", "name": "hMacX"}]
     doc = yaml.safe_load(write_config(base, tmp_path, [], adds).read_text())
     added = yaml.safe_load(Path(doc["selection"]["testSet"]).read_text())
-    assert Path(doc["selection"]["testSet"]) == tmp_path / rd.USED_TEST_SET
+    assert Path(doc["selection"]["testSet"]) == RunTree(tmp_path).used_test_set
     assert added["include"] == [{"type": "T", "name": "A"}, *adds] and added["overrides"][0]["set"] == {"keySizes": [1]}
     assert "hMacX" not in (tmp_path / "set.yaml").read_text()
 
@@ -64,6 +64,6 @@ def test_the_generated_config_keeps_the_base_and_its_test_set_resolved(tmp_path)
                     "providers: {bundled: [{artifact: 'g:a:1', create: A}]}\nrun: {seed: 3}\n")
     path = write_config(base, tmp_path, [{"provider": "P", "type": "T", "name": "N"}])
     doc = yaml.safe_load(path.read_text())
-    assert path == tmp_path / rd.USED_CONFIG and doc["providers"] == {"bundled": [{"artifact": "g:a:1", "create": "A"}]}
+    assert path == RunTree(tmp_path).used_config and doc["providers"] == {"bundled": [{"artifact": "g:a:1", "create": "A"}]}
     assert doc["run"] == {"seed": 3} and Path(doc["selection"]["testSet"]) == (base.parent / "sets/x.yaml").resolve()
     assert doc["selection"]["exclude"] == [{"type": "T"}, {"provider": "P", "type": "T", "name": "N"}]

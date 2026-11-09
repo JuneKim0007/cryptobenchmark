@@ -5,8 +5,8 @@ from conftest import LIBRARY, QUIET, by_name
 from grouping_data import FAMILIES
 from test_code_groups import screen
 
+from cryptobench.paths import AppTree, RunTree, app_dir
 from perfrepair.dto.site import SITES_SCHEMA_VERSION
-from perfrepair import run_dir as rd
 from perfrepair.ai.parse.grouping_assign.kind import GroupingKind, charter
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.decide import decide
@@ -29,10 +29,10 @@ def site(qualified):
 
 
 def app(paths, name, *qualified, unresolved=0):
-    folder = rd.app_dir(paths.root.parent, name)
+    folder = app_dir(paths.root.parent, name)
     folder.mkdir(exist_ok=True)
     sites = [site(q) for q in qualified] + [{"engineType": "TypeC", "resolvedAlgorithm": None, "resolvedProvider": None}] * unresolved
-    write_json(folder / rd.SITES, {"schemaVersion": SITES_SCHEMA_VERSION, "sites": sites})
+    write_json(AppTree.at(folder).sites, {"schemaVersion": SITES_SCHEMA_VERSION, "sites": sites})
     return name
 
 
@@ -103,4 +103,4 @@ def test_write_used_refuses_what_its_validator_refuses(paths, monkeypatch):
     monkeypatch.setattr("perfrepair.device.used.validate_used", lambda *_: ["bad"])
     with pytest.raises(ValidationFailed):
         write_used(paths.root.parent, [app(paths, "a1", S_M1_P1)])
-    assert not (paths.root.parent / rd.USED).exists()
+    assert not (RunTree(paths.root.parent).used).exists()

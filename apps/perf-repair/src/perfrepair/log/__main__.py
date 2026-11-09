@@ -8,7 +8,7 @@ import json
 import sys
 from pathlib import Path
 
-from .. import run_dir as rd
+from cryptobench.paths import RunTree
 from cryptobench.coded import InputError
 from .read import read_events
 from .summary import summarize
@@ -26,7 +26,7 @@ def main(argv: list[str] | None = None) -> int:
     narrow.add_argument("--last", action="store_true", help="only the newest run")
     s.add_argument("--json", action="store_true", help="the summary as JSON")
     a = ap.parse_args(argv)
-    path = a.device_results.expanduser() / rd.EVENTS
+    path = RunTree(a.device_results.expanduser()).log.events
     try:
         if not path.is_file():
             raise InputError(f"missing_file: {path}; no command has run on this device folder")

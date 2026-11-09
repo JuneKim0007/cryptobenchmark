@@ -6,7 +6,7 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
-from .. import run_dir as rd
+from cryptobench.paths import AppTree, GroupingTree, RunTree
 from ..ai.runtime.engine.outbox import active_outbox
 from ..dto.decision import OutboxRecord
 from ..dto.dossier import Dossier
@@ -30,16 +30,16 @@ class Stage:
 
 
 def stages(device: Path) -> list[Stage]:
-    grouping = rd.GroupingPaths(device)
+    grouping = GroupingTree(device)
     found = [Stage(GROUPING, "", grouping.root), Stage(CLASSIFY, "", grouping.classify)]
-    return found + [Stage(REPLACE, d.name, rd.AppPaths(device, d.name).replace) for d in rd.app_dirs(device)]
+    return found + [Stage(REPLACE, d.name, AppTree(device, d.name).replace) for d in RunTree(device).apps()]
 
 
 def _optional(path: Path) -> dict:
     return read_json(path) if path.is_file() else {}
 
 
-def _item_facts(grouping: rd.GroupingPaths) -> dict[str, dict]:
+def _item_facts(grouping: GroupingTree) -> dict[str, dict]:
     if not grouping.items.is_file():
         return {}
     profiles = read_profiles(_optional(grouping.profiles)) if grouping.profiles.is_file() else {}
@@ -50,7 +50,7 @@ def _item_facts(grouping: rd.GroupingPaths) -> dict[str, dict]:
     return facts
 
 
-def _scope_facts(paths: rd.AppPaths) -> dict[str, tuple[dict, dict, tuple[str, str]]]:
+def _scope_facts(paths: AppTree) -> dict[str, tuple[dict, dict, tuple[str, str]]]:
     """Per scope its facts, by item its options' class and code label, and its (pattern, patternReason)."""
     out = {}
     for raw in _optional(paths.dossiers).get("dossiers") or []:
@@ -100,10 +100,10 @@ def _rows_of(stage: Stage, r: OutboxRecord, items: dict, scopes: dict) -> list[d
 
 
 def rows(device: Path) -> list[dict]:
-    items = _item_facts(rd.GroupingPaths(device))
+    items = _item_facts(GroupingTree(device))
     out: list[dict] = []
     for stage in stages(device):
-        scopes = _scope_facts(rd.AppPaths(device, stage.app)) if stage.kind == REPLACE else {}
+        scopes = _scope_facts(AppTree(device, stage.app)) if stage.kind == REPLACE else {}
         for r in active_outbox(stage.root).records():
             out += _rows_of(stage, r, items, scopes)
     return out
@@ -132,7 +132,7 @@ def _key(row: dict) -> tuple:
 
 def write_sheet(device: Path) -> list[dict]:
     """A decision the model changed comes back empty: the old verdict judged another pick."""
-    path = rd.review_sheet(device)
+    path = RunTree(device).review.decisions
     filled = {_key(r): r for r in read_sheet(path)}
     built = [{**r, "verdict": filled[_key(r)]["verdict"], "note": filled[_key(r)]["note"]} if _key(r) in filled else r
              for r in sorted(rows(device), key=risk)]

@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import replace as with_fields
 from pathlib import Path
 
+from cryptobench.paths import AppTree, GroupingTree, RunTree
 from .. import run_dir as rd
 from ..device.coverage import Coverage, coverage
 from ..device.interop import check_pairs, unreachable
@@ -24,7 +25,6 @@ from ..log import emit, step
 from ..stop import terminate
 from ..report.command import device_summary
 from ..review.sheet import write_sheet
-from ..run_dir import GroupingPaths
 from ..run_dir.run_record import RunRecord
 from ..screen.catalog import screening_catalog
 from .app_steps import app
@@ -60,7 +60,7 @@ def _used(g: Guide) -> str:
     if not g.filter_by_apps:
         clear_used(g.device)
         return ""
-    if g.root is None and not GroupingPaths(g.device).items.is_file():
+    if g.root is None and not GroupingTree(g.device).items.is_file():
         return ""
     used = write_used(g.device, detect_targets(g, g.device)) if g.root is None else rd.load_used(g.device)
     return f", used set {len(used.items)} of {used.deviceItems} items for {len(used.apps)} app folders"
@@ -111,14 +111,14 @@ def prerequisites(g: Guide) -> str:
         g.device, g.base_config = made.folder, made.config
         for app_id in sorted(g.detected):
             g.missing.put(f"measured {app_id}", measured_rows(g.device, app_id))
-    if not (g.device / rd.MANIFEST).is_file():
-        halt(g, "missing_results", f"{g.device / rd.MANIFEST} absent; --device-results is a folder cryptobenchmark wrote")
+    if not (RunTree(g.device).manifest).is_file():
+        halt(g, "missing_results", f"{RunTree(g.device).manifest} absent; --device-results is a folder cryptobenchmark wrote")
     open_record(g, g.device)
-    for path in (g.device / rd.ROWS, g.device / rd.MEASUREMENTS):
+    for path in (RunTree(g.device).rows, RunTree(g.device).measurements):
         if not path.is_file():
             halt(g, "missing_device_stage", f"{path} absent; inbound is a device-level stage, made once per device: "
                                             f"{INBOUND}, {NAMED}")
-    problems = g.catalog.mismatch(rd.load_screen_catalog(GroupingPaths(g.device)))
+    problems = g.catalog.mismatch(rd.load_screen_catalog(GroupingTree(g.device)))
     if problems:
         halt(g, "screening_catalog_mismatch", problems[0].split(": ", 1)[1])
     said = f"device results {g.device}, catalog {g.catalog.source}" + _used(g)
@@ -163,7 +163,7 @@ def grouping(g: Guide) -> str:
 
 
 def _grouping(g: Guide) -> str:
-    paths = GroupingPaths(g.device)
+    paths = GroupingTree(g.device)
     if not paths.items.is_file() and g.root is None:
         _no_decision(g, f"{paths.items} absent")
     seen = coverage(paths)
@@ -196,10 +196,10 @@ def summary(g: Guide) -> str:
     # the accuracy sheet covers every decision this run made, also when no app reached its report
     write_sheet(g.device)
     write_index(g.device)
-    if not any((d / rd.REPORT).is_file() for d in rd.app_dirs(g.device)):
+    if not any((AppTree.at(d).report).is_file() for d in RunTree(g.device).apps()):
         return "no app has a report yet"
     doc = device_summary(g.device, echo=lambda _: None)
-    return f"{g.device / rd.SUMMARY}: {len(doc['apps'])} apps, {doc['funnel']['interopPassed']} scopes interop passed"
+    return f"{RunTree(g.device).summary}: {len(doc['apps'])} apps, {doc['funnel']['interopPassed']} scopes interop passed"
 
 
 DEVICE_LEVEL = (("prerequisites", prerequisites), ("targets", write_targets), ("grouping", grouping), ("interop", interop))

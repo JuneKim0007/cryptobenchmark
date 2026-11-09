@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pytest
 
+from cryptobench.paths import RunTree
 from perfrepair.data_handler.inbound import (
     Probe,
     build_run_log,
@@ -124,7 +125,7 @@ def test_the_rows_validator_refuses_a_variant_outside_the_two():
 
 def test_rows_of_an_older_schema_are_unreadable_so_the_device_stage_reruns_inbound(tmp_path):
     from perfrepair import run_dir as rd
-    (tmp_path / rd.ROWS).write_text(json.dumps({"schemaVersion": 1, "rows": []}))
+    (RunTree(tmp_path).rows).write_text(json.dumps({"schemaVersion": 1, "rows": []}))
     with pytest.raises(ValueError, match="rows schemaVersion 1 is not 2"):
         rd.load_rows(tmp_path)
 

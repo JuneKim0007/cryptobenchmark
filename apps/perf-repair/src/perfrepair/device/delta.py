@@ -9,6 +9,7 @@ from pathlib import Path
 
 import yaml
 
+from cryptobench.paths import RunTree
 from .. import run_dir as rd
 from ..data_handler.inbound import (
     manifest_file,
@@ -76,7 +77,7 @@ def _stored_baseline(folder: Path) -> str | None:
 
 
 def _measurements(folder: Path) -> dict:
-    manifest, base = read_manifest(folder / rd.MANIFEST)
+    manifest, base = read_manifest(RunTree(folder).manifest)
     processes = [(base / p).resolve() for p in manifest.files.get("processes") or []]
     prepared = read_prepared(manifest_file(manifest, base, "prepared"))
     return read_results(manifest_file(manifest, base, "benchmark"), prepared, processes)[1]
@@ -97,7 +98,7 @@ def _drift(stored: dict, now: dict, anchors: set[str]) -> tuple[tuple[str, ...],
 
 def _whole_run_cases(folder: Path, measured: int) -> int:
     """The cases the whole benchmark's took: line timed: the measured count without what deltas added."""
-    return measured - sum(len(d.get("cases") or ()) for d in read_yaml(folder / rd.MANIFEST).get("deltas") or ())
+    return measured - sum(len(d.get("cases") or ()) for d in read_yaml(RunTree(folder).manifest).get("deltas") or ())
 
 
 def _case_mismatch(stored: Path, staged: Path, shared: set[str]) -> list[str]:
@@ -121,7 +122,7 @@ def _fill(gaps: tuple[Gap, ...]) -> dict[str, list[str]]:
 def run_delta(folder: Path, gaps: tuple[Gap, ...], anchors: frozenset[str], session: str, on_device: bool,
               echo: Callable[[str], None], benchmark: Path | str | None = None) -> Delta:
     folder = Path(folder)
-    manifest, _ = read_manifest(folder / rd.MANIFEST)
+    manifest, _ = read_manifest(RunTree(folder).manifest)
     stored_config = Path(manifest.config)
     require_connected(folder, stored_config if stored_config.is_file() else None, on_device,
                       "a delta measures the device the benchmark did", benchmark)
@@ -150,7 +151,7 @@ def run_delta(folder: Path, gaps: tuple[Gap, ...], anchors: frozenset[str], sess
     run_pipeline(config, root, stage, benchmark=benchmark, echo=echo, device=folder,
                  extra=() if on_device else ("--discovery", "reuse"), env={BASELINE_ENV: baseline} if baseline else None)
     stored_cases = {c["id"] for c in read_json(folder / manifest.files["benchmark"]).get("cases") or []}
-    staged_doc = read_json(staged / read_manifest(staged / rd.MANIFEST)[0].files["benchmark"])
+    staged_doc = read_json(staged / read_manifest(RunTree(staged).manifest)[0].files["benchmark"])
     staged_cases = {c["id"] for c in staged_doc.get("cases") or []}
     shared = stored_cases & staged_cases
     mismatch = tuple(differing(*alike(fingerprint(folder), fingerprint(staged))) + _case_mismatch(folder, staged, shared))
@@ -168,9 +169,9 @@ def rerun_whole(folder: Path, gaps: tuple[Gap, ...], session: str, on_device: bo
     """Only with device.benchmark.onSetupMismatch rerun: the stored config, the gaps added, measured whole into the folder;
     listed among the deltas, since every dossier may have changed."""
     folder = Path(folder)
-    manifest, _ = read_manifest(folder / rd.MANIFEST)
+    manifest, _ = read_manifest(RunTree(folder).manifest)
     config = write_rerun_config(Path(manifest.config), folder, {g.item for g in gaps})
     run_pipeline(config, folder.parent, "device" if on_device else "bench", benchmark=benchmark, echo=echo, device=folder)
-    measured = read_yaml(folder / rd.MANIFEST)
-    write_text_making_parents(folder / rd.MANIFEST, yaml.safe_dump({**measured, "retried": _retried(gaps), "deltas": [
+    measured = read_yaml(RunTree(folder).manifest)
+    write_text_making_parents(RunTree(folder).manifest, yaml.safe_dump({**measured, "retried": _retried(gaps), "deltas": [
         {"session": session, "cases": [], "rerun": True}]}, sort_keys=False))

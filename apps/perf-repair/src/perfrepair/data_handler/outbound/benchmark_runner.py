@@ -8,6 +8,7 @@ from collections import deque
 from pathlib import Path
 from typing import Callable
 
+from cryptobench.paths import RunTree
 from ...child.deadline import Deadline
 from ...child.env import child_env
 from ...config.timeouts import pipeline_seconds
@@ -15,7 +16,6 @@ from cryptobench import paths
 from cryptobench.coded import InputError, code_in
 from ...log import run_id
 from ...stop import terminate
-from ...run_dir import PIPELINE_LOGS
 
 MISSING_DEPENDENCY = "missing_dependency: "
 # the id is known only to the run, so the run says where its manifest went
@@ -81,7 +81,7 @@ def require_connected(folder: Path, config: Path | None, on_device: bool, doing:
 
 def transcript(device: Path) -> Path:
     """<device>/log/pipeline/<run id>.log: every pipeline call of one run appends to it."""
-    path = Path(device).resolve() / PIPELINE_LOGS / f"{run_id()}.log"
+    path = RunTree(Path(device).resolve()).log.pipeline / f"{run_id()}.log"
     path.parent.mkdir(parents=True, exist_ok=True)
     return path
 

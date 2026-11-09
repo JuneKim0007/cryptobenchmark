@@ -3,7 +3,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from .. import run_dir as rd
+from cryptobench.paths import AppTree
+from cryptobench.paths import APP, SCOPES, UNITS
 from ..dto.lifecycle import (BINDINGS, OPEN_ORIGINS, ORIGINS, PARTIAL_REASONS,
                              PARTIALLY_BOUNDED, REQUIREMENTS, ROLES, STATUSES, UNSUPPORTED, UNSUPPORTED_REASONS, WHERE)
 from ..dto.lifecycle import Lifecycle
@@ -30,7 +31,7 @@ def _typed(where: str, d: dict, types: dict, optional: dict) -> list[str]:
 
 def validate_app_facts(doc: dict) -> list[str]:
     out = [] if doc.get("schemaVersion") == APP_SCHEMA_VERSION else [f"schemaVersion {doc.get('schemaVersion')}"]
-    out += _typed(rd.APP, doc, {"app": str, "pathId": str, "root": str, "projectRoot": str, "bundled": list, "registers": list},
+    out += _typed(APP, doc, {"app": str, "pathId": str, "root": str, "projectRoot": str, "bundled": list, "registers": list},
                   {"minSdk": int, "targetSdk": int})
     for i, b in enumerate(doc.get("bundled") or []):
         out += _typed(f"bundled[{i}]", b, {"artifact": str}, {"providerName": str, "version": str})
@@ -136,7 +137,7 @@ def scope_problems(where: str, s, app: str | None, lines: int | None = None) -> 
 def validate_scopes(doc: dict, lines: dict[str, int] | None = None) -> list[str]:
     """lines: each source file's line count, when the source is at hand to check cited lines against."""
     out = [] if doc.get("schemaVersion") == SCOPES_SCHEMA_VERSION else [f"schemaVersion {doc.get('schemaVersion')}"]
-    out += _typed(rd.SCOPES, doc, {"app": str, "scopes": list, "unscoped": list}, {})
+    out += _typed(SCOPES, doc, {"app": str, "scopes": list, "unscoped": list}, {})
     seen = set()
     for i, s in enumerate(doc.get("scopes") or []):
         out += scope_problems(f"scopes[{i}]", s, doc.get("app"), (lines or {}).get(s.get("file")) if isinstance(s, dict) else None)
@@ -152,11 +153,11 @@ def validate_scopes(doc: dict, lines: dict[str, int] | None = None) -> list[str]
 
 def validate_app_dir(directory: Path) -> dict[str, list[str]]:
     out = {}
-    for name, check in ((rd.APP, validate_app_facts), (rd.SCOPES, validate_scopes)):
+    for name, check in ((APP, validate_app_facts), (SCOPES, validate_scopes)):
         path = Path(directory) / name
         if path.exists():
             out[f"{Path(directory).name}/{name}"] = check(read_json(path))
-    units, scopes = Path(directory) / rd.UNITS, Path(directory) / rd.SCOPES
+    units, scopes = AppTree.at(directory).units, AppTree.at(directory).scopes
     if units.exists() and scopes.exists():
-        out[f"{Path(directory).name}/{rd.UNITS}"] = validate_units(read_json(units), read_json(scopes)["scopes"])
+        out[f"{Path(directory).name}/{UNITS}"] = validate_units(read_json(units), read_json(scopes)["scopes"])
     return out

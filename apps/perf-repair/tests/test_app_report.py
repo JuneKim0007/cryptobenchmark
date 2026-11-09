@@ -8,6 +8,7 @@ import pytest
 import yaml
 from helpers import LATENCY, LATENCY_ALLOC, QUIET
 
+from cryptobench.paths import AppTree
 from perfrepair.dto.site import (DOSSIERS_SCHEMA_VERSION, EDITS_SCHEMA_VERSION, SCOPES_SCHEMA_VERSION,
                                  SITES_SCHEMA_VERSION)
 from perfrepair.files import read_json, write_json, write_text
@@ -15,7 +16,6 @@ from perfrepair.report.__main__ import main
 from perfrepair.report.app_report import build_report
 from perfrepair.report.markdown import report_markdown
 from perfrepair.report.command import app_report, device_summary
-from perfrepair.run_dir import AppPaths
 from perfrepair.validation.report import validate_report
 from perfrepair.validation.summary import validate_summary
 
@@ -31,7 +31,7 @@ def _scope(sid, line, pattern="notFixed", reason="unknown_default"):
 
 
 def make_app(run, name="shop", checked=True):
-    paths = AppPaths(run, name)
+    paths = AppTree(run, name)
     paths.root.mkdir(parents=True)
     write_json(paths.facts, {"root": str((run / f"{name}-source").resolve())})
     scopes = [_scope(s, i) for i, s in enumerate((A, B, C, D, E), 1)]
@@ -112,7 +112,7 @@ def test_an_unchecked_or_not_comparable_interop_says_so(tmp_path, app):
 
 
 def test_without_a_device_run_nothing_is_checked(tmp_path):
-    shutil.rmtree(AppPaths(tmp_path, "shop").checked)
+    shutil.rmtree(AppTree(tmp_path, "shop").checked)
     doc = app_report(tmp_path, "shop", LATENCY, **QUIET)
     assert rows(doc)[A]["compile"] == {"status": "not_run", "reason": "no_device_run: checked/scoped/scoped-plan.yaml absent"}
     assert doc["funnel"]["interopPassed"] == 0
@@ -141,14 +141,14 @@ def test_the_summary_sums_the_funnel_and_keeps_each_apps_mode(tmp_path):
     doc = device_summary(tmp_path, **QUIET)
     assert doc["funnel"]["sites"] == 12 and doc["funnel"]["interopPassed"] == 2
     assert doc["modes"] == {"shop": "latency", "slow": "latency+memAlloc"}
-    reports = [read_json(AppPaths(tmp_path, n).report) for n in ("shop", "slow")]
+    reports = [read_json(AppTree(tmp_path, n).report) for n in ("shop", "slow")]
     assert validate_summary(doc, reports) == []
     assert validate_summary({**doc, "funnel": {**doc["funnel"], "sites": 1}}, reports) == ["funnel is not the sum of byApp"]
     assert validate_summary({**doc, "modes": {}}, reports) == ["modes are not each report's own"]
 
 
 def test_rows_carry_the_pattern_and_the_summary_counts_each(tmp_path):
-    paths = AppPaths(tmp_path, "shop")
+    paths = AppTree(tmp_path, "shop")
     scopes = read_json(paths.scopes)
     for s in scopes["scopes"]:
         if s["id"] == A:
@@ -167,7 +167,7 @@ def test_the_report_and_summary_name_the_project_and_source_beside_the_id(tmp_pa
     (source / "settings.gradle.kts").write_text('rootProject.name = "Shop App"\n')
     doc = app_report(tmp_path, "shop", LATENCY, **QUIET)
     assert (doc["project"], doc["source"]) == ("Shop App", str(source.resolve()))
-    assert "Project: Shop App." in AppPaths(tmp_path, "shop").report_md.read_text()
+    assert "Project: Shop App." in AppTree(tmp_path, "shop").report_md.read_text()
     assert device_summary(tmp_path, **QUIET)["named"]["shop"]["project"] == "Shop App"
 
 
@@ -181,7 +181,7 @@ def test_the_command_writes_both_files(tmp_path, app):
 
 
 def test_rows_carry_their_unit_and_the_units_their_function_shares(tmp_path):
-    paths = AppPaths(tmp_path, "shop")
+    paths = AppTree(tmp_path, "shop")
     doc = build_report(paths, LATENCY)
     rows = {r["scope"]: r for r in doc["scopes"]}
     assert (rows[A]["unit"], rows[B]["unit"], rows[A]["sharedFunction"]) == ("u-ab", "u-ab", ["u-c"])
@@ -190,7 +190,7 @@ def test_rows_carry_their_unit_and_the_units_their_function_shares(tmp_path):
 
 
 def test_a_row_names_the_members_that_stayed_while_its_unit_was_replaced(tmp_path):
-    paths = AppPaths(tmp_path, "shop")
+    paths = AppTree(tmp_path, "shop")
     units = read_json(paths.units)
     units["units"] = [u for u in units["units"] if u["id"] not in ("u-c", "u-d")] + [
         {"id": "u-cd", "members": [C, D], "links": [], "sharedFunction": []}]
@@ -204,7 +204,7 @@ def test_a_row_names_the_members_that_stayed_while_its_unit_was_replaced(tmp_pat
 
 
 def test_a_blocked_member_says_which_member_rejected_the_unit(tmp_path):
-    paths = AppPaths(tmp_path, "shop")
+    paths = AppTree(tmp_path, "shop")
     edits = read_json(paths.edits)
     for row in edits["edits"]:
         if row["scope"] == A:
@@ -215,7 +215,7 @@ def test_a_blocked_member_says_which_member_rejected_the_unit(tmp_path):
 
 
 def test_a_report_without_units_says_which_step_to_run(tmp_path):
-    paths = AppPaths(tmp_path, "shop")
+    paths = AppTree(tmp_path, "shop")
     paths.units.unlink()
     with pytest.raises(ValueError, match="missing_step"):
         build_report(paths, LATENCY)

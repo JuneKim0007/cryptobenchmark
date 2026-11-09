@@ -4,12 +4,12 @@ from __future__ import annotations
 from collections import defaultdict
 from pathlib import Path
 
+from cryptobench.paths import AppTree, GroupingTree, RunTree, app_dir
 from ... import run_dir as rd
 from ...dto.pattern import FIXED, INIT_AND_OPERATION
 from ...dto.site import Scope
 from ...dto.unit import read_units
 from ...files import read_json
-from ...run_dir import GroupingPaths
 from ..boundary import boundary_violations, stage_violations
 from ..finding import UNDECIDED, Violation
 from ..grouping.invariants import Grouping, grouping_invariants
@@ -23,12 +23,12 @@ def _absent(files: tuple[Path, ...], subject: str) -> list[Violation]:
 
 
 def _grouping_absent(device: Path) -> list[Violation]:
-    paths = GroupingPaths(device)
+    paths = GroupingTree(device)
     return _absent((paths.groups, paths.profiles, paths.checks), "grouping")
 
 
 def load_grouping(device: Path) -> Grouping | None:
-    paths = GroupingPaths(device)
+    paths = GroupingTree(device)
     if not paths.groups.is_file() or not paths.profiles.is_file():
         return None
     checks = read_json(paths.checks)["findings"] if paths.checks.is_file() else []
@@ -40,7 +40,7 @@ def load_grouping(device: Path) -> Grouping | None:
 def source_root(app: Path, apps: Path | None, root: Path | None = None) -> Path | None:
     """app.json's root and projectRoot; apps: a folder holding the app trees, when they moved since the run; root: the
     app's own tree, as the guide was given it."""
-    facts = read_json(app / rd.APP) if (app / rd.APP).is_file() else {}
+    facts = read_json(AppTree.at(app).facts) if (AppTree.at(app).facts).is_file() else {}
     if not facts.get("root"):
         return None
     root = root or (Path(facts["root"]) if apps is None else apps / Path(facts["root"]).name)
@@ -49,10 +49,10 @@ def source_root(app: Path, apps: Path | None, root: Path | None = None) -> Path 
 
 def init_per_call(device: Path) -> frozenset[tuple[str, str]]:
     """rows.json's (type, algorithm) whose fixed rows all redo init per call; none without rows.json."""
-    if not (device / rd.ROWS).is_file():
+    if not (RunTree(device).rows).is_file():
         return frozenset()
     seen: dict[tuple[str, str], set] = defaultdict(set)
-    for r in read_json(device / rd.ROWS)["rows"]:
+    for r in read_json(RunTree(device).rows)["rows"]:
         if r.get("variant") == FIXED:
             seen[(r["type"], r["algorithm"])].add(r.get("perCall"))
     return frozenset(k for k, per_call in seen.items() if per_call == {INIT_AND_OPERATION})
@@ -60,7 +60,7 @@ def init_per_call(device: Path) -> frozenset[tuple[str, str]]:
 
 def app_violations(app: Path, apps: Path | None = None, per_call: frozenset[tuple[str, str]] = frozenset(),
                    root: Path | None = None) -> list[Violation]:
-    scopes_file, units_file = app / rd.SCOPES, app / rd.UNITS
+    scopes_file, units_file = AppTree.at(app).scopes, AppTree.at(app).units
     if not scopes_file.is_file():
         return _absent((scopes_file,), app.name)
     scopes = [Scope.from_json(s) for s in rd.read_scopes(scopes_file)["scopes"]]
@@ -69,8 +69,8 @@ def app_violations(app: Path, apps: Path | None = None, per_call: frozenset[tupl
 
 
 def _dossiers(device: Path, only: str | None = None) -> dict[str, dict]:
-    return {a.name: read_json(a / rd.DOSSIERS) for a in rd.app_dirs(device)
-            if (a / rd.DOSSIERS).is_file() and only in (None, a.name)}
+    return {a.name: read_json(AppTree.at(a).dossiers) for a in RunTree(device).apps()
+            if (AppTree.at(a).dossiers).is_file() and only in (None, a.name)}
 
 
 def run_invariants(device: Path, apps: Path | None = None, against: Path | None = None) -> list[Violation]:
@@ -82,7 +82,7 @@ def run_invariants(device: Path, apps: Path | None = None, against: Path | None 
         found += grouping_invariants(g, _dossiers(device), other)
     found += boundary_violations(device)
     per_call = init_per_call(device)
-    for app in rd.app_dirs(device):
+    for app in RunTree(device).apps():
         found += app_violations(app, apps, per_call)
     return found
 
@@ -105,4 +105,4 @@ def app_gate(device: Path, app: str, root: Path) -> list[Violation]:
         touched = {f"group {gid}" for gid in _touched(g, dossiers[app])}
         found += [v for v in grouping_invariants(g, dossiers) if v.subject.startswith(app + " ") or touched & set(v.evidence)]
     found += stage_violations(device)
-    return found + app_violations(rd.app_dir(device, app), None, init_per_call(device), root)
+    return found + app_violations(app_dir(device, app), None, init_per_call(device), root)

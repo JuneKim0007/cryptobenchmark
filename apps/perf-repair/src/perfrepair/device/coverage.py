@@ -3,11 +3,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from cryptobench.paths import GroupingTree
 from ..ai.parse.grouping_assign.kind import GroupingKind
 from ..ai.runtime.engine.outbox import active_outbox
 from ..files import json_text
 from ..grouping.report.checks import report_documents
-from ..run_dir import GroupingPaths
 
 
 
@@ -22,11 +22,11 @@ class Coverage:
     not_used: int | None = None
 
 
-def _current(paths: GroupingPaths) -> bool:
+def _current(paths: GroupingTree) -> bool:
     return all(path.is_file() and path.read_text() == json_text(doc) for path, doc in report_documents(paths).items())
 
 
-def coverage(paths: GroupingPaths) -> Coverage:
+def coverage(paths: GroupingTree) -> Coverage:
     kind = GroupingKind(paths)
     records = active_outbox(paths.root).records()
     done = {r.item for r in records}

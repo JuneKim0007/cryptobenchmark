@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from cryptobench.paths import GroupingTree
 from cryptobench.catalogue.families import Families
 from ....dto.decision import OutboxRecord
 from cryptobench.catalogue.grouping import Item, read_items, read_profiles
@@ -8,7 +9,7 @@ from ....dto.prompt import Charter, TaskPrompt
 from ....dto.screen import Verdict
 from ....files import read_json
 from ....probe.identified import identified
-from ....run_dir import GroupingPaths, load_used
+from ....run_dir import load_used
 from ....screen.groups import code_groups, reserved_catalog_groups
 from ....validation.grouping.code_groups import validate_code_groups
 from ....validation.grouping.items import validate_items
@@ -37,7 +38,7 @@ class GroupingKind:
     name = "grouping"
     schema = SCHEMA
 
-    def __init__(self, paths: GroupingPaths, families: Families | None = None):
+    def __init__(self, paths: GroupingTree, families: Families | None = None):
         self.paths, self.families = paths, families or Families.load()
         raw = read_json(paths.items)
         self._raw = {r["id"]: r for r in raw["items"]}
