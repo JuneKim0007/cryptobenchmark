@@ -24,7 +24,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|DHUWITHSHA1KDF:
     key: {type: DH, origin: app, source: inferred}
     required:
@@ -46,7 +45,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|DHUWITHSHA224CKDF:
     key: {type: DH, origin: app, source: inferred}
     required:
@@ -69,7 +67,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|DHUWITHSHA224KDF:
     key: {type: DH, origin: app, source: inferred}
     required:
@@ -91,7 +88,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|DHUWITHSHA256CKDF:
     key: {type: DH, origin: app, source: inferred}
     required:
@@ -114,7 +110,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|DHUWITHSHA256KDF:
     key: {type: DH, origin: app, source: inferred}
     required:
@@ -136,7 +131,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|DHUWITHSHA384CKDF:
     key: {type: DH, origin: app, source: inferred}
     required:
@@ -159,7 +153,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|DHUWITHSHA384KDF:
     key: {type: DH, origin: app, source: inferred}
     required:
@@ -181,7 +174,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|DHUWITHSHA512CKDF:
     key: {type: DH, origin: app, source: inferred}
     required:
@@ -204,7 +196,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|DHUWITHSHA512KDF:
     key: {type: DH, origin: app, source: inferred}
     required:
@@ -226,7 +217,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|DHWITHRFC2631KDF:
     key: {type: DH, origin: app, source: measured}
     required:
@@ -246,7 +236,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|DHWITHSHA1KDF:
     key: {type: DH, origin: app, source: measured}
     required:
@@ -265,7 +254,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|DHWITHSHA224KDF:
     key: {type: DH, origin: app, source: measured}
     required:
@@ -284,7 +272,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|DHWITHSHA256KDF:
     key: {type: DH, origin: app, source: measured}
     required:
@@ -303,7 +290,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|DHWITHSHA384KDF:
     key: {type: DH, origin: app, source: measured}
     required:
@@ -322,7 +308,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|DHWITHSHA512KDF:
     key: {type: DH, origin: app, source: measured}
     required:
@@ -341,7 +326,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|DiffieHellman:
     key: {type: DH, origin: app, source: measured}
     required:
@@ -360,7 +344,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/KeyAgreement'}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECCDH:
     key: {type: EC, origin: app, source: measured}
     required:
@@ -379,7 +362,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECCDHU:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -400,7 +382,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECCDHUWITHSHA1CKDF:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -423,7 +404,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECCDHUWITHSHA1KDF:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -445,7 +425,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECCDHUWITHSHA224CKDF:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -468,7 +447,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECCDHUWITHSHA224KDF:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -490,7 +468,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECCDHUWITHSHA256CKDF:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -513,7 +490,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECCDHUWITHSHA256KDF:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -535,7 +511,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECCDHUWITHSHA384CKDF:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -558,7 +533,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECCDHUWITHSHA384KDF:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -580,7 +554,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECCDHUWITHSHA512CKDF:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -603,7 +576,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECCDHUWITHSHA512KDF:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -625,7 +597,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECCDHWITHSHA1CKDF:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -646,7 +617,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECCDHWITHSHA1KDF:
     key: {type: EC, origin: app, source: measured}
     required:
@@ -665,7 +635,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECCDHWITHSHA224CKDF:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -686,7 +655,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECCDHWITHSHA224KDF:
     key: {type: EC, origin: app, source: measured}
     required:
@@ -705,7 +673,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECCDHWITHSHA256CKDF:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -726,7 +693,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECCDHWITHSHA256KDF:
     key: {type: EC, origin: app, source: measured}
     required:
@@ -745,7 +711,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECCDHWITHSHA384CKDF:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -766,7 +731,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECCDHWITHSHA384KDF:
     key: {type: EC, origin: app, source: measured}
     required:
@@ -785,7 +749,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECCDHWITHSHA512CKDF:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -806,7 +769,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECCDHWITHSHA512KDF:
     key: {type: EC, origin: app, source: measured}
     required:
@@ -825,7 +787,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECDH:
     key: {type: EC, origin: app, source: measured}
     required:
@@ -844,7 +805,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: 11, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/KeyAgreement'}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECDHWITHSHA1KDF:
     key: {type: EC, origin: app, source: measured}
     required:
@@ -863,7 +823,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECDHWITHSHA224KDF:
     key: {type: EC, origin: app, source: measured}
     required:
@@ -882,7 +841,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECDHWITHSHA256KDF:
     key: {type: EC, origin: app, source: measured}
     required:
@@ -901,7 +859,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECDHWITHSHA384KDF:
     key: {type: EC, origin: app, source: measured}
     required:
@@ -920,7 +877,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECDHWITHSHA512KDF:
     key: {type: EC, origin: app, source: measured}
     required:
@@ -939,7 +895,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECGOST3410:
     key: {type: ECGOST3410, origin: app, source: inferred}
     required:
@@ -960,7 +915,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECGOST3410-2012-256:
     key: {type: ECGOST3410-2012, origin: app, source: inferred}
     required:
@@ -981,7 +935,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECGOST3410-2012-512:
     key: {type: ECGOST3410-2012, origin: app, source: inferred}
     required:
@@ -1002,7 +955,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECKAEGWITHRIPEMD160KDF:
     key: {type: EC, origin: app, source: measured}
     required:
@@ -1021,7 +973,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECKAEGWITHSHA1KDF:
     key: {type: EC, origin: app, source: measured}
     required:
@@ -1040,7 +991,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECKAEGWITHSHA224KDF:
     key: {type: EC, origin: app, source: measured}
     required:
@@ -1059,7 +1009,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECKAEGWITHSHA256KDF:
     key: {type: EC, origin: app, source: measured}
     required:
@@ -1078,7 +1027,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECKAEGWITHSHA384KDF:
     key: {type: EC, origin: app, source: measured}
     required:
@@ -1097,7 +1045,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECKAEGWITHSHA512KDF:
     key: {type: EC, origin: app, source: measured}
     required:
@@ -1116,7 +1063,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECMQV:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -1137,7 +1083,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECMQVWITHSHA1CKDF:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -1160,7 +1105,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECMQVWITHSHA1KDF:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -1182,7 +1126,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECMQVWITHSHA224CKDF:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -1205,7 +1148,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECMQVWITHSHA224KDF:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -1227,7 +1169,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECMQVWITHSHA256CKDF:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -1250,7 +1191,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECMQVWITHSHA256KDF:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -1272,7 +1212,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECMQVWITHSHA384CKDF:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -1295,7 +1234,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECMQVWITHSHA384KDF:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -1317,7 +1255,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECMQVWITHSHA512CKDF:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -1340,7 +1277,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|ECMQVWITHSHA512KDF:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -1362,7 +1298,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|MQVWITHSHA1CKDF:
     key: {type: DH, origin: app, source: inferred}
     required:
@@ -1385,7 +1320,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|MQVWITHSHA1KDF:
     key: {type: DH, origin: app, source: inferred}
     required:
@@ -1407,7 +1341,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|MQVWITHSHA224CKDF:
     key: {type: DH, origin: app, source: inferred}
     required:
@@ -1430,7 +1363,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|MQVWITHSHA224KDF:
     key: {type: DH, origin: app, source: inferred}
     required:
@@ -1452,7 +1384,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|MQVWITHSHA256CKDF:
     key: {type: DH, origin: app, source: inferred}
     required:
@@ -1475,7 +1406,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|MQVWITHSHA256KDF:
     key: {type: DH, origin: app, source: inferred}
     required:
@@ -1497,7 +1427,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|MQVWITHSHA384CKDF:
     key: {type: DH, origin: app, source: inferred}
     required:
@@ -1520,7 +1449,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|MQVWITHSHA384KDF:
     key: {type: DH, origin: app, source: inferred}
     required:
@@ -1542,7 +1470,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|MQVWITHSHA512CKDF:
     key: {type: DH, origin: app, source: inferred}
     required:
@@ -1565,7 +1492,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|MQVWITHSHA512KDF:
     key: {type: DH, origin: app, source: inferred}
     required:
@@ -1587,7 +1513,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|X25519:
     key: {type: X25519, origin: app, source: measured}
     required:
@@ -1606,7 +1531,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: sourced, url: 'https://www.rfc-editor.org/rfc/rfc7748'}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|X25519UWITHSHA256KDF:
     key: {type: X25519, origin: app, source: inferred}
     required:
@@ -1627,7 +1551,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|X25519WITHSHA256CKDF:
     key: {type: X25519, origin: app, source: measured}
     required:
@@ -1646,7 +1569,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|X25519withSHA256HKDF:
     key: {type: X25519, origin: app, source: measured}
     required:
@@ -1665,7 +1587,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|X25519WITHSHA256KDF:
     key: {type: X25519, origin: app, source: measured}
     required:
@@ -1684,7 +1605,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|X25519WITHSHA384CKDF:
     key: {type: X25519, origin: app, source: measured}
     required:
@@ -1703,7 +1623,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|X25519WITHSHA512CKDF:
     key: {type: X25519, origin: app, source: measured}
     required:
@@ -1722,7 +1641,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|X448:
     key: {type: X448, origin: app, source: measured}
     required:
@@ -1741,7 +1659,6 @@ algorithms:
     - {fact: strengthBits, value: 224, source: sourced, url: 'https://www.rfc-editor.org/rfc/rfc7748'}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|X448UWITHSHA512KDF:
     key: {type: X448, origin: app, source: inferred}
     required:
@@ -1762,7 +1679,6 @@ algorithms:
     - {fact: strengthBits, value: 224, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|X448WITHSHA256CKDF:
     key: {type: X448, origin: app, source: measured}
     required:
@@ -1781,7 +1697,6 @@ algorithms:
     - {fact: strengthBits, value: 224, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|X448WITHSHA384CKDF:
     key: {type: X448, origin: app, source: measured}
     required:
@@ -1800,7 +1715,6 @@ algorithms:
     - {fact: strengthBits, value: 224, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|X448WITHSHA512CKDF:
     key: {type: X448, origin: app, source: measured}
     required:
@@ -1819,7 +1733,6 @@ algorithms:
     - {fact: strengthBits, value: 224, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|X448withSHA512HKDF:
     key: {type: X448, origin: app, source: measured}
     required:
@@ -1838,7 +1751,6 @@ algorithms:
     - {fact: strengthBits, value: 224, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|X448WITHSHA512KDF:
     key: {type: X448, origin: app, source: measured}
     required:
@@ -1857,7 +1769,6 @@ algorithms:
     - {fact: strengthBits, value: 224, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyAgreement|XDH:
     key: {type: X25519, origin: app, source: measured}
     required:
@@ -1876,4 +1787,3 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: 33, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/KeyAgreement'}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}

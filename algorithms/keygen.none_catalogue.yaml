@@ -21,7 +21,6 @@ algorithms:
       BC @ jdk-25: {conditions.output.bits: 192, optional.keySize.default: 192}
       BundledBC @ org.bouncycastle:bcprov-jdk18on:1.79: {conditions.output.bits: 192, optional.keySize.default: 192}
       SunJCE @ jdk-25: {conditions.output.bits: 256, optional.keySize.default: 256}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|AES-GMAC:
     key: {type: AES-GMAC, origin: none, source: measured}
     required: []
@@ -38,7 +37,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|AESWRAP:
     key: {type: AESWRAP, origin: none, source: measured}
     required: []
@@ -55,7 +53,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|AESWRAPPAD:
     key: {type: AESWRAPPAD, origin: none, source: measured}
     required: []
@@ -72,7 +69,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|ARCFOUR:
     key: {type: ARCFOUR, origin: none, source: measured}
     required: []
@@ -89,7 +85,6 @@ algorithms:
     - {fact: strengthBits, value: 0, source: sourced, url: 'https://www.rfc-editor.org/rfc/rfc7465'}
     - {fact: minSdk, value: 14, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/KeyGenerator'}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|ARIA:
     key: {type: ARIA, origin: none, source: measured}
     required: []
@@ -106,7 +101,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|ARIA-GMAC:
     key: {type: ARIA-GMAC, origin: none, source: measured}
     required: []
@@ -123,7 +117,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|Blowfish:
     key: {type: Blowfish, origin: none, source: measured}
     required: []
@@ -141,7 +134,6 @@ algorithms:
     - {fact: minSdk, value: 10, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/KeyGenerator'}
     providers:
       SunJCE @ jdk-25: {optional.keySize.accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384]}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|CAMELLIA:
     key: {type: CAMELLIA, origin: none, source: measured}
     required: []
@@ -158,7 +150,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|CAMELLIA-GMAC:
     key: {type: CAMELLIA-GMAC, origin: none, source: measured}
     required: []
@@ -175,7 +166,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|CAST5:
     key: {type: CAST5, origin: none, source: measured}
     required: []
@@ -192,7 +182,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|CAST6:
     key: {type: CAST6, origin: none, source: measured}
     required: []
@@ -209,7 +198,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|CAST6-GMAC:
     key: {type: CAST6-GMAC, origin: none, source: measured}
     required: []
@@ -226,7 +214,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|CHACHA:
     key: {type: CHACHA, origin: none, source: measured}
     required: []
@@ -243,7 +230,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|ChaCha20:
     key: {type: ChaCha20, origin: none, source: measured}
     required: []
@@ -262,7 +248,6 @@ algorithms:
     providers:
       BC @ jdk-25: {optional.keySize.accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512]}
       BundledBC @ org.bouncycastle:bcprov-jdk18on:1.79: {optional.keySize.accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512]}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|DES:
     key: {type: DES, origin: none, source: measured}
     required: []
@@ -280,7 +265,6 @@ algorithms:
     - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/KeyGenerator'}
     providers:
       SunJCE @ jdk-25: {optional.keySize.accepted: [56]}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|DESede:
     key: {type: DESede, origin: none, source: measured}
     required: []
@@ -297,7 +281,6 @@ algorithms:
     - {fact: strengthBits, value: 112, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/KeyGenerator'}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|DESEDEWRAP:
     key: {type: DESEDEWRAP, origin: none, source: measured}
     required: []
@@ -314,7 +297,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|DSTU7624:
     key: {type: DSTU7624, origin: none, source: measured}
     required: []
@@ -331,7 +313,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|GOST28147:
     key: {type: GOST28147, origin: none, source: measured}
     required: []
@@ -348,7 +329,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|GOST3412-2015:
     key: {type: GOST3412-2015, origin: none, source: measured}
     required: []
@@ -365,7 +345,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|Grain128:
     key: {type: Grain128, origin: none, source: measured}
     required: []
@@ -382,7 +361,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|Grainv1:
     key: {type: Grainv1, origin: none, source: measured}
     required: []
@@ -399,7 +377,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HC128:
     key: {type: HC128, origin: none, source: measured}
     required: []
@@ -416,7 +393,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HC256:
     key: {type: HC256, origin: none, source: measured}
     required: []
@@ -433,7 +409,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HMACDSTU7564-256:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -450,7 +425,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HMACDSTU7564-384:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -467,7 +441,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HMACDSTU7564-512:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -484,7 +457,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HMACGOST3411:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -501,7 +473,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HMACGOST3411-2012-256:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -518,7 +489,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HMACGOST3411-2012-512:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -535,7 +505,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HMACKECCAK224:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -552,7 +521,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HMACKECCAK256:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -569,7 +537,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HMACKECCAK288:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -586,7 +553,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HMACKECCAK384:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -603,7 +569,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HMACKECCAK512:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -620,7 +585,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HMACMD2:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -637,7 +601,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HMACMD4:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -654,7 +617,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HmacMD5:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -671,7 +633,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/KeyGenerator'}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HMACRIPEMD128:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -688,7 +649,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HMACRIPEMD160:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -705,7 +665,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HMACRIPEMD256:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -722,7 +681,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HMACRIPEMD320:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -739,7 +697,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HmacSHA1:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -756,7 +713,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: 11, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/KeyGenerator'}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HmacSHA224:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -773,7 +729,6 @@ algorithms:
     - {fact: strengthBits, value: 192, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: 22, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/KeyGenerator'}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HmacSHA256:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -790,7 +745,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/KeyGenerator'}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HmacSHA3-224:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -807,7 +761,6 @@ algorithms:
     - {fact: strengthBits, value: 192, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HmacSHA3-256:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -824,7 +777,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HmacSHA3-384:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -841,7 +793,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HmacSHA3-512:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -858,7 +809,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HmacSHA384:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -875,7 +825,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/KeyGenerator'}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HmacSHA512:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -892,7 +841,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/KeyGenerator'}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HmacSHA512/224:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -909,7 +857,6 @@ algorithms:
     - {fact: strengthBits, value: 192, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HmacSHA512/256:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -926,7 +873,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HMACSkein-1024-1024:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -943,7 +889,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HMACSkein-1024-384:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -960,7 +905,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HMACSkein-1024-512:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -977,7 +921,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HMACSkein-256-128:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -994,7 +937,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HMACSkein-256-160:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -1011,7 +953,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HMACSkein-256-224:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -1028,7 +969,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HMACSkein-256-256:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -1045,7 +985,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HMACSkein-512-128:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -1062,7 +1001,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HMACSkein-512-160:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -1079,7 +1017,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HMACSkein-512-224:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -1096,7 +1033,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HMACSkein-512-256:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -1113,7 +1049,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HMACSkein-512-384:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -1130,7 +1065,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HMACSkein-512-512:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -1147,7 +1081,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HMACSM3:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -1164,7 +1097,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HMACTIGER:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -1181,7 +1113,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|HMACWHIRLPOOL:
     key: {type: HMAC, origin: none, source: measured}
     required: []
@@ -1198,7 +1129,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|IDEA:
     key: {type: IDEA, origin: none, source: measured}
     required: []
@@ -1215,7 +1145,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|KMAC128:
     key: {type: KMAC128, origin: none, source: measured}
     required: []
@@ -1232,7 +1161,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|KMAC256:
     key: {type: KMAC256, origin: none, source: measured}
     required: []
@@ -1249,7 +1177,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|ML-KEM:
     key: {type: ML-KEM, origin: app, source: inferred}
     required:
@@ -1267,7 +1194,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|ML-KEM-1024:
     key: {type: ML-KEM-1024, origin: app, source: inferred}
     required:
@@ -1285,7 +1211,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|ML-KEM-512:
     key: {type: ML-KEM-512, origin: app, source: inferred}
     required:
@@ -1303,7 +1228,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|ML-KEM-768:
     key: {type: ML-KEM-768, origin: app, source: inferred}
     required:
@@ -1321,7 +1245,6 @@ algorithms:
     - {fact: strengthBits, value: 192, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|NOEKEON:
     key: {type: NOEKEON, origin: none, source: measured}
     required: []
@@ -1338,7 +1261,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|NOEKEON-GMAC:
     key: {type: NOEKEON-GMAC, origin: none, source: measured}
     required: []
@@ -1355,7 +1277,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|NTRU:
     key: {type: NTRU, origin: app, source: inferred}
     required:
@@ -1373,7 +1294,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|POLY1305:
     key: {type: POLY1305, origin: none, source: measured}
     required: []
@@ -1390,7 +1310,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|POLY1305-AES:
     key: {type: POLY1305-AES, origin: none, source: measured}
     required: []
@@ -1407,7 +1326,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|POLY1305-ARIA:
     key: {type: POLY1305-ARIA, origin: none, source: measured}
     required: []
@@ -1424,7 +1342,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|POLY1305-CAMELLIA:
     key: {type: POLY1305-CAMELLIA, origin: none, source: measured}
     required: []
@@ -1441,7 +1358,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|POLY1305-CAST6:
     key: {type: POLY1305-CAST6, origin: none, source: measured}
     required: []
@@ -1458,7 +1374,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|POLY1305-NOEKEON:
     key: {type: POLY1305-NOEKEON, origin: none, source: measured}
     required: []
@@ -1475,7 +1390,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|POLY1305-RC6:
     key: {type: POLY1305-RC6, origin: none, source: measured}
     required: []
@@ -1492,7 +1406,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|POLY1305-SEED:
     key: {type: POLY1305-SEED, origin: none, source: measured}
     required: []
@@ -1509,7 +1422,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|POLY1305-SERPENT:
     key: {type: POLY1305-SERPENT, origin: none, source: measured}
     required: []
@@ -1526,7 +1438,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|POLY1305-SM4:
     key: {type: POLY1305-SM4, origin: none, source: measured}
     required: []
@@ -1543,7 +1454,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|POLY1305-Twofish:
     key: {type: POLY1305-Twofish, origin: none, source: measured}
     required: []
@@ -1560,7 +1470,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|RC2:
     key: {type: RC2, origin: none, source: measured}
     required: []
@@ -1577,7 +1486,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|RC5:
     key: {type: RC5, origin: none, source: measured}
     required: []
@@ -1594,7 +1502,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|RC5-64:
     key: {type: RC5-64, origin: none, source: measured}
     required: []
@@ -1611,7 +1518,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|RC6:
     key: {type: RC6, origin: none, source: measured}
     required: []
@@ -1628,7 +1534,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|RC6-GMAC:
     key: {type: RC6-GMAC, origin: none, source: measured}
     required: []
@@ -1645,7 +1550,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|SALSA20:
     key: {type: SALSA20, origin: none, source: measured}
     required: []
@@ -1662,7 +1566,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|SEED:
     key: {type: SEED, origin: none, source: measured}
     required: []
@@ -1679,7 +1582,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|SEED-CMAC:
     key: {type: SEED-CMAC, origin: none, source: measured}
     required: []
@@ -1696,7 +1598,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|SEED-GMAC:
     key: {type: SEED-GMAC, origin: none, source: measured}
     required: []
@@ -1713,7 +1614,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|Serpent:
     key: {type: Serpent, origin: none, source: measured}
     required: []
@@ -1730,7 +1630,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|SERPENT-GMAC:
     key: {type: SERPENT-GMAC, origin: none, source: measured}
     required: []
@@ -1747,7 +1646,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|SHACAL-2:
     key: {type: SHACAL-2, origin: none, source: measured}
     required: []
@@ -1764,7 +1662,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|SIPHASH:
     key: {type: SipHash, origin: none, source: measured}
     required: []
@@ -1781,7 +1678,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|SIPHASH128:
     key: {type: SIPHASH128, origin: none, source: measured}
     required: []
@@ -1798,7 +1694,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|Skein-MAC-1024-1024:
     key: {type: Skein-MAC-1024-1024, origin: none, source: measured}
     required: []
@@ -1815,7 +1710,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|Skein-MAC-1024-384:
     key: {type: Skein-MAC-1024-384, origin: none, source: measured}
     required: []
@@ -1832,7 +1726,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|Skein-MAC-1024-512:
     key: {type: Skein-MAC-1024-512, origin: none, source: measured}
     required: []
@@ -1849,7 +1742,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|Skein-MAC-256-128:
     key: {type: Skein-MAC-256-128, origin: none, source: measured}
     required: []
@@ -1866,7 +1758,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|Skein-MAC-256-160:
     key: {type: Skein-MAC-256-160, origin: none, source: measured}
     required: []
@@ -1883,7 +1774,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|Skein-MAC-256-224:
     key: {type: Skein-MAC-256-224, origin: none, source: measured}
     required: []
@@ -1900,7 +1790,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|Skein-MAC-256-256:
     key: {type: Skein-MAC-256-256, origin: none, source: measured}
     required: []
@@ -1917,7 +1806,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|Skein-MAC-512-128:
     key: {type: Skein-MAC-512-128, origin: none, source: measured}
     required: []
@@ -1934,7 +1822,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|Skein-MAC-512-160:
     key: {type: Skein-MAC-512-160, origin: none, source: measured}
     required: []
@@ -1951,7 +1838,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|Skein-MAC-512-224:
     key: {type: Skein-MAC-512-224, origin: none, source: measured}
     required: []
@@ -1968,7 +1854,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|Skein-MAC-512-256:
     key: {type: Skein-MAC-512-256, origin: none, source: measured}
     required: []
@@ -1985,7 +1870,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|Skein-MAC-512-384:
     key: {type: Skein-MAC-512-384, origin: none, source: measured}
     required: []
@@ -2002,7 +1886,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|Skein-MAC-512-512:
     key: {type: Skein-MAC-512-512, origin: none, source: measured}
     required: []
@@ -2019,7 +1902,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|SKIPJACK:
     key: {type: SKIPJACK, origin: none, source: measured}
     required: []
@@ -2036,7 +1918,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|SM4:
     key: {type: SM4, origin: none, source: measured}
     required: []
@@ -2053,7 +1934,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|SM4-CMAC:
     key: {type: SM4-CMAC, origin: none, source: measured}
     required: []
@@ -2070,7 +1950,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|SM4-GMAC:
     key: {type: SM4-GMAC, origin: none, source: measured}
     required: []
@@ -2087,7 +1966,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|SunTls12Prf:
     key: {type: SunTls12Prf, origin: none, source: inferred}
     required:
@@ -2104,7 +1982,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|SunTlsKeyMaterial:
     key: {type: SunTlsKeyMaterial, origin: none, source: inferred}
     required:
@@ -2121,7 +1998,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|SunTlsMasterSecret:
     key: {type: SunTlsMasterSecret, origin: none, source: inferred}
     required:
@@ -2138,7 +2014,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|SunTlsPrf:
     key: {type: SunTlsPrf, origin: none, source: inferred}
     required:
@@ -2155,7 +2030,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|SunTlsRsaPremasterSecret:
     key: {type: SunTlsRsaPremasterSecret, origin: none, source: inferred}
     required:
@@ -2172,7 +2046,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|TEA:
     key: {type: TEA, origin: none, source: measured}
     required: []
@@ -2189,7 +2062,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|Threefish-1024:
     key: {type: Threefish-1024, origin: none, source: measured}
     required: []
@@ -2206,7 +2078,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|Threefish-256:
     key: {type: Threefish-256, origin: none, source: measured}
     required: []
@@ -2223,7 +2094,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|Threefish-512:
     key: {type: Threefish-512, origin: none, source: measured}
     required: []
@@ -2240,7 +2110,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|Tnepres:
     key: {type: Tnepres, origin: none, source: measured}
     required: []
@@ -2257,7 +2126,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|TNEPRES-GMAC:
     key: {type: TNEPRES-GMAC, origin: none, source: measured}
     required: []
@@ -2274,7 +2142,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|Twofish:
     key: {type: Twofish, origin: none, source: measured}
     required: []
@@ -2291,7 +2158,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|Twofish-GMAC:
     key: {type: Twofish-GMAC, origin: none, source: measured}
     required: []
@@ -2308,7 +2174,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|VMPC:
     key: {type: VMPC, origin: none, source: measured}
     required: []
@@ -2325,7 +2190,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|VMPC-KSA3:
     key: {type: VMPC-KSA3, origin: none, source: measured}
     required: []
@@ -2342,7 +2206,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|XSALSA20:
     key: {type: XSALSA20, origin: none, source: measured}
     required: []
@@ -2359,7 +2222,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|XTEA:
     key: {type: XTEA, origin: none, source: measured}
     required: []
@@ -2376,7 +2238,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|ZUC-128:
     key: {type: ZUC-128, origin: none, source: measured}
     required: []
@@ -2393,7 +2254,6 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyGenerator|ZUC-256:
     key: {type: ZUC-256, origin: none, source: measured}
     required: []
@@ -2410,4 +2270,3 @@ algorithms:
     - {fact: strengthBits, value: {key: aes}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}

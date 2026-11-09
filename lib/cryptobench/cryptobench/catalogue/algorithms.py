@@ -26,8 +26,7 @@ INFERRED, MEASURED, SOURCED = "inferred", "measured", "sourced"
 SOURCE_KINDS = (MEASURED, SOURCED, INFERRED)
 DETERMINISTIC_VALUES = ("always", "fixedParameters", "never")
 ALWAYS = "always"
-PERSON, AGENT = "person", "agent"
-ENTRY_FIELDS = {"required", "optional", "conditions", "lifecycle", "operations", "sourcedOnly", "providers", "provenance"}
+ENTRY_FIELDS = {"required", "optional", "conditions", "lifecycle", "operations", "sourcedOnly", "providers"}
 OPTIONAL_FIELDS = {"key", "contract", "knownVectors"}
 CONTRACT_SIDES = ("input", "output")
 CLOSED_BOOLEANS = ("passwordBased", "wrap", "prehashed")
@@ -251,7 +250,7 @@ def _shape_problems(raw) -> list[str]:
     if missing or stray:
         return [f"fields missing {sorted(missing)}, unknown {sorted(stray)}"]
     kinds = {"required": list, "optional": list, "sourcedOnly": list, "conditions": dict, "lifecycle": dict, "operations": dict,
-             "providers": dict, "provenance": dict}
+             "providers": dict}
     found = [f"{k} is not a {t.__name__}" for k, t in kinds.items() if not isinstance(raw[k], t)]
     found += [f"{k} holds a non-mapping" for k in ("required", "optional", "sourcedOnly")
               if isinstance(raw[k], list) and not all(isinstance(x, dict) for x in raw[k])]
@@ -310,13 +309,11 @@ def _one_object_problems(raw: dict) -> list[str]:
 
 
 def entry_problems(entry: Entry, common: Common, builds: dict | None = None, recipes: Recipes | None = None) -> list[str]:
-    """One entry's form: its fields, the id's two parts, each leaf's provenance, the contract, type facts and overrides."""
+    """One entry's form: its fields, the id's two parts, each leaf's source, the contract, type facts and overrides."""
     found = _shape_problems(entry.raw)
     if found:
         return found
-    by = entry.raw["provenance"].get("by")
     found = [f"id {entry.id!r} is not <type>{SEPARATOR}<canonical>"] * (split_id(entry.id) is None)
-    found += [f"provenance by {by!r} is neither {PERSON} nor {AGENT}"] * (by not in (PERSON, AGENT))
     return found + _leaf_problems(entry, common) + _reset_problems(entry.raw) + _output_problems(entry) + _passed_to_problems(entry) + _contract_problems(entry.raw.get("contract")) + _type_fact_problems(entry) \
         + _provider_problems(entry.raw, builds) + (_recipe_problems(entry.raw, recipes) if recipes is not None else [])
 

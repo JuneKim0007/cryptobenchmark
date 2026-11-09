@@ -293,17 +293,6 @@ algorithm:
         generateKeyPair: KeyPairGenerator.generateKeyPair.
       directions: {encrypt: forward, decrypt: reverse, wrap: forward, unwrap: reverse, digest: forward, computeMac: forward, sign: forward, verify: reverse, agree: forward, generateKey: forward, generateKeyPair: forward}
   providers: {means: 'A difference one provider build has from the entry, keyed by "<name> @ <build>" of provider-builds.yaml, holding <path>: <value>; required.<name> or optional.<name> is a whole row, null when that build runs without it. It says otherwise than a provider''s behaviour or a deviation, which state what many entries share once.', format: text}
-  provenance:
-    by:
-      means: Who wrote this entry.
-      values:
-        person: Reviewed by a person.
-        agent: Appended by an agent; unverified until a person checks its sourced facts.
-      unused:
-        person: No entry has had a person's review since the rewrite; a review sets it.
-    model: {means: The model that wrote it., format: text}
-    run: {means: The run that wrote it., format: text}
-    date: {means: The day it was written., format: text}
   common:
     sources: {means: 'A citation by id: every url a catalogue cites and the keyStrength tables'' source.', format: url}
     keyStrength:

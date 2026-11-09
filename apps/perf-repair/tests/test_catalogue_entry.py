@@ -48,8 +48,8 @@ def test_a_family_that_does_not_fit_the_engine_type_is_refused():
 
 
 def test_a_malformed_entry_names_its_form_problem():
-    entry = _sha(identifier="MessageDigest|SHA-997", change=lambda r: r.pop("provenance"))
-    assert entry_check(entry, _with(entry), group_catalog(), FAMILIES)[0].startswith("fields missing ['provenance']")
+    entry = _sha(identifier="MessageDigest|SHA-997", change=lambda r: r.pop("lifecycle"))
+    assert entry_check(entry, _with(entry), group_catalog(), FAMILIES)[0].startswith("fields missing ['lifecycle']")
 
 
 def _problems(family, identifier, change):

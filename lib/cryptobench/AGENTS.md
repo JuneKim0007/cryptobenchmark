@@ -13,7 +13,7 @@ The implementation guide under `algorithms/` and the Python that reads it, share
 ../../algorithms/vectors/ : known answers by family
 cryptobench/__init__.py : package of the Python library the benchmark runner and perf-repair share
 cryptobench/catalogue/__init__.py : package of the implementation guide's readers
-cryptobench/catalogue/algorithms.py : reader of the catalogues, checked whole: entry fields, provenance, sources, contracts, type facts, provider overrides; lookup by family and id
+cryptobench/catalogue/algorithms.py : reader of the catalogues, checked whole: entry fields, sources, contracts, type facts, provider overrides; lookup by family and id
 cryptobench/catalogue/deviations.py : reads algorithms/deviations.yaml, every word a glossary term; what an entry's providers holds once provider behaviours and deviations apply
 cryptobench/catalogue/families.py : the family catalog and (engine type, key kind) → family
 cryptobench/catalogue/glossary.py : what_is: a term, a subtree or one value's meaning of glossary.yaml; term_problems: an entry's words checked against it

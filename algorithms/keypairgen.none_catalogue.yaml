@@ -17,7 +17,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/java/security/KeyPairGenerator'}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|DILITHIUM:
     key: {type: DILITHIUM, origin: none, source: measured}
     required: []
@@ -33,7 +32,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|DILITHIUM2:
     key: {type: DILITHIUM2, origin: none, source: measured}
     required: []
@@ -49,7 +47,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|DILITHIUM3:
     key: {type: DILITHIUM3, origin: none, source: measured}
     required: []
@@ -65,7 +62,6 @@ algorithms:
     - {fact: strengthBits, value: 192, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|DILITHIUM5:
     key: {type: DILITHIUM5, origin: none, source: measured}
     required: []
@@ -81,7 +77,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|DSA:
     key: {type: DSA, origin: none, source: measured}
     required: []
@@ -97,7 +92,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/java/security/KeyPairGenerator'}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|DSTU4145:
     key: {type: DSTU4145, origin: none, source: measured}
     required:
@@ -115,7 +109,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|EC:
     key: {type: EC, origin: none, source: measured}
     required: []
@@ -135,7 +128,6 @@ algorithms:
       BC @ jdk-25: {optional.curve.default: 239}
       BundledBC @ org.bouncycastle:bcprov-jdk18on:1.79: {optional.curve.default: 239}
       SunEC @ jdk-25: {optional.curve.default: 384}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|ECDH:
     key: {type: ECDH, origin: none, source: measured}
     required: []
@@ -152,7 +144,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|ECDHC:
     key: {type: ECDHC, origin: none, source: measured}
     required: []
@@ -169,7 +160,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|ECDSA:
     key: {type: ECDSA, origin: none, source: measured}
     required: []
@@ -186,7 +176,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|ECGOST3410:
     key: {type: ECGOST3410, origin: none, source: measured}
     required:
@@ -204,7 +193,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|ECGOST3410-2012:
     key: {type: ECGOST3410-2012, origin: none, source: measured}
     required:
@@ -222,7 +210,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|ECMQV:
     key: {type: ECMQV, origin: none, source: measured}
     required: []
@@ -239,7 +226,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ecc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|Ed25519:
     key: {type: Ed25519, origin: none, source: measured}
     required: []
@@ -255,7 +241,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: sourced, url: 'https://www.rfc-editor.org/rfc/rfc8032'}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|Ed448:
     key: {type: Ed448, origin: none, source: measured}
     required: []
@@ -271,7 +256,6 @@ algorithms:
     - {fact: strengthBits, value: 224, source: sourced, url: 'https://www.rfc-editor.org/rfc/rfc8032'}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|EdDSA:
     key: {type: EdDSA, origin: none, source: measured}
     required: []
@@ -289,7 +273,6 @@ algorithms:
     - {fact: minSdk, value: null, source: inferred}
     providers:
       SunEC @ jdk-25: {required.keySize: null}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|ELGAMAL:
     key: {type: ELGAMAL, origin: none, source: measured}
     required: []
@@ -305,7 +288,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|FALCON:
     key: {type: FALCON, origin: none, source: measured}
     required: []
@@ -321,7 +303,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|FALCON-1024:
     key: {type: FALCON-1024, origin: none, source: measured}
     required: []
@@ -337,7 +318,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|FALCON-512:
     key: {type: FALCON-512, origin: none, source: measured}
     required: []
@@ -353,7 +333,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|Falcon512-ECDSA-brainpoolP256r1-SHA256:
     key: {type: Falcon512-ECDSA-brainpoolP256r1-SHA256, origin: none, source: measured}
     required: []
@@ -369,7 +348,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|Falcon512-ECDSA-P256-SHA256:
     key: {type: Falcon512-ECDSA-P256-SHA256, origin: none, source: measured}
     required: []
@@ -385,7 +363,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|Falcon512-Ed25519-SHA512:
     key: {type: Falcon512-Ed25519-SHA512, origin: none, source: measured}
     required: []
@@ -401,7 +378,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|GOST3410:
     key: {type: GOST3410, origin: none, source: measured}
     required: []
@@ -417,7 +393,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|HASH-ML-DSA:
     key: {type: HASH-ML-DSA, origin: none, source: measured}
     required: []
@@ -433,7 +408,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|HASH-SLH-DSA:
     key: {type: HASH-SLH-DSA, origin: none, source: measured}
     required: []
@@ -449,7 +423,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|LMS:
     key: {type: LMS, origin: none, source: measured}
     required: []
@@ -465,7 +438,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|ML-DSA:
     key: {type: ML-DSA, origin: none, source: measured}
     required: []
@@ -481,7 +453,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|ML-DSA-44:
     key: {type: ML-DSA-44, origin: none, source: measured}
     required: []
@@ -497,7 +468,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|ML-DSA-44-WITH-SHA512:
     key: {type: ML-DSA-44-WITH-SHA512, origin: none, source: measured}
     required: []
@@ -513,7 +483,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|ML-DSA-65:
     key: {type: ML-DSA-65, origin: none, source: measured}
     required: []
@@ -529,7 +498,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|ML-DSA-65-WITH-SHA512:
     key: {type: ML-DSA-65-WITH-SHA512, origin: none, source: measured}
     required: []
@@ -545,7 +513,6 @@ algorithms:
     - {fact: strengthBits, value: 192, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|ML-DSA-87:
     key: {type: ML-DSA-87, origin: none, source: measured}
     required: []
@@ -561,7 +528,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|ML-DSA-87-WITH-SHA512:
     key: {type: ML-DSA-87-WITH-SHA512, origin: none, source: measured}
     required: []
@@ -577,7 +543,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|ML-KEM:
     key: {type: ML-KEM, origin: none, source: measured}
     required: []
@@ -593,7 +558,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|ML-KEM-1024:
     key: {type: ML-KEM-1024, origin: none, source: measured}
     required: []
@@ -609,7 +573,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|ML-KEM-512:
     key: {type: ML-KEM-512, origin: none, source: measured}
     required: []
@@ -625,7 +588,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|ML-KEM-768:
     key: {type: ML-KEM-768, origin: none, source: measured}
     required: []
@@ -641,7 +603,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|MLDSA44-ECDSA-brainpoolP256r1-SHA256:
     key: {type: MLDSA44-ECDSA-brainpoolP256r1-SHA256, origin: none, source: measured}
     required: []
@@ -657,7 +618,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|MLDSA44-ECDSA-P256-SHA256:
     key: {type: MLDSA44-ECDSA-P256-SHA256, origin: none, source: measured}
     required: []
@@ -673,7 +633,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|MLDSA44-Ed25519-SHA512:
     key: {type: MLDSA44-Ed25519-SHA512, origin: none, source: measured}
     required: []
@@ -689,7 +648,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|MLDSA44-RSA2048-PKCS15-SHA256:
     key: {type: MLDSA44-RSA2048-PKCS15-SHA256, origin: none, source: measured}
     required: []
@@ -705,7 +663,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|MLDSA44-RSA2048-PSS-SHA256:
     key: {type: MLDSA44-RSA2048-PSS-SHA256, origin: none, source: measured}
     required: []
@@ -721,7 +678,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|MLDSA65-ECDSA-brainpoolP256r1-SHA512:
     key: {type: MLDSA65-ECDSA-brainpoolP256r1-SHA512, origin: none, source: measured}
     required: []
@@ -737,7 +693,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|MLDSA65-ECDSA-P256-SHA512:
     key: {type: MLDSA65-ECDSA-P256-SHA512, origin: none, source: measured}
     required: []
@@ -753,7 +708,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|MLDSA65-Ed25519-SHA512:
     key: {type: MLDSA65-Ed25519-SHA512, origin: none, source: measured}
     required: []
@@ -769,7 +723,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|MLDSA65-RSA3072-PKCS15-SHA512:
     key: {type: MLDSA65-RSA3072-PKCS15-SHA512, origin: none, source: measured}
     required: []
@@ -785,7 +738,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|MLDSA65-RSA3072-PSS-SHA512:
     key: {type: MLDSA65-RSA3072-PSS-SHA512, origin: none, source: measured}
     required: []
@@ -801,7 +753,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|MLDSA87-ECDSA-brainpoolP384r1-SHA512:
     key: {type: MLDSA87-ECDSA-brainpoolP384r1-SHA512, origin: none, source: measured}
     required: []
@@ -817,7 +768,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|MLDSA87-ECDSA-P384-SHA512:
     key: {type: MLDSA87-ECDSA-P384-SHA512, origin: none, source: measured}
     required: []
@@ -833,7 +783,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|MLDSA87-Ed448-SHA512:
     key: {type: MLDSA87-Ed448-SHA512, origin: none, source: measured}
     required: []
@@ -849,7 +798,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|NTRU:
     key: {type: NTRU, origin: none, source: measured}
     required: []
@@ -865,7 +813,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|RSA:
     key: {type: RSA, origin: none, source: measured}
     required: []
@@ -882,7 +829,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/java/security/KeyPairGenerator'}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|RSASSA-PSS:
     key: {type: RSA, origin: none, source: measured}
     required: []
@@ -901,7 +847,6 @@ algorithms:
     providers:
       BC @ jdk-25: {optional.keySize.default: 2048}
       BundledBC @ org.bouncycastle:bcprov-jdk18on:1.79: {optional.keySize.default: 2048}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SLH-DSA:
     key: {type: SLH-DSA, origin: none, source: measured}
     required: []
@@ -917,7 +862,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SLH-DSA-SHA2-128F:
     key: {type: SLH-DSA-SHA2-128F, origin: none, source: measured}
     required: []
@@ -933,7 +877,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SLH-DSA-SHA2-128F-WITH-SHA256:
     key: {type: SLH-DSA-SHA2-128F-WITH-SHA256, origin: none, source: measured}
     required: []
@@ -949,7 +892,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SLH-DSA-SHA2-128S:
     key: {type: SLH-DSA-SHA2-128S, origin: none, source: measured}
     required: []
@@ -965,7 +907,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SLH-DSA-SHA2-128S-WITH-SHA256:
     key: {type: SLH-DSA-SHA2-128S-WITH-SHA256, origin: none, source: measured}
     required: []
@@ -981,7 +922,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SLH-DSA-SHA2-192F:
     key: {type: SLH-DSA-SHA2-192F, origin: none, source: measured}
     required: []
@@ -997,7 +937,6 @@ algorithms:
     - {fact: strengthBits, value: 192, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SLH-DSA-SHA2-192F-WITH-SHA512:
     key: {type: SLH-DSA-SHA2-192F-WITH-SHA512, origin: none, source: measured}
     required: []
@@ -1013,7 +952,6 @@ algorithms:
     - {fact: strengthBits, value: 192, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SLH-DSA-SHA2-192S:
     key: {type: SLH-DSA-SHA2-192S, origin: none, source: measured}
     required: []
@@ -1029,7 +967,6 @@ algorithms:
     - {fact: strengthBits, value: 192, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SLH-DSA-SHA2-192S-WITH-SHA512:
     key: {type: SLH-DSA-SHA2-192S-WITH-SHA512, origin: none, source: measured}
     required: []
@@ -1045,7 +982,6 @@ algorithms:
     - {fact: strengthBits, value: 192, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SLH-DSA-SHA2-256F:
     key: {type: SLH-DSA-SHA2-256F, origin: none, source: measured}
     required: []
@@ -1061,7 +997,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SLH-DSA-SHA2-256F-WITH-SHA512:
     key: {type: SLH-DSA-SHA2-256F-WITH-SHA512, origin: none, source: measured}
     required: []
@@ -1077,7 +1012,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SLH-DSA-SHA2-256S:
     key: {type: SLH-DSA-SHA2-256S, origin: none, source: measured}
     required: []
@@ -1093,7 +1027,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SLH-DSA-SHA2-256S-WITH-SHA512:
     key: {type: SLH-DSA-SHA2-256S-WITH-SHA512, origin: none, source: measured}
     required: []
@@ -1109,7 +1042,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SLH-DSA-SHAKE-128F:
     key: {type: SLH-DSA-SHAKE-128F, origin: none, source: measured}
     required: []
@@ -1125,7 +1057,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SLH-DSA-SHAKE-128F-WITH-SHAKE128:
     key: {type: SLH-DSA-SHAKE-128F-WITH-SHAKE128, origin: none, source: measured}
     required: []
@@ -1141,7 +1072,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SLH-DSA-SHAKE-128S:
     key: {type: SLH-DSA-SHAKE-128S, origin: none, source: measured}
     required: []
@@ -1157,7 +1087,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SLH-DSA-SHAKE-128S-WITH-SHAKE128:
     key: {type: SLH-DSA-SHAKE-128S-WITH-SHAKE128, origin: none, source: measured}
     required: []
@@ -1173,7 +1102,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SLH-DSA-SHAKE-192F:
     key: {type: SLH-DSA-SHAKE-192F, origin: none, source: measured}
     required: []
@@ -1189,7 +1117,6 @@ algorithms:
     - {fact: strengthBits, value: 192, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SLH-DSA-SHAKE-192F-WITH-SHAKE256:
     key: {type: SLH-DSA-SHAKE-192F-WITH-SHAKE256, origin: none, source: measured}
     required: []
@@ -1205,7 +1132,6 @@ algorithms:
     - {fact: strengthBits, value: 192, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SLH-DSA-SHAKE-192S:
     key: {type: SLH-DSA-SHAKE-192S, origin: none, source: measured}
     required: []
@@ -1221,7 +1147,6 @@ algorithms:
     - {fact: strengthBits, value: 192, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SLH-DSA-SHAKE-192S-WITH-SHAKE256:
     key: {type: SLH-DSA-SHAKE-192S-WITH-SHAKE256, origin: none, source: measured}
     required: []
@@ -1237,7 +1162,6 @@ algorithms:
     - {fact: strengthBits, value: 192, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SLH-DSA-SHAKE-256F:
     key: {type: SLH-DSA-SHAKE-256F, origin: none, source: measured}
     required: []
@@ -1253,7 +1177,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SLH-DSA-SHAKE-256F-WITH-SHAKE256:
     key: {type: SLH-DSA-SHAKE-256F-WITH-SHAKE256, origin: none, source: measured}
     required: []
@@ -1269,7 +1192,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SLH-DSA-SHAKE-256S:
     key: {type: SLH-DSA-SHAKE-256S, origin: none, source: measured}
     required: []
@@ -1285,7 +1207,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SLH-DSA-SHAKE-256S-WITH-SHAKE256:
     key: {type: SLH-DSA-SHAKE-256S-WITH-SHAKE256, origin: none, source: measured}
     required: []
@@ -1301,7 +1222,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SM2:
     key: {type: SM2, origin: none, source: measured}
     required: []
@@ -1318,7 +1238,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SPHINCS+-SHA2-128F:
     key: {type: SPHINCS+-SHA2-128F, origin: none, source: measured}
     required: []
@@ -1334,7 +1253,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SPHINCS+-SHA2-128S:
     key: {type: SPHINCS+-SHA2-128S, origin: none, source: measured}
     required: []
@@ -1350,7 +1268,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SPHINCS+-SHA2-192F:
     key: {type: SPHINCS+-SHA2-192F, origin: none, source: measured}
     required: []
@@ -1366,7 +1283,6 @@ algorithms:
     - {fact: strengthBits, value: 192, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SPHINCS+-SHA2-192S:
     key: {type: SPHINCS+-SHA2-192S, origin: none, source: measured}
     required: []
@@ -1382,7 +1298,6 @@ algorithms:
     - {fact: strengthBits, value: 192, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SPHINCS+-SHA2-256F:
     key: {type: SPHINCS+-SHA2-256F, origin: none, source: measured}
     required: []
@@ -1398,7 +1313,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SPHINCS+-SHA2-256S:
     key: {type: SPHINCS+-SHA2-256S, origin: none, source: measured}
     required: []
@@ -1414,7 +1328,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SPHINCS+-SHAKE-128F:
     key: {type: SPHINCS+-SHAKE-128F, origin: none, source: measured}
     required: []
@@ -1430,7 +1343,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SPHINCS+-SHAKE-128S:
     key: {type: SPHINCS+-SHAKE-128S, origin: none, source: measured}
     required: []
@@ -1446,7 +1358,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SPHINCS+-SHAKE-192F:
     key: {type: SPHINCS+-SHAKE-192F, origin: none, source: measured}
     required: []
@@ -1462,7 +1373,6 @@ algorithms:
     - {fact: strengthBits, value: 192, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SPHINCS+-SHAKE-192S:
     key: {type: SPHINCS+-SHAKE-192S, origin: none, source: measured}
     required: []
@@ -1478,7 +1388,6 @@ algorithms:
     - {fact: strengthBits, value: 192, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SPHINCS+-SHAKE-256F:
     key: {type: SPHINCS+-SHAKE-256F, origin: none, source: measured}
     required: []
@@ -1494,7 +1403,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SPHINCS+-SHAKE-256S:
     key: {type: SPHINCS+-SHAKE-256S, origin: none, source: measured}
     required: []
@@ -1510,7 +1418,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|SPHINCSPLUS:
     key: {type: SPHINCSPLUS, origin: none, source: measured}
     required: []
@@ -1526,7 +1433,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|X25519:
     key: {type: X25519, origin: none, source: measured}
     required: []
@@ -1542,7 +1448,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: sourced, url: 'https://www.rfc-editor.org/rfc/rfc7748'}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|X448:
     key: {type: X448, origin: none, source: measured}
     required: []
@@ -1558,7 +1463,6 @@ algorithms:
     - {fact: strengthBits, value: 224, source: sourced, url: 'https://www.rfc-editor.org/rfc/rfc7748'}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|XDH:
     key: {type: XDH, origin: none, source: measured}
     required: []
@@ -1577,7 +1481,6 @@ algorithms:
     providers:
       AndroidOpenSSL @ android-33: {required.keySize: null}
       SunEC @ jdk-25: {required.keySize: null}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   KeyPairGenerator|XWING:
     key: {type: XWING, origin: none, source: inferred}
     required: []
@@ -1593,4 +1496,3 @@ algorithms:
     - {fact: strengthBits, value: 128, source: sourced, url: 'https://datatracker.ietf.org/doc/html/draft-connolly-cfrg-xwing-kem-11'}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}

@@ -53,7 +53,7 @@ def _names(tmp_path) -> Names:
     return Names.load(tmp_path / "names.yaml")
 
 
-ENTRY = {"required": [], "optional": [], "conditions": {}, "lifecycle": {"reset": {"forward": {"value": "afterInit", "source": "inferred"}, "reverse": {"value": "afterInit", "source": "inferred"}}}, "operations": {"value": ["encrypt", "decrypt"], "source": "inferred"}, "sourcedOnly": [], "providers": {}, "provenance": {"by": "person"},
+ENTRY = {"required": [], "optional": [], "conditions": {}, "lifecycle": {"reset": {"forward": {"value": "afterInit", "source": "inferred"}, "reverse": {"value": "afterInit", "source": "inferred"}}}, "operations": {"value": ["encrypt", "decrypt"], "source": "inferred"}, "sourcedOnly": [], "providers": {},
          "contract": {"key": "app", "input": {"passwordBased": False, "wrap": False},
                       "output": {"base": "MOVED", "mode": "ECB", "padding": "NOPADDING"}}}
 

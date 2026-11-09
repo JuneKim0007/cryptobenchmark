@@ -179,7 +179,6 @@ def entry_terms(raw: dict) -> list[tuple[str, object]]:
             found.append((f"{ALGORITHM}.direction", side))
             found += _fields(f"{ALGORITHM}.lifecycle.{RESET}", leaf) if isinstance(leaf, dict) else []
     found += _fields(f"{ALGORITHM}.operations", raw.get("operations") or {})
-    found += _fields("algorithm.provenance", raw.get("provenance") or {})
     for provider, overrides in (raw.get("providers") or {}).items():
         found.append(("algorithm.providers", provider))
         for at, value in (overrides or {}).items():

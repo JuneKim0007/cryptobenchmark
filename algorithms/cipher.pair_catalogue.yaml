@@ -22,7 +22,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|DHIESwithAES-CBC:
     key: {type: DH, origin: app, source: inferred}
     required:
@@ -47,7 +46,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|DHIESWITHDESEDE-CBC:
     key: {type: DH, origin: app, source: inferred}
     required:
@@ -72,7 +70,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|ECIES:
     key: {type: EC, origin: app, source: measured}
     required:
@@ -93,7 +90,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|ECIESwithAES-CBC:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -118,7 +114,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|ECIESwithDESEDE-CBC:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -143,7 +138,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|ECIESwithSHA256:
     key: {type: EC, origin: app, source: measured}
     required:
@@ -164,7 +158,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|ECIESwithSHA256andAES-CBC:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -189,7 +182,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|ECIESwithSHA256andDESEDE-CBC:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -214,7 +206,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|ECIESwithSHA384:
     key: {type: EC, origin: app, source: measured}
     required:
@@ -235,7 +226,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|ECIESwithSHA384andAES-CBC:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -260,7 +250,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|ECIESwithSHA384andDESEDE-CBC:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -285,7 +274,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|ECIESwithSHA512:
     key: {type: EC, origin: app, source: measured}
     required:
@@ -306,7 +294,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|ECIESwithSHA512andAES-CBC:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -331,7 +318,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|ECIESwithSHA512andDESEDE-CBC:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -356,7 +342,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|ELGAMAL/ECB/PKCS1Padding:
     key: {type: ELGAMAL, origin: app, source: measured}
     required:
@@ -377,7 +362,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|ELGAMAL/NONE/NoPadding:
     key: {type: ELGAMAL, origin: app, source: measured}
     required:
@@ -398,7 +382,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|ETSIKEMWITHSHA256:
     key: {type: EC, origin: app, source: inferred}
     required:
@@ -420,7 +403,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|ML-KEM:
     key: {type: ML-KEM, origin: app, source: measured}
     required:
@@ -441,7 +423,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|ML-KEM-1024:
     key: {type: ML-KEM-1024, origin: app, source: measured}
     required:
@@ -462,7 +443,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|ML-KEM-512:
     key: {type: ML-KEM-512, origin: app, source: measured}
     required:
@@ -483,7 +463,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|ML-KEM-768:
     key: {type: ML-KEM-768, origin: app, source: measured}
     required:
@@ -504,7 +483,6 @@ algorithms:
     - {fact: strengthBits, value: 192, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|NTRU:
     key: {type: NTRU, origin: app, source: measured}
     required:
@@ -525,7 +503,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|RSA:
     key: {type: RSA, origin: app, source: measured}
     required:
@@ -544,7 +521,6 @@ algorithms:
     - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/Cipher'}
     providers:
       SunJCE @ jdk-25: {conditions.input: {value: maxBytes, bytes: 245, source: measured}}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|RSA/1/PKCS1Padding:
     key: {type: RSA, origin: app, source: measured}
     required:
@@ -565,7 +541,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|RSA/2/PKCS1Padding:
     key: {type: RSA, origin: app, source: measured}
     required:
@@ -586,7 +561,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|RSA/ECB/NoPadding:
     key: {type: RSA, origin: app, source: measured}
     required:
@@ -609,7 +583,6 @@ algorithms:
       AndroidKeyStoreBCWorkaround @ android-33: {contract.key: app, key.origin: provider}
       AndroidKeyStoreBCWorkaround @ android-36: {conditions.roundTrip: {value: false, source: measured}, contract.key: app, key.origin: provider}
       AndroidOpenSSL @ android-36: {conditions.roundTrip: {value: false, source: measured}}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|RSA/ECB/OAEPPadding:
     key: {type: RSA, origin: app, source: measured}
     required:
@@ -634,7 +607,6 @@ algorithms:
     providers:
       AndroidKeyStoreBCWorkaround @ android-33: {key.origin: provider}
       AndroidKeyStoreBCWorkaround @ android-36: {key.origin: provider}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|RSA/ECB/OAEPWithSHA-1AndMGF1Padding:
     key: {type: RSA, origin: app, source: measured}
     required:
@@ -659,7 +631,6 @@ algorithms:
     providers:
       AndroidKeyStoreBCWorkaround @ android-33: {key.origin: provider}
       AndroidKeyStoreBCWorkaround @ android-36: {key.origin: provider}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|RSA/ECB/OAEPWithSHA-224AndMGF1Padding:
     key: {type: RSA, origin: app, source: measured}
     required:
@@ -686,7 +657,6 @@ algorithms:
       AndroidKeyStoreBCWorkaround @ android-30: {conditions.spellingRuns: {value: RSA/None/OAEPWithSHA-224AndMGF1Padding is this provider's SHA-256 OAEP service, source: inferred}}
       AndroidKeyStoreBCWorkaround @ android-33: {conditions.spellingRuns: {value: RSA/None/OAEPWithSHA-224AndMGF1Padding is this provider's SHA-256 OAEP service, source: measured}, key.origin: provider}
       AndroidKeyStoreBCWorkaround @ android-36: {conditions.spellingRuns: {value: RSA/None/OAEPWithSHA-224AndMGF1Padding is this provider's SHA-256 OAEP service, source: measured}, key.origin: provider}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|RSA/ECB/OAEPWithSHA-256AndMGF1Padding:
     key: {type: RSA, origin: app, source: measured}
     required:
@@ -713,7 +683,6 @@ algorithms:
     providers:
       AndroidKeyStoreBCWorkaround @ android-33: {key.origin: provider}
       AndroidKeyStoreBCWorkaround @ android-36: {key.origin: provider}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|RSA/ECB/OAEPWithSHA-384AndMGF1Padding:
     key: {type: RSA, origin: app, source: measured}
     required:
@@ -738,7 +707,6 @@ algorithms:
     providers:
       AndroidKeyStoreBCWorkaround @ android-33: {key.origin: provider}
       AndroidKeyStoreBCWorkaround @ android-36: {key.origin: provider}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|RSA/ECB/OAEPWithSHA-512AndMGF1Padding:
     key: {type: RSA, origin: app, source: measured}
     required:
@@ -763,7 +731,6 @@ algorithms:
     providers:
       AndroidKeyStoreBCWorkaround @ android-33: {key.origin: provider}
       AndroidKeyStoreBCWorkaround @ android-36: {key.origin: provider}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|RSA/ECB/PKCS1Padding:
     key: {type: RSA, origin: app, source: measured}
     required:
@@ -786,7 +753,6 @@ algorithms:
     providers:
       AndroidKeyStoreBCWorkaround @ android-33: {contract.key: app, key.origin: provider}
       AndroidKeyStoreBCWorkaround @ android-36: {contract.key: app, key.origin: provider}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|RSA/NONE/ISO9796-1Padding:
     key: {type: RSA, origin: app, source: inferred}
     required:
@@ -807,7 +773,6 @@ algorithms:
     - {fact: strengthBits, value: {key: ifc}, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|SM2:
     key: {type: EC, origin: app, source: measured}
     required:
@@ -828,7 +793,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|SM2WITHBLAKE2B:
     key: {type: EC, origin: app, source: measured}
     required:
@@ -849,7 +813,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|SM2WITHBLAKE2S:
     key: {type: EC, origin: app, source: measured}
     required:
@@ -870,7 +833,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|SM2WITHMD5:
     key: {type: EC, origin: app, source: measured}
     required:
@@ -891,7 +853,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|SM2WITHRIPEMD160:
     key: {type: EC, origin: app, source: measured}
     required:
@@ -912,7 +873,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|SM2WITHSHA1:
     key: {type: EC, origin: app, source: measured}
     required:
@@ -933,7 +893,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|SM2WITHSHA224:
     key: {type: EC, origin: app, source: measured}
     required:
@@ -954,7 +913,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|SM2WITHSHA256:
     key: {type: EC, origin: app, source: measured}
     required:
@@ -975,7 +933,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|SM2WITHSHA384:
     key: {type: EC, origin: app, source: measured}
     required:
@@ -996,7 +953,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|SM2WITHSHA512:
     key: {type: EC, origin: app, source: measured}
     required:
@@ -1017,7 +973,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|SM2WITHWHIRLPOOL:
     key: {type: EC, origin: app, source: measured}
     required:
@@ -1038,7 +993,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|XIES:
     key: {type: X25519, origin: app, source: measured}
     required:
@@ -1059,7 +1013,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|XIESwithAES-CBC:
     key: {type: X25519, origin: app, source: inferred}
     required:
@@ -1084,7 +1037,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|XIESwithSHA256:
     key: {type: X25519, origin: app, source: measured}
     required:
@@ -1105,7 +1057,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|XIESwithSHA256andAES-CBC:
     key: {type: X25519, origin: app, source: inferred}
     required:
@@ -1130,7 +1081,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|XIESwithSHA384:
     key: {type: X25519, origin: app, source: measured}
     required:
@@ -1151,7 +1101,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|XIESwithSHA384andAES-CBC:
     key: {type: X25519, origin: app, source: inferred}
     required:
@@ -1176,7 +1125,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|XIESwithSHA512:
     key: {type: X25519, origin: app, source: measured}
     required:
@@ -1197,7 +1145,6 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Cipher|XIESwithSHA512andAES-CBC:
     key: {type: X25519, origin: app, source: inferred}
     required:
@@ -1222,4 +1169,3 @@ algorithms:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}

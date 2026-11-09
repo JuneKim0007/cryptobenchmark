@@ -19,7 +19,6 @@ algorithms:
     - {fact: strengthBits, value: 80, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|BLAKE2B-256:
     key: {type: none, origin: none, source: measured}
     required:
@@ -37,7 +36,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|BLAKE2B-384:
     key: {type: none, origin: none, source: measured}
     required:
@@ -55,7 +53,6 @@ algorithms:
     - {fact: strengthBits, value: 192, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|BLAKE2B-512:
     key: {type: none, origin: none, source: measured}
     required:
@@ -73,7 +70,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|BLAKE2S-128:
     key: {type: none, origin: none, source: measured}
     required:
@@ -91,7 +87,6 @@ algorithms:
     - {fact: strengthBits, value: 64, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|BLAKE2S-160:
     key: {type: none, origin: none, source: measured}
     required:
@@ -109,7 +104,6 @@ algorithms:
     - {fact: strengthBits, value: 80, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|BLAKE2S-224:
     key: {type: none, origin: none, source: measured}
     required:
@@ -127,7 +121,6 @@ algorithms:
     - {fact: strengthBits, value: 112, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|BLAKE2S-256:
     key: {type: none, origin: none, source: measured}
     required:
@@ -145,7 +138,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|BLAKE3-256:
     key: {type: none, origin: none, source: measured}
     required:
@@ -163,7 +155,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|DSTU7564-256:
     key: {type: none, origin: none, source: measured}
     required:
@@ -181,7 +172,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|DSTU7564-384:
     key: {type: none, origin: none, source: measured}
     required:
@@ -199,7 +189,6 @@ algorithms:
     - {fact: strengthBits, value: 192, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|DSTU7564-512:
     key: {type: none, origin: none, source: measured}
     required:
@@ -217,7 +206,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|GOST3411:
     key: {type: none, origin: none, source: measured}
     required:
@@ -235,7 +223,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|GOST3411-2012-256:
     key: {type: none, origin: none, source: measured}
     required:
@@ -253,7 +240,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|GOST3411-2012-512:
     key: {type: none, origin: none, source: measured}
     required:
@@ -271,7 +257,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|HARAKA-256:
     key: {type: none, origin: none, source: measured}
     required:
@@ -289,7 +274,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|HARAKA-512:
     key: {type: none, origin: none, source: measured}
     required:
@@ -307,7 +291,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|KECCAK-224:
     key: {type: none, origin: none, source: measured}
     required:
@@ -325,7 +308,6 @@ algorithms:
     - {fact: strengthBits, value: 112, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|KECCAK-256:
     key: {type: none, origin: none, source: measured}
     required:
@@ -343,7 +325,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|KECCAK-288:
     key: {type: none, origin: none, source: measured}
     required:
@@ -361,7 +342,6 @@ algorithms:
     - {fact: strengthBits, value: 144, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|KECCAK-384:
     key: {type: none, origin: none, source: measured}
     required:
@@ -379,7 +359,6 @@ algorithms:
     - {fact: strengthBits, value: 192, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|KECCAK-512:
     key: {type: none, origin: none, source: measured}
     required:
@@ -397,7 +376,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|MD2:
     key: {type: none, origin: none, source: measured}
     required:
@@ -415,7 +393,6 @@ algorithms:
     - {fact: strengthBits, value: 0, source: sourced, url: 'https://www.rfc-editor.org/rfc/rfc6149'}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|MD4:
     key: {type: none, origin: none, source: measured}
     required:
@@ -433,7 +410,6 @@ algorithms:
     - {fact: strengthBits, value: 0, source: sourced, url: 'https://www.rfc-editor.org/rfc/rfc6150'}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|MD5:
     key: {type: none, origin: none, source: measured}
     required:
@@ -451,7 +427,6 @@ algorithms:
     - {fact: strengthBits, value: 0, source: sourced, url: 'https://www.rfc-editor.org/rfc/rfc6151'}
     - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/java/security/MessageDigest'}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|PARALLELHASH128-256:
     key: {type: none, origin: none, source: measured}
     required:
@@ -469,7 +444,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|PARALLELHASH256-512:
     key: {type: none, origin: none, source: measured}
     required:
@@ -487,7 +461,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|RIPEMD128:
     key: {type: none, origin: none, source: measured}
     required:
@@ -505,7 +478,6 @@ algorithms:
     - {fact: strengthBits, value: 64, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|RIPEMD160:
     key: {type: none, origin: none, source: measured}
     required:
@@ -523,7 +495,6 @@ algorithms:
     - {fact: strengthBits, value: 80, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|RIPEMD256:
     key: {type: none, origin: none, source: measured}
     required:
@@ -541,7 +512,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|RIPEMD320:
     key: {type: none, origin: none, source: measured}
     required:
@@ -559,7 +529,6 @@ algorithms:
     - {fact: strengthBits, value: 160, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|SHA-1:
     knownVectors: {ids: [sha1-abc]}
     key: {type: none, origin: none, source: measured}
@@ -578,7 +547,6 @@ algorithms:
     - {fact: strengthBits, value: 80, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/java/security/MessageDigest'}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|SHA-224:
     key: {type: none, origin: none, source: measured}
     required:
@@ -596,7 +564,6 @@ algorithms:
     - {fact: strengthBits, value: 112, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: 22, source: sourced, url: 'https://developer.android.com/reference/java/security/MessageDigest'}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|SHA-256:
     knownVectors: {ids: [sha256-abc]}
     key: {type: none, origin: none, source: measured}
@@ -615,7 +582,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/java/security/MessageDigest'}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|SHA-384:
     key: {type: none, origin: none, source: measured}
     required:
@@ -633,7 +599,6 @@ algorithms:
     - {fact: strengthBits, value: 192, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/java/security/MessageDigest'}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|SHA-512:
     knownVectors: {ids: [sha512-abc]}
     key: {type: none, origin: none, source: measured}
@@ -652,7 +617,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/java/security/MessageDigest'}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|SHA-512/224:
     key: {type: none, origin: none, source: measured}
     required:
@@ -670,7 +634,6 @@ algorithms:
     - {fact: strengthBits, value: 112, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|SHA-512/256:
     key: {type: none, origin: none, source: measured}
     required:
@@ -688,7 +651,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|SHA3-224:
     key: {type: none, origin: none, source: measured}
     required:
@@ -706,7 +668,6 @@ algorithms:
     - {fact: strengthBits, value: 112, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|SHA3-256:
     key: {type: none, origin: none, source: measured}
     required:
@@ -724,7 +685,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|SHA3-384:
     key: {type: none, origin: none, source: measured}
     required:
@@ -742,7 +702,6 @@ algorithms:
     - {fact: strengthBits, value: 192, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|SHA3-512:
     key: {type: none, origin: none, source: measured}
     required:
@@ -760,7 +719,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: sourced, url: 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|SHAKE128-256:
     key: {type: none, origin: none, source: measured}
     required:
@@ -778,7 +736,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|SHAKE256-512:
     key: {type: none, origin: none, source: measured}
     required:
@@ -796,7 +753,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|Skein-1024-1024:
     key: {type: none, origin: none, source: measured}
     required:
@@ -814,7 +770,6 @@ algorithms:
     - {fact: strengthBits, value: 512, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|Skein-1024-384:
     key: {type: none, origin: none, source: measured}
     required:
@@ -832,7 +787,6 @@ algorithms:
     - {fact: strengthBits, value: 192, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|Skein-1024-512:
     key: {type: none, origin: none, source: measured}
     required:
@@ -850,7 +804,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|Skein-256-128:
     key: {type: none, origin: none, source: measured}
     required:
@@ -868,7 +821,6 @@ algorithms:
     - {fact: strengthBits, value: 64, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|Skein-256-160:
     key: {type: none, origin: none, source: measured}
     required:
@@ -886,7 +838,6 @@ algorithms:
     - {fact: strengthBits, value: 80, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|Skein-256-224:
     key: {type: none, origin: none, source: measured}
     required:
@@ -904,7 +855,6 @@ algorithms:
     - {fact: strengthBits, value: 112, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|Skein-256-256:
     key: {type: none, origin: none, source: measured}
     required:
@@ -922,7 +872,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|Skein-512-128:
     key: {type: none, origin: none, source: measured}
     required:
@@ -940,7 +889,6 @@ algorithms:
     - {fact: strengthBits, value: 64, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|Skein-512-160:
     key: {type: none, origin: none, source: measured}
     required:
@@ -958,7 +906,6 @@ algorithms:
     - {fact: strengthBits, value: 80, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|Skein-512-224:
     key: {type: none, origin: none, source: measured}
     required:
@@ -976,7 +923,6 @@ algorithms:
     - {fact: strengthBits, value: 112, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|Skein-512-256:
     key: {type: none, origin: none, source: measured}
     required:
@@ -994,7 +940,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|Skein-512-384:
     key: {type: none, origin: none, source: measured}
     required:
@@ -1012,7 +957,6 @@ algorithms:
     - {fact: strengthBits, value: 192, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|Skein-512-512:
     key: {type: none, origin: none, source: measured}
     required:
@@ -1030,7 +974,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|SM3:
     key: {type: none, origin: none, source: measured}
     required:
@@ -1048,7 +991,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|TIGER:
     key: {type: none, origin: none, source: measured}
     required:
@@ -1066,7 +1008,6 @@ algorithms:
     - {fact: strengthBits, value: 96, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|TUPLEHASH128-256:
     key: {type: none, origin: none, source: measured}
     required:
@@ -1084,7 +1025,6 @@ algorithms:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|TUPLEHASH256-512:
     key: {type: none, origin: none, source: measured}
     required:
@@ -1102,7 +1042,6 @@ algorithms:
     - {fact: strengthBits, value: 256, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|WHIRLPOOL:
     key: {type: none, origin: none, source: measured}
     required:
@@ -1120,4 +1059,3 @@ algorithms:
     - {fact: strengthBits, value: 256, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
-    provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
