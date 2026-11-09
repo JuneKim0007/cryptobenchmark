@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 
+from cryptobench import paths
 from cryptobench.document import AT_PATH, DocumentKind
 from ..dto.lifecycle import Lifecycle
 from ..dto.site import KEY_SOURCES, SINKS
@@ -14,7 +15,7 @@ from ..files import read_yaml
 from ..source.code import Code
 from .extract import Function
 
-PATTERNS = Path(__file__).with_name("patterns.yaml")
+PATTERNS = paths.SCOPE_PATTERNS.path
 SUPPORTED_SCHEMA = 1
 PATTERNS_DOC = DocumentKind("patterns", SUPPORTED_SCHEMA, AT_PATH)
 

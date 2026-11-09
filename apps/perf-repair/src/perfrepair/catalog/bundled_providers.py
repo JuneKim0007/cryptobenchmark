@@ -6,10 +6,11 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+from cryptobench import paths
 from cryptobench.coded import InputError
 from cryptobench.document import parse_yaml
 
-BUNDLED_PROVIDERS = Path(__file__).with_name("bundled-providers.yaml")
+BUNDLED_PROVIDERS = paths.BUNDLED_PROVIDERS.path
 SCHEMA_VERSION = 1
 REQUIRED = ("artifact", "provider", "create", "source")
 OPTIONAL = ("alias", "minSdk", "notes", "blocked", "badVersions")

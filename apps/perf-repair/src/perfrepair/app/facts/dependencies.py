@@ -5,6 +5,7 @@ import re
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
+from cryptobench import paths
 from ...files import read_yaml
 from ...source.code import Code
 from ...source.language import of_build_file
@@ -12,7 +13,7 @@ from ...source.lexer import mask
 from ..find.imports import import_reason
 from .versions import pinned_versions
 
-LIBRARIES = Path(__file__).with_name("libraries.yaml")
+LIBRARIES = paths.LIBRARIES.path
 REGISTRY = "Security"
 SUPPORTED_SCHEMA = 1
 

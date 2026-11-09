@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 
+from cryptobench import paths
 from cryptobench.coded import InputError
 from cryptobench.document import AT_PATH, DocumentKind
 from cryptobench.catalogue.families import Families
@@ -12,7 +13,7 @@ from cryptobench.catalogue.names import Names, fold
 from .screening import ACCEPTED, DEPRECATED, Screening
 from .types import types
 
-CATALOG = Path(__file__).with_name("upgrades.yaml")
+CATALOG = paths.UPGRADES_CATALOG.path
 SCHEMA_VERSION = 1
 
 

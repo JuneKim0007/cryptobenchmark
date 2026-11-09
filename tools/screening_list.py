@@ -1,6 +1,5 @@
 """Writes apps/perf-repair/docs/screening-list.md from the screening catalog: status counts per engine type, then every deprecated row."""
 import collections
-import pathlib
 
 import yaml
 

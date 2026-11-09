@@ -30,7 +30,7 @@ def staged(root):
 @contextlib.contextmanager
 def kept_until_replaced(folder):
     """The last finished run's folder survives a failed or interrupted one: set aside, restored on failure, dropped on success."""
-    previous = folder.with_name(folder.name + ".previous")
+    previous = folder.parent / f"{folder.name}.previous"
     if previous.exists():
         shutil.rmtree(folder, ignore_errors=True)
         previous.rename(folder)

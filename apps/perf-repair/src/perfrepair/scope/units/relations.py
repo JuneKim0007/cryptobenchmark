@@ -3,13 +3,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from functools import cache
-from pathlib import Path
 
+from cryptobench import paths
 from cryptobench.document import DocumentKind
 from ...dto.site import Scope
 from ...files import read_yaml
 
-RELATIONS = Path(__file__).with_name("relations.yaml")
+RELATIONS = paths.SCOPE_RELATIONS.path
 SUPPORTED_SCHEMA = 1
 
 RELATIONS_DOC = DocumentKind("relations", SUPPORTED_SCHEMA, "relations_schema: {path} schemaVersion {found}, supported {version}")

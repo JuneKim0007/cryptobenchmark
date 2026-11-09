@@ -5,8 +5,8 @@ from __future__ import annotations
 
 import re
 from functools import lru_cache
-from pathlib import Path
 
+from cryptobench import paths
 from ..dto.site import Scope
 from ..files import read_yaml
 from ..source.brackets import CLOSE, OPEN, matching
@@ -16,7 +16,7 @@ from .edit.init import BOUND
 from .edit.locate import locate
 from .edit.reject import Rejected
 
-TABLE = Path(__file__).with_name("setup_calls.yaml")
+TABLE = paths.SETUP_CALLS.path
 _MEMBER = re.compile(r"\s*[?!]*\.\s*(\w+)\s*([({])")
 _CALL = re.compile(r"(\w+)\s*[({]")
 _RETURN_TYPE = re.compile(r"\)\s*:\s*$")

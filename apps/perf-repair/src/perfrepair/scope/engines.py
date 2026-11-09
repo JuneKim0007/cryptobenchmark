@@ -5,11 +5,12 @@ from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 
+from cryptobench import paths
 from cryptobench.document import AT_PATH, DocumentKind
 from ..dto.lifecycle import ORIGINS, REQUIREMENTS
 from ..files import read_yaml
 
-ENGINES = Path(__file__).with_name("engines.yaml")
+ENGINES = paths.SCOPE_ENGINES.path
 SUPPORTED_SCHEMA = 1
 ENGINES_DOC = DocumentKind("engines", SUPPORTED_SCHEMA, AT_PATH)
 _ENGINE_KEYS = {"configuration", "terminal", "optional", "requirements", "operations", "consumers"}

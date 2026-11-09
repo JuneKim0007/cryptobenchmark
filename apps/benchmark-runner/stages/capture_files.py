@@ -1,20 +1,23 @@
 """The capture, trial and requirements a discovery wrote, known by path and paired by stamp; never the newest in a kept folder."""
 import re
 
+from cryptobench import paths
 from failure import fail
 
 CAPTURE = re.compile(r"probe_(\d{8}T\d{6}Z)\.yaml")
-TRIAL = "trial_{}.yaml"
-REQUIREMENTS = "requirements_{}.yaml"
+
+
+def _stamp(capture):
+    return CAPTURE.fullmatch(capture.name).group(1)
 
 
 def stamped(directory):
-    return {path.name for path in directory.glob("probe_*.yaml") if CAPTURE.fullmatch(path.name)}
+    return {path.name for path in paths.Discovery(directory).captures() if CAPTURE.fullmatch(path.name)}
 
 
 def pair(capture):
     """The trial written with this capture: the same stamp, never another trial in the folder."""
-    trial = capture.with_name(TRIAL.format(CAPTURE.fullmatch(capture.name).group(1)))
+    trial = paths.Discovery(capture.parent).trial(_stamp(capture))
     if not trial.is_file():
         fail(f"missing_file: {trial} (the trial of {capture.name})")
     return capture, trial
@@ -22,7 +25,7 @@ def pair(capture):
 
 def requirements(capture):
     """The requirements written with this capture; absent only in a folder a test wrote."""
-    return capture.with_name(REQUIREMENTS.format(CAPTURE.fullmatch(capture.name).group(1)))
+    return paths.Discovery(capture.parent).requirements(_stamp(capture))
 
 
 def added(directory, before):

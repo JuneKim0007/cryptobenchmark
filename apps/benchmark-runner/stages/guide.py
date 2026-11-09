@@ -5,15 +5,12 @@ import sys
 import yaml
 
 sys.path.append(str(pathlib.Path(__file__).resolve().parents[3] / "lib/cryptobench"))
+from cryptobench import paths  # noqa: E402
 from cryptobench.catalogue.guide_items import guide_items  # noqa: E402
 from cryptobench.catalogue import vectors  # noqa: E402
 
-NAME = "guide.yaml"
-KNOWN_ANSWERS = "known-answers.yaml"   # KnownAnswerFile.NAME
-
-
 def file_beside(effective):
-    return pathlib.Path(effective).with_name(NAME)
+    return paths.Configuration(pathlib.Path(effective).parent).guide
 
 
 def platform(runtime):
@@ -56,6 +53,6 @@ def write_known_answers(effective, capture, configuration):
     document, warnings = vectors.filled(yaml.safe_load(pathlib.Path(effective).read_text()), platform(runtime), user_vectors(configuration))
     for line in warnings:
         print(f"warning: {line}")
-    written = pathlib.Path(effective).with_name(KNOWN_ANSWERS)
+    written = paths.Configuration(pathlib.Path(effective).parent).known_answers
     written.write_text(yaml.safe_dump(document, sort_keys=False))
     return written

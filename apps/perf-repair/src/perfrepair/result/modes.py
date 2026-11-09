@@ -3,12 +3,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from functools import cache
-from pathlib import Path
 
+from cryptobench import paths
 from ..dto.perf_mode import PerfMode
 from ..files import read_yaml
 
-CRITERIA = Path(__file__).with_name("criteria.yaml")
+CRITERIA = paths.RESULT_CRITERIA.path
 
 
 @cache

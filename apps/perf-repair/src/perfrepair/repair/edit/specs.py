@@ -4,12 +4,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+from cryptobench import paths
 from ...files import read_yaml
 from ...source.language import Language
 from .literal import string_literal
 from .reject import Rejected
 
-TABLE = Path(__file__).with_name("specs.yaml")
+TABLE = paths.EDIT_SPECS.path
 TYPES = ("int", "string", "spec", "random_bytes", "constant")
 
 

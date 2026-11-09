@@ -1,7 +1,6 @@
 """The repo's files and folders as git lists them, and the paths each guide or doc names, resolved against them."""
 from __future__ import annotations
 
-import pathlib
 import posixpath
 import re
 import subprocess

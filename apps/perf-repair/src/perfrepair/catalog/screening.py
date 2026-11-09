@@ -3,11 +3,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+from cryptobench import paths
 from cryptobench.coded import InputError
 from cryptobench.document import AT_PATH, DocumentKind, parse_yaml
 from cryptobench.catalogue.names import Names, fold
 
-SCREENING = Path(__file__).with_name("screening.yaml")
+SCREENING = paths.SCREENING_CATALOG.path
 SCHEMA_VERSION = 1
 DEPRECATED, ACCEPTED = "deprecated", "accepted"
 STATUSES = (DEPRECATED, ACCEPTED)

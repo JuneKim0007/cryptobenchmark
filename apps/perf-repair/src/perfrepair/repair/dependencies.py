@@ -7,11 +7,12 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+from cryptobench import paths
 from ..files import read_yaml
 from ..source.language import Language
 from ..source.lexer import mask
 
-TABLE = Path(__file__).with_name("names.yaml")
+TABLE = paths.REPAIR_NAMES.path
 # a number first, whole: `0xff` must not leave `xff` as a name; its fraction needs a digit, so `0..n` keeps `n`
 _NUMBER = r"\d\w*(?:\.\d\w*)?(?:(?<=[eEpP])[-+]\d\w*)?"
 _TOKEN = re.compile(rf"[A-Za-z_]\w*|{_NUMBER}|->|==|!=|<=|>=|\S")

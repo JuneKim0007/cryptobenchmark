@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 from functools import cache
-from pathlib import Path
 
+from cryptobench import paths
 from cryptobench.document import AT_PATH, DocumentKind
 
-CATALOG = Path(__file__).with_name("key-contract.yaml")
+CATALOG = paths.KEY_CONTRACT.path
 SCHEMA_VERSION = 1
 KEY_CONTRACT_DOC = DocumentKind("key contract", SCHEMA_VERSION, AT_PATH)
 
