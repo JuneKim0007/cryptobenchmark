@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from cryptobench import paths
 from ...files import read_yaml
 from ...inputs.check import (
     TARGETS_EXPECTED,
@@ -67,17 +68,16 @@ class TargetSet:
 
 
 def listed_entries(value: Any, settings_file: Path) -> tuple[list, Path]:
-    """The entries and the folder their relative paths resolve against: perfrepair.yaml's, or the targets file's."""
-    base = Path(settings_file).parent
+    """The entries and the file their relative paths resolve against: perfrepair.yaml, or the targets file."""
     if not isinstance(value, str):
-        return list(value or []), base
-    path = (base / Path(value).expanduser()).resolve()
+        return list(value or []), Path(settings_file)
+    path = paths.against(settings_file, value)
     if not path.is_file():
         raise Coded(f"missing_file: apps.targets file {path}")
     entries = read_yaml(path, list)
     if not all(target_ok(e) for e in entries):
         raise Coded(f"invalid: apps.targets file {path}, {TARGETS_EXPECTED}")
-    return entries, path.parent
+    return entries, path
 
 
 def _from_root(found: TargetSet, root: Path, perf: Any) -> None:
@@ -121,6 +121,6 @@ def resolve_targets(value: Any, settings_file: Path) -> TargetSet:
     found = TargetSet()
     for e in entries:
         root = target_root(e)
-        folder = (base / Path(root or target_path(e)).expanduser()).resolve()
+        folder = paths.against(base, root or target_path(e))
         (_from_root if root else _from_path)(found, folder, target_perf(e))
     return found

@@ -67,6 +67,10 @@ def test_against_joins_to_the_settings_folder(tmp_path, value):
     assert paths.against(tmp_path / "settings.yaml", value) == (tmp_path / value).resolve()
 
 
+def test_against_resolves_dotdot(tmp_path):
+    assert paths.against(tmp_path / "s" / "settings.yaml", "../x.yaml") == (tmp_path / "x.yaml").resolve()
+
+
 def test_against_expands_home(tmp_path, monkeypatch):
     monkeypatch.setenv("HOME", str(tmp_path))
     assert paths.against("/x/settings.yaml", "~/y.yaml") == (tmp_path / "y.yaml").resolve()

@@ -62,7 +62,7 @@ def _file_pointers(loaded: Loaded, tree: LlmTree) -> None:
         value = loaded.settings.get(key)
         if not value:
             continue
-        path = (loaded.file.parent / Path(str(value)).expanduser()).resolve()
+        path = paths.against(loaded.file, value)
         tree.pointers.append(Pointer(key, path, "overridden"))
         if path.exists():
             try:
@@ -78,10 +78,10 @@ def _targets(loaded: Loaded, tree: LlmTree) -> None:
         return
     try:
         if isinstance(value, str):
-            tree.pointers.append(Pointer(TARGETS_KEY, (loaded.file.parent / Path(value).expanduser()).resolve(), "targets"))
+            tree.pointers.append(Pointer(TARGETS_KEY, paths.against(loaded.file, value), "targets"))
         entries, base = listed_entries(value, loaded.file)
         for i, entry in enumerate(entries):
-            folder = (base / Path(target_root(entry) or target_path(entry)).expanduser()).resolve()
+            folder = paths.against(base, target_root(entry) or target_path(entry))
             tree.pointers.append(Pointer(f"{TARGETS_KEY}[{i}]", folder, "target"))
         found = resolve_targets(value, loaded.file)
     except ValueError as e:

@@ -43,7 +43,7 @@ def write(effective, capture):
 def user_vectors(configuration):
     """selection.knownVectors of global.yaml, against that file; a test set's vectors are read only by --check."""
     named = (yaml.safe_load(pathlib.Path(configuration).read_text()).get("selection") or {}).get("knownVectors")
-    return (pathlib.Path(configuration).parent / pathlib.Path(named).expanduser()) if named else None
+    return paths.against(configuration, named) if named else None
 
 
 def write_known_answers(effective, capture, configuration):

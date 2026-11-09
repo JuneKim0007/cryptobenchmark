@@ -6,6 +6,7 @@ from pathlib import Path
 
 import yaml
 
+from cryptobench import paths
 from ..dto.benchmark_coverage import PARTIAL, VARIANT_MISSING, Gap
 from cryptobench.catalogue.grouping import parse_qualified
 from ..dto.metrics import BY_NAME, TIME
@@ -23,7 +24,7 @@ def rules(items) -> list[dict]:
 
 def _test_set(config: Path, document: dict) -> Path:
     named = (document.get("selection") or {}).get("testSet")
-    path = Path(named) if named and Path(named).is_absolute() else Path(config).parent / (named or "")
+    path = paths.against(config, named) if named else Path(config).parent
     if not named or not path.is_file():
         raise Coded(f"delta_unconfigured: {config} names test set {named!r}, not a file; a delta plans with the stored test set")
     return path

@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 from cryptobench.coded import InputError
 from cryptobench.document import parse_yaml
+from cryptobench import paths
 from perfrepair.inputs.check import RUN_ID_FORM
 from perfrepair.run_dir.run_record import ON_EXISTING, OVERWRITE
 
@@ -51,7 +52,7 @@ def _check_keys(document, file):
 def _path(value, key, file):
     if not isinstance(value, str) or not value:
         raise SettingsIndexError(f"missing_key: {key} in {file}, a path")
-    return (file.parent / pathlib.Path(value).expanduser()).resolve()
+    return paths.against(file, value)
 
 
 def _run(document, file):

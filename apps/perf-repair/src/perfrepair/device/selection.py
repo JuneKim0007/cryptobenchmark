@@ -7,6 +7,7 @@ from pathlib import Path
 import yaml
 
 from cryptobench.paths import RunTree
+from cryptobench import paths
 from ..dto.device import DeviceRecord
 from cryptobench.catalogue.grouping import Item
 from ..dto.screen import Verdict
@@ -58,7 +59,7 @@ def relocated(base: Path) -> dict:
     document = read_yaml(base) or {}
     selection = dict(document.get("selection") or {})
     if selection.get("testSet"):
-        selection["testSet"] = str((Path(base).parent / selection["testSet"]).resolve())
+        selection["testSet"] = str(paths.against(base, selection["testSet"]))
     return {**document, "selection": selection}
 
 

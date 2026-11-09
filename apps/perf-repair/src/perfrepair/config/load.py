@@ -56,7 +56,7 @@ class Loaded:
     def _file_value(self, row: Row) -> Any:
         value = self.settings.get(row.key)
         if row.path and isinstance(value, str) and value:
-            return self.file.parent / Path(value).expanduser()
+            return paths.against(self.file, value)
         return value
 
     def read(self, row: Row, cli: Any = None, check: Callable[[str, Any], None] | None = None) -> Any:
