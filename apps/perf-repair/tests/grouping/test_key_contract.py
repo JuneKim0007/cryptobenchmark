@@ -2,10 +2,10 @@ from pathlib import Path
 
 import pytest
 
-from perfrepair.catalog.families import Families
-from perfrepair.catalog.names import Names
+from cryptobench.catalogue.families import Families
+from cryptobench.catalogue.names import Names
 from perfrepair.data_handler.inbound.probe import Probe
-from perfrepair.dto.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD, KEY_UNKNOWN
+from cryptobench.catalogue.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD, KEY_UNKNOWN
 from perfrepair.files import read_document
 from perfrepair.grouping.build.items import build
 from perfrepair.grouping.build.key_contract import key_contract

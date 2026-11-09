@@ -16,6 +16,9 @@ recipes:
     class: javax.crypto.spec.PBEKeySpec
     args: [{role: password, kind: string}, {role: salt, kind: bytes}, {role: iterationCount, kind: int}, {role: keyBits, kind: int}]
   jca.ecGenSpec: {class: java.security.spec.ECGenParameterSpec, args: [{role: curve, kind: string}]}
+  jca.oaepSpec:
+    class: javax.crypto.spec.OAEPParameterSpec
+    args: [{role: digest, kind: string}, {kind: constant, value: MGF1}, {kind: recipe, recipe: jca.mgf1Spec}, {kind: enum, value: javax.crypto.spec.PSource$PSpecified.DEFAULT}]
   jca.mgf1Spec: {class: java.security.spec.MGF1ParameterSpec, args: [{role: mgf1, kind: string}]}
   jca.pssSpec:
     class: java.security.spec.PSSParameterSpec

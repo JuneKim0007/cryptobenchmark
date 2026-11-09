@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from ...dto.grouping import Item, Profile
+from cryptobench.catalogue.grouping import Item, Profile
 from ...dto.grouping_output import GROUPS_SCHEMA_VERSION, Finding
 from ...dto.decision import OutboxRecord
 from ...dto.grouping_state import Knowledge
 from ...dto.interop import PairResult, interop_section
 from ...dto.screen import Verdict
-from ...catalog.families import Families
+from cryptobench.catalogue.families import Families
 from .rules import common_key_sizes
 
 

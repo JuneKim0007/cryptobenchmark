@@ -38,6 +38,7 @@ configure(subprojects.filter { it.name in moduleDirectories }) {
 
     val resourceDirectories = listOfNotNull(File(moduleDirectory, "src/main/resources"),
         rootDir.resolve(moduleDirectories.getValue("preparation")).resolve("src/main/resources").takeIf { name == "benchmark" })
+    if (name == "config") tasks.withType<ProcessResources>().matching { it.name == "processResources" }.configureEach { from(rootDir.resolve("../../algorithms")) { include("algorithm-names.yaml") } }
     extensions.configure<SourceSetContainer> {
         named("main") { resources.setSrcDirs(resourceDirectories) }
         named("test") { resources.setSrcDirs(listOf(File(moduleDirectory, "src/test/resources"))) }

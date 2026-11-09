@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
 
-from .document import DocumentKind
+from cryptobench.catalogue.document import DocumentKind
 
 SCHEMA_VERSION = 1
 DEVICE_DOC = DocumentKind("device.yaml", SCHEMA_VERSION)

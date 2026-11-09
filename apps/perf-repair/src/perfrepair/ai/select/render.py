@@ -6,7 +6,7 @@ from __future__ import annotations
 import hashlib
 from dataclasses import replace
 
-from ...dto.grouping import algorithm_of, provider_of
+from cryptobench.catalogue.grouping import algorithm_of, provider_of
 from ...dto.lifecycle import Requirement
 from ...dto.replacement import required_risks
 from ...dto.dossier import Dossier

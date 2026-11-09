@@ -5,7 +5,7 @@
 ```mermaid
 flowchart TD
     C[scope's current item] --> G[other members of its group]
-    C --> F[other canonical names of its family, catalog/algorithms/]
+    C --> F[other canonical names of its family, ../../algorithms/]
     G --> D[drop-in: every contract equal]
     F --> R{floor, properties, nonce, availability, measured, screening}
     R -- any fails --> X[rejected with every reason]
@@ -22,7 +22,7 @@ flowchart TD
 
 ## Type
 
-The type facts of each entry in `catalog/algorithms/<family>_catalogue.yaml` ([algorithm-catalogue.md](algorithm-catalogue.md)), read as rows by `catalog/types.py`; `catalog/algorithms.py` refuses every catalogue on any bad entry. An entry holds them whole or not at all.
+The type facts of each entry in `../../algorithms/<family>_catalogue.yaml` ([algorithm-catalogue.md](algorithm-catalogue.md)), read as rows by `catalog/types.py`; `../../lib/cryptobench/cryptobench/catalogue/algorithms.py` refuses every catalogue on any bad entry. An entry holds them whole or not at all.
 
 | Field | Values |
 |---|---|

@@ -6,12 +6,12 @@ from pathlib import Path
 
 from .. import run_dir as rd
 from ..catalog.bundled_providers import BundledCatalog
-from ..catalog.names import NamesError
+from cryptobench.catalogue.names import NamesError
 from ..catalog.types import types
 from ..catalog.upgrades import upgrades
 from ..data_handler.inbound import RunContext
 from ..dto.change import DROP_IN
-from ..dto.grouping import read_items
+from cryptobench.catalogue.grouping import read_items
 from ..dto.shipped import shipped_names
 from ..dto.perf_mode import NO_EVIDENCE, PerfMode
 from ..dto.site import Scope

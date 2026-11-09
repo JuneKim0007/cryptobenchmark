@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Callable
 
 from .. import run_dir as rd
-from ..catalog.names import CATALOG
+from cryptobench.catalogue.names import CATALOG
 from ..data_handler.inbound import read_manifest
 from ..data_handler.outbound.benchmark_runner import check_dependencies, identify
 from ..dto.bundled import BundledPolicy

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections import Counter
 
-from ...dto.grouping import Item, Profile, read_items, read_profiles
+from cryptobench.catalogue.grouping import Item, Profile, read_items, read_profiles
 from ...dto.grouping_output import GROUPS_SCHEMA_VERSION
 from ...dto.grouping_state import Group
 from ...dto.screen import Verdict

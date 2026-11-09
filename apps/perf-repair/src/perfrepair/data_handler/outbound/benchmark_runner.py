@@ -12,7 +12,7 @@ from typing import Callable
 from ...child.deadline import Deadline
 from ...child.env import child_env
 from ...config.timeouts import pipeline_seconds
-from ...dto.coded import InputError, code_in
+from cryptobench.catalogue.coded import InputError, code_in
 from ...log import run_id
 from ...stop import terminate
 from ...run_dir import PIPELINE_LOGS

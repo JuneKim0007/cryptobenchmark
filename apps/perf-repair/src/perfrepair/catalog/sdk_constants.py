@@ -4,7 +4,7 @@ from __future__ import annotations
 from functools import cache
 from pathlib import Path
 
-from ..dto.document import AT_PATH, DocumentKind
+from cryptobench.catalogue.document import AT_PATH, DocumentKind
 
 CATALOG = Path(__file__).with_name("sdk-constants.yaml")
 SCHEMA_VERSION = 1

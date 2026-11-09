@@ -7,7 +7,7 @@ from pathlib import Path
 
 from .. import run_dir as rd
 from ..dto.benchmark_coverage import Gap
-from ..dto.grouping import parse_qualified
+from cryptobench.catalogue.grouping import parse_qualified
 
 DELTA_RESULTS = "/delta/results"
 TOOK = re.compile(r"^took:\s+prepare and measure in (?P<s>[0-9.]+)s$")

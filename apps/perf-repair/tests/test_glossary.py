@@ -4,15 +4,15 @@ from collections import defaultdict
 import pytest
 import yaml
 
-from perfrepair.catalog.algorithms import COMMON, DIRECTORY, SUFFIX
-from perfrepair.catalog.families import Families
-from perfrepair.catalog.glossary import (ALL, DERIVED, GlossaryError, _override, deviation_problems, MEANS, UNUSED, VALUES, entry_terms, provider_key_problems, recipe_problems,
+from cryptobench.catalogue.algorithms import COMMON, DIRECTORY, SUFFIX
+from cryptobench.catalogue.families import Families
+from cryptobench.catalogue.glossary import (ALL, DERIVED, GlossaryError, _override, deviation_problems, MEANS, UNUSED, VALUES, entry_terms, provider_key_problems, recipe_problems,
                                         recipe_terms, role_problems, roles, term_problems, tree, what_is)
-from perfrepair.catalog.recipes import CATALOG as RECIPES
-from perfrepair.catalog.groups import CATALOG as GROUPS
-from perfrepair.catalog.names import CATALOG as NAMES_FILE, Names, NamesError, fold
-from perfrepair.catalog.deviations import CATALOG as DEVIATIONS
-from perfrepair.catalog.provider_builds import CATALOG as PROVIDER_BUILDS, ProviderBuildError, load as load_builds
+from cryptobench.catalogue.recipes import CATALOG as RECIPES
+from cryptobench.catalogue.groups import CATALOG as GROUPS
+from cryptobench.catalogue.names import CATALOG as NAMES_FILE, Names, NamesError, fold
+from cryptobench.catalogue.deviations import CATALOG as DEVIATIONS
+from cryptobench.catalogue.provider_builds import CATALOG as PROVIDER_BUILDS, ProviderBuildError, load as load_builds
 
 
 def _catalogues():
@@ -137,7 +137,7 @@ def _groups() -> dict:
 
 def _group_words() -> dict:
     """Each group.* word groups.yaml holds, and each the read tools return about a group."""
-    from perfrepair.catalog.views import get_group, list_groups
+    from cryptobench.catalogue.views import get_group, list_groups
     doc, words = _groups(), defaultdict(set)
     for key in doc:
         words[f"group.{key}"].add(None)
@@ -182,8 +182,8 @@ def test_each_exemplar_is_a_member_of_its_group():
 
 
 def test_a_new_entry_with_an_unlisted_term_is_refused_naming_the_term():
-    from perfrepair.catalog.algorithms import Entry, algorithms
-    from perfrepair.catalog.groups import group_catalog
+    from cryptobench.catalogue.algorithms import Entry, algorithms
+    from cryptobench.catalogue.groups import group_catalog
     from perfrepair.validation.catalogue_entry import entry_check
     catalogue, families = algorithms(), Families.load()
     entry = catalogue.of("digest.none", "MessageDigest|MD5")

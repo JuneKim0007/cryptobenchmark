@@ -25,7 +25,7 @@ class PreparedFileTest {
     private fun prepare(effectiveText: String? = null): Map<String, Any> {
         val directory = output.newFolder()
         val effective = if (effectiveText == null) File(example, "preparation_effective_example.yaml") else
-            File(directory, "effective.yaml").apply { writeText(effectiveText) }
+            File(directory, "effective.yaml").apply { writeText(effectiveText) }.also { GuideFixture.beside(it) }
         val record = PreparedFile(directory)
         Preparation(DiscoveryCapability(File(example, "preparation_capture_example.yaml"), File(example, "preparation_trial_example.yaml")))
             .prepareAll(effective, directory)

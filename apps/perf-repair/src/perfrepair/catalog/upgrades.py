@@ -5,10 +5,10 @@ from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 
-from ..dto.coded import InputError
-from ..dto.document import AT_PATH, DocumentKind
-from .families import Families
-from .names import Names, fold
+from cryptobench.catalogue.coded import InputError
+from cryptobench.catalogue.document import AT_PATH, DocumentKind
+from cryptobench.catalogue.families import Families
+from cryptobench.catalogue.names import Names, fold
 from .screening import ACCEPTED, DEPRECATED, Screening
 from .types import types
 

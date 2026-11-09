@@ -49,7 +49,7 @@ class PreparedCaseTest {
     fun aKeyThatDoesNotFitTheAlgorithmIsCaughtBeforeTheRun() {
         val file = File(directory, "mismatch.yaml").apply {
             writeText(effective("skip").readText().replace("      ChaCha20: {}", "      AES_128/GCM/NoPadding: {keySizes: [256]}"))
-        }
+        }.also { GuideFixture.beside(it) }
         val run = preparation.prepareAll(file)
         val mismatch = run.skipped.filter { it.name == "AES_128/GCM/NoPadding" }
         assertEquals(8, mismatch.size)

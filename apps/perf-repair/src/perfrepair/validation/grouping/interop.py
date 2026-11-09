@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ...dto.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD
+from cryptobench.catalogue.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD
 from ...dto.interop import RESULTS, SCHEMA_VERSION, PairResult, PlannedPair, interop_section, not_checkable_results
 from ...files import read_yaml
 

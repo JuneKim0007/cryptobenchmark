@@ -8,6 +8,7 @@ import io.github.junekim0007.cryptobench.benchmark.verify.known.RawMaterial
 import io.github.junekim0007.cryptobench.preparation.interop.report.Outcome
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.operation.Invocations
+import io.github.junekim0007.cryptobench.preparation.parameter.bind.BindException
 import java.security.InvalidAlgorithmParameterException
 import java.security.InvalidKeyException
 import java.security.spec.InvalidKeySpecException
@@ -27,7 +28,7 @@ class KnownAnswerOracle(private val vectors: List<KnownAnswer>, private val call
             Invocations.of(RawMaterial.of(vector, call.prepared)).also { this.call.call(it, hook) }
         } catch (refused: Exception) {
             val root = refused.cause ?: refused
-            val outcome = if (refused is InvalidKeyException || root is InvalidKeyException || root is InvalidKeySpecException || root is InvalidAlgorithmParameterException) {
+            val outcome = if (refused is BindException || refused is InvalidKeyException || root is InvalidKeyException || root is InvalidKeySpecException || root is InvalidAlgorithmParameterException) {
                 Outcome.NotCheckable("raw_material_refused: ${root.javaClass.simpleName}: ${root.message}")
             } else Outcome.Fail("call_failed: ${root.javaClass.simpleName}: ${root.message}")
             return Judgement(outcome, cited)

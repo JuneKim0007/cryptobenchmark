@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 from .. import run_dir as rd
-from ..dto.coded import InputError
+from cryptobench.catalogue.coded import InputError
 from .read import read_events
 from .summary import summarize
 from .summary_text import summary_lines

@@ -11,7 +11,7 @@ from ...ai.runtime.engine.kind import project
 from ...ai.runtime.engine.outbox import active_outbox
 from ...validation import require
 from ...validation.grouping.output import validate_output
-from ...catalog.families import Families
+from cryptobench.catalogue.families import Families
 from ...ai.parse.grouping_assign.kind import GroupingKind
 from ...run_dir import GroupingPaths
 from ...ai.parse.grouping_assign.state import cursor

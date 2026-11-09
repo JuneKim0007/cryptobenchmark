@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from itertools import product
 
-from ..dto.grouping import KEY_PROVIDER_HELD, qualified
+from cryptobench.catalogue.grouping import KEY_PROVIDER_HELD, qualified
 from ..dto.interop import pair_status
 from ..dto.dossier import PROVIDER_HELD_KEY
 from ..dto.site import Scope

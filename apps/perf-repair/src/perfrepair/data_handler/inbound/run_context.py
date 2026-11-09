@@ -4,8 +4,8 @@ from __future__ import annotations
 from functools import cached_property
 from pathlib import Path
 
-from ...catalog.families import Families
-from ...catalog.names import Names
+from cryptobench.catalogue.families import Families
+from cryptobench.catalogue.names import Names
 from ...dto import BenchmarkManifest
 from ...files import read_document
 from .manifest import manifest_file, read_manifest

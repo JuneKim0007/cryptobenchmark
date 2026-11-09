@@ -4,9 +4,9 @@ from pathlib import Path
 import pytest
 import yaml
 from perfrepair import run_dir as rd
-from perfrepair.catalog.groups import group_catalog
+from cryptobench.catalogue.groups import group_catalog
 from perfrepair.catalog.identity import UNSAFE, case_id_pattern, resolve
-from perfrepair.catalog.names import Names
+from cryptobench.catalogue.names import Names
 from perfrepair.files import write_json
 from perfrepair.run_dir import GroupingPaths
 from perfrepair.validation.boundary import boundary_violations
@@ -108,8 +108,3 @@ def test_no_two_catalog_names_share_a_case_id_part():
         for canonical in set(spellings.values()):
             assert seen.setdefault(UNSAFE.sub("-", canonical).lower(), canonical) == canonical, engine_type
 
-
-def test_both_copies_of_the_names_catalog_are_identical():
-    host = ROOT / "apps/perf-repair/src/perfrepair/catalog/algorithm-names.yaml"
-    device = ROOT / "apps/benchmark/modules/config/src/main/resources/algorithm-names.yaml"
-    assert yaml.safe_load(host.read_text()) == yaml.safe_load(device.read_text())

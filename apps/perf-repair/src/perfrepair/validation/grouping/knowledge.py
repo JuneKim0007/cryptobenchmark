@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from collections import Counter
 
-from ...dto.grouping import Item
+from cryptobench.catalogue.grouping import Item
 from ...dto.grouping_state import Knowledge, code_made
-from ...catalog.families import Families
+from cryptobench.catalogue.families import Families
 from ..parse.grouping_assign import SLUG, description_problems
 
 

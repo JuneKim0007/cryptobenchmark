@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 from ..catalog.bundled_providers import BundledCatalog
 from ..dto.dossier import NOT_ON_DEVICE
-from ..dto.grouping import qualified
+from cryptobench.catalogue.grouping import qualified
 from ..dto.shipped import shipped
 from ..dto.site import Scope
 

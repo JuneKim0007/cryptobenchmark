@@ -14,7 +14,7 @@ from ..dto.dossier import (
     VARIANT_NOT_MEASURED,
     not_on_device_sites,
 )
-from ..dto.grouping import parse_qualified, qualified, read_items
+from cryptobench.catalogue.grouping import parse_qualified, qualified, read_items
 from ..dto.primitives_missing import (
     ABSENT_ON_DEVICE,
     BUNDLED_MISSING,

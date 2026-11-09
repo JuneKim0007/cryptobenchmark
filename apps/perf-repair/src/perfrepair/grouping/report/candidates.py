@@ -4,14 +4,14 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from pathlib import Path
 
-from ...catalog.groups import group_catalog, row_contracts
+from cryptobench.catalogue.groups import group_catalog, row_contracts
 from ...dto.decision import OutboxRecord
 from ...dto.grouping_output import Finding
 from ...dto.grouping_state import Answer, Knowledge
 from ...files import read_yaml
 from ...log import run_id
 
-SOURCE = "model answers of grouping assign, unreviewed; a person adds a name to a group of catalog/groups.yaml"
+SOURCE = "model answers of grouping assign, unreviewed; a person adds a name to a group of algorithms/groups.yaml"
 MODEL, CATALOG = "model", "catalog"
 # its own shape: contract rows, not groups.yaml's ids
 SCHEMA_VERSION = 2

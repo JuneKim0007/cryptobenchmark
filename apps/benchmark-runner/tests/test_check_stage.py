@@ -43,7 +43,7 @@ class FakeDevice:
 def test_the_device_check_runs_every_case_in_one_dry_run_process_and_pulls_its_record(tmp_path):
     device = FakeDevice("OK (12 tests)\n")
     check.on_device(device, OPTIONS, "e.yaml", "p.yaml", "t.yaml", tmp_path)
-    assert device.calls[1] == ("push", "e.yaml", "p.yaml", "t.yaml", str(check.KNOWN_ANSWERS))
+    assert device.calls[1] == ("push", "e.yaml", str(pathlib.Path("e.yaml").with_name("guide.yaml")), "p.yaml", "t.yaml", str(check.KNOWN_ANSWERS))
     test_class, *arguments = device.calls[2][1:]
     assert test_class == "EndToEndCheck"
     assert " ".join(check.DRY_RUN) in " ".join(arguments) and "EMULATOR,UNLOCKED" in arguments

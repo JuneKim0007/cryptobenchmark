@@ -5,12 +5,12 @@ from collections import Counter
 from pathlib import Path
 
 from .. import run_dir as rd
-from ..catalog.groups import group_catalog
+from cryptobench.catalogue.groups import group_catalog
 from ..catalog.identity import case_id_pattern, resolve
-from ..catalog.names import Names
+from cryptobench.catalogue.names import Names
 from ..catalog.types import types as type_catalog
 from ..data_handler.inbound.manifest import read_manifest
-from ..dto.grouping import SEPARATOR, qualified
+from cryptobench.catalogue.grouping import SEPARATOR, qualified
 from ..files import read_json
 from ..run_dir import GroupingPaths
 from .finding import ADVISORY, BLOCKING, Violation
@@ -90,8 +90,8 @@ def catalogs_agree(items: list[dict], verdicts: dict[str, dict], names: Names) -
         elif said and types.of(i["family"], said) is None:
             untyped.append(f"{i['family']} {said}")
     return (_found("names_agree", ADVISORY, "catalogs", conflict, "settle the name in screening.yaml or algorithm-names.yaml")
-            + _found("name_is_in_its_group", ADVISORY, "catalogs", unlisted, "add it to catalog/groups.yaml")
-            + _found("name_has_facts", ADVISORY, "catalogs", untyped, "add its type facts to its catalog/algorithms/ entry"))
+            + _found("name_is_in_its_group", ADVISORY, "catalogs", unlisted, "add it to algorithms/groups.yaml")
+            + _found("name_has_facts", ADVISORY, "catalogs", untyped, "add its type facts to its algorithms/ entry"))
 
 
 def used_items_exist(device: Path, rows: list[dict], items: set[str]) -> list[Violation]:

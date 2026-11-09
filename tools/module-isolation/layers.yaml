@@ -19,7 +19,7 @@ modules:
   benchmark:
     uses:
       jca: [failure.Attempt]
-      preparation: [measurement.BenchmarkCase, measurement.Operation, prepare.PreparedCase, operation.Invocations, operation.Invocation, Preparation,
+      preparation: [parameter.bind.BindException, measurement.BenchmarkCase, measurement.Operation, prepare.PreparedCase, operation.Invocations, operation.Invocation, Preparation,
         prepare.Listing, prepare.PreparationException, prepare.StoppedOnFailureException, record.PreparedFile, report.Skip, report.SkipFile,
         global.GlobalSettings, global.OnFailure, shared.FailureText]
       settings: [HarnessSettings, EnergySettings, CpuSettings, Metric]

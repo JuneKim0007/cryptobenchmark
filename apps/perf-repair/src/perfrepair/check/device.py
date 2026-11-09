@@ -9,7 +9,7 @@ from ..ai.runtime.engine.outbox import FINGERPRINT, OUTBOXES
 from ..data_handler.inbound.manifest import read_manifest
 from ..data_handler.inbound.primitives import read_primitives
 from ..device.primitives import status_of
-from ..dto.grouping import read_items
+from cryptobench.catalogue.grouping import read_items
 from ..files import read_json, read_yaml
 from ..run_dir import GroupingPaths
 from ..validation.benchmark_coverage import validate_coverage

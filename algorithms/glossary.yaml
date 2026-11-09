@@ -57,8 +57,8 @@ algorithm:
     nonce: {means: 'A value of `bytes` length never reused under one key; a provider that generates one when it is not given is read back to decrypt.', make: random, lives: {forward: perUse, reverse: copied}, goesTo: {Cipher: [init]}}
     tagBits: {means: Authentication tag length in bits., make: entryValue, lives: once, goesTo: {Cipher: [init]}}
     aad: {means: Extra data authenticated but not encrypted; decrypt must give the same bytes., make: random, lives: once}
-    digest: {means: The hash a parameter object names, as inside OAEP or PSS; the default differs by provider., make: entryValue, lives: once, goesTo: {Signature: [init]}}
-    mgf1: {means: The mask hash a parameter object names, as inside OAEP or PSS; the default differs by provider., make: entryValue, lives: once, goesTo: {Signature: [init]}}
+    digest: {means: The hash a parameter object names, as inside OAEP or PSS; the default differs by provider., make: entryValue, lives: once, goesTo: {Cipher: [init], Signature: [init]}}
+    mgf1: {means: The mask hash a parameter object names, as inside OAEP or PSS; the default differs by provider., make: entryValue, lives: once, goesTo: {Cipher: [init], Signature: [init]}}
     saltBytes: {means: The PSS salt length a parameter object names., make: entryValue, lives: once, goesTo: {Signature: [init]}}
     label: {means: The OAEP label., make: random, lives: once}
     curve: {means: The named elliptic curve a generator or key uses; a generator's default differs by provider., make: entryValue, lives: once, goesTo: {Cipher: [keyGeneration], KeyPairGenerator: [init], KeyAgreement: [keyGeneration], Signature: [keyGeneration]}}

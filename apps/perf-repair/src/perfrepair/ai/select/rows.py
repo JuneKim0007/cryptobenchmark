@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import asdict
 
 from ...dto.dossier import Dossier
-from ...dto.grouping import parse_qualified
+from cryptobench.catalogue.grouping import parse_qualified
 from ...dto.metrics import BY_NAME
 from ...dto.perf_mode import PerfMode
 from ...dto.primitives import ABSENT, PrimitiveLine, PrimitivesTable

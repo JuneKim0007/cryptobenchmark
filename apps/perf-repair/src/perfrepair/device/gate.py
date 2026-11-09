@@ -16,7 +16,7 @@ from ..dto.benchmark_coverage import (
     Coverage,
     Gap,
 )
-from ..dto.grouping import read_items
+from cryptobench.catalogue.grouping import read_items
 from ..dto.perf_mode import PerfMode
 from ..dto.used import UsedSet
 from ..files import read_json

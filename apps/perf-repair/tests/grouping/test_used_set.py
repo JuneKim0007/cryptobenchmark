@@ -11,8 +11,8 @@ from perfrepair.ai.parse.grouping_assign.kind import GroupingKind, charter
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.decide import decide
 from perfrepair.device.used import used_set, write_used
-from perfrepair.dto.grouping import profiles_document, read_profiles
-from perfrepair.dto.signature import Component, Signature
+from cryptobench.catalogue.grouping import profiles_document, read_profiles
+from cryptobench.catalogue.signature import Component, Signature
 from perfrepair.dto.used import UsedItem, UsedSet
 from perfrepair.files import read_json, write_json
 from perfrepair.grouping.report.checks import report

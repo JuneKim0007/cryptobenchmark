@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
 
-from .document import DocumentKind
+from cryptobench.catalogue.document import DocumentKind
 
 SCHEMA_VERSION = 1
 KNOWLEDGE_DOC = DocumentKind("knowledge", SCHEMA_VERSION)

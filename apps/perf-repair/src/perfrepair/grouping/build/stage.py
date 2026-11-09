@@ -4,10 +4,10 @@ from collections import Counter
 from pathlib import Path
 
 from ...ai.parse.algorithm_classify.command import Reviewer, classify
-from ...catalog.families import Families
-from ...catalog.names import Names
+from cryptobench.catalogue.families import Families
+from cryptobench.catalogue.names import Names
 from ...data_handler.inbound import RunContext
-from ...dto.grouping import items_document, profiles_document
+from cryptobench.catalogue.grouping import items_document, profiles_document
 from ...dto.screen import CODE_GROUPED, screen_document
 from ...files import json_text, sha256_text, write_texts
 from ...log import step

@@ -43,6 +43,7 @@
 .github/workflows/tests.yml : CI Python suites and the root Gradle build: settings tests, androidTest compile
 AGENTS.md : agent router
 README.md : project entry page
+algorithms/ : the implementation guide: one catalogue per family, recipes, deviations, names, builds; map in lib/cryptobench/AGENTS.md
 apps/benchmark-runner/analysis/ : analysis of a benchmark.json: summary, charts, statistics
 apps/benchmark-runner/bundled.py : providers.bundled of global.yaml: the digest's raw read, build property of the app or host CLI, DeviceProbe argument, effective record and check
 apps/benchmark-runner/demo.sh : one-command host demo run into results/demo/<device_id>
@@ -95,18 +96,7 @@ apps/benchmark-runner/session/thermal_gate.py : run.thermalGate session hook: th
 apps/benchmark-runner/session/thermal_hook.py : session hook: temperature around every process and case into thermal.json, one line per pass
 apps/benchmark-runner/session/variant_order.py : run.variants on a device: an item's fixed and notFixed cases adjacent, A/B then B/A over repetitions
 apps/benchmark-runner/session/warmup.py : run.warmup: a pre-flight run of a few planned cases once per device session, off at 0 iterations; its output never pulled
-apps/benchmark-runner/stages/__init__.py : package of the run driver's stages: discover, benchmark, check, harness, interop, and their steps
-apps/benchmark-runner/stages/benchmark.py : the plain run's benchmark: device passes and sessions or host processes, warm-up, dry pass, not_measured, analysis
-apps/benchmark-runner/stages/capture_files.py : the capture, trial and requirements a discovery wrote, by path and paired by stamp; never the newest in a kept folder; the reuse that probed again
-apps/benchmark-runner/stages/check.py : --check run: every planned case once through the real harness (host CheckKt, device EndToEndCheck under the dry run), check.yaml, its summary and failures
-apps/benchmark-runner/stages/config_check.py : the parse-only check of a global.yaml and its test set before any build, through CheckConfigKt; providers.bundled from its output
-apps/benchmark-runner/stages/discover.py : discover and configure: probe or host discovery, ConfigureKt, effective.yaml summary, staged then published under the capture's device id
-apps/benchmark-runner/stages/harness.py : --harness run: scope generation, the harness's device check, interop verdicts into checked/
-apps/benchmark-runner/stages/interop.py : --interop run: the plan's pairs on the host or device, published beside a finished run or as a new device folder
-apps/benchmark-runner/stages/interop_oracle.py : oracle steps of a --interop run: plan staging, host InteropKt, device InteropCheck, summary
-apps/benchmark-runner/stages/measuring.py : what a run's device sessions share: the Measuring context, the thermal gate's start, session and pass arguments, timed hooks, plan push, ConvertKt, per-process files
-apps/benchmark-runner/stages/not_measured.py : planned timed cases the final benchmark.json lacks: one not_measured line each, recorded in the manifest
-apps/benchmark-runner/stages/took.py : the took: line of a timed step
+apps/benchmark-runner/stages/ : the run driver's stages, one per run kind; map in its AGENTS.md
 apps/benchmark-runner/tests/ : pytest and standalone tests for apps/benchmark-runner/
 apps/benchmark-runner/timeouts.py : ceilings of the host's subprocess steps (adb, install, instrument, case, gradle, compile, energy, analysis); expiry is one coded error
 apps/benchmark/build.gradle : root buildscript: Android Gradle plugin and Kotlin plugin versions
@@ -132,6 +122,7 @@ apps/perf-repair/ : cryptobenchmark results to crypto replacements applied per c
 config/ : authored run configuration: global settings and test sets
 docs/ : cross-module fact docs
 docs/contributing/ : directive guides
+lib/cryptobench/ : the Python library the runner and perf-repair share: the guide's readers; map in its AGENTS.md
 requirements.txt : every host Python dependency
 settings.example.yaml : template for `settings.yaml`, the facade's root index
 tools/android-api-check/ : compiles jca, discovery, settings, preparation, benchmark against android.jar without the JDK

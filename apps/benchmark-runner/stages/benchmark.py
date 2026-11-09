@@ -7,7 +7,7 @@ from failure import fail, one_line
 from repo import RUNNER
 from session import case_isolation, energy_hook, passes, variant_order, warmup
 from session import measure as measure_session
-from stages import not_measured
+from stages import guide, not_measured
 from stages.measuring import (Measuring, convert, energy_preflight, gated, pass_arguments, push, record, session_arguments, singles,
                               thermal_flag, timed_hooks)
 from stages.took import elapsed
@@ -86,7 +86,7 @@ def measure_cases(options, device, results, discovery, effective, capture, trial
     if device:
         run = Measuring(device, EnergySession(device), energy_stage.source(effective, options.energy_python, options.stacktrace), options, discovery,
                         files, problems, effective_view.throttle_sleep(document), effective_view.case_cooldown(document))
-        written, processes = device_cases(run, document, [effective, capture, trial], captures, benchmark, preparation)
+        written, processes = device_cases(run, document, [effective, guide.file_beside(effective), capture, trial], captures, benchmark, preparation)
     else:
         written, processes = host_cases(options, document, capture, trial, effective, benchmark, preparation, files, problems), repetitions
     print(f"wrote:     {preparation / 'prepared.yaml'}")

@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import re
 
-from ..catalog.names import NAME_CONFLICT
+from cryptobench.catalogue.names import NAME_CONFLICT
 from ..dto.classify import Answer
 from .. import run_dir as rd
-from ..dto.grouping import Item, read_items
+from cryptobench.catalogue.grouping import Item, read_items
 from ..dto.screen import (ACCEPTED, MODEL_SOURCE, MODEL_STATUS, STATUSES, UNKNOWN, UNVERIFIED, Verdict, read_screen,
                           read_screen_built, read_screen_catalog, read_screen_review)
 from ..files import read_json

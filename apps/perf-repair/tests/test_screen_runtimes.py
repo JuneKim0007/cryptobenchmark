@@ -7,12 +7,12 @@ from pathlib import Path
 import pytest
 
 from helpers import ANY_EVIDENCE, measured_alike
-from perfrepair.catalog.families import Families
-from perfrepair.catalog.names import Names, fold
+from cryptobench.catalogue.families import Families
+from cryptobench.catalogue.names import Names, fold
 from perfrepair.catalog.screening import Screening
 from perfrepair.data_handler.inbound.probe import Probe
 from perfrepair.dto.interop import interop_section
-from perfrepair.dto.grouping import KEY_PROVIDER_HELD
+from cryptobench.catalogue.grouping import KEY_PROVIDER_HELD
 from helpers import ANY_EVIDENCE
 from perfrepair.dto.screen import BROKEN, CODE_GROUPED, PLATFORM_DEPRECATED, RANK, STATUSES, refused_target
 from perfrepair.dto.site import Scope, scope_id

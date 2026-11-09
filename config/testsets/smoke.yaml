@@ -9,4 +9,4 @@ include:
 
 overrides:
   - match: {type: Cipher, name: AES/GCM/NoPadding}
-    set: {keySizes: [256], parameters: {class: javax.crypto.spec.GCMParameterSpec, arguments: [128, fresh(12)]}}
+    set: {keySizes: [256]}

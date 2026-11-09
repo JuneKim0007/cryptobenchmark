@@ -9,7 +9,7 @@ from .. import run_dir as rd
 from ..data_handler.inbound import RunContext, read_manifest
 from ..dto.bundled import entries_digest
 from ..dto.event import END
-from ..dto.grouping import read_items
+from cryptobench.catalogue.grouping import read_items
 from ..files import read_json
 from ..log import emit, step
 from ..run_dir import GroupingPaths

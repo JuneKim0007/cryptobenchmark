@@ -76,7 +76,7 @@ MEASURED = {"isolation": "case", "harness": {"energy": {"capture": "measured"}},
 
 def test_measured_capture_runs_inside_the_window_with_a_preflight_first(tmp_path, monkeypatch):
     phone, files, _problems, results = measured(tmp_path, monkeypatch, MEASURED)
-    assert steps(phone)[:5] == ["adb push effective.yaml probe_1.yaml trial_1.yaml", "compile cryptobench", "compile test", "preflight",
+    assert steps(phone)[:5] == ["adb push effective.yaml guide.yaml probe_1.yaml trial_1.yaml", "compile cryptobench", "compile test", "preflight",
                              "adb push energy.yaml"]
     closing = len(steps(phone)) - 1 - steps(phone)[::-1].index("pull traces")
     assert "window open" in steps(phone) and steps(phone)[closing:closing + 4] == ["pull traces", "window close", "joules", "convert"]

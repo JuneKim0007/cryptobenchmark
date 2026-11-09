@@ -4,7 +4,7 @@ from __future__ import annotations
 import re
 
 from ...dto.dossier import Option, pin_text
-from ...dto.grouping import algorithm_of, provider_of
+from cryptobench.catalogue.grouping import algorithm_of, provider_of
 from ...dto.replacement import required_risks
 from ...dto.site import Scope
 from ...result.configurations import parse_label

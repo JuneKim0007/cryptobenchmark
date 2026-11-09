@@ -5,7 +5,7 @@ from ..dto.unit import UnitDossiers
 from ..dto.replacement import (RECOMMEND, DECISIONS, EDIT_FIELDS, EDIT_KIND_TABLE, EDIT_KINDS, RISKS, Replacement,
                                required_risks)
 from ..dto.dossier import Dossier, Option
-from ..dto.grouping import algorithm_of, provider_of
+from cryptobench.catalogue.grouping import algorithm_of, provider_of
 
 SOURCES = ("llm", "fallback", "static")
 _TAKES = {"provider": lambda item, pins: provider_of(item), "algorithm": lambda item, pins: algorithm_of(item),

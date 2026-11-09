@@ -6,7 +6,7 @@ import re
 from collections import Counter
 from datetime import datetime
 
-from ..dto.coded import InputError
+from cryptobench.catalogue.coded import InputError
 from ..dto.event import DECISION, END, LOG, RUN_END, RUN_START, Event
 from .status import status_line
 

@@ -7,10 +7,10 @@
 - boundary: perf-repair reads cryptobenchmark only through `<device>/manifest.yaml` and the files it lists; that manifest must carry `deviceId`.
 - run record: only `run_dir/run_record.py` writes `runs/run_<id>.json`, `<app>/finished.json` and `device.yaml` (`tests/test_run_record.py`).
 - device stage: `device/` reruns a stage only when an input digest changed, its output is missing or the used set lacks rows (`docs/pipeline.md` Device stage, `docs/used-set.md`); `device.yaml` is written last and removed before any stage runs, so it never vouches for a half-made folder; `device/` never imports `app/`.
-- dto: no I/O; every file-level document carries `schemaVersion`, one constant per artifact, and every read site refuses another through its `DocumentKind` (`dto/document.py`), declared beside the artifact's DTO, never a hand-written check (`run_dir.read_scopes`, `read_sites`, `read_edits`, `read_dossiers`: `schema_version`).
+- dto: no I/O; every file-level document carries `schemaVersion`, one constant per artifact, and every read site refuses another through its `DocumentKind` (`../../lib/cryptobench/cryptobench/catalogue/document.py`), declared beside the artifact's DTO, never a hand-written check (`run_dir.read_scopes`, `read_sites`, `read_edits`, `read_dossiers`: `schema_version`).
 - numbers: summarised once in `inbound/results.py`; nothing downstream recomputes them.
 - gate: the inbound command writes nothing until the manifest, rows, measurements and run log validate.
-- names: every algorithm-name comparison goes through `catalog/names.py`; config's `AlgorithmNames.kt` reads the same file and must resolve `tests/fixtures/algorithm-names-cases.yaml` alike.; a spelling goes in `catalog/algorithm-names.yaml` with a cited source; parameters (OAEP, MGF1, provider defaults) never do.
+- names: every algorithm-name comparison goes through `../../lib/cryptobench/cryptobench/catalogue/names.py`; config's `AlgorithmNames.kt` reads the same file and must resolve `tests/fixtures/algorithm-names-cases.yaml` alike.; a spelling goes in `../../algorithms/algorithm-names.yaml` with a cited source; parameters (OAEP, MGF1, provider defaults) never do.
 - names: the benchmark owns both name files (`apps/benchmark/modules/config/src/`); change them there and copy them here; `tests/test_boundary.py` and `tests/test_names.py` fail until both match.
 - names: the catalog's name wins over a probe alias; an uncatalogued alias two providers contradict is `name_conflict` where it is used, never a pick.
 - inputs: every setting is chosen by `inputs/resolve.py` from its `inputs/table.py` row; library code logs, only a `__main__` attaches a handler.
@@ -23,10 +23,8 @@
 ## File structure
 
 ```
-src/perfrepair/catalog/algorithm-names.yaml : canonical name ← spellings per engine type; key-size suffixes; transformation modes, paddings, per-algorithm synonyms; key formats
 src/perfrepair/catalog/bundled-providers.yaml : data: per Gradle group:name an app ships, the provider it registers, create, alias, minSdk, notes, a known blocker, and its source
 src/perfrepair/catalog/bundled_providers.py : the bundled-providers reader: every row's forms, keys and source checked, every problem at once; a row's providers.bundled entry at the app's pinned version; whether an app's registration expression builds the row's provider
-src/perfrepair/catalog/names.py : the names reader: Canonical (name, keySize, known), engine types (what detection scans), fold, same_engine, key formats, name_conflict, key_or_spelling (a conflict keys by its spelling)
 src/perfrepair/catalog/screening.py : the screening reader: crypto, component and platform rules; every key canonical, statuses and sources checked; component match
 src/perfrepair/catalog/screening.yaml : data: per (engine type, canonical name) a deprecated or accepted status with reason and source; Cipher base and mode rules; per-provider platform deprecation by targetSdk
 src/perfrepair/catalog/upgrades.py : reader of upgrades.yaml, checked whole: per family a broken canonical name, its accepted targets, each target's source; every name canonical with a type row, screened as said
@@ -79,13 +77,10 @@ src/perfrepair/dto/bundled.py : device.bundled's values, BundledPolicy; MissingP
 src/perfrepair/dto/change.py : PairDiff (input, key, output, reach), Change (class, diff, reject reasons); CHANGES in rank order, REJECT_REASONS, admits(maxChange, class)
 src/perfrepair/dto/charter.py : charter.json (schema 1): the system and correction texts with each source, the schema, the inputs; read back to a Charter
 src/perfrepair/dto/classify.py : Evidence (one unknown item as the classify model sees it), Batch (key: its ids), Answer, ANSWERS; batches.json document
-src/perfrepair/dto/coded.py : CODE and code_in, the code word a failure message starts with; InputError, the one coded error a refused input raises (`.code`, `.path`, `.detail`)
 src/perfrepair/dto/decision.py : OutboxRecord (schema 3): one committed decision of any kind, the tier asked and the model that answered it, and the evidence digest when its kind declares one
 src/perfrepair/dto/device.py : DeviceRecord: device.yaml (deviceId, mode, runtime summary, input digests, the manifest's sha256, primitives.tsv's input digests, the used-set benchmark: generated config digest, measured set digest and items)
-src/perfrepair/dto/document.py : parse_yaml, a YAML text as its one shape (a mapping unless named) or invalid_yaml at its line and column; DocumentKind: a versioned document's accepted schemaVersion (one or several), its reader's refusal text and error type; check, the one schemaVersion check every reader calls
 src/perfrepair/dto/dossier.py : Dossier, Option (pins null = unknown), Estimate (pImprove null = n<2), NoEstimate; Option.interop (pair_status), Option.screen (the app's status); NO_OPTION_REASONS in filter order and reason_code, pin_text; not_on_device_sites, a site list's missing names and which are absent
 src/perfrepair/dto/event.py : Event: one events.jsonl line (schema 1); event names (a `finding`: a coded fact for the status log), kinds, each field's types
-src/perfrepair/dto/grouping.py : Family, Item (key: what a record names), Profile (isolated: a generator of unknown key contract); key contract values, labels and sources; items.json (schema 1) and profiles.json (schema 5) documents; provider_of, algorithm_of
 src/perfrepair/dto/grouping_output.py : Finding and checks.json
 src/perfrepair/dto/grouping_state.py : Answer, Amendment, Group, Knowledge (open_groups: a family's catalog and model-made groups, never a `code_` one; retired: memberless groups a record still names); the `code_` id prefix
 src/perfrepair/dto/interop.py : PlannedPair, PairResult; interop_plan.yaml with its notCheckable pairs, the groups.json interop section, failed_pairs, pair_status, PAIR_STATUSES
@@ -104,9 +99,7 @@ src/perfrepair/dto/report.py : report.json and summary.json vocabulary: pattern_
 src/perfrepair/dto/run_log.py : LogEntry, RunLog, statuses
 src/perfrepair/dto/screen.py : Verdict (broken, platform_deprecated, unverified, accepted, unknown; reason, source, canonical, keySize); CODE_GROUPED; with_answer (model answer onto a verdict, `model:<fingerprint>`); RANK and refused_target (a broken target always, another short of accepted unless the current item's own algorithm at no worse a status); verdicts by qualified name; screen.json document (schema 5, with the catalog identity and the `built` items and profiles digests)
 src/perfrepair/dto/shipped.py : Shipped: one app.json `bundled` entry (artifact, providerName, version); shipped, shipped_names: the one reader of what the app ships
-src/perfrepair/dto/signature.py : Signature and its components, known, convention or unknown; decided, assumed, identity, differing
 src/perfrepair/dto/site.py : Scope, scope_id; each app artifact's schema version; harness input sources and notMeasurable reasons
-src/perfrepair/dto/types.py : TypeRow: an algorithm's output kind, Properties, Strength, minSdk and their sources
 src/perfrepair/dto/unit.py : Link, Unit, Stay, PairInterop, UnitDossiers (one decision: a unit, its members' dossiers, the members that stay, inverse pairs' interop), unit_id, unit_entry, read_units, link kinds and their evidence
 src/perfrepair/dto/units.py : DisplayUnits: the manifest's analysis.units (latency ms|us|ns, throughput MB/s|MiB/s|ops/s), parsed and checked, defaults mirroring :config; ns/op to each; significant-figure numbers
 src/perfrepair/dto/upgrade.py : UpgradeItem (dossiers.json `upgrades` row: a broken use's dossier, identified, linked, providerHeld, its options' own medians, the screening reason); Upgrade and upgrades.json (schema 1): upgraded, needs_migration, no_secure_option, not_reached; as a Replacement for the edit step
@@ -115,7 +108,7 @@ src/perfrepair/dto/version.py : a Gradle version: pinned or not; newest of sever
 src/perfrepair/files.py : text, JSON and YAML read (YAML through parse_yaml); read_versioned (a document refused unless its DocumentKind accepts it); atomic JSON write through a temp file of its own (mkstemp), fsync when durable; a text write that makes its parent folders; one-line append, a newline first after a cut line; read_jsonl, the one JSON-lines reader (whole lines, cut lines skipped, bad ones listed); several files staged then renamed in order; sha256 of a text or file
 src/perfrepair/inputs/__init__.py : docstring only
 src/perfrepair/inputs/check.py : Invalid and the checks a row or a gateway's settings class names
-src/perfrepair/inputs/resolve.py : choose(): the first set candidate under its OnInvalid; unknown_key; resolve(): one input from its chain of candidates; Need, Resolved, InputError (`invalid`, `missing_file`, `missing_input`), a dto/coded.py InputError; a found default and a skipped optional input logged
+src/perfrepair/inputs/resolve.py : choose(): the first set candidate under its OnInvalid; unknown_key; resolve(): one input from its chain of candidates; Need, Resolved, InputError (`invalid`, `missing_file`, `missing_input`), a ../../lib/cryptobench/cryptobench/catalogue/coded.py InputError; a found default and a skipped optional input logged
 src/perfrepair/inputs/table.py : every setting, one Row or RoleRow each (key, chain, check, default, OnInvalid; Need and packaged default for a file input); STOP_ROWS, one per overridable stop code, and the fixed codes known so setting one is not an unknown key; known_tree
 src/perfrepair/log/__init__.py : exports attach, bug_log, command_run, emit, run_id, step
 src/perfrepair/log/__main__.py : command: `summary <device> [--run ID | --last] [--json]`, the runs of events.jsonl, status lines last
@@ -137,7 +130,7 @@ src/perfrepair/run_dir/read.py : artifact loaders: rows, measurements, run log, 
 src/perfrepair/run_dir/run_record.py : RunRecord, the one writer of what a device folder says is done: runs/run_<id>.json (its id, onExisting, the facade's settings tree), each <app>/finished.json (is_done, app_done; cleared on an app's first rerun step with its report), device.yaml read, write and drop, vouch_manifest after a step that only adds files; the folder's lock held from open to close
 src/perfrepair/stop/__init__.py : re-exports: CODES, the actions, Halt, code_of, terminate
 src/perfrepair/stop/codes.py : the code table: every stop, warn and skip code once with its default action, the actions stops.<code> may choose (none: fixed, and why), exit and next step
-src/perfrepair/stop/halt.py : Halt, the exception terminate raises after its event; Coded, the name its raisers import for dto/coded.py's InputError; code_of, the code a failure carries as `.code`
+src/perfrepair/stop/halt.py : Halt, the exception terminate raises after its event; Coded, the name its raisers import for ../../lib/cryptobench/cryptobench/catalogue/coded.py's InputError; code_of, the code a failure carries as `.code`
 src/perfrepair/stop/policy.py : the stops reader the settings layer installs; a code's action, its default without one
 src/perfrepair/stop/terminate.py : terminate(): the action resolved, one finding event with data.code, action and next (the code's, or next_step), then Halt, warn or skip
 src/perfrepair/watch/__init__.py : docstring only

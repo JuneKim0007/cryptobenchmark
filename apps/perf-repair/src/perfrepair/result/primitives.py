@@ -4,7 +4,7 @@ from __future__ import annotations
 from collections import defaultdict
 
 from ..dto import PrimitiveRow, Summary
-from ..dto.grouping import Item, qualified
+from cryptobench.catalogue.grouping import Item, qualified
 from ..dto.metrics import METRICS
 from ..dto.primitives import PrimitiveLine, PrimitivesTable, column, rounded
 from ..dto.screen import Verdict

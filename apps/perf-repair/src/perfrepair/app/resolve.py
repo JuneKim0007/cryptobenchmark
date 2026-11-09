@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .. import run_dir as rd
-from ..catalog.names import Names, NamesError
+from cryptobench.catalogue.names import Names, NamesError
 from ..data_handler.inbound import Probe, RunContext
 from ..dto import ProviderEntry
 from ..dto.dossier import NOT_ON_DEVICE

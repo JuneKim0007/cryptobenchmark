@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, fields
 
-from .document import DocumentKind
+from cryptobench.catalogue.document import DocumentKind
 from .dossier import Option
 from .site import REPLACEMENTS_SCHEMA_VERSION, Scope
 

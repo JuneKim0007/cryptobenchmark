@@ -1,6 +1,7 @@
 package io.github.junekim0007.cryptobench.preparation
 
 import io.github.junekim0007.cryptobench.preparation.global.GlobalReader
+import io.github.junekim0007.cryptobench.preparation.guide.Guide
 import io.github.junekim0007.cryptobench.preparation.inbound.InboundFile
 import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterialGenerator
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyPlanner
@@ -14,6 +15,7 @@ import io.github.junekim0007.cryptobench.preparation.report.Skip
 import io.github.junekim0007.cryptobench.preparation.request.BenchmarkRequest
 import io.github.junekim0007.cryptobench.preparation.request.PrimitiveReader
 import io.github.junekim0007.cryptobench.preparation.resolve.CaseResolver
+import io.github.junekim0007.cryptobench.preparation.resolve.Resolution
 import java.io.File
 
 /** list: the cases of an effective file, no provider called; prepareOne: one named case built and called once, or a throw. Writes no file. */
@@ -27,8 +29,9 @@ class Preparation(capability: DeviceCapability) {
     fun list(effectiveFile: File): Listing {
         val inbound = InboundFile.read(effectiveFile)
         val global = GlobalReader.read(inbound)
-        val resolution = resolver.resolve(BenchmarkRequest(PrimitiveReader.read(inbound), global))
-        val skipped = resolution.rejections.map { rejection ->
+        val (ready, refused) = Guide.beside(effectiveFile).joined(PrimitiveReader.read(inbound))
+        val resolution = if (ready.isEmpty()) Resolution(emptyList(), emptyList()) else resolver.resolve(BenchmarkRequest(ready, global))
+        val skipped = (refused + resolution.rejections).map { rejection ->
             Skip(Skip.PREPARATION, rejection.provider, rejection.selection.type, rejection.selection.algorithm, rejection.reason)
         }
         return Listing(resolution.cases, skipped, global, inbound.fileName, inbound.runId)

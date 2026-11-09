@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from ...dto.dossier import Option
-from ...dto.grouping import algorithm_of, provider_of
+from cryptobench.catalogue.grouping import algorithm_of, provider_of
 from ...dto.upgrade import UpgradeItem
 from ...result.change import reach
 from ...result.gain import option_label

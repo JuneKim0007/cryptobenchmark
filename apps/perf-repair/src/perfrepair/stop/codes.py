@@ -144,7 +144,7 @@ CODES_LIST: tuple[Code, ...] = (
     _fixed("deviations_invalid", FIX_CATALOG),
     _fixed("glossary_unknown", FIX_CATALOG),
     _fixed("algorithm_unknown", "name an algorithm or group id the catalogues hold"),
-    _fixed("provider_build_unknown", "name a build key of `catalog/provider-builds.yaml`, or a name only one build carries"),
+    _fixed("provider_build_unknown", "name a build key of `algorithms/provider-builds.yaml`, or a name only one build carries"),
     _fixed("relations_schema", FIX_CATALOG),
     _fixed("events_unreadable", "move the unreadable events.jsonl aside"),
     _fixed("item_not_configured", "rerun the device stage with the item in the run config"),

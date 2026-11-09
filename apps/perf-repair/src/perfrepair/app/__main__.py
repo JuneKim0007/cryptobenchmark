@@ -7,7 +7,7 @@ from collections import Counter
 from pathlib import Path
 
 from .. import run_dir as rd
-from ..catalog.names import Names, NamesError
+from cryptobench.catalogue.names import Names, NamesError
 from ..config.args import add_config_arg, load_settings
 from ..dto.shipped import shipped_names
 from ..dto.dossier import NOT_ON_DEVICE, NOT_ON_DEVICE_ABSENT, NOT_ON_DEVICE_STEP, not_on_device_sites

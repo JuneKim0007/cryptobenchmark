@@ -1,13 +1,14 @@
 """catalog/algorithms/: one catalogue per family plus common.yaml, recipes.yaml and deviations.yaml, read and checked whole; an entry's `providers` holds every build's differences once read; entries looked up by family and id."""
 from __future__ import annotations
 
+from .paths import DATA
 from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 
-from ..dto.coded import InputError
-from ..dto.document import AT_PATH, DocumentKind
-from ..dto.types import NO_NONCE, NO_PARAMETERS, OUTPUT_KINDS
+from .coded import InputError
+from .document import AT_PATH, DocumentKind
+from .types import NO_NONCE, NO_PARAMETERS, OUTPUT_KINDS
 from .deviations import CATALOG as DEVIATIONS, Deviations, load as load_deviations
 from .families import Families
 from .glossary import directions_of, goes_to
@@ -16,7 +17,7 @@ from .overrides import ROW_SECTIONS, override_parent, row_override
 from .provider_builds import provider_builds
 from .recipes import CATALOG as RECIPES, Recipes, load as load_recipes
 
-DIRECTORY = Path(__file__).with_name("algorithms")
+DIRECTORY = DATA
 COMMON = DIRECTORY / "common.yaml"
 SUFFIX = "_catalogue.yaml"
 SCHEMA_VERSION = 1

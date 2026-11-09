@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 
 from ....dto.classify import ACCEPTED, SCHEMA_VERSION, UNSURE, Answer, Batch
 from ....dto.decision import OutboxRecord
-from ....dto.document import DocumentKind
+from cryptobench.catalogue.document import DocumentKind
 from ....dto.screen import Verdict, with_answer
 
 CLASSIFIED_DOC = DocumentKind("classified", SCHEMA_VERSION)

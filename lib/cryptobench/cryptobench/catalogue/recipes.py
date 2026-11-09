@@ -1,15 +1,16 @@
 """catalog/algorithms/recipes.yaml: how each parameter object a catalogue row names is made, by id; read and checked whole."""
 from __future__ import annotations
 
+from .paths import DATA
 from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 
-from ..dto.coded import InputError
-from ..dto.document import AT_PATH, DocumentKind
+from .coded import InputError
+from .document import AT_PATH, DocumentKind
 from .glossary import direction_problems, recipe_problems, role_problems
 
-CATALOG = Path(__file__).with_name("algorithms") / "recipes.yaml"
+CATALOG = DATA / "recipes.yaml"
 SCHEMA_VERSION = 1
 INVALID = "recipes_invalid"
 FORMS = (("class", "args"), ("factory", "args", "steps"), ("builder",))

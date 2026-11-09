@@ -4,7 +4,7 @@ from __future__ import annotations
 import hashlib
 from dataclasses import dataclass, field
 
-from .document import DocumentKind
+from cryptobench.catalogue.document import DocumentKind
 
 SCHEMA_VERSION = 1
 USED_DOC = DocumentKind("used.json", SCHEMA_VERSION)

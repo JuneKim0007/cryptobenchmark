@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ..dto.coded import InputError
+from cryptobench.catalogue.coded import InputError
 from ..dto.event import Event
 from ..files import CUT, jsonl_value, read_jsonl
 

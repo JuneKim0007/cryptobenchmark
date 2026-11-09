@@ -3,7 +3,7 @@ import re
 from dataclasses import replace
 
 import pytest
-from perfrepair.dto.signature import Component, Signature
+from cryptobench.catalogue.signature import Component, Signature
 import yaml
 from conftest import CHARTER, LIBRARY, QUIET, by_name
 from grouping_data import FAMILIES
@@ -12,7 +12,7 @@ from perfrepair.ai.parse.grouping_assign.kind import GroupingKind
 from perfrepair.ai.parse.grouping_assign.render import render
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.decide import decide
-from perfrepair.dto.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD, KEY_UNKNOWN, Item, Profile, profiles_document, read_profiles
+from cryptobench.catalogue.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD, KEY_UNKNOWN, Item, Profile, profiles_document, read_profiles
 from perfrepair.dto.grouping_state import Group, Knowledge
 from perfrepair.dto.interop import member, pair_status
 from perfrepair.files import read_json, write_json

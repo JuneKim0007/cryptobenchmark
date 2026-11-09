@@ -6,9 +6,9 @@ from pathlib import Path
 import pytest
 import yaml
 
-from perfrepair.catalog.algorithms import DIRECTORY, AlgorithmsError, algorithms, load
-from perfrepair.catalog.families import Families
-from perfrepair.catalog.names import fold
+from cryptobench.catalogue.algorithms import DIRECTORY, AlgorithmsError, algorithms, load
+from cryptobench.catalogue.families import Families
+from cryptobench.catalogue.names import fold
 from perfrepair.catalog.screening import SCREENING
 from perfrepair.catalog.types import types
 
@@ -267,7 +267,7 @@ def test_the_keystore_born_pairs_are_keyed_by_build():
 
 
 def test_a_password_cipher_with_an_iv_takes_one_object_holding_the_iv():
-    from perfrepair.catalog.recipes import recipes
+    from cryptobench.catalogue.recipes import recipes
     entries = [e for e in algorithms().entries if e.required("salt") and e.required("iv")]
     assert len(entries) == 14
     for e in entries:
@@ -282,8 +282,8 @@ def test_a_build_s_own_iv_stays_its_own_object():
 
 
 def test_two_objects_for_one_call_are_refused():
-    from perfrepair.catalog.algorithms import Entry, entry_problems
-    from perfrepair.catalog.recipes import recipes
+    from cryptobench.catalogue.algorithms import Entry, entry_problems
+    from cryptobench.catalogue.recipes import recipes
     catalogue = algorithms()
     raw = copy.deepcopy(catalogue.of("cipher.secret", "Cipher|PBEWithHmacSHA256AndAES_256").raw)
     next(r for r in raw["required"] if r["name"] == "iv")["recipe"] = "jca.ivSpec"
@@ -292,8 +292,8 @@ def test_two_objects_for_one_call_are_refused():
 
 
 def test_one_object_split_across_two_calls_is_refused():
-    from perfrepair.catalog.algorithms import Entry, entry_problems
-    from perfrepair.catalog.recipes import recipes
+    from cryptobench.catalogue.algorithms import Entry, entry_problems
+    from cryptobench.catalogue.recipes import recipes
     catalogue, ident = algorithms(), "Cipher|PBEWithSHA1AndRC4_128"
     raw = copy.deepcopy(catalogue.of("cipher.secret", ident).raw)
     assert {r["passedTo"] for r in raw["required"] if r.get("recipe") == "jca.pbeKeySpecDerived"} == {"generateSecret"}
@@ -326,7 +326,7 @@ def test_ccm_and_gcm_siv_reset_except_where_conscrypt_refuses_a_second_gcm_siv_e
 
 
 def test_reset_holds_the_directions_of_the_operations_and_a_digest_reset_is_measured():
-    from perfrepair.catalog.glossary import directions_of
+    from cryptobench.catalogue.glossary import directions_of
     for e in algorithms().entries:
         assert set(e.raw["lifecycle"]["reset"]) == directions_of(e.raw["operations"]["value"]), e.id
     digest = algorithms().of("digest.none", "MessageDigest|SHA-256").raw["lifecycle"]["reset"]

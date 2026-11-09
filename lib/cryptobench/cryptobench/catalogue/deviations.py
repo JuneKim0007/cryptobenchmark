@@ -1,17 +1,18 @@
 """algorithms/deviations.yaml: a fact shared by a set of names and builds, stated once; what an entry's providers section holds after it and the provider-wide behaviours apply."""
 from __future__ import annotations
 
+from .paths import DATA
 from dataclasses import dataclass
 from pathlib import Path
 
-from ..dto.coded import InputError
-from ..dto.document import AT_PATH, DocumentKind
+from .coded import InputError
+from .document import AT_PATH, DocumentKind
 from .glossary import deviation_problems
 from .names import fold
 from .overrides import override_parent
 from .provider_builds import ProviderBuilds
 
-CATALOG = Path(__file__).with_name("algorithms") / "deviations.yaml"
+CATALOG = DATA / "deviations.yaml"
 SCHEMA_VERSION = 1
 INVALID = "deviations_invalid"
 PROVIDERS = "providers"

@@ -7,7 +7,7 @@ from pathlib import Path
 import yaml
 
 from ..dto.benchmark_coverage import PARTIAL, VARIANT_MISSING, Gap
-from ..dto.grouping import parse_qualified
+from cryptobench.catalogue.grouping import parse_qualified
 from ..dto.metrics import BY_NAME, TIME
 from ..files import read_yaml, write_text_making_parents
 from ..stop.halt import Coded

@@ -35,6 +35,7 @@ internal class CasePreparer(
         val candidate = PreparedCase(case, recipe, material, parameters, keyParameters, input)
         val invocation = step("dry_run_failed: ") { definition.invocation(candidate) }
         val result = step("dry_run_failed: ") { invocation.once() }
+        step("parameters_unreadable: ") { ParametersUsed.problem(case, material, parameters) }?.let { throw PreparationException(it) }
         val resolved = step("parameters_unreadable: ") { ResolvedParameters.of(invocation.engine, material, result) }
         return candidate.copy(resolvedParameters = resolved, perCall = invocation.perCall)
     }

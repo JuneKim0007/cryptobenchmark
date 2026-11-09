@@ -11,3 +11,5 @@ tree-sitter-kotlin==1.1.0
 # perf-repair: auth api
 anthropic>=0.84
 pytest>=8
+# the implementation guide's readers, shared by apps/benchmark-runner and apps/perf-repair
+-e ./lib/cryptobench

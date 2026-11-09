@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from ...catalog.groups import group_catalog
-from ...dto.grouping import Item, Profile
+from cryptobench.catalogue.groups import group_catalog
+from cryptobench.catalogue.grouping import Item, Profile
 from ...dto.grouping_state import Group, code_made
 from ...dto.screen import Verdict
 from ...probe.identified import identified, screened_out

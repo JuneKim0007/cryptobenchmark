@@ -4,11 +4,11 @@ from collections import defaultdict
 from dataclasses import replace
 from typing import Callable
 
-from ...catalog.groups import GroupCatalog, group_catalog
-from ...catalog.names import Names, fold
+from cryptobench.catalogue.groups import GroupCatalog, group_catalog
+from cryptobench.catalogue.names import Names, fold
 from ...data_handler.inbound.probe import Probe
-from ...dto.grouping import FROM_TRIAL, Item, Profile
-from ...catalog.families import Families
+from cryptobench.catalogue.grouping import FROM_TRIAL, Item, Profile
+from cryptobench.catalogue.families import Families
 from ...catalog.signature import signature
 from .key_contract import (
     cross_checked,

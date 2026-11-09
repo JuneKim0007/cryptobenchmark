@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+from .paths import DATA
 from pathlib import Path
 
-from ..dto.document import AT_PATH, DocumentKind
-from ..dto.grouping import Family
+from .document import AT_PATH, DocumentKind
+from .grouping import Family
 
-CATALOG = Path(__file__).with_name("families.yaml")
+CATALOG = DATA / "families.yaml"
 SCHEMA_VERSION = 1
 FAMILIES_DOC = DocumentKind("families", SCHEMA_VERSION, AT_PATH)
 UNIDENTIFIED, ANY_TYPE = "unidentified", "any"

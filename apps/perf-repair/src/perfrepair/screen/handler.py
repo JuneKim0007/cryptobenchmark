@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from dataclasses import replace
 
-from ..catalog.names import Names, NamesError, fold
+from cryptobench.catalogue.names import Names, NamesError, fold
 from ..catalog.screening import DEPRECATED, PlatformRule, Screening
-from ..dto.grouping import parse_qualified
+from cryptobench.catalogue.grouping import parse_qualified
 from ..dto.screen import ACCEPTED, BROKEN, PLATFORM_DEPRECATED, UNKNOWN, Verdict, qualified_verdicts
 
 

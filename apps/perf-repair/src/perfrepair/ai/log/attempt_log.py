@@ -6,7 +6,7 @@ from pathlib import Path
 
 import yaml
 
-from ...dto.document import DocumentKind
+from cryptobench.catalogue.document import DocumentKind
 from ...dto.event import DECISION
 from ...files import append_line, write_text_making_parents
 from ...log import emit, run_id

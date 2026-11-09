@@ -81,7 +81,7 @@ src/perfrepair/ai/select/units.py : UnitSource: the units of dossiers.json as it
 src/perfrepair/ai/select/upgrade_render.py : the broken-use message: site, sinks and reach, the current and screening's reason, the ranked candidates with medians and any ratio
 src/perfrepair/ai/select/upgrade_state.py : UpgradeState: one Upgrade per broken use
 src/perfrepair/ai/select/upgrades.py : UpgradeSource: listed and unreachable broken uses settled by code, the rest asked with no none; upgrades.json
-src/perfrepair/ai/tools/catalogue_read.py : the read tools view_for, what_is, list_groups, get_group over catalog/views.py and catalog/glossary.py; JSON text out, a coded error as the problem
+src/perfrepair/ai/tools/catalogue_read.py : the read tools view_for, what_is, list_groups, get_group over ../../lib/cryptobench/cryptobench/catalogue/views.py and ../../lib/cryptobench/cryptobench/catalogue/glossary.py; JSON text out, a coded error as the problem
 src/perfrepair/ai/tools/registry.py : Registry: tools by job, exactly one submit each; surface and reply schema per job; call: out of scope reads as unknown, arguments walked, every call kept on the Context
 src/perfrepair/ai/tools/tool.py : Tool (name, description, schema, kind read or submit, run), Outcome, Context of one conversation's calls
 src/perfrepair/config/__init__.py : docstring only

@@ -7,7 +7,7 @@ from device.identity import capture_id, device_id
 from failure import fail
 from results import layout as results_layout
 import bundled
-from stages import capture_files, config_check
+from stages import capture_files, config_check, guide
 from stages.took import elapsed
 
 
@@ -86,7 +86,9 @@ def device_discover(options, configuration, device, root):
         results = root / capture_id(capture)
         results_layout.publish(stage, results, options.discovery)
     print(f"results:   {results}")
-    return results, located(results, capture.name)
+    parts = located(results, capture.name)
+    parts[4]["guide"] = guide.write(parts[1], parts[2])
+    return results, parts
 
 
 def host_runtime(options):

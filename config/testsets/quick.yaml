@@ -25,14 +25,6 @@ overrides:
     set: {keySizes: [192]}
   - match: {type: Cipher, name: "AES_256/*"}
     set: {keySizes: [256]}
-  - match: {type: Cipher, name: "AES*/GCM/NoPadding"}
-    set: {parameters: {class: javax.crypto.spec.GCMParameterSpec, arguments: [128, fresh(12)]}}
-  - match: {type: Cipher, name: "AES*/CBC/*"}
-    set: {parameters: {class: javax.crypto.spec.IvParameterSpec, arguments: [fresh(16)]}}
-  - match: {type: Cipher, name: "AES*/CTR/*"}
-    set: {parameters: {class: javax.crypto.spec.IvParameterSpec, arguments: [fresh(16)]}}
-  - match: {type: Cipher, name: ChaCha20}
-    set: {parameters: {class: javax.crypto.spec.ChaCha20ParameterSpec, arguments: [fresh(12), 1]}}
   - match: {type: Cipher, name: "RSA/*"}
     set: {keySizes: [2048], inputSizes: [32], harness: {iterations: 5}}
   - match: {type: Signature, name: SHA256withRSA}

@@ -29,7 +29,7 @@ class PreparationPolicyTest {
     fun anEmptyReportIsStillWritten() {
         val clean = File(directory, "clean.yaml").apply {
             writeText(effective("stop").readText().replace(Regex("(?m)^      (Serpent/CBC/NoPadding|ChaCha20):.*\n"), ""))
-        }
+        }.also { GuideFixture.beside(it) }
         val run = preparation.prepareAll(clean, File(directory, "preparation"))
         assertEquals(emptyList<Any>(), run.skipped)
         assertTrue(File(directory, "preparation/skipped.yaml").readText().contains("skipped: []"))

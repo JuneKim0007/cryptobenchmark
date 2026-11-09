@@ -13,7 +13,7 @@ from ...dto.change import (
     output_changes,
 )
 from ...dto.dossier import NO_ESTIMATE_REASONS, NO_REAL_USE, OPTION_PREFIX, Dossier
-from ...dto.grouping import parse_qualified, provider_of
+from cryptobench.catalogue.grouping import parse_qualified, provider_of
 from ...dto.interop import PAIR_STATUSES
 from ...dto.lifecycle import NO_REAL_USE as NO_REAL_USE_STATUS
 from ...dto.perf_mode import PerfMode

@@ -220,7 +220,7 @@ def test_a_transformation_resolves_through_the_base_service_like_jca():
 
 
 def test_a_generator_service_gives_the_key_kind_it_makes():
-    from perfrepair.catalog.names import Names
+    from cryptobench.catalogue.names import Names
     probe = _probe(("P", "KeyGenerator", "KS", {"aliases": ["ks-alias"]}), ("P", "KeyPairGenerator", "KP", {}))
     kind = probe.generator_kind(probe.names(Names.load()))
     assert (kind("ks-alias"), kind("KP"), kind("other")) == ("secret", "pair", None)

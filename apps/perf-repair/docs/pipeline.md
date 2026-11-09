@@ -79,7 +79,7 @@ Before any stage it runs `apps/benchmark-runner/dependencies.py` (a missing modu
 |---|---|---|---|---|---|---|
 | `providers.bundled` | manifest `inputs.bundled`, device.yaml | reruns | reruns | reruns | reruns | reruns |
 | `global.yaml` without that list, with its test set | manifest `inputs.config`, device.yaml | reruns | reruns | reruns | reruns | reruns |
-| names catalog (`catalog/algorithm-names.yaml`) | device.yaml `inputs.names` | kept | kept | kept | reruns | reruns |
+| names catalog (`../../algorithms/algorithm-names.yaml`) | device.yaml `inputs.names` | kept | kept | kept | reruns | reruns |
 | screening catalog (`device.screening.catalog`) | device.yaml `inputs.screening` | kept | kept | kept | reruns | reruns |
 | the manifest itself | device.yaml `manifest` (sha256) | | | reruns | reruns | reruns |
 | `rows.json`, `measurements.json`, `grouping/screen.json` | device.yaml `primitives` | kept | kept | kept | kept | reruns |

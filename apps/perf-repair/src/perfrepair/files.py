@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from .dto.document import DocumentKind, parse_yaml
+from cryptobench.catalogue.document import DocumentKind, parse_yaml
 
 TEMP_SUFFIX = ".tmp"
 # mkstemp makes 0600; a staged file keeps the mode a plain open would give

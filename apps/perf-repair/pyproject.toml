@@ -22,5 +22,5 @@ where = ["src"]
 perfrepair = ["prompts/**/*.md", "**/*.yaml"]
 
 [tool.pytest.ini_options]
-pythonpath = ["src", "tests", "tests/grouping"]
+pythonpath = ["src", "tests", "tests/grouping", "../../lib/cryptobench"]
 testpaths = ["tests"]

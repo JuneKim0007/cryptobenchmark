@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Callable
 
-from ...catalog.groups import group_catalog
-from ...dto.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD, Item, Profile
+from cryptobench.catalogue.groups import group_catalog
+from cryptobench.catalogue.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD, Item, Profile
 from ...dto.grouping_output import Finding
 from ...dto.grouping_state import Knowledge, code_made
 from ...dto.interop import PairResult

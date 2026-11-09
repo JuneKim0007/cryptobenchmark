@@ -1,0 +1,11 @@
+# What the implementation guide says for each item of the effective file beside it; written by apps/benchmark-runner/stages/guide.py.
+schemaVersion: 1
+items:
+  SUN:
+    MessageDigest:
+      SHA-256: {}
+  SunJCE:
+    Cipher:
+      AES/GCM/NoPadding: {}
+    Mac:
+      HmacSHA256: {}

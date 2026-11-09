@@ -195,7 +195,7 @@ def test_s7_a_folder_an_interrupted_benchmark_left_is_refused_by_a_standalone_co
 def test_s8_a_second_guide_on_the_folder_is_device_busy(p):
     """Before: two guides raced (4 of 12 runs failed on a shared temp file). After: the second stops at once."""
     holder = subprocess.Popen([sys.executable, "-c", HOLD, str(p.run_dir)], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                              text=True, env={**os.environ, "PYTHONPATH": str(SRC)})
+                              text=True, env={**os.environ, "PYTHONPATH": os.pathsep.join([str(SRC), str(SRC.parents[2] / "lib/cryptobench")])})
     try:
         assert holder.stdout.readline().strip() == "held"
         code, events = p.go([p.app("a")])

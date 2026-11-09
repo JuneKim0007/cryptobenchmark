@@ -1,7 +1,7 @@
 from grouping_data import BENCHMARK, FAMILIES, INVENTORY, NAMES, PREPARED, PROBE, TRIAL
 
 from perfrepair.device.selection import exclusions
-from perfrepair.dto.grouping import Item, items_document, profiles_document, read_items, read_profiles
+from cryptobench.catalogue.grouping import Item, items_document, profiles_document, read_items, read_profiles
 from perfrepair.grouping.build.items import build
 from perfrepair.validation.grouping.items import validate_items
 
@@ -108,8 +108,8 @@ def test_a_probe_only_device_folder_builds_and_reports_no_key_sizes(tmp_path):
 
 
 def test_a_catalogued_name_a_provider_aliases_otherwise_keeps_the_catalog_name():
-    from perfrepair.catalog.families import Families
-    from perfrepair.catalog.names import Names
+    from cryptobench.catalogue.families import Families
+    from cryptobench.catalogue.names import Names
     from perfrepair.data_handler.inbound.probe import Probe
     probe = Probe({"providers": [
         {"name": "P1", "services": [{"type": "Mac", "algorithm": "HmacSHA256", "aliases": ["PBEWITHHMACSHA256"]}]},
@@ -124,8 +124,8 @@ def test_a_catalogued_name_a_provider_aliases_otherwise_keeps_the_catalog_name()
 
 
 def test_a_generator_service_whose_name_is_a_conflict_is_built_not_stopped():
-    from perfrepair.catalog.families import Families
-    from perfrepair.catalog.names import Names
+    from cryptobench.catalogue.families import Families
+    from cryptobench.catalogue.names import Names
     from perfrepair.data_handler.inbound.probe import Probe
     probe = Probe({"providers": [
         {"name": "P1", "services": [{"type": "KeyGenerator", "algorithm": "HmacSHA256", "aliases": ["FAKEKEY"]},

@@ -1,6 +1,6 @@
-from perfrepair.dto.grouping import Family
-from perfrepair.catalog.families import Families
-from perfrepair.catalog.names import Names
+from cryptobench.catalogue.grouping import Family
+from cryptobench.catalogue.families import Families
+from cryptobench.catalogue.names import Names
 from perfrepair.data_handler.inbound.probe import Probe
 
 FAMILIES = Families([

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from ...catalog.key_contract import generated_key_formats, standard_key_interfaces
-from ...dto.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD, KEY_UNKNOWN
-from ...dto.signature import EXPORTABLE, NON_EXPORTABLE
+from cryptobench.catalogue.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD, KEY_UNKNOWN
+from cryptobench.catalogue.signature import EXPORTABLE, NON_EXPORTABLE
 
 
 def key_contract(formats: tuple[str, ...], classes: tuple[str, ...]) -> str:

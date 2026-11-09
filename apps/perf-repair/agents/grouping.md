@@ -13,9 +13,9 @@
 - capabilities: key size, tag length and availability are static; never group identity.
 - key contract: derived in `grouping/build/key_contract.py` from probe attributes, a generator's from its trial's produced key cross-checked with its provider's consumers; never from a provider name or a registered `KeyStore`; doubt is `unknown`, never a guess, and an unknown generator joins no group.
 - classify: with `device.screening.aiReview` the build asks the classify model about unknown items only, before screen.json is written; `docs/screening.md` Model review.
-- identified: a screened-out item or a name with a contract row in `catalog/groups.yaml` is placed without a model and never asked (`probe/identified.py`, the one test); every other item is one model call; `docs/grouping.md` Identified items.
+- identified: a screened-out item or a name with a contract row in `../../algorithms/groups.yaml` is placed without a model and never asked (`probe/identified.py`, the one test); every other item is one model call; `docs/grouping.md` Identified items.
 - catalog: it and the signature exist only to reduce model calls; nothing writes it at run time; a person adds names from `group-candidates.yaml`.
-- signature: evidence, never the decision: it derives the contract rows of listed names and checks groups; what splits a row is data in `catalog/interchange.yaml`, derived in `catalog/signature.py`; missing evidence is `unknown`, never the name's default.
+- signature: evidence, never the decision: it derives the contract rows of listed names and checks groups; what splits a row is data in `../../algorithms/interchange.yaml`, derived in `catalog/signature.py`; missing evidence is `unknown`, never the name's default.
 - items: ids `1..n` per run; `items.json` is never edited after build; the agent sees one YAML block: the family, its groups (catalog and this run's) and the item, facts under input, key and output.
 - commit: the outbox record is the commit; knowledge, cursor and errors are projections rebuilt from it; nothing writes knowledge directly.
 - gates: A before every pop, B after it, C on every answer, D after every write; a failed gate stops the stage.
@@ -25,7 +25,7 @@
 ## Workflow
 - run: `build` (classify inside, with aiReview) → `assign` → `report` → `interop-plan` → cryptobenchmark `--interop` → `interop-read` (`python3 -m perfrepair.grouping`); the guide's interop step does the last three through `device/interop.py`
 - interop: a failed pair leaves evidence and dossier options; a `not_checkable` pair stays, labelled; a pair across key contracts is never planned, the plan marks it `not_checkable`; never edit a group for it.
-- change the catalog: add the id `<type>|<canonical>` to its family in `catalog/groups.yaml` and its entry to `catalog/algorithms/<family>_catalogue.yaml`, checked by `validation/catalogue_entry.py`; a candidate is promoted by hand
+- change the catalog: add the id `<type>|<canonical>` to its family in `../../algorithms/groups.yaml` and its entry to `../../algorithms/<family>_catalogue.yaml`, checked by `validation/catalogue_entry.py`; a candidate is promoted by hand
 - add a static check: function in `rules.py` → `RULES` → row in `docs/grouping.md`
 - change the answer contract: `ai/parse/grouping_assign/schema.py` → `prompts/parse/grouping-assign.system.md` → `validation/parse/grouping_assign.py` → `docs/grouping.md`
 
@@ -42,28 +42,12 @@ src/perfrepair/ai/parse/grouping_assign/kind.py : GroupingKind on the engine: as
 src/perfrepair/ai/parse/grouping_assign/render.py : one item's message: one YAML block of the family, its groups and the item, each with the facts code knows by contract; exact leaves out each group a known fact contradicts
 src/perfrepair/ai/parse/grouping_assign/schema.py : the answer's JSON schema; id patterns and description length from the gate's SLUG and MAX_DESCRIPTION
 src/perfrepair/ai/parse/grouping_assign/state.py : the outbox's projections: cursor (next undecided pending item) and knowledge
-src/perfrepair/catalog/algorithms.py : reader of the catalogues, checked whole: entry fields, provenance, sources, contracts, type facts, provider overrides; lookup by family and id
-src/perfrepair/catalog/algorithms/ : data: `<family>_catalogue.yaml` per family, one entry per id `<type>|<canonical>` (key, required, optional, conditions, lifecycle, operations, contract, sourcedOnly, providers, provenance); `common.yaml` sources, keyStrength maps, deterministicRelied; `recipes.yaml` how each parameter object a row names is made; `deviations.yaml` facts shared by a set of names and builds, stated once;
-src/perfrepair/catalog/deviations.py : reads algorithms/deviations.yaml, every word a glossary term; what an entry's providers holds once provider behaviours and deviations apply
-src/perfrepair/catalog/families.py : the family catalog and (engine type, key kind) → family
-src/perfrepair/catalog/families.yaml : predefined families with fixed descriptions, the one copy
-src/perfrepair/catalog/glossary.py : what_is: a term, a subtree or one value's meaning of glossary.yaml; term_problems: an entry's words checked against it
-src/perfrepair/catalog/glossary.yaml : data: one defined meaning per key and value of groups.yaml, the catalogues, recipes.yaml, deviations.yaml, provider-builds.yaml and algorithm-names.yaml, a tree with sections group, algorithm, recipe, plan, deviation, build and names
-src/perfrepair/catalog/groups.py : reader of groups.yaml, checked whole: one group per family by id, contract rows from each member's catalogue contract, a row at each key contract
-src/perfrepair/catalog/groups.yaml : data: per family its exemplars and the listed algorithm ids, from whose catalogue contracts the contract rows come; a person adds ids from group-candidates.yaml
 src/perfrepair/catalog/identity.py : one algorithm's ids: the registered item, the canonical algorithm, its contract row; a case id read back from its fields
-src/perfrepair/catalog/interchange.py : reader of interchange.yaml: engines, rules by canonical name; a component outside its splits is refused
-src/perfrepair/catalog/interchange.yaml : data: per engine type the components that split a group, the rules that read them from a canonical name, what a missing key contract means, and which contract each component states
 src/perfrepair/catalog/key-contract.yaml : data: the key class prefixes that are standard interfaces, no provider's own; the standard format of a generated key per generator type
 src/perfrepair/catalog/key_contract.py : reader of key-contract.yaml: the standard key interface prefixes, the generated key formats
-src/perfrepair/catalog/overrides.py : a provider override's path in an entry, and one build's differences applied to a copy
-src/perfrepair/catalog/provider-builds.yaml : data: every provider build the catalogues' measured facts ran on, keyed <name> @ <build>, with what each says of itself; a behaviour true of a provider and the ids it reaches
-src/perfrepair/catalog/provider_builds.py : reads provider-builds.yaml; a build key from what a probe records; a name resolves to one key or is provider_build_unknown
-src/perfrepair/catalog/recipes.py : reads recipes.yaml, checked whole: one form per recipe, every word and each role's make and lives against the glossary, typed arguments, nested recipes present; the roles a recipe passes
 src/perfrepair/catalog/resolved.py : the digest and MGF1 of a trial's `resolved` text, by canonical digest name
 src/perfrepair/catalog/signature.py : an item's signature from its canonical name, resolved and key contract; known, convention or unknown per component
 src/perfrepair/catalog/types.py : the catalogues' type facts as rows by family and canonical name; strength at a key size
-src/perfrepair/catalog/views.py : what an agent is shown: one entry with only its provider build's overrides (view_for), the groups' ids, descriptions and exemplars (list_groups), one group's members a page at a time (get_group)
 src/perfrepair/grouping/__main__.py : command: build (screening catalog from perfrepair.yaml) | assign | report | interop-plan | interop-read
 src/perfrepair/grouping/build/items.py : benchmark documents → items and profiles, a declared transformation that ran being an item; ids in (family, name, provider) order
 src/perfrepair/grouping/build/key_contract.py : key contract from probe attributes: a key format or a standard key interface → app_held; only other key classes → provider_held; neither → unknown; a generator's from its trial (standard format and encoded → app_held, no encoding → provider_held, else unknown) and cross_checked with its consumers

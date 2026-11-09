@@ -6,7 +6,7 @@ from perfrepair.catalog.types import Types
 from perfrepair.dto.change import CHANGES, REJECT_REASONS, admits
 from perfrepair.dto.lifecycle import BOUNDED, Lifecycle, Requirement, Settled
 from perfrepair.dto.site import Scope, scope_id
-from perfrepair.dto.types import Properties, Strength, TypeRow
+from cryptobench.catalogue.types import Properties, Strength, TypeRow
 from perfrepair.result.change import Candidate, classify, reach
 
 TYPES = Types({}, {"blockKey": {128: 128, 256: 256}}, frozenset({"digest", "ciphertext"}))

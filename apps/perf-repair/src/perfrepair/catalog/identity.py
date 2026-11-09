@@ -4,9 +4,9 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-from ..dto.grouping import SEPARATOR, qualified
-from .groups import GroupCatalog, group_catalog
-from .names import Names
+from cryptobench.catalogue.grouping import SEPARATOR, qualified
+from cryptobench.catalogue.groups import GroupCatalog, group_catalog
+from cryptobench.catalogue.names import Names
 
 # the rule of CaseName.kt, whose id parts the case id joins with "_"
 UNSAFE = re.compile(r"[^A-Za-z0-9]")

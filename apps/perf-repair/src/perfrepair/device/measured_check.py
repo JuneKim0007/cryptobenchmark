@@ -21,7 +21,7 @@ from ..dto.benchmark_coverage import (
     Coverage,
     Gap,
 )
-from ..dto.grouping import parse_qualified, qualified
+from cryptobench.catalogue.grouping import parse_qualified, qualified
 from ..dto.metrics import METRICS
 from ..dto.perf_mode import PerfMode
 from ..dto.used import UsedItem, UsedSet

@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 
-from ..dto.document import AT_PATH, DocumentKind
+from cryptobench.catalogue.document import AT_PATH, DocumentKind
 from ..dto.lifecycle import Lifecycle
 from ..dto.site import KEY_SOURCES, SINKS
 from ..files import read_yaml

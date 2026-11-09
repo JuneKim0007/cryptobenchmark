@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from collections import Counter
 
-from ...dto.grouping import KEY_CONTRACTS, Item, Profile
-from ...catalog.families import ANY_TYPE, Families
+from cryptobench.catalogue.grouping import KEY_CONTRACTS, Item, Profile
+from cryptobench.catalogue.families import ANY_TYPE, Families
 
 
 def validate_items(items: list[Item], profiles: dict[int, Profile], families: Families) -> list[str]:

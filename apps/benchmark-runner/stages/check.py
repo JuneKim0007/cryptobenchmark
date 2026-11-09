@@ -8,6 +8,7 @@ from device.adb import NO_DEFAULT_PROFILER, PASSED, DeviceError, instrumentation
 from failure import fail
 from repo import ROOT
 from results.manifest import manifest
+from stages import guide
 from stages.discover import device_discover
 from stages.took import elapsed
 import bundled
@@ -45,7 +46,7 @@ def on_host(options, effective, capture, trial, into):
 
 def on_device(device, options, effective, capture, trial, into):
     device.clear_outputs((RESULT,))
-    device.push_plan(effective, capture, trial, KNOWN_ANSWERS)
+    device.push_plan(effective, guide.file_beside(effective), capture, trial, KNOWN_ANSWERS)
     suppressed = ["-e", "androidx.benchmark.suppressErrors", options.suppress_errors] if options.suppress_errors else []
     output = device.instrument("EndToEndCheck", *NO_DEFAULT_PROFILER, *DRY_RUN, *suppressed)
     if not PASSED.search(output):

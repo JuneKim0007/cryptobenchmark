@@ -115,7 +115,7 @@ Exit: what `failure.py` returns for the code; argparse refusals exit 2 before an
 | `deviations_invalid` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
 | `glossary_unknown` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
 | `algorithm_unknown` | `stop` | fixed: the input is unusable | 1 | name an algorithm or group id the catalogues hold |
-| `provider_build_unknown` | `stop` | fixed: the input is unusable | 1 | name a build key of `catalog/provider-builds.yaml`, or a name only one build carries |
+| `provider_build_unknown` | `stop` | fixed: the input is unusable | 1 | name a build key of `../../algorithms/provider-builds.yaml`, or a name only one build carries |
 | `relations_schema` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
 | `events_unreadable` | `stop` | fixed: the input is unusable | 1 | move the unreadable events.jsonl aside |
 | `item_not_configured` | `stop` | fixed: the input is unusable | 1 | rerun the device stage with the item in the run config |

@@ -10,7 +10,7 @@ from perfrepair.ai.parse.grouping_assign.kind import GroupingKind, charter
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.decide import decide
 from perfrepair.ai.runtime.engine.outbox import active_fingerprint, active_outbox
-from perfrepair.dto.grouping import Item, items_document, read_items, read_profiles, profiles_document
+from cryptobench.catalogue.grouping import Item, items_document, read_items, read_profiles, profiles_document
 from perfrepair.files import read_json, write_json
 from perfrepair.grouping.report.checks import report
 from perfrepair.validation.parse.grouping_assign import validate_answer

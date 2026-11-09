@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 
-from .names import Names
+from cryptobench.catalogue.names import Names
 
 DIGEST_ENGINE = "MessageDigest"
 FUNCTION_FIXED = ("digest", "mgf1")

@@ -18,7 +18,7 @@ from perfrepair.ai.runtime.gateway.spawn import spawn
 from perfrepair.config.load import load
 from perfrepair.dto.grouping_state import Group, Knowledge
 from perfrepair.dto.prompt import TaskPrompt
-from perfrepair.dto.signature import CONVENTION, KNOWN, UNKNOWN, Component, Signature
+from cryptobench.catalogue.signature import CONVENTION, KNOWN, UNKNOWN, Component, Signature
 from perfrepair.failure import reported
 from perfrepair.inputs.table import GROUPING_ASSIGN
 from perfrepair.log import attach

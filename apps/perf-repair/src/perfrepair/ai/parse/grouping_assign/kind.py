@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from ....catalog.families import Families
+from cryptobench.catalogue.families import Families
 from ....dto.decision import OutboxRecord
-from ....dto.grouping import Item, read_items, read_profiles
+from cryptobench.catalogue.grouping import Item, read_items, read_profiles
 from ....dto.grouping_state import Knowledge
 from ....dto.prompt import Charter, TaskPrompt
 from ....dto.screen import Verdict

@@ -7,12 +7,13 @@ from pathlib import Path
 
 import pytest
 
-from perfrepair.dto.coded import InputError
+from cryptobench.catalogue.coded import InputError
 from perfrepair.files import TEMP_SUFFIX, read_json, write_json
 from perfrepair.run_dir import LOCK
 from perfrepair.run_dir.lock import DeviceLock
 
 SRC = Path(__file__).parents[1] / "src"
+PATHS = os.pathsep.join([str(SRC), str(Path(__file__).parents[3] / "lib/cryptobench")])
 HOLD = "import sys; from perfrepair.run_dir.lock import DeviceLock; DeviceLock.take(sys.argv[1]); print('held', flush=True); sys.stdin.read()"
 
 
@@ -21,7 +22,7 @@ def held(tmp_path):
     """Another process holding the folder's lock until the test ends."""
     folder = tmp_path / "dev"
     p = subprocess.Popen([sys.executable, "-c", HOLD, str(folder)], stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True,
-                         env={**os.environ, "PYTHONPATH": str(SRC)})
+                         env={**os.environ, "PYTHONPATH": PATHS})
     assert p.stdout.readline().strip() == "held"
     yield folder, p.pid
     p.stdin.close()
@@ -41,7 +42,7 @@ def test_the_holder_may_take_it_again_and_it_frees_on_the_last_release(tmp_path)
     inner.release()
     probe = [sys.executable, "-c", "import sys; from perfrepair.run_dir.lock import DeviceLock; DeviceLock.take(sys.argv[1])",
              str(tmp_path)]
-    env = {**os.environ, "PYTHONPATH": str(SRC)}
+    env = {**os.environ, "PYTHONPATH": PATHS}
     assert subprocess.run(probe, env=env, capture_output=True).returncode == 1
     outer.release()
     assert subprocess.run(probe, env=env).returncode == 0

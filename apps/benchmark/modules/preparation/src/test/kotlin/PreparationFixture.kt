@@ -50,7 +50,7 @@ providers:
       SHA-256: {}
 skipped: []
 """.trimIndent())
-    }
+    }.also { GuideFixture.beside(it) }
 
     val preparation = Preparation(device)
 }

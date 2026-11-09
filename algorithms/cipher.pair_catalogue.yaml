@@ -693,6 +693,8 @@ algorithms:
     - {name: publicKey, use: encrypt, passedTo: init, source: measured}
     - {name: privateKey, use: decrypt, passedTo: init, source: measured}
     - {name: input, passedTo: update, source: measured}
+    - {name: digest, value: SHA-256, recipe: jca.oaepSpec, passedTo: init, source: inferred}
+    - {name: mgf1, value: SHA-256, recipe: jca.oaepSpec, passedTo: init, source: inferred}
     optional:
     - {name: digest, default: SHA-256, affects: [outputBytes, decrypt], source: measured}
     - {name: mgf1, affects: [outputBytes, decrypt], source: measured}

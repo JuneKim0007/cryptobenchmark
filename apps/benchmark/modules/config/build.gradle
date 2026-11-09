@@ -24,3 +24,7 @@ tasks.withType(Test).configureEach {
         systemProperty 'examples.update', update
     }
 }
+
+processResources {
+    from('../../../../algorithms') { include 'algorithm-names.yaml' }
+}

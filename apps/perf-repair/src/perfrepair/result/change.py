@@ -7,7 +7,7 @@ from ..catalog.types import Types
 from ..dto.change import (FIELD_BOUND, LOCAL_EDIT, MIGRATION, REACH_REVIEW, REJECTED, SAME, Change, PairDiff,
                           output_changes)
 from ..dto.site import Scope
-from ..dto.types import NO_NONCE, NO_PARAMETERS, TypeRow
+from cryptobench.catalogue.types import NO_NONCE, NO_PARAMETERS, TypeRow
 
 FIELD_BINDING = "field"
 NO_KEY = "none"

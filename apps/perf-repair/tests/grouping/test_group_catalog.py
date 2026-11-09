@@ -12,11 +12,11 @@ from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.decide import decide
 from perfrepair.ai.runtime.engine.kind import project
 from perfrepair.ai.runtime.engine.outbox import active_outbox
-from perfrepair.catalog import groups as catalog_file
-from perfrepair.catalog.algorithms import Algorithms, algorithms
-from perfrepair.catalog.families import Families
-from perfrepair.catalog.names import fold
-from perfrepair.catalog.groups import (
+from cryptobench.catalogue import groups as catalog_file
+from cryptobench.catalogue.algorithms import Algorithms, algorithms
+from cryptobench.catalogue.families import Families
+from cryptobench.catalogue.names import fold
+from cryptobench.catalogue.groups import (
     CATALOG,
     GroupsError,
     _describe,
@@ -25,17 +25,17 @@ from perfrepair.catalog.groups import (
     load,
     row_contracts,
 )
-from perfrepair.catalog.interchange import interchange
-from perfrepair.catalog.names import Names
+from cryptobench.catalogue.interchange import interchange
+from cryptobench.catalogue.names import Names
 from perfrepair.catalog.screening import Screening
 from perfrepair.catalog.signature import signature
 from perfrepair.catalog.types import types
 from perfrepair.data_handler.inbound.probe import Probe
 from perfrepair.device.coverage import coverage
-from perfrepair.dto.grouping import KEY_PROVIDER_HELD, items_document, profiles_document
+from cryptobench.catalogue.grouping import KEY_PROVIDER_HELD, items_document, profiles_document
 from perfrepair.dto.grouping_state import Group, code_made
 from perfrepair.dto.screen import screen_document
-from perfrepair.dto.signature import UNKNOWN
+from cryptobench.catalogue.signature import UNKNOWN
 from perfrepair.files import read_document, write_json
 from perfrepair.grouping.build.items import build
 from perfrepair.grouping.report.checks import report

@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from ....catalog.names import fold
-from ....dto.document import DocumentKind
+from cryptobench.catalogue.names import fold
+from cryptobench.catalogue.document import DocumentKind
 from ._services import services
 
 SUPPORTED_SCHEMA = 1

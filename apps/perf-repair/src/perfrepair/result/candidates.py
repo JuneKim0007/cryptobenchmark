@@ -4,13 +4,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from ..catalog.names import fold
+from cryptobench.catalogue.names import fold
 from ..catalog.types import Types
 from ..catalog.upgrades import Upgrades
 from ..dto.change import DROP_IN, Change, admits
-from ..dto.grouping import provider_of
+from cryptobench.catalogue.grouping import provider_of
 from ..dto.site import Scope
-from ..dto.types import TypeRow
+from cryptobench.catalogue.types import TypeRow
 from .change import Candidate, classify
 
 

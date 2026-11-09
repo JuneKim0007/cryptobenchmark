@@ -21,6 +21,8 @@ kotlin {
     compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
 }
 
+tasks.processResources { from("../../../algorithms") { include("algorithm-names.yaml") } }
+
 sourceSets {
     main {
         kotlin.setSrcDirs(listOf(

@@ -1,7 +1,7 @@
 """charter.json: everything a charter's fingerprint hashes, and the file each prompt was read from."""
 from __future__ import annotations
 
-from .document import DocumentKind
+from cryptobench.catalogue.document import DocumentKind
 from .prompt import Charter, CorrectionPrompt, SystemPrompt
 
 SCHEMA_VERSION = 1

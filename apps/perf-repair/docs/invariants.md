@@ -30,7 +30,7 @@ One algorithm keeps one identity across the stages (`validation/boundary.py`, `c
 | `used_is_an_item` | blocking | each `used.json` item is an item |
 | `used_is_measured` | advisory | a used item with no measurement has no options |
 | `names_agree` | advisory | screening's canonical name is the names catalog's |
-| `name_is_in_its_group` | advisory | a named algorithm is listed under its family in `catalog/groups.yaml` |
+| `name_is_in_its_group` | advisory | a named algorithm is listed under its family in `../../algorithms/groups.yaml` |
 | `name_has_facts` | advisory | a named algorithm's catalogue entry has its type facts |
 
 ## Grouping

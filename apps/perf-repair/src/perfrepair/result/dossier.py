@@ -5,7 +5,7 @@ from collections import defaultdict
 from pathlib import Path
 
 from ..dto import PrimitiveRow, Summary
-from ..dto.grouping import provider_of, qualified
+from cryptobench.catalogue.grouping import provider_of, qualified
 from ..dto.screen import Verdict
 from ..dto.lifecycle import NO_REAL_USE as NO_REAL_USE_STATUS
 from ..dto.perf_mode import PerfMode

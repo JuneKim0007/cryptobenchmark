@@ -5,7 +5,7 @@ import yaml
 from perfrepair import run_dir as rd
 from perfrepair.device.selection import UNKNOWN, bundled_named, exclusions, lacking, section, write_config
 from perfrepair.dto.device import DeviceRecord
-from perfrepair.dto.grouping import Item
+from cryptobench.catalogue.grouping import Item
 from perfrepair.dto.screen import Verdict
 
 ITEMS = [Item(1, "TypeD", "H-1", "P1", "digest.none"), Item(2, "TypeD", "H1", "P1", "digest.none"),

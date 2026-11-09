@@ -4,7 +4,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from ..data_handler.inbound.manifest import manifest_file, read_manifest
-from ..dto.grouping import parse_qualified
+from cryptobench.catalogue.grouping import parse_qualified
 from ..dto.site import Scope
 from ..files import read_yaml
 from ..stop.halt import Coded

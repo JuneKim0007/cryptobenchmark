@@ -11,7 +11,7 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 ALLOW = ROOT / "tools/dead-code-allow.txt"
 VULTURE = pathlib.Path(os.environ.get("VULTURE", pathlib.Path.home() / "capstone/tools/venv/bin/vulture"))
-TARGETS = ("apps/perf-repair/src", "apps/benchmark-runner", "apps/cli", "tools")
+TARGETS = ("apps/perf-repair/src", "apps/benchmark-runner", "apps/cli", "lib/cryptobench", "tools")
 EXCLUDE = "*/tests/*,*/tests,*/fixtures/*"
 FINDING = re.compile(r"^(\S+?):\d+: unused \w+ '(\w+)'")
 

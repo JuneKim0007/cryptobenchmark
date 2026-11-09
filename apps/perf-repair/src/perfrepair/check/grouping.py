@@ -11,7 +11,7 @@ from ..ai.parse.grouping_assign.kind import GroupingKind
 from ..ai.runtime.engine.kind import rebuild_problems
 from ..ai.runtime.engine.outbox import OutboxError, active_outbox
 from ..dto.classify import read_batches
-from ..dto.grouping import read_items
+from cryptobench.catalogue.grouping import read_items
 from ..dto.grouping_state import Knowledge
 from ..files import read_json
 from ..run_dir import GroupingPaths

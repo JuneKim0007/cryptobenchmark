@@ -5,7 +5,7 @@ from functools import cached_property
 from pathlib import Path
 from typing import Callable
 
-from ....catalog.names import Names
+from cryptobench.catalogue.names import Names
 from ....files import read_document
 from ._index import ProbeIndex, index_of
 from ._names import merged

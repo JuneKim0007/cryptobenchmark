@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from .grouping import parse_qualified, qualified
+from cryptobench.catalogue.grouping import parse_qualified, qualified
 
 SCHEMA_VERSION = 1
 NOT_CHECKABLE = "not_checkable"

@@ -4,7 +4,7 @@ from __future__ import annotations
 from collections import defaultdict
 from dataclasses import dataclass
 
-from ...dto.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD
+from cryptobench.catalogue.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD
 from ...dto.screen import CODE_GROUPED
 from ..finding import ADVISORY, BLOCKING, Violation
 

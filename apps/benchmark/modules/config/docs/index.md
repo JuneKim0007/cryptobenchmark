@@ -71,7 +71,6 @@ apps/benchmark/modules/config/src/main/kotlin/yaml/ReadOnlyYamlFile.kt : read wi
 apps/benchmark/modules/config/src/main/kotlin/yaml/YamlCodec.kt : SafeConstructor YAML, duplicate keys refused
 apps/benchmark/modules/config/src/main/kotlin/yaml/YamlFile.kt : stamped schemaVersion and .partial atomic write
 apps/benchmark/modules/config/src/main/kotlin/yaml/YamlFiles.kt : factory for YamlFile and ReadOnlyYamlFile
-apps/benchmark/modules/config/src/main/resources/algorithm-names.yaml : canonical name per spelling and engine type; owned here, perf-repair keeps a copy its tests compare
 apps/benchmark/modules/config/src/test/kotlin/AlgorithmNamesTest.kt : the cases shared with perf-repair, every catalogued spelling, inventory duplicates, rule names
 apps/benchmark/modules/config/src/test/kotlin/AuthoredFilesTest.kt : a typo key or a bad providers.bundled stops the parse-only read
 apps/benchmark/modules/config/src/test/kotlin/CommittedConfigTest.kt : committed config/ files parse

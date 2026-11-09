@@ -2,15 +2,16 @@
 each member's catalogue contract."""
 from __future__ import annotations
 
+from .paths import DATA
 import re
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 
-from ..dto.coded import InputError
-from ..dto.document import AT_PATH, DocumentKind
-from ..dto.signature import CONVENTION, UNKNOWN, Signature
+from .coded import InputError
+from .document import AT_PATH, DocumentKind
+from .signature import CONVENTION, UNKNOWN, Signature
 from .algorithms import (
     CONTRACT_KEY,
     CONTRACT_SIDES,
@@ -27,7 +28,7 @@ from .families import UNIDENTIFIED, Families
 from .interchange import INPUT, KEY, OUTPUT, interchange
 from .names import Names, fold
 
-CATALOG = Path(__file__).with_name("groups.yaml")
+CATALOG = DATA / "groups.yaml"
 SCHEMA_VERSION = 3
 PROVIDER_HELD_SUFFIX = ".p"
 APP_HELD_TEXT, PROVIDER_HELD_TEXT = "Keys the application holds.", "Keys inside the provider."

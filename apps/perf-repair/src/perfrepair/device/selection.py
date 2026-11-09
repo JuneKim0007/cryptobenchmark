@@ -8,7 +8,7 @@ import yaml
 
 from .. import run_dir as rd
 from ..dto.device import DeviceRecord
-from ..dto.grouping import Item
+from cryptobench.catalogue.grouping import Item
 from ..dto.screen import Verdict
 from ..dto.used import names_digest
 from ..files import read_yaml, write_text

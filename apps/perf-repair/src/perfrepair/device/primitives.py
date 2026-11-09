@@ -4,7 +4,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from .. import run_dir as rd
-from ..dto.grouping import read_items
+from cryptobench.catalogue.grouping import read_items
 from ..dto.primitives import SCHEMA_LINE, PrimitivesTable
 from ..files import read_json, sha256_file, write_text
 from ..log import step

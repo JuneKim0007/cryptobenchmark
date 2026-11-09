@@ -1,10 +1,10 @@
 """reinit reads a role's lives per direction: a row's `use` says which direction needs it given, never which direction chooses it."""
 import pytest
 
-from perfrepair.catalog.algorithms import algorithms
-from perfrepair.catalog.glossary import GlossaryError, direction_of, direction_problems, lives, role_problems, tree
-from perfrepair.catalog.reinit import reinit
-from perfrepair.catalog.views import view_for
+from cryptobench.catalogue.algorithms import algorithms
+from cryptobench.catalogue.glossary import GlossaryError, direction_of, direction_problems, lives, role_problems, tree
+from cryptobench.catalogue.reinit import reinit
+from cryptobench.catalogue.views import view_for
 
 PER_USE_ROLES = ("iv", "nonce")
 

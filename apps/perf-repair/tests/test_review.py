@@ -9,8 +9,8 @@ import pytest
 from perfrepair import run_dir as rd
 from perfrepair.dto.change import PairDiff
 from perfrepair.dto.decision import OutboxRecord
-from perfrepair.dto.grouping import Item, Profile, items_document, profiles_document
-from perfrepair.dto.signature import Component, Signature
+from cryptobench.catalogue.grouping import Item, Profile, items_document, profiles_document
+from cryptobench.catalogue.signature import Component, Signature
 from perfrepair.dto.site import DOSSIERS_SCHEMA_VERSION, Scope, scope_id
 from perfrepair.dto.dossier import Dossier, Option
 from perfrepair.review.__main__ import main

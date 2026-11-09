@@ -8,7 +8,7 @@ import statistics
 from ..dto import PrimitiveRow, Summary
 from ..dto.change import MIGRATION, REACH_REVIEW
 from ..dto.dossier import Option
-from ..dto.grouping import algorithm_of, provider_of
+from cryptobench.catalogue.grouping import algorithm_of, provider_of
 from ..dto.perf_mode import PerfMode
 from ..dto.replacement import OUTPUT_LEAVES, Edit, required_risks
 from ..dto.site import Scope

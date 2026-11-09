@@ -16,7 +16,7 @@
 
 ## Lookup
 
-- key: the engine type and the canonical name from `src/perfrepair/catalog/names.py`, probe aliases included; every spelling of a name gets one verdict.
+- key: the engine type and the canonical name from `../../lib/cryptobench/cryptobench/catalogue/names.py`, probe aliases included; every spelling of a name gets one verdict.
 - key size: dropped; `AES_256/GCM/NoPadding` is looked up as `AES/GCM/NoPadding`.
 - components: a transformation `base/mode/padding` is `broken` when its base or its mode is listed.
 - nominal mode: a mode the names catalog maps another mode onto for a base (`modeSynonyms`) never matches that base; `RSA/ECB/*` is not ECB.
@@ -101,7 +101,7 @@ With `screening.aiReview: true`, `grouping build` asks the classify role (`ai/pa
 - conflicts follow NIST SP 800-131A r2 (final), stricter where Android's pages say so: SHA-1 digest `deprecated`; PKCS#1 v1.5 signatures `accepted`; CBC `accepted`.
 - platform rows come from AOSP `Providers.java` `DEPRECATED_ALGORITHMS`; OIDs and aliases resolve to the canonical names listed; `AlgorithmParameters` and `CertificateFactory` are not item engine types.
 - DSA follows FIPS 186-5 (final), which r2 predates: signature rows and DSA key pairs are `deprecated`; a final standard that is stricter than r2 wins over r2.
-- a row needs type facts in its family's `catalog/algorithms/` catalogue and a name in `algorithm-names.yaml`.
+- a row needs type facts in its family's `../../algorithms/` catalogue and a name in `algorithm-names.yaml`.
 
 ## Names with no row
 

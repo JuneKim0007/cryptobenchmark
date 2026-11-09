@@ -1,17 +1,17 @@
 """Static checks of a catalogue entry: its form, family against engine type, one id across the catalogues, one group."""
 from __future__ import annotations
 
-from ..catalog.algorithms import (
+from cryptobench.catalogue.algorithms import (
     Algorithms,
     Entry,
     algorithm_id,
     entry_problems,
     split_id,
 )
-from ..catalog.families import Families
-from ..catalog.glossary import provider_key_problems, term_problems
-from ..catalog.groups import GroupCatalog
-from ..catalog.names import fold
+from cryptobench.catalogue.families import Families
+from cryptobench.catalogue.glossary import provider_key_problems, term_problems
+from cryptobench.catalogue.groups import GroupCatalog
+from cryptobench.catalogue.names import fold
 
 
 def _group_count(groups: GroupCatalog, families: Families, identifier: str) -> int:

@@ -4,11 +4,11 @@ from pathlib import Path
 
 import pytest
 
-from perfrepair.catalog.names import Names
+from cryptobench.catalogue.names import Names
 from perfrepair.catalog.screening import Screening
 from perfrepair.check.run import validate_run
 from perfrepair.data_handler.inbound.__main__ import main as inbound
-from perfrepair.dto.grouping import Item, read_items
+from cryptobench.catalogue.grouping import Item, read_items
 from helpers import with_results, CATALOG
 from perfrepair.dto.screen import Verdict, refused_target, read_screen, screen_document
 from perfrepair.grouping.build.stage import build_stage

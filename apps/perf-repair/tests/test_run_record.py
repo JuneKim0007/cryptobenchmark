@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from perfrepair.dto.coded import InputError
+from cryptobench.catalogue.coded import InputError
 from perfrepair.files import read_json
 from perfrepair.run_dir import DEVICE, RUNS, AppPaths
 from perfrepair.run_dir.run_record import (

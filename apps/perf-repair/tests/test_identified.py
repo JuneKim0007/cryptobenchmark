@@ -1,6 +1,6 @@
 """The one identified test's alias policy: a device alias the catalog names otherwise is reported; the catalog's name wins."""
 
-from perfrepair.catalog.names import Names
+from cryptobench.catalogue.names import Names
 from perfrepair.data_handler.inbound.probe import Probe
 from perfrepair.probe.identified import alias_conflicts
 

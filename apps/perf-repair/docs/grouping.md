@@ -2,7 +2,7 @@
 
 ## Criterion
 
-A family (`catalog/families.yaml`, engine type × key kind, 8 of them) is the boundary, not a group. Items sit in one of three kinds of group: a catalog group, a contract row of the names `catalog/groups.yaml` lists for the family (`<type>|<canonical>`) whose catalogue `contract`s are equal, at one key contract (`<row>`, `<row>.p`; `catalog/groups.py`); a code-made group (`code_`: one screened-out algorithm, or a generator of unknown key contract alone; `screen/groups.py`); a model-made group (a `newGroup` answer for an unidentified item). Two primitives share a contract row only when all three contracts match; only those swap as a `drop-in`.
+A family (`../../algorithms/families.yaml`, engine type × key kind, 8 of them) is the boundary, not a group. Items sit in one of three kinds of group: a catalog group, a contract row of the names `../../algorithms/groups.yaml` lists for the family (`<type>|<canonical>`) whose catalogue `contract`s are equal, at one key contract (`<row>`, `<row>.p`; `../../lib/cryptobench/cryptobench/catalogue/groups.py`); a code-made group (`code_`: one screened-out algorithm, or a generator of unknown key contract alone; `screen/groups.py`); a model-made group (a `newGroup` answer for an unidentified item). Two primitives share a contract row only when all three contracts match; only those swap as a `drop-in`.
 
 | Contract | Covers | Splits a group | Evidence |
 |---|---|---|---|
@@ -10,10 +10,10 @@ A family (`catalog/families.yaml`, engine type × key kind, 8 of them) is the bo
 | key | how the key reaches the primitive: key material the application holds, or a handle to a key that lives inside the provider (keystore, TEE, StrongBox) | `app_held` against `provider_held`; `unknown` decides nothing | `keyContract` of `profiles.json` |
 | output | for the same input, key and call-chosen parameters, identical bytes, or, for a randomized primitive, output each one decrypts or verifies for the other | a parameter the name or provider fixes: mode, padding, digest, `resolved` (OAEP digest, MGF1), curve, output encoding (DER/P1363); the same format with different bytes (SHA-256 / SHA3-256, SHA-1 / SHA-256: a substitute, not an equivalent, #56) | name, `resolved`; the interop check measures it per pair |
 
-- Boundary: the family (`catalog/families.yaml`: engine type × key kind); items of two families are never compared.
+- Boundary: the family (`../../algorithms/families.yaml`: engine type × key kind); items of two families are never compared.
 - Not a contract: key size, IV size, tag length (dossier `pins`), provider identity, whether it runs on this device.
 
-Catalog and signature: `catalog/groups.yaml` and the signature ([signature.md](signature.md)) exist only to reduce model calls. A listed name whose signature is decided is placed in a contract row without a model; a listed name it leaves open, and an unlisted name, go to the model. The signature also checks rows; it never places an unlisted item. A contract row is the `drop-in` class; beyond it, type, floor, availability, class: [change-classes.md](change-classes.md).
+Catalog and signature: `../../algorithms/groups.yaml` and the signature ([signature.md](signature.md)) exist only to reduce model calls. A listed name whose signature is decided is placed in a contract row without a model; a listed name it leaves open, and an unlisted name, go to the model. The signature also checks rows; it never places an unlisted item. A contract row is the `drop-in` class; beyond it, type, floor, availability, class: [change-classes.md](change-classes.md).
 
 ## Key contract
 
@@ -99,7 +99,7 @@ flowchart TD
 | C | every answer | the answer contract above; `group` names a catalog or model-made group, `amend` a model-made one only; a `group` no member of which knows another value for a component the item knows (its `facts`, the key); the item has no outbox record yet |
 | D | after write | the record reads back equal; new knowledge validates |
 
-## Families (`catalog/families.yaml`)
+## Families (`../../algorithms/families.yaml`)
 
 | Family | Engine type | Key kind |
 |---|---|---|

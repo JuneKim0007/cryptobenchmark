@@ -5,7 +5,7 @@ import hashlib
 from dataclasses import dataclass
 from pathlib import Path
 
-from ..catalog.names import Names
+from cryptobench.catalogue.names import Names
 from ..stop.halt import Coded
 from ..catalog.screening import SCREENING, Screening
 from ..config.load import Loaded

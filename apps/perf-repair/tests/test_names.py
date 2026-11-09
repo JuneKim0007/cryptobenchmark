@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from perfrepair.catalog.names import CATALOG, Canonical, Names, NamesError
+from cryptobench.catalogue.names import CATALOG, Canonical, Names, NamesError
 from perfrepair.data_handler.inbound.probe import Probe
 
 CASES = Path(__file__).parent / "fixtures" / "algorithm-names-cases.yaml"

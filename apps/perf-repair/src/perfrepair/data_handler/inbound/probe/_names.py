@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 
-from ....catalog.names import Canonical, Names, fold
+from cryptobench.catalogue.names import Canonical, Names, fold
 from ._services import services
 
 

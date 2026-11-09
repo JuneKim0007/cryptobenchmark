@@ -50,6 +50,12 @@ providers:
       ${ThrowingProvider.EXCEPTION}: {}
 skipped: []
 """.trimIndent())
+        File(folder.root, "guide.yaml").writeText("""
+schemaVersion: 1
+items:
+  SUN: {MessageDigest: {SHA-256: {}, SHA-512: {}}}
+  ${ThrowingProvider.NAME}: {MessageDigest: {${ThrowingProvider.ASSERTION}: {}, ${ThrowingProvider.OVERFLOW}: {}, ${ThrowingProvider.EXCEPTION}: {}}}
+""".trimIndent())
     }
 
     private val plan get() = RunnablePlan(Preparation(device), PlanCheck(HostHarness.METRICS), File(folder.root, "out")) { logged += it }

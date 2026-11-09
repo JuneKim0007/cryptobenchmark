@@ -18,9 +18,3 @@ include:
 overrides:
   - match: {type: Cipher, name: "AES*"}
     set: {keySizes: [128, 256]}
-  - match: {type: Cipher, name: "AES*/GCM/NoPadding"}
-    set: {parameters: {class: javax.crypto.spec.GCMParameterSpec, arguments: [128, fresh(12)]}}
-  - match: {type: Cipher, name: "AES*/CBC/*"}
-    set: {parameters: {class: javax.crypto.spec.IvParameterSpec, arguments: [fresh(16)]}}
-  - match: {type: Cipher, name: ChaCha20}
-    set: {parameters: {class: javax.crypto.spec.ChaCha20ParameterSpec, arguments: [fresh(12), 1]}}

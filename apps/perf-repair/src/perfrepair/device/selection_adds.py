@@ -9,7 +9,7 @@ import yaml
 from .. import run_dir as rd
 from ..data_handler.inbound import read_manifest
 from ..data_handler.inbound.manifest import manifest_file
-from ..dto.grouping import Item, qualified
+from cryptobench.catalogue.grouping import Item, qualified
 from ..files import read_yaml, write_text
 
 

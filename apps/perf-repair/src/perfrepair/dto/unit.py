@@ -4,7 +4,7 @@ from __future__ import annotations
 import hashlib
 from dataclasses import asdict, dataclass
 
-from .document import DocumentKind
+from cryptobench.catalogue.document import DocumentKind
 from .dossier import Dossier
 from .interop import NOT_PLANNED
 

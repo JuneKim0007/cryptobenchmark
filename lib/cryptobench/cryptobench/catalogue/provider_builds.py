@@ -1,15 +1,16 @@
 """provider-builds.yaml: every provider build the catalogues' measured facts ran on, its key and what it says of itself; a behaviour true of a provider, stated once; a name resolves to a key or is refused."""
 from __future__ import annotations
 
+from .paths import DATA
 from dataclasses import dataclass, field
 from functools import cache
 from pathlib import Path
 
-from ..dto.coded import InputError
-from ..dto.document import AT_PATH, DocumentKind
+from .coded import InputError
+from .document import AT_PATH, DocumentKind
 from .glossary import build_problems
 
-CATALOG = Path(__file__).with_name("provider-builds.yaml")
+CATALOG = DATA / "provider-builds.yaml"
 SCHEMA_VERSION = 1
 UNKNOWN = "provider_build_unknown"
 

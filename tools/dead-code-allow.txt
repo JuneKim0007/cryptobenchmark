@@ -3,14 +3,14 @@ apps/benchmark-runner/energy/manafa_session.py:profiler_mode : set on the third-
 apps/perf-repair/src/perfrepair/ai/parse/grouping_assign/state.py:knowledgeVersion : written to the assign cursor by asdict
 apps/perf-repair/src/perfrepair/ai/runtime/agent/reply.py:requestId : the gateway's request id, kept on the reply for a person to trace a call
 apps/perf-repair/src/perfrepair/app/find/scan.py:snippet : written to sites.json by asdict
-apps/perf-repair/src/perfrepair/catalog/reinit.py:reinit : the build plans of the next step read it; tests only until then
+lib/cryptobench/cryptobench/catalogue/reinit.py:reinit : the build plans of the next step read it; tests only until then
 apps/perf-repair/src/perfrepair/catalog/screening.py:removedApi : screening.yaml field, checked against deprecatedApi at load
 apps/perf-repair/src/perfrepair/config/current.py:reset : tests/conftest.py clears the run's installed settings between tests
-apps/perf-repair/src/perfrepair/dto/grouping.py:bareName : written to profiles.json by asdict
-apps/perf-repair/src/perfrepair/dto/grouping.py:defaultKeySize : written to profiles.json by asdict
-apps/perf-repair/src/perfrepair/dto/grouping.py:keyProvider : written to profiles.json by asdict
+lib/cryptobench/cryptobench/catalogue/grouping.py:bareName : written to profiles.json by asdict
+lib/cryptobench/cryptobench/catalogue/grouping.py:defaultKeySize : written to profiles.json by asdict
+lib/cryptobench/cryptobench/catalogue/grouping.py:keyProvider : written to profiles.json by asdict
 apps/perf-repair/src/perfrepair/dto/manifest.py:serviceCount : the manifest's provider field, kept whole as cryptobenchmark writes it
-apps/perf-repair/src/perfrepair/dto/types.py:minSdkSource : written to types.json by asdict
-apps/perf-repair/src/perfrepair/dto/types.py:strengthSource : written to types.json by asdict
+lib/cryptobench/cryptobench/catalogue/types.py:minSdkSource : written to types.json by asdict
+lib/cryptobench/cryptobench/catalogue/types.py:strengthSource : written to types.json by asdict
 apps/perf-repair/src/perfrepair/stop/policy.py:reset : tests/conftest.py clears the installed stops reader between tests
 apps/perf-repair/src/perfrepair/validation/catalogue_entry.py:catalogue_check : the check a new catalog entry gets in the later catalog phases; tests only until then

@@ -8,7 +8,7 @@ import sys
 import tempfile
 from dataclasses import dataclass
 
-from facade import ROOT, SOURCE
+from facade import LIBRARY, ROOT, SOURCE
 
 RESUME = "resume"
 
@@ -26,7 +26,7 @@ def child_env(index, root):
     env = {k: v for k, v in os.environ.items() if k != "CRYPTOBENCH_CONFIG"}
     env["PERFREPAIR_CONFIG"] = str(index.llm_config)
     env["CRYPTOBENCH_ROOT"] = str(root)
-    env["PYTHONPATH"] = os.pathsep.join(p for p in (str(SOURCE), env.get("PYTHONPATH")) if p)
+    env["PYTHONPATH"] = os.pathsep.join(p for p in (str(SOURCE), str(LIBRARY), env.get("PYTHONPATH")) if p)
     return env
 
 

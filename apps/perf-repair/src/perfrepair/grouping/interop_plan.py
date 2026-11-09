@@ -5,8 +5,8 @@ from itertools import combinations
 import yaml
 
 from .. import run_dir as rd
-from ..catalog.names import same_engine
-from ..dto.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD, Profile, read_profiles
+from cryptobench.catalogue.names import same_engine
+from cryptobench.catalogue.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD, Profile, read_profiles
 from ..dto.interop import NOT_CHECKABLE, PairResult, PlannedPair, plan_document
 from ..dto.screen import Verdict
 from ..files import read_json, write_text

@@ -9,14 +9,14 @@ from helpers import CATALOG as SCREEN_CATALOG
 from perfrepair.ai.parse.grouping_assign.kind import GroupingKind, charter
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.decide import decide
-from perfrepair.catalog.families import Families
-from perfrepair.catalog.interchange import CATALOG as INTERCHANGE
-from perfrepair.catalog.interchange import interchange, load
-from perfrepair.catalog.names import CATALOG, Names
+from cryptobench.catalogue.families import Families
+from cryptobench.catalogue.interchange import CATALOG as INTERCHANGE
+from cryptobench.catalogue.interchange import interchange, load
+from cryptobench.catalogue.names import CATALOG, Names
 from perfrepair.catalog.screening import Screening
 from perfrepair.catalog.signature import signature
 from perfrepair.data_handler.inbound.probe import Probe
-from perfrepair.dto.grouping import (
+from cryptobench.catalogue.grouping import (
     KEY_APP_HELD,
     KEY_PROVIDER_HELD,
     KEY_UNKNOWN,
@@ -27,7 +27,7 @@ from perfrepair.dto.grouping import (
 )
 from perfrepair.dto.grouping_state import Group, code_made
 from perfrepair.dto.screen import Verdict, screen_document
-from perfrepair.dto.signature import (
+from cryptobench.catalogue.signature import (
     CONVENTION,
     EXPORTABLE,
     KEY_MATERIAL,
@@ -154,7 +154,7 @@ def test_an_unknown_name_and_an_uncatalogued_conflict_are_unknown():
 
 def test_every_catalogued_name_of_a_family_engine_has_a_rule_or_is_listed_as_having_none():
     # the regex rules stop at the names master listed: the signature goes in phase 6; until then a newer name is listed, and its facts are its entry
-    from perfrepair.catalog.groups import group_catalog
+    from cryptobench.catalogue.groups import group_catalog
     unruled = json.loads((Path(__file__).parents[1] / "fixtures" / "signature-unruled.json").read_text())
     families, engines, missing = Families.load(), interchange().engines, []
     for group in group_catalog().families:

@@ -5,7 +5,7 @@ import pytest
 from grouping_data import FAMILIES
 from conftest import CHARTER, QUIET, by_name
 
-from perfrepair.dto.grouping import Item, Profile
+from cryptobench.catalogue.grouping import Item, Profile
 from perfrepair.dto.grouping_state import Group, Knowledge
 from perfrepair.ai.parse.grouping_assign.kind import GroupingKind
 from perfrepair.ai.runtime.engine.decide import decide

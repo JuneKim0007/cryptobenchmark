@@ -8,10 +8,10 @@ from .. import run_dir as rd
 from ..ai.parse.grouping_assign.kind import GroupingKind
 from ..ai.runtime.engine.kind import project
 from ..ai.runtime.engine.outbox import active_outbox
-from ..catalog.names import fold
+from cryptobench.catalogue.names import fold
 from ..catalog.upgrades import upgrades
 from ..data_handler.inbound import RunContext
-from ..dto.grouping import Item, qualified
+from cryptobench.catalogue.grouping import Item, qualified
 from ..dto.grouping_state import Knowledge
 from ..dto.screen import ACCEPTED, BROKEN
 from ..dto.used import CANDIDATE, GROUP, SITE, UPGRADE, VIA, AppUse, UsedItem, UsedSet

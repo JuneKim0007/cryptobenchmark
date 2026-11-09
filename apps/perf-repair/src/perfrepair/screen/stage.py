@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from dataclasses import replace
 
-from ..catalog.names import Names
+from cryptobench.catalogue.names import Names
 from ..catalog.screening import Screening
-from ..dto.grouping import KEY_PROVIDER_HELD, Item, Profile
+from cryptobench.catalogue.grouping import KEY_PROVIDER_HELD, Item, Profile
 from ..dto.screen import Verdict
 from .handler import ScreeningHandler
 
