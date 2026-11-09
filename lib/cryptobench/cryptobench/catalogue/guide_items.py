@@ -10,31 +10,39 @@ from .views import view_for
 SCHEMA_VERSION = 1
 
 
-def _argument(argument: dict, rows: dict, recipes: dict):
-    kind = argument.get("kind")
+def _argument(argument: dict, rows: dict, recipes: dict, fixed: dict):
+    kind, role = argument.get("kind"), argument.get("role")
     if kind == "constant":
         return argument["value"]
     if kind == "recipe":
-        return _tree(argument["recipe"], rows, recipes)
+        return parameter_tree(argument["recipe"], rows, recipes, fixed)
     if kind == "enum":
         return {"field": argument["value"]}
-    row = rows.get(argument.get("role"), {})
+    if role in fixed:
+        return {"hex": fixed[role]} if kind == "bytes" else fixed[role]
+    row = rows.get(role, {})
     if kind == "bytes":
         if not row.get("bytes"):
-            raise LookupError(f"{argument.get('role')} has no length")
+            raise LookupError(f"{role} has no length")
         return f"fresh({row['bytes']})"
     if "value" in argument:
         return argument["value"]
     if "value" in row:
         return row["value"]
-    raise LookupError(f"{argument.get('role')} has no value")
+    raise LookupError(f"{role} has no value")
 
 
-def _tree(recipe_id: str, rows: dict, recipes: dict) -> dict:
+def parameter_tree(recipe_id: str, rows: dict, recipes: dict, fixed: dict | None = None) -> dict:
+    """The tree preparation binds: a recipe's object, each value from what `fixed` states, else the entry's row."""
     recipe = recipes[recipe_id]
     if "class" not in recipe:
         raise LookupError(f"{recipe_id} is not a constructor")
-    return {"class": recipe["class"], "arguments": [_argument(a, rows, recipes) for a in recipe.get("args") or []]}
+    return {"class": recipe["class"], "arguments": [_argument(a, rows, recipes, fixed or {}) for a in recipe.get("args") or []]}
+
+
+def carried_recipes(view: dict) -> list[str]:
+    """The recipes of the object or objects this build's init takes."""
+    return sorted({r["recipe"] for r in view["required"] if r.get("recipe") and r.get("passedTo") == "init"})
 
 
 def _item(view: dict, build: str | None, exact: bool, recipes: dict) -> dict:
@@ -42,12 +50,12 @@ def _item(view: dict, build: str | None, exact: bool, recipes: dict) -> dict:
     item: dict = {"build": build, "exactBuild": exact}
     if (view.get("key") or {}).get("origin") == KEY_PROVIDER:
         return {**item, "refused": "key_inside_provider: this provider keeps its own keys; the harness cannot create them yet"}
-    carried = sorted({r["recipe"] for r in view["required"] if r.get("recipe") and r.get("passedTo") == "init"})
+    carried = carried_recipes(view)
     if len(carried) > 1:
         return {**item, "problem": f"guide_recipe_unbuildable: {carried} are several objects for one init"}
     if carried:
         try:
-            item["parameters"] = _tree(carried[0], rows, recipes)
+            item["parameters"] = parameter_tree(carried[0], rows, recipes)
         except LookupError as gap:
             return {**item, "problem": f"guide_recipe_unbuildable: {gap}"}
     key_bytes = (view.get("key") or {}).get("bytes")

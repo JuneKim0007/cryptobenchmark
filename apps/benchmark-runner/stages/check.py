@@ -6,14 +6,13 @@ import yaml
 import gradle_runner
 from device.adb import NO_DEFAULT_PROFILER, PASSED, DeviceError, instrumentation_report
 from failure import fail
-from repo import ROOT
 from results.manifest import manifest
 from stages import guide
+from cryptobench.catalogue import vectors
 from stages.discover import device_discover
 from stages.took import elapsed
 import bundled
 
-KNOWN_ANSWERS = ROOT / "config/known-answers.yaml"
 FOLDER = "check"
 RESULT = "check.yaml"   # CheckFile.NAME
 # androidx.benchmark 1.5.0: one call per measureRepeated, no warm-up, no timing, no output file
@@ -27,11 +26,13 @@ def check_run(options, configuration, device, root):
     into = results / FOLDER
     shutil.rmtree(into, ignore_errors=True)
     into.mkdir(parents=True)
+    known_answers = guide.write_known_answers(effective, capture, configuration)
+    files["knownAnswers"] = known_answers
     started = time.monotonic()
     if device:
-        on_device(device, options, effective, capture, trial, into)
+        on_device(device, options, effective, capture, trial, known_answers, into)
     else:
-        on_host(options, effective, capture, trial, into)
+        on_host(options, effective, capture, trial, known_answers, into)
     elapsed("end-to-end check", started)
     failed = summary(into / RESULT)
     manifest(results, "device" if device else "host", configuration, files | {"check": into / RESULT})
@@ -39,14 +40,14 @@ def check_run(options, configuration, device, root):
         fail(f"check_failed: {failed} cases failed or errored, see {into / RESULT}")
 
 
-def on_host(options, effective, capture, trial, into):
-    gradle_runner.run(f"{capture} {trial} {effective} {KNOWN_ANSWERS} {into}", options.stacktrace, options.stream, main_class="CheckKt",
+def on_host(options, effective, capture, trial, known_answers, into):
+    gradle_runner.run(f"{capture} {trial} {effective} {known_answers} {into}", options.stacktrace, options.stream, main_class="CheckKt",
                       properties=bundled.gradle_properties(bundled.recorded(effective)))
 
 
-def on_device(device, options, effective, capture, trial, into):
+def on_device(device, options, effective, capture, trial, known_answers, into):
     device.clear_outputs((RESULT,))
-    device.push_plan(effective, guide.file_beside(effective), capture, trial, KNOWN_ANSWERS)
+    device.push_plan(effective, guide.file_beside(effective), capture, trial, known_answers)
     suppressed = ["-e", "androidx.benchmark.suppressErrors", options.suppress_errors] if options.suppress_errors else []
     output = device.instrument("EndToEndCheck", *NO_DEFAULT_PROFILER, *DRY_RUN, *suppressed)
     if not PASSED.search(output):
@@ -66,4 +67,9 @@ def summary(result):
     for case in bad:
         reasons = case.get("reason") or "; ".join(f"{name}: {v.get('reason')}" for name, v in (case.get("oracles") or {}).items() if v["verdict"] == "fail")
         print(f"check:     {case['outcome']} {case['id']}: {reasons}")
+    lines, compared = vectors.coverage(document["cases"])
+    for line in lines:
+        print(f"check:     {line}")
+    if not compared:
+        print("warning: no_known_vector_applied: no case was compared with a known answer; list vectors in the guide entries")
     return len(bad)

@@ -1,6 +1,6 @@
 # config
 
-Authored settings: `config/global*.yaml` and `config/testsets/*.yaml`, committed and written only by the user. `config/known-answers.yaml` beside them holds the end-to-end check's sourced vectors; the benchmark module reads it ([check.md](../../benchmark/docs/check.md)), config does not. Generated files: [generated.md](generated.md). File map: [index.md](index.md).
+Authored settings: `config/global*.yaml` and `config/testsets/*.yaml`, committed and written only by the user. `algorithms/vectors/` holds the end-to-end check's sourced vectors; the benchmark module reads it ([check.md](../../benchmark/docs/check.md)), config does not. Generated files: [generated.md](generated.md). File map: [index.md](index.md).
 
 ## Authored files
 
@@ -19,6 +19,8 @@ Authored settings: `config/global*.yaml` and `config/testsets/*.yaml`, committed
 Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 
 ## global.yaml
+
+`selection.knownVectors` (optional): a folder of `<family>.yaml` known answers read by `--check` beside the packaged ones, relative to the global file; a missing folder stops the run.
 
 `schemaVersion: 1`. Sections `selection` (required), `run`, `policy`, `analysis`, `providers`; any other top key fails `unknown_section`; an unknown key fails `unknown_keys`.
 

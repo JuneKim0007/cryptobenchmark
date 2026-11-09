@@ -1,0 +1,28 @@
+# Known answers of this family, each copied from its source. values: what the vector fixes, by role; how a provider takes them is the guide's.
+# Hex everywhere. compare: prefix checks the output's first bytes only (a padding block the source omits).
+schemaVersion: 1
+vectors:
+- id: sha1-abc
+  source: https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/SHA1.pdf
+  type: MessageDigest
+  algorithm: SHA-1
+  operations:
+  - DIGEST
+  input: '616263'
+  output: a9993e364706816aba3e25717850c26c9cd0d89d
+- id: sha256-abc
+  source: https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/SHA256.pdf
+  type: MessageDigest
+  algorithm: SHA-256
+  operations:
+  - DIGEST
+  input: '616263'
+  output: ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad
+- id: sha512-abc
+  source: https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/SHA512.pdf
+  type: MessageDigest
+  algorithm: SHA-512
+  operations:
+  - DIGEST
+  input: '616263'
+  output: ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f

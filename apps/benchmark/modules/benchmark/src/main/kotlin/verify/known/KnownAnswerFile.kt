@@ -9,7 +9,7 @@ import java.io.File
 object KnownAnswerFile {
 
     const val NAME = "known-answers.yaml"
-    private val KEYS = listOf("id", "source", "type", "algorithm", "aliases", "operations", "key", "parameters", "input", "output", "compare")
+    private val KEYS = listOf("id", "source", "type", "algorithm", "aliases", "operations", "key", "parameters", "input", "output", "compare", "provider", "origin", "unexpressible")
     private val SECRET_KEYS = listOf("algorithm", "secret")
     private val PAIR_KEYS = listOf("algorithm", "private", "public")
     private const val HEX = "hex"
@@ -30,9 +30,11 @@ object KnownAnswerFile {
                 DocumentFields.optionalSection(vector, "key").takeIf { it.isNotEmpty() }?.let { key(it, "$path.key") },
                 DocumentFields.optionalSection(vector, "parameters").takeIf { it.isNotEmpty() }?.let { bytesIn(it) as Map<String, Any> },
                 hex(DocumentFields.string(vector, "input")), hex(DocumentFields.string(vector, "output")), compare == PREFIX,
+                DocumentFields.optionalString(vector, "provider").ifEmpty { null }, DocumentFields.optionalString(vector, "origin").ifEmpty { null },
+                DocumentFields.optionalString(vector, "unexpressible").ifEmpty { null },
             )
         }.also { vectors ->
-            require(vectors.map { it.id }.toSet().size == vectors.size) { "duplicate_id: $NAME vector ids repeat" }
+            require(vectors.map { it.id to it.provider + it.algorithms.first() }.toSet().size == vectors.size) { "duplicate_id: $NAME vector ids repeat" }
         }
 
     private fun key(document: Map<String, Any>, path: String): KnownAnswer.RawKey {

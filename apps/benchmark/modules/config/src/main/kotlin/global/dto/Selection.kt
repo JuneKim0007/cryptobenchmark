@@ -5,6 +5,7 @@ import io.github.junekim0007.cryptobench.config.testset.dto.Rule
 data class Selection(
     val testSet: String,
     val exclude: List<Rule> = emptyList(),
+    val knownVectors: String? = null,
 ) {
 
     init {

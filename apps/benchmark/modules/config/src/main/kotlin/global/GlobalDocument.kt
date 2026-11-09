@@ -26,11 +26,12 @@ object GlobalDocument : DocumentHandler<GlobalConfig> {
     private const val PROVIDERS = "providers"
     private const val TEST_SET = "testSet"
     private const val EXCLUDE = "exclude"
+    private const val KNOWN_VECTORS = "knownVectors"
 
     private val SECTIONS: List<String> = listOf(SELECTION, RUN, POLICY, ANALYSIS, PROVIDERS)
 
     override fun of(value: GlobalConfig): Map<String, Any> = linkedMapOf(
-        SELECTION to linkedMapOf(TEST_SET to value.selection.testSet, EXCLUDE to value.selection.exclude.map { RuleDocument.of(it) }),
+        SELECTION to linkedMapOf<String, Any>(TEST_SET to value.selection.testSet, EXCLUDE to value.selection.exclude.map { RuleDocument.of(it) }).apply { value.selection.knownVectors?.let { put(KNOWN_VECTORS, it) } },
         RUN to RunDocument.of(value.run),
         POLICY to PolicyDocument.of(value.policy),
         ANALYSIS to AnalysisDocument.of(value.analysis),
@@ -49,7 +50,8 @@ object GlobalDocument : DocumentHandler<GlobalConfig> {
     }
 
     private fun selection(document: Map<String, Any>): Selection {
-        expectKeys(document, listOf(TEST_SET, EXCLUDE), SELECTION)
-        return Selection(string(document, TEST_SET), RuleDocument.parseList(optionalSections(document, EXCLUDE), "$SELECTION.$EXCLUDE"))
+        expectKeys(document, listOf(TEST_SET, EXCLUDE, KNOWN_VECTORS), SELECTION)
+        return Selection(string(document, TEST_SET), RuleDocument.parseList(optionalSections(document, EXCLUDE), "$SELECTION.$EXCLUDE"),
+            document[KNOWN_VECTORS]?.toString())
     }
 }

@@ -20,7 +20,7 @@ import javax.crypto.KeyGenerator
 /** Prepared cases on the JDK's own providers, as preparation leaves them, for the end-to-end check's tests. */
 object CheckFixture {
 
-    val knownAnswers = File("../../../../config/known-answers.yaml")
+    val knownAnswers = File("src/test/resources/known-answers-fixture.yaml")
 
     fun digest(variant: Variant = Variant.FIXED, size: Int = 64) = prepared(PreparedCase(
         BenchmarkCase("MessageDigest", "SHA-256", "SUN", Operation.DIGEST, inputSize = size, variant = variant),

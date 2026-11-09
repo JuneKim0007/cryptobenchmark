@@ -42,7 +42,7 @@ class Recipes:
 def _form_problems(recipe_id: str, raw) -> list[str]:
     if not isinstance(raw, dict):
         return [f"{recipe_id}: not a mapping"]
-    keys = set(raw)
+    keys = set(raw) - {"fixes"}
     if not any(keys == set(form) for form in FORMS):
         return [f"{recipe_id}: fields {sorted(keys)} are none of the forms {[list(f) for f in FORMS]}"]
     return []

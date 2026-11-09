@@ -10,12 +10,11 @@ The implementation guide under `algorithms/` and the Python that reads it, share
 ../../algorithms/groups.yaml : data: per family its exemplars and the listed algorithm ids, from whose catalogue contracts the contract rows come; a person adds ids from group-candidates.yaml
 ../../algorithms/interchange.yaml : data: per engine type the components that split a group, the rules that read them from a canonical name, what a missing key contract means, and which contract each component states
 ../../algorithms/provider-builds.yaml : data: every provider build the catalogues' measured facts ran on, keyed <name> @ <build>, with what each says of itself; a behaviour true of a provider and the ids it reaches
+../../algorithms/vectors/ : known answers by family
 cryptobench/__init__.py : package of the Python library the benchmark runner and perf-repair share
 cryptobench/catalogue/__init__.py : package of the implementation guide's readers
 cryptobench/catalogue/algorithms.py : reader of the catalogues, checked whole: entry fields, provenance, sources, contracts, type facts, provider overrides; lookup by family and id
-cryptobench/coded.py : CODE and code_in, the code word a failure message starts with; InputError, the one coded error a refused input raises (`.code`, `.path`, `.detail`)
 cryptobench/catalogue/deviations.py : reads algorithms/deviations.yaml, every word a glossary term; what an entry's providers holds once provider behaviours and deviations apply
-cryptobench/document.py : parse_yaml, a YAML text as its one shape (a mapping unless named) or invalid_yaml at its line and column; DocumentKind: a versioned document's accepted schemaVersion (one or several), its reader's refusal text and error type; check, the one schemaVersion check every reader calls
 cryptobench/catalogue/families.py : the family catalog and (engine type, key kind) → family
 cryptobench/catalogue/glossary.py : what_is: a term, a subtree or one value's meaning of glossary.yaml; term_problems: an entry's words checked against it
 cryptobench/catalogue/grouping.py : Family, Item (key: what a record names), Profile (isolated: a generator of unknown key contract); key contract values, labels and sources; items.json (schema 1) and profiles.json (schema 5) documents; provider_of, algorithm_of
@@ -30,6 +29,9 @@ cryptobench/catalogue/recipes.py : reads recipes.yaml, checked whole: one form p
 cryptobench/catalogue/reinit.py : whether init runs before every use of an operation, from one build's view of an entry
 cryptobench/catalogue/signature.py : Signature and its components, known, convention or unknown; decided, assumed, identity, differing
 cryptobench/catalogue/types.py : TypeRow: an algorithm's output kind, Properties, Strength, minSdk and their sources
+cryptobench/catalogue/vectors.py : known answers: read and checked whole, filled per provider for one run, --check's coverage lines
 cryptobench/catalogue/views.py : what an agent is shown: one entry with only its provider build's overrides (view_for), the groups' ids, descriptions and exemplars (list_groups), one group's members a page at a time (get_group)
+cryptobench/coded.py : CODE and code_in, the code word a failure message starts with; InputError, the one coded error a refused input raises (`.code`, `.path`, `.detail`)
+cryptobench/document.py : parse_yaml, a YAML text as its one shape (a mapping unless named) or invalid_yaml at its line and column; DocumentKind: a versioned document's accepted schemaVersion (one or several), its reader's refusal text and error type; check, the one schemaVersion check every reader calls
 pyproject.toml : the shared library's package metadata
 ```

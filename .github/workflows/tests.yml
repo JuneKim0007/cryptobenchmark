@@ -51,5 +51,5 @@ jobs:
           java-version: '17'
       - uses: gradle/actions/setup-gradle@v4
       - run: python3 -m pip install -r requirements.txt
-      # every known-answer case once on JDK + BundledBC, vectors from config/known-answers.yaml; fails on any failed or errored case
+      # every known-answer case once on JDK + BundledBC, vectors from algorithms/vectors; fails on any failed or errored case
       - run: python3 apps/benchmark-runner/pipeline.py --config config/global-check.yaml --results "$RUNNER_TEMP/check" --bench --check

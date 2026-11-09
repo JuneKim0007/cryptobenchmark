@@ -17,7 +17,7 @@ The call's output goes to an `OutputHook`, which only check mode builds; the tim
 
 | oracle | verdict from |
 |---|---|
-| `knownAnswer` | the case's own invocation over a vector's raw key, fixed parameters and input (`RawMaterial`), called the way the case is (`HostHarness.ONCE`, or a second dry-run `measureRepeated` on the device), output against the vector; vectors and their sources: `config/known-answers.yaml` |
+| `knownAnswer` | the case's own invocation over a vector's raw key, fixed parameters and input (`RawMaterial`), called the way the case is (`HostHarness.ONCE`, or a second dry-run `measureRepeated` on the device), output against the vector; vectors and their sources: `algorithms/vectors/` |
 | `crossProvider` | every other provider the capture registers the service for checks the call's own output from the case's key, parameters and input: it decrypts the ciphertext, verifies the signature, recomputes a digest, MAC or agreed secret, or rebuilds a generated key pair. The key is rebuilt by the peer's own KeyFactory from its encoding, the parameters are read from the engine; what the peer cannot take is `not_checkable` (`peer_key_rejected`, `peer_parameters_rejected`, `parameters_not_recoverable`) |
 | `contract` | per operation: length, the reverse recovers the input, tampering refused where a tag length was read back, verify true, a fresh key per call, a digest or MAC repeats its output when the call is replayed with the parameters it drew (a call that re-inits replays on a new instance) |
 | `plan` | the steps one call made (from the invocation's `CallTrace`) equal what today's `perCall` plans, and the harness made exactly one call |

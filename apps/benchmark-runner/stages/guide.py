@@ -6,8 +6,10 @@ import yaml
 
 sys.path.append(str(pathlib.Path(__file__).resolve().parents[3] / "lib/cryptobench"))
 from cryptobench.catalogue.guide_items import guide_items  # noqa: E402
+from cryptobench.catalogue import vectors  # noqa: E402
 
 NAME = "guide.yaml"
+KNOWN_ANSWERS = "known-answers.yaml"   # KnownAnswerFile.NAME
 
 
 def file_beside(effective):
@@ -39,5 +41,21 @@ def write(effective, capture):
     for line in fallbacks(document):
         print(f"warning: {line}")
     written = file_beside(effective)
+    written.write_text(yaml.safe_dump(document, sort_keys=False))
+    return written
+
+
+def user_vectors(configuration):
+    """selection.knownVectors of global.yaml, against that file; a test set's vectors are read only by --check."""
+    named = (yaml.safe_load(pathlib.Path(configuration).read_text()).get("selection") or {}).get("knownVectors")
+    return (pathlib.Path(configuration).parent / pathlib.Path(named).expanduser()) if named else None
+
+
+def write_known_answers(effective, capture, configuration):
+    runtime = yaml.safe_load(pathlib.Path(capture).read_text()).get("runtime") or {}
+    document, warnings = vectors.filled(yaml.safe_load(pathlib.Path(effective).read_text()), platform(runtime), user_vectors(configuration))
+    for line in warnings:
+        print(f"warning: {line}")
+    written = pathlib.Path(effective).with_name(KNOWN_ANSWERS)
     written.write_text(yaml.safe_dump(document, sort_keys=False))
     return written

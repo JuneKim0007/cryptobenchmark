@@ -561,6 +561,7 @@ algorithms:
     providers: {}
     provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|SHA-1:
+    knownVectors: {ids: [sha1-abc]}
     key: {type: none, origin: none, source: measured}
     required:
     - {name: input, passedTo: update, source: measured}
@@ -597,6 +598,7 @@ algorithms:
     providers: {}
     provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|SHA-256:
+    knownVectors: {ids: [sha256-abc]}
     key: {type: none, origin: none, source: measured}
     required:
     - {name: input, passedTo: update, source: measured}
@@ -633,6 +635,7 @@ algorithms:
     providers: {}
     provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   MessageDigest|SHA-512:
+    knownVectors: {ids: [sha512-abc]}
     key: {type: none, origin: none, source: measured}
     required:
     - {name: input, passedTo: update, source: measured}

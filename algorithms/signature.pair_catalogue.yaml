@@ -87,6 +87,7 @@ algorithms:
     providers: {}
     provenance: {by: agent, model: opus-5-5, run: 2026-11-06-catalogue, date: '2026-11-06'}
   Signature|Ed25519:
+    knownVectors: {ids: [ed25519-rfc8032-test2]}
     key: {type: Ed25519, origin: app, source: measured}
     required:
     - {name: privateKey, use: sign, passedTo: init, source: measured}

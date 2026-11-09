@@ -15,6 +15,9 @@ class KnownAnswer(
     val input: ByteArray,
     val output: ByteArray,
     val prefixOnly: Boolean,
+    val provider: String? = null,
+    val origin: String? = null,
+    val unexpressible: String? = null,
 ) {
 
     sealed class RawKey {
@@ -24,6 +27,6 @@ class KnownAnswer(
     }
 
     fun matches(case: BenchmarkCase): Boolean =
-        type.equals(case.type, ignoreCase = true) && algorithms.any { it.equals(case.algorithm, ignoreCase = true) } && case.operation in operations &&
+        (provider == null || provider == case.provider) && type.equals(case.type, ignoreCase = true) && algorithms.any { it.equals(case.algorithm, ignoreCase = true) } && case.operation in operations &&
             (case.keySize == null || key !is RawKey.Secret || key.bytes.size * Byte.SIZE_BITS == case.keySize)
 }

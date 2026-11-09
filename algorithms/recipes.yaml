@@ -4,9 +4,9 @@
 schemaVersion: 1
 recipes:
   jca.ivSpec: {class: javax.crypto.spec.IvParameterSpec, args: [{role: iv, kind: bytes}]}
-  jca.nonceIvSpec: {class: javax.crypto.spec.IvParameterSpec, args: [{role: nonce, kind: bytes}]}
+  jca.nonceIvSpec: {class: javax.crypto.spec.IvParameterSpec, args: [{role: nonce, kind: bytes}], fixes: {counter: 0}}
   jca.gcmSpec: {class: javax.crypto.spec.GCMParameterSpec, args: [{role: tagBits, kind: int, value: 128}, {role: nonce, kind: bytes}]}
-  jca.chacha20Spec: {class: javax.crypto.spec.ChaCha20ParameterSpec, args: [{role: nonce, kind: bytes}, {kind: constant, value: 1}]}
+  jca.chacha20Spec: {class: javax.crypto.spec.ChaCha20ParameterSpec, args: [{role: nonce, kind: bytes}, {kind: constant, value: 1}], fixes: {counter: 1}}
   jca.pbeSpec: {class: javax.crypto.spec.PBEParameterSpec, args: [{role: salt, kind: bytes}, {role: iterationCount, kind: int}]}
   jca.pbeIvSpec:
     class: javax.crypto.spec.PBEParameterSpec

@@ -1,6 +1,6 @@
 # Schema and which keys are optional: see scope.yaml.
 schemaVersion: 1                 # required
-description: every primitive the end-to-end check holds a known-answer vector for (config/known-answers.yaml)
+description: every primitive the end-to-end check holds a known-answer vector for (algorithms/vectors)
 
 include:
   - {type: MessageDigest, name: SHA-1}

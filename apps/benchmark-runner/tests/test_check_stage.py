@@ -14,7 +14,7 @@ FILES = "/sdcard/plan"
 OPTIONS = types.SimpleNamespace(suppress_errors="EMULATOR,UNLOCKED", stacktrace=False, stream=False)
 RESULT = {"schemaVersion": 1, "summary": {"cases": 3, "outcomes": {"pass": 1, "fail": 1, "notRun": 1}, "oracles": {"knownAnswer": {"pass": 1, "fail": 1}}},
           "cases": [{"id": "a", "outcome": "pass", "oracles": {}},
-                    {"id": "b", "outcome": "fail", "oracles": {"knownAnswer": {"verdict": "fail", "reason": "output_differs"}}},
+                    {"id": "b", "case": {"type": "MessageDigest", "algorithm": "SHA-256"}, "outcome": "fail", "oracles": {"knownAnswer": {"verdict": "fail", "reason": "output_differs"}}},
                     {"id": "c", "outcome": "notRun", "reason": "c: dry_run_failed"}]}
 
 
@@ -42,8 +42,8 @@ class FakeDevice:
 
 def test_the_device_check_runs_every_case_in_one_dry_run_process_and_pulls_its_record(tmp_path):
     device = FakeDevice("OK (12 tests)\n")
-    check.on_device(device, OPTIONS, "e.yaml", "p.yaml", "t.yaml", tmp_path)
-    assert device.calls[1] == ("push", "e.yaml", str(pathlib.Path("e.yaml").with_name("guide.yaml")), "p.yaml", "t.yaml", str(check.KNOWN_ANSWERS))
+    check.on_device(device, OPTIONS, "e.yaml", "p.yaml", "t.yaml", "k.yaml", tmp_path)
+    assert device.calls[1] == ("push", "e.yaml", str(pathlib.Path("e.yaml").with_name("guide.yaml")), "p.yaml", "t.yaml", "k.yaml")
     test_class, *arguments = device.calls[2][1:]
     assert test_class == "EndToEndCheck"
     assert " ".join(check.DRY_RUN) in " ".join(arguments) and "EMULATOR,UNLOCKED" in arguments
@@ -52,7 +52,7 @@ def test_the_device_check_runs_every_case_in_one_dry_run_process_and_pulls_its_r
 
 def test_a_failed_device_check_is_an_error(tmp_path):
     with pytest.raises(DeviceError, match="EndToEndCheck failed"):
-        check.on_device(FakeDevice("INSTRUMENTATION_FAILED: x\n"), OPTIONS, "e", "p", "t", tmp_path)
+        check.on_device(FakeDevice("INSTRUMENTATION_FAILED: x\n"), OPTIONS, "e", "p", "t", "k", tmp_path)
 
 
 def test_the_host_check_builds_the_cli_with_the_bundled_providers(tmp_path, monkeypatch):
@@ -60,9 +60,9 @@ def test_the_host_check_builds_the_cli_with_the_bundled_providers(tmp_path, monk
     effective.write_text(yaml.safe_dump({"bundledProviders": [{"artifact": "g:n:1", "create": "a.B"}]}))
     seen = {}
     monkeypatch.setattr(gradle_runner, "run", lambda arguments, *_a, **options: seen.update(options, arguments=arguments))
-    check.on_host(OPTIONS, effective, "p.yaml", "t.yaml", tmp_path)
+    check.on_host(OPTIONS, effective, "p.yaml", "t.yaml", "k.yaml", tmp_path)
     assert seen["main_class"] == "CheckKt" and seen["properties"] == ["-PbundledArtifacts=g:n:1"]
-    assert str(check.KNOWN_ANSWERS) in seen["arguments"]
+    assert "k.yaml" in seen["arguments"]
 
 
 def test_the_summary_prints_the_counts_and_each_failure_and_counts_the_failed(tmp_path, capsys):

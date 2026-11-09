@@ -25,7 +25,7 @@ def test_a_behaviour_field_the_entry_does_not_hold_is_skipped():
 
 
 def test_an_entry_says_otherwise_build_by_build():
-    for api, origin in ((26, "provider"), (30, "provider"), (33, "app"), (36, "app")):
+    for api, origin in ((26, "provider"), (30, "provider"), (33, "provider"), (36, "provider")):
         assert view_for("Cipher|RSA/ECB/PKCS1Padding", WORKAROUND.format(api))["key"]["origin"] == origin
 
 

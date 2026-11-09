@@ -251,6 +251,9 @@ def recipe_terms(doc: dict) -> list[tuple[str, object]]:
             if key == "args":
                 found.append((f"{RECIPE}.args", None))
                 found += [(f"{RECIPE}.args.{k}", v) for arg in value for k, v in arg.items()]
+            elif key == "fixes":
+                found.append((f"{RECIPE}.fixes", None))
+                found += [(f"{RECIPE}.fixes.{k}", v) for k, v in value.items()]
             else:
                 found.append((f"{RECIPE}.{key}", value))
     return found

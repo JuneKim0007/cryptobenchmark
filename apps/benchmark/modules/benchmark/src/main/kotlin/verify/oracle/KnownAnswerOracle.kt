@@ -21,8 +21,20 @@ class KnownAnswerOracle(private val vectors: List<KnownAnswer>, private val call
 
     override fun judge(call: CheckedCall): Judgement {
         val case = call.prepared.case
-        val vector = vectors.firstOrNull { it.matches(case) } ?: return Judgement(Outcome.NotCheckable("no_vector: ${case.type}.${case.algorithm} ${case.operation}"))
-        val cited = mapOf("vector" to vector.id, "source" to vector.source)
+        val matching = vectors.filter { it.matches(case) }
+        if (matching.isEmpty()) return Judgement(Outcome.NotCheckable("no_vector: ${case.type}.${case.algorithm} ${case.operation}"))
+        val usable = matching.filter { it.unexpressible == null }
+        if (usable.isEmpty()) return matching.first().let { Judgement(Outcome.NotCheckable("vector_not_expressible: ${it.id}: ${it.unexpressible}"), cited(it)) }
+        val judged = usable.map { one(it, call) }
+        return judged.firstOrNull { it.outcome is Outcome.Fail } ?: judged.firstOrNull { it.outcome is Outcome.Pass } ?: judged.first()
+    }
+
+    private fun cited(vector: KnownAnswer): Map<String, Any> =
+        linkedMapOf<String, Any>("vector" to vector.id, "source" to vector.source).apply { if (vector.origin == USER) put("origin", USER) }
+
+    private fun one(vector: KnownAnswer, call: CheckedCall): Judgement {
+        val case = call.prepared.case
+        val cited = cited(vector)
         val hook = OutputHook()
         val invocation = try {
             Invocations.of(RawMaterial.of(vector, call.prepared)).also { this.call.call(it, hook) }
@@ -41,5 +53,9 @@ class KnownAnswerOracle(private val vectors: List<KnownAnswer>, private val call
         val got = OutputBytes.of(hook.outputs.lastOrNull()) ?: return Judgement(Outcome.Fail("no_bytes: the call returned ${hook.outputs.lastOrNull()?.javaClass?.simpleName}"), cited)
         val compared = if (vector.prefixOnly && got.size >= expected.size) got.copyOf(expected.size) else got
         return Judgement(if (compared.contentEquals(expected)) Outcome.Pass else Outcome.Fail("output_differs: ${got.size} bytes, the source gives ${expected.size}"), cited)
+    }
+
+    private companion object {
+        const val USER = "user"
     }
 }

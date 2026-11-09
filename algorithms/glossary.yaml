@@ -242,6 +242,10 @@ algorithm:
       rounds: {means: The round counts the name fixes., format: text}
       function: {means: The function a digest or generator computes., format: text}
       consumer: {means: The primitive a generated key is for., format: text}
+  knownVectors:
+    means: The known answers --check runs this algorithm against, by id of algorithms/vectors. Absent is not listed; {} is none, on purpose.
+    unused: Read by catalogue/vectors.py, not by the entry facts this glossary walks.
+    ids: {means: Vector ids., format: text, unused: Read by catalogue/vectors.py, with knownVectors.}
   sourcedOnly:
     fact:
       means: A fact only a standard can give; a run cannot prove it.
@@ -320,6 +324,9 @@ recipe:
     means: The calls made in order on what `factory` returned; the last returns the object.
     format: text
     unused: Only a `factory` has steps, and no recipe needs one yet.
+  fixes:
+    means: 'Values this object always uses and takes no argument for: a known answer stating another value cannot be run through it.'
+    counter: {means: 'The block counter ChaCha20 starts from.', format: number}
   builder: {means: 'A function a person wrote in the harness that makes the object, named here: the last form, where neither a constructor nor a factory can. An agent may name one, never write one.', format: text}
   args:
     means: The arguments in order of the constructor, the factory or a step.
