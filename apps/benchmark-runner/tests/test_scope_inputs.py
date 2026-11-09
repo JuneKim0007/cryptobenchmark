@@ -1,12 +1,10 @@
 """Input synthesis: primitives by value, key pairs through ScopeKeys, a file of seeded bytes; each a generated line the wrapper compiles."""
-import pathlib
 import sys
 from types import SimpleNamespace
 
 import pytest
 import yaml
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from scope import generate as scope_generate
 from scope import inputs as scope_inputs
 

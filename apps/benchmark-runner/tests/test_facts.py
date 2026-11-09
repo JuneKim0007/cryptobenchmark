@@ -1,5 +1,4 @@
-import pathlib, sys, zipfile
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
+import zipfile
 from device import facts
 
 

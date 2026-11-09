@@ -1,7 +1,6 @@
 """A run whose energy is estimated says so in summary.md, on its count chart's label and on the console."""
-import json, pathlib, shutil, sys
+import json, pathlib, shutil
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 import analyze, chart_model  # noqa: E402
 
 TESTS = pathlib.Path(__file__).parent

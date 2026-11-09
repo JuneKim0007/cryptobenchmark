@@ -1,7 +1,5 @@
-import pathlib
 import sys
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from cryptobench import paths  # noqa: E402
 
 PACKAGE = paths.DeviceDirs.PACKAGE

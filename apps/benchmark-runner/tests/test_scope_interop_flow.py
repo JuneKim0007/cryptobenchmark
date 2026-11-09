@@ -1,11 +1,9 @@
 """A --harness run on a fake phone: the scope check in its own process, its verdicts in the plan, and nothing timed."""
-import pathlib, sys, types
+import pathlib, types
 
 import pytest
 import yaml
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from stages import harness  # noqa: E402
 from fake_phone import Phone  # noqa: E402
 

@@ -1,9 +1,8 @@
 """The energy window of a case that slept twice for heat, from a real Pixel trace's slices: the kept runs lie between the sleeps."""
-import json, pathlib, sys
+import json, pathlib
 
 import pytest
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 import energy  # noqa: E402
 
 SHAPE = json.loads((pathlib.Path(__file__).parent / "fixtures/thermal_sleep_phase.json").read_text())

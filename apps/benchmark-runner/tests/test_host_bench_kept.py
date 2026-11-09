@@ -1,9 +1,8 @@
 """A host BenchKt that dies keeps the rows it wrote: one bench_failed problem; with no row written the run fails as before."""
-import json, pathlib, sys, types
+import json, pathlib, types
 
 import pytest
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from stages import benchmark  # noqa: E402
 
 OPTIONS = types.SimpleNamespace(stacktrace=False, stream=False)

@@ -1,8 +1,5 @@
 """The energy hook around a device process: the window spans the device run, joules comes after it, a failed energy step costs only energy."""
-import pathlib, sys
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 import energy_stage  # noqa: E402
 from session import measure as measure_session  # noqa: E402
 from session import energy_hook  # noqa: E402

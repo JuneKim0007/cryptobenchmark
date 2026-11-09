@@ -1,9 +1,7 @@
-import pathlib, sys
 
 import pytest
 import yaml
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from scope import results as scope_results  # noqa: E402
 
 PLAN = {"schemaVersion": 1, "app": "fixture", "seed": 7, "scopes": [

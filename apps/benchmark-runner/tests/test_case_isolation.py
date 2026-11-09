@@ -1,10 +1,8 @@
 """isolation: case over a fake instrumentation: one case aborts its process, the others still produce results."""
-import json, pathlib, sys
+import json
 
 import pytest
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from results import case_files  # noqa: E402
 from session import case_isolation  # noqa: E402
 from session import measure as measure_session  # noqa: E402

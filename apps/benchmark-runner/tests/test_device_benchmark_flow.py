@@ -1,11 +1,9 @@
 """The device benchmark on a fake phone: processes, passes, energy windows and failures, as one shared session runs them."""
-import json, pathlib, sys, types
+import json, types
 
 import pytest
 import yaml
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from device.adb import DeviceError  # noqa: E402
 from session import clocks_hook, cooldown_hook  # noqa: E402
 from stages import benchmark  # noqa: E402

@@ -1,5 +1,4 @@
 """The path interface: roots, locations, packaged data, settings values, the results tree."""
-import pathlib
 import sys
 
 import pytest

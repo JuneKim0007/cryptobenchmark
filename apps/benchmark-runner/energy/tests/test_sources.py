@@ -4,8 +4,6 @@ import json, os, pathlib, sys
 import pytest
 import yaml
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 import rails_run  # noqa: E402
 from sources import SOURCES  # noqa: E402
 from sources import rails_source as rails_module  # noqa: E402

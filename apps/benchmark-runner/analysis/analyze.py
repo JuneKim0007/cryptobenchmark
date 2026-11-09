@@ -8,7 +8,6 @@ charts and its meanUpToCovPercent is the stability limit (default: all, 5%). The
 import pathlib
 import sys
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import chart_input  # noqa: E402
 import chart_model  # noqa: E402
 import display_units  # noqa: E402

@@ -1,10 +1,8 @@
 import pathlib
-import sys
 
 import pytest
 import yaml
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from results import manifest  # noqa: E402
 from stages import harness  # noqa: E402
 from failure import fail  # noqa: E402

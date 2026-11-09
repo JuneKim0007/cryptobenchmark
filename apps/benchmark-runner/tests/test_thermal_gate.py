@@ -1,8 +1,6 @@
 """run.thermalGate on a fake phone and a fake thermal reader: each case heats the device, each gate sleep cools it on a fake clock."""
-import json, pathlib, sys, types
+import json, types
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from stages import benchmark  # noqa: E402
 from device import thermal  # noqa: E402
 from session import thermal_gate  # noqa: E402

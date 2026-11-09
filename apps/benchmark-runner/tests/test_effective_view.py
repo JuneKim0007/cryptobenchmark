@@ -1,11 +1,9 @@
 import contextlib
 import io
 import pathlib
-import sys
 import tempfile
 import unittest
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 import effective_view  # noqa: E402
 from session import passes, warmup  # noqa: E402
 

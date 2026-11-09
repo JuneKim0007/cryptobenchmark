@@ -1,12 +1,10 @@
 """The facade's check over a tree of files; the parse-only JVM step is stubbed except in the tests that name it real."""
-import pathlib
 import subprocess
 import sys
 
 import pytest
 import yaml
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from cryptobench import paths
 
 ROOT = paths.code_root()

@@ -1,9 +1,7 @@
-import pathlib
 import sys
 
 import pytest
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from device.identity import DeviceIdError, device_id  # noqa: E402
 
 # Real block of a capture taken before the identity fields existed.

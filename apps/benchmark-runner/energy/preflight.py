@@ -3,7 +3,6 @@ import pathlib, sys
 
 import yaml
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from rails import counters  # noqa: E402
 
 RESPONSIVE = 1.10  # a busy window must use at least 10% more energy than an idle one

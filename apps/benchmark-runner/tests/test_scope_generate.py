@@ -1,9 +1,8 @@
-import pathlib, shutil, sys
+import pathlib, shutil
 
 import pytest
 import yaml
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from scope import generate as scope_generate  # noqa: E402
 from scope import harness as scope_harness  # noqa: E402
 from scope import wrapper as scope_wrapper  # noqa: E402

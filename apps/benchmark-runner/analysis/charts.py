@@ -13,7 +13,6 @@ import pathlib
 import sys
 from collections import defaultdict
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import chart_draw  # noqa: E402
 import chart_input  # noqa: E402
 import chart_model  # noqa: E402

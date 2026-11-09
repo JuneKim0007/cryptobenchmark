@@ -1,8 +1,6 @@
-import pathlib
 import sys
 import unittest
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 import gradle_runner  # noqa: E402
 
 

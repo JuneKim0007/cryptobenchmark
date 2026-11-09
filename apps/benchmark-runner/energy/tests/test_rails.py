@@ -1,8 +1,7 @@
-import json, pathlib, sys
+import json
 
 import pytest
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 import energy, preflight  # noqa: E402
 from rails import counters  # noqa: E402
 

@@ -1,9 +1,7 @@
-import pathlib
 import sys
 
 import pytest
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from facade.index import SettingsIndexError, read_index
 
 GOOD = "schemaVersion: 1\nresults: r\ncrypto: {config: c/global.yaml}\nllm: {config: l/p.yaml}\n"

@@ -1,11 +1,9 @@
 import pathlib
-import sys
 import types
 
 import pytest
 import yaml
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from stages import check  # noqa: E402
 from device.adb import DeviceError  # noqa: E402
 import gradle_runner  # noqa: E402

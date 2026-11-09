@@ -1,7 +1,6 @@
 """One rails run of energy.py and preflight.py over fake traces, for the byte comparison with the recorded output."""
 import json, pathlib, sys, types
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 import energy, preflight  # noqa: E402
 
 FIXTURES = pathlib.Path(__file__).parent / "fixtures"

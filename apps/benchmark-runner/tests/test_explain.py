@@ -1,9 +1,7 @@
 import pathlib
-import sys
 import tempfile
 import unittest
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 import explain  # noqa: E402
 
 GLOBAL = "schemaVersion: 1\nselection: {testSet: t.yaml}\nrun:\n  seed: 7\n  harness: {iterations: 50}\n"

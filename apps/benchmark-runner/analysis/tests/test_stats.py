@@ -1,9 +1,7 @@
 import json
 import pathlib
-import sys
 import unittest
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 import stats  # noqa: E402
 
 FIXTURE = json.load(open(pathlib.Path(__file__).with_name("fixture_device_runs.json")))

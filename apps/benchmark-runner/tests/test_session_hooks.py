@@ -1,10 +1,8 @@
 """Hooks around a device session that fail: a case hook costs its case, a process hook closes what opened, Ctrl-C stops the device."""
-import json, pathlib, sys
+import json
 
 import pytest
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from session import measure as measure_session  # noqa: E402
 from fake_phone import Phone  # noqa: E402
 

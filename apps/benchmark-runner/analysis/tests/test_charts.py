@@ -1,12 +1,10 @@
 import json
 import pathlib
-import sys
 import tempfile
 import unittest
 
 import yaml
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 import chart_input  # noqa: E402
 import charts  # noqa: E402
 import display_units  # noqa: E402

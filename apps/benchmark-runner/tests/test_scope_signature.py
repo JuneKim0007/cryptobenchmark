@@ -1,8 +1,6 @@
-import pathlib, sys
 
 import pytest
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from scope import dependencies as scope_dependencies  # noqa: E402
 from scope import interop as scope_interop  # noqa: E402
 from scope import languages as scope_languages  # noqa: E402

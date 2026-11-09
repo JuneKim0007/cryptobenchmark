@@ -1,8 +1,6 @@
 """Which build of the guide a device reads, and that a fallback is said once per provider."""
-import pathlib
 import sys
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from stages import guide  # noqa: E402
 from cryptobench.catalogue.provider_builds import provider_builds  # noqa: E402
 

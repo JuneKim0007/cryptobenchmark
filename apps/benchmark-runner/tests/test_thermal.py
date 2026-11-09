@@ -1,7 +1,5 @@
 """dumpsys thermalservice as Android prints it: the HAL's current values first, the cached callback values when they are all there is."""
-import pathlib, sys
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from device import thermal  # noqa: E402
 
 CACHED_ONLY = """IsStatusOverride: false

@@ -1,11 +1,9 @@
 """Known answers: what stops a run, what is only reported, and how one vector fills per provider."""
 import pathlib
-import sys
 
 import pytest
 import yaml
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from stages import guide  # noqa: E402
 from cryptobench.catalogue import vectors  # noqa: E402
 from cryptobench.coded import InputError  # noqa: E402

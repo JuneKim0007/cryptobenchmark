@@ -1,9 +1,8 @@
-import pathlib, subprocess, sys
+import subprocess, sys
 
 import pytest
 import yaml
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 import pipeline  # noqa: E402
 import timeouts  # noqa: E402
 

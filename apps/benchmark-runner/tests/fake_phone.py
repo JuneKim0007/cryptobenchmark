@@ -1,7 +1,6 @@
 """The phone over adb, faked: an instrumentation per process, one log line per device step, and the host tools' files."""
-import contextlib, json, pathlib, sys, types
+import contextlib, json, pathlib, types
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from session import case_isolation  # noqa: E402
 from device import adb as device_module  # noqa: E402
 import gradle_runner  # noqa: E402

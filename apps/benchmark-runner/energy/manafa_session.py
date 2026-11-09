@@ -4,7 +4,6 @@ import contextlib, json, pathlib, sys, time
 
 import yaml
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import energy, manafa_estimate as estimate  # noqa: E402
 
 REQUIREMENTS = "apps/benchmark-runner/energy/requirements-manafa.txt"

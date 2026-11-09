@@ -3,7 +3,6 @@ import argparse, json, pathlib, sys
 
 import yaml
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from capture import capture  # noqa: E402
 from rails import counters  # noqa: E402
 

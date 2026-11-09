@@ -1,7 +1,5 @@
 """run.variants on a device: each item's variants adjacent, A/B in odd repetitions and B/A in even ones."""
-import pathlib, sys
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from session import variant_order  # noqa: E402
 
 PLANNED = ["Mac_H_i64_WARM_notFixed", "Gen_K_k128_WARM_fixed", "Cipher_C_k128_i64_WARM_p1a2b3c4d_fixed", "Mac_H_i64_WARM_fixed",

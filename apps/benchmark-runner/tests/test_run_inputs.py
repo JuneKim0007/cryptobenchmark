@@ -1,9 +1,7 @@
-import pathlib
 import sys
 
 import pytest
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from results import run_inputs  # noqa: E402
 
 BASE = "schemaVersion: 1\nselection: {testSet: sets/a.yaml}\nrun: {seed: 1, phases: [WARM]}\nproviders: {bundled: [{artifact: 'g:a:1', create: X}]}\n"
