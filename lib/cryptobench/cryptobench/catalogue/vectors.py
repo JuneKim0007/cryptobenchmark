@@ -9,7 +9,7 @@ from .algorithms import algorithms, algorithm_id
 from .families import Families
 from .guide_items import carried_recipes, parameter_tree
 from .names import Names, fold
-from .paths import DATA
+from .. import paths
 from .provider_builds import provider_builds
 from .recipes import load as load_recipes
 from .views import view_for
@@ -49,7 +49,7 @@ def _read_folder(folder: Path, origin: str, found: dict) -> None:
 def load(user_folder: Path | None = None) -> dict[str, dict]:
     """A configured folder that does not exist stops the run: a typo must not read as no vectors."""
     found: dict[str, dict] = {}
-    _read_folder(DATA / "vectors", PACKAGED, found)
+    _read_folder(paths.repo().algorithms / "vectors", PACKAGED, found)
     if user_folder is not None:
         if not user_folder.is_dir():
             raise VectorError(f"vectors_folder_missing: {user_folder}")

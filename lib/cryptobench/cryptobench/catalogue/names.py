@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from .paths import DATA
+from .. import paths
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -9,7 +9,7 @@ from ..document import AT_PATH, DocumentKind
 from .grouping import provider_of
 from .glossary import names_problems
 
-CATALOG = DATA / "algorithm-names.yaml"
+CATALOG = paths.repo().algorithms / "algorithm-names.yaml"
 SCHEMA_VERSION = 1
 NAME_CONFLICT = "name_conflict"
 

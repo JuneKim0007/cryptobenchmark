@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from .paths import DATA
+from .. import paths
 from pathlib import Path
 
 from ..document import AT_PATH, DocumentKind
 from .grouping import Family
 
-CATALOG = DATA / "families.yaml"
+CATALOG = paths.repo().algorithms / "families.yaml"
 SCHEMA_VERSION = 1
 FAMILIES_DOC = DocumentKind("families", SCHEMA_VERSION, AT_PATH)
 UNIDENTIFIED, ANY_TYPE = "unidentified", "any"

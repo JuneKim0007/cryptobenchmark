@@ -1,7 +1,7 @@
 """algorithms/deviations.yaml: a fact shared by a set of names and builds, stated once; what an entry's providers section holds after it and the provider-wide behaviours apply."""
 from __future__ import annotations
 
-from .paths import DATA
+from .. import paths
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -12,7 +12,7 @@ from .names import fold
 from .overrides import override_parent
 from .provider_builds import ProviderBuilds
 
-CATALOG = DATA / "deviations.yaml"
+CATALOG = paths.repo().algorithms / "deviations.yaml"
 SCHEMA_VERSION = 1
 INVALID = "deviations_invalid"
 PROVIDERS = "providers"

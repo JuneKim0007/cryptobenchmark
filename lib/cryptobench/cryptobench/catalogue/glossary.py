@@ -1,14 +1,14 @@
 """catalog/glossary.yaml: one meaning per word of the catalogues, recipes.yaml, deviations.yaml and groups.yaml. what_is looks a term up; term_problems checks an entry, recipe_problems the recipes."""
 from __future__ import annotations
 
-from .paths import DATA
+from .. import paths
 import re
 from functools import cache
 
 from ..coded import InputError
 from ..document import AT_PATH, DocumentKind
 
-CATALOG = DATA / "glossary.yaml"
+CATALOG = paths.repo().algorithms / "glossary.yaml"
 SCHEMA_VERSION = 1
 UNKNOWN = "glossary_unknown"
 ALGORITHM, GROUP, RECIPE = "algorithm", "group", "recipe"

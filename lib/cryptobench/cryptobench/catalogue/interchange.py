@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from .paths import DATA
+from .. import paths
 import re
 from dataclasses import dataclass, field
 from functools import cache
@@ -11,7 +11,7 @@ import yaml
 from ..coded import InputError
 from ..document import AT_PATH, DocumentKind
 
-CATALOG = DATA / "interchange.yaml"
+CATALOG = paths.repo().algorithms / "interchange.yaml"
 SCHEMA_VERSION = 1
 INTERCHANGE_DOC = DocumentKind("interchange", SCHEMA_VERSION, AT_PATH)
 KEY_NONE, KEY_ASSUMED, KEY_ASKED = "none", "assumed", "asked"

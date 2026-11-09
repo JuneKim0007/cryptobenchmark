@@ -2,7 +2,7 @@
 each member's catalogue contract."""
 from __future__ import annotations
 
-from .paths import DATA
+from .. import paths
 import re
 from collections import Counter, defaultdict
 from dataclasses import dataclass
@@ -28,7 +28,7 @@ from .families import UNIDENTIFIED, Families
 from .interchange import INPUT, KEY, OUTPUT, interchange
 from .names import Names, fold
 
-CATALOG = DATA / "groups.yaml"
+CATALOG = paths.repo().algorithms / "groups.yaml"
 SCHEMA_VERSION = 3
 PROVIDER_HELD_SUFFIX = ".p"
 APP_HELD_TEXT, PROVIDER_HELD_TEXT = "Keys the application holds.", "Keys inside the provider."

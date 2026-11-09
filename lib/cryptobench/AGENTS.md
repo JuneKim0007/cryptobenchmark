@@ -23,7 +23,6 @@ cryptobench/catalogue/guide_items.py : guide_items: what the guide says for one 
 cryptobench/catalogue/interchange.py : reader of interchange.yaml: engines, rules by canonical name; a component outside its splits is refused
 cryptobench/catalogue/names.py : the names reader: Canonical (name, keySize, known), engine types (what detection scans), fold, same_engine, key formats, name_conflict, key_or_spelling (a conflict keys by its spelling)
 cryptobench/catalogue/overrides.py : a provider override's path in an entry, and one build's differences applied to a copy
-cryptobench/catalogue/paths.py : DATA: where the guide's data lives
 cryptobench/catalogue/provider_builds.py : reads provider-builds.yaml; a build key from what a probe records; a name resolves to one key or is provider_build_unknown
 cryptobench/catalogue/recipes.py : reads recipes.yaml, checked whole: one form per recipe, every word and each role's make and lives against the glossary, typed arguments, nested recipes present; the roles a recipe passes
 cryptobench/catalogue/reinit.py : whether init runs before every use of an operation, from one build's view of an entry
@@ -31,6 +30,17 @@ cryptobench/catalogue/signature.py : Signature and its components, known, conven
 cryptobench/catalogue/types.py : TypeRow: an algorithm's output kind, Properties, Strength, minSdk and their sources
 cryptobench/catalogue/vectors.py : known answers: read and checked whole, filled per provider for one run, --check's coverage lines
 cryptobench/catalogue/views.py : what an agent is shown: one entry with only its provider build's overrides (view_for), the groups' ids, descriptions and exemplars (list_groups), one group's members a page at a time (get_group)
+cryptobench/paths/__init__.py : one interface to every path the Python modules use: `from cryptobench import paths`
+cryptobench/paths/roots.py : code_root (this checkout), benchmark_root (the checkout a run measures), each with its environment variable
+cryptobench/paths/repo.py : Repo and repo(root): one checkout's named locations
+cryptobench/paths/packaged.py : packaged(package, name) through importlib and a named constant per data file a package ships
+cryptobench/paths/host.py : the user's and host's locations: home, the user's global.yaml, the Android SDK
+cryptobench/paths/settings.py : against(settings_file, value), the one rule for a path a settings file names; in_temp
+cryptobench/paths/names.py : the file and folder names of a results folder, and CONTRACT: those shared with Kotlin
+cryptobench/paths/run_tree.py : RunTree: every file of one results folder; its sections Configuration, Discovery, Preparation, Measurement, Analysis, Charts, CheckFolder, InteropFolder, Scoped, Logs, Review; AppTree, GroupingTree
+cryptobench/paths/results.py : Results(root): the device folders of a results root
+cryptobench/paths/device_dirs.py : DeviceDirs(sdk): folders on a device per API level, POSIX paths
+cryptobench/paths/imports.py : the apps' source folders on the import path, for this process and a child
 cryptobench/coded.py : CODE and code_in, the code word a failure message starts with; InputError, the one coded error a refused input raises (`.code`, `.path`, `.detail`)
 cryptobench/document.py : parse_yaml, a YAML text as its one shape (a mapping unless named) or invalid_yaml at its line and column; DocumentKind: a versioned document's accepted schemaVersion (one or several), its reader's refusal text and error type; check, the one schemaVersion check every reader calls
 pyproject.toml : the shared library's package metadata
