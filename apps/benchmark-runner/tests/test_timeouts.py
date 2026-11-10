@@ -38,3 +38,31 @@ def test_a_step_inside_its_ceiling_returns_its_result():
 ])
 def test_an_error_the_run_did_not_survive_is_one_line(error, line):
     assert pipeline.failure_line(error) == line
+
+
+def test_the_known_failures_are_these_classes_in_this_order():
+    assert [f"{c.__module__}.{c.__name__}" for c in pipeline.KNOWN] == [
+        "device.adb.DeviceError", "device.identity.DeviceIdError", "device.capture.CaptureError", "sources.runner.EnergyError",
+        "bundled.BundledError", "stages.config_check.ConfigCheckError", "scope.results.ScopeResultError", "scope.code_digest.CodeDigestError",
+        "timeouts.StepTimeout", "session.dynamic_temperature.Terminated", "cryptobench.coded.InputError"]
+
+
+@pytest.mark.parametrize("known", pipeline.KNOWN, ids=lambda c: c.__name__)
+def test_a_known_failure_is_its_own_message_unchanged(known):
+    assert pipeline.failure_line(known("some_code: a  spaced   message")) == "some_code: a  spaced   message"
+
+
+def test_a_known_failure_keeps_its_line_breaks_and_length():
+    long = "device_failed: " + "x" * 600 + "\nsecond line"
+    assert pipeline.failure_line(pipeline.DeviceError(long)) == long
+
+
+def test_an_unknown_failure_is_one_line_cut_at_500_characters():
+    line = pipeline.failure_line(RuntimeError("y" * 600 + "\nz"))
+    assert line == "internal_error: RuntimeError: " + ("y" * 600 + " z")[:500]
+
+
+def test_fail_prints_one_error_line_on_stderr_and_exits_1(capsys):
+    with pytest.raises(SystemExit) as stopped:
+        pipeline.fail("some_code: detail")
+    assert stopped.value.code == 1 and capsys.readouterr() == ("", "error: some_code: detail\n")
