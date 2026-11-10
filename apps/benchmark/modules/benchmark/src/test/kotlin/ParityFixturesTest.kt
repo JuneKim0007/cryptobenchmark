@@ -14,7 +14,8 @@ import java.io.File
 /** parity/: the known answers Python writes, and the thermal.json apps/benchmark-runner/tests/test_thermal_document.py pins byte for byte, as this module reads them. */
 class ParityFixturesTest {
 
-    private val parity = generateSequence(File("").absoluteFile) { it.parentFile }.map { File(it, "parity") }.first { File(it, "duplicate-key.yaml").isFile }
+    private val parity = generateSequence(File("").absoluteFile) { it.parentFile }.map { File(it, "parity") }.firstOrNull { File(it, "duplicate-key.yaml").isFile }
+        ?: error("parity/ not found above ${File("").absoluteFile}")
 
     private fun stated(name: String): Map<String, Any> = Yaml(SafeConstructor(LoaderOptions())).load(File(parity, "$name.json").readText())
 

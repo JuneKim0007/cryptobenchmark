@@ -8,7 +8,8 @@ import java.io.File
 /** parity/duplicate-key.yaml through discovery's codec, which also reads the config-owned effective.yaml in cli and androidTest. */
 class ParityFixturesTest {
 
-    private val parity = generateSequence(File("").absoluteFile) { it.parentFile }.map { File(it, "parity") }.first { File(it, "duplicate-key.yaml").isFile }
+    private val parity = generateSequence(File("").absoluteFile) { it.parentFile }.map { File(it, "parity") }.firstOrNull { File(it, "duplicate-key.yaml").isFile }
+        ?: error("parity/ not found above ${File("").absoluteFile}")
 
     @Test
     fun currentBehaviourADuplicateKeyKeepsTheLastValue() {

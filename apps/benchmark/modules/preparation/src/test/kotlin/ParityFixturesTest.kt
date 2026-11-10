@@ -15,7 +15,8 @@ import java.io.File
 /** parity/: the guide Python writes and the effective file :config writes read through preparation's codec to the values their .json hold. */
 class ParityFixturesTest {
 
-    private val parity = generateSequence(File("").absoluteFile) { it.parentFile }.map { File(it, "parity") }.first { File(it, "duplicate-key.yaml").isFile }
+    private val parity = generateSequence(File("").absoluteFile) { it.parentFile }.map { File(it, "parity") }.firstOrNull { File(it, "duplicate-key.yaml").isFile }
+        ?: error("parity/ not found above ${File("").absoluteFile}")
 
     private fun stated(name: String): Map<String, Any> = Yaml(SafeConstructor(LoaderOptions())).load(File(parity, "$name.json").readText())
 
