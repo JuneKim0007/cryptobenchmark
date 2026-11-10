@@ -50,3 +50,8 @@ def test_a_named_test_set_that_is_missing_is_refused(tmp_path, capsys):
 def test_no_test_set_named_is_no_refusal(tmp_path):
     (tmp_path / "global.yaml").write_text("schemaVersion: 1\n")
     assert set(run_inputs.digests(tmp_path / "global.yaml")) == {"bundled", "config"}
+
+
+def test_the_digests_of_a_fixed_global_file_and_test_set_are_these_values(tmp_path):
+    assert digests(tmp_path) == {"bundled": "85e9f752cc0902c9a08ad2a9569087258492d125ada6a198feaa4dda75832249",
+                                 "config": "853d6854752ed57cb56db296bf6b60611c69047614c30f78998e2ff8bb3a5485"}
