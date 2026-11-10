@@ -13,6 +13,7 @@ from cryptobench.catalogue import vectors
 from stages.discover import device_discover
 from stages.took import elapsed
 import bundled
+from cryptobench.document import read_yaml
 
 # androidx.benchmark 1.5.0: one call per measureRepeated, no warm-up, no timing, no output file
 DRY_RUN = ["-e", "androidx.benchmark.dryRunMode.enable", "true"]
@@ -57,7 +58,7 @@ def on_device(device, options, effective, capture, trial, known_answers, into):
 
 def summary(result):
     """Prints the outcome and per-oracle counts and every failed case; returns how many failed or errored."""
-    document = yaml.safe_load(result.read_text())
+    document = read_yaml(result)
     counts = document["summary"]
     print("check:     " + ", ".join(f"{n} {outcome}" for outcome, n in counts["outcomes"].items()) + f" of {counts['cases']} cases")
     for oracle, verdicts in counts["oracles"].items():

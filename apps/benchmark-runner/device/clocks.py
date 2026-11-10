@@ -2,6 +2,7 @@
 import re
 
 import yaml
+from cryptobench.document import read_yaml
 
 
 READ = ('for c in /sys/devices/system/cpu/cpu[0-9]*; do f=$c/cpufreq; '
@@ -51,7 +52,7 @@ def write(path, before, after, cases=None):
 
 
 def runtime_locked(paths):
-    states = [yaml.safe_load(path.read_text())["locked"] for path in paths]
+    states = [read_yaml(path)["locked"] for path in paths]
     if any(state == "unknown" for state in states):
         return "unknown"
     return str(all(states)).lower()

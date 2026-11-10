@@ -1,11 +1,11 @@
 """The oracle steps of pipeline.py --interop: the plan's pairs on the host JVM or on the attached device."""
 import shutil
 
-import yaml
 
 import gradle_runner
 from cryptobench import paths
 from device.adb import ONE_PASSED, DeviceError, instrumentation_report
+from cryptobench.document import read_yaml
 
 
 
@@ -32,7 +32,7 @@ def on_device(device, effective, capture, trial, plan, out):
 
 
 def summary(out):
-    pairs = (yaml.safe_load(out.read_text()) or {}).get("pairs") or []
+    pairs = read_yaml(out).get("pairs") or []
     counts = {}
     for pair in pairs:
         counts[pair["result"]] = counts.get(pair["result"], 0) + 1

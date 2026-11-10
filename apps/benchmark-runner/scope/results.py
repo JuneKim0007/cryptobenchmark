@@ -1,5 +1,6 @@
 """After ScopedInterop: the device's verdicts into scoped-plan.yaml."""
 import yaml
+from cryptobench.document import read_yaml
 
 CHECKED = ("passed", "unchecked")
 
@@ -9,8 +10,8 @@ class ScopeResultError(Exception):
 
 
 def merge(plan_path, interop_path):
-    plan = yaml.safe_load(plan_path.read_text())
-    verdicts = yaml.safe_load(interop_path.read_text()) or {}
+    plan = read_yaml(plan_path)
+    verdicts = read_yaml(interop_path)
     for record in plan["scopes"]:
         if record["status"] != "compiled":
             continue

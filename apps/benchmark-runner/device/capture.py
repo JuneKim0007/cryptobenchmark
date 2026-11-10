@@ -1,5 +1,5 @@
 """A capture's runtime block, read once for the runner; a capture of another schema version is refused."""
-import yaml
+from cryptobench.document import read_yaml
 
 SCHEMA = 1   # discovery's CapturedEnvironment.SCHEMA_VERSION
 
@@ -16,4 +16,4 @@ def runtime(capture):
 
 
 def read_runtime(path):
-    return runtime(yaml.safe_load(path.read_text()) or {})
+    return runtime(read_yaml(path))

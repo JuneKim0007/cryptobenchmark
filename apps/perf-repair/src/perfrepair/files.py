@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from cryptobench.document import DocumentKind, parse_yaml
+from cryptobench.document import DocumentKind, read_yaml
 
 TEMP_SUFFIX = ".tmp"
 # mkstemp makes 0600; a staged file keeps the mode a plain open would give
@@ -22,10 +22,6 @@ def read_text(path: Path) -> str:
 
 def read_json(path: Path) -> dict:
     return json.loads(read_text(path))
-
-
-def read_yaml(path: Path, shape: type = dict):
-    return parse_yaml(read_text(path), str(path), shape=shape)
 
 
 def read_document(path: Path) -> dict:

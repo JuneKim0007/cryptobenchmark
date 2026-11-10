@@ -7,6 +7,7 @@ from energy_session import EnergySession
 from session import clocks_hook, cooldown_hook, dynamic_temperature, thermal_gate, thermal_hook
 from stages.took import elapsed
 from cryptobench import paths
+from cryptobench.document import read_yaml
 
 
 @dataclasses.dataclass(frozen=True)
@@ -36,12 +37,12 @@ def gated(run, document):
     return dataclasses.replace(run, gate=dynamic_temperature.opened(run.device, effective_view.thermal_gate(document), run.problems), retries=effective_view.launch_retries(document))
 
 
-def session_arguments(run, document):
-    return measure_arguments(run.options.suppress_errors, effective_view.metrics(document), run.throttle_sleep)
+def session_arguments(run):
+    return measure_arguments(run.options.suppress_errors, run.throttle_sleep)
 
 
 def pass_arguments(run, one):
-    return tuple(measure_arguments(run.options.suppress_errors, one.metrics, run.throttle_sleep)) + one.arguments()
+    return tuple(measure_arguments(run.options.suppress_errors, run.throttle_sleep)) + one.arguments()
 
 
 def timed_hooks(run, one, isolation, gate):
@@ -79,8 +80,7 @@ def record(files, into, captures, device):
         files.setdefault("clocks", []).append(paths.Measurement(into).clocks)
         if paths.Measurement(into).cpu_pins.is_file():
             files.setdefault("cpuPins", []).append(paths.Measurement(into).cpu_pins)
-            import yaml
-            for case, pin in (yaml.safe_load(paths.Measurement(into).cpu_pins.read_text()) or {}).items():
+            for case, pin in (read_yaml(paths.Measurement(into).cpu_pins)).items():
                 if "failed" in pin:
                     print(f"warning: cpu_pin_failed: {case}: {pin['failed']}")
 

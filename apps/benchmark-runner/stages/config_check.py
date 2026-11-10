@@ -4,7 +4,7 @@ import pathlib
 import shlex
 
 import gradle_runner
-import yaml
+from cryptobench.document import parse_yaml
 
 
 class ConfigCheckError(Exception):
@@ -17,7 +17,7 @@ def parse_all(files):
         output = gradle_runner.output_of(shlex.join(map(str, files)), "CheckConfigKt")
     except gradle_runner.ToolFailed as e:
         raise ConfigCheckError(str(e)) from None
-    return yaml.safe_load("\n".join(output))
+    return parse_yaml("\n".join(output), "CheckConfigKt output", shape=list)
 
 
 # a run reads the answer before the build and again in discover; one Gradle start is enough

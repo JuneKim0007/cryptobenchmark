@@ -1,10 +1,10 @@
 """Digests of what a run was given: providers.bundled, and global.yaml with its test set, bundled list and analysis left out."""
 import copy, hashlib, json
 
-import yaml
 
 import bundled
 from failure import fail
+from cryptobench.document import read_yaml
 
 
 def digest(value):
@@ -14,7 +14,7 @@ def digest(value):
 def digests(global_file):
     """Parsed, not raw: a comment or a reordered key reruns nothing; the bundled list is its own input; analysis only
     shows results (charts, units), so changing it reruns no measurement."""
-    document = copy.deepcopy(yaml.safe_load(global_file.read_text()) or {})
+    document = copy.deepcopy(read_yaml(global_file))
     document.pop("analysis", None)
     shipped = bundled.read(global_file)
     (document.get("providers") or {}).pop("bundled", None)
@@ -22,5 +22,5 @@ def digests(global_file):
     path = global_file.parent / test_set if test_set else None
     if path and not path.is_file():
         fail(f"missing_file: {path} (selection.testSet)")
-    selected = yaml.safe_load(path.read_text()) if path else None
+    selected = read_yaml(path) if path else None
     return {"bundled": digest(shipped), "config": digest({"global": document, "testSet": selected})}

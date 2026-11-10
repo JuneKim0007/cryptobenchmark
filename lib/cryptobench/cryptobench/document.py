@@ -39,6 +39,11 @@ def parse_yaml(text: str, where: str, code: str = "invalid_yaml", shape: type = 
     return doc
 
 
+def read_yaml(path: Path | str, shape: type = dict):
+    """The file at path as parse_yaml reads it."""
+    return parse_yaml(Path(path).read_text(), str(path), shape=shape)
+
+
 NAMED = "{name} schemaVersion {found} is not {version}"
 AT_PATH = "{path}: schemaVersion {found} is not {version}"
 

@@ -1,7 +1,7 @@
 """providers.bundled of global.yaml: the digest's raw read, the build property of the app or the host CLI, the DeviceProbe argument, effective.yaml's record and the check against it."""
 import json, shlex
+from cryptobench.document import read_yaml
 
-import yaml
 
 KEY = "bundledProviders"   # BundledProviders.KEY and the effective.yaml key
 
@@ -11,7 +11,7 @@ class BundledError(Exception):
 
 
 def read(global_file):
-    document = yaml.safe_load(global_file.read_text()) or {}
+    document = read_yaml(global_file)
     providers = document.get("providers") or {}
     if not isinstance(providers, dict):
         raise BundledError(f"wrong_type: providers in {global_file}")
@@ -31,7 +31,7 @@ def instrumentation_arguments(bundled):
 
 
 def recorded(effective_file):
-    return (yaml.safe_load(effective_file.read_text()) or {}).get(KEY) or []
+    return read_yaml(effective_file).get(KEY) or []
 
 
 def check_effective(effective_file, bundled):

@@ -10,6 +10,7 @@ from results import layout as results_layout
 import bundled
 from stages import capture_files, config_check, guide
 from stages.took import elapsed
+from cryptobench.document import parse_yaml
 
 
 def summary(effective):
@@ -93,5 +94,4 @@ def device_discover(options, configuration, device, root):
 
 
 def host_runtime(options):
-    import yaml
-    return yaml.safe_load("\n".join(gradle_runner.run("", options.stacktrace, options.stream, main_class="RuntimeFieldsKt")))
+    return parse_yaml("\n".join(gradle_runner.run("", options.stacktrace, options.stream, main_class="RuntimeFieldsKt")), "RuntimeFieldsKt output")

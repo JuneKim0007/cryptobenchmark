@@ -1,13 +1,13 @@
 """Planned timed cases the final benchmark.json lacks, whatever lost them: the device, the conversion or the merge."""
 import json
 
-import yaml
 
 from energy_stage import capture
+from cryptobench.document import read_yaml
 
 
 def timed(prepared):
-    document = yaml.safe_load(prepared.read_text()) or {}
+    document = read_yaml(prepared)
     default = capture(document.get("run"))
     return [case["id"] for case in document.get("cases") or [] if capture(case, default) != "dry"]
 

@@ -6,10 +6,10 @@ from dataclasses import dataclass, field
 from functools import cache
 from pathlib import Path
 
-import yaml
 
 from ..coded import InputError
 from ..document import AT_PATH, DocumentKind
+from ..document import read_yaml
 
 CATALOG = paths.repo().algorithms / "interchange.yaml"
 SCHEMA_VERSION = 1
@@ -72,7 +72,7 @@ def _engine(engine_type: str, row: dict) -> Engine:
 
 
 def load(path: Path = CATALOG) -> Interchange:
-    doc = yaml.safe_load(Path(path).read_text())
+    doc = read_yaml(path)
     INTERCHANGE_DOC.check(doc, path)
     return Interchange({t: _engine(t, row) for t, row in doc["engines"].items()}, frozenset(doc["digestComponents"]),
                        {c: frozenset(n) for c, n in doc["contracts"].items()})

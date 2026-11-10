@@ -6,6 +6,7 @@ import yaml
 from cryptobench import paths
 from cryptobench.catalogue.guide_items import guide_items
 from cryptobench.catalogue import vectors
+from cryptobench.document import read_yaml
 
 def file_beside(effective):
     return paths.Configuration(pathlib.Path(effective).parent).guide
@@ -31,8 +32,8 @@ def fallbacks(document):
 
 
 def write(effective, capture):
-    runtime = yaml.safe_load(pathlib.Path(capture).read_text()).get("runtime") or {}
-    document = guide_items(yaml.safe_load(pathlib.Path(effective).read_text()), platform(runtime))
+    runtime = read_yaml(capture).get("runtime") or {}
+    document = guide_items(read_yaml(effective), platform(runtime))
     for line in fallbacks(document):
         print(f"warning: {line}")
     written = file_beside(effective)
@@ -42,13 +43,13 @@ def write(effective, capture):
 
 def user_vectors(configuration):
     """selection.knownVectors of global.yaml, against that file; a test set's vectors are read only by --check."""
-    named = (yaml.safe_load(pathlib.Path(configuration).read_text()).get("selection") or {}).get("knownVectors")
+    named = (read_yaml(configuration).get("selection") or {}).get("knownVectors")
     return paths.against(configuration, named) if named else None
 
 
 def write_known_answers(effective, capture, configuration):
-    runtime = yaml.safe_load(pathlib.Path(capture).read_text()).get("runtime") or {}
-    document, warnings = vectors.filled(yaml.safe_load(pathlib.Path(effective).read_text()), platform(runtime), user_vectors(configuration))
+    runtime = read_yaml(capture).get("runtime") or {}
+    document, warnings = vectors.filled(read_yaml(effective), platform(runtime), user_vectors(configuration))
     for line in warnings:
         print(f"warning: {line}")
     written = paths.Configuration(pathlib.Path(effective).parent).known_answers

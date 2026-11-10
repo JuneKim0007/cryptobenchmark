@@ -7,11 +7,11 @@ import argparse
 import pathlib
 import sys
 
-import yaml
 
 import effective_view
 from cryptobench import paths
 from results import select
+from cryptobench.document import read_yaml
 
 SECTIONS = ("run", "policy", "analysis")
 
@@ -35,8 +35,8 @@ def written(document, dotted):
 
 
 def explain(global_file, effective_file):
-    authored = yaml.safe_load(pathlib.Path(global_file).read_text()) or {}
-    effective = yaml.safe_load(pathlib.Path(effective_file).read_text()) or {}
+    authored = read_yaml(global_file)
+    effective = read_yaml(effective_file)
     rows = []
     for section in SECTIONS:
         for dotted, value in flatten(effective.get(section) or {}, f"{section}."):

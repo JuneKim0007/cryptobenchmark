@@ -12,6 +12,7 @@ from cryptobench.paths import BENCHMARK_JSON, RunTree
 from ..dto.dossier import SETUP_DRIFT
 from ..files import json_text, read_json, read_yaml, write_text_making_parents
 from ..stop.halt import Coded
+from cryptobench.document import parse_yaml
 
 PLANNED = ("prepared", "skipped")
 NO_PLAN = "null"
@@ -118,7 +119,7 @@ def merge_delta(folder: Path, staged: Path, ids: set[str], session: str, compari
     counts = dict(manifest.get("counts") or {})
     counts["measured"] = counts.get("measured", 0) + len(ids)
     if "prepared" in texts:
-        counts["prepared"] = len(yaml.safe_load(texts["prepared"]).get("cases") or [])
+        counts["prepared"] = len(parse_yaml(texts["prepared"], "prepared").get("cases") or [])
     filled = {c["id"]: c["filled"] for c in merged["cases"] if c["id"] in fill and c.get("session") == session and c.get("filled")}
     deltas = list(manifest.get("deltas") or []) + [{"session": session, "cases": sorted(ids), "comparison": comparison,
                                                      "from": str(staged), **({"filled": filled} if filled else {})}]

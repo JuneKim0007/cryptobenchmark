@@ -40,7 +40,6 @@
 | `reported(step)` | `src/perfrepair/failure.py` | step's exit code when it returns one, else 0; a FAILURES exception is `error <it>` on stderr and its code's exit. | ai.__main__, app.__main__, data_handler.inbound.__main__, grouping.__main__ +6 |
 | `json_text(doc)` | `src/perfrepair/files.py` | `json.dumps(doc, indent=1)` | ai.runtime.engine.kind, ai.select.replay, ai.select.units, ai.select.upgrades +2 |
 | `read_json(path)` | `src/perfrepair/files.py` | `json.loads(read_text(path))` | ai.parse.algorithm_classify.command, ai.parse.grouping_assign.kind, ai.runtime.engine.charter_file, ai.runtime.engine.outbox +30 |
-| `read_yaml(path, shape)` | `src/perfrepair/files.py` | `parse_yaml(read_text(path), str(path), shape=shape)` | ai.runtime.prompt.library, app.facts.dependencies, app.facts.target_set, app.find.sources +31 |
 | `sha256_file(path)` | `src/perfrepair/files.py` | The digest of the file's bytes as written; None when it is absent. | device.gate_after, device.primitives, device.seen, device.stage +5 |
 | `sha256_text(text)` | `src/perfrepair/files.py` | `hashlib.sha256(text.encode()).hexdigest()` | ai.parse.grouping_assign.command, ai.select.units, ai.select.upgrades, app.facts.path_id +1 |
 | `write_json(path, doc, durable, exclusive)` | `src/perfrepair/files.py` | `write_text(path, json_text(doc), durable, exclusive)` | ai.parse.algorithm_classify.command, ai.runtime.engine.charter_file, ai.runtime.engine.decide, ai.runtime.engine.outbox +11 |
@@ -60,8 +59,8 @@
 | `option_label(estimates)` | `src/perfrepair/result/gain.py` | `label_of([change_of(e.ratio, e.pImprove) for e in estimates])` | ai.select.options, ai.select.upgrade_render, review.sheet |
 | `load_measurements(device)` | `src/perfrepair/run_dir/read.py` | `Measurements.from_json(read_json(RunTree(device).measurements))` | ai.select.units, check.device, device.delta, device.measured_check +3 |
 | `load_rows(device)` | `src/perfrepair/run_dir/read.py` | `[PrimitiveRow.from_json(r) for r in read_versioned(ROWS_DOC, RunTree(device).rows)['rows']]` | check.run, device.measured_check, device.primitives, device.seen +1 |
-| `load_screen(paths)` | `src/perfrepair/run_dir/read.py` | `read_screen(read_json(paths.screen)) if paths.screen.exists() else None` | check.grouping, check.run, device.primitives, device.stage_pass +2 |
-| `load_screen_catalog(paths)` | `src/perfrepair/run_dir/read.py` | `read_screen_catalog(read_json(paths.screen)) if paths.screen.exists() else None` | check.grouping, guide.device_steps, repair.dossier |
+| `load_screen(paths)` | `src/perfrepair/run_dir/read.py` | `_screen(paths, read_screen)` | check.grouping, check.run, device.primitives, device.stage_pass +2 |
+| `load_screen_catalog(paths)` | `src/perfrepair/run_dir/read.py` | `_screen(paths, read_screen_catalog)` | check.grouping, guide.device_steps, repair.dossier |
 | `load_upgrades(path)` | `src/perfrepair/run_dir/read.py` | What each broken use became; none before the upgrade step ran. | guide.app_steps, repair.__main__, report.app_report |
 | `load_used(device)` | `src/perfrepair/run_dir/read.py` | None without used.json: every item counts as used. | ai.parse.grouping_assign.kind, check.device, guide.device_steps, guide.gate_steps |
 | `read_dossiers(path)` | `src/perfrepair/run_dir/read.py` | `read_versioned(DOSSIERS_DOC, path)` | ai.select.units, ai.select.upgrades, guide.app_steps, repair.__main__ |

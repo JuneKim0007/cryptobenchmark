@@ -7,6 +7,7 @@ from device.identity import device_id
 from results import layout as results_layout
 from cryptobench import paths
 from results import run_inputs
+from cryptobench.document import parse_yaml, read_yaml
 
 ENGINE_OPERATIONS = paths.repo().engine_operations
 
@@ -22,7 +23,7 @@ def runtime(measured, captured, files):
 def units(files):
     """analysis.units as :config wrote it into effective.yaml: the display units every view of this run reads."""
     import yaml
-    effective = yaml.safe_load(files["effective"].read_text()) if "effective" in files else None
+    effective = read_yaml(files["effective"]) if "effective" in files else None
     found = ((effective or {}).get("analysis") or {}).get("units")
     return {"units": found} if found else {}
 
@@ -38,7 +39,7 @@ def estimated_mark(energy_files):
 def operations():
     """Per engine type the operations the harness times, so a reader of the run needs no path into this repository."""
     import yaml
-    return {t: list(ops) for t, ops in (yaml.safe_load(ENGINE_OPERATIONS.read_text()).get("types") or {}).items()}
+    return {t: list(ops) for t, ops in (read_yaml(ENGINE_OPERATIONS).get("types") or {}).items()}
 
 
 def survived(problems):
@@ -49,7 +50,7 @@ def manifest(results, mode, configuration, files, problems=()):
     import yaml
     def load(key):
         text = files[key].read_text()
-        return json.loads(text) if files[key].suffix == ".json" else yaml.safe_load(text)
+        return json.loads(text) if files[key].suffix == ".json" else parse_yaml(text, str(files[key]))
     probe = load("probe") if "probe" in files else {}
     measured = load("benchmark") if "benchmark" in files else None
     captured = capture_runtime(probe)
@@ -77,7 +78,7 @@ def manifest(results, mode, configuration, files, problems=()):
 def add_to_manifest(results, added):
     import yaml
     path = paths.RunTree(results).manifest
-    document = yaml.safe_load(path.read_text())
+    document = read_yaml(path)
     document["files"].update({key: value.relative_to(results).as_posix() for key, value in added.items()})
     results_layout.write_atomic(path, yaml.safe_dump(document, sort_keys=False))
     print(f"wrote:     {path}")

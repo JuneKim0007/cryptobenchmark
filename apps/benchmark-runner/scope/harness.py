@@ -2,9 +2,9 @@
 import pathlib, re
 from dataclasses import dataclass
 
-import yaml
 
 from scope import languages as scope_languages
+from cryptobench.document import read_yaml
 
 SCOPE_KEYS = {"id", "language", "function", "before", "after", "imports", "inputs", "current", "option", "dependencies", "notMeasurable", "inverse", "upgrade"}
 ID = re.compile(r"^[0-9a-f]{12}$")
@@ -45,7 +45,7 @@ def read(path):
     path = pathlib.Path(path)
     if not path.is_file():
         raise HarnessError(f"missing_file: {path} (--harness)")
-    document = yaml.safe_load(path.read_text()) or {}
+    document = read_yaml(path)
     if document.get("schemaVersion") != SCHEMA_VERSION:
         raise HarnessError(f"unsupported_schema: {path} schemaVersion {document.get('schemaVersion')}, expected {SCHEMA_VERSION}")
     if not document.get("app"):

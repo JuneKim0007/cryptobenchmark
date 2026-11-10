@@ -9,21 +9,16 @@
 | `size_label(size)` | `apps/benchmark-runner/analysis/chart_model.py` | `'n-a' if size is None else f'{size}B' if size < 1024 else f'{size // 1024}KiB'` | chart_draw, chart_report |
 | `summarize_count(case, groups, metric)` | `apps/benchmark-runner/analysis/chart_model.py` | One case's runs of a count metric, as measured: no unit conversion. None when the case has no runs for it. | analyze, charts |
 | `variant(case)` | `apps/benchmark-runner/analysis/chart_model.py` | ' fixed' or ' notFixed' after a case's name, so an item's two variants never read as one; empty for a row without one. | analyze, chart_draw, chart_report |
-| `latency(ns, units)` | `apps/benchmark-runner/analysis/display_units.py` | `ns / NS_PER[units['latency']]` | analyze, chart_draw, chart_model |
-| `latency_label(units)` | `apps/benchmark-runner/analysis/display_units.py` | `f"{units['latency']}/op"` | analyze, chart_draw, chart_model |
-| `throughput(ns, size, units)` | `apps/benchmark-runner/analysis/display_units.py` | None where the unit needs an input size the case does not have, or the time is zero. | analyze, chart_model |
-| `summarize(runs)` | `apps/benchmark-runner/analysis/stats.py` | - | analyze, chart_model |
 | `gradle_properties(bundled)` | `apps/benchmark-runner/bundled.py` | `[f"-PbundledArtifacts={','.join((entry['artifact'] for entry in bundled))}"] if bundled else []` | stages.benchmark, stages.check, stages.discover |
 | `ONE_PASSED` | `apps/benchmark-runner/device/adb.py` | `re.compile('^OK \\(1 test\\)', re.M)` | session.case_isolation, stages.interop_oracle |
 | `PASSED` | `apps/benchmark-runner/device/adb.py` | `re.compile('^OK \\(\\d+ tests?\\)', re.M)` | energy_session, session.measure, session.warmup, stages.check |
 | `instrumentation_report(output)` | `apps/benchmark-runner/device/adb.py` | - | energy_session, stages.check, stages.interop_oracle |
-| `read_runtime(path)` | `apps/benchmark-runner/device/capture.py` | `runtime(yaml.safe_load(path.read_text()) or {})` | device.facts, device.identity |
+| `read_runtime(path)` | `apps/benchmark-runner/device/capture.py` | `runtime(read_yaml(path))` | device.facts, device.identity |
 | `read(device)` | `apps/benchmark-runner/device/clocks.py` | `parse(device.shell(READ))` | device.facts, session.clocks_hook |
 | `capture_id(capture)` | `apps/benchmark-runner/device/identity.py` | `device_id(captured.read_runtime(capture))` | stages.discover, stages.harness, stages.interop |
 | `device_id(runtime)` | `apps/benchmark-runner/device/identity.py` | - | pipeline, results.manifest, stages.discover |
 | `read(device)` | `apps/benchmark-runner/device/thermal.py` | - | session.dynamic_temperature, session.thermal_hook, session.warmup |
 | `entry_count(document)` | `apps/benchmark-runner/effective_view.py` | `sum((len(names) for types in (document.get('providers') or {}).values() for names in types.values()))` | explain, stages.discover |
-| `metrics(document)` | `apps/benchmark-runner/effective_view.py` | - | session.passes, stages.measuring |
 | `read(effective_file)` | `apps/benchmark-runner/effective_view.py` | - | stages.benchmark, stages.discover |
 | `thermal_gate(document)` | `apps/benchmark-runner/effective_view.py` | run.thermalGate as :config validated it, or None when absent. | stages.benchmark, stages.measuring |
 | `capture(node, default)` | `apps/benchmark-runner/energy/capture.py` | `_energy(node).get('capture', default)` | dependencies, energy, energy_stage |
@@ -33,7 +28,7 @@
 | `case_arguments(captures_found, capability, preparation, data, traces, dry_calls, out)` | `apps/benchmark-runner/energy/sources/runner.py` | - | sources.manafa_source, sources.rails_source |
 | `guarded(problems, step)` | `apps/benchmark-runner/energy_stage.py` | An energy step that fails costs this process its energy, never its timing: one error line, recorded. | session.energy_hook, stages.benchmark |
 | `fail(message)` | `apps/benchmark-runner/failure.py` | - | dependencies, effective_view, global_file, gradle_runner +10 |
-| `one_line(error)` | `apps/benchmark-runner/failure.py` | `' '.join(str(error).split())[:500]` | energy_stage, facade.py, gradle_runner, pipeline +3 |
+| `one_line(error)` | `apps/benchmark-runner/failure.py` | `' '.join(str(error).split())[:500]` | energy_stage, facade.py, gradle_runner, pipeline +4 |
 | `warn(line, problems)` | `apps/benchmark-runner/failure.py` | A warning on the terminal and, when the run keeps a list, in its manifest. | session.dynamic_temperature, stages.benchmark |
 | `global_config(argument)` | `apps/benchmark-runner/global_file.py` | - | dependencies, pipeline |
 | `run(arguments, stacktrace, stream, main_class, notices, properties, failed)` | `apps/benchmark-runner/gradle_runner.py` | notices, when given, collects every passed-on line, so a caller can record it; properties are -P build properties; | session.passes, stages.benchmark, stages.check, stages.discover +2 |

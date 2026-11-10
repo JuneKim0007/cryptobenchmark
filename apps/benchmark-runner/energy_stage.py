@@ -1,7 +1,6 @@
 """The energy steps of pipeline.py --device: capture selection and the run's one energy source."""
 import sys
 
-import yaml
 
 import timeouts
 from device.adb import DeviceError
@@ -12,6 +11,7 @@ paths.add_energy_imports()
 from capture import capture, source as source_of  # noqa: E402
 from sources import SOURCES  # noqa: E402
 from sources.runner import EnergyError, Host  # noqa: E402
+from cryptobench.document import read_yaml
 
 __all__ = ["EnergyError", "capture", "captures", "guarded", "source", "source_name"]
 
@@ -24,14 +24,14 @@ def _entries(document):
 
 
 def captures(effective):
-    document = yaml.safe_load(effective.read_text())
+    document = read_yaml(effective)
     default = capture(document.get("run"))
     return {capture(one, default) for one in _entries(document)} or {default}
 
 
 def source_name(effective):
     """A session spans the whole run, and a run compares its cases: one source."""
-    document = yaml.safe_load(effective.read_text())
+    document = read_yaml(effective)
     default = source_of(document.get("run"))
     names = {source_of(one, default) for one in _entries(document)} or {default}
     if len(names) > 1:

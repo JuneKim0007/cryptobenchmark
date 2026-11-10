@@ -2,9 +2,9 @@
 import json
 import pathlib
 
-import yaml
 
-import display_units
+from cryptobench.measure.units import DisplayUnits
+from cryptobench.document import read_yaml
 
 # Mirrors AnalysisSettings in :config. effective.yaml always carries these, so they apply only when that file is
 # missing; test_charts.py compares them with the committed effective example so the two cannot drift apart.
@@ -14,7 +14,7 @@ UNIDENTIFIED = (0, "unidentified")      # ChartGroup.UNIDENTIFIED in :preparatio
 
 
 def _yaml(path):
-    return (yaml.safe_load(pathlib.Path(path).read_text()) or {}) if pathlib.Path(path).is_file() else {}
+    return (read_yaml(path)) if pathlib.Path(path).is_file() else {}
 
 
 def load(benchmark_file, prepared_file, effective_file):
@@ -32,8 +32,8 @@ def settings(effective):
         "headline": statistic.get("headline", DEFAULTS["headline"]),
         "limit": float(statistic.get("meanUpToCovPercent", DEFAULTS["meanUpToCovPercent"])),
         "run_id": effective.get("runId") or "adhoc",
-        "units": display_units.check({**DEFAULTS["units"], **(analysis.get("units") or {})}),
-        # additive: count-metric bars (allocationCount, CPU events) are drawn when the run has such a metric, unless an explicit
+        "units": DisplayUnits.parse({**DEFAULTS["units"], **(analysis.get("units") or {})}, "analysis.units"),
+        # additive: count-metric bars (allocationCount) are drawn when the run has such a metric, unless an explicit
         # analysis.charts list leaves "countBars" out. DEFAULTS above stays what :config writes.
         "countBars": "charts" not in analysis or "countBars" in (analysis["charts"] or []),
     }

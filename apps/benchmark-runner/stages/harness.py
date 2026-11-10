@@ -1,7 +1,6 @@
 """A --harness run: perf-repair's scopes generated and interop-checked on the device, original against patched; nothing is timed."""
 import pathlib, shutil, time
 
-import yaml
 
 from device.identity import capture_id
 from failure import fail
@@ -14,6 +13,7 @@ from scope.harness import HarnessError
 from stages.discover import discover
 from stages.measuring import push
 from stages.took import elapsed
+from cryptobench.document import read_yaml
 
 # beside scoped/, which a failed run rolls back: the plan a failure line points at
 
@@ -32,7 +32,7 @@ def require_harness_device(harness, capture):
     """A harness belongs to one device's folder; another device's numbers there would read as that device's."""
     built_for = paths.RunTree(harness.parent.parent).manifest
     if built_for.is_file():
-        wanted, attached = (yaml.safe_load(built_for.read_text()) or {}).get("deviceId"), capture_id(capture)
+        wanted, attached = read_yaml(built_for).get("deviceId"), capture_id(capture)
         if wanted != attached:
             fail(f"harness_other_device: {harness} was built for {wanted}, the attached device is {attached}")
 
