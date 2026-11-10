@@ -11,10 +11,14 @@ REPORT = ROOT / "apps/benchmark/modules/benchmark/src/main/kotlin"
 PRINTED = sorted(CLI.glob("*.kt")) + [
     REPORT / "report/jetpack/JetpackResults.kt", REPORT / "report/jetpack/RunCountAudit.kt", REPORT / "report/Merge.kt",
     REPORT / "report/PassMerge.kt", REPORT / "check/RunnablePlan.kt"]
-CODED = re.compile(r'(?:System\.err\.println\(|dropped \+= |findings \+= |-> System\.err\.println\()"([a-z_]+:)')
+CODED = re.compile(r'(?:System\.err\.println\(\s*|dropped\s*\+=\s*|findings\s*\+=\s*)"([a-z_]+:)')
+# any string literal opening with a code, however it reaches stderr
+LITERAL = re.compile(r'"([a-z_]+:)[ "$]')
 
 EMITTED = {"error:", "usage:", "warning:", "skipped:", "reused:", "energy_not_joined:", "not_in_plan:", "no_metrics:", "not_converted:",
            "iterations_not_applied:", "allocation_runs_changed:", "not_merged:", "runtime_differs:"}
+# codes of exception messages: a main prints them after error:, never as their own line
+RAISED = {"missing_field:", "nothing_measured:", "nothing_prepared:", "unequal_samples:"}
 
 
 def emitted():
@@ -23,6 +27,11 @@ def emitted():
 
 def test_the_coded_lines_the_mains_print_are_today_s_set():
     assert emitted() == EMITTED
+
+
+def test_every_coded_literal_is_a_printed_or_raised_code():
+    literals = {code for path in PRINTED for code in LITERAL.findall(path.read_text())}
+    assert literals == EMITTED | RAISED
 
 
 def test_current_behaviour_every_printed_code_is_passed_on_but_runtime_differs():
