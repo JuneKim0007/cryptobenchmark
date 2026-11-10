@@ -1,5 +1,5 @@
 """Every code the runner stops, raises, warns or reports with, against runner-codes-frozen.txt: a code that changes shows as a diff."""
-import ast, pathlib, re
+import ast, pathlib, re, subprocess
 
 RUNNER = pathlib.Path(__file__).resolve().parents[1]
 FROZEN = pathlib.Path(__file__).with_name("runner-codes-frozen.txt")
@@ -23,10 +23,17 @@ def reported(text):
     return found.group(1) if found else "uncoded: " + " ".join(text.split())[:60].rstrip()
 
 
+def tracked():
+    """The runner's .py files git lists, so an ignored generated file on one machine cannot change the set."""
+    out = subprocess.run(["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z", "--", "*.py"],
+                         cwd=RUNNER, capture_output=True, text=True, check=True).stdout
+    return sorted(RUNNER / name for name in out.split("\0") if name)
+
+
 def codes():
     found = set()
-    for path in sorted(RUNNER.rglob("*.py")):
-        if "tests" in path.relative_to(RUNNER).parts:
+    for path in tracked():
+        if "tests" in path.relative_to(RUNNER).parts or not path.is_file():
             continue
         for node in ast.walk(ast.parse(path.read_text())):
             call = node.exc if isinstance(node, ast.Raise) else node
