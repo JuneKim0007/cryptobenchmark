@@ -145,13 +145,15 @@ def test_the_throttle_sleep_reaches_every_process_and_unset_passes_nothing(tmp_p
 
 
 def test_measured_energy_without_its_own_pass_is_refused(tmp_path, monkeypatch):
-    with pytest.raises(SystemExit):
+    with pytest.raises(SystemExit) as stopped:
         measured(tmp_path, monkeypatch, {"isolation": "case", "harness": {"energy": {"capture": "measured"}}})
+    assert stopped.value.code == 1
 
 
 def test_dry_capture_is_refused_with_passes(tmp_path, monkeypatch):
-    with pytest.raises(SystemExit):
+    with pytest.raises(SystemExit) as stopped:
         measured(tmp_path, monkeypatch, {"harness": {"energy": {"capture": "dry"}}, "passes": {"timing": {"samples": 3}}})
+    assert stopped.value.code == 1
 
 
 DUMP = """Thermal Status: 1

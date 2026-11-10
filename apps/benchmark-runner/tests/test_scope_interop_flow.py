@@ -39,8 +39,9 @@ def test_a_failed_generate_leaves_the_plan_its_failure_line_names(tmp_path, monk
     monkeypatch.setattr(harness.scope_generate, "generate", generate)
     monkeypatch.setattr(harness.scope_generate, "clean", lambda _root: None)
     results = tmp_path / "checked"
-    with pytest.raises(SystemExit):
+    with pytest.raises(SystemExit) as stopped:
         harness.harness_run(types.SimpleNamespace(harness=str(tmp_path / "harness.yaml")), None, None, results)
+    assert stopped.value.code == 1
     named = capsys.readouterr().err.split("see ")[-1].strip()
     assert named == str(results / harness.paths.SCOPED_PLAN_FAILED) and pathlib.Path(named).read_text() == "scopes: []\n"
     assert not (results / "scoped").exists()

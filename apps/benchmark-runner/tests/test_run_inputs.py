@@ -41,8 +41,9 @@ def test_analysis_shows_results_and_reruns_nothing(tmp_path):
 
 def test_a_named_test_set_that_is_missing_is_refused(tmp_path, capsys):
     (tmp_path / "global.yaml").write_text(BASE)
-    with pytest.raises(SystemExit):
+    with pytest.raises(SystemExit) as stopped:
         run_inputs.digests(tmp_path / "global.yaml")
+    assert stopped.value.code == 1
     assert f"missing_file: {tmp_path / 'sets/a.yaml'} (selection.testSet)" in capsys.readouterr().err
 
 

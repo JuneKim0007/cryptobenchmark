@@ -26,10 +26,11 @@ def stage_with(root):
 
 
 def test_a_failed_run_leaves_no_stage(tmp_path):
-    with pytest.raises(SystemExit):
+    with pytest.raises(SystemExit) as stopped:
         with layout.staged(tmp_path) as stage:
             write(stage / "discovery/probe.yaml")
             fail("boom")
+    assert stopped.value.code == 1
     assert list(tmp_path.iterdir()) == []
 
 
@@ -80,15 +81,17 @@ def test_only_a_folder_with_a_manifest_is_a_device(tmp_path):
 def test_selection_is_one_coded_line(tmp_path, capsys, wanted, code):
     write(tmp_path / "a/manifest.yaml")
     write(tmp_path / "b/manifest.yaml")
-    with pytest.raises(SystemExit):
+    with pytest.raises(SystemExit) as stopped:
         select.device_folder(tmp_path, wanted)
+    assert stopped.value.code == 1
     message = capsys.readouterr().err
     assert message.startswith(f"error: {code}") and message.count("\n") == 1
 
 
 def test_a_root_with_no_finished_run_says_so(tmp_path, capsys):
-    with pytest.raises(SystemExit):
+    with pytest.raises(SystemExit) as stopped:
         select.device_folder(tmp_path)
+    assert stopped.value.code == 1
     assert "no_device_results" in capsys.readouterr().err
 
 
@@ -112,15 +115,17 @@ def test_a_harness_measured_on_its_own_device_passes(tmp_path):
 
 def test_a_harness_measured_on_another_device_stops(tmp_path, capsys):
     capture = write(tmp_path / "probe.yaml", yaml.safe_dump({"schemaVersion": 1, "runtime": RUNTIME}))
-    with pytest.raises(SystemExit):
+    with pytest.raises(SystemExit) as stopped:
         harness.require_harness_device(harness_in(tmp_path / "d", "other-api1-00000000"), capture)
+    assert stopped.value.code == 1
     assert "harness_other_device" in capsys.readouterr().err
 
 
 def test_a_harness_run_takes_no_results_root():
     options = type("Options", (), {"results": "r", "harness": "h.yaml"})
-    with pytest.raises(SystemExit):
+    with pytest.raises(SystemExit) as stopped:
         harness.checked_folder(options)
+    assert stopped.value.code == 1
 
 
 def test_a_write_that_fails_midway_leaves_the_old_manifest_whole_and_no_temporary(tmp_path, monkeypatch):
