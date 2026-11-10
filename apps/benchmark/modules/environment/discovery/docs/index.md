@@ -83,6 +83,7 @@ apps/benchmark/modules/environment/discovery/src/main/kotlin/write/RequirementYa
 apps/benchmark/modules/environment/discovery/src/main/kotlin/write/TrialDocument.kt : trial YAML schema (of, parse)
 apps/benchmark/modules/environment/discovery/src/main/kotlin/write/TrialYamlWriter.kt : writes trial_<utc>.yaml
 apps/benchmark/modules/environment/discovery/src/main/kotlin/write/YamlCodec.kt : snakeyaml dump and load, block style, indent 2
+apps/benchmark/modules/environment/discovery/src/test/kotlin/BlockBytesTest.kt : byte goldens of the BLOCK codec: a capture-shaped document with an alias, a streamed requirements file
 apps/benchmark/modules/environment/discovery/src/test/kotlin/BundledInstallerTest.kt : installer tests: reflection, append position, name clash, alias wrapper
 apps/benchmark/modules/environment/discovery/src/test/kotlin/BundledProvidersTest.kt : bundled list reading and spec validation
 apps/benchmark/modules/environment/discovery/src/test/kotlin/CaptureDocumentTest.kt : capture schema tests
