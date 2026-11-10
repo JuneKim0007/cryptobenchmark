@@ -88,6 +88,7 @@ apps/benchmark/modules/benchmark/src/test/kotlin/HostHarnessTest.kt : host loop 
 apps/benchmark/modules/benchmark/src/test/kotlin/JetpackResultsTest.kt : Jetpack conversion tests over example/
 apps/benchmark/modules/benchmark/src/test/kotlin/KnownAnswerFileTest.kt : the vector catalogue: sources, matching, hex, unknown fields
 apps/benchmark/modules/benchmark/src/test/kotlin/MergeTest.kt : per-process merge tests
+apps/benchmark/modules/benchmark/src/test/kotlin/ParityFixturesTest.kt : parity/ known answers and the Python-written thermal.json read into vectors and case rows; CaseDocument keeps a duplicate key's last value
 apps/benchmark/modules/benchmark/src/test/kotlin/PassMergeTest.kt : per-pass merge tests
 apps/benchmark/modules/benchmark/src/test/kotlin/PeerProvider.kt : a test provider delegating SHA-256 and HmacSHA256 to the JDK's, the cross-provider peer
 apps/benchmark/modules/benchmark/src/test/kotlin/PlanCheckTest.kt : refusal tests

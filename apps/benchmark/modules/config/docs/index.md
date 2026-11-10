@@ -85,6 +85,7 @@ apps/benchmark/modules/config/src/test/kotlin/GlobalDocumentTest.kt : global.yam
 apps/benchmark/modules/config/src/test/kotlin/InventoryBuilderTest.kt : inventory tests
 apps/benchmark/modules/config/src/test/kotlin/MalformedDocumentsTest.kt : malformed documents refused by name
 apps/benchmark/modules/config/src/test/kotlin/OverrideResolverTest.kt : override precedence tests
+apps/benchmark/modules/config/src/test/kotlin/ParityFixturesTest.kt : parity/ global, effective, facts, algorithm-names and scalars read to their .json values; today's duplicate-key refusal and exponent read
 apps/benchmark/modules/config/src/test/kotlin/RuleTest.kt : rule matching tests
 apps/benchmark/modules/config/src/test/kotlin/WarmupJobsTest.kt : warm-up jobs resolved to entries; nothing selected turns it off
 apps/benchmark/modules/config/src/test/resources/algorithm-names-cases.yaml : name cases both readers resolve alike; owned here, perf-repair keeps a copy its tests compare

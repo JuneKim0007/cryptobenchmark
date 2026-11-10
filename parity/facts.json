@@ -1,0 +1,27 @@
+{
+ "schemaVersion": 1,
+ "os": {
+  "sdkInt": 37
+ },
+ "rooted": false,
+ "cpu": {
+  "cores": [
+   {
+    "core": 0,
+    "online": true,
+    "maxKhz": 2246000
+   },
+   {
+    "core": 1,
+    "online": false,
+    "maxKhz": null
+   },
+   {
+    "core": 7,
+    "online": true,
+    "maxKhz": 3782000
+   }
+  ]
+ },
+ "pinning": true
+}

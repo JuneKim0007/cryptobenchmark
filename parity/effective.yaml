@@ -1,0 +1,55 @@
+schemaVersion: 1
+generatedFrom:
+  global: config_global_example.yaml
+  testSet: config_testset_example.yaml
+  inventory: inventory.yaml
+  capture: config_capture_example.yaml
+  trial: config_trial_example.yaml
+  device: {model: '', manufacturer: '', hardware: '', sdkInt: 0, release: '', javaVersion: 17.0.11,
+    defaultKeySizeProperty: '', fingerprint: '', javaVendor: Eclipse Adoptium, javaRuntimeVersion: 17.0.11+9,
+    osName: Linux, osArch: x86_64}
+run:
+  inputSizes: [1024]
+  phases: [WARM]
+  metrics: [TIME]
+  variants: [fixed, notFixed]
+  processRepetitions: 1
+  isolation: case
+  seed: 42
+  caseCooldownSeconds: 0
+  launchRetries: 2
+  warmup:
+    iterations: 10
+    jobs: []
+  thermalGate:
+    temperatureKeptCelsius: 36.0
+    cooldownMinutes: 3
+    pollMinutes: 1
+    pollTerminateMinutes: 30
+    discardLimit: 5
+    onDiscardLimit: nextCase
+    readRetries: 2
+    readRetrySeconds: 1
+    startMargin: {dynamic: true, initialCelsius: 0.25, backoffFactor: 2.0, maximumCelsius: 3.0,
+      cleanRunsToRecover: 10, recoveryCelsius: 0.05}
+policy: {onFailure: skip}
+analysis:
+  statistic: {headline: auto, meanUpToCovPercent: 5.0}
+  charts: [iqrBars, throughput, latency, stability]
+  units: {latency: ms, throughput: MB/s}
+bundledProviders:
+- {artifact: 'org.example:crypto-provider:1.0', create: org.example.crypto.ExampleProvider#newProvider,
+  alias: ExampleBundled}
+providers:
+  SUN:
+    MessageDigest:
+      SHA-256: {}
+  SunJCE:
+    Cipher:
+      AES/GCM/NoPadding:
+        keySizes: [128, 256]
+        parameters:
+          class: javax.crypto.spec.GCMParameterSpec
+          arguments: [128, fresh(12)]
+    Mac:
+      HmacSHA256: {}

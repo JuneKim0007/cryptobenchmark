@@ -1,0 +1,51 @@
+{
+ "schemaVersion": 1,
+ "selection": {
+  "testSet": "config_testset_example.yaml",
+  "exclude": []
+ },
+ "run": {
+  "inputSizes": [
+   1024
+  ],
+  "phases": [
+   "WARM"
+  ],
+  "metrics": [
+   "TIME"
+  ],
+  "processRepetitions": 1,
+  "seed": 42,
+  "thermalGate": {
+   "temperatureKeptCelsius": 36.0,
+   "cooldownMinutes": 3,
+   "pollMinutes": 1,
+   "pollTerminateMinutes": 30,
+   "discardLimit": 5,
+   "onDiscardLimit": "nextCase",
+   "readRetries": 2,
+   "readRetrySeconds": 1,
+   "startMargin": {
+    "dynamic": true,
+    "initialCelsius": 0.25,
+    "backoffFactor": 2,
+    "maximumCelsius": 3.0,
+    "cleanRunsToRecover": 10,
+    "recoveryCelsius": 0.05
+   }
+  },
+  "launchRetries": 2
+ },
+ "policy": {
+  "onFailure": "skip"
+ },
+ "providers": {
+  "bundled": [
+   {
+    "artifact": "org.example:crypto-provider:1.0",
+    "create": "org.example.crypto.ExampleProvider#newProvider",
+    "alias": "ExampleBundled"
+   }
+  ]
+ }
+}
