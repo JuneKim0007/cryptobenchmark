@@ -1,4 +1,4 @@
-"""Display units, cryptobenchmark's analysis.units as manifest.yaml records them: storage stays ns/op, ratios unitless."""
+"""Display units: the benchmark's analysis.units, read by its charts and, from manifest.yaml, by perf-repair; storage stays ns/op."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -16,11 +16,11 @@ class DisplayUnits:
     throughput: str = "MB/s"
 
     @classmethod
-    def parse(cls, doc) -> "DisplayUnits":
+    def parse(cls, doc, where: str = "manifest units") -> "DisplayUnits":
         doc = doc or {}
         units = cls(doc.get("latency", cls.latency), doc.get("throughput", cls.throughput)) if isinstance(doc, dict) else None
         if units is None or set(doc) - {"latency", "throughput"} or units.latency not in NS_PER or units.throughput not in BYTES_PER:
-            raise ValueError(f"invalid: manifest units {doc!r}, latency one of {list(NS_PER)}, throughput one of {list(BYTES_PER)}")
+            raise ValueError(f"invalid: {where} {doc!r}, latency one of {list(NS_PER)}, throughput one of {list(BYTES_PER)}")
         return units
 
     @property
@@ -41,6 +41,6 @@ class DisplayUnits:
         return {"latency": self.latency, "throughput": self.throughput}
 
 
-def number(x: float | None) -> str:
+def number(x: float | None, missing: str = "n/a") -> str:
     """Significant figures, so a sub-unit value never rounds to 0 (64 B AES-CBC is 0.000662 ms)."""
-    return "n/a" if x is None else f"{x:,.0f}" if abs(x) >= 1000 else f"{x:.{SIGNIFICANT}g}"
+    return missing if x is None else f"{x:,.0f}" if abs(x) >= 1000 else f"{x:.{SIGNIFICANT}g}"

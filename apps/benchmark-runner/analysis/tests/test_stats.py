@@ -2,7 +2,7 @@ import json
 import pathlib
 import unittest
 
-import stats  # noqa: E402
+from cryptobench.measure import stats
 
 FIXTURE = json.load(open(pathlib.Path(__file__).with_name("fixture_device_runs.json")))
 

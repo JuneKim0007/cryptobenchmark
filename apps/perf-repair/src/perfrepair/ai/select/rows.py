@@ -10,7 +10,7 @@ from ...dto.metrics import BY_NAME
 from ...dto.perf_mode import PerfMode
 from ...dto.primitives import ABSENT, PrimitiveLine, PrimitivesTable
 from ...dto.report import THROUGHPUT, has_views
-from ...dto.units import DisplayUnits, number
+from cryptobench.measure.units import DisplayUnits, number
 from ...result.configurations import operations
 
 

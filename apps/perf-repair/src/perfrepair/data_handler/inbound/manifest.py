@@ -5,7 +5,7 @@ from pathlib import Path
 from cryptobench.paths import RunTree
 from ... import run_dir as rd
 from ...dto import BenchmarkManifest
-from ...dto.units import DisplayUnits
+from cryptobench.measure.units import DisplayUnits
 from ...files import read_yaml
 
 

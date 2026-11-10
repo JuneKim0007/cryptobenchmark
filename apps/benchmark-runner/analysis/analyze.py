@@ -10,11 +10,12 @@ import sys
 
 import chart_input  # noqa: E402
 import chart_model  # noqa: E402
-import display_units  # noqa: E402
-import stats  # noqa: E402
+from cryptobench.measure import stats
+from cryptobench.measure.units import number
 from outliers import split  # noqa: E402
 from cryptobench import paths
 
+NO_VALUE = "-"
 RUN_LEVEL = ("throughput", "latency", "stability")
 
 
@@ -22,10 +23,10 @@ def summarize(case, groups, cfg):
     runs, removed = split(chart_model.runs_of(case))
     ns = stats.summarize(runs)
     size, units = case["inputSize"], cfg["units"]
-    def rate(nanos): return display_units.throughput(nanos, size, units)
+    def rate(nanos): return units.throughput_of(nanos, size)
     group, group_label = groups.get(case["id"], chart_input.UNIDENTIFIED)
     return dict(case, ns=ns, mean=ns["mean"], removed=len(removed), median=ns["median"], cov=ns["cov"],
-                latency=display_units.latency(ns["mean"], units), rate=rate(ns["mean"]), rate_min=rate(ns["max"]),
+                latency=units.latency_of(ns["mean"]), rate=rate(ns["mean"]), rate_min=rate(ns["max"]),
                 rate_max=rate(ns["min"]), group=group, groupLabel=group_label, noisy=ns["cov"] * 100 > cfg["limit"])
 
 
@@ -40,11 +41,11 @@ def _cleaning_cells(row):
 
 
 def summary(rows, out, units, note=None):
-    lines = [f"| case | op | key | input | {display_units.latency_label(units)} | {units['throughput']} | CoV | outliers | GC pause (ms/iter) | iters with a GC |",
+    lines = [f"| case | op | key | input | {units.latency_label} | {units.throughput} | CoV | outliers | GC pause (ms/iter) | iters with a GC |",
              "|---|---|---|---|---|---|---|---|---|---|"]
     for r in sorted(rows, key=lambda r: (r["type"], r["algorithm"], r["operation"], r["inputSize"] or 0, r.get("variant") or "")):
         lines.append(f"| {r['algorithm']} | {r['operation']}{chart_model.variant(r)} | {r['keySize'] or '-'} | {r['inputSize'] or '-'} "
-                     f"| {display_units.number(r['latency'])} | {display_units.number(r['rate'])} | {r['cov']:.1%} | {r['removed']} | {_cleaning_cells(r)} |")
+                     f"| {number(r['latency'], NO_VALUE)} | {number(r['rate'], NO_VALUE)} | {r['cov']:.1%} | {r['removed']} | {_cleaning_cells(r)} |")
     paths.Analysis(out).summary.write_text("\n".join(lines + (["", note] if note else [])) + "\n")
     if note:
         print(f"note: {note}")
@@ -84,7 +85,7 @@ def main():
     unstable = [r for r in rows if r["noisy"]]
     print(f"cases={len(rows)} unstable(CoV>{cfg['limit']:g}%)={len(unstable)}")
     for r in sorted(unstable, key=lambda r: -r["cov"])[:5]:
-        print(f"  {r['id']}: CoV {r['cov']:.1%}, {display_units.number(r['latency'])} {display_units.latency_label(cfg['units'])}, "
+        print(f"  {r['id']}: CoV {r['cov']:.1%}, {number(r['latency'], NO_VALUE)} {cfg['units'].latency_label}, "
               f"{r['removed']} outliers removed")
     print("wrote", ", ".join(sorted(["summary.md"] + [p.name for p in written])))
 

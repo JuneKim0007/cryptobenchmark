@@ -2,7 +2,7 @@
 import pytest
 
 from cryptobench.measure.equations import (
-    CLEAN, HOT, IGNORED, StartMargin, StartMarginRule, first_margin, half_width, median_interval, next_margin, runs_needed, start_limit,
+    CLEAN, HOT, IGNORED, StartMargin, StartMarginRule, first_margin, half_width, rank_interval, next_margin, runs_needed, start_limit,
 )
 
 RULE = StartMarginRule(initial=0.25, factor=2, maximum=3.0, clean_runs=10, recovery=0.05)
@@ -48,13 +48,13 @@ def test_a_replayed_session_settles_and_recovers():
     assert margin.celsius == 1.8
 
 
-def test_the_median_interval_uses_the_published_ranks():
+def test_the_rank_interval_uses_the_published_ranks():
     # n=9: ranks floor((9-1.96*3)/2)=1 and ceil(1+(9+1.96*3)/2)=9
-    assert median_interval(list(range(1, 10))) == (1, 5, 9)
+    assert rank_interval(list(range(1, 10))) == (1, 5, 9)
 
 
 def test_the_interval_stays_inside_the_data_when_n_is_small():
-    assert median_interval([2.0, 4.0]) == (2.0, 3.0, 4.0)
+    assert rank_interval([2.0, 4.0]) == (2.0, 3.0, 4.0)
 
 
 def test_a_split_distribution_gets_a_wide_interval():

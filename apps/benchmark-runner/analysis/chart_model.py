@@ -1,8 +1,7 @@
 """One measured case as the charts and the summary need it: statistics on ns/op, shown in the unit that fits its group."""
 import re
 
-import display_units
-import stats
+from cryptobench.measure import stats
 from chart_input import UNIDENTIFIED
 
 AUDIT_TOLERANCE = 1e-9         # relative; stats.py equals Jetpack's to ~1e-12 on real device data, so more than this is a real disagreement
@@ -49,15 +48,15 @@ def summarize_case(case, groups, cfg):
     group_id, group_label = groups.get(case["id"], UNIDENTIFIED)
     size = case.get("inputSize")
     units = cfg["units"]
-    if group_id in PAYLOAD_GROUPS and display_units.throughput(ns["median"], size, units) is not None:
+    if group_id in PAYLOAD_GROUPS and units.throughput_of(ns["median"], size) is not None:
         # monotone, so the quartiles swap ends; the mean is the throughput of the mean time
-        f = lambda t: display_units.throughput(t, size, units)
+        f = lambda t: units.throughput_of(t, size)
         shown = dict(mean=f(ns["mean"]), median=f(ns["median"]), q1=f(ns["q3"]), q3=f(ns["q1"]), min=f(ns["max"]), max=f(ns["min"]))
-        unit = units["throughput"]
+        unit = units.throughput
     else:
-        f = lambda t: display_units.latency(t, units)
+        f = lambda t: units.latency_of(t)
         shown = dict(mean=f(ns["mean"]), median=f(ns["median"]), q1=f(ns["q1"]), q3=f(ns["q3"]), min=f(ns["min"]), max=f(ns["max"]))
-        unit = display_units.latency_label(units)
+        unit = units.latency_label
     return {
         "id": case["id"], "group": group_id, "groupLabel": group_label, "type": case["type"], "algorithm": case["algorithm"],
         "provider": case["provider"], "operation": case["operation"], "keySize": case.get("keySize"), "inputSize": size,
@@ -70,7 +69,7 @@ TIME = "timeNs"
 ENERGY = "energyJ"
 GC_PAUSE, GC_COUNT, GC_BLOCKING = "gcCleanNs", "gcCount", "gcBlockingCount"     # MetricSamples; reported beside the time, never charted
 CLEANING = {GC_PAUSE, GC_COUNT, GC_BLOCKING}
-COUNT_LABELS = {"allocationCount": "allocations per call"}      # any other non-time metric (a CPU event) is labelled by its own name
+COUNT_LABELS = {"allocationCount": "allocations per call"}      # any other non-time metric is labelled by its own name
 
 
 def count_metrics(raw_cases):

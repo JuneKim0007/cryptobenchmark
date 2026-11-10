@@ -34,6 +34,8 @@ cryptobench/coded.py : CODE and code_in, the code word a failure message starts 
 cryptobench/document.py : parse_yaml, a YAML text as its one shape (a mapping unless named) or invalid_yaml at its line and column; DocumentKind: a versioned document's accepted schemaVersion (one or several), its reader's refusal text and error type; check, the one schemaVersion check every reader calls
 cryptobench/measure/__init__.py : package of how a benchmark session decides
 cryptobench/measure/equations.py : every calculation the temperature gate and the run count use; no I/O
+cryptobench/measure/stats.py : one definition of each per-case statistic: mean, sample SD, CoV, interpolated quantiles, IQR, QCD; which one leads
+cryptobench/measure/units.py : DisplayUnits: nanoseconds per call in the chosen latency and throughput units; significant-figure numbers
 cryptobench/paths/__init__.py : one interface to every path the Python modules use: `from cryptobench import paths`
 cryptobench/paths/device_dirs.py : DeviceDirs(sdk): folders on a device per API level, POSIX paths
 cryptobench/paths/host.py : the user's and host's locations: home, the user's global.yaml, the Android SDK

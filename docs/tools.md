@@ -46,7 +46,7 @@ python3 apps/benchmark-runner/analysis/analyze.py <benchmark.json> <out dir> [<e
 ```
 
 - Writes `summary.md`; `throughput.png`, `latency.png`, `stability.png` when `analysis.charts` names them.
-- Writes `<metric>-vs-time.png` per count metric (`allocationCount`, a CPU event) in `benchmark.json`.
+- Writes `<metric>-vs-time.png` per count metric (such as `allocationCount`) in `benchmark.json`.
 - Summary columns: case, op, key, input, mean time in `analysis.units.latency` (default ms/op), throughput in `analysis.units.throughput` (default MB/s; `-` where MB/s or MiB/s has no input size), CoV, outliers; values keep 4 significant figures, so a sub-ms time never reads 0.
 - Uses `metrics.timeNs.runs`, else `missing_field: metrics.timeNs.runs for <id>`; statistics on the runs `outliers.py` keeps.
 - Stability chart gate: `analysis.statistic.meanUpToCovPercent`, default 5%.
@@ -68,10 +68,10 @@ python3 apps/benchmark-runner/analysis/charts.py <benchmark.json> <prepared.yaml
 
 | file | holds |
 |---|---|
-| `stats.py` | per-case statistics: mean, sample SD, CoV (SD / mean), interpolated quantiles, IQR, QCD, headline choice |
+| `lib/cryptobench/cryptobench/measure/stats.py` | per-case statistics: mean, sample SD, CoV (SD / mean), interpolated quantiles, IQR, QCD, headline choice |
 | `chart_input.py` | reads benchmark.json, chart groups from prepared.yaml, analysis settings |
 | `chart_model.py` | one case summarised in its display unit; count metrics |
-| `display_units.py` | `analysis.units`: ns/op to the latency and throughput units, checked; significant-figure numbers |
+| `lib/cryptobench/cryptobench/measure/units.py` | `analysis.units`: ns/op to the latency and throughput units, checked; significant-figure numbers |
 | `chart_draw.py` | matplotlib drawing for both scripts |
 | `chart_report.py` | `summary.md`, `chart-data*.json`, `manifest.yaml` |
 

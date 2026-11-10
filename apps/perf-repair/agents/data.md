@@ -101,7 +101,6 @@ src/perfrepair/dto/screen.py : Verdict (broken, platform_deprecated, unverified,
 src/perfrepair/dto/shipped.py : Shipped: one app.json `bundled` entry (artifact, providerName, version); shipped, shipped_names: the one reader of what the app ships
 src/perfrepair/dto/site.py : Scope, scope_id; each app artifact's schema version; harness input sources and notMeasurable reasons
 src/perfrepair/dto/unit.py : Link, Unit, Stay, PairInterop, UnitDossiers (one decision: a unit, its members' dossiers, the members that stay, inverse pairs' interop), unit_id, unit_entry, read_units, link kinds and their evidence
-src/perfrepair/dto/units.py : DisplayUnits: the manifest's analysis.units (latency ms|us|ns, throughput MB/s|MiB/s|ops/s), parsed and checked, defaults mirroring :config; ns/op to each; significant-figure numbers
 src/perfrepair/dto/upgrade.py : UpgradeItem (dossiers.json `upgrades` row: a broken use's dossier, identified, linked, providerHeld, its options' own medians, the screening reason); Upgrade and upgrades.json (schema 1): upgraded, needs_migration, no_secure_option, not_reached; as a Replacement for the edit step
 src/perfrepair/dto/used.py : UsedSet, UsedItem, AppUse: used.json (schema 1); via site, group, candidate or upgrade; names_digest
 src/perfrepair/dto/version.py : a Gradle version: pinned or not; newest of several

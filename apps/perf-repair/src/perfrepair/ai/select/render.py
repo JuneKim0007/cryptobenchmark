@@ -15,7 +15,7 @@ from ...dto.pattern import rule_words
 from ...dto.perf_mode import GENERIC_MODE, PerfMode
 from ...dto.primitives import PrimitivesTable
 from ...dto.unit import UnitDossiers
-from ...dto.units import DisplayUnits
+from cryptobench.measure.units import DisplayUnits
 from ...result.gain import IMPROVING_RATIO, NOISE, WORSE_RATIO
 from .candidate import Candidate
 from .links import link_lines

@@ -11,7 +11,7 @@ from perfrepair.dto.dossier import Estimate, Option
 from perfrepair.dto.perf_mode import GENERIC_MODE, PerfMode
 from perfrepair.dto.primitives import PrimitiveLine, PrimitivesTable
 from perfrepair.dto.unit import PairInterop, Stay, UnitDossiers
-from perfrepair.dto.units import DisplayUnits
+from cryptobench.measure.units import DisplayUnits
 
 A = dossier()
 C = dossier(file="src/Pair.kt", options=(Option("R1", "TypeA|ALG-A/MODE-X|P3", {}, "pass", (Estimate("timeNs", 0.8, 0.99, 40, "OP1 key 128 input 1024"),)),),

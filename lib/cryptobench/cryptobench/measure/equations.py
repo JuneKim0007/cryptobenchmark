@@ -49,7 +49,7 @@ def next_margin(margin: StartMargin, outcome: str, rule: StartMarginRule) -> Sta
     return StartMargin(round(max(margin.celsius - rule.recovery, rule.initial), ROUNDING))
 
 
-def median_interval(values: list[float], z: float = Z_95) -> tuple[float, float, float]:
+def rank_interval(values: list[float], z: float = Z_95) -> tuple[float, float, float]:
     """Low, median and high of the distribution-free interval of the median, from ranks (n - z*sqrt(n))/2 and 1 + (n + z*sqrt(n))/2."""
     ordered, n = sorted(values), len(values)
     low = max(math.floor((n - z * math.sqrt(n)) / 2), 1)
@@ -59,7 +59,7 @@ def median_interval(values: list[float], z: float = Z_95) -> tuple[float, float,
 
 def half_width(values: list[float], z: float = Z_95) -> float:
     """The interval's larger side as a fraction of the median."""
-    low, middle, high = median_interval(values, z)
+    low, middle, high = rank_interval(values, z)
     return max(middle - low, high - middle) / middle
 
 

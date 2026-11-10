@@ -7,7 +7,8 @@ import yaml
 
 import chart_input  # noqa: E402
 import charts  # noqa: E402
-import display_units  # noqa: E402
+from cryptobench.measure.stats import summarize
+from cryptobench.measure.units import DisplayUnits, number
 
 CALM = [100.0, 101.0, 99.0, 100.0, 100.0] * 10
 NOISY = [100.0] * 47 + [160.0, 170.0, 180.0]
@@ -66,10 +67,10 @@ class Charts(unittest.TestCase):
 
     def test_the_units_follow_analysis_units_and_an_unknown_one_is_refused(self):
         units = chart_input.settings({"analysis": {"units": {"latency": "us", "throughput": "ops/s"}}})["units"]
-        self.assertEqual({"latency": "us", "throughput": "ops/s"}, units)
-        self.assertEqual("0.000662", display_units.number(display_units.latency(662, {"latency": "ms"})))
-        self.assertIsNone(display_units.throughput(100, None, {"throughput": "MB/s"}))
-        self.assertEqual(1e7, display_units.throughput(100, None, {"throughput": "ops/s"}))
+        self.assertEqual(DisplayUnits("us", "ops/s"), units)
+        self.assertEqual("0.000662", number(DisplayUnits("ms").latency_of(662)))
+        self.assertIsNone(DisplayUnits(throughput="MB/s").throughput_of(100, None))
+        self.assertEqual(1e7, DisplayUnits(throughput="ops/s").throughput_of(100, None))
         with self.assertRaises(ValueError):
             chart_input.settings({"analysis": {"units": {"latency": "s"}}})
 
@@ -118,9 +119,8 @@ class AuditAgainstJetpack(unittest.TestCase):
 
     def setUp(self):
         self.dir = pathlib.Path(tempfile.mkdtemp())
-        import stats
         self.runs = [100.5, 101.25, 99.75, 100.0, 100.5, 99.5] * 8 + [100.0, 100.0]
-        s = stats.summarize(self.runs)
+        s = summarize(self.runs)
         self.truth = {"minimum": s["min"], "maximum": s["max"], "median": s["median"], "coefficientOfVariation": s["cov"]}
 
     def build(self, reported):

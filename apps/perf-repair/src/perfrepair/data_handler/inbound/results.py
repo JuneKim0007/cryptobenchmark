@@ -3,9 +3,10 @@ from __future__ import annotations
 from ...files import read_json, read_yaml
 
 import math
-import statistics
 from dataclasses import replace
 from pathlib import Path
+
+from cryptobench.measure import stats
 
 
 from ...dto import PrimitiveRow, Summary
@@ -24,10 +25,8 @@ def summarise(processes: list[list[float]]) -> Summary:
     if len(values) == 1:
         v = values[0]
         return Summary(v, v, v, None, 1, None, None, kept)
-    p25, _, p75 = statistics.quantiles(values, n=4, method="inclusive")
-    mean = statistics.fmean(values)
-    cv = statistics.stdev(values) / mean if mean else None
-    return Summary(statistics.median(values), p25, p75, cv, len(values), *median_interval(kept), kept)
+    s = stats.summarize(values)
+    return Summary(s["median"], s["q1"], s["q3"], s["cov"] if s["mean"] else None, s["n"], *median_interval(kept), kept)
 
 
 def _runs(case: dict, metric: str) -> list[float] | None:

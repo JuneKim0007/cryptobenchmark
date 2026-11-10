@@ -4,7 +4,6 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 
-import display_units  # noqa: E402
 from chart_model import op_slug, short, size_label, variant  # noqa: E402
 from cryptobench import paths
 
@@ -80,11 +79,11 @@ def count_vs_time(pairs, metric_label, out, metric, units):
     colors = plt.get_cmap("tab10")
     for i, name in enumerate(groups):
         pts = [(c, t) for c, t in pairs if c["groupLabel"] == name]
-        ax.scatter([display_units.latency(t["ns"]["median"], units) for _, t in pts], [max(c["stats"]["median"], 0.5) for c, _ in pts], s=22, color=colors(i % 10), label=name, alpha=.8)
+        ax.scatter([units.latency_of(t["ns"]["median"]) for _, t in pts], [max(c["stats"]["median"], 0.5) for c, _ in pts], s=22, color=colors(i % 10), label=name, alpha=.8)
     ax.set_xscale("log")
     ax.set_yscale("log")
     zero = sum(1 for c, _ in pairs if c["stats"]["median"] == 0)
-    ax.set_xlabel(f"median time, {display_units.latency_label(units)} (n={','.join(str(n) for n in sorted({t['ns']['n'] for _, t in pairs}))} runs)")
+    ax.set_xlabel(f"median time, {units.latency_label} (n={','.join(str(n) for n in sorted({t['ns']['n'] for _, t in pairs}))} runs)")
     ax.set_ylabel(f"median {metric_label} (n={','.join(str(n) for n in sorted({c['stats']['n'] for c, _ in pairs}))} runs; zero medians drawn at 0.5)")
     ax.set_title(f"{metric_label} against time, {len(pairs)} cases" + (f"; {zero} with a median of 0" if zero else ""), fontsize=10)
     ax.grid(alpha=.3, which="both")
@@ -133,7 +132,7 @@ def throughput(rows, out, units):
         ax.set_title(title)
         ax.grid(alpha=.3)
         ax.legend(fontsize=8)
-    axes[0].set_ylabel(units["throughput"])
+    axes[0].set_ylabel(units.throughput)
     fig.suptitle("Throughput vs input size")
     fig.tight_layout()
     path = paths.Analysis(out).throughput
@@ -148,7 +147,7 @@ def latency(rows, out, units):
     slow.sort(key=lambda r: r["latency"])
     names = [f"{label(r)} {r['operation'].lower()}" + (f" {r['inputSize']}B" if r["inputSize"] else "") for r in slow]
     plt.barh(names, [r["latency"] for r in slow], color="#4c72b0")
-    plt.xscale("log"); plt.xlabel(f"mean time, {display_units.latency_label(units)} (log)"); plt.title("Asymmetric operations and key generation")
+    plt.xscale("log"); plt.xlabel(f"mean time, {units.latency_label} (log)"); plt.title("Asymmetric operations and key generation")
     path = paths.Analysis(out).latency
     plt.grid(axis="x", alpha=.3); plt.tight_layout(); plt.savefig(path, dpi=140, bbox_inches="tight"); plt.close()
     return path

@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from cryptobench.document import DocumentKind
-from .units import DisplayUnits
+from cryptobench.measure.units import DisplayUnits
 
 SCHEMA_VERSION = 1
 MANIFEST_DOC = DocumentKind("manifest", SCHEMA_VERSION)
