@@ -65,7 +65,8 @@ def test_the_metrics_each_pass_measures():
     document = {"run": {"metrics": ["TIME", "ALLOCATION"], "passes": {"timing": {"samples": 3}, "energy": {"samples": 2}, "allocation": {"samples": 4}}}}
     python = {p.name: p.metrics for p in passes.read(document, {"measured"})}
     branches = kotlin(AT / "PassArguments.kt", r"metrics\s*=\s*when\s*\(named\)\s*\{(.*?)\n\s*\}", re.S)
-    rules = {key: re.sub(r"\s+", "", value) for key, value in re.findall(r"^\s*(\S.*?)\s*->\s*(.+?),?\s*$", branches, re.M)}
+    found = re.findall(r"^\s*(\S[^\n]*?)\s*->(.*?)(?=^[^\n]*->|\Z)", branches, re.M | re.S)
+    rules = {key: re.sub(r"\s+", "", value).rstrip(",") for key, value in found}
     assert set(rules) == {"ENERGY", "ALLOCATION", "else"}
     assert rules["ENERGY"] == "setOf(Metric.TIME)" and python["energy"] == ("TIME",)
     assert rules["ALLOCATION"] == "setOf(Metric.TIME,Metric.ALLOCATION)" and python["allocation"] == ("TIME", "ALLOCATION")
