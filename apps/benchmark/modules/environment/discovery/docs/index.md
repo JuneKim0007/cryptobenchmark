@@ -90,6 +90,7 @@ apps/benchmark/modules/environment/discovery/src/test/kotlin/DefaultRunTrialTest
 apps/benchmark/modules/environment/discovery/src/test/kotlin/GeneratorKeysTest.kt : triedKeys: each size with its own key, a refusal, a pair asked no size above its default
 apps/benchmark/modules/environment/discovery/src/test/kotlin/JcaContractTest.kt : JCA-surface drift checks on the running JVM
 apps/benchmark/modules/environment/discovery/src/test/kotlin/KeyNamesTest.kt : KeyNames tests
+apps/benchmark/modules/environment/discovery/src/test/kotlin/ParityFixturesTest.kt : parity/duplicate-key.yaml keeps its last value through this codec today
 apps/benchmark/modules/environment/discovery/src/test/kotlin/ProbeDirectoryTest.kt : no-overwrite test
 apps/benchmark/modules/environment/discovery/src/test/kotlin/ProviderProbeTest.kt : ProviderProbe tests
 apps/benchmark/modules/environment/discovery/src/test/kotlin/RequirementTrialTest.kt : requirement trial against the live JVM and made-up providers

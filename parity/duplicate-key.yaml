@@ -1,0 +1,7 @@
+# one key twice at the top and once more inside a section; which value a reader keeps, or whether it refuses, is today's behaviour per reader
+schemaVersion: 1
+run:
+  seed: 1
+  seed: 2
+seed: first
+seed: last

@@ -1,0 +1,25 @@
+# plain scalars as a person types them in an authored file; YAML 1.1 decides each type on both sides
+schemaVersion: 1
+yesWord: yes
+onWord: on
+offWord: Off
+yLetter: y
+hex: 0x1F
+octal: 010
+octalO: 0o10
+binary: 0b101
+underscore: 1_000
+sexagesimal: 1:30
+exponentNoDot: 1e3
+exponentDot: 1.0e+3
+leadingDot: .5
+trailingDot: 12.
+plus: +12
+nullTilde: ~
+nullWord: Null
+emptyValue:
+quotedNumber: '25'
+big: 12345678901234567890
+versionLike: 17.0.11
+colonString: "scope: run"
+floatPlain: 5.0

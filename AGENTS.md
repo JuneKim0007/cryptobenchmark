@@ -127,6 +127,7 @@ config/ : authored run configuration: global settings and test sets
 docs/ : cross-module fact docs
 docs/contributing/ : directive guides
 lib/cryptobench/ : the Python library the runner and perf-repair share: the guide's readers; map in its AGENTS.md
+parity/ : fixtures both languages' tests read: YAML documents with the .json value each must read to, thermal.json as the runner writes it, a duplicate-key file
 pytest.ini : the Python apps' source folders on the test path, for pytest from the repository root
 requirements.txt : every host Python dependency
 settings.example.yaml : template for `settings.yaml`, the facade's root index

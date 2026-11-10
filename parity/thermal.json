@@ -1,0 +1,50 @@
+{
+ "schemaVersion": 1,
+ "process": {
+  "start": {
+   "skin": 45.0
+  },
+  "end": {
+   "skin": 33.2
+  },
+  "startStatus": 0,
+  "endStatus": 0
+ },
+ "cases": {
+  "a": {
+   "start": null,
+   "end": {
+    "skin": 33.1
+   },
+   "startStatus": null,
+   "endStatus": 0,
+   "note": "thermal_unavailable: fake",
+   "gate": {
+    "waitedSeconds": 240.0,
+    "target": 35.75,
+    "discards": 0
+   }
+  },
+  "b": {
+   "start": {
+    "skin": 33.1
+   },
+   "end": {
+    "skin": 33.2
+   },
+   "startStatus": 0,
+   "endStatus": 0,
+   "gate": {
+    "waitedSeconds": 0.0,
+    "target": 35.75,
+    "discards": 0
+   }
+  }
+ },
+ "gate": {
+  "sensors": [
+   "skin"
+  ],
+  "kept": 36.0
+ }
+}

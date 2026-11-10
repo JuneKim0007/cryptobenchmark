@@ -1,0 +1,50 @@
+schemaVersion: 1
+items:
+  AndroidOpenSSL:
+    Cipher:
+      AES/GCM/NoPadding:
+        build: AndroidOpenSSL @ android-36
+        exactBuild: false
+        parameters:
+          class: javax.crypto.spec.GCMParameterSpec
+          arguments:
+          - 128
+          - fresh(12)
+        keySizes:
+        - 128
+        - 256
+      ARC4:
+        build: AndroidOpenSSL @ android-36
+        exactBuild: false
+      RSA/ECB/OAEPWithSHA-256AndMGF1Padding:
+        build: AndroidOpenSSL @ android-36
+        exactBuild: false
+        parameters:
+          class: javax.crypto.spec.OAEPParameterSpec
+          arguments:
+          - SHA-256
+          - MGF1
+          - class: java.security.spec.MGF1ParameterSpec
+            arguments:
+            - SHA-256
+          - field: javax.crypto.spec.PSource$PSpecified.DEFAULT
+    Mac:
+      HmacSHA256:
+        build: AndroidOpenSSL @ android-36
+        exactBuild: true
+        keySizes:
+        - 256
+  AndroidKeyStoreBCWorkaround:
+    Cipher:
+      RSA/ECB/PKCS1Padding:
+        build: AndroidKeyStoreBCWorkaround @ android-36
+        exactBuild: false
+        refused: 'key_inside_provider: this provider keeps its own keys; the harness
+          cannot create them yet'
+  BundledConscrypt:
+    Cipher:
+      AES/CCM/NoPadding:
+        build: BundledConscrypt @ org.conscrypt:conscrypt-android:2.5.3
+        exactBuild: true
+        problem: 'guide_recipe_unbuildable: [''ccm'', ''gcm''] are several objects
+          for one init'

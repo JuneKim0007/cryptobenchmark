@@ -122,6 +122,7 @@ apps/benchmark/modules/preparation/src/test/kotlin/KeyPlannerTest.kt : key recip
 apps/benchmark/modules/preparation/src/test/kotlin/OperationContractTest.kt : per-operation consumption contract tests
 apps/benchmark/modules/preparation/src/test/kotlin/OperationInputTest.kt : per-operation input tests
 apps/benchmark/modules/preparation/src/test/kotlin/ParameterBinderTest.kt : parameter tree binding tests
+apps/benchmark/modules/preparation/src/test/kotlin/ParityFixturesTest.kt : parity/ guide and effective read to their .json values and accepted by Guide and InboundFile; today's duplicate-key refusal
 apps/benchmark/modules/preparation/src/test/kotlin/PreparationFixture.kt : shared preparation test fixtures
 apps/benchmark/modules/preparation/src/test/kotlin/PreparationPolicyTest.kt : onFailure policy tests
 apps/benchmark/modules/preparation/src/test/kotlin/PreparedCaseTest.kt : prepared-case tests

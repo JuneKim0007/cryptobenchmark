@@ -1,0 +1,15 @@
+{
+ "schemaVersion": 1,
+ "strings": {
+  "exponent": "1e3",
+  "exponentLong": "12e45",
+  "digits": "616263",
+  "octalO": "0o10",
+  "version": "17.0.11",
+  "yes": "yes",
+  "tilde": "~",
+  "colon": "scope: run",
+  "hexPrefix": "0x1F",
+  "empty": ""
+ }
+}
