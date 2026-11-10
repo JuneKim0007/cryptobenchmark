@@ -34,17 +34,21 @@ def built(paths: GroupingTree) -> dict:
     return {"items": sha256_file(paths.items), "profiles": sha256_file(paths.profiles)}
 
 
+def _screen(paths: GroupingTree, reader):
+    return reader(read_json(paths.screen)) if paths.screen.exists() else None
+
+
 def load_screen(paths: GroupingTree) -> dict[int, Verdict] | None:
-    return read_screen(read_json(paths.screen)) if paths.screen.exists() else None
+    return _screen(paths, read_screen)
 
 
 def load_screen_catalog(paths: GroupingTree) -> dict | None:
-    return read_screen_catalog(read_json(paths.screen)) if paths.screen.exists() else None
+    return _screen(paths, read_screen_catalog)
 
 
 def load_screen_review(paths: GroupingTree) -> str | None:
     """The classify outbox fingerprint screen.json was reviewed under; None when no review ran."""
-    return read_screen_review(read_json(paths.screen)) if paths.screen.exists() else None
+    return _screen(paths, read_screen_review)
 
 
 def read_scopes(path: Path) -> dict:

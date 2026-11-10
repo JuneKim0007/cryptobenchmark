@@ -8,6 +8,7 @@ from device.adb import Device, DeviceError
 from device.capture import CaptureError
 from device.identity import DeviceIdError, device_id
 from failure import fail, one_line
+from cryptobench.coded import InputError
 from global_file import global_config
 from cryptobench import paths
 from results import layout as results_layout
@@ -110,7 +111,7 @@ def main():
 
 
 KNOWN = (DeviceError, DeviceIdError, CaptureError, energy_stage.EnergyError, bundled.BundledError, config_check.ConfigCheckError,
-         scope_results.ScopeResultError, code_digest.CodeDigestError, timeouts.StepTimeout, Terminated)
+         scope_results.ScopeResultError, code_digest.CodeDigestError, timeouts.StepTimeout, Terminated, InputError)
 
 
 def failure_line(error):

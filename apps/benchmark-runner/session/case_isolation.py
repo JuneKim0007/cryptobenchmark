@@ -2,6 +2,7 @@
 import re
 
 import timeouts
+from failure import one_line
 from device.adb import ONE_PASSED
 
 CASE_ARGUMENT = "case"   # CaseFilter.ARGUMENT
@@ -11,10 +12,6 @@ LISTED = re.compile(r"^INSTRUMENTATION_STATUS: test=measure\[(.+)\]\s*$", re.M)
 def listed(output):
     """The timed cases the device planned, in its order: AndroidJUnitRunner's -e log true lists them and runs none."""
     return list(dict.fromkeys(LISTED.findall(output)))
-
-
-def one_line(text):
-    return " ".join(text.split())[:500] or "no output"
 
 
 def launch_case(device, test_class, arguments, case, pulled):
@@ -27,7 +24,7 @@ def launch_case(device, test_class, arguments, case, pulled):
         device.force_stop()
         return f"case_failed: {case}: {error}"
     if not ONE_PASSED.search(output):
-        return f"case_failed: {case}: {one_line(device.report(output))}"
+        return f"case_failed: {case}: {one_line(device.report(output) or 'no output')}"
     if device.run("pull", device.data, str(pulled), check=False).returncode != 0 or not pulled.is_file():
         return f"case_failed: {case}: no benchmarkData.json after a passing run"
     return None
