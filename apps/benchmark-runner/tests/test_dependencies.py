@@ -11,7 +11,7 @@ import dependencies
 from stages import benchmark
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
-SCANNED = ("apps/benchmark-runner", "apps/cli", "tools", "apps/perf-repair/src")
+SCANNED = ("apps/benchmark-runner", "apps/cli", "tools", "apps/perf-repair/src", "lib/cryptobench")
 # import name to the name requirements.txt installs it under
 INSTALLED_AS = {"yaml": "pyyaml", "tree_sitter": "tree-sitter", "tree_sitter_java": "tree-sitter-java",
                 "tree_sitter_kotlin": "tree-sitter-kotlin"}
@@ -27,6 +27,12 @@ def installed():
     return {line.split("=")[0].split(">")[0].lower() for line in requirements()}
 
 
+def tracked():
+    out = subprocess.run(["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z", "--", *SCANNED],
+                         cwd=ROOT, capture_output=True, text=True, check=True).stdout
+    return [ROOT / name for name in out.split("\0") if name]
+
+
 def imported_top_levels(path):
     found = set()
     for node in ast.walk(ast.parse(path.read_text())):
@@ -38,14 +44,14 @@ def imported_top_levels(path):
 
 
 def test_every_third_party_module_the_repo_imports_is_in_requirements():
+    sources = [path for path in tracked() if path.suffix == ".py"]
     imported = set()
-    for folder in SCANNED:
-        for path in (ROOT / folder).rglob("*.py"):
-            if "/tests/" not in path.as_posix():
-                imported |= imported_top_levels(path)
+    for path in sources:
+        if "/tests/" not in path.as_posix():
+            imported |= imported_top_levels(path)
     # a module neither stdlib nor the repo's own would be missing from THIRD_PARTY, or from the file
     names = imported - set(sys.stdlib_module_names)
-    own = {p.stem for folder in SCANNED for p in (ROOT / folder).rglob("*.py")} | {p.name for folder in SCANNED for p in (ROOT / folder).rglob("*") if p.is_dir()}
+    own = {p.stem for p in sources} | {d.name for p in sources for d in p.relative_to(ROOT).parents}
     assert names - own - THIRD_PARTY == set()
     assert {INSTALLED_AS.get(m, m) for m in THIRD_PARTY} <= installed()
 
