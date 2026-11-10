@@ -141,3 +141,22 @@ def test_a_failed_chart_script_is_a_warning_and_analysis_goes_on(tmp_path, monke
     out = capsys.readouterr().out
     assert out.count("charts_failed") == 1
     assert files["benchmark"] == tmp_path / "benchmark/benchmark.json"
+
+
+@pytest.mark.parametrize("missing, asked, run", [
+    ("matplotlib", {"bench": True}, {}),
+    ("perfetto", {"device": True}, {"harness": {"energy": {"capture": "measured"}}}),
+    ("manafa", {"device": True}, {"harness": {"energy": {"capture": "measured", "source": "manafa"}}}),
+])
+def test_a_missing_module_is_exactly_one_stderr_line_perf_repair_reads(config, hidden, capsys, missing, asked, run):
+    hidden.add(missing)
+    with pytest.raises(SystemExit) as stopped:
+        dependencies.check(options(**asked), config(run))
+    assert stopped.value.code == 1
+    assert capsys.readouterr() == ("", f"error: missing_dependency: {missing}; pip install -r requirements.txt\n")
+
+
+def test_the_command_without_pyyaml_prints_exactly_its_line():
+    done = subprocess.run([sys.executable, "-S", str(ROOT / "apps/benchmark-runner/dependencies.py"), "--bench"], capture_output=True, text=True,
+                          timeout=5, env={"PYTHONPATH": ""}, check=False)
+    assert (done.returncode, done.stdout, done.stderr) == (1, "", "error: missing_dependency: yaml; pip install -r requirements.txt\n")
