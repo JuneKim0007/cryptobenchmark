@@ -1,0 +1,14 @@
+warning: run.passes.energy: no case sets harness.energy.capture measured; the energy pass is skipped
+gate:      TEMPERATURE GATE OFF: run.thermalGate not set
+warning: suppressErrors EMULATOR: these numbers are not comparable to an unsuppressed run
+warning: WARM-UP SKIPPED: run.warmup.jobs select no planned case; measuring without a warm-up
+process:   1 of 2
+measure:   CryptoBenchmark on the device; --stream shows each case
+measure:   one process for every case (isolation: run)
+process:   2 of 2
+measure:   CryptoBenchmark on the device; --stream shows each case
+measure:   one process for every case (isolation: run)
+thermal:   timing pass: hottest 41.5 C at a case start, 41.5 C at an end; 0 pauses, 0 s paused; 4 cases ended throttled (status > 0)
+pass:      timing pass: 2 processes, <m s> on the device
+wrote:     <tmp>/results/preparation/prepared.yaml
+took:      prepare and measure in <s>s

@@ -1,0 +1,22 @@
+gate:      TEMPERATURE GATE OFF: run.thermalGate not set
+took:      energy pre-flight and settle in <s>s
+warm-up:   off (run.warmup.iterations 0)
+measure:   CryptoBenchmark on the device; --stream shows each case
+measure:   one process per case (2 cases, isolation: case)
+traces:    a: 0 pulled, 1 expected
+case:      1 of 2 a ok
+traces:    b: 0 pulled, 2 expected
+case:      2 of 2 b ok
+clocks:    0 of 2 cases started or ended with a core capped below its maximum
+traces:    0 pulled
+thermal:   energy pass: temperature unavailable: thermal_unavailable: adb shell dumpsys thermalservice: Can't find service; 0 pauses, 0 s paused; 0 cases ended throttled (status > 0)
+pass:      energy pass: 1 process, <m s> on the device
+measure:   CryptoBenchmark on the device; --stream shows each case
+measure:   one process per case (2 cases, isolation: case)
+case:      1 of 2 a ok
+case:      2 of 2 b ok
+clocks:    0 of 2 cases started or ended with a core capped below its maximum
+thermal:   timing pass: temperature unavailable: thermal_unavailable: adb shell dumpsys thermalservice: Can't find service; 0 pauses, 0 s paused; 0 cases ended throttled (status > 0)
+pass:      timing pass: 1 process, <m s> on the device
+wrote:     <tmp>/results/preparation/prepared.yaml
+took:      prepare and measure in <s>s

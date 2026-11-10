@@ -1,0 +1,15 @@
+gate:      TEMPERATURE GATE SET: kept 36.0 C on skin; a run starts at or below 35.75 C, is discarded if it ends at or above 36.0 C
+warm-up:   off (run.warmup.iterations 0)
+measure:   CryptoBenchmark on the device; --stream shows each case
+measure:   one process per case (2 cases, isolation: case)
+gate:      a: discarded, ended at 36.1 C, at or above 36.0 C; start margin now 0.50 C; measuring again
+gate:      a: 36.1 C, start limit 35.50 C => waiting 3 minutes to cool down, then polling every 1 min
+gate:      a: passed at 27.1 C after 180 s
+case:      1 of 2 a ok
+case:      2 of 2 b ok
+clocks:    0 of 2 cases started or ended with a core capped below its maximum
+thermal:   measure: hottest 27.5 C at a case start, 27.9 C at an end; 0 pauses, 0 s paused; 0 cases ended throttled (status > 0)
+gate:      measure: 1 of 3 runs waited, 180 s; 1 runs discarded; start limit 35.50-35.75 C
+pass:      measure: 1 process, <m s> on the device
+wrote:     <tmp>/results/preparation/prepared.yaml
+took:      prepare and measure in <s>s

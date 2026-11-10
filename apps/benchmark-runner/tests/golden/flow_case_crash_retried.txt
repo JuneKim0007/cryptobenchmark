@@ -1,0 +1,15 @@
+gate:      TEMPERATURE GATE OFF: run.thermalGate not set
+warm-up:   off (run.warmup.iterations 0)
+measure:   CryptoBenchmark on the device; --stream shows each case
+measure:   one process per case (3 cases, isolation: case)
+case:      1 of 3 a ok
+warning: case_failed: crash: INSTRUMENTATION_RESULT: shortMsg=Process crashed.; measuring the case again, 0 retries left
+case:      2 of 3 crash failed
+case_failed: crash: INSTRUMENTATION_RESULT: shortMsg=Process crashed.
+case:      3 of 3 b ok
+clocks:    0 of 3 cases started or ended with a core capped below its maximum
+thermal:   measure: temperature unavailable: thermal_unavailable: adb shell dumpsys thermalservice: Can't find service; 0 pauses, 0 s paused; 0 cases ended throttled (status > 0)
+pass:      measure: 1 process, <m s> on the device
+wrote:     <tmp>/results/preparation/prepared.yaml
+took:      prepare and measure in <s>s
+not_measured: crash
