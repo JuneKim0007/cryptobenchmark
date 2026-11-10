@@ -11,6 +11,7 @@ from stages import guide, not_measured
 from stages.measuring import (Measuring, convert, energy_preflight, gated, pass_arguments, push, record, session_arguments, singles,
                               thermal_flag, timed_hooks)
 from stages.took import elapsed
+from cryptobench.document import read_yaml
 
 
 def measure_on_device(run, one, captures, preparation, isolation, repetitions, folder, written):
@@ -53,7 +54,9 @@ def analyse(results, files, effective, preparation, benchmark, written, repetiti
     started = time.monotonic()
     data, prepared = str(paths.Measurement(benchmark).json), str(paths.Preparation(preparation).prepared)
     # charts only show a benchmark already paid for: a failure warns, the first ends them, and the run keeps its files
-    failed = (drawing_failed("analysis/analyze.py", data, str(paths.RunTree(results).analysis.root), str(effective), prepared)
+    analysis = str(paths.RunTree(results).analysis.root)
+    failed = (drawing_failed("analysis/analyze.py", data, analysis, str(effective), prepared)
+              or drawing_failed("analysis/run_counts.py", analysis, *map(str, written if repetitions > 1 else [data]))
               or drawing_failed("analysis/charts.py", data, prepared, str(effective), str(results)))
     if failed:
         print(f"warning: charts_failed: {failed}")
@@ -113,13 +116,12 @@ def device_cases(run, document, plan_files, captures, benchmark, preparation):
 
 def warm_up(run, document, preparation):
     """Before the first pass: the device lists its plan once, and the warm-up picks from it."""
-    import yaml
     if warmup.off(document):
         return
-    arguments = session_arguments(run, document)
+    arguments = session_arguments(run)
     planned = case_isolation.listed(run.device.instrument("CryptoBenchmark", *arguments, "-e", "log", "true"))
     run.device.pull_plan(preparation)
-    cases = (yaml.safe_load((paths.Preparation(preparation).prepared).read_text()) or {}).get("cases") or []
+    cases = read_yaml(paths.Preparation(preparation).prepared).get("cases") or []
     warmup.run(run.device, "CryptoBenchmark", arguments, planned, cases, document, run.gate.session("warm-up"))
 
 

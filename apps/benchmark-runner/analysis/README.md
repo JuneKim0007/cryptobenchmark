@@ -8,4 +8,6 @@ python3 apps/benchmark-runner/analysis/analyze.py results/x/benchmark/benchmark.
 python3 apps/benchmark-runner/analysis/charts.py results/x/benchmark/benchmark.json results/x/preparation/prepared.yaml results/x/configuration/effective.yaml results/x
 ```
 
+`run_counts.py <out dir> <benchmark.json of each process>...` writes `run-counts.md`.
+
 Arguments, outputs, the outlier filter and the chart files: [docs/tools.md](../../../docs/tools.md).

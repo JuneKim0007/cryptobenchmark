@@ -71,6 +71,7 @@ class Measurement(Section):
 
 class Analysis(Section):
     summary = property(lambda self: self.root / n.SUMMARY_MD)
+    run_counts = property(lambda self: self.root / n.RUN_COUNTS_MD)
     throughput = property(lambda self: self.root / n.THROUGHPUT_CHART)
     latency = property(lambda self: self.root / n.LATENCY_CHART)
     stability = property(lambda self: self.root / n.STABILITY_CHART)

@@ -48,7 +48,7 @@ Paths relative to the device folder.
 | `scoped/` | `scoped-plan.yaml` with each scope's interop verdict merged in, `scoped-interop.yaml` (the device's verdicts); a failed run keeps only `scoped-plan.failed.yaml` beside `scoped/` | `--harness`, under `checked/`: [scoped.md](../apps/benchmark/modules/android/docs/scoped.md) |
 | `check/` | `check.yaml` (one record per case), `preparation/` (that process's `prepared.yaml`, `skipped.yaml`) | `--check`: [check.md](../apps/benchmark/modules/benchmark/docs/check.md) |
 | `interop/` | `interop_plan.yaml` (the plan, copied), `interop.yaml` | `--interop`: [interop.md](../apps/benchmark/modules/preparation/docs/interop.md) |
-| `analysis/` | `summary.md`, `throughput.png`, `latency.png`, `stability.png`, `<metric>-vs-time.png` | with `benchmark.json` |
+| `analysis/` | `summary.md`, `run-counts.md` (per case: runs, iters per run, calls per iter, runs discarded for heat, seconds waited for temperature), `throughput.png`, `latency.png`, `stability.png`, `<metric>-vs-time.png` | with `benchmark.json` |
 | `chart/<run-id>/` | `summary.md`, `chart-data.json`, `manifest.yaml`, IQR bars per chart group | with `benchmark.json`; `analysis.dir` moves it |
 
 - Energy file fields: [energy.md](energy.md#outputs).
