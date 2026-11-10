@@ -9,6 +9,7 @@ import yaml
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from device.capture import CaptureError  # noqa: E402
 from device.identity import DeviceIdError, device_id  # noqa: E402
+from results import manifest as manifest_module  # noqa: E402
 from results.manifest import manifest  # noqa: E402
 from results import run_inputs  # noqa: E402
 
@@ -158,6 +159,61 @@ def test_the_harness_operations_per_engine_type_are_recorded():
         results = pathlib.Path(temporary)
         operations = written(results, "host", layout(results, measured=False))["operations"]
         assert operations["Cipher"] == ["ENCRYPT", "DECRYPT"] and "TYPE_DEFAULT" not in str(operations)
+
+
+GOLDEN = pathlib.Path(__file__).with_name("golden")
+OPERATIONS = "types:\n  Cipher: [ENCRYPT, DECRYPT]\n  MessageDigest: [DIGEST]\n"
+
+
+def golden_text(name, measured, problems=(), extra=None):
+    """The manifest's bytes for a fixed layout, the temporary folder as <tmp>; UPDATE_GOLDEN=1 rewrites the golden."""
+    import os
+    with tempfile.TemporaryDirectory() as temporary:
+        results = pathlib.Path(temporary)
+        files = layout(results, measured)
+        (extra or (lambda _results, _files: None))(results, files)
+        operations, kept = results / "operations.yaml", manifest_module.ENGINE_OPERATIONS
+        operations.write_text(OPERATIONS)
+        manifest_module.ENGINE_OPERATIONS = operations
+        try:
+            (results / "global.yaml").write_text("schemaVersion: 1\nproviders: {bundled: [{artifact: 'g:a:1', create: X}]}\n")
+            manifest(results, "device" if measured else "host", results / "global.yaml", files, problems)
+        finally:
+            manifest_module.ENGINE_OPERATIONS = kept
+        text = (results / "manifest.yaml").read_text().replace(str(results), "<tmp>")
+    golden = GOLDEN / f"manifest_{name}.yaml"
+    if os.environ.get("UPDATE_GOLDEN"):
+        golden.write_text(text)
+    return text, golden.read_text()
+
+
+def estimated_with_units(results, files):
+    files["energy"] = results / "benchmark/energy.json"
+    files["energy"].write_text(json.dumps({"source": "manafa", "kind": "estimated"}))
+    files["effective"].write_text(yaml.safe_dump({"analysis": {"units": {"latency": "us"}}}))
+
+
+def test_the_manifest_bytes_of_a_host_probe():
+    text, golden = golden_text("host_probe", measured=False)
+    assert text == golden
+
+
+def test_the_manifest_bytes_of_a_measured_device_run():
+    text, golden = golden_text("device_measured", measured=True)
+    assert text == golden
+
+
+def test_the_manifest_bytes_with_units_estimated_energy_and_problems():
+    text, golden = golden_text("problems", measured=True, problems=["energy_failed: x", "not_measured: c"], extra=estimated_with_units)
+    assert text == golden
+
+
+def test_the_manifest_is_written_owner_only_as_mkstemp_leaves_it():
+    import stat
+    with tempfile.TemporaryDirectory() as temporary:
+        results = pathlib.Path(temporary)
+        written(results, "host", layout(results, measured=False))
+        assert stat.S_IMODE((results / "manifest.yaml").stat().st_mode) == 0o600
 
 
 if __name__ == "__main__":

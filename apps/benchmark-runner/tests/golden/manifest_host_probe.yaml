@@ -1,0 +1,33 @@
+schemaVersion: 1
+mode: host
+config: <tmp>/global.yaml
+deviceId: probed-api36-4c538a37
+inputs:
+  bundled: 85e9f752cc0902c9a08ad2a9569087258492d125ada6a198feaa4dda75832249
+  config: fe87d721545d6c3d081899a358a5a2f36849f66cedea3e42d4b38d64ad2c708b
+runtime:
+  fingerprint: a/b/c:16/X/1:user/release-keys
+  model: probed
+  sdkInt: 36
+providers:
+- name: first
+  precedence: 1
+  serviceCount: 2
+- name: second
+  precedence: 2
+  serviceCount: 1
+- name: empty
+  precedence: 3
+  serviceCount: 0
+files:
+  probe: discovery/probe_20260101T000000Z.yaml
+  trial: discovery/trial_20260101T000000Z.yaml
+  inventory: configuration/inventory.yaml
+  effective: configuration/effective.yaml
+counts: {}
+operations:
+  Cipher:
+  - ENCRYPT
+  - DECRYPT
+  MessageDigest:
+  - DIGEST
