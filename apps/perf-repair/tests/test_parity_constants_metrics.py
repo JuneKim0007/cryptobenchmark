@@ -18,7 +18,7 @@ def kotlin(path, pattern):
 
 
 def const(path, name):
-    return kotlin(path, rf'\bconst val {name} = "([^"]*)"')
+    return kotlin(path, rf'\bconst val {name}(?:\s*:\s*String)?\s*=\s*"([^"]*)"')
 
 
 def test_metric_names_and_the_pass_that_measures_each():
@@ -30,7 +30,7 @@ def test_metric_names_and_the_pass_that_measures_each():
 
 
 def test_run_metric_names_and_what_each_harness_measures():
-    run = re.split(r",\s*", kotlin("settings/src/main/kotlin/Metric.kt", r"enum class Metric \{\s*(\w+,\s*\w+);"))
+    run = [n.strip() for n in kotlin("settings/src/main/kotlin/Metric.kt", r"enum class Metric\s*\{([^;{}]*);").split(",") if n.strip()]
     assert (metrics.TIME.run, metrics.ALLOCATIONS.run) == tuple(run) == (measures.DEFAULT_METRICS[0], measures.ALLOCATION_RUN)
     assert kotlin("benchmark/src/main/kotlin/run/HostHarness.kt", r"val METRICS: Set<Metric> = (.+)") == "setOf(Metric.TIME)"
     assert measures.HOST.metrics == ("TIME",)

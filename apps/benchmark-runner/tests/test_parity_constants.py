@@ -22,19 +22,24 @@ AT = KM / "android/src/androidTest/kotlin/io/github/junekim0007/cryptobench"
 CLI = ROOT / "apps/benchmark/cli/src/main/kotlin"
 
 
-def kotlin(path, pattern):
+def kotlin(path, pattern, flags=0):
     """The one match of pattern in a Kotlin file: its first group."""
-    found = re.findall(pattern, (KM / path if not str(path).startswith("/") else path).read_text())
+    found = re.findall(pattern, (KM / path if not str(path).startswith("/") else path).read_text(), flags)
     assert len(found) == 1, f"{path}: {pattern} matched {len(found)} times"
     return found[0]
 
 
 def const(path, name):
-    return kotlin(path, rf'\bconst val {name} = "([^"]*)"')
+    return kotlin(path, rf'\bconst val {name}(?:\s*:\s*String)?\s*=\s*"([^"]*)"')
 
 
 def number(path, name):
-    return int(kotlin(path, rf'\bconst val {name} = (\d+)\b'))
+    return int(kotlin(path, rf'\bconst val {name}(?:\s*:\s*Int)?\s*=\s*(\d+)\b'))
+
+
+def listed(text):
+    """A comma list's items, whatever its line breaks and trailing comma."""
+    return [item.strip() for item in text.split(",") if item.strip()]
 
 
 def runner_strings():
@@ -51,7 +56,7 @@ def test_pass_arguments_and_pass_names():
     assert passes.SAMPLES_ARGUMENT == const(AT / "PassArguments.kt", "SAMPLES")
     measure_pass = "config/src/main/kotlin/global/dto/MeasurePass.kt"
     assert (passes.TIMING, passes.ENERGY, passes.ALLOCATION) == tuple(const(measure_pass, n) for n in ("TIMING", "ENERGY", "ALLOCATION"))
-    assert kotlin(measure_pass, r"val NAMES: List<String> = listOf\(([^)]*)\)") == "TIMING, ENERGY, ALLOCATION"
+    assert listed(kotlin(measure_pass, r"val NAMES(?:\s*:\s*List<String>)?\s*=\s*listOf\(([^)]*)\)")) == ["TIMING", "ENERGY", "ALLOCATION"]
     # the androidTest copy, which cannot see :config
     assert (passes.ENERGY, passes.ALLOCATION) == (const(AT / "PassArguments.kt", "ENERGY"), const(AT / "PassArguments.kt", "ALLOCATION"))
 
@@ -59,12 +64,14 @@ def test_pass_arguments_and_pass_names():
 def test_the_metrics_each_pass_measures():
     document = {"run": {"metrics": ["TIME", "ALLOCATION"], "passes": {"timing": {"samples": 3}, "energy": {"samples": 2}, "allocation": {"samples": 4}}}}
     python = {p.name: p.metrics for p in passes.read(document, {"measured"})}
-    rules = dict(re.findall(r"^\s*(ENERGY|ALLOCATION|else) -> (.+?),?$", (AT / "PassArguments.kt").read_text(), re.M))
+    branches = kotlin(AT / "PassArguments.kt", r"metrics\s*=\s*when\s*\(named\)\s*\{(.*?)\n\s*\}", re.S)
+    rules = {key: re.sub(r"\s+", "", value) for key, value in re.findall(r"^\s*(\S.*?)\s*->\s*(.+?),?\s*$", branches, re.M)}
+    assert set(rules) == {"ENERGY", "ALLOCATION", "else"}
     assert rules["ENERGY"] == "setOf(Metric.TIME)" and python["energy"] == ("TIME",)
-    assert rules["ALLOCATION"] == "setOf(Metric.TIME, Metric.ALLOCATION)" and python["allocation"] == ("TIME", "ALLOCATION")
+    assert rules["ALLOCATION"] == "setOf(Metric.TIME,Metric.ALLOCATION)" and python["allocation"] == ("TIME", "ALLOCATION")
     # current behaviour: the device keeps a case's own metrics in the timing pass; Python converts it without ALLOCATION
     assert rules["else"] == "settings.metrics" and python["timing"] == ("TIME",)
-    assert re.split(r",\s*", kotlin("settings/src/main/kotlin/Metric.kt", r"enum class Metric \{\s*(\w+,\s*\w+);")) == ["TIME", "ALLOCATION"]
+    assert listed(kotlin("settings/src/main/kotlin/Metric.kt", r"enum class Metric\s*\{([^;{}]*);")) == ["TIME", "ALLOCATION"]
 
 
 def test_metric_keys_of_benchmark_json():
@@ -81,7 +88,7 @@ def test_instrumentation_arguments():
 
 
 def test_package_and_device_folders():
-    assert device_dirs.PACKAGE == kotlin(KM / "android/build.gradle", r"namespace '([^']+)'")
+    assert device_dirs.PACKAGE == kotlin(KM / "android/build.gradle", r"""namespace\s*=?\s*['"]([^'"]+)['"]""")
     assert f"{wrapper.PACKAGE}.{wrapper.CATALOG}" == const(AT / "ScopeCatalog.kt", "GENERATED")
     # Build.VERSION_CODES.Q is API 29
     assert device_dirs.MEDIA_FROM_SDK == 29
