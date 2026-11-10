@@ -1,0 +1,90 @@
+*
+adb
+bundled_mismatch
+cases
+charts_failed
+check_failed
+consumption_failed
+cpu_pin_failed
+device_id_bad_java_version
+device_id_bad_sdk
+device_id_empty_slug
+device_id_fields_missing
+device_not_in_results
+discovery_reprobed
+duplicate_id
+empty_window
+energy
+energy_sources_differ
+generic_function
+gradle
+harness_build_failed
+harness_other_device
+hook_failed
+invalid
+invalid_keys
+manafa
+manafa_cannot_start
+manafa_failed
+manafa_missing
+manafa_not_started
+missing_dependency
+missing_field
+missing_file
+missing_input
+missing_module
+missing_verdict
+no
+no_batterystats
+no_call_count
+no_clock_snapshot
+no_device
+no_device_results
+no_estimate
+no_key_algorithm
+no_known_vector_applied
+no_measurement_slices
+no_operations
+no_rails
+no_sdk
+not_a_function
+not_a_mapping
+not_positive
+not_supported
+nothing_to_check
+perfetto
+pinning_unknown
+results_in_temp
+scopes_conflict
+several_device_results
+signature_changed
+temperature_gate_timeout
+temperature_unreadable
+timed_phases
+uncoded: *; measuring the case again, * retries left
+uncoded: --check: the cases are checked on a --bench (host JVM) or a
+uncoded: --interop: the pairs are checked on a --bench (host JVM) or
+uncoded: --results: a --harness run writes checked/ beside its harnes
+uncoded: AOT compile *: *
+uncoded: DeviceProbe failed on the device:
+uncoded: EndToEndCheck failed on the device:
+uncoded: InteropCheck failed on the device:
+uncoded: ScopedInterop failed on the device:
+uncoded: TEMPERATURE SET BUT DEVICE CAN'T POLL: *; running without it
+uncoded: TEMPERATURE SET BUT DEVICE CAN'T POLL: host_runtime; running
+uncoded: WARM-UP FAILED, measuring anyway:
+uncoded: WARM-UP SKIPPED: run.warmup.jobs select no planned case; mea
+uncoded: apps/benchmark-runner/energy/*
+uncoded: apps/benchmark-runner/energy/*: *
+uncoded: run.passes.energy: no case sets harness.energy.capture measu
+uncoded: run.passes: only a --device run measures in passes; this run
+uncoded: suppressErrors *: these numbers are not comparable to an uns
+uncovered
+unparseable_signature
+unsupported_capture_schema
+unsupported_parameter
+unsupported_schema
+usage
+vararg_parameter
+window_uncovered
+wrong_type
