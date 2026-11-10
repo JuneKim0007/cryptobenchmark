@@ -23,7 +23,7 @@ class EffectiveView(unittest.TestCase):
         self.assertEqual(3, effective_view.process_repetitions(view["document"]))
 
     def test_metrics_are_read_and_their_absence_fails(self):
-        self.assertEqual(["TIME", "CPU_EVENTS"], effective_view.metrics({"run": {"metrics": ["TIME", "CPU_EVENTS"]}}))
+        self.assertEqual(["TIME", "ALLOCATION"], effective_view.metrics({"run": {"metrics": ["TIME", "ALLOCATION"]}}))
         with self.assertRaises(SystemExit):
             effective_view.metrics({"run": {}})
 

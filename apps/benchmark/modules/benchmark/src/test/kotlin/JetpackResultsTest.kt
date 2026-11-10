@@ -3,7 +3,6 @@ package io.github.junekim0007.cryptobench.benchmark
 import io.github.junekim0007.cryptobench.benchmark.report.CaseDocument
 import io.github.junekim0007.cryptobench.benchmark.report.BenchmarkJson
 import io.github.junekim0007.cryptobench.benchmark.report.jetpack.JetpackResults
-import io.github.junekim0007.cryptobench.benchmark.report.MetricKeys
 import io.github.junekim0007.cryptobench.benchmark.report.MetricSamples
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -74,16 +73,6 @@ class JetpackResultsTest {
         val lost = converted.dropped.single { it.startsWith("not_converted") }
         assertEquals(true, lost.startsWith("not_converted: Cipher_AES-GCM-NoPadding_ENCRYPT_AndroidOpenSSL_k128_i1024_WARM_p81667fe4_fixed: missing_field: metrics.allocationCount"))
         assertEquals(listOf("SHA-256"), converted.rows.map { it.algorithm })
-    }
-
-    @Test
-    fun cpuEventsAreCarriedPerOperationUnderAndroidxsNames() {
-        val counted = plan().replace("metrics: [TIME, ALLOCATION]", "metrics: [TIME, CPU_EVENTS]")
-        val events = MetricKeys.CPU_EVENTS.joinToString("") { "\"$it\": {\"runs\": [10.0, 11.0]}, " }
-        val written = data().replaceFirst("\"allocationCount\": {", "$events\"allocationCount\": {")
-        val row = JetpackResults.convert(written, counted).rows.single { it.algorithm == "SHA-256" }
-        assertEquals(listOf(MetricSamples.TIME) + MetricKeys.CPU_EVENTS + CLEANED, row.metrics.keys.toList())
-        assertEquals(MetricSamples(listOf(10.0, 11.0), 8192), row.metrics.getValue("instructions"))
     }
 
     @Test

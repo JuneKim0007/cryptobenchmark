@@ -19,8 +19,8 @@ apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryp
 apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/EndToEndCheck.kt : the end-to-end check on the device: every planned case once through Jetpack under the dry run, all in one process; check.yaml
 apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/EnergyDryBenchmark.kt : parameterised dry energy run per dry case
 apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/InteropCheck.kt : installs bundled providers; runs the pushed interop_plan.yaml into interop.yaml
-apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/JetpackCase.kt : base of a Jetpack-timed case: its rule, the counter check, the pin, the timed loop; once() for the check, its output to the hook
-apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/JetpackConfig.kt : CaseSettings to MicrobenchmarkConfig; reportable metrics, CPU event counter argument check
+apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/JetpackCase.kt : base of a Jetpack-timed case: its rule, the pin, the timed loop; once() for the check, its output to the hook
+apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/JetpackConfig.kt : CaseSettings to MicrobenchmarkConfig; reportable metrics
 apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/PassArguments.kt : the run.passes pass and samples the host names, applied over a case's settings
 apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/PinnedCase.kt : one timed case under its cpu pin and energy setting
 apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/SampledAllocations.kt : allocation counting inside the timed phase for an allocation pass

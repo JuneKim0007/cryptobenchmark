@@ -4,7 +4,6 @@ package io.github.junekim0007.cryptobench.settings
 data class Facts(
     val gathered: Boolean = false,
     val sdkInt: Int? = null,
-    val rooted: Boolean? = null,
     val cores: List<Core>? = null,
     val pinning: Boolean? = null,
 ) {
@@ -31,7 +30,6 @@ data class Facts(
             return Facts(
                 gathered = true,
                 sdkInt = section(document, "os")?.get("sdkInt")?.let { (it as? Number)?.toInt() ?: throw wrongType("os.sdkInt", "a number") },
-                rooted = document["rooted"]?.let { it as? Boolean ?: throw wrongType("rooted", "true or false") },
                 cores = cores,
                 pinning = document["pinning"]?.let { it as? Boolean ?: throw wrongType("pinning", "true or false") },
             )

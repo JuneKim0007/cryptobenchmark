@@ -9,8 +9,6 @@ RUNNER = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
 # androidx falls back to MethodTracing when a case's ProfilerConfig is null, so "profiling: none" needs
 # the default set to None; a case asking for a profiler still gets one.
 NO_DEFAULT_PROFILER = ["-e", "androidx.benchmark.profiling.mode", "None"]
-# androidx's CPU event capture is internal; only this launch argument adds it (JetpackConfig.counterMismatch).
-CPU_EVENTS = ["-e", "androidx.benchmark.cpuEventCounter.enable", "true"]
 PASSED = re.compile(r"^OK \(\d+ tests?\)", re.M)
 ONE_PASSED = re.compile(r"^OK \(1 test\)", re.M)
 
@@ -18,9 +16,9 @@ ONE_PASSED = re.compile(r"^OK \(1 test\)", re.M)
 THROTTLE_SLEEP = "androidx.benchmark.thermalThrottle.sleepDurationSeconds"
 
 
-def measure_arguments(suppress, metrics, throttle_sleep=None):
+def measure_arguments(suppress, throttle_sleep=None):
     return (NO_DEFAULT_PROFILER + (["-e", "androidx.benchmark.suppressErrors", suppress] if suppress else [])
-            + (CPU_EVENTS if "CPU_EVENTS" in metrics else []) + (["-e", THROTTLE_SLEEP, str(throttle_sleep)] if throttle_sleep is not None else []))
+            + (["-e", THROTTLE_SLEEP, str(throttle_sleep)] if throttle_sleep is not None else []))
 
 
 class DeviceError(Exception):

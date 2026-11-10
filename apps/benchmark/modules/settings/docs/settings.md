@@ -57,17 +57,11 @@ Only `cpu` declares `requires` and `resolve`. How config applies the result: `ap
 
 `cpu.core` outside `0..63` and not `big` fails `invalid: cpu.core <v>, an index 0..63 or big`.
 
-`run.metrics` (`Metric`): config refuses an unsupported metric, `not_supported: run.metrics.<M>: <reason>`; never dropped. It selects what `benchmark.json` reports, not what androidx runs: ALLOCATION not requested: androidx still runs its allocation phase; it is not reported. `CPU_EVENTS` also turns androidx's counter on: `apps/benchmark/modules/android/docs/harness.md#cryptobenchmark`.
-
-| metric | condition | reason |
-|---|---|---|
-| `TIME`, `ALLOCATION` | always supported | |
-| `CPU_EVENTS` | `rooted` fact missing | `facts_unknown` for `rooted` |
-| `CPU_EVENTS` | `rooted` false | `no_root: CPU event counters need a rooted device` |
+`run.metrics` (`Metric`): no device fact limits a metric; config refuses a name outside `Metric` (below). It selects what `benchmark.json` reports, not what androidx runs: ALLOCATION not requested: androidx still runs its allocation phase; it is not reported.
 
 | `Metric.read` input | failure |
 |---|---|
-| unknown name | `invalid: <path> <name>, known [TIME, ALLOCATION, CPU_EVENTS]` |
+| unknown name | `invalid: <path> <name>, known [TIME, ALLOCATION]` |
 | repeated name | `duplicate: <path> [..]` |
 | no `TIME` | `missing_metric: <path> [..], TIME is always measured` |
 
@@ -86,7 +80,7 @@ Written by `apps/benchmark-runner/device/facts.py` into the discovery directory.
 |---|---|
 | `schemaVersion` | `1`; other: `unsupported: facts.yaml schemaVersion <v>` |
 | `os.sdkInt` | int |
-| `rooted` | bool |
+| `rooted` | bool; recorded, not read by `Facts` |
 | `cpu.cores[]` | `{core, online, maxKhz}`; `maxKhz` = `cpuinfo_max_freq` |
 | `pinning` | APK contains `lib/<abi>/libaffinity.so` |
 

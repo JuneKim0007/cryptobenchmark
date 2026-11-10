@@ -11,7 +11,7 @@ apps/benchmark/modules/settings/src/main/kotlin/EnergySettings.kt : EnergySettin
 apps/benchmark/modules/settings/src/main/kotlin/Facts.kt : device facts read from facts.yaml
 apps/benchmark/modules/settings/src/main/kotlin/Harness.kt : HarnessSettings and the harness key table
 apps/benchmark/modules/settings/src/main/kotlin/Key.kt : Key, Leaf and Nested setting definitions
-apps/benchmark/modules/settings/src/main/kotlin/Metric.kt : run.metrics enum TIME, ALLOCATION, CPU_EVENTS; reading and device support
+apps/benchmark/modules/settings/src/main/kotlin/Metric.kt : run.metrics enum TIME, ALLOCATION; reading
 apps/benchmark/modules/settings/src/main/kotlin/Section.kt : ordered key table: read, write, merge, forDevice
 apps/benchmark/modules/settings/src/main/kotlin/Support.kt : Support and Unsupported
 apps/benchmark/modules/settings/src/main/kotlin/Values.kt : single-value type readers

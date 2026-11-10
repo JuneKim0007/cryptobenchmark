@@ -110,7 +110,7 @@ class EffectiveBuilderTest {
         assertEquals(listOf(128), entries.getValue("AES/CBC/PKCS5PADDING@sized").keySizes)
     }
 
-    private val pinnable = Facts(true, 37, false, listOf(Facts.Core(0, true, 2_000_000), Facts.Core(7, true, 3_800_000)), true)
+    private val pinnable = Facts(true, 37, listOf(Facts.Core(0, true, 2_000_000), Facts.Core(7, true, 3_800_000)), true)
 
     private fun withRunCpu(cpu: CpuSettings) = global.copy(run = global.run.copy(harness = global.run.harness.copy(cpu = cpu)))
 
@@ -164,10 +164,8 @@ class EffectiveBuilderTest {
     }
 
     @Test
-    fun cpuEventsAreRefusedAtConfigTimeOnADeviceThatCannotCountThem() {
-        val counting = global.copy(run = global.run.copy(metrics = listOf("TIME", "CPU_EVENTS")))
-        val failure = assertThrows(IllegalArgumentException::class.java) { EffectiveBuilder().build(counting, testSet, inventory, names, pinnable) }
-        assertTrue(failure.message!!.startsWith("not_supported: run.metrics.CPU_EVENTS: no_root:"))
-        assertEquals(listOf("TIME", "CPU_EVENTS"), EffectiveBuilder().build(counting, testSet, inventory, names, pinnable.copy(rooted = true)).run.metrics)
+    fun anUnknownMetricIsRefusedAtConfigTime() {
+        val failure = assertThrows(IllegalArgumentException::class.java) { global.run.copy(metrics = listOf("TIME", "NOT_A_METRIC")) }
+        assertEquals("invalid: run.metrics NOT_A_METRIC, known [TIME, ALLOCATION]", failure.message)
     }
 }

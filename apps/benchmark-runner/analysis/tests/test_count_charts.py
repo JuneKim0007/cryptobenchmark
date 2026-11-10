@@ -88,10 +88,10 @@ class CountCharts(unittest.TestCase):
 
     def test_any_other_metric_is_charted_the_same_way_under_its_own_name(self):
         raw = case("a64", "Cipher", "AES", "ENCRYPT", 128, 64)
-        raw["metrics"]["instructions"] = {"runs": [1000.0, 1100.0, 900.0]}
+        raw["metrics"]["pageFaults"] = {"runs": [1000.0, 1100.0, 900.0]}
         self.benchmark([raw])
         _, written = self.run_charts()
-        self.assertEqual(["instructions-bars_encrypt_input-64B.png"], [p.name for p in written if "instructions" in p.name])
+        self.assertEqual(["pageFaults-bars_encrypt_input-64B.png"], [p.name for p in written if "pageFaults" in p.name])
 
     def test_allocation_against_time_is_a_run_level_chart_only_when_allocation_exists(self):
         self.with_alloc()

@@ -22,7 +22,7 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 
 | pass | measures | samples | energy |
 |---|---|---|---|
-| `timing` | `TIME` (and `CPU_EVENTS`) | `samples` override every `iterations` | none: no window, no trace pulled |
+| `timing` | `TIME` | `samples` override every `iterations` | none: no window, no trace pulled |
 | `energy` | `TIME` (dropped at the merge) and `energyJ` | `samples` set the timed phase, which is the energy window (`windowSeconds` applies only to `dry`) | the case's own capture (`measured`); rails pre-flight once per run |
 | `allocation` | `ALLOCATION`, one run per sample (`SampledAllocations` inside the timed phase; androidx's own phase keeps its 5) | as `timing` | none |
 

@@ -13,7 +13,7 @@ import org.junit.Test
 class SettingsTest {
 
     private val cores = listOf(Facts.Core(0, true, 2_000_000), Facts.Core(7, true, 3_800_000), Facts.Core(3, false, 4_000_000))
-    private val pinnable = Facts(gathered = true, sdkInt = 37, rooted = false, cores = cores, pinning = true)
+    private val pinnable = Facts(gathered = true, sdkInt = 37, cores = cores, pinning = true)
 
     private fun harness(cpu: Map<String, Any>) = HarnessSettings.read(mapOf("iterations" to 20, "cpu" to cpu), "run.harness")
 
@@ -77,9 +77,9 @@ class SettingsTest {
 
     @Test
     fun factsReadFromTheirFileAndRefuseWrongTypesByName() {
-        val facts = Facts.read(mapOf("schemaVersion" to 1, "os" to mapOf("sdkInt" to 37), "rooted" to false, "pinning" to true,
+        val facts = Facts.read(mapOf("schemaVersion" to 1, "os" to mapOf("sdkInt" to 37), "pinning" to true,
             "cpu" to mapOf("cores" to listOf(mapOf("core" to 7, "online" to true, "maxKhz" to 3_782_000)))))
-        assertEquals(Facts(true, 37, false, listOf(Facts.Core(7, true, 3_782_000)), true), facts)
+        assertEquals(Facts(true, 37, listOf(Facts.Core(7, true, 3_782_000)), true), facts)
         val wrong = assertThrows(IllegalArgumentException::class.java) {
             Facts.read(mapOf("schemaVersion" to 1, "cpu" to mapOf("cores" to listOf(mapOf("core" to "seven", "online" to true)))))
         }
@@ -93,15 +93,5 @@ class SettingsTest {
         assertTrue(failure(listOf("ALLOCATION")).startsWith("missing_metric: run.metrics [ALLOCATION]"))
         assertTrue(failure(listOf("TIME", "ENERGY")).startsWith("invalid: run.metrics ENERGY"))
         assertTrue(failure(listOf("TIME", "TIME")).startsWith("duplicate: run.metrics"))
-    }
-
-    @Test
-    fun cpuEventsNeedARootedDeviceAndAreAlwaysRequired() {
-        val metrics = setOf(Metric.TIME, Metric.ALLOCATION, Metric.CPU_EVENTS)
-        assertEquals(emptyList<Any>(), Metric.unsupported(metrics, pinnable.copy(rooted = true), "run.metrics"))
-        val unrooted = Metric.unsupported(metrics, pinnable, "run.metrics").single()
-        assertEquals("run.metrics.CPU_EVENTS", unrooted.path)
-        assertTrue(unrooted.required && unrooted.reason.startsWith("no_root:"))
-        assertEquals("facts_unknown: no facts.yaml for this run", Metric.unsupported(metrics, Facts.UNKNOWN, "run.metrics").single().reason)
     }
 }

@@ -43,7 +43,7 @@ one named case (Preparation.prepareOne): KeyPlanner -> KeyMaterialGenerator -> b
 |---|---|
 | `inputSizes` | required; non-empty, positive, distinct |
 | `phases` | required; non-empty; `WARM` |
-| `metrics` | required; `TIME`, `ALLOCATION`, `CPU_EVENTS`; must hold `TIME`, no repeats (`Metric.read` in `:settings`) |
+| `metrics` | required; `TIME`, `ALLOCATION`; must hold `TIME`, no repeats (`Metric.read` in `:settings`) |
 | `variants` | optional, default `[fixed, notFixed]`; distinct values of `fixed`, `notFixed` ([operations.md](operations.md#variants)) |
 | `processRepetitions` | required; `>= 1` |
 | `seed` | required |

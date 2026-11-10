@@ -24,7 +24,7 @@ Nothing here builds a call: the timed call is the `Invocation` preparation prove
 | `duplicate_case: <n> cases share this id` | two cases share an id |
 | `provider_not_installed: <p>, installed [..]` | provider absent here |
 | `not_measurable: <type> has no operation this harness can time` | a TYPE_DEFAULT case |
-| `not_supported: metrics [..], this harness measures [..]` | a case's `metrics` outside the harness's set: host `HostHarness.METRICS` = `[TIME]`; device `JetpackConfig.METRICS` = all three |
+| `not_supported: metrics [..], this harness measures [..]` | a case's `metrics` outside the harness's set: host `HostHarness.METRICS` = `[TIME]`; device `JetpackConfig.METRICS` = `[TIME, ALLOCATION]` |
 | energy refusals | `docs/energy.md` |
 
 | rule | value |
@@ -69,7 +69,7 @@ Harness settings as plain values, no androidx type.
 
 | rule | value |
 |---|---|
-| metric keys | `timeNs`, `allocationCount`, `instructions`, `cpuCycles`, `branchMisses` (`CPU_EVENTS`), `energyJ` (with `source` and `kind`) |
+| metric keys | `timeNs`, `allocationCount`, `energyJ` (with `source` and `kind`) |
 | reported metrics | only the case's `run.metrics` (`MetricKeys.of`), plus `energyJ` from `apps/benchmark-runner/energy`; the device may measure more: [Jetpack conversion](#jetpack-conversion) |
 | `timeNs` | required in every row |
 | `keyKind`, `variant` | `secret`, `pair`, `none`; `"fixed"` or `"notFixed"`, the prepared case's ([operations.md](../../preparation/docs/operations.md#variants)); always written |
@@ -117,7 +117,7 @@ Harness settings as plain values, no androidx type.
 | ALLOCATION not requested | androidx still runs its allocation phase and writes `allocationCount`; it is not reported |
 | a requested metric absent | `not_converted: <id>: missing_field: metrics.<key> for <id>; androidx wrote [..]` |
 | case without `metrics` | `not_converted: <id>: missing_field: metrics for <id>` |
-| `timeNs.iterations`, CPU event `iterations` | `repeatIterations`, default 1 |
+| `timeNs.iterations` | `repeatIterations`, default 1 |
 | `allocationCount.iterations` | 1 |
 | `allocationSamples` written (an allocation pass) | read as `allocationCount`, one run per sample; `allocation_runs_changed` is not checked |
 | a pass (`ConvertKt --metrics=... --samples=n`) | the pass's metrics replace the case's `metrics`; `n` replaces `iterations` in `iterations_not_applied` |

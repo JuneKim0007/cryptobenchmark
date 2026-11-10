@@ -58,7 +58,7 @@ Capture and trial come from the same device; preparation enforces the pair by `c
 ## CryptoBenchmark
 
 ```
-JetpackCase.timed: counterMismatch check, then PinnedCase.run { the energy pass: benchmarkRule.measureRepeated (traced); every other pass: `BenchmarkState.keepRunning()` (untraced), each over BlackHole.consume(call() ?: Unit) }
+JetpackCase.timed: PinnedCase.run { the energy pass: benchmarkRule.measureRepeated (traced); every other pass: `BenchmarkState.keepRunning()` (untraced), each over BlackHole.consume(call() ?: Unit) }
 ```
 
 `JetpackConfig` maps `CaseSettings` to `MicrobenchmarkConfig`:
@@ -79,7 +79,6 @@ JetpackCase.timed: counterMismatch check, then PinnedCase.run { the energy pass:
 | timing | always | `timeNs` |
 | profiling | when `profiling` is set | no; trace files only |
 | allocation | always, 5 runs | `allocationCount` only when `run.metrics` has `ALLOCATION` |
-| CPU event counter | `apps/benchmark-runner/device/adb.py` passes `androidx.benchmark.cpuEventCounter.enable=true` when `run.metrics` has `CPU_EVENTS`; config refuses it on an unrooted device: [settings.md](../../settings/docs/settings.md#device-support) | `instructions`, `cpuCycles`, `branchMisses` only when asked |
 
 ALLOCATION not requested: androidx still runs its allocation phase; it is not reported. `run.metrics` selects what is reported, not what runs; the filter is `JetpackResults`: `apps/benchmark/modules/benchmark/docs/measure.md#jetpack-conversion`.
 
@@ -89,12 +88,6 @@ ALLOCATION not requested: androidx still runs its allocation phase; it is not re
 | thread | `measureRepeated` on the main thread fails |
 | profiler | any `profiling` with any `run.metrics`; androidx runs it in its own phase |
 | API | public androidx API only; no restricted entry point or lint suppression |
-
-| counter argument vs `run.metrics` | failure when the case runs |
-|---|---|
-| `CPU_EVENTS` asked, argument not `true` | `not_supported: CPU_EVENTS, the launch argument androidx.benchmark.cpuEventCounter.enable is not true` |
-| argument `true`, `CPU_EVENTS` not asked | `not_requested: androidx.benchmark.cpuEventCounter.enable is true but run.metrics has no CPU_EVENTS` |
-| argument `true`, androidx drops the counter (unrooted, dry run) | conversion fails `missing_field: metrics.instructions for <id>; ...` |
 
 Result conversion to `benchmark.json`: `apps/benchmark/modules/benchmark/docs/measure.md#jetpack-conversion`.
 

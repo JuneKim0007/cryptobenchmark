@@ -8,7 +8,7 @@ selection:                               # required
 run:                                     # optional — every key falls back to its default
   inputSizes: [1024]                     # optional, default [1024] — bytes per call
   phases: [WARM]                         # optional, default [WARM] — WARM
-  metrics: [TIME]                        # optional, default [TIME] — TIME | ALLOCATION | CPU_EVENTS
+  metrics: [TIME]                        # optional, default [TIME] — TIME | ALLOCATION
   processRepetitions: 1                  # optional, default 1
   seed: 42                               # optional, default 0
   thermalGate:                           # optional, absent = off; --device only
