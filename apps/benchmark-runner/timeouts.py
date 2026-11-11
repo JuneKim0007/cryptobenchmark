@@ -1,6 +1,8 @@
 """Ceilings of the host's subprocess steps: a step past its ceiling is one coded error line, never a silent hang."""
 import contextlib, subprocess, threading
 
+from cryptobench.shared.errors.coded import Coded
+
 # Seconds. A ceiling only catches a hang, so each is several times the longest real step (docs/run.md#timeouts).
 SECONDS = {
     "adb": 10 * 60,
@@ -14,7 +16,7 @@ SECONDS = {
 }
 
 
-class StepTimeout(Exception):
+class StepTimeout(Coded):
     pass
 
 

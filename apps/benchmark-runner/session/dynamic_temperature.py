@@ -5,13 +5,14 @@ import dataclasses, time
 from device import thermal
 from failure import warn
 from cryptobench.shared.stats import equations as eq
+from cryptobench.shared.errors.coded import Coded
 
 SECONDS_PER_MINUTE = 60
 STOP = "stop"
 UNREADABLE = "unreadable"
 
 
-class Terminated(Exception):
+class Terminated(Coded):
     """Ends the whole benchmark; never a DeviceError, which the warm-up and the energy steps catch."""
 
 

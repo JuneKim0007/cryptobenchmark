@@ -1,10 +1,11 @@
 """A capture's runtime block, read once for the runner; a capture of another schema version is refused."""
 from cryptobench.shared.document.document import read_yaml
+from cryptobench.shared.errors.coded import Coded
 
 SCHEMA = 1   # discovery's CapturedEnvironment.SCHEMA_VERSION
 
 
-class CaptureError(ValueError):
+class CaptureError(ValueError, Coded):
     pass
 
 

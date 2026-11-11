@@ -3,10 +3,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from .coded import code_in
+from .coded import Coded, code_in
 
 
-class InputError(ValueError):
+class InputError(ValueError, Coded):
     """`.code` is the code the message starts with, None when it has none."""
 
     def __init__(self, message: str, path: Path | str | None = None, detail: str | None = None):

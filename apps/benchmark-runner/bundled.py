@@ -1,12 +1,13 @@
 """providers.bundled of global.yaml: the digest's raw read, the build property of the app or the host CLI, the DeviceProbe argument, effective.yaml's record and the check against it."""
 import json, shlex
 from cryptobench.shared.document.document import read_yaml
+from cryptobench.shared.errors.coded import Coded
 
 
 KEY = "bundledProviders"   # BundledProviders.KEY and the effective.yaml key
 
 
-class BundledError(Exception):
+class BundledError(Coded):
     pass
 
 

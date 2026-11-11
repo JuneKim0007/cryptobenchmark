@@ -1,10 +1,11 @@
 """The device id, derived from a capture's runtime block: one build gives one id, and no serial enters it."""
 import hashlib, re
 
+from cryptobench.shared.errors.coded import Coded
 from device import capture as captured
 
 
-class DeviceIdError(Exception):
+class DeviceIdError(Coded):
     pass
 
 

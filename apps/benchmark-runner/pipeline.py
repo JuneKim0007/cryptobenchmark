@@ -3,20 +3,16 @@
 import argparse, json, os, pathlib, subprocess, sys, traceback
 
 import dependencies  # first: it reports a missing PyYAML, which the imports below need
-import bundled, energy_stage, timeouts
-from device.adb import Device, DeviceError
-from device.capture import CaptureError
-from device.identity import DeviceIdError, device_id
+from device.adb import Device
+from device.identity import device_id
 from failure import fail, one_line
-from cryptobench.shared.errors.input_error import InputError
+from cryptobench.shared.errors.coded import Coded
 from global_file import global_config
 from cryptobench.shared import paths
 from results import layout as results_layout
 from results import run_inputs
 from results.manifest import manifest
 from scope import code_digest
-from session.dynamic_temperature import Terminated
-from scope import results as scope_results
 from stages import config_check
 from stages.benchmark import measure_cases
 from stages.check import check_run
@@ -110,13 +106,9 @@ def main():
     manifest(results, "device" if device else "host", configuration, files, problems)
 
 
-KNOWN = (DeviceError, DeviceIdError, CaptureError, energy_stage.EnergyError, bundled.BundledError, config_check.ConfigCheckError,
-         scope_results.ScopeResultError, code_digest.CodeDigestError, timeouts.StepTimeout, Terminated, InputError)
-
-
 def failure_line(error):
     """Every error the run did not survive, as one coded line; --stacktrace adds the traceback."""
-    if isinstance(error, KNOWN):
+    if isinstance(error, Coded):
         return str(error)
     if isinstance(error, subprocess.CalledProcessError):
         return f"subprocess_failed: {' '.join(map(str, error.cmd))[:300]} exited {error.returncode}"

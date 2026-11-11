@@ -5,9 +5,10 @@ import shlex
 
 import gradle_runner
 from cryptobench.shared.document.document import parse_yaml
+from cryptobench.shared.errors.coded import Coded
 
 
-class ConfigCheckError(Exception):
+class ConfigCheckError(Coded):
     pass
 
 

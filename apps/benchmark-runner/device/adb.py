@@ -3,6 +3,7 @@ import os, re, subprocess, time
 
 import timeouts
 from cryptobench.shared import paths
+from cryptobench.shared.errors.coded import Coded
 
 PACKAGE = paths.DeviceDirs.PACKAGE
 RUNNER = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
@@ -21,7 +22,7 @@ def measure_arguments(suppress, throttle_sleep=None):
             + (["-e", THROTTLE_SLEEP, str(throttle_sleep)] if throttle_sleep is not None else []))
 
 
-class DeviceError(Exception):
+class DeviceError(Coded):
     pass
 
 

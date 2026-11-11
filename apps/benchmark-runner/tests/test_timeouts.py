@@ -1,10 +1,12 @@
-import subprocess, sys
+import importlib, subprocess, sys
 
 import pytest
 import yaml
 
 import pipeline  # noqa: E402
 import timeouts  # noqa: E402
+from cryptobench.shared.errors.coded import Coded  # noqa: E402
+from device.adb import DeviceError  # noqa: E402
 
 SLEEP = [sys.executable, "-c", "import time; time.sleep(30)"]
 
@@ -30,7 +32,7 @@ def test_a_step_inside_its_ceiling_returns_its_result():
 
 
 @pytest.mark.parametrize("error, line", [
-    (pipeline.DeviceError("no_device: x"), "no_device: x"),
+    (DeviceError("no_device: x"), "no_device: x"),
     (timeouts.StepTimeout("timeout: adb ran past 1 s: adb"), "timeout: adb ran past 1 s: adb"),
     (subprocess.CalledProcessError(2, ["python3", "analyze.py"]), "subprocess_failed: python3 analyze.py exited 2"),
     (KeyError("files"), "internal_error: KeyError: 'files'"),
@@ -40,21 +42,33 @@ def test_an_error_the_run_did_not_survive_is_one_line(error, line):
     assert pipeline.failure_line(error) == line
 
 
-def test_the_known_failures_are_these_classes_in_this_order():
-    assert [f"{c.__module__}.{c.__name__}" for c in pipeline.KNOWN] == [
-        "device.adb.DeviceError", "device.identity.DeviceIdError", "device.capture.CaptureError", "sources.runner.EnergyError",
-        "bundled.BundledError", "stages.config_check.ConfigCheckError", "scope.results.ScopeResultError", "scope.code_digest.CodeDigestError",
-        "timeouts.StepTimeout", "session.dynamic_temperature.Terminated", "cryptobench.shared.errors.input_error.InputError"]
+KNOWN = [
+    "device.adb.DeviceError", "device.identity.DeviceIdError", "device.capture.CaptureError", "sources.runner.EnergyError",
+    "bundled.BundledError", "stages.config_check.ConfigCheckError", "scope.results.ScopeResultError", "scope.code_digest.CodeDigestError",
+    "timeouts.StepTimeout", "session.dynamic_temperature.Terminated", "cryptobench.shared.errors.input_error.InputError"]
 
 
-@pytest.mark.parametrize("known", pipeline.KNOWN, ids=lambda c: c.__name__)
+def _class(name):
+    module, _, attribute = name.rpartition(".")
+    return getattr(importlib.import_module(module), attribute)
+
+
+def test_the_known_failures_are_the_classes_marked_coded():
+    assert sorted(f"{c.__module__}.{c.__name__}" for c in Coded.__subclasses__()) == sorted(KNOWN)
+
+
+def test_a_marked_failure_carries_the_code_its_message_starts_with():
+    assert (DeviceError("no_device: x").code, DeviceError("adb exited 1").code) == ("no_device", None)
+
+
+@pytest.mark.parametrize("known", [_class(name) for name in KNOWN], ids=lambda c: c.__name__)
 def test_a_known_failure_is_its_own_message_unchanged(known):
     assert pipeline.failure_line(known("some_code: a  spaced   message")) == "some_code: a  spaced   message"
 
 
 def test_a_known_failure_keeps_its_line_breaks_and_length():
     long = "device_failed: " + "x" * 600 + "\nsecond line"
-    assert pipeline.failure_line(pipeline.DeviceError(long)) == long
+    assert pipeline.failure_line(DeviceError(long)) == long
 
 
 def test_an_unknown_failure_is_one_line_cut_at_500_characters():

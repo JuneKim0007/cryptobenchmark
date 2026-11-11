@@ -1,11 +1,12 @@
 """After ScopedInterop: the device's verdicts into scoped-plan.yaml."""
 import yaml
 from cryptobench.shared.document.document import read_yaml
+from cryptobench.shared.errors.coded import Coded
 
 CHECKED = ("passed", "unchecked")
 
 
-class ScopeResultError(Exception):
+class ScopeResultError(Coded):
     pass
 
 
