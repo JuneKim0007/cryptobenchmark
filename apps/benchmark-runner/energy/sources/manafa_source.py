@@ -1,7 +1,7 @@
 """The manafa source on the host: its process (manafa_session.py), started around the measured window."""
 import json, pathlib, subprocess
 
-from cryptobench import paths
+from cryptobench.shared import paths
 from .runner import TOOLS, EnergyError, case_arguments
 
 SESSION = TOOLS / "manafa_session.py"

@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from cryptobench import paths
+from cryptobench.shared import paths
 from ...files import read_yaml
 from ...inputs.check import (
     TARGETS_EXPECTED,

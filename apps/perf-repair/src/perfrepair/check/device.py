@@ -3,15 +3,15 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from cryptobench.paths import GroupingTree, RunTree
-from cryptobench.paths import BENCHMARK_COVERAGE, BUNDLED_SUGGESTIONS, EVENTS, MANIFEST, MEASUREMENTS, PRIMITIVES, PRIMITIVES_MISSING, RUN_LOG, USED
+from cryptobench.shared.paths import GroupingTree, RunTree
+from cryptobench.shared.paths import BENCHMARK_COVERAGE, BUNDLED_SUGGESTIONS, EVENTS, MANIFEST, MEASUREMENTS, PRIMITIVES, PRIMITIVES_MISSING, RUN_LOG, USED
 from .. import run_dir as rd
 from ..ai.runtime.engine import charter_file
 from ..ai.runtime.engine.outbox import FINGERPRINT, OUTBOXES
 from ..data_handler.inbound.manifest import read_manifest
 from ..data_handler.inbound.primitives import read_primitives
 from ..device.primitives import status_of
-from cryptobench.catalogue.grouping import read_items
+from cryptobench.shared.catalogue.grouping import read_items
 from ..files import read_json, read_yaml
 from ..validation.benchmark_coverage import validate_coverage
 from ..validation.bundled import validate_suggestions

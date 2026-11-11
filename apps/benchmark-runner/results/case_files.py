@@ -2,7 +2,7 @@
 import json
 import shutil
 
-from cryptobench import paths
+from cryptobench.shared import paths
 
 
 def path(into, case):

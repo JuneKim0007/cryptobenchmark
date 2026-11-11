@@ -3,11 +3,11 @@ from __future__ import annotations
 import hashlib
 import json
 
-from cryptobench.catalogue.groups import group_catalog, variant
-from cryptobench.catalogue.grouping import KEY_PROVIDER_HELD, Item, Profile
+from cryptobench.shared.catalogue.groups import group_catalog, variant
+from cryptobench.shared.catalogue.grouping import KEY_PROVIDER_HELD, Item, Profile
 from ..dto.grouping_state import CODE_PREFIX, Group
 from ..dto.screen import Verdict
-from cryptobench.catalogue.signature import KEY_MATERIAL
+from cryptobench.shared.catalogue.signature import KEY_MATERIAL
 from ..probe.identified import listed, screened_out
 
 

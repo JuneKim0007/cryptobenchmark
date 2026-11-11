@@ -22,7 +22,7 @@ flowchart TD
 
 ## Type
 
-The type facts of each entry in `../../algorithms/<family>_catalogue.yaml` ([algorithm-catalogue.md](algorithm-catalogue.md)), read as rows by `catalog/types.py`; `../../lib/cryptobench/cryptobench/catalogue/algorithms.py` refuses every catalogue on any bad entry. An entry holds them whole or not at all.
+The type facts of each entry in `../../algorithms/<family>_catalogue.yaml` ([algorithm-catalogue.md](algorithm-catalogue.md)), read as rows by `catalog/types.py`; `../../lib/cryptobench/cryptobench/shared/catalogue/algorithms.py` refuses every catalogue on any bad entry. An entry holds them whole or not at all.
 
 | Field | Values |
 |---|---|

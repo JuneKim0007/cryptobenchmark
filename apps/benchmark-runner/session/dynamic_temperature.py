@@ -4,7 +4,7 @@ import dataclasses, time
 
 from device import thermal
 from failure import warn
-from cryptobench.measure import equations as eq
+from cryptobench.shared.stats import equations as eq
 
 SECONDS_PER_MINUTE = 60
 STOP = "stop"

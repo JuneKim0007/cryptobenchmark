@@ -25,7 +25,9 @@ RULES = (
     ("cryptobench.shared.log", REPO_WIDE),
 )
 # rule names whose package has not landed yet; the step that lands one removes it here
-PENDING = {"cryptobench.shared", "cryptobench.pipeline", "cryptobench.stages", "cryptobench.shared.errors", "cryptobench.shared.log"}
+PENDING = {"cryptobench.pipeline", "cryptobench.stages", "cryptobench.shared.log"}
+# what cryptobench/ itself may hold; every other module lives in one of these packages
+TOP_LEVEL = {"__init__.py", "shared", "pipeline", "stages"}
 
 
 def _within(name, prefix):
@@ -109,3 +111,8 @@ def test_no_module_imports_an_entry_point():
     found = sorted(f"{where}: {module} imports {target}" for module, target, where in _imports()
                    if target.split(".")[-1] == "__main__" and not _within(module, target.rsplit(".", 1)[0]))
     assert not found, "\n".join(found)
+
+
+def test_the_top_package_holds_only_its_layers():
+    found = sorted(p.name for p in (LIB / "cryptobench").iterdir() if p.name != "__pycache__" and not p.name.startswith("."))
+    assert set(found) <= TOP_LEVEL, f"cryptobench/ holds {found}; only {sorted(TOP_LEVEL)}"

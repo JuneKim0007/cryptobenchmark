@@ -9,7 +9,7 @@ from helpers import first_candidate, model_calls, LIBRARY, captured_events, guid
 from test_guide import APP, F, FAKE_ROOT
 from test_stages import run  # noqa: F401  the recorded run, grouped
 
-from cryptobench.paths import AppTree
+from cryptobench.shared.paths import AppTree
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.gateway.claude_cli import ClaudeCliError
 from perfrepair.ai.select.command import dry_run

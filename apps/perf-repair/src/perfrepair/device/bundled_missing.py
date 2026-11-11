@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections import Counter
 from pathlib import Path
 
-from cryptobench.paths import AppTree
+from cryptobench.shared.paths import AppTree
 from ..dto.bundled import Coordinate, MissingProvider
 from ..dto.dossier import NOT_ON_DEVICE
 from ..dto.shipped import shipped as app_shipped

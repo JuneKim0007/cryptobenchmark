@@ -6,10 +6,10 @@ from pathlib import Path
 
 import yaml
 
-from cryptobench.paths import RunTree
+from cryptobench.shared.paths import RunTree
 from ..data_handler.inbound import read_manifest
 from ..data_handler.inbound.manifest import manifest_file
-from cryptobench.catalogue.grouping import Item, qualified
+from cryptobench.shared.catalogue.grouping import Item, qualified
 from ..files import read_yaml, write_text
 
 

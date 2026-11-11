@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from cryptobench.paths import AppTree, GroupingTree, RunTree
-from cryptobench.paths import APP_REPORT, ROWS, SUMMARY
+from cryptobench.shared.paths import AppTree, GroupingTree, RunTree
+from cryptobench.shared.paths import APP_REPORT, ROWS, SUMMARY
 from .. import run_dir as rd
 from ..files import read_json
 from ..screen.catalog import Catalog

@@ -4,7 +4,7 @@ import copy, hashlib, json
 
 import bundled
 from failure import fail
-from cryptobench.document import read_yaml
+from cryptobench.shared.document.document import read_yaml
 
 
 def digest(value):

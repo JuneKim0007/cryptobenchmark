@@ -2,7 +2,7 @@ import json
 import pathlib
 import unittest
 
-from cryptobench.measure import stats
+from cryptobench.shared.stats import stats
 
 FIXTURE = json.load(open(pathlib.Path(__file__).with_name("fixture_device_runs.json")))
 

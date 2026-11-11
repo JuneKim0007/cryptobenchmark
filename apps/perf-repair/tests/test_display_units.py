@@ -1,6 +1,6 @@
 import pytest
 
-from cryptobench.measure.units import DisplayUnits, number
+from cryptobench.shared.stats.units import DisplayUnits, number
 
 
 def test_a_manifest_without_units_reads_the_defaults_and_a_bad_unit_is_refused():

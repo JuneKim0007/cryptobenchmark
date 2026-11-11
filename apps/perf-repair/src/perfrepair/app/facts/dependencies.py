@@ -5,7 +5,7 @@ import re
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-from cryptobench import paths
+from cryptobench.shared import paths
 from ...files import read_yaml
 from ...source.code import Code
 from ...source.language import of_build_file

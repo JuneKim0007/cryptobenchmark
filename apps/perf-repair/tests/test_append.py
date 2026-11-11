@@ -4,8 +4,8 @@ import logging
 
 import pytest
 
-from cryptobench.paths import RunTree
-from cryptobench.paths import EVENTS
+from cryptobench.shared.paths import RunTree
+from cryptobench.shared.paths import EVENTS
 from perfrepair import failure
 from perfrepair.files import append_line, read_jsonl
 from perfrepair.log import attach, emit

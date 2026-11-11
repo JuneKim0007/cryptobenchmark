@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from string import Template
 
-from cryptobench.catalogue.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD, KEY_UNKNOWN
-from cryptobench.catalogue.signature import (
+from cryptobench.shared.catalogue.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD, KEY_UNKNOWN
+from cryptobench.shared.catalogue.signature import (
     CONVENTION,
     EXPORTABLE,
     KEY_MATERIAL,
@@ -13,8 +13,8 @@ from cryptobench.catalogue.signature import (
     Component,
     Signature,
 )
-from cryptobench.catalogue.interchange import KEY_ASKED, KEY_NONE, Engine, Interchange, Rule, interchange
-from cryptobench.catalogue.names import Names, NamesError, fold
+from cryptobench.shared.catalogue.interchange import KEY_ASKED, KEY_NONE, Engine, Interchange, Rule, interchange
+from cryptobench.shared.catalogue.names import Names, NamesError, fold
 from .resolved import digest_name, function_parameters
 
 NAME, KEY = "name", "key"

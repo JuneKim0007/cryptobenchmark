@@ -7,10 +7,10 @@ from functools import cache
 import pytest
 import yaml
 
-from cryptobench.catalogue.algorithms import DIRECTORY, SUFFIX, load
-from cryptobench.catalogue.families import Families
-from cryptobench.catalogue.groups import CATALOG as GROUPS, load as load_groups
-from cryptobench.coded import InputError
+from cryptobench.shared.catalogue.algorithms import DIRECTORY, SUFFIX, load
+from cryptobench.shared.catalogue.families import Families
+from cryptobench.shared.catalogue.groups import CATALOG as GROUPS, load as load_groups
+from cryptobench.shared.errors.coded import InputError
 from perfrepair.validation.catalogue_entry import catalogue_check
 
 LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)

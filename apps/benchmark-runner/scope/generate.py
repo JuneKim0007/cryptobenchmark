@@ -11,7 +11,7 @@ from scope import interop as scope_interop
 from scope import languages as scope_languages
 from scope import signature as scope_signature
 from scope import wrapper as scope_wrapper
-from cryptobench import paths
+from cryptobench.shared import paths
 
 GENERATED_MARK = "/cryptobench/scoped/"
 

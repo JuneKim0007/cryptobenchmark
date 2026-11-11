@@ -3,8 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Callable
 
-from cryptobench.catalogue.names import Names
-from cryptobench.catalogue.families import Families
+from cryptobench.shared.catalogue.names import Names
+from cryptobench.shared.catalogue.families import Families
 
 SECRET, PAIR, UNKNOWN = "secret", "pair", "unknown"
 FROM_CATALOGUE = "catalogue"

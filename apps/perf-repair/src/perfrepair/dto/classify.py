@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
 
-from cryptobench.document import DocumentKind
+from cryptobench.shared.document.document import DocumentKind
 
 SCHEMA_VERSION = 1
 BATCHES_DOC = DocumentKind("batches", SCHEMA_VERSION)

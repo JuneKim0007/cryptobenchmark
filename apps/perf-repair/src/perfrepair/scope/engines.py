@@ -5,8 +5,8 @@ from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 
-from cryptobench import paths
-from cryptobench.document import AT_PATH, DocumentKind
+from cryptobench.shared import paths
+from cryptobench.shared.document.document import AT_PATH, DocumentKind
 from ..dto.lifecycle import ORIGINS, REQUIREMENTS
 from ..files import read_yaml
 

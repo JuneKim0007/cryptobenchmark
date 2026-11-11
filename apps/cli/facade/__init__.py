@@ -3,7 +3,7 @@ as all run here."""
 import sys
 
 try:
-    from cryptobench import paths
+    from cryptobench.shared import paths
 except ModuleNotFoundError:
     sys.exit("facade: missing_dependency: cryptobench; pip install -r requirements.txt")
 

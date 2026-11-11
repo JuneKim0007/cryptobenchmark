@@ -8,7 +8,7 @@ import pytest
 import yaml
 from helpers import LATENCY, LATENCY_ALLOC, QUIET
 
-from cryptobench.paths import AppTree
+from cryptobench.shared.paths import AppTree
 from perfrepair.dto.site import (DOSSIERS_SCHEMA_VERSION, EDITS_SCHEMA_VERSION, SCOPES_SCHEMA_VERSION,
                                  SITES_SCHEMA_VERSION)
 from perfrepair.files import read_json, write_json, write_text

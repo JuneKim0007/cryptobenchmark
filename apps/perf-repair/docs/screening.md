@@ -16,7 +16,7 @@
 
 ## Lookup
 
-- key: the engine type and the canonical name from `../../lib/cryptobench/cryptobench/catalogue/names.py`, probe aliases included; every spelling of a name gets one verdict.
+- key: the engine type and the canonical name from `../../lib/cryptobench/cryptobench/shared/catalogue/names.py`, probe aliases included; every spelling of a name gets one verdict.
 - key size: dropped; `AES_256/GCM/NoPadding` is looked up as `AES/GCM/NoPadding`.
 - components: a transformation `base/mode/padding` is `broken` when its base or its mode is listed.
 - nominal mode: a mode the names catalog maps another mode onto for a base (`modeSynonyms`) never matches that base; `RSA/ECB/*` is not ECB.

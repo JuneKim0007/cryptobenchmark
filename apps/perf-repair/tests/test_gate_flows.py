@@ -4,7 +4,7 @@ import json
 
 import pytest
 import yaml
-from cryptobench.paths import RunTree
+from cryptobench.shared.paths import RunTree
 from perfrepair import run_dir as rd
 from perfrepair.files import read_json, read_yaml
 from perfrepair.guide.command import main as guide

@@ -6,8 +6,8 @@ from pathlib import Path
 import pytest
 import yaml
 from helpers import TIMING, with_results
-from cryptobench.paths import RunTree
-from cryptobench.paths import MANIFEST
+from cryptobench.shared.paths import RunTree
+from cryptobench.shared.paths import MANIFEST
 from perfrepair import run_dir as rd
 from perfrepair.device import delta_merge
 from perfrepair.device.delta_estimate import seconds_per_case

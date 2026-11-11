@@ -7,8 +7,8 @@ from typing import Callable
 
 import yaml
 
-from cryptobench.paths import RunTree
-from cryptobench.paths import BUNDLED_SUGGESTIONS
+from cryptobench.shared.paths import RunTree
+from cryptobench.shared.paths import BUNDLED_SUGGESTIONS
 from ..catalog.bundled_providers import BUNDLED_PROVIDERS, BundledCatalog
 from ..data_handler.inbound import RunContext
 from ..dto.bundled import APPLY, OFF, BundledPolicy, Suggestions

@@ -5,7 +5,7 @@ from dataclasses import replace
 from contextlib import contextmanager
 from pathlib import Path
 
-from cryptobench.paths import RunTree
+from cryptobench.shared.paths import RunTree
 from perfrepair.ai.log.attempt_log import read_log
 from perfrepair.dto import PrimitiveRow, Summary
 from perfrepair.dto.prompt import SystemPrompt, TaskPrompt

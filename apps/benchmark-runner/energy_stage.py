@@ -5,13 +5,13 @@ import sys
 import timeouts
 from device.adb import DeviceError
 from failure import one_line
-from cryptobench import paths
+from cryptobench.shared import paths
 
 paths.add_energy_imports()
 from capture import capture, source as source_of  # noqa: E402
 from sources import SOURCES  # noqa: E402
 from sources.runner import EnergyError, Host  # noqa: E402
-from cryptobench.document import read_yaml
+from cryptobench.shared.document.document import read_yaml
 
 __all__ = ["EnergyError", "capture", "captures", "guarded", "source", "source_name"]
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from cryptobench.paths import RunTree
+from cryptobench.shared.paths import RunTree
 from ...dto.primitives import PrimitivesTable
 from ...files import read_text
 

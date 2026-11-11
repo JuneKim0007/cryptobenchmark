@@ -1,7 +1,7 @@
 """The capture, trial and requirements a discovery wrote, known by path and paired by stamp; never the newest in a kept folder."""
 import re
 
-from cryptobench import paths
+from cryptobench.shared import paths
 from failure import fail
 
 CAPTURE = re.compile(r"probe_(\d{8}T\d{6}Z)\.yaml")

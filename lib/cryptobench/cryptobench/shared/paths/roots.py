@@ -5,7 +5,7 @@ import os
 import sys
 from pathlib import Path
 
-from ..coded import InputError
+from ..errors.coded import InputError
 
 CODE_ROOT_ENV, BENCHMARK_ROOT_ENV = "CRYPTOBENCH_CODE_ROOT", "CRYPTOBENCH_ROOT"
 ALGORITHMS, RUNNER, PIPELINE = "algorithms", "apps/benchmark-runner", "apps/benchmark-runner/pipeline.py"

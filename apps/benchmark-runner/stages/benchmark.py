@@ -4,14 +4,14 @@ import subprocess, sys, time
 import bundled, dependencies, effective_view, energy_stage, gradle_runner, timeouts
 from energy_session import EnergySession
 from failure import fail, one_line, warn
-from cryptobench import paths
+from cryptobench.shared import paths
 from session import case_isolation, energy_hook, passes, variant_order, warmup
 from session import measure as measure_session
 from stages import guide, not_measured
 from stages.measuring import (Measuring, convert, energy_preflight, gated, pass_arguments, push, record, session_arguments, singles,
                               thermal_flag, timed_hooks)
 from stages.took import elapsed
-from cryptobench.document import read_yaml
+from cryptobench.shared.document.document import read_yaml
 
 
 def measure_on_device(run, one, captures, preparation, isolation, repetitions, folder, written):

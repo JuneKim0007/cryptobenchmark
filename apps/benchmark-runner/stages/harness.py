@@ -4,7 +4,7 @@ import pathlib, shutil, time
 
 from device.identity import capture_id
 from failure import fail
-from cryptobench import paths
+from cryptobench.shared import paths
 from results import layout as results_layout
 from results.manifest import manifest
 from scope import generate as scope_generate
@@ -13,7 +13,7 @@ from scope.harness import HarnessError
 from stages.discover import discover
 from stages.measuring import push
 from stages.took import elapsed
-from cryptobench.document import read_yaml
+from cryptobench.shared.document.document import read_yaml
 
 # beside scoped/, which a failed run rolls back: the plan a failure line points at
 

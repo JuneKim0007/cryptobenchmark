@@ -3,10 +3,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from cryptobench.paths import GroupingTree, RunTree
-from cryptobench.paths import MEASUREMENTS, PRIMITIVES
+from cryptobench.shared.paths import GroupingTree, RunTree
+from cryptobench.shared.paths import MEASUREMENTS, PRIMITIVES
 from .. import run_dir as rd
-from cryptobench.catalogue.grouping import read_items
+from cryptobench.shared.catalogue.grouping import read_items
 from ..dto.primitives import SCHEMA_LINE, PrimitivesTable
 from ..files import read_json, sha256_file, write_text
 from ..log import step

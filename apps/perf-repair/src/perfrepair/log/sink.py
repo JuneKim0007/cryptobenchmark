@@ -8,8 +8,8 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-from cryptobench.paths import RunTree
-from cryptobench.paths import EVENTS
+from cryptobench.shared.paths import RunTree
+from cryptobench.shared.paths import EVENTS
 from ..dto.event import FINDING, LOG, Event
 from ..files import append_line
 from .emit import EVENT_ATTR

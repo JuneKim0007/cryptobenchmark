@@ -1,7 +1,7 @@
 """Stage: grouping/items.json + profiles.json + screen.json → GroupingKind on the engine → knowledge, cursor, errors."""
 from __future__ import annotations
 
-from cryptobench.paths import GroupingTree
+from cryptobench.shared.paths import GroupingTree
 from ....dto.grouping_state import Knowledge, code_made
 from ....files import sha256_text
 from ....dto.prompt import TaskPrompt

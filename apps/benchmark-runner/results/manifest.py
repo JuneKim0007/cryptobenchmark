@@ -5,9 +5,9 @@ from device import clocks
 from device.capture import runtime as capture_runtime
 from device.identity import device_id
 from results import layout as results_layout
-from cryptobench import paths
+from cryptobench.shared import paths
 from results import run_inputs
-from cryptobench.document import parse_yaml, read_yaml
+from cryptobench.shared.document.document import parse_yaml, read_yaml
 
 ENGINE_OPERATIONS = paths.repo().engine_operations
 

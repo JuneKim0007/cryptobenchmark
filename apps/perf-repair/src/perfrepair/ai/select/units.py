@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from cryptobench.paths import AppTree, RunTree
+from cryptobench.shared.paths import AppTree, RunTree
 from ... import run_dir as rd
 from ...data_handler.inbound.manifest import display_units
 from ...data_handler.inbound.primitives import read_primitives

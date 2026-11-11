@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from cryptobench.catalogue import groups as group_catalog_file
-from cryptobench.catalogue.interchange import Interchange
+from cryptobench.shared.catalogue import groups as group_catalog_file
+from cryptobench.shared.catalogue.interchange import Interchange
 from perfrepair.config import current, device_results, dotenv, load
 from perfrepair.failure import last_failure
 from perfrepair.catalog import signature

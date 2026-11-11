@@ -7,8 +7,8 @@ from pathlib import Path
 
 import pytest
 
-from cryptobench.paths import LOCK
-from cryptobench.coded import InputError
+from cryptobench.shared.paths import LOCK
+from cryptobench.shared.errors.coded import InputError
 from perfrepair.files import TEMP_SUFFIX, read_json, write_json
 from perfrepair.run_dir.lock import DeviceLock
 

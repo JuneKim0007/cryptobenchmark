@@ -6,13 +6,13 @@ import pathlib
 import sys
 import textwrap
 
-from cryptobench import paths
+from cryptobench.shared import paths
 
 ROOT = paths.code_root()
 
 # (title, router, doc, source roots each a module search path, least importing modules a function needs to be listed)
-INDEXES = [("benchmark runner, cli and tools", "", "docs/shared-functions.md",
-            ["apps/benchmark-runner", "apps/benchmark-runner/energy", "apps/benchmark-runner/analysis", "apps/cli", "tools"], 2),
+INDEXES = [("benchmark runner, cli, tools and lib", "", "docs/shared-functions.md",
+            ["apps/benchmark-runner", "apps/benchmark-runner/energy", "apps/benchmark-runner/analysis", "apps/cli", "tools", paths.repo().library.relative_to(ROOT).as_posix()], 2),
            ("perf-repair", "apps/perf-repair", "docs/shared-functions.md", ["src"], 3)]
 GENERAL = {"apps/benchmark-runner/failure.py": {"one_line", "fail"}, "apps/benchmark-runner/device/adb.py": {"PASSED", "ONE_PASSED"},
            "apps/benchmark-runner/energy/energy.py": {"one_line"}, "apps/benchmark-runner/energy/manafa_estimate.py": {"one_line"},

@@ -1,6 +1,6 @@
 """After ScopedInterop: the device's verdicts into scoped-plan.yaml."""
 import yaml
-from cryptobench.document import read_yaml
+from cryptobench.shared.document.document import read_yaml
 
 CHECKED = ("passed", "unchecked")
 

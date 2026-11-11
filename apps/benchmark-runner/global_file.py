@@ -3,7 +3,7 @@ import os
 import pathlib
 
 from failure import fail
-from cryptobench import paths
+from cryptobench.shared import paths
 
 
 def global_config(argument):

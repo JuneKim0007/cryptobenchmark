@@ -7,9 +7,9 @@ from functools import cache
 from pathlib import Path
 
 
-from ..coded import InputError
-from ..document import AT_PATH, DocumentKind
-from ..document import read_yaml
+from ..errors.coded import InputError
+from ..document.document import AT_PATH, DocumentKind
+from ..document.document import read_yaml
 
 CATALOG = paths.repo().algorithms / "interchange.yaml"
 SCHEMA_VERSION = 1

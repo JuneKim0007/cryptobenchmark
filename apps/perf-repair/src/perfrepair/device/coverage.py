@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from cryptobench.paths import GroupingTree
+from cryptobench.shared.paths import GroupingTree
 from ..ai.parse.grouping_assign.kind import GroupingKind
 from ..ai.runtime.engine.outbox import active_outbox
 from ..files import json_text

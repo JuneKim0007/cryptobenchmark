@@ -2,7 +2,7 @@
 import re
 
 import yaml
-from cryptobench.document import read_yaml
+from cryptobench.shared.document.document import read_yaml
 
 
 READ = ('for c in /sys/devices/system/cpu/cpu[0-9]*; do f=$c/cpufreq; '

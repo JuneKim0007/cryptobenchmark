@@ -1,7 +1,7 @@
 """The gate's and the run count's calculations, each rule on its own."""
 import pytest
 
-from cryptobench.measure.equations import (
+from cryptobench.shared.stats.equations import (
     CLEAN, HOT, IGNORED, StartMargin, StartMarginRule, first_margin, half_width, rank_interval, next_margin, runs_needed, start_limit,
 )
 

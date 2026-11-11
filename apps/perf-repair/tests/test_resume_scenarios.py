@@ -12,7 +12,7 @@ from test_guide_targets import Base, apps, steps
 from test_run_lock import HOLD, SRC
 from test_stages import run  # noqa: F401  the recorded run, grouped
 
-from cryptobench.paths import AppTree, RunTree
+from cryptobench.shared.paths import AppTree, RunTree
 from perfrepair.ai.select.command import dry_run
 from perfrepair.app.facts.path_id import path_id
 from perfrepair.dto.perf_mode import PerfMode

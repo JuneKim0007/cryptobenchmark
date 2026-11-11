@@ -1,7 +1,7 @@
 """The digest of the code from a harness.yaml to a checked harness: perf-repair reads it from --identify, and a change reruns its apps."""
 import hashlib
 
-from cryptobench import paths
+from cryptobench.shared import paths
 
 CODE = ("apps/benchmark-runner/scope/*.py", "apps/benchmark-runner/scope_generate.py", "apps/benchmark/modules/android/src/androidTest/**/Scope*.kt")
 

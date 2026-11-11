@@ -6,8 +6,8 @@ from test_guide import F, _from_root
 from test_guide_targets import FAKE_ROOT, base  # noqa: F401  the guide over fake apps
 from test_stages import run  # noqa: F401  the recorded run, grouped
 
-from cryptobench.paths import RunTree
-from cryptobench.paths import PIPELINE_LOGS, STATUS_LOG
+from cryptobench.shared.paths import RunTree
+from cryptobench.shared.paths import PIPELINE_LOGS, STATUS_LOG
 from perfrepair import failure
 from perfrepair.app.facts.path_id import path_id
 from perfrepair.dto.event import BUG, END, ERROR, FINDING, RUN_END, RUN_START, Event

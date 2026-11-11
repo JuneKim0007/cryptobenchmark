@@ -4,7 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from math import isfinite
 
-from cryptobench.catalogue.names import fold, same_engine
+from cryptobench.shared.catalogue.names import fold, same_engine
 from ..dto import PrimitiveRow, Summary
 from ..dto.change import (
     NO_GAIN,
@@ -26,7 +26,7 @@ from ..dto.dossier import (
     ZERO_MEDIAN,
     Option,
 )
-from cryptobench.catalogue.grouping import provider_of, qualified
+from cryptobench.shared.catalogue.grouping import provider_of, qualified
 from ..dto.interop import failed_pairs, pair_status
 from ..dto.perf_mode import PerfMode, no_evidence
 from ..dto.screen import ACCEPTED, BROKEN, Verdict, refused_target

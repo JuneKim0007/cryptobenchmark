@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from cryptobench.paths import AppTree
+from cryptobench.shared.paths import AppTree
 from ... import run_dir as rd
 from ...dto.decision import OutboxRecord
 from ...dto.dossier import NO_SECURE_OPTION, PERSON_JUDGES, reason_code

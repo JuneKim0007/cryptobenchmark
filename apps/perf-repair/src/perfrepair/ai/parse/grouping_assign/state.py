@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 
 from ....dto.decision import OutboxRecord
-from cryptobench.catalogue.grouping import CURSOR_SCHEMA_VERSION, Item
+from cryptobench.shared.catalogue.grouping import CURSOR_SCHEMA_VERSION, Item
 from ....dto.grouping_state import Answer, Group, Knowledge
 
 

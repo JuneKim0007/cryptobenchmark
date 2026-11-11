@@ -9,7 +9,7 @@ from pathlib import Path
 
 import yaml
 
-from cryptobench.paths import RunTree
+from cryptobench.shared.paths import RunTree
 from .. import run_dir as rd
 from ..data_handler.inbound import (
     manifest_file,

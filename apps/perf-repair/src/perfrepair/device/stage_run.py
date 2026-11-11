@@ -6,7 +6,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from cryptobench.paths import RunTree
+from cryptobench.shared.paths import RunTree
 from ..data_handler.outbound.benchmark_runner import run_pipeline
 from ..dto.bundled import BundledPolicy
 from ..dto.event import END

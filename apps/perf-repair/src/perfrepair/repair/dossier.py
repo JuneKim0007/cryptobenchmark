@@ -4,16 +4,16 @@ from __future__ import annotations
 from collections import Counter
 from pathlib import Path
 
-from cryptobench.paths import AppTree, GroupingTree, RunTree
-from cryptobench.paths import DOSSIERS, MEASUREMENTS
+from cryptobench.shared.paths import AppTree, GroupingTree, RunTree
+from cryptobench.shared.paths import DOSSIERS, MEASUREMENTS
 from .. import run_dir as rd
 from ..catalog.bundled_providers import BundledCatalog
-from cryptobench.catalogue.names import NamesError
+from cryptobench.shared.catalogue.names import NamesError
 from ..catalog.types import types
 from ..catalog.upgrades import upgrades
 from ..data_handler.inbound import RunContext
 from ..dto.change import DROP_IN
-from cryptobench.catalogue.grouping import read_items
+from cryptobench.shared.catalogue.grouping import read_items
 from ..dto.shipped import shipped_names
 from ..dto.perf_mode import NO_EVIDENCE, PerfMode
 from ..dto.site import Scope

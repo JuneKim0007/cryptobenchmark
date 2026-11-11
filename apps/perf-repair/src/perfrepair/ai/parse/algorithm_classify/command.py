@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 import yaml
 
-from cryptobench.paths import GroupingTree
+from cryptobench.shared.paths import GroupingTree
 from ....dto.classify import UNSURE, Batch, batch_ids, batches_document, read_batches
 from ....dto.prompt import TaskPrompt
 from ....dto.screen import Verdict

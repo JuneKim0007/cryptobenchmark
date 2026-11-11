@@ -3,7 +3,7 @@ from __future__ import annotations
 from .. import paths
 from pathlib import Path
 
-from ..document import AT_PATH, DocumentKind
+from ..document.document import AT_PATH, DocumentKind
 from .grouping import Family
 
 CATALOG = paths.repo().algorithms / "families.yaml"

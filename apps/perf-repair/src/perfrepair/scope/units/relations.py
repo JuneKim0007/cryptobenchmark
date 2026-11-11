@@ -4,8 +4,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from functools import cache
 
-from cryptobench import paths
-from cryptobench.document import DocumentKind
+from cryptobench.shared import paths
+from cryptobench.shared.document.document import DocumentKind
 from ...dto.site import Scope
 from ...files import read_yaml
 

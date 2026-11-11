@@ -4,8 +4,8 @@ import logging
 
 import pytest
 
-from cryptobench.paths import RunTree
-from cryptobench.paths import AI_LOGS
+from cryptobench.shared.paths import RunTree
+from cryptobench.shared.paths import AI_LOGS
 from perfrepair import failure
 from perfrepair.dto.event import FIELDS, SCHEMA_VERSION, Event
 from perfrepair.log import attach, emit, step

@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from cryptobench.paths import RunTree
+from cryptobench.shared.paths import RunTree
 from ..dto.event import LOG
 from ..dto.metrics import ENERGY, METRICS, Metric
 from ..dto.perf_mode import PerfMode

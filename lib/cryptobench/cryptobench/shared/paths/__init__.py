@@ -1,4 +1,4 @@
-"""One interface to every path the Python modules use: `from cryptobench import paths`. Roots, repo locations, packaged data,
+"""One interface to every path the Python modules use: `from cryptobench.shared import paths`. Roots, repo locations, packaged data,
 user and host locations, settings-relative values, the results tree and device folders; a place changes here or nowhere."""
 from .device_dirs import DeviceDirs
 from .host import android_home, home, user_global

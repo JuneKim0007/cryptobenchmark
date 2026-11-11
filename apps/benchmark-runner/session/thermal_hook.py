@@ -3,7 +3,7 @@ import json
 
 from device import thermal
 from session.measure import Hooks
-from cryptobench import paths
+from cryptobench.shared import paths
 
 SCHEMA_VERSION = 1
 

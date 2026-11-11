@@ -5,12 +5,12 @@ from __future__ import annotations
 from dataclasses import asdict
 
 from ...dto.dossier import Dossier
-from cryptobench.catalogue.grouping import parse_qualified
+from cryptobench.shared.catalogue.grouping import parse_qualified
 from ...dto.metrics import BY_NAME
 from ...dto.perf_mode import PerfMode
 from ...dto.primitives import ABSENT, PrimitiveLine, PrimitivesTable
 from ...dto.report import THROUGHPUT, has_views
-from cryptobench.measure.units import DisplayUnits, number
+from cryptobench.shared.stats.units import DisplayUnits, number
 from ...result.configurations import operations
 
 

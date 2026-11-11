@@ -1,6 +1,6 @@
 import sys
 
-from cryptobench import paths  # noqa: E402
+from cryptobench.shared import paths  # noqa: E402
 
 PACKAGE = paths.DeviceDirs.PACKAGE
 

@@ -6,7 +6,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from cryptobench.paths import RunTree
+from cryptobench.shared.paths import RunTree
 from ..log.watch import watch
 
 

@@ -5,8 +5,8 @@ from __future__ import annotations
 import re
 from typing import Callable
 
-from cryptobench.paths import BUG_LOG
-from cryptobench.coded import CODE
+from cryptobench.shared.paths import BUG_LOG
+from cryptobench.shared.errors.coded import CODE
 from ..dto.event import BUG, END, ERROR, FINDING, RUN_END, RUN_START, Event
 
 DEVICE_OUTCOMES = ("ran", "reused", "failed")

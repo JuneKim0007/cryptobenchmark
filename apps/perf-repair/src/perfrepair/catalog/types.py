@@ -4,8 +4,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from functools import cache
 
-from cryptobench.catalogue.types import Properties, Strength, TypeRow
-from cryptobench.catalogue.algorithms import (
+from cryptobench.shared.catalogue.types import Properties, Strength, TypeRow
+from cryptobench.shared.catalogue.algorithms import (
     ALWAYS,
     AUTHENTICATED,
     DETERMINISTIC,
@@ -16,7 +16,7 @@ from cryptobench.catalogue.algorithms import (
     Entry,
     algorithms,
 )
-from cryptobench.catalogue.names import fold
+from cryptobench.shared.catalogue.names import fold
 
 
 @dataclass(frozen=True)

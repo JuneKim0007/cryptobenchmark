@@ -4,7 +4,7 @@ from pathlib import Path
 
 import yaml
 
-from cryptobench.paths import GroupingTree
+from cryptobench.shared.paths import GroupingTree
 from ..dto.interop import PairResult, not_checkable_results
 from ..files import read_yaml, write_text
 from ..validation import require

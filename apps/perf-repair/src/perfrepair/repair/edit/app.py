@@ -8,7 +8,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from cryptobench.paths import AppTree
+from cryptobench.shared.paths import AppTree
 from ...dto.event import FINDING
 from ...dto.replacement import Replacement
 from ...dto.site import EDITS_SCHEMA_VERSION, Scope

@@ -4,8 +4,8 @@ from .. import paths
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from ..coded import InputError
-from ..document import AT_PATH, DocumentKind
+from ..errors.coded import InputError
+from ..document.document import AT_PATH, DocumentKind
 from .grouping import provider_of
 from .glossary import names_problems
 

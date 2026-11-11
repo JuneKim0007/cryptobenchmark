@@ -2,9 +2,9 @@
 import pathlib
 from dataclasses import dataclass
 
-from cryptobench.coded import InputError
-from cryptobench.document import parse_yaml
-from cryptobench import paths
+from cryptobench.shared.errors.coded import InputError
+from cryptobench.shared.document.document import parse_yaml
+from cryptobench.shared import paths
 from perfrepair.inputs.check import RUN_ID_FORM
 from perfrepair.run_dir.run_record import ON_EXISTING, OVERWRITE
 

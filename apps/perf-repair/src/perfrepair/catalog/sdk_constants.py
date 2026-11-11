@@ -4,8 +4,8 @@ from __future__ import annotations
 from functools import cache
 from pathlib import Path
 
-from cryptobench import paths
-from cryptobench.document import AT_PATH, DocumentKind
+from cryptobench.shared import paths
+from cryptobench.shared.document.document import AT_PATH, DocumentKind
 
 CATALOG = paths.SDK_CONSTANTS.path
 SCHEMA_VERSION = 1

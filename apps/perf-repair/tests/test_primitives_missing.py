@@ -13,7 +13,7 @@ from test_device_flows import (  # noqa: F401  the flows' fixtures
     target,
 )
 
-from cryptobench.paths import AppTree, GroupingTree, RunTree
+from cryptobench.shared.paths import AppTree, GroupingTree, RunTree
 from perfrepair.device import missing_rows
 from perfrepair.device.missing_rows import (
     bundled_rows,

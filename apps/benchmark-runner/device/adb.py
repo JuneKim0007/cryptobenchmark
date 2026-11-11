@@ -2,7 +2,7 @@
 import os, re, subprocess, time
 
 import timeouts
-from cryptobench import paths
+from cryptobench.shared import paths
 
 PACKAGE = paths.DeviceDirs.PACKAGE
 RUNNER = "androidx.benchmark.junit4.AndroidBenchmarkRunner"

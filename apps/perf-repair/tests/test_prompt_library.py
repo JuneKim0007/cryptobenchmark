@@ -2,7 +2,7 @@ import pytest
 
 from perfrepair.dto.prompt import CorrectionPrompt
 from perfrepair.ai.runtime.prompt import PromptError, PromptLibrary
-from cryptobench import paths
+from cryptobench.shared import paths
 
 PACKAGED = paths.PROMPTS.path
 

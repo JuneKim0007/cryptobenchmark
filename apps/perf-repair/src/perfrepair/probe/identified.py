@@ -1,12 +1,12 @@
 """The one test of identified: an item code places without a model, because screening put it out or the catalogue lists it."""
 from __future__ import annotations
 
-from cryptobench.catalogue.algorithms import algorithm_id
-from cryptobench.catalogue.groups import CatalogGroup, group_catalog
-from cryptobench.catalogue.interchange import OUTPUT
-from cryptobench.catalogue.names import Names
+from cryptobench.shared.catalogue.algorithms import algorithm_id
+from cryptobench.shared.catalogue.groups import CatalogGroup, group_catalog
+from cryptobench.shared.catalogue.interchange import OUTPUT
+from cryptobench.shared.catalogue.names import Names
 from ..catalog.resolved import function_parameters
-from cryptobench.catalogue.grouping import Item
+from cryptobench.shared.catalogue.grouping import Item
 from ..dto.screen import CODE_GROUPED, Verdict
 
 

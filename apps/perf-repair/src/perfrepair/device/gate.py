@@ -6,7 +6,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
-from cryptobench.paths import GroupingTree
+from cryptobench.shared.paths import GroupingTree
 from ..dto.benchmark_coverage import (
     GAP_DELTA,
     GAP_STOP,
@@ -16,7 +16,7 @@ from ..dto.benchmark_coverage import (
     Coverage,
     Gap,
 )
-from cryptobench.catalogue.grouping import read_items
+from cryptobench.shared.catalogue.grouping import read_items
 from ..dto.perf_mode import PerfMode
 from ..dto.used import UsedSet
 from ..files import read_json

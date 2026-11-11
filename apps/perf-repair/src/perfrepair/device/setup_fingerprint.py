@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from cryptobench.paths import RunTree
+from cryptobench.shared.paths import RunTree
 from ..data_handler.inbound import read_manifest
 from ..data_handler.inbound.manifest import manifest_file
 from ..files import read_yaml

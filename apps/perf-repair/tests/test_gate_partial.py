@@ -6,7 +6,7 @@ from dataclasses import replace
 import pytest
 import yaml
 from helpers import summary
-from cryptobench.paths import RunTree
+from cryptobench.shared.paths import RunTree
 from perfrepair.device.delta import _drift
 from perfrepair.device.delta_config import narrowed, write_delta_config
 from perfrepair.device.delta_merge import merge_delta

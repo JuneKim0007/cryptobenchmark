@@ -1,7 +1,7 @@
 import pytest
 from grouping_data import FAMILIES
 
-from cryptobench.catalogue.grouping import Item
+from cryptobench.shared.catalogue.grouping import Item
 from perfrepair.dto.decision import OutboxRecord
 from perfrepair.dto.grouping_state import Amendment, Answer, Knowledge
 from perfrepair.ai.parse.grouping_assign.state import apply, cursor

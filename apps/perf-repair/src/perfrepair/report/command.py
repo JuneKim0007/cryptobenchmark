@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from cryptobench.paths import AppTree, RunTree
-from cryptobench.paths import APP_REPORT, SUMMARY
+from cryptobench.shared.paths import AppTree, RunTree
+from cryptobench.shared.paths import APP_REPORT, SUMMARY
 from ..files import read_json, write_json, write_text
 from ..log import step
 from ..result.modes import Mode

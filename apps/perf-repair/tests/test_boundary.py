@@ -3,10 +3,10 @@ from pathlib import Path
 
 import pytest
 import yaml
-from cryptobench.paths import GroupingTree, RunTree
-from cryptobench.catalogue.groups import group_catalog
+from cryptobench.shared.paths import GroupingTree, RunTree
+from cryptobench.shared.catalogue.groups import group_catalog
 from perfrepair.catalog.identity import UNSAFE, case_id_pattern, resolve
-from cryptobench.catalogue.names import Names
+from cryptobench.shared.catalogue.names import Names
 from perfrepair.files import write_json
 from perfrepair.validation.boundary import boundary_violations
 from perfrepair.validation.finding import ADVISORY, BLOCKING

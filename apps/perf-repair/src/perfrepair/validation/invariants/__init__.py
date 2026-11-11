@@ -4,7 +4,7 @@ from __future__ import annotations
 from collections import defaultdict
 from pathlib import Path
 
-from cryptobench.paths import AppTree, GroupingTree, RunTree, app_dir
+from cryptobench.shared.paths import AppTree, GroupingTree, RunTree, app_dir
 from ... import run_dir as rd
 from ...dto.pattern import FIXED, INIT_AND_OPERATION
 from ...dto.site import Scope

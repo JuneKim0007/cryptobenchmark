@@ -2,7 +2,7 @@
 import pytest
 import yaml
 
-from cryptobench.catalogue.names import Names
+from cryptobench.shared.catalogue.names import Names
 from perfrepair.catalog.screening import SCREENING, Screening, ScreeningError
 
 NAMES = Names.load()

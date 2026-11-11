@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import yaml
 
-from cryptobench.paths import RunTree
+from cryptobench.shared.paths import RunTree
 from ..app.facts.path_id import path_id
 from ..app.facts.target_set import MISSING, Skipped
 from ..files import write_text

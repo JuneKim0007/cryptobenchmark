@@ -5,9 +5,9 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Callable
 
-from cryptobench.paths import RunTree
+from cryptobench.shared.paths import RunTree
 from .. import run_dir as rd
-from cryptobench.catalogue.names import CATALOG
+from cryptobench.shared.catalogue.names import CATALOG
 from ..data_handler.inbound import read_manifest
 from ..data_handler.outbound.benchmark_runner import check_dependencies, identify
 from ..dto.bundled import BundledPolicy

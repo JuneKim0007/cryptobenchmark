@@ -5,12 +5,12 @@ import shutil
 import pytest
 import yaml
 
-from cryptobench.catalogue.algorithms import DIRECTORY, Algorithms, AlgorithmsError, Entry, algorithms, load
-from cryptobench.catalogue.families import Families
-from cryptobench.catalogue.groups import CATALOG as GROUPS
-from cryptobench.catalogue.overrides import apply_override
-from cryptobench.catalogue.provider_builds import ProviderBuildError, provider_builds
-from cryptobench.catalogue.views import get_group, list_groups, view_for
+from cryptobench.shared.catalogue.algorithms import DIRECTORY, Algorithms, AlgorithmsError, Entry, algorithms, load
+from cryptobench.shared.catalogue.families import Families
+from cryptobench.shared.catalogue.groups import CATALOG as GROUPS
+from cryptobench.shared.catalogue.overrides import apply_override
+from cryptobench.shared.catalogue.provider_builds import ProviderBuildError, provider_builds
+from cryptobench.shared.catalogue.views import get_group, list_groups, view_for
 
 GCM = "Cipher|AES/GCM/NoPadding"
 TAG = {"name": "tagBits", "accepted": [96, 104, 112, 120, 128], "default": 128, "source": "measured"}

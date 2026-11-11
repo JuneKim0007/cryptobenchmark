@@ -10,10 +10,10 @@ import sys
 
 import chart_input  # noqa: E402
 import chart_model  # noqa: E402
-from cryptobench.measure import stats
-from cryptobench.measure.units import number
+from cryptobench.shared.stats import stats
+from cryptobench.shared.stats.units import number
 from outliers import split  # noqa: E402
-from cryptobench import paths
+from cryptobench.shared import paths
 
 NO_VALUE = "-"
 RUN_LEVEL = ("throughput", "latency", "stability")

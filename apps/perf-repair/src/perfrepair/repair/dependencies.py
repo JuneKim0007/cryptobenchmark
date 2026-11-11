@@ -7,7 +7,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-from cryptobench import paths
+from cryptobench.shared import paths
 from ..files import read_yaml
 from ..source.language import Language
 from ..source.lexer import mask

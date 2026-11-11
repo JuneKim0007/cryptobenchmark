@@ -5,8 +5,8 @@ import pytest
 import yaml
 
 from stages import guide  # noqa: E402
-from cryptobench.catalogue import vectors  # noqa: E402
-from cryptobench.coded import InputError  # noqa: E402
+from cryptobench.shared.catalogue import vectors  # noqa: E402
+from cryptobench.shared.errors.coded import InputError  # noqa: E402
 
 FIXTURE = pathlib.Path(__file__).resolve().parents[2] / "benchmark/modules/benchmark/src/test/resources/known-answers-fixture.yaml"
 VECTOR = {"id": "mine", "source": "s", "type": "Cipher", "algorithm": "ChaCha20", "operations": ["ENCRYPT"], "input": "00", "output": "00"}

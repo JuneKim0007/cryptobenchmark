@@ -6,7 +6,7 @@ import pytest
 import yaml
 from helpers import with_results, LIBRARY, QUIET
 
-from cryptobench.paths import GroupingTree
+from cryptobench.shared.paths import GroupingTree
 from perfrepair.ai.parse.algorithm_classify.command import Reviewer, dry_run
 from perfrepair.ai.parse.grouping_assign.kind import GroupingKind
 from perfrepair.ai.runtime.agent import ScriptedConversations

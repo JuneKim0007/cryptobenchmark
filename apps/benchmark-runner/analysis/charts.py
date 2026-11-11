@@ -17,7 +17,7 @@ import chart_draw  # noqa: E402
 import chart_input  # noqa: E402
 import chart_model  # noqa: E402
 import chart_report  # noqa: E402
-from cryptobench import paths
+from cryptobench.shared import paths
 
 
 def build(benchmark_file, prepared_file, effective_file, results):

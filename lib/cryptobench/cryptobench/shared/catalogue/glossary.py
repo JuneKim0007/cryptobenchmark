@@ -5,8 +5,8 @@ from .. import paths
 import re
 from functools import cache
 
-from ..coded import InputError
-from ..document import AT_PATH, DocumentKind
+from ..errors.coded import InputError
+from ..document.document import AT_PATH, DocumentKind
 
 CATALOG = paths.repo().algorithms / "glossary.yaml"
 SCHEMA_VERSION = 1

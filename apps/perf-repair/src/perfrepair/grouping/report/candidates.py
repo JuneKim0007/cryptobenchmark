@@ -4,7 +4,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from pathlib import Path
 
-from cryptobench.catalogue.groups import group_catalog, row_contracts
+from cryptobench.shared.catalogue.groups import group_catalog, row_contracts
 from ...dto.decision import OutboxRecord
 from ...dto.grouping_output import Finding
 from ...dto.grouping_state import Answer, Knowledge

@@ -6,7 +6,7 @@ from __future__ import annotations
 import re
 from functools import lru_cache
 
-from cryptobench import paths
+from cryptobench.shared import paths
 from ..dto.site import Scope
 from ..files import read_yaml
 from ..source.brackets import CLOSE, OPEN, matching

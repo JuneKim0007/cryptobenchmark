@@ -5,7 +5,7 @@ from dataclasses import replace
 import pytest
 from helpers import LIBRARY, QUIET, logged, row, summary
 
-from cryptobench.paths import AppTree
+from cryptobench.shared.paths import AppTree
 from perfrepair.ai.select.command import select_upgrades
 from perfrepair.ai.select.upgrade_render import render
 from perfrepair.ai.runtime.agent import ScriptedConversations

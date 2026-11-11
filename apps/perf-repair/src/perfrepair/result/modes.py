@@ -4,7 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from functools import cache
 
-from cryptobench import paths
+from cryptobench.shared import paths
 from ..dto.perf_mode import PerfMode
 from ..files import read_yaml
 

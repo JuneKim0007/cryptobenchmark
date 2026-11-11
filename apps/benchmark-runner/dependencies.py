@@ -39,7 +39,7 @@ def require_energy(source_name, python=sys.executable):
 for _module in BASE:
     require(_module)
 
-from cryptobench import paths  # noqa: E402
+from cryptobench.shared import paths  # noqa: E402
 from global_file import global_config  # noqa: E402
 
 paths.add_energy_imports()

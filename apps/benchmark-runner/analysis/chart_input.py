@@ -3,8 +3,8 @@ import json
 import pathlib
 
 
-from cryptobench.measure.units import DisplayUnits
-from cryptobench.document import read_yaml
+from cryptobench.shared.stats.units import DisplayUnits
+from cryptobench.shared.document.document import read_yaml
 
 # Mirrors AnalysisSettings in :config. effective.yaml always carries these, so they apply only when that file is
 # missing; test_charts.py compares them with the committed effective example so the two cannot drift apart.

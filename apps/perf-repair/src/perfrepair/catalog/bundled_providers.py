@@ -6,9 +6,9 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-from cryptobench import paths
-from cryptobench.coded import InputError
-from cryptobench.document import parse_yaml
+from cryptobench.shared import paths
+from cryptobench.shared.errors.coded import InputError
+from cryptobench.shared.document.document import parse_yaml
 
 BUNDLED_PROVIDERS = paths.BUNDLED_PROVIDERS.path
 SCHEMA_VERSION = 1

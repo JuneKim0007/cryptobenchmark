@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from cryptobench.paths import RunTree
+from cryptobench.shared.paths import RunTree
 from ... import run_dir as rd
 from ...dto import BenchmarkManifest
-from cryptobench.measure.units import DisplayUnits
+from cryptobench.shared.stats.units import DisplayUnits
 from ...files import read_yaml
 
 

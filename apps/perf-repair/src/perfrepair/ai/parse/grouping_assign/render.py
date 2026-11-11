@@ -3,11 +3,11 @@ from __future__ import annotations
 
 import yaml
 
-from cryptobench.catalogue.groups import group_catalog
-from cryptobench.catalogue.interchange import KEY, interchange
-from cryptobench.catalogue.grouping import KEY_LABELS, Family, Item, Profile
+from cryptobench.shared.catalogue.groups import group_catalog
+from cryptobench.shared.catalogue.interchange import KEY, interchange
+from cryptobench.shared.catalogue.grouping import KEY_LABELS, Family, Item, Profile
 from ....dto.grouping_state import Knowledge
-from cryptobench.catalogue.signature import CONVENTION, UNKNOWN, Component, Signature
+from cryptobench.shared.catalogue.signature import CONVENTION, UNKNOWN, Component, Signature
 
 EXAMPLES = 3
 NOT_KNOWN = "not known"

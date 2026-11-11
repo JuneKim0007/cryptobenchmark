@@ -3,7 +3,7 @@ import json
 
 
 from energy_stage import capture
-from cryptobench.document import read_yaml
+from cryptobench.shared.document.document import read_yaml
 
 
 def timed(prepared):

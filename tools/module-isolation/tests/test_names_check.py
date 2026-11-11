@@ -5,7 +5,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from names_check import MODULE, ROOT, SOURCES, disagreements, kotlin_names, literal_violations  # noqa: E402
 
-from cryptobench import paths  # noqa: E402
+from cryptobench.shared import paths  # noqa: E402
 
 CONTRACT = paths.CONTRACT | paths.CONTRACT_PARTS
 

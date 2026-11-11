@@ -7,7 +7,7 @@ from failure import one_line
 from results import case_files
 from session import calibration, case_isolation, dynamic_temperature, launch
 from device.adb import PASSED, DeviceError
-from cryptobench import paths
+from cryptobench.shared import paths
 
 COUNTED = re.compile(r"^Tests run: (\d+),\s+Failures: (\d+)", re.M)
 

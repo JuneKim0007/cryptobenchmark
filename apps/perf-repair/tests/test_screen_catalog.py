@@ -8,7 +8,7 @@ import pytest
 
 from test_stages import run  # noqa: F401  the recorded run, grouped
 
-from cryptobench.paths import GroupingTree
+from cryptobench.shared.paths import GroupingTree
 from perfrepair.catalog.screening import SCREENING
 from perfrepair.check.run import validate_run
 from perfrepair.config.load import load

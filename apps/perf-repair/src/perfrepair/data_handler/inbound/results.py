@@ -6,7 +6,7 @@ import math
 from dataclasses import replace
 from pathlib import Path
 
-from cryptobench.measure import stats
+from cryptobench.shared.stats import stats
 
 
 from ...dto import PrimitiveRow, Summary

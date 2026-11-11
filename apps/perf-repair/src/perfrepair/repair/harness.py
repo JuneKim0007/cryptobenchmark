@@ -4,7 +4,7 @@ from __future__ import annotations
 import shutil
 from pathlib import Path
 
-from cryptobench.paths import AppTree
+from cryptobench.shared.paths import AppTree
 from ..dto.site import HARNESS_SCHEMA_VERSION, NO_OPERATION, Scope
 from ..dto.replacement import Replacement
 from ..dto.unit import Unit, units_by_scope

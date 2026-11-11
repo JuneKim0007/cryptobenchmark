@@ -3,12 +3,12 @@ from __future__ import annotations
 from collections import Counter
 from pathlib import Path
 
-from cryptobench.paths import GroupingTree
+from cryptobench.shared.paths import GroupingTree
 from ...ai.parse.algorithm_classify.command import Reviewer, classify
-from cryptobench.catalogue.families import Families
-from cryptobench.catalogue.names import Names
+from cryptobench.shared.catalogue.families import Families
+from cryptobench.shared.catalogue.names import Names
 from ...data_handler.inbound import RunContext
-from cryptobench.catalogue.grouping import items_document, profiles_document
+from cryptobench.shared.catalogue.grouping import items_document, profiles_document
 from ...dto.screen import CODE_GROUPED, screen_document
 from ...files import json_text, sha256_text, write_texts
 from ...log import step

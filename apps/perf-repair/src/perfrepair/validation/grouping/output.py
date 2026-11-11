@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from collections import Counter
 
-from cryptobench.paths import GroupingTree
-from cryptobench.catalogue.grouping import Item, Profile, read_items, read_profiles
+from cryptobench.shared.paths import GroupingTree
+from cryptobench.shared.catalogue.grouping import Item, Profile, read_items, read_profiles
 from ...dto.grouping_output import GROUPS_SCHEMA_VERSION
 from ...dto.grouping_state import Group
 from ...dto.screen import Verdict

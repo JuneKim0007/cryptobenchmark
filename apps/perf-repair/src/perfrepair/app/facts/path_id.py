@@ -4,7 +4,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from cryptobench.paths import AppTree, RunTree
+from cryptobench.shared.paths import AppTree, RunTree
 from ...files import read_json, sha256_text
 
 _UNSAFE = re.compile(r"[^A-Za-z0-9._-]+")

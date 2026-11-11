@@ -2,7 +2,7 @@
 import sys
 
 from stages import guide  # noqa: E402
-from cryptobench.catalogue.provider_builds import provider_builds  # noqa: E402
+from cryptobench.shared.catalogue.provider_builds import provider_builds  # noqa: E402
 
 
 def test_a_device_names_its_platform_and_a_host_its_jdk():

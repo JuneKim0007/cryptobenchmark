@@ -4,7 +4,7 @@ import pathlib
 import shlex
 
 import gradle_runner
-from cryptobench.document import parse_yaml
+from cryptobench.shared.document.document import parse_yaml
 
 
 class ConfigCheckError(Exception):

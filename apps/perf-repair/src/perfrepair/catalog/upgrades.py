@@ -5,11 +5,11 @@ from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 
-from cryptobench import paths
-from cryptobench.coded import InputError
-from cryptobench.document import AT_PATH, DocumentKind
-from cryptobench.catalogue.families import Families
-from cryptobench.catalogue.names import Names, fold
+from cryptobench.shared import paths
+from cryptobench.shared.errors.coded import InputError
+from cryptobench.shared.document.document import AT_PATH, DocumentKind
+from cryptobench.shared.catalogue.families import Families
+from cryptobench.shared.catalogue.names import Names, fold
 from .screening import ACCEPTED, DEPRECATED, Screening
 from .types import types
 

@@ -6,7 +6,7 @@ import json
 import pathlib
 import sys
 
-from cryptobench import paths
+from cryptobench.shared import paths
 
 TIME = "timeNs"
 

@@ -10,8 +10,8 @@ from session import case_isolation, passes, thermal_hook, variant_order
 from scope import wrapper
 from stages import check
 from device import capture
-from cryptobench.catalogue import guide_items, names, vectors
-from cryptobench.paths import device_dirs
+from cryptobench.shared.catalogue import guide_items, names, vectors
+from cryptobench.shared.paths import device_dirs
 import energy, preflight
 from rails import trace
 

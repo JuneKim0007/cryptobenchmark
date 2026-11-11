@@ -3,8 +3,8 @@ import sys
 
 import pytest
 
-from cryptobench import paths
-from cryptobench.coded import InputError
+from cryptobench.shared import paths
+from cryptobench.shared.errors.coded import InputError
 
 
 def checkout(folder):

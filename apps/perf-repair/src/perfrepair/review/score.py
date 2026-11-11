@@ -4,8 +4,8 @@ from __future__ import annotations
 from collections import defaultdict
 from pathlib import Path
 
-from cryptobench.paths import RunTree
-from cryptobench.paths import AI_LOGS
+from cryptobench.shared.paths import RunTree
+from cryptobench.shared.paths import AI_LOGS
 from ..ai.log.attempt_log import read_log
 from ..files import write_json
 from .sheet import GROUPING, read_sheet

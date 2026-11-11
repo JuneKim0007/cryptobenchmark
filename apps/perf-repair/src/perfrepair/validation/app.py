@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from cryptobench.paths import AppTree
-from cryptobench.paths import APP, SCOPES, UNITS
+from cryptobench.shared.paths import AppTree
+from cryptobench.shared.paths import APP, SCOPES, UNITS
 from ..dto.lifecycle import (BINDINGS, OPEN_ORIGINS, ORIGINS, PARTIAL_REASONS,
                              PARTIALLY_BOUNDED, REQUIREMENTS, ROLES, STATUSES, UNSUPPORTED, UNSUPPORTED_REASONS, WHERE)
 from ..dto.lifecycle import Lifecycle

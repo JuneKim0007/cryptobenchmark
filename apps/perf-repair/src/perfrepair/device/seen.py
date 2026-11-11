@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from cryptobench.paths import GroupingTree, RunTree
-from cryptobench.paths import MEASUREMENTS, ROWS, RUN_LOG
+from cryptobench.shared.paths import GroupingTree, RunTree
+from cryptobench.shared.paths import MEASUREMENTS, ROWS, RUN_LOG
 from .. import run_dir as rd
 from ..data_handler.inbound import read_manifest
 from ..files import sha256_file

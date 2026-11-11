@@ -6,11 +6,11 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
-from cryptobench.paths import AppTree, GroupingTree, RunTree
+from cryptobench.shared.paths import AppTree, GroupingTree, RunTree
 from ..ai.runtime.engine.outbox import active_outbox
 from ..dto.decision import OutboxRecord
 from ..dto.dossier import Dossier
-from cryptobench.catalogue.grouping import read_items, read_profiles
+from cryptobench.shared.catalogue.grouping import read_items, read_profiles
 from ..files import read_json
 from ..result.gain import option_label
 

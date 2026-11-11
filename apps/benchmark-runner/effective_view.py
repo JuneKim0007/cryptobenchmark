@@ -4,8 +4,8 @@ import pathlib
 import yaml
 
 from failure import fail
-from cryptobench import paths
-from cryptobench.document import read_yaml
+from cryptobench.shared import paths
+from cryptobench.shared.document.document import read_yaml
 
 CASE_ISOLATION = "case"
 

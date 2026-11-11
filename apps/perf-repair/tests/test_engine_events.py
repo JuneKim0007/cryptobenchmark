@@ -4,7 +4,7 @@ import json
 from helpers import QUIET, logged
 from test_engine import CHARTER, LabelKind, label_of
 
-from cryptobench.paths import RunTree
+from cryptobench.shared.paths import RunTree
 from perfrepair.ai.runtime.agent.conversation import LifetimeGuarded
 from perfrepair.ai.runtime.agent.reply import AgentReply
 from perfrepair.ai.runtime.engine.decide import decide

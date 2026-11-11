@@ -12,7 +12,7 @@
 - settings: a change to `:settings` passes `apps/benchmark/gradlew -p apps/benchmark :settings:test`.
 - android: a change under `apps/benchmark/modules/android/` passes `apps/benchmark/gradlew -p apps/benchmark build :android:compileReleaseAndroidTestKotlin` (needs `ANDROID_HOME`).
 - examples: regenerate committed `example/` files only after a schema change: `apps/benchmark/gradlew -p tools/module-isolation test -Dexamples.update=true`; review the diff before committing.
-- names: a change to `apps/benchmark/modules/files/` or `lib/cryptobench/cryptobench/paths/names.py` passes `python3 tools/module-isolation/names_check.py`.
+- names: a change to `apps/benchmark/modules/files/` or `lib/cryptobench/cryptobench/shared/paths/names.py` passes `python3 tools/module-isolation/names_check.py`.
 - python: a change under `apps/benchmark-runner/`, `apps/cli/` or `tools/` passes `python3 -m pytest apps/benchmark-runner/tests apps/benchmark-runner/energy/tests apps/benchmark-runner/analysis/tests apps/cli/tests tools/tests`.
 - layering: a change under `lib/cryptobench/` passes `python3 -m pytest tools/tests/test_lib_layers.py`; its `RULES` table says what each package must not import, a package not yet present is listed in `PENDING` and removed from it in the commit that adds the package.
 - python: a change to `apps/benchmark-runner/results/` `apps/benchmark-runner/device/identity.py` or `apps/benchmark-runner/device/capture.py` passes `python3 apps/benchmark-runner/tests/test_manifest.py`.

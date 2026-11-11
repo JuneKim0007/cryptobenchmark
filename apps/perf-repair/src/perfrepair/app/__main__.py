@@ -6,9 +6,9 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from cryptobench.paths import AppTree, app_dir
-from cryptobench.paths import APP, SCOPES, UNITS
-from cryptobench.catalogue.names import Names, NamesError
+from cryptobench.shared.paths import AppTree, app_dir
+from cryptobench.shared.paths import APP, SCOPES, UNITS
+from cryptobench.shared.catalogue.names import Names, NamesError
 from ..config.args import add_config_arg, load_settings
 from ..dto.shipped import shipped_names
 from ..dto.dossier import NOT_ON_DEVICE, NOT_ON_DEVICE_ABSENT, NOT_ON_DEVICE_STEP, not_on_device_sites

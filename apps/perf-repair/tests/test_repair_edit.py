@@ -1,6 +1,6 @@
 import pytest
 
-from cryptobench.paths import AppTree
+from cryptobench.shared.paths import AppTree
 from perfrepair.dto.site import Scope, scope_id
 from perfrepair.dto.unit import Unit, unit_id
 

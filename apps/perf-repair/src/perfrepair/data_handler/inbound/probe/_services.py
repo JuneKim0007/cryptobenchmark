@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Callable, Iterator
 
-from cryptobench.catalogue.names import Names
+from cryptobench.shared.catalogue.names import Names
 
 GENERATOR_KINDS = {"KeyGenerator": "secret", "KeyPairGenerator": "pair"}
 

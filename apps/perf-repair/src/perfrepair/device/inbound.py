@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from cryptobench.paths import RunTree
-from cryptobench.paths import MEASUREMENTS, ROWS, RUN_LOG
+from cryptobench.shared.paths import RunTree
+from cryptobench.shared.paths import MEASUREMENTS, ROWS, RUN_LOG
 from ..data_handler.inbound import build_run_log, comparability, manifest_file, read_manifest, read_prepared, read_results
 from ..data_handler.inbound.results import ended_throttled, thermal_of
 from ..dto import Measurements

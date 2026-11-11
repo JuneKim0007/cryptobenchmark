@@ -7,8 +7,8 @@ from dataclasses import dataclass, field
 from functools import cache
 from pathlib import Path
 
-from ..coded import InputError
-from ..document import AT_PATH, DocumentKind
+from ..errors.coded import InputError
+from ..document.document import AT_PATH, DocumentKind
 from .glossary import build_problems
 
 CATALOG = paths.repo().algorithms / "provider-builds.yaml"

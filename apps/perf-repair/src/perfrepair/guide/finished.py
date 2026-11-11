@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from cryptobench.paths import GroupingTree, RunTree
-from cryptobench import paths
+from cryptobench.shared.paths import GroupingTree, RunTree
+from cryptobench.shared import paths
 from ..ai.select.job import NAME as SELECT
 from ..catalog.upgrades import CATALOG as UPGRADES
 from ..app.find.sources import BUILD_NAMES, CATALOG, walk

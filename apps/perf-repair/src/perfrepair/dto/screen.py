@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, replace
 
 from . import classify as answer
-from cryptobench.document import DocumentKind
+from cryptobench.shared.document.document import DocumentKind
 
 SCHEMA_VERSION = 5
 SCREEN_DOC = DocumentKind("screen", SCHEMA_VERSION)

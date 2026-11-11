@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from cryptobench.paths import RunTree
+from cryptobench.shared.paths import RunTree
 from .. import run_dir as rd
 from ..data_handler.inbound import read_manifest
 from ..data_handler.inbound.manifest import manifest_file
@@ -22,7 +22,7 @@ from ..dto.benchmark_coverage import (
     Coverage,
     Gap,
 )
-from cryptobench.catalogue.grouping import parse_qualified, qualified
+from cryptobench.shared.catalogue.grouping import parse_qualified, qualified
 from ..dto.metrics import METRICS
 from ..dto.perf_mode import PerfMode
 from ..dto.used import UsedItem, UsedSet

@@ -3,9 +3,9 @@ import shutil
 
 
 import gradle_runner
-from cryptobench import paths
+from cryptobench.shared import paths
 from device.adb import ONE_PASSED, DeviceError, instrumentation_report
-from cryptobench.document import read_yaml
+from cryptobench.shared.document.document import read_yaml
 
 
 

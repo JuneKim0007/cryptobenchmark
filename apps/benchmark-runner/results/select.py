@@ -2,7 +2,7 @@
 import pathlib
 
 from failure import fail
-from cryptobench import paths
+from cryptobench.shared import paths
 
 
 def device_folder(root, wanted=None):

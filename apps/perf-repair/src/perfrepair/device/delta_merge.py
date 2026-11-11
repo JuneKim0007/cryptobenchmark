@@ -8,11 +8,11 @@ from pathlib import Path
 
 import yaml
 
-from cryptobench.paths import BENCHMARK_JSON, RunTree
+from cryptobench.shared.paths import BENCHMARK_JSON, RunTree
 from ..dto.dossier import SETUP_DRIFT
 from ..files import json_text, read_json, read_yaml, write_text_making_parents
 from ..stop.halt import Coded
-from cryptobench.document import parse_yaml
+from cryptobench.shared.document.document import parse_yaml
 
 PLANNED = ("prepared", "skipped")
 NO_PLAN = "null"

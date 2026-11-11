@@ -5,7 +5,7 @@ import effective_view
 import gradle_runner
 from failure import fail
 from session.measure import process_folder
-from cryptobench import paths
+from cryptobench.shared import paths
 
 PASS_ARGUMENT = "cryptobench.pass"        # PassArguments.PASS
 SAMPLES_ARGUMENT = "cryptobench.samples"  # PassArguments.SAMPLES

@@ -4,7 +4,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from cryptobench import paths
+from cryptobench.shared import paths
 
 ENV_FILE = paths.repo().dotenv
 OWN_PREFIX = "PERFREPAIR_"

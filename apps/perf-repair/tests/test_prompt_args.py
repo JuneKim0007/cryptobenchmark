@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from cryptobench.paths import GroupingTree
+from cryptobench.shared.paths import GroupingTree
 from perfrepair.ai.parse.grouping_assign.kind import charter as assign_charter
 from perfrepair.ai.runtime.engine.outbox import active_fingerprint
 from perfrepair.ai.runtime.prompt import PromptLibrary

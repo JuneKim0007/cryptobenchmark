@@ -8,12 +8,12 @@ import pytest
 import yaml
 from helpers import model_calls
 
-from cryptobench.paths import AppTree, GroupingTree, RunTree
+from cryptobench.shared.paths import AppTree, GroupingTree, RunTree
 from perfrepair import run_dir as rd
 from perfrepair.ai.runtime.engine.outbox import active_fingerprint
 from perfrepair.check.run import validate_run
 from perfrepair.files import read_json
-from cryptobench.catalogue import groups as group_catalog_file
+from cryptobench.shared.catalogue import groups as group_catalog_file
 from perfrepair.catalog import signature
 from perfrepair.app.facts.path_id import path_id
 from perfrepair.guide.command import main as guide

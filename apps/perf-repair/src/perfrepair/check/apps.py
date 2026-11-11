@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from cryptobench.paths import AppTree, RunTree
-from cryptobench.paths import DOSSIERS, EDITS, HARNESS, REPLACEMENTS, UPGRADES
+from cryptobench.shared.paths import AppTree, RunTree
+from cryptobench.shared.paths import DOSSIERS, EDITS, HARNESS, REPLACEMENTS, UPGRADES
 from .. import run_dir as rd
 from ..ai.select.replay import replay_problems
 from ..ai.select.units import UnitSource

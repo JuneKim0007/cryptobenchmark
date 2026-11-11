@@ -4,7 +4,7 @@ import json
 import yaml
 
 from chart_model import AUDIT_TOLERANCE, short, size_label, variant
-from cryptobench import paths
+from cryptobench.shared import paths
 
 
 def summary_table(cases):

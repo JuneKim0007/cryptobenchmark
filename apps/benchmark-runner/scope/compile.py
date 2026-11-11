@@ -2,7 +2,7 @@
 import os, re
 
 import timeouts
-from cryptobench import paths
+from cryptobench.shared import paths
 
 TASK = ":android:compileReleaseAndroidTestJavaWithJavac"
 ERROR = re.compile(r"^(e: |.*\.java:\d+: error: )")

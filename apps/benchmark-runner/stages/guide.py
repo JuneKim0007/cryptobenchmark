@@ -3,10 +3,10 @@ import pathlib
 
 import yaml
 
-from cryptobench import paths
-from cryptobench.catalogue.guide_items import guide_items
-from cryptobench.catalogue import vectors
-from cryptobench.document import read_yaml
+from cryptobench.shared import paths
+from cryptobench.shared.catalogue.guide_items import guide_items
+from cryptobench.shared.catalogue import vectors
+from cryptobench.shared.document.document import read_yaml
 
 def file_beside(effective):
     return paths.Configuration(pathlib.Path(effective).parent).guide

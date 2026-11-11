@@ -2,7 +2,7 @@
 
 ## Criterion
 
-A family (`../../algorithms/families.yaml`, engine type × key kind, 8 of them) is the boundary, not a group. Items sit in one of three kinds of group: a catalog group, a contract row of the names `../../algorithms/groups.yaml` lists for the family (`<type>|<canonical>`) whose catalogue `contract`s are equal, at one key contract (`<row>`, `<row>.p`; `../../lib/cryptobench/cryptobench/catalogue/groups.py`); a code-made group (`code_`: one screened-out algorithm, or a generator of unknown key contract alone; `screen/groups.py`); a model-made group (a `newGroup` answer for an unidentified item). Two primitives share a contract row only when all three contracts match; only those swap as a `drop-in`.
+A family (`../../algorithms/families.yaml`, engine type × key kind, 8 of them) is the boundary, not a group. Items sit in one of three kinds of group: a catalog group, a contract row of the names `../../algorithms/groups.yaml` lists for the family (`<type>|<canonical>`) whose catalogue `contract`s are equal, at one key contract (`<row>`, `<row>.p`; `../../lib/cryptobench/cryptobench/shared/catalogue/groups.py`); a code-made group (`code_`: one screened-out algorithm, or a generator of unknown key contract alone; `screen/groups.py`); a model-made group (a `newGroup` answer for an unidentified item). Two primitives share a contract row only when all three contracts match; only those swap as a `drop-in`.
 
 | Contract | Covers | Splits a group | Evidence |
 |---|---|---|---|

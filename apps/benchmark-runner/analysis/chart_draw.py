@@ -5,7 +5,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 
 from chart_model import op_slug, short, size_label, variant  # noqa: E402
-from cryptobench import paths
+from cryptobench.shared import paths
 
 NOISY_COLOR, CALM_COLOR = "#e07a1f", "#57068c"
 

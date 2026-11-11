@@ -8,12 +8,12 @@ from device.adb import NO_DEFAULT_PROFILER, PASSED, DeviceError, instrumentation
 from failure import fail
 from results.manifest import manifest
 from stages import guide
-from cryptobench import paths
-from cryptobench.catalogue import vectors
+from cryptobench.shared import paths
+from cryptobench.shared.catalogue import vectors
 from stages.discover import device_discover
 from stages.took import elapsed
 import bundled
-from cryptobench.document import read_yaml
+from cryptobench.shared.document.document import read_yaml
 
 # androidx.benchmark 1.5.0: one call per measureRepeated, no warm-up, no timing, no output file
 DRY_RUN = ["-e", "androidx.benchmark.dryRunMode.enable", "true"]

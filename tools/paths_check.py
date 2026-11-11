@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Path rules for the Python outside lib/cryptobench/cryptobench/paths/, minus paths-frozen.txt; every data file has a production reader."""
+"""Path rules for the Python outside lib/cryptobench/cryptobench/shared/paths/, minus paths-frozen.txt; every data file has a production reader."""
 from __future__ import annotations
 
 import argparse
@@ -7,12 +7,12 @@ import ast
 import pathlib
 import sys
 
-from cryptobench import paths
+from cryptobench.shared import paths
 
 ROOT = paths.code_root()
 FROZEN = ROOT / "tools/paths-frozen.txt"
 SOURCES = ("apps/benchmark-runner", "apps/cli", "apps/perf-repair/src", "lib/cryptobench", "tools")
-INTERFACE = "lib/cryptobench/cryptobench/paths"
+INTERFACE = "lib/cryptobench/cryptobench/shared/paths"
 SKIPPED = {"tests", "fixtures", "build", "__pycache__"}
 REPO_PREFIXES = ("apps/", "lib/", "config/", "algorithms/", "tools/")
 ENV_READS = ("CRYPTOBENCH_ROOT", "ANDROID_HOME")

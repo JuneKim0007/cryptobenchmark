@@ -4,10 +4,10 @@ from pathlib import Path
 
 import pytest
 
-from cryptobench.paths import RunTree
+from cryptobench.shared.paths import RunTree
 from perfrepair.app.facts.path_id import app_id, path_id, unit_id
 from perfrepair.config.args import add_config_arg, load_settings
-from cryptobench.paths import Results
+from cryptobench.shared.paths import Results
 from perfrepair.config.device_results import (_warn_if_temp, add_device_results_arg, device_root, fill_device_results,
                                               select_device)
 from perfrepair.inputs.resolve import InputError

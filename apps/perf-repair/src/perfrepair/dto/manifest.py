@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from cryptobench.document import DocumentKind
-from cryptobench.measure.units import DisplayUnits
+from cryptobench.shared.document.document import DocumentKind
+from cryptobench.shared.stats.units import DisplayUnits
 
 SCHEMA_VERSION = 1
 MANIFEST_DOC = DocumentKind("manifest", SCHEMA_VERSION)

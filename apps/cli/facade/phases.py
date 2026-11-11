@@ -8,7 +8,7 @@ import sys
 import tempfile
 from dataclasses import dataclass
 
-from cryptobench import paths
+from cryptobench.shared import paths
 
 RESUME = "resume"
 

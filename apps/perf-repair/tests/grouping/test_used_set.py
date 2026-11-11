@@ -5,14 +5,14 @@ from conftest import LIBRARY, QUIET, by_name
 from grouping_data import FAMILIES
 from test_code_groups import screen
 
-from cryptobench.paths import AppTree, RunTree, app_dir
+from cryptobench.shared.paths import AppTree, RunTree, app_dir
 from perfrepair.dto.site import SITES_SCHEMA_VERSION
 from perfrepair.ai.parse.grouping_assign.kind import GroupingKind, charter
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.decide import decide
 from perfrepair.device.used import used_set, write_used
-from cryptobench.catalogue.grouping import profiles_document, read_profiles
-from cryptobench.catalogue.signature import Component, Signature
+from cryptobench.shared.catalogue.grouping import profiles_document, read_profiles
+from cryptobench.shared.catalogue.signature import Component, Signature
 from perfrepair.dto.used import UsedItem, UsedSet
 from perfrepair.files import read_json, write_json
 from perfrepair.grouping.report.checks import report

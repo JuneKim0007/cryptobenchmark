@@ -5,14 +5,14 @@ from __future__ import annotations
 from dataclasses import replace as with_fields
 from pathlib import Path
 
-from cryptobench.paths import AppTree, GroupingTree, RunTree
+from cryptobench.shared.paths import AppTree, GroupingTree, RunTree
 from .. import run_dir as rd
 from ..device.coverage import Coverage, coverage
 from ..device.interop import check_pairs, unreachable
 from ..device.missing_rows import measured_rows
 from ..device.stage import probe_device
 from ..device.used import clear_used, write_used
-from cryptobench.coded import InputError
+from cryptobench.shared.errors.coded import InputError
 from ..dto.event import END
 from ..dto.interop import NOT_CHECKABLE
 from ..dto.used import SITE

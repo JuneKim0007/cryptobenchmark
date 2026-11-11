@@ -6,8 +6,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Mapping
 
-from cryptobench import paths
-from cryptobench.coded import InputError
+from cryptobench.shared import paths
+from cryptobench.shared.errors.coded import InputError
 from ..files import read_yaml
 from ..inputs.resolve import CLI, Candidate, choose
 from ..inputs.table import ROLE_KEYS, Layer, RoleRow, Row

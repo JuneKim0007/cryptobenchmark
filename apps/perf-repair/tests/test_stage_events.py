@@ -2,7 +2,7 @@
 from test_guide import F, _from_root
 from test_stages import run  # noqa: F401  the recorded run, grouped
 
-from cryptobench.paths import RunTree
+from cryptobench.shared.paths import RunTree
 from perfrepair.log.read import read_events
 
 

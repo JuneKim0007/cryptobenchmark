@@ -2,7 +2,7 @@
 is `not_run`; sites.json and scopes.json are required."""
 from __future__ import annotations
 
-from cryptobench.paths import AppTree
+from cryptobench.shared.paths import AppTree
 from ..dto.report import BROKEN_USES, SCHEMA_VERSION, stayed, unit_counts
 from ..dto.unit import read_units, units_by_scope
 from ..dto.upgrade import STATUSES as UPGRADE_STATUSES, UPGRADED

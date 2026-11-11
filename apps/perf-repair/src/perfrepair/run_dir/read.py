@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from cryptobench.paths import MANIFEST, GroupingTree, RunTree
+from cryptobench.shared.paths import MANIFEST, GroupingTree, RunTree
 from ..dto import Measurements, PrimitiveRow, RunLog
 from ..dto.primitive import ROWS_DOC
 from ..dto.screen import Verdict, read_screen, read_screen_catalog, read_screen_review

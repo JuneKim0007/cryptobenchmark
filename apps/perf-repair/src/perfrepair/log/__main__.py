@@ -8,8 +8,8 @@ import json
 import sys
 from pathlib import Path
 
-from cryptobench.paths import RunTree
-from cryptobench.coded import InputError
+from cryptobench.shared.paths import RunTree
+from cryptobench.shared.errors.coded import InputError
 from .read import read_events
 from .summary import summarize
 from .summary_text import summary_lines

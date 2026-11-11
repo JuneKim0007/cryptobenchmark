@@ -7,7 +7,7 @@ import sys
 import pytest
 import yaml
 
-from cryptobench import paths
+from cryptobench.shared import paths
 from facade import phases
 
 ROOT = paths.code_root()

@@ -8,7 +8,7 @@ from pathlib import Path
 
 import yaml
 
-from cryptobench.paths import AppTree, RunTree
+from cryptobench.shared.paths import AppTree, RunTree
 from ..app.facts.path_id import absolute, app_id
 from ..dto.replacement import Replacement, read_replacements
 from ..dto.site import Scope

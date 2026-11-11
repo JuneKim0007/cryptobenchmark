@@ -4,8 +4,8 @@ import shutil
 import pytest
 import yaml
 
-from cryptobench.catalogue.algorithms import DIRECTORY, AlgorithmsError, algorithms, load
-from cryptobench.catalogue.recipes import RecipeError, load as load_recipes, recipes
+from cryptobench.shared.catalogue.algorithms import DIRECTORY, AlgorithmsError, algorithms, load
+from cryptobench.shared.catalogue.recipes import RecipeError, load as load_recipes, recipes
 
 
 def test_the_packaged_recipes_load_and_every_one_a_row_names():

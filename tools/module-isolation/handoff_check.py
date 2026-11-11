@@ -9,7 +9,7 @@ import sys
 
 import yaml
 
-from cryptobench import paths
+from cryptobench.shared import paths
 
 ROOT = paths.code_root()
 HERE = ROOT / "tools/module-isolation"

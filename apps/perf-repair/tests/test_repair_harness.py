@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from cryptobench.paths import AppTree
+from cryptobench.shared.paths import AppTree
 from perfrepair.dto.site import (DOSSIERS_SCHEMA_VERSION, SCOPES_SCHEMA_VERSION, Scope, scope_id,
                                  REPLACEMENTS_SCHEMA_VERSION)
 from perfrepair.dto.replacement import Edit, read_replacements

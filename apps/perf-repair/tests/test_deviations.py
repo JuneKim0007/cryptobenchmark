@@ -4,9 +4,9 @@ import shutil
 import pytest
 import yaml
 
-from cryptobench.catalogue.algorithms import DIRECTORY, AlgorithmsError, load
-from cryptobench.catalogue.deviations import DeviationError
-from cryptobench.catalogue.views import view_for
+from cryptobench.shared.catalogue.algorithms import DIRECTORY, AlgorithmsError, load
+from cryptobench.shared.catalogue.deviations import DeviationError
+from cryptobench.shared.catalogue.views import view_for
 
 KEYSTORE, WORKAROUND = "AndroidKeyStore @ android-26", "AndroidKeyStoreBCWorkaround @ android-{}"
 PBE = "Cipher|PBEWithHmacSHA256AndAES_128"

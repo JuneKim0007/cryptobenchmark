@@ -5,12 +5,12 @@ import effective_view, gradle_runner
 from device import facts
 from device.identity import capture_id, device_id
 from failure import fail
-from cryptobench import paths
+from cryptobench.shared import paths
 from results import layout as results_layout
 import bundled
 from stages import capture_files, config_check, guide
 from stages.took import elapsed
-from cryptobench.document import parse_yaml
+from cryptobench.shared.document.document import parse_yaml
 
 
 def summary(effective):

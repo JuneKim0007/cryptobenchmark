@@ -8,7 +8,7 @@ from pathlib import Path
 
 import yaml
 
-from cryptobench.paths import GroupingTree, RunTree
+from cryptobench.shared.paths import GroupingTree, RunTree
 from .. import run_dir as rd
 from ..data_handler.inbound import manifest_file, read_manifest
 from ..data_handler.outbound.benchmark_runner import require_connected, run_pipeline

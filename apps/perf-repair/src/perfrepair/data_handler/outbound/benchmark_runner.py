@@ -8,12 +8,12 @@ from collections import deque
 from pathlib import Path
 from typing import Callable
 
-from cryptobench.paths import RunTree
+from cryptobench.shared.paths import RunTree
 from ...child.deadline import Deadline
 from ...child.env import child_env
 from ...config.timeouts import pipeline_seconds
-from cryptobench import paths
-from cryptobench.coded import InputError, code_in
+from cryptobench.shared import paths
+from cryptobench.shared.errors.coded import InputError, code_in
 from ...log import run_id
 from ...stop import terminate
 

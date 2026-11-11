@@ -4,11 +4,11 @@ import shutil
 import pytest
 import yaml
 
-from cryptobench.catalogue import groups as groups_module
-from cryptobench.catalogue.algorithms import DIRECTORY, load as load_catalogues
-from cryptobench.catalogue.families import UNIDENTIFIED, Families
-from cryptobench.catalogue.groups import CATALOG, GroupsError, load
-from cryptobench.catalogue.names import CATALOG as NAMES_CATALOG, Names
+from cryptobench.shared.catalogue import groups as groups_module
+from cryptobench.shared.catalogue.algorithms import DIRECTORY, load as load_catalogues
+from cryptobench.shared.catalogue.families import UNIDENTIFIED, Families
+from cryptobench.shared.catalogue.groups import CATALOG, GroupsError, load
+from cryptobench.shared.catalogue.names import CATALOG as NAMES_CATALOG, Names
 from perfrepair.catalog.screening import Screening
 from perfrepair.data_handler.inbound.probe import Probe
 from perfrepair.grouping.build.items import build

@@ -82,7 +82,7 @@ Why: the phone's power controller lowers the CPU limit once skin reaches its own
 |---|---|
 | on | `run.thermalGate` set; needs `isolation: case`; a `--device` run only |
 | startup | once, before the build: `device/thermal.py` `capability`: live type-3 (SKIN) sensors, or one reason. Anything else prints `TEMPERATURE SET BUT DEVICE CAN'T POLL` and the run goes on |
-| start limit | `temperatureKeptCelsius` minus the start margin. `session/dynamic_temperature.py` is the facade; the arithmetic is in `lib/cryptobench/cryptobench/measure/equations.py` |
+| start limit | `temperatureKeptCelsius` minus the start margin. `session/dynamic_temperature.py` is the facade; the arithmetic is in `lib/cryptobench/cryptobench/shared/stats/equations.py` |
 | hold | before every launch of a run, the warm-up and the energy dry pass: above the limit, wait `cooldownMinutes`, then read every `pollMinutes` |
 | end | a run ending at or above `temperatureKeptCelsius` is discarded and measured again; the margin widens by `backoffFactor`, up to `maximumCelsius`; `cleanRunsToRecover` clean runs narrow it by `recoveryCelsius`, never below `initialCelsius` |
 | stop | still too hot after `pollTerminateMinutes`: the benchmark stops with `temperature_gate_timeout` |

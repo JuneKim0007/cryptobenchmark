@@ -1,7 +1,7 @@
 """Generates and compiles a harness's scopes alone, leaving the sources in place."""
 import sys
 
-from cryptobench import paths
+from cryptobench.shared import paths
 from scope.generate import generate
 
 

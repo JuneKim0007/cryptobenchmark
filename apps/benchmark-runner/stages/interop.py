@@ -8,7 +8,7 @@ from results.manifest import add_to_manifest, manifest
 from stages import interop_oracle
 from stages.discover import discover_staged, located
 from stages.took import elapsed
-from cryptobench import paths
+from cryptobench.shared import paths
 
 
 def interop_run(options, configuration, device, root):

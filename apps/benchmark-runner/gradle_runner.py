@@ -6,7 +6,7 @@ import sys
 import timeouts
 
 from failure import fail, one_line
-from cryptobench import paths
+from cryptobench.shared import paths
 
 WRAPPER = paths.repo().gradlew
 CLI = paths.repo().benchmark_cli

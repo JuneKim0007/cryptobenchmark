@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 
-from cryptobench.paths import GroupingTree
+from cryptobench.shared.paths import GroupingTree
 from ....dto.classify import Batch
 from ....dto.decision import OutboxRecord
 from ....dto.prompt import Charter, TaskPrompt

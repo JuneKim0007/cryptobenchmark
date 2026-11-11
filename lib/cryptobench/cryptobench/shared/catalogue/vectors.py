@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ..coded import InputError
-from ..document import AT_PATH, DocumentKind
+from ..errors.coded import InputError
+from ..document.document import AT_PATH, DocumentKind
 from .algorithms import algorithms, algorithm_id
 from .families import Families
 from .guide_items import carried_recipes, parameter_tree

@@ -7,7 +7,7 @@ import pytest
 
 from helpers import captured_events
 
-from cryptobench.paths import PIPELINE_LOGS
+from cryptobench.shared.paths import PIPELINE_LOGS
 from perfrepair.config.load import load
 from perfrepair.config.stops import install_stops
 from perfrepair.stop import Halt

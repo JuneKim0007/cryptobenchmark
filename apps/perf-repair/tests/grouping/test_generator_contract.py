@@ -2,10 +2,10 @@
 that an unknown generator joins no group; the providers are made up."""
 import pytest
 
-from cryptobench.catalogue.families import Families
-from cryptobench.catalogue.names import Names
+from cryptobench.shared.catalogue.families import Families
+from cryptobench.shared.catalogue.names import Names
 from perfrepair.data_handler.inbound.probe import Probe
-from cryptobench.catalogue.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD, KEY_UNKNOWN
+from cryptobench.shared.catalogue.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD, KEY_UNKNOWN
 from perfrepair.dto.grouping_state import Answer, Group, Knowledge, code_made
 from perfrepair.dto.screen import Verdict
 from perfrepair.grouping.build.items import build

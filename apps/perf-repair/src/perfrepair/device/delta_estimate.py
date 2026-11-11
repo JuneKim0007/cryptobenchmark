@@ -5,9 +5,9 @@ import re
 import statistics
 from pathlib import Path
 
-from cryptobench.paths import RunTree
+from cryptobench.shared.paths import RunTree
 from ..dto.benchmark_coverage import Gap
-from cryptobench.catalogue.grouping import parse_qualified
+from cryptobench.shared.catalogue.grouping import parse_qualified
 
 DELTA_RESULTS = "/delta/results"
 TOOK = re.compile(r"^took:\s+prepare and measure in (?P<s>[0-9.]+)s$")

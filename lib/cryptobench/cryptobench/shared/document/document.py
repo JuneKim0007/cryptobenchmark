@@ -7,7 +7,7 @@ from pathlib import Path
 
 import yaml
 
-from .coded import InputError
+from ..errors.coded import InputError
 
 # the catalogues are about 1 MB: libyaml when the build has it, the pure-Python parser otherwise
 SAFE_LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)

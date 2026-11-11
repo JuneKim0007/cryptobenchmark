@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from ..data_handler.inbound import RunContext
 from ..dto.classify import Batch, Evidence
-from cryptobench.catalogue.grouping import Item
+from cryptobench.shared.catalogue.grouping import Item
 from ..dto.screen import UNKNOWN, Verdict
 
 BATCH = 10

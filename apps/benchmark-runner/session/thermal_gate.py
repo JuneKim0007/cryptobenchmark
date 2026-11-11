@@ -2,7 +2,7 @@
 import json
 
 from session.measure import Hooks
-from cryptobench import paths
+from cryptobench.shared import paths
 
 
 class GateRecords(Hooks):

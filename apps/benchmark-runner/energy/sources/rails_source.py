@@ -2,7 +2,7 @@
 import contextlib, time
 
 from .runner import case_arguments
-from cryptobench import paths
+from cryptobench.shared import paths
 
 PREFLIGHT_SECONDS = 3
 # The busy window spins every core; the first case must not start on that heat.

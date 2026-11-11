@@ -6,8 +6,8 @@ from device.adb import Device, measure_arguments
 from energy_session import EnergySession
 from session import clocks_hook, cooldown_hook, dynamic_temperature, thermal_gate, thermal_hook
 from stages.took import elapsed
-from cryptobench import paths
-from cryptobench.document import read_yaml
+from cryptobench.shared import paths
+from cryptobench.shared.document.document import read_yaml
 
 
 @dataclasses.dataclass(frozen=True)

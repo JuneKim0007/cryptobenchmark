@@ -1,5 +1,5 @@
 """Every data file a package ships has its named location in the path interface."""
-from cryptobench import paths
+from cryptobench.shared import paths
 
 
 def test_every_packaged_constant_names_a_file():

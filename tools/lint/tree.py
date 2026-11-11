@@ -5,7 +5,7 @@ import posixpath
 import re
 import subprocess
 
-from cryptobench import paths
+from cryptobench.shared import paths
 from lint.markdown import BACKTICK, LINK, clean, map_blocks
 from lint.paths import ENTRY, ROUTERS, graphed, join, local, router_of
 

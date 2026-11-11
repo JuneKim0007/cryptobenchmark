@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from cryptobench.paths import RunTree
+from cryptobench.shared.paths import RunTree
 from ..dto.bundled import applied_entries
 from ..files import read_yaml
 from ..stop.halt import Coded

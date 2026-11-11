@@ -6,10 +6,10 @@ from pathlib import Path
 
 import yaml
 
-from cryptobench.paths import RunTree
-from cryptobench import paths
+from cryptobench.shared.paths import RunTree
+from cryptobench.shared import paths
 from ..dto.device import DeviceRecord
-from cryptobench.catalogue.grouping import Item
+from cryptobench.shared.catalogue.grouping import Item
 from ..dto.screen import Verdict
 from ..dto.used import names_digest
 from ..files import read_yaml, write_text

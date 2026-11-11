@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import re
 
-from cryptobench.catalogue.groups import group_catalog
-from cryptobench.catalogue.grouping import Item, Profile
+from cryptobench.shared.catalogue.groups import group_catalog
+from cryptobench.shared.catalogue.grouping import Item, Profile
 from ...dto.grouping_state import Amendment, Answer, Group, Knowledge
-from cryptobench.catalogue.signature import UNKNOWN
-from cryptobench.catalogue.families import Families
+from cryptobench.shared.catalogue.signature import UNKNOWN
+from cryptobench.shared.catalogue.families import Families
 from ..json_reply import parse_object
 
 SLUG = re.compile(r"^[a-z0-9][a-z0-9.-]{1,39}$")

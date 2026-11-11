@@ -6,8 +6,8 @@ from pathlib import Path
 
 import yaml
 
-from cryptobench.paths import RunTree
-from cryptobench.document import DocumentKind
+from cryptobench.shared.paths import RunTree
+from cryptobench.shared.document.document import DocumentKind
 from ...dto.event import DECISION
 from ...files import append_line, write_text_making_parents
 from ...log import emit, run_id

@@ -1,10 +1,10 @@
-"""The catalogue read tools: thin wrappers over lib/cryptobench/cryptobench/catalogue/views.py and lib/cryptobench/cryptobench/catalogue/glossary.py; text out, never a file."""
+"""The catalogue read tools: thin wrappers over lib/cryptobench/cryptobench/shared/catalogue/views.py and lib/cryptobench/cryptobench/shared/catalogue/glossary.py; text out, never a file."""
 from __future__ import annotations
 
 import json
 
-from cryptobench.catalogue.glossary import what_is
-from cryptobench.catalogue.views import get_group, list_groups, view_for
+from cryptobench.shared.catalogue.glossary import what_is
+from cryptobench.shared.catalogue.views import get_group, list_groups, view_for
 from ...stop.halt import Coded
 from .tool import READ, Context, Outcome, Tool, args_schema
 

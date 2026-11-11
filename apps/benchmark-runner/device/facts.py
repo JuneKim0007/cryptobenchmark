@@ -5,7 +5,7 @@ import yaml
 
 from device import capture as captured, clocks
 from device.adb import PACKAGE
-from cryptobench import paths
+from cryptobench.shared import paths
 
 NATIVE_LIBRARY = "libaffinity.so"
 APK = paths.repo().apk

@@ -8,7 +8,7 @@ import re
 import subprocess
 import sys
 
-from cryptobench import paths
+from cryptobench.shared import paths
 
 ROOT = paths.code_root()
 ALLOW = ROOT / "tools/dead-code-allow.txt"

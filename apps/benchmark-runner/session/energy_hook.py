@@ -3,7 +3,7 @@ import contextlib
 
 import energy_stage
 from session.measure import Hooks
-from cryptobench import paths
+from cryptobench.shared import paths
 
 
 class EnergyCapture(Hooks):

@@ -5,7 +5,7 @@ from __future__ import annotations
 import shutil
 from collections import defaultdict
 
-from cryptobench.paths import AppTree
+from cryptobench.shared.paths import AppTree
 from ...dto.site import Scope
 from ...dto.unit import Unit
 from ...files import write_text_making_parents

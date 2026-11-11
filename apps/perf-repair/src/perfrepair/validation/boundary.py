@@ -4,13 +4,13 @@ from __future__ import annotations
 from collections import Counter
 from pathlib import Path
 
-from cryptobench.paths import BENCHMARK_JSON, GroupingTree, RunTree
-from cryptobench.catalogue.groups import group_catalog
+from cryptobench.shared.paths import BENCHMARK_JSON, GroupingTree, RunTree
+from cryptobench.shared.catalogue.groups import group_catalog
 from ..catalog.identity import case_id_pattern, resolve
-from cryptobench.catalogue.names import Names
+from cryptobench.shared.catalogue.names import Names
 from ..catalog.types import types as type_catalog
 from ..data_handler.inbound.manifest import read_manifest
-from cryptobench.catalogue.grouping import SEPARATOR, qualified
+from cryptobench.shared.catalogue.grouping import SEPARATOR, qualified
 from ..files import read_json
 from .finding import ADVISORY, BLOCKING, Violation
 

@@ -4,7 +4,7 @@ from __future__ import annotations
 from collections import Counter
 from pathlib import Path
 
-from cryptobench.paths import AppTree, GroupingTree, RunTree
+from cryptobench.shared.paths import AppTree, GroupingTree, RunTree
 from .. import run_dir as rd
 from ..dto.benchmark_coverage import CODED, Coverage
 from ..dto.bundled import APPLY, BundledPolicy, Suggestions
@@ -15,7 +15,7 @@ from ..dto.dossier import (
     VARIANT_NOT_MEASURED,
     not_on_device_sites,
 )
-from cryptobench.catalogue.grouping import parse_qualified, qualified, read_items
+from cryptobench.shared.catalogue.grouping import parse_qualified, qualified, read_items
 from ..dto.primitives_missing import (
     ABSENT_ON_DEVICE,
     BUNDLED_MISSING,

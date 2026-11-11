@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from cryptobench.paths import AppTree
+from cryptobench.shared.paths import AppTree
 from ..files import read_yaml
 from ..stop.halt import Coded
 

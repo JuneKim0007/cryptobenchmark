@@ -6,7 +6,7 @@ from helpers import QUIET
 from test_engine import CHARTER, LabelKind
 from test_engine_events import Billed
 
-from cryptobench.paths import RunTree
+from cryptobench.shared.paths import RunTree
 from perfrepair import failure
 from perfrepair.ai.runtime.engine.decide import decide
 from perfrepair.ai.log.where import Where

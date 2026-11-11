@@ -5,7 +5,7 @@ import sys
 import pytest
 import yaml
 
-from cryptobench import paths
+from cryptobench.shared import paths
 
 ROOT = paths.code_root()
 from facade import check as check_module

@@ -6,7 +6,7 @@ import pathlib
 import re
 import sys
 
-from cryptobench import paths
+from cryptobench.shared import paths
 
 ROOT = paths.code_root()
 MODULE = paths.repo().kotlin_files_module

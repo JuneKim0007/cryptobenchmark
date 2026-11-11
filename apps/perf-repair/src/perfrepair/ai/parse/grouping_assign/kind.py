@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from cryptobench.paths import GroupingTree
-from cryptobench.catalogue.families import Families
+from cryptobench.shared.paths import GroupingTree
+from cryptobench.shared.catalogue.families import Families
 from ....dto.decision import OutboxRecord
-from cryptobench.catalogue.grouping import Item, read_items, read_profiles
+from cryptobench.shared.catalogue.grouping import Item, read_items, read_profiles
 from ....dto.grouping_state import Knowledge
 from ....dto.prompt import Charter, TaskPrompt
 from ....dto.screen import Verdict

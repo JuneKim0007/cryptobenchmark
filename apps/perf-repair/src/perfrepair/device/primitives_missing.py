@@ -7,8 +7,8 @@ from pathlib import Path
 
 import yaml
 
-from cryptobench.paths import RunTree
-from cryptobench.paths import PRIMITIVES_MISSING
+from cryptobench.shared.paths import RunTree
+from cryptobench.shared.paths import PRIMITIVES_MISSING
 from ..dto.event import FINDING
 from ..dto.primitives_missing import MissingRow, missing_document, pointer_line
 from ..files import write_text_making_parents

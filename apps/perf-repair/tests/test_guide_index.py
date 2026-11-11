@@ -6,7 +6,7 @@ from test_guide import APP, FAKE_ROOT
 from test_guide_targets import base  # noqa: F401  the recorded run and two-app loop
 from test_stages import run  # noqa: F401
 
-from cryptobench.paths import AppTree, RunTree
+from cryptobench.shared.paths import AppTree, RunTree
 from perfrepair import failure
 from perfrepair.ai.select.command import dry_run
 from perfrepair.app.facts.path_id import path_id

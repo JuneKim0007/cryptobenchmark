@@ -4,7 +4,7 @@ import logging
 import yaml
 from test_device_flows import APP, Flow, flow  # noqa: F401  the fixture
 
-from cryptobench.paths import AppTree, RunTree
+from cryptobench.shared.paths import AppTree, RunTree
 from perfrepair.app.facts.path_id import path_id
 from perfrepair.device.interop import check_pairs
 from perfrepair.dto.interop import failed_pairs

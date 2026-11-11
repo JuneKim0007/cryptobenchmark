@@ -12,7 +12,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from cryptobench.paths import GroupingTree, RunTree
+from cryptobench.shared.paths import GroupingTree, RunTree
 from ..ai.runtime.engine.ask import Limits
 from ..ai.runtime.gateway.args import add_agent_args
 from ..ai.runtime.gateway.spawn import spawn

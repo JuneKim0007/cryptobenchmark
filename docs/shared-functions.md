@@ -1,4 +1,4 @@
-# Shared functions: benchmark runner, cli and tools
+# Shared functions: benchmark runner, cli, tools and lib
 
 | function | module | rule | callers |
 |---|---|---|---|
@@ -50,6 +50,21 @@
 | `push(device, options, plan, energy)` | `apps/benchmark-runner/stages/measuring.py` | dex2oat runs in the AOT compile, so the energy settle comes after it, never before; energy.yaml follows the settle. | stages.benchmark, stages.harness |
 | `elapsed(label, started)` | `apps/benchmark-runner/stages/took.py` | - | stages.benchmark, stages.check, stages.discover, stages.harness +2 |
 | `run(step, command)` | `apps/benchmark-runner/timeouts.py` | - | device.adb, gradle_runner, scope.compile, stages.benchmark |
+| `algorithm_id(engine_type, canonical)` | `lib/cryptobench/cryptobench/shared/catalogue/algorithms.py` | `f'{engine_type}{SEPARATOR}{canonical}'` | cryptobench.shared.catalogue.groups, cryptobench.shared.catalogue.guide_items, cryptobench.shared.catalogue.vectors, cryptobench.shared.catalogue.views |
+| `algorithms()` | `lib/cryptobench/cryptobench/shared/catalogue/algorithms.py` | `load()` | cryptobench.shared.catalogue.groups, cryptobench.shared.catalogue.guide_items, cryptobench.shared.catalogue.vectors, cryptobench.shared.catalogue.views |
+| `fold(name)` | `lib/cryptobench/cryptobench/shared/catalogue/names.py` | `name.upper()` | cryptobench.shared.catalogue.algorithms, cryptobench.shared.catalogue.deviations, cryptobench.shared.catalogue.groups, cryptobench.shared.catalogue.guide_items +2 |
+| `override_parent(base, path)` | `lib/cryptobench/cryptobench/shared/catalogue/overrides.py` | A provider override `a.b.c`: the mapping that holds c; a list step picks the item named, or the fact, b. | cryptobench.shared.catalogue.algorithms, cryptobench.shared.catalogue.deviations |
+| `provider_builds()` | `lib/cryptobench/cryptobench/shared/catalogue/provider_builds.py` | `load()` | cryptobench.shared.catalogue.algorithms, cryptobench.shared.catalogue.guide_items, cryptobench.shared.catalogue.vectors, cryptobench.shared.catalogue.views |
+| `load(path)` | `lib/cryptobench/cryptobench/shared/catalogue/recipes.py` | - | cryptobench.shared.catalogue.algorithms, cryptobench.shared.catalogue.guide_items, cryptobench.shared.catalogue.vectors |
+| `view_for(identifier, provider, catalogue, builds)` | `lib/cryptobench/cryptobench/shared/catalogue/views.py` | provider: a build key "<name> @ <build>", or a name one build carries; none is the base entry. Only that build's differences apply; no other build's section is kept. | cryptobench.shared.catalogue.guide_items, cryptobench.shared.catalogue.vectors |
+| `parse_yaml(text, where, code, shape, error)` | `lib/cryptobench/cryptobench/shared/document/document.py` | An empty text is an empty shape; YAML that does not parse, or parses to another shape, is `<code>: <where>: ...`. | facade.index, results.manifest, stages.config_check, stages.discover |
+| `read_yaml(path, shape)` | `lib/cryptobench/cryptobench/shared/document/document.py` | The file at path as parse_yaml reads it. | bundled, chart_input, cryptobench.shared.catalogue.interchange, device.capture +15 |
+| `android_home()` | `lib/cryptobench/cryptobench/shared/paths/host.py` | `Path(os.environ.get('ANDROID_HOME') or home() / 'Library/Android/sdk')` | device.adb, energy_stage, scope.compile |
+| `add_energy_imports()` | `lib/cryptobench/cryptobench/shared/paths/imports.py` | The runner imports energy's capture rules and sources; appended, so the runner's own modules keep their names. | dependencies, energy_stage |
+| `repo(root)` | `lib/cryptobench/cryptobench/shared/paths/repo.py` | `Repo(Path(root) if root is not None else roots.code_root())` | cryptobench.shared.catalogue.algorithms, cryptobench.shared.catalogue.deviations, cryptobench.shared.catalogue.families, cryptobench.shared.catalogue.glossary +22 |
+| `code_root()` | `lib/cryptobench/cryptobench/shared/paths/roots.py` | $CRYPTOBENCH_CODE_ROOT, else the checkout of the script that runs, else this library's own; a script of checkout B beats a library installed from A. | cryptobench.shared.paths.repo, dead_code, facade.phases, lint.tree +6 |
+| `against(settings_file, value)` | `lib/cryptobench/cryptobench/shared/paths/settings.py` | A path value of a settings file: ~ expanded, joined to the file's folder, resolved. | facade.index, stages.guide |
+| `summarize(runs)` | `lib/cryptobench/cryptobench/shared/stats/stats.py` | - | analyze, chart_model |
 | `clean(token)` | `tools/lint/markdown.py` | `re.sub('#.*$', '', re.sub(':\\d.*$', '', token.strip()))` | lint.claims, lint.tree |
 | `map_blocks(path, text)` | `tools/lint/markdown.py` | - | docs_lint, lint.tree |
 | `is_doc(path)` | `tools/lint/paths.py` | `not is_guide(path) and 'docs' in local(path).split('/')[:-1]` | docs_lint, lint.markdown |

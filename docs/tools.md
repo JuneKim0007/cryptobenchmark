@@ -68,10 +68,10 @@ python3 apps/benchmark-runner/analysis/charts.py <benchmark.json> <prepared.yaml
 
 | file | holds |
 |---|---|
-| `lib/cryptobench/cryptobench/measure/stats.py` | per-case statistics: mean, sample SD, CoV (SD / mean), interpolated quantiles, IQR, QCD, headline choice |
+| `lib/cryptobench/cryptobench/shared/stats/stats.py` | per-case statistics: mean, sample SD, CoV (SD / mean), interpolated quantiles, IQR, QCD, headline choice |
 | `chart_input.py` | reads benchmark.json, chart groups from prepared.yaml, analysis settings |
 | `chart_model.py` | one case summarised in its display unit; count metrics |
-| `lib/cryptobench/cryptobench/measure/units.py` | `analysis.units`: ns/op to the latency and throughput units, checked; significant-figure numbers |
+| `lib/cryptobench/cryptobench/shared/stats/units.py` | `analysis.units`: ns/op to the latency and throughput units, checked; significant-figure numbers |
 | `chart_draw.py` | matplotlib drawing for both scripts |
 | `chart_report.py` | `summary.md`, `chart-data*.json`, `manifest.yaml` |
 

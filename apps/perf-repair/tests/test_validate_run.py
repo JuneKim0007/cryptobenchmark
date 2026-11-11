@@ -3,7 +3,7 @@ import json
 
 from test_stages import run  # noqa: F401  (the stage fixture)
 
-from cryptobench.paths import GroupingTree
+from cryptobench.shared.paths import GroupingTree
 from perfrepair.check.run import validate_run
 from perfrepair.screen.catalog import screening_catalog
 

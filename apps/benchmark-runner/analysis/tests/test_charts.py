@@ -7,8 +7,8 @@ import yaml
 
 import chart_input  # noqa: E402
 import charts  # noqa: E402
-from cryptobench.measure.stats import summarize
-from cryptobench.measure.units import DisplayUnits, number
+from cryptobench.shared.stats.stats import summarize
+from cryptobench.shared.stats.units import DisplayUnits, number
 
 CALM = [100.0, 101.0, 99.0, 100.0, 100.0] * 10
 NOISY = [100.0] * 47 + [160.0, 170.0, 180.0]

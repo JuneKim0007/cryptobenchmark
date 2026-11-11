@@ -4,8 +4,8 @@ from pathlib import Path
 import pytest
 import yaml
 
-from cryptobench.paths import RunTree
-from cryptobench.paths import PRIMITIVES
+from cryptobench.shared.paths import RunTree
+from cryptobench.shared.paths import PRIMITIVES
 from perfrepair import run_dir as rd
 from perfrepair.catalog.screening import SCREENING
 from perfrepair.check.run import validate_run

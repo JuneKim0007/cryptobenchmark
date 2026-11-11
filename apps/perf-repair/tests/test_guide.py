@@ -11,8 +11,8 @@ from helpers import captured_events, first_candidate, guide_ends, with_results, 
 from repair_fixture import digests
 from test_stages import run  # noqa: F401  the recorded run, grouped
 
-from cryptobench.paths import AppTree, GroupingTree
-from cryptobench.paths import BENCHMARK_COVERAGE, EDITS, EVENTS, HARNESS, MANIFEST, PRIMITIVES_MISSING, REPLACEMENTS
+from cryptobench.shared.paths import AppTree, GroupingTree
+from cryptobench.shared.paths import BENCHMARK_COVERAGE, EDITS, EVENTS, HARNESS, MANIFEST, PRIMITIVES_MISSING, REPLACEMENTS
 from perfrepair.__main__ import main as top
 from perfrepair.ai.parse.grouping_assign import command as assign_cmd
 from perfrepair.ai.parse.grouping_assign.kind import GroupingKind, charter

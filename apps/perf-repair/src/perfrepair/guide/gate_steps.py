@@ -1,7 +1,7 @@
 """The guide's two benchmark gate points: after the used set and after grouping, each before the next model call."""
 from __future__ import annotations
 
-from cryptobench.paths import GroupingTree, RunTree
+from cryptobench.shared.paths import GroupingTree, RunTree
 from .. import run_dir as rd
 from ..data_handler.inbound import read_manifest
 from ..device.benchmark_coverage import clear_coverage

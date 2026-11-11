@@ -1,4 +1,4 @@
-"""parity/: each shared YAML reads through cryptobench.document to the value its .json holds, as the Kotlin owners' ParityFixturesTest
+"""parity/: each shared YAML reads through cryptobench.shared.document.document to the value its .json holds, as the Kotlin owners' ParityFixturesTest
 read it; the files Python writes are byte for byte what its writers write. "current behaviour" tests pin a known split to flip on purpose."""
 import json
 import pathlib
@@ -9,9 +9,9 @@ import yaml
 
 from device import facts
 from stages import guide
-from cryptobench.catalogue import guide_items, vectors
-from cryptobench.catalogue.names import NAMES_DOC, Canonical, Names
-from cryptobench.document import parse_yaml, read_yaml
+from cryptobench.shared.catalogue import guide_items, vectors
+from cryptobench.shared.catalogue.names import NAMES_DOC, Canonical, Names
+from cryptobench.shared.document.document import parse_yaml, read_yaml
 
 PARITY = pathlib.Path(__file__).resolve().parents[3] / "parity"
 SHARED = ("global", "effective", "guide", "known-answers", "facts", "algorithm-names", "scalars", "python-strings")

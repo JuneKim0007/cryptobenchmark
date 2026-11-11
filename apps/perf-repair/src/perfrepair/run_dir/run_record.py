@@ -8,8 +8,8 @@ from pathlib import Path
 
 import yaml
 
-from cryptobench.paths import DEVICE, AppTree, RunTree
-from cryptobench.coded import InputError
+from cryptobench.shared.paths import DEVICE, AppTree, RunTree
+from cryptobench.shared.errors.coded import InputError
 from ..dto.device import DeviceRecord
 from ..files import read_json, read_yaml, sha256_file, write_json, write_text
 from .lock import DeviceLock

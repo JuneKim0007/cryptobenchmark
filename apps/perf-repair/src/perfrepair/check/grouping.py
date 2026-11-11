@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import yaml
 
-from cryptobench.paths import GroupingTree
+from cryptobench.shared.paths import GroupingTree
 from .. import run_dir as rd
 from ..ai.parse.algorithm_classify.kind import ClassifyKind
 from ..ai.parse.algorithm_classify.state import Classified, candidates
@@ -12,7 +12,7 @@ from ..ai.parse.grouping_assign.kind import GroupingKind
 from ..ai.runtime.engine.kind import rebuild_problems
 from ..ai.runtime.engine.outbox import OutboxError, active_outbox
 from ..dto.classify import read_batches
-from cryptobench.catalogue.grouping import read_items
+from cryptobench.shared.catalogue.grouping import read_items
 from ..dto.grouping_state import Knowledge
 from ..files import read_json
 from ..screen.catalog import Catalog

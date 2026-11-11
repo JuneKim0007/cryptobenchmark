@@ -1,7 +1,7 @@
 """<results root>/<device_id>/: the probe names the folder, so a run stages its discovery beside it until then."""
 import contextlib, os, pathlib, shutil, tempfile
 
-from cryptobench import paths
+from cryptobench.shared import paths
 
 STAGING_PREFIX = ".staging-"
 

@@ -9,9 +9,9 @@ import sys
 
 
 import effective_view
-from cryptobench import paths
+from cryptobench.shared import paths
 from results import select
-from cryptobench.document import read_yaml
+from cryptobench.shared.document.document import read_yaml
 
 SECTIONS = ("run", "policy", "analysis")
 

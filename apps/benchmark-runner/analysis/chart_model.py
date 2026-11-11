@@ -1,7 +1,7 @@
 """One measured case as the charts and the summary need it: statistics on ns/op, shown in the unit that fits its group."""
 import re
 
-from cryptobench.measure import stats
+from cryptobench.shared.stats import stats
 from chart_input import UNIDENTIFIED
 
 AUDIT_TOLERANCE = 1e-9         # relative; stats.py equals Jetpack's to ~1e-12 on real device data, so more than this is a real disagreement

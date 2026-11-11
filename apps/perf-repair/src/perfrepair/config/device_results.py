@@ -6,9 +6,9 @@ import functools
 import logging
 from pathlib import Path
 
-from cryptobench.paths import Results, RunTree
-from cryptobench.paths import DEVICE, MANIFEST, MEASUREMENTS, PRIMITIVES, ROWS, RUN_LOG
-from cryptobench import paths
+from cryptobench.shared.paths import Results, RunTree
+from cryptobench.shared.paths import DEVICE, MANIFEST, MEASUREMENTS, PRIMITIVES, ROWS, RUN_LOG
+from cryptobench.shared import paths
 from .. import run_dir as rd
 from ..inputs.table import DEVICE_ID
 from ..stop.halt import Coded

@@ -5,7 +5,7 @@ import shutil
 import pytest
 from test_device_flows import APP, F, Flow, run_targets
 
-from cryptobench.paths import AppTree, RunTree
+from cryptobench.shared.paths import AppTree, RunTree
 from perfrepair.app.facts.path_id import path_id
 from perfrepair.dto.primitives import PrimitivesTable
 from perfrepair.files import read_json

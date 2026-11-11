@@ -8,7 +8,7 @@ from pathlib import Path
 
 import yaml
 
-from cryptobench import paths
+from cryptobench.shared import paths
 from ..ai.runtime.prompt.library import PromptLibrary
 from ..app.facts.target_set import listed_entries, resolve_targets
 from ..config.load import Loaded, load

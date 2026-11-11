@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 
 from scope import languages as scope_languages
-from cryptobench.document import read_yaml
+from cryptobench.shared.document.document import read_yaml
 
 SCOPE_KEYS = {"id", "language", "function", "before", "after", "imports", "inputs", "current", "option", "dependencies", "notMeasurable", "inverse", "upgrade"}
 ID = re.compile(r"^[0-9a-f]{12}$")

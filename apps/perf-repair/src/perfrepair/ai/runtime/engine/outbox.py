@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from cryptobench.paths import RunTree
+from cryptobench.shared.paths import RunTree
 from ....dto.decision import OutboxRecord
 from ....stop.halt import Coded
 from ....dto.prompt import Charter

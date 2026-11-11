@@ -6,11 +6,11 @@ import yaml
 
 import pytest
 
-from cryptobench.paths import AppTree, GroupingTree, RunTree
+from cryptobench.shared.paths import AppTree, GroupingTree, RunTree
 from perfrepair.dto.change import PairDiff
 from perfrepair.dto.decision import OutboxRecord
-from cryptobench.catalogue.grouping import Item, Profile, items_document, profiles_document
-from cryptobench.catalogue.signature import Component, Signature
+from cryptobench.shared.catalogue.grouping import Item, Profile, items_document, profiles_document
+from cryptobench.shared.catalogue.signature import Component, Signature
 from perfrepair.dto.site import DOSSIERS_SCHEMA_VERSION, Scope, scope_id
 from perfrepair.dto.dossier import Dossier, Option
 from perfrepair.review.__main__ import main

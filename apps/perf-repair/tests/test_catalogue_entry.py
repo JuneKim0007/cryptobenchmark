@@ -1,9 +1,9 @@
 """Static entry checks: form, family against engine type, one id across the catalogues, one group."""
 import copy
 
-from cryptobench.catalogue.algorithms import Algorithms, Entry, algorithms, entry_problems
-from cryptobench.catalogue.families import Families
-from cryptobench.catalogue.groups import group_catalog
+from cryptobench.shared.catalogue.algorithms import Algorithms, Entry, algorithms, entry_problems
+from cryptobench.shared.catalogue.families import Families
+from cryptobench.shared.catalogue.groups import group_catalog
 from perfrepair.validation.catalogue_entry import catalogue_check, entry_check
 
 FAMILIES = Families.load()

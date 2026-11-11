@@ -6,7 +6,7 @@ from __future__ import annotations
 import hashlib
 from dataclasses import replace
 
-from cryptobench.catalogue.grouping import algorithm_of, provider_of
+from cryptobench.shared.catalogue.grouping import algorithm_of, provider_of
 from ...dto.lifecycle import Requirement
 from ...dto.replacement import required_risks
 from ...dto.dossier import Dossier
@@ -15,7 +15,7 @@ from ...dto.pattern import rule_words
 from ...dto.perf_mode import GENERIC_MODE, PerfMode
 from ...dto.primitives import PrimitivesTable
 from ...dto.unit import UnitDossiers
-from cryptobench.measure.units import DisplayUnits
+from cryptobench.shared.stats.units import DisplayUnits
 from ...result.gain import IMPROVING_RATIO, NOISE, WORSE_RATIO
 from .candidate import Candidate
 from .links import link_lines

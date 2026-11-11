@@ -1,6 +1,6 @@
 """How the host runs apps/benchmark-runner/energy: the interpreter that has its packages, and the arguments of a run's cases."""
 import dataclasses, os, pathlib, subprocess
-from cryptobench import paths
+from cryptobench.shared import paths
 
 TOOLS = paths.repo().energy
 

@@ -8,8 +8,8 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from cryptobench.paths import AppTree, RunTree
-from cryptobench.paths import APP_REPORT, CHECKED, DOSSIERS, EDITS, HARNESS, REPLACEMENTS, SCOPED_PLAN, SCOPES
+from cryptobench.shared.paths import AppTree, RunTree
+from cryptobench.shared.paths import APP_REPORT, CHECKED, DOSSIERS, EDITS, HARNESS, REPLACEMENTS, SCOPED_PLAN, SCOPES
 from ..app.facts.project import gradle_name
 from ..config.device_results import add_device_results_arg, fill_device_results
 from ..dto.change import CHANGES, TRACKS
