@@ -12,7 +12,8 @@ from perfrepair.ai.log.attempt_log import AttemptLog
 from perfrepair.ai.log.where import Where
 from perfrepair.ai.model.tier import Ladder, Tier
 from perfrepair.ai.review.job import ReviewJob
-from perfrepair.ai.runtime.agent import AgentFailed, ScriptedConversations
+from cryptobench.shared.errors.failures import AgentFailed
+from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.ask import Limits
 from perfrepair.ai.runtime.engine.budget import Budget, OverBudget
 from perfrepair.ai.runtime.engine.outbox import active_outbox

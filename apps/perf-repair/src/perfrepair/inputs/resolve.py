@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Callable, Iterable
 
-from cryptobench.shared.errors.coded import InputError as CodedInputError
+from cryptobench.shared.errors.input_error import InputError as CodedInputError
 from .check import Invalid
 
 LOG = logging.getLogger("perfrepair.inputs")

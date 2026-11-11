@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Callable, Optional
 
-from .codes import Code
+from .glossary import Code
 
 Reader = Callable[[Code], Optional[str]]
 _reader: Reader | None = None

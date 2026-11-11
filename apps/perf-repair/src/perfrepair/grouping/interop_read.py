@@ -7,7 +7,7 @@ import yaml
 from cryptobench.shared.paths import GroupingTree
 from ..dto.interop import PairResult, not_checkable_results
 from ..files import read_yaml, write_text
-from ..validation import require
+from cryptobench.shared.errors.validation import require
 from ..validation.grouping.interop import validate_results
 
 

@@ -12,7 +12,7 @@ lib/cryptobench/cryptobench/shared/catalogue/grouping.py:keyProvider : written t
 apps/perf-repair/src/perfrepair/dto/manifest.py:serviceCount : the manifest's provider field, kept whole as cryptobenchmark writes it
 lib/cryptobench/cryptobench/shared/catalogue/types.py:minSdkSource : written to types.json by asdict
 lib/cryptobench/cryptobench/shared/catalogue/types.py:strengthSource : written to types.json by asdict
-apps/perf-repair/src/perfrepair/stop/policy.py:reset : tests/conftest.py clears the installed stops reader between tests
+lib/cryptobench/cryptobench/shared/errors/policy.py:reset : tests/conftest.py clears the installed stops reader between tests
 apps/perf-repair/src/perfrepair/validation/catalogue_entry.py:catalogue_check : the check a new catalog entry gets in the later catalog phases; tests only until then
 lib/cryptobench/cryptobench/shared/paths/run_tree.py:bug : a test's handle on the bug log; the log sink writes it by name
 lib/cryptobench/cryptobench/shared/stats/equations.py:runs_needed : the temperature gate and run-count facades read it; next step

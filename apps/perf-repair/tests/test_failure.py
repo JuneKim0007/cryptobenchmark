@@ -12,8 +12,8 @@ from perfrepair.repair.__main__ import main as repair
 from perfrepair.report.__main__ import main as report
 from perfrepair.validation.__main__ import main as validation
 from perfrepair.failure import reported
-from perfrepair.stop import code_of
-from perfrepair.validation.failure import ValidationFailed, require
+from cryptobench.shared.errors.coded import code_of
+from cryptobench.shared.errors.validation import ValidationFailed, require
 from helpers import captured_events, with_results
 
 F = Path(__file__).parent / "fixtures" / "results" / "test-api36-00000000" / "manifest.yaml"

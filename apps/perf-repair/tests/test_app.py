@@ -10,7 +10,8 @@ from perfrepair.app.find.constants import Constants
 from perfrepair.app.facts.dependencies import bundled, read_libraries, registrations
 from perfrepair.app.facts.versions import pinned_versions
 from perfrepair.app.detect import detect
-from perfrepair.app.facts.gate import GateError, open_app, open_apps
+from cryptobench.shared.errors.failures import GateError
+from perfrepair.app.facts.gate import open_app, open_apps
 from perfrepair.app.find.imports import import_reason
 from perfrepair.app.resolve import resolve
 from perfrepair.app.facts.roots import project_roots

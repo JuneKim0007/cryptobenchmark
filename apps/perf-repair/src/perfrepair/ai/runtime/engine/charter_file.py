@@ -4,12 +4,12 @@ from __future__ import annotations
 from pathlib import Path
 
 from ....dto.charter import charter_document, read_charter
-from ....stop.halt import Coded
+from cryptobench.shared.errors.input_error import InputError
 from ....dto.prompt import Charter
 from ....files import read_json, write_json
 
 
-class CharterMismatch(Coded):
+class CharterMismatch(InputError):
     pass
 
 

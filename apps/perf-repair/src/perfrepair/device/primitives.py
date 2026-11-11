@@ -11,8 +11,9 @@ from ..dto.primitives import SCHEMA_LINE, PrimitivesTable
 from ..files import read_json, sha256_file, write_text
 from ..log import step
 from ..result.primitives import NotScreened, build_table, statuses
-from ..validation import require, validate_measurements, validate_primitives
-from ..stop.halt import Coded
+from cryptobench.shared.errors.validation import require
+from ..validation import validate_measurements, validate_primitives
+from cryptobench.shared.errors.input_error import InputError
 
 
 def inputs(device: Path) -> dict[str, str | None]:
@@ -36,7 +37,7 @@ def status_of(device: Path) -> dict[str, str]:
     grouping = GroupingTree(device)
     screen = rd.load_screen(grouping)
     if screen is None:
-        raise Coded(f"no_screen: {grouping.screen} absent; the primitives table takes each status from it")
+        raise InputError(f"no_screen: {grouping.screen} absent; the primitives table takes each status from it")
     return statuses(read_items(read_json(grouping.items)), screen)
 
 

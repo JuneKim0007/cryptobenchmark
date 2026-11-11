@@ -16,7 +16,7 @@ from cryptobench.shared.catalogue.grouping import read_items
 from ..dto.grouping_state import Knowledge
 from ..files import read_json
 from ..screen.catalog import Catalog
-from ..validation.failure import ValidationFailed
+from cryptobench.shared.errors.validation import ValidationFailed
 from ..validation.screen import validate_model_verdicts, validate_screen_document
 
 

@@ -1,4 +1,4 @@
 from .conversation import Conversation, Conversations, ScriptedConversations
-from .reply import AgentFailed, AgentRefused, AgentReply
+from .reply import AgentRefused, AgentReply
 
-__all__ = ["AgentFailed", "AgentRefused", "AgentReply", "Conversation", "Conversations", "ScriptedConversations"]
+__all__ = ["AgentRefused", "AgentReply", "Conversation", "Conversations", "ScriptedConversations"]

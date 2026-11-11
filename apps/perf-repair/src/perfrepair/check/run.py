@@ -10,7 +10,7 @@ from ..files import read_json
 from ..screen.catalog import Catalog
 from ..validation.grouping.output import read_groups
 from ..validation.app import validate_app_dir
-from ..validation.failure import ValidationFailed
+from cryptobench.shared.errors.validation import ValidationFailed
 from ..validation.grouping.interop import validate_interop
 from ..validation.report import validate_report
 from ..validation.summary import validate_summary

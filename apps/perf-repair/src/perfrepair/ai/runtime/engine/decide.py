@@ -11,7 +11,7 @@ from ....dto.prompt import Charter
 from ....files import write_json
 from ....log import emit
 from ....log.emit import elapsed_ms
-from ....validation import require
+from cryptobench.shared.errors.validation import require
 from ...log.attempt_log import AttemptLog
 from ...log.where import Where
 from ...model.tier import Tier

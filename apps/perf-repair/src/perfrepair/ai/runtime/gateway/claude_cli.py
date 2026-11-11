@@ -12,7 +12,8 @@ from ....child.deadline import Deadline
 from ....child.env import child_env
 from ....dto.prompt import CorrectionPrompt, SystemPrompt, TaskPrompt
 from ..agent.conversation import LifetimeGuarded
-from ..agent.reply import AgentFailed, AgentRefused, AgentReply
+from cryptobench.shared.errors.failures import AgentFailed
+from ..agent.reply import AgentRefused, AgentReply
 from .claude_api import DEFAULT_MODEL
 
 WEB_SEARCH = "WebSearch"

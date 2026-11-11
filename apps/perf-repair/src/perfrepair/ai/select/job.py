@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from ...files import write_json
-from ...validation import require
+from cryptobench.shared.errors.validation import require
 from ..job import Job
 from ..tools.tool import args_schema
 from .candidate import NONE, SelectItem

@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from cryptobench.shared.catalogue.names import Names
-from ..stop.halt import Coded
+from cryptobench.shared.errors.input_error import InputError
 from ..catalog.screening import SCREENING, Screening
 from ..config.load import Loaded
 from ..inputs.resolve import Candidate
@@ -16,7 +16,7 @@ from .handler import ScreeningHandler
 PACKAGED = "packaged"
 
 
-class CatalogMismatch(Coded):
+class CatalogMismatch(InputError):
     pass
 
 

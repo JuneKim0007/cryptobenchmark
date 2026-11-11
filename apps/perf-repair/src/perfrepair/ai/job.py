@@ -13,7 +13,7 @@ from ..dto.event import END, START
 from ..dto.prompt import Charter, SystemPrompt, TaskPrompt
 from ..log import emit
 from ..log.emit import elapsed_ms
-from ..validation import require
+from cryptobench.shared.errors.validation import require
 from ..validation.json_reply import check_reply
 from .attempt.escalate import MAX_ESCALATIONS, next_tier
 from .attempt.repass import CHECKS, NO_SUBMIT, REVIEW, Reason, Repass

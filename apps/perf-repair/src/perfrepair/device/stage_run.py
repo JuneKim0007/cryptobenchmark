@@ -13,7 +13,7 @@ from ..dto.event import END
 from ..grouping.build.stage import build_stage
 from ..log import emit, step
 from ..screen.catalog import Catalog
-from ..stop.halt import Coded
+from cryptobench.shared.errors.input_error import InputError
 from .energy import report_invalid
 from .inbound import write_inbound
 from .primitives import write_primitives
@@ -37,7 +37,7 @@ class Run:
 
 def _same_folder(manifest: Path, folder: Path) -> None:
     if manifest.parent.resolve() != folder.resolve():
-        raise Coded(f"device_id_changed: --identify named {folder.name}, the probe wrote {manifest.parent.name}")
+        raise InputError(f"device_id_changed: --identify named {folder.name}, the probe wrote {manifest.parent.name}")
 
 
 def _measure(r: Run, steps: dict) -> None:

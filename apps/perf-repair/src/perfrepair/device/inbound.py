@@ -11,9 +11,10 @@ from ..dto import Measurements
 from ..dto.primitive import ROWS_SCHEMA_VERSION
 from ..files import read_json, write_json
 from ..log import step
-from ..validation import require, validate_manifest, validate_measurements, validate_rows, validate_run_log
+from cryptobench.shared.errors.validation import require
+from ..validation import validate_manifest, validate_measurements, validate_rows, validate_run_log
 from ..stop import terminate
-from ..stop.halt import Coded
+from cryptobench.shared.errors.input_error import InputError
 
 
 def write_inbound(device: Path) -> list[str]:
@@ -31,7 +32,7 @@ def _write_inbound(device: Path) -> tuple[list[str], dict]:
     require(str(path), validate_manifest(manifest, base))
     benchmark = manifest_file(manifest, base, "benchmark")
     if benchmark is None:
-        raise Coded(f"no_benchmark: {path}: the run measured nothing; run the benchmark")
+        raise InputError(f"no_benchmark: {path}: the run measured nothing; run the benchmark")
     prepared = read_prepared(manifest_file(manifest, base, "prepared"))
     processes = [(base / p).resolve() for p in manifest.files.get("processes") or []]
     rows, measurements, lacking = read_results(benchmark, prepared, processes)

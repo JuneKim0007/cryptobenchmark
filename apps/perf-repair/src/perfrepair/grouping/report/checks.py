@@ -10,7 +10,7 @@ from ...files import write_json, write_text
 from ...log import step
 from ...ai.runtime.engine.kind import project
 from ...ai.runtime.engine.outbox import active_outbox
-from ...validation import require
+from cryptobench.shared.errors.validation import require
 from ...validation.grouping.output import validate_output
 from cryptobench.shared.catalogue.families import Families
 from ...ai.parse.grouping_assign.kind import GroupingKind

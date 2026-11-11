@@ -1,11 +1,12 @@
 """terminate(): where a coded stop, warning or skip is decided: one event, then a Halt or the action to take."""
 from __future__ import annotations
 
+from cryptobench.shared.errors import policy
+from cryptobench.shared.errors.glossary import STOP
+from cryptobench.shared.errors.halt import Halt
 from ..dto.event import FINDING
 from ..log import emit
-from . import policy
-from .codes import CODES, STOP
-from .halt import Halt
+from .codes import CODES
 
 
 def terminate(code: str, detail: str, *, stage: str, step: str, item: str | None = None, app: str | None = None,

@@ -7,7 +7,7 @@ from functools import cache
 from pathlib import Path
 
 
-from ..errors.coded import InputError
+from ..errors.input_error import InputError
 from ..document.document import AT_PATH, DocumentKind
 from ..document.document import read_yaml
 

@@ -43,8 +43,9 @@ from perfrepair.dto.site import SITES_SCHEMA_VERSION
 from perfrepair.files import write_json
 from perfrepair.log.read import read_events
 from perfrepair.result.primitives import NotScreened, build_table
-from perfrepair.stop import CODES, policy
-from perfrepair.stop.codes import STOP
+from cryptobench.shared.errors import policy
+from cryptobench.shared.errors.glossary import STOP
+from perfrepair.stop import CODES
 
 
 def row(primitive="Cipher AES", provider="P", reason="not_on_device", apps=("a",), sites=1, action=SKIPPED):

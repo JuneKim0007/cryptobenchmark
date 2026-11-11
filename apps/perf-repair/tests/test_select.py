@@ -18,7 +18,7 @@ from perfrepair.dto.replacement import read_replacements, required_risks
 from perfrepair.dto.perf_mode import GENERIC_MODE, PerfMode
 from perfrepair.dto.unit import PairInterop, Stay, UnitDossiers
 from perfrepair.files import read_json
-from perfrepair.validation import ValidationFailed
+from cryptobench.shared.errors.validation import ValidationFailed
 
 A = dossier()
 C = dossier(file="src/Pair.kt", options=(Option("R1", "TypeA|ALG-A/MODE-X|P2", {"ivLength": 12, "tagMode": "full"}, "pass",

@@ -107,7 +107,7 @@ src/perfrepair/dto/version.py : a Gradle version: pinned or not; newest of sever
 src/perfrepair/files.py : text, JSON and YAML read (YAML through parse_yaml); read_versioned (a document refused unless its DocumentKind accepts it); atomic JSON write through a temp file of its own (mkstemp), fsync when durable; a text write that makes its parent folders; one-line append, a newline first after a cut line; read_jsonl, the one JSON-lines reader (whole lines, cut lines skipped, bad ones listed); several files staged then renamed in order; sha256 of a text or file
 src/perfrepair/inputs/__init__.py : docstring only
 src/perfrepair/inputs/check.py : Invalid and the checks a row or a gateway's settings class names
-src/perfrepair/inputs/resolve.py : choose(): the first set candidate under its OnInvalid; unknown_key; resolve(): one input from its chain of candidates; Need, Resolved, InputError (`invalid`, `missing_file`, `missing_input`), a ../../lib/cryptobench/cryptobench/shared/errors/coded.py InputError; a found default and a skipped optional input logged
+src/perfrepair/inputs/resolve.py : choose(): the first set candidate under its OnInvalid; unknown_key; resolve(): one input from its chain of candidates; Need, Resolved, InputError (`invalid`, `missing_file`, `missing_input`), a ../../lib/cryptobench/cryptobench/shared/errors/input_error.py InputError; a found default and a skipped optional input logged
 src/perfrepair/inputs/table.py : every setting, one Row or RoleRow each (key, chain, check, default, OnInvalid; Need and packaged default for a file input); STOP_ROWS, one per overridable stop code, and the fixed codes known so setting one is not an unknown key; known_tree
 src/perfrepair/log/__init__.py : exports attach, bug_log, command_run, emit, run_id, step
 src/perfrepair/log/__main__.py : command: `summary <device> [--run ID | --last] [--json]`, the runs of events.jsonl, status lines last
@@ -126,10 +126,8 @@ src/perfrepair/run_dir/__init__.py : re-exports layout and read: the `run_dir` n
 src/perfrepair/run_dir/lock.py : DeviceLock: `<device>/.lock` by fcntl.flock, the holder's pid; another process is device_busy, the holding one takes it again
 src/perfrepair/run_dir/read.py : artifact loaders: rows, measurements, run log, screen.json (load_screen, load_screen_catalog, load_screen_review; `built`, the digests screen.json binds to), load_used (None without used.json), read_scopes, read_sites, read_edits, read_dossiers (schema_version on another version, through read_versioned)
 src/perfrepair/run_dir/run_record.py : RunRecord, the one writer of what a device folder says is done: runs/run_<id>.json (its id, onExisting, the facade's settings tree), each <app>/finished.json (is_done, app_done; cleared on an app's first rerun step with its report), device.yaml read, write and drop, vouch_manifest after a step that only adds files; the folder's lock held from open to close
-src/perfrepair/stop/__init__.py : re-exports: CODES, the actions, Halt, code_of, terminate
+src/perfrepair/stop/__init__.py : re-exports: CODES, halt_of, terminate
 src/perfrepair/stop/codes.py : the code table: every stop, warn and skip code once with its default action, the actions stops.<code> may choose (none: fixed, and why), exit and next step
-src/perfrepair/stop/halt.py : Halt, the exception terminate raises after its event; Coded, the name its raisers import for ../../lib/cryptobench/cryptobench/shared/errors/coded.py's InputError; code_of, the code a failure carries as `.code`
-src/perfrepair/stop/policy.py : the stops reader the settings layer installs; a code's action, its default without one
 src/perfrepair/stop/terminate.py : terminate(): the action resolved, one finding event with data.code, action and next (the code's, or next_step), then Halt, warn or skip
 src/perfrepair/watch/__init__.py : docstring only
 src/perfrepair/watch/__main__.py : command: `watch <device> [--from-start]`, log/watch.py on a device folder; Ctrl-C exits 130

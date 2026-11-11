@@ -8,10 +8,11 @@ from cryptobench.shared import paths
 from ..ai.select.job import NAME as SELECT
 from ..catalog.upgrades import CATALOG as UPGRADES
 from ..app.find.sources import BUILD_NAMES, CATALOG, walk
-from ..data_handler.outbound.benchmark_runner import BenchmarkRunError, identify
+from cryptobench.shared.errors.failures import BenchmarkRunError
+from ..data_handler.outbound.benchmark_runner import identify
 from ..files import sha256_file, sha256_text
 from ..source.language import SOURCE_SUFFIXES
-from ..stop.halt import Coded
+from cryptobench.shared.errors.input_error import InputError
 from .app_steps import device_config
 from .state import Guide
 
@@ -23,7 +24,7 @@ def _scoper_files(name: str) -> list[Path]:
     # a renamed package would silently leave the digest, and no app would rerun
     files = sorted(p for p in (paths.PERFREPAIR.path / name).rglob("*") if p.suffix in (".py", ".yaml"))
     if not files:
-        raise Coded(f"missing_file: {paths.PERFREPAIR.path / name} holds no scoper code; finished.SCOPER names it")
+        raise InputError(f"missing_file: {paths.PERFREPAIR.path / name} holds no scoper code; finished.SCOPER names it")
     return files
 
 

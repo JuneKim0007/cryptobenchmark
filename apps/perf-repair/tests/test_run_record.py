@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from cryptobench.shared.paths import AppTree, RunTree
-from cryptobench.shared.errors.coded import InputError
+from cryptobench.shared.errors.input_error import InputError
 from perfrepair.files import read_json
 from perfrepair.run_dir.run_record import (
     DONE,

@@ -11,7 +11,7 @@ from ..dto.benchmark_coverage import PARTIAL, VARIANT_MISSING, Gap
 from cryptobench.shared.catalogue.grouping import parse_qualified
 from ..dto.metrics import BY_NAME, TIME
 from ..files import read_yaml, write_text_making_parents
-from ..stop.halt import Coded
+from cryptobench.shared.errors.input_error import InputError
 
 DELTA = "delta"
 GLOBAL, TEST_SET = "global.yaml", "testset.yaml"
@@ -26,7 +26,7 @@ def _test_set(config: Path, document: dict) -> Path:
     named = (document.get("selection") or {}).get("testSet")
     path = paths.against(config, named) if named else Path(config).parent
     if not named or not path.is_file():
-        raise Coded(f"delta_unconfigured: {config} names test set {named!r}, not a file; a delta plans with the stored test set")
+        raise InputError(f"delta_unconfigured: {config} names test set {named!r}, not a file; a delta plans with the stored test set")
     return path
 
 
@@ -47,7 +47,7 @@ def narrowed(run: dict, gaps: tuple[Gap, ...]) -> dict | None:
 def write_delta_config(stored: Path, folder: Path, items, run: dict | None = None) -> Path:
     """stored: the config the benchmark ran with (manifest config); written under <folder>/delta/; run: a narrowed run block."""
     if not Path(stored).is_file():
-        raise Coded(f"delta_unconfigured: {stored}, the stored benchmark's config, is gone; a delta measures with it")
+        raise InputError(f"delta_unconfigured: {stored}, the stored benchmark's config, is gone; a delta measures with it")
     document = read_yaml(stored) or {}
     test_set = read_yaml(_test_set(stored, document)) or {}
     out = Path(folder) / DELTA

@@ -5,7 +5,7 @@ from pathlib import Path
 
 from cryptobench.shared.paths import RunTree
 from ....dto.decision import OutboxRecord
-from ....stop.halt import Coded
+from cryptobench.shared.errors.input_error import InputError
 from ....dto.prompt import Charter
 from ....files import TEMP_SUFFIX, read_json, write_json, write_text
 from . import charter_file
@@ -15,7 +15,7 @@ RECORDS = "[0-9]*.json"
 FINGERPRINT = re.compile(r"[0-9a-f]{12}")
 
 
-class OutboxError(Coded):
+class OutboxError(InputError):
     pass
 
 

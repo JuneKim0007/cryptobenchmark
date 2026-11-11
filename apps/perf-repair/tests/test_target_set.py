@@ -2,7 +2,7 @@
 import pytest
 import yaml
 from perfrepair.app.facts.target_set import TARGETS_SCHEMA_VERSION, resolve_targets
-from perfrepair.stop.halt import Coded
+from cryptobench.shared.errors.input_error import InputError
 from test_app_kind import tree
 
 
@@ -70,10 +70,10 @@ def test_a_targets_file_resolves_its_paths_against_its_own_folder(tmp_path, corp
 
 
 def test_a_bad_or_missing_targets_file_is_a_coded_error(tmp_path):
-    with pytest.raises(Coded, match="^missing_file: apps.targets file "):
+    with pytest.raises(InputError, match="^missing_file: apps.targets file "):
         resolve_targets("absent.yaml", settings(tmp_path))
     (tmp_path / "bad.yaml").write_text("- {name: x}\n")
-    with pytest.raises(Coded, match="^invalid: apps.targets file "):
+    with pytest.raises(InputError, match="^invalid: apps.targets file "):
         resolve_targets("bad.yaml", settings(tmp_path))
 
 

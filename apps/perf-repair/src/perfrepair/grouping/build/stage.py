@@ -17,7 +17,8 @@ from ...screen.catalog import Catalog
 from ...screen.evidence import batches, unknown_evidence
 from ...screen.stage import screen_items
 from ...stop.terminate import terminate
-from ...validation import require, validate_screen
+from cryptobench.shared.errors.validation import require
+from ...validation import validate_screen
 from ...validation.grouping.items import validate_items
 from .items import build
 

@@ -6,12 +6,12 @@ from dataclasses import dataclass, field
 from typing import Callable
 
 from ....dto.prompt import CorrectionPrompt, SystemPrompt, TaskPrompt
-from ....stop.halt import Coded
+from cryptobench.shared.errors.input_error import InputError
 
 CHARS_PER_TOKEN = 4
 
 
-class OverBudget(Coded):
+class OverBudget(InputError):
     pass
 
 

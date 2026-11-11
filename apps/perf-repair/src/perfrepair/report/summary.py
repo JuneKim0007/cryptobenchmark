@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from ..dto.report import BROKEN_USES, FUNNEL, SCHEMA_VERSION, pattern_counts
 from .recommendations import summed
-from ..stop.halt import Coded
+from cryptobench.shared.errors.input_error import InputError
 
 
 def _broken(reports: list[dict]) -> dict:
@@ -15,7 +15,7 @@ def _broken(reports: list[dict]) -> dict:
 
 def build_summary(reports: list[dict]) -> dict:
     if not reports:
-        raise Coded("no_reports: no <app>/report.json in the device folder; run `python3 -m perfrepair.report app` first")
+        raise InputError("no_reports: no <app>/report.json in the device folder; run `python3 -m perfrepair.report app` first")
     by_app = {r["app"]: r["funnel"] for r in reports}
     return {"schemaVersion": SCHEMA_VERSION, "modes": {r["app"]: r["mode"] for r in reports},
             "apps": sorted(by_app), "named": {r["app"]: {"project": r["project"], "source": r["source"]} for r in reports},

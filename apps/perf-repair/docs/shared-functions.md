@@ -89,7 +89,6 @@
 | `halt_of(code, detail)` | `src/perfrepair/stop/terminate.py` | A fixed stop terminated and its Halt handed back, for a caller that records it instead of raising it. | guide.run, guide.target_file, guide.targets |
 | `terminate(code, detail, stage, step, item, app, ref, data, inner, trace, next_step)` | `src/perfrepair/stop/terminate.py` | Returns warn or skip; trace: lines the Halt's message carries and the status line leaves out; next_step: what this | app.__main__, data_handler.outbound.benchmark_runner, device.bundled, device.energy +6 |
 | `perf_of(doc)` | `src/perfrepair/validation/dossiers/document.py` | - | ai.select.units, ai.select.upgrades, validation.dossiers.against_run, validation.dossiers.parse |
-| `require(what, problems)` | `src/perfrepair/validation/failure.py` | - | ai.job, ai.runtime.engine.decide, ai.select.job, ai.select.units +14 |
 | `read_groups(paths)` | `src/perfrepair/validation/grouping/output.py` | - | check.run, grouping.interop_plan, repair.dossier |
 | `validate_manifest(manifest, base)` | `src/perfrepair/validation/manifest.py` | - | app.__main__, check.device, device.inbound |
 | `validate_measurements(m, rows)` | `src/perfrepair/validation/measurements.py` | - | check.device, device.inbound, device.primitives, repair.dossier |

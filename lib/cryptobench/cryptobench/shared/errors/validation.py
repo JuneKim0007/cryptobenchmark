@@ -1,3 +1,4 @@
+"""ValidationFailed and require: an artifact's problems refused as one coded failure."""
 from __future__ import annotations
 
 

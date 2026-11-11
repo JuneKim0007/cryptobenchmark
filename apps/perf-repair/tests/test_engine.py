@@ -7,13 +7,13 @@ from helpers import QUIET, label_charter, logged
 from perfrepair.dto.decision import OutboxRecord
 from perfrepair.dto.prompt import CorrectionPrompt, TaskPrompt
 from perfrepair.ai.runtime.agent import AgentRefused, ScriptedConversations
-from perfrepair.ai.runtime.agent.reply import AgentFailed
+from cryptobench.shared.errors.failures import AgentFailed
 from perfrepair.ai.runtime.gateway.claude_cli import ClaudeCliError
 from perfrepair.ai.runtime.engine.ask import Limits
 from perfrepair.ai.runtime.engine.decide import decide
 from perfrepair.ai.runtime.engine.kind import project
 from perfrepair.ai.runtime.engine.outbox import Outbox, active_outbox
-from perfrepair.validation import ValidationFailed
+from cryptobench.shared.errors.validation import ValidationFailed
 
 
 @dataclass(frozen=True)

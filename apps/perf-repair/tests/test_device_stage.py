@@ -19,7 +19,7 @@ from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.screen.catalog import load_catalog, screening_catalog
 from perfrepair.config.load import load
 from perfrepair.config.stops import install_stops
-from perfrepair.stop import Halt
+from cryptobench.shared.errors.halt import Halt
 from helpers import TIMING, captured_events
 
 FAKE = Path(__file__).parent / "fixtures" / "device"

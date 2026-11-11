@@ -10,9 +10,10 @@ from helpers import captured_events
 from cryptobench.shared.paths import PIPELINE_LOGS
 from perfrepair.config.load import load
 from perfrepair.config.stops import install_stops
-from perfrepair.stop import Halt
+from cryptobench.shared.errors.halt import Halt
 from perfrepair.data_handler.outbound import benchmark_runner
-from perfrepair.data_handler.outbound import BenchmarkRunError, benchmark_root, run_pipeline
+from cryptobench.shared.errors.failures import BenchmarkRunError
+from perfrepair.data_handler.outbound import benchmark_root, run_pipeline
 
 FAKE = Path(__file__).parent / "fixtures" / "outbound" / "fake_pipeline.py"
 

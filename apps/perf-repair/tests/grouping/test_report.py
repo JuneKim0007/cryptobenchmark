@@ -13,7 +13,7 @@ from perfrepair.grouping.report.checks import report
 from perfrepair.grouping.report.rules import check, common_key_sizes
 from perfrepair.catalog.resolved import function_parameters
 from perfrepair.ai.runtime.agent import ScriptedConversations
-from perfrepair.validation import ValidationFailed
+from cryptobench.shared.errors.validation import ValidationFailed
 from perfrepair.validation.grouping.output import validate_output
 
 ITEMS = {1: Item(1, "TypeC", "R/OAEP", "P1", "cipher.pair", "OAEP mgf1=SHA-1"),

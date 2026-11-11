@@ -6,7 +6,7 @@ from functools import cache
 from pathlib import Path
 
 from cryptobench.shared import paths
-from cryptobench.shared.errors.coded import InputError
+from cryptobench.shared.errors.input_error import InputError
 from cryptobench.shared.document.document import AT_PATH, DocumentKind
 from cryptobench.shared.catalogue.families import Families
 from cryptobench.shared.catalogue.names import Names, fold

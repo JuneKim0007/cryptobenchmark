@@ -5,7 +5,7 @@ import json
 
 from cryptobench.shared.catalogue.glossary import what_is
 from cryptobench.shared.catalogue.views import get_group, list_groups, view_for
-from ...stop.halt import Coded
+from cryptobench.shared.errors.input_error import InputError
 from .tool import READ, Context, Outcome, Tool, args_schema
 
 TEXT = {"type": "string"}
@@ -15,7 +15,7 @@ def _read(fn):
     def run(args: dict, _ctx: Context) -> Outcome:
         try:
             return Outcome(True, json.dumps(fn(**args), sort_keys=True, default=str))
-        except Coded as e:
+        except InputError as e:
             return Outcome(False, str(e))
     return run
 

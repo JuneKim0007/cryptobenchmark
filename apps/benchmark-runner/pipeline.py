@@ -8,7 +8,7 @@ from device.adb import Device, DeviceError
 from device.capture import CaptureError
 from device.identity import DeviceIdError, device_id
 from failure import fail, one_line
-from cryptobench.shared.errors.coded import InputError
+from cryptobench.shared.errors.input_error import InputError
 from global_file import global_config
 from cryptobench.shared import paths
 from results import layout as results_layout

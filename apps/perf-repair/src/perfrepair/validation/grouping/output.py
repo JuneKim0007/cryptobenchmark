@@ -8,7 +8,7 @@ from ...dto.grouping_output import GROUPS_SCHEMA_VERSION
 from ...dto.grouping_state import Group
 from ...dto.screen import Verdict
 from ...files import read_json
-from ..failure import require
+from cryptobench.shared.errors.validation import require
 from ..screen import read_checked_screen
 from .code_groups import validate_code_groups
 

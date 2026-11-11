@@ -12,7 +12,7 @@ from ..device.interop import check_pairs, unreachable
 from ..device.missing_rows import measured_rows
 from ..device.stage import probe_device
 from ..device.used import clear_used, write_used
-from cryptobench.shared.errors.coded import InputError
+from cryptobench.shared.errors.input_error import InputError
 from ..dto.event import END
 from ..dto.interop import NOT_CHECKABLE
 from ..dto.used import SITE

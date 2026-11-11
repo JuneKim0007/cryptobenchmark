@@ -2,7 +2,7 @@
 import pathlib
 from dataclasses import dataclass
 
-from cryptobench.shared.errors.coded import InputError
+from cryptobench.shared.errors.input_error import InputError
 from cryptobench.shared.document.document import parse_yaml
 from cryptobench.shared import paths
 from perfrepair.inputs.check import RUN_ID_FORM

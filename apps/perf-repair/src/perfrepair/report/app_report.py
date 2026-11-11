@@ -10,7 +10,7 @@ from ..files import read_json, read_yaml
 from ..result.modes import Mode
 from ..app.facts.project import project_name
 from ..run_dir import load_upgrades, read_scopes, read_sites
-from ..stop.halt import Coded
+from cryptobench.shared.errors.input_error import InputError
 from .device_check import read_device_check
 from .recommendations import recommendations
 from .scope_row import scope_row
@@ -54,7 +54,7 @@ def _broken_uses(upgrades: list, scopes: list[dict]) -> dict:
 def build_report(paths: AppTree, mode: Mode) -> dict:
     for required in (paths.sites, paths.scopes, paths.units):
         if not required.is_file():
-            raise Coded(f"missing_step: {required} absent; run `python3 -m perfrepair.app` first")
+            raise InputError(f"missing_step: {required} absent; run `python3 -m perfrepair.app` first")
     sites = read_sites(paths.sites)["sites"]
     scopes = read_scopes(paths.scopes)["scopes"]
     of_unit = units_by_scope(read_units(read_json(paths.units)))

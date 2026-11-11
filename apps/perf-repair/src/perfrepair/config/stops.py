@@ -6,8 +6,8 @@ from __future__ import annotations
 import logging
 
 from ..inputs.table import STOP_ROWS
-from ..stop import policy
-from ..stop.codes import Code
+from cryptobench.shared.errors import policy
+from cryptobench.shared.errors.glossary import Code
 from . import current
 from .load import Loaded
 

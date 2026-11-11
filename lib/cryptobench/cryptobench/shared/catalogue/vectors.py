@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ..errors.coded import InputError
+from ..errors.input_error import InputError
 from ..document.document import AT_PATH, DocumentKind
 from .algorithms import algorithms, algorithm_id
 from .families import Families

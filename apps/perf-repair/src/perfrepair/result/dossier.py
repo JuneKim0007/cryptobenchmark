@@ -19,7 +19,7 @@ from .candidates import Family
 from .configurations import Config, config_of
 from .options import Joined
 from .provider_path import SiteProviders
-from ..stop.halt import Coded
+from cryptobench.shared.errors.input_error import InputError
 
 RESOLVED = ("default", "explicit")
 
@@ -53,7 +53,7 @@ def _measured(rows: list[PrimitiveRow]) -> dict[str, Measured]:
     """Per benchmark variant, the rows by item: a scope reads only its pattern's, so the two never mix."""
     bare = sorted(r.rowId for r in rows if r.parameters is None)
     if bare:
-        raise Coded(f"missing_parameters: rows {', '.join(bare)} report no parameters; the benchmark always writes them")
+        raise InputError(f"missing_parameters: rows {', '.join(bare)} report no parameters; the benchmark always writes them")
     measured: dict[str, Measured] = {v: defaultdict(dict) for v in VARIANTS}
     for r in rows:
         measured[r.variant][qualified(r.type, r.algorithm, r.provider)][config_of(r)] = r

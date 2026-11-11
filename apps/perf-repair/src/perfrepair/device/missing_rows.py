@@ -34,8 +34,8 @@ from ..dto.used import UsedSet
 from ..files import read_json
 from ..run_dir import read_sites
 from ..stop import CODES
-from ..stop.codes import STOP
-from ..stop.policy import action
+from cryptobench.shared.errors.glossary import STOP
+from cryptobench.shared.errors.policy import action
 
 ONLY_DEVICE_BUILDS = "only a --device run builds and installs bundled providers"
 HOST_NEXT = f"a host cannot build it: {ONLY_DEVICE_BUILDS}; run the guide with --device"

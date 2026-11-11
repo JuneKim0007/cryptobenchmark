@@ -10,7 +10,7 @@ from ..dto.replacement import Replacement
 from ..dto.unit import Unit, units_by_scope
 from ..files import write_text_making_parents
 from ..source.code import Code
-from ..stop.halt import Coded
+from cryptobench.shared.errors.input_error import InputError
 from .dependencies import dependencies, load
 from .edit import function_lines, import_lines, language, read_source
 from .imports import used_imports
@@ -36,7 +36,7 @@ def harness(out: AppTree, scopes: dict[str, Scope], replacements: dict[str, Repl
     for row in applied:
         scope = scopes[row["scope"]]
         if scope.id not in dossiers:
-            raise Coded(f"no_dossier: scope {scope.id} has an applied edit but no dossiers.json entry; rerun repair dossier, then edit")
+            raise InputError(f"no_dossier: scope {scope.id} has an applied edit but no dossiers.json entry; rerun repair dossier, then edit")
         current = dossiers[scope.id]["current"]
         lang = language(scope.file)
         original = read_source(out.original / scope.file)

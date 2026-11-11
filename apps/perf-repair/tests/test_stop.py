@@ -13,7 +13,9 @@ from perfrepair.guide.device_steps import DEVICE_LEVEL
 from perfrepair.dto.event import FINDING
 from perfrepair.inputs.table import STOP_ROWS
 from perfrepair.log.status import status_line
-from perfrepair.stop import CODES, STOP, WARN, Halt, terminate
+from cryptobench.shared.errors.glossary import STOP, WARN
+from cryptobench.shared.errors.halt import Halt
+from perfrepair.stop import CODES, terminate
 from perfrepair.stop.codes import CODES_LIST, OVERRIDABLE
 from helpers import captured_events
 

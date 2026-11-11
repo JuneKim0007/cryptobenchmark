@@ -9,7 +9,7 @@ from cryptobench.shared.paths import AI_LOGS
 from ..ai.log.attempt_log import read_log
 from ..files import write_json
 from .sheet import GROUPING, read_sheet
-from ..stop.halt import Coded
+from cryptobench.shared.errors.input_error import InputError
 
 OK, WRONG = "ok", "wrong"
 # turns that answered nothing the gate took: a rejection or a refusal
@@ -24,7 +24,7 @@ def _share(right: int, judged: int) -> dict:
 def _verdicts(sheet: list[dict]) -> list[dict]:
     bad = sorted({r["verdict"] for r in sheet} - {"", OK, WRONG})
     if bad:
-        raise Coded(f"review_verdict: {bad} in the sheet; a verdict is {OK}, {WRONG} or empty")
+        raise InputError(f"review_verdict: {bad} in the sheet; a verdict is {OK}, {WRONG} or empty")
     return [r for r in sheet if r["verdict"]]
 
 

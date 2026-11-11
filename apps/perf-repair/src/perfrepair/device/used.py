@@ -19,7 +19,7 @@ from ..dto.screen import ACCEPTED, BROKEN
 from ..dto.used import CANDIDATE, GROUP, SITE, UPGRADE, VIA, AppUse, UsedItem, UsedSet
 from ..files import write_json
 from ..log import step
-from ..validation import require
+from cryptobench.shared.errors.validation import require
 from ..validation.used import validate_used
 from .selection import bundled_named
 

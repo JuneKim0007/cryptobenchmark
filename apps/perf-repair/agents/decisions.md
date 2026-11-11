@@ -49,7 +49,7 @@ src/perfrepair/ai/log/where.py : Where: the stage, step and app a job's attempts
 src/perfrepair/ai/model/tier.py : Tier (gateway, model, effort, webSearch), the one model choice; Ladder: a gateway's models weakest first
 src/perfrepair/ai/review/job.py : ReviewJob: one tier up, reads another job's answer (read_output) and evidence (read_evidence) and the catalogue; verdict accept, refuse (the job's next repass reason) or unidentified (a person's)
 src/perfrepair/ai/runtime/agent/conversation.py : Conversation and Conversations: the multi-turn protocol, its lifetime guard, scripted answers
-src/perfrepair/ai/runtime/agent/reply.py : AgentReply, AgentRefused, AgentFailed (a provider's one coded failure line)
+src/perfrepair/ai/runtime/agent/reply.py : AgentReply, AgentRefused
 src/perfrepair/ai/runtime/engine/ask.py : one item's asking: the budget check, turns in a conversation (a read tool's result is a turn too, up to Limits.calls), then fresh conversations; Answer; each turn's model latency and size
 src/perfrepair/ai/runtime/engine/budget.py : a role's Budget, the chars/4 measure, the fit: the message, the kind's narrowed one, or `over_budget`
 src/perfrepair/ai/runtime/engine/charter_file.py : an outbox's charter.json: written once, checked on each open (`charter_mismatch`), rehashed by the validator; a recorded charter's inputs

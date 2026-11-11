@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from ..inputs.resolve import OnInvalid, unknown_key
-from ..stop.halt import Coded
+from cryptobench.shared.errors.input_error import InputError
 from ..inputs.table import known_tree
 
 LOG = logging.getLogger(__name__)
@@ -25,7 +25,7 @@ MOVED = {
 }
 
 
-class ConfigError(Coded):
+class ConfigError(InputError):
     pass
 
 

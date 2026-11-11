@@ -5,7 +5,7 @@ import fcntl
 import os
 from pathlib import Path
 
-from cryptobench.shared.errors.coded import InputError
+from cryptobench.shared.errors.input_error import InputError
 from cryptobench.shared.paths import RunTree
 
 # flock conflicts between two descriptors of one process too, so the guide and its probe_device share one

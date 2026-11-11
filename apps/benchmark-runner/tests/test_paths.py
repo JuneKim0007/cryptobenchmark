@@ -4,7 +4,7 @@ import sys
 import pytest
 
 from cryptobench.shared import paths
-from cryptobench.shared.errors.coded import InputError
+from cryptobench.shared.errors.input_error import InputError
 
 
 def checkout(folder):

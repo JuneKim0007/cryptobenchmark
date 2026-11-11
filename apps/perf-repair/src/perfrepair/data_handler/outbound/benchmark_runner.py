@@ -13,7 +13,8 @@ from ...child.deadline import Deadline
 from ...child.env import child_env
 from ...config.timeouts import pipeline_seconds
 from cryptobench.shared import paths
-from cryptobench.shared.errors.coded import InputError, code_in
+from cryptobench.shared.errors.failures import BenchmarkRunError
+from cryptobench.shared.errors.input_error import InputError
 from ...log import run_id
 from ...stop import terminate
 
@@ -22,14 +23,6 @@ MISSING_DEPENDENCY = "missing_dependency: "
 WROTE_MANIFEST = re.compile(r"^wrote:\s+(.*/manifest\.yaml)$")
 IDENTITY = re.compile(r"^identity:\s+(\{.*\})$")
 STAGES = {"configure": [], "bench": ["--bench"], "device": ["--device"]}
-
-
-class BenchmarkRunError(RuntimeError):
-    """Often the child's own last line, so its code can only be read from those words."""
-
-    def __init__(self, message: str):
-        super().__init__(message)
-        self.code = code_in(message)
 
 
 def benchmark_root(explicit: Path | str | None = None) -> Path:

@@ -38,7 +38,6 @@ src/perfrepair/validation/dossiers/dossier.py : check_dossier: one dossier on it
 src/perfrepair/validation/dossiers/parse.py : parse_dossiers: units with their Dossiers and noOptions for the replace stage, by the same checks
 src/perfrepair/validation/dossiers/units.py : dossiers.json against units.json: every unit with a member with options asked, with its stays and pairs; `provider_held_key` exactly where a member's key contract is provider-held
 src/perfrepair/validation/events.py : log/events.jsonl through read_jsonl: every whole line JSON (a cut one skipped), schema 1, every field with its type, a known kind; a partial last line
-src/perfrepair/validation/failure.py : ValidationFailed, code artifact_invalid, and require: the stage gate
 src/perfrepair/validation/finding.py : the one invariant finding: id, severity (blocking, advisory, undecided), subject, evidence, fix; blocking, counts
 src/perfrepair/validation/grouping/code_groups.py : code-made and catalog groups equal the ones screen.json and the catalog imply; no identified item in another group
 src/perfrepair/validation/grouping/interop.py : interop plan against groups, results against the plan, groups.json section, dossier options

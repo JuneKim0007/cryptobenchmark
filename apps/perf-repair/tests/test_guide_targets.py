@@ -15,7 +15,7 @@ from perfrepair.ai.runtime.gateway.claude_cli import ClaudeCliError
 from perfrepair.ai.select.command import dry_run
 from perfrepair.app.facts.path_id import path_id
 from perfrepair.app.facts.target_set import resolve_targets
-from perfrepair.data_handler.outbound.benchmark_runner import BenchmarkRunError
+from cryptobench.shared.errors.failures import BenchmarkRunError
 from perfrepair.files import read_json
 from perfrepair.guide import app_steps as guide_steps, finished
 from perfrepair.dto.perf_mode import PerfMode

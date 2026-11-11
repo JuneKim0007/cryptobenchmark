@@ -8,7 +8,7 @@ from pathlib import Path
 from cryptobench.shared.paths import RunTree
 from ..dto.bundled import applied_entries
 from ..files import read_yaml
-from ..stop.halt import Coded
+from cryptobench.shared.errors.input_error import InputError
 from .selection import generated, relocated
 
 
@@ -17,7 +17,7 @@ def configured(base: Path) -> frozenset[str]:
     entries = ((read_yaml(base) or {}).get("providers") or {}).get("bundled") or []
     for e in entries:
         if not (isinstance(e, dict) and e.get("artifact") and isinstance(e["artifact"], str)):
-            raise Coded(f"invalid: providers.bundled in {base}: {e!r} names no artifact")
+            raise InputError(f"invalid: providers.bundled in {base}: {e!r} names no artifact")
     return frozenset(e["artifact"].rsplit(":", 1)[0] for e in entries)
 
 

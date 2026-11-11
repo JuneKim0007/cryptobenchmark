@@ -4,13 +4,15 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass
 
-from ..ai.runtime.agent.reply import AgentFailed
+from cryptobench.shared.errors.failures import AgentFailed
 from ..dto.event import END
 from ..failure import FAILURES
 from ..log import attach, emit
 from ..log.emit import elapsed_ms
 from ..result.primitives import NotScreened
-from ..stop import CODES, Halt, code_of, halt_of
+from cryptobench.shared.errors.coded import code_of
+from cryptobench.shared.errors.halt import Halt
+from ..stop import CODES, halt_of
 from .app_steps import APP_DEVICE, APP_DRY
 from .state import Guide
 

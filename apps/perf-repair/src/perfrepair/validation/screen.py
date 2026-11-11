@@ -10,7 +10,7 @@ from cryptobench.shared.catalogue.grouping import Item, read_items
 from ..dto.screen import (ACCEPTED, MODEL_SOURCE, MODEL_STATUS, STATUSES, UNKNOWN, UNVERIFIED, Verdict, read_screen,
                           read_screen_built, read_screen_catalog, read_screen_review)
 from ..files import read_json
-from .failure import require
+from cryptobench.shared.errors.validation import require
 
 SHA256 = re.compile(r"[0-9a-f]{64}")
 

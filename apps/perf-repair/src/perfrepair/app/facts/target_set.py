@@ -15,7 +15,7 @@ from ...inputs.check import (
     target_perf,
     target_root,
 )
-from ...stop.halt import Coded
+from cryptobench.shared.errors.input_error import InputError
 from .kind import APP, LIBRARY, Kind, android_kind
 from .roots import EscapingLink, project_roots
 
@@ -73,10 +73,10 @@ def listed_entries(value: Any, settings_file: Path) -> tuple[list, Path]:
         return list(value or []), Path(settings_file)
     path = paths.against(settings_file, value)
     if not path.is_file():
-        raise Coded(f"missing_file: apps.targets file {path}")
+        raise InputError(f"missing_file: apps.targets file {path}")
     entries = read_yaml(path, list)
     if not all(target_ok(e) for e in entries):
-        raise Coded(f"invalid: apps.targets file {path}, {TARGETS_EXPECTED}")
+        raise InputError(f"invalid: apps.targets file {path}, {TARGETS_EXPECTED}")
     return entries, path
 
 

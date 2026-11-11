@@ -5,7 +5,7 @@ from helpers import task
 
 from perfrepair.dto.prompt import CorrectionPrompt, SystemPrompt
 from perfrepair.ai.runtime.agent import AgentRefused
-from perfrepair.ai.runtime.agent.reply import AgentFailed
+from cryptobench.shared.errors.failures import AgentFailed
 from perfrepair.ai.runtime.gateway.claude_api import ClaudeClient, ClaudeConversations
 
 

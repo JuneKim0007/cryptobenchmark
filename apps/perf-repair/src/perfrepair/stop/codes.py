@@ -2,32 +2,11 @@
 code and next step."""
 from __future__ import annotations
 
-from dataclasses import dataclass
+from cryptobench.shared.errors.glossary import MIXES, NOTHING, NOTICE, SKIP, STOP, UNUSABLE, WARN, Code
 
-STOP, WARN, SKIP = "stop", "warn", "skip"
-ACTIONS = (STOP, WARN, SKIP)
-MIXES = "continuing would mix runs or devices"
-NOTHING = "nothing is left to run"
-UNUSABLE = "the input is unusable"
-NOTICE = "a notice; nothing to choose"
 # the guide's step names: a step's coded failure is `<step>_failed`, the inner code kept beside it
 GUIDE_STEPS = ("prerequisites", "targets", "grouping", "interop", "app", "dossier", "upgrade", "replace", "edit", "harness", "device", "report",
                "summary")
-
-
-@dataclass(frozen=True)
-class Code:
-    code: str
-    action: str
-    next: str
-    allowed: tuple[str, ...] = ()
-    # every code exits 1 today; argparse refuses its own errors with 2 before any code is reached
-    exit: int = 1
-    why: str = UNUSABLE
-
-    @property
-    def fixed(self) -> bool:
-        return not self.allowed
 
 
 def _fixed(code: str, next_step: str, why: str = UNUSABLE, action: str = STOP) -> Code:

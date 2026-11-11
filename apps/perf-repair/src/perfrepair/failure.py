@@ -7,14 +7,14 @@ import traceback
 from dataclasses import dataclass
 from typing import Callable
 
-from .ai.runtime.agent.reply import AgentFailed
-from .app.facts.gate import GateError
-from .data_handler.outbound.benchmark_runner import BenchmarkRunError
+from cryptobench.shared.errors.coded import code_of
+from cryptobench.shared.errors.failures import AgentFailed, BenchmarkRunError, GateError
+from cryptobench.shared.errors.halt import Halt
+from cryptobench.shared.errors.validation import ValidationFailed
 from .dto.event import BUG, ERROR
 from .log import bug_log, command_run, emit
 from .log.attach import nested
-from .stop import CODES, Halt, code_of
-from .validation.failure import ValidationFailed
+from .stop import CODES
 
 # ValueError covers JSON and YAML parse errors and every coded error (InputError, CatalogMismatch, ...)
 FAILURES = (Halt, ValidationFailed, ValueError, OSError, GateError, BenchmarkRunError, AgentFailed)

@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from ....dto.prompt import CorrectionPrompt, Lifetime, SystemPrompt, TaskPrompt
 from ..agent.conversation import LifetimeGuarded
-from ..agent.reply import AgentFailed, AgentRefused, AgentReply
+from cryptobench.shared.errors.failures import AgentFailed
+from ..agent.reply import AgentRefused, AgentReply
 
 DEFAULT_MODEL = "claude-opus-5-5"
 MAX_TOKENS = 16000

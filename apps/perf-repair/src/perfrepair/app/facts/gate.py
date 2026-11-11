@@ -5,6 +5,7 @@ import os
 from dataclasses import dataclass, replace
 from pathlib import Path
 
+from cryptobench.shared.errors.failures import GateError
 from ...source.language import NAMES, SOURCE_SUFFIXES
 from .roots import (BUILD_FILES, MANIFEST, MAX_DEPTH as MAX_ROOT_DEPTH, SETTINGS_FILES, EscapingLink, is_legacy,
                     project_roots)
@@ -14,12 +15,6 @@ PROJECT_FILES = SETTINGS_FILES + BUILD_FILES
 SOURCE_SET_DIRS = NAMES  # Gradle names a source set folder after its language
 MAX_FILES = 200_000
 MAX_SOURCE_BYTES = 256 * 2**20
-
-
-class GateError(Exception):
-    def __init__(self, reason: str, detail: str):
-        super().__init__(f"{reason}: {detail}")
-        self.reason = self.code = reason
 
 
 @dataclass(frozen=True)

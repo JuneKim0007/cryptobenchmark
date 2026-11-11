@@ -16,7 +16,7 @@ from ..dto.event import END
 from ..files import write_text
 from ..log import emit, step
 from ..stop import CODES, terminate
-from ..validation import require
+from cryptobench.shared.errors.validation import require
 from ..validation.bundled import validate_suggestions
 from .bundled_config import configured
 from .bundled_missing import missing_set

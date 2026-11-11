@@ -15,7 +15,7 @@ from perfrepair.device.setup_fingerprint import differing, without_narrowed
 from perfrepair.dto.benchmark_coverage import LOW_QUALITY, MEASURED, PARTIAL, Gap
 from perfrepair.dto.perf_mode import GENERIC_MODE
 from perfrepair.files import read_json, read_yaml
-from perfrepair.stop.halt import Coded
+from cryptobench.shared.errors.input_error import InputError
 from test_benchmark_gate import (  # noqa: F401
     GCM,
     GCM_SLOW,
@@ -78,7 +78,7 @@ def test_a_merge_refuses_a_case_with_another_sample_count(device, tmp_path):  # 
     doc = read_json(staged / "benchmark/benchmark.json")
     doc["cases"][-1]["metrics"]["timeNs"]["runs"] = [1.0] * 7
     (staged / "benchmark/benchmark.json").write_text(json.dumps(doc))
-    with pytest.raises(Coded, match="unequal_samples: added.timeNs"):
+    with pytest.raises(InputError, match="unequal_samples: added.timeNs"):
         merge_delta(device, staged, {"added"}, "s", "checked")
 
 
@@ -99,7 +99,7 @@ def _added_item(device, staged, harness, stored_harness=None):  # noqa: F811
 def test_a_merge_holds_a_new_items_case_to_the_stored_cases_planned_alike(device, tmp_path):  # noqa: F811
     staged = staged_copy(device, tmp_path)
     _added_item(device, staged, {"iterations": 50}, {"iterations": 50})
-    with pytest.raises(Coded, match=r"unequal_samples: new\.timeNs"):
+    with pytest.raises(InputError, match=r"unequal_samples: new\.timeNs"):
         merge_delta(device, staged, {"new"}, "s", "checked")
 
 
@@ -114,7 +114,7 @@ def test_a_merge_takes_another_process_file_count_by_its_cases_samples(device, t
     manifest = read_yaml(RunTree(staged).manifest)
     manifest["files"]["processes"] = ["benchmark/benchmark.json"]
     (RunTree(staged).manifest).write_text(yaml.safe_dump(manifest))
-    with pytest.raises(Coded, match=r"unequal_samples: added\.\w+: per process"):
+    with pytest.raises(InputError, match=r"unequal_samples: added\.\w+: per process"):
         merge_delta(device, staged, {"added"}, "s", "checked")
 
 

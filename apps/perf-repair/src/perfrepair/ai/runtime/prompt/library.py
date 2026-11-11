@@ -6,7 +6,7 @@ from pathlib import Path
 from cryptobench.shared import paths
 from cryptobench.shared.document.document import DocumentKind
 from ....dto.prompt import Charter, CorrectionPrompt, Lifetime, SystemPrompt, fill
-from ....stop.halt import Coded
+from cryptobench.shared.errors.input_error import InputError
 from ....files import read_yaml
 
 CORRECTION = "shared/rejection"
@@ -14,7 +14,7 @@ SCHEMA_VERSION = 1
 PACKAGED_ORIGIN = "packaged"
 
 
-class PromptError(Coded):
+class PromptError(InputError):
     pass
 
 

@@ -11,7 +11,7 @@ import yaml
 from cryptobench.shared.paths import BENCHMARK_JSON, RunTree
 from ..dto.dossier import SETUP_DRIFT
 from ..files import json_text, read_json, read_yaml, write_text_making_parents
-from ..stop.halt import Coded
+from cryptobench.shared.errors.input_error import InputError
 from cryptobench.shared.document.document import parse_yaml
 
 PLANNED = ("prepared", "skipped")
@@ -41,7 +41,7 @@ def _added(stored: list[dict], delta: list[dict], ids: set[str], fill: dict, ses
     present = {c["id"] for c in stored}
     clash = sorted(ids & present)
     if clash:
-        raise Coded(f"merge_refused: {', '.join(clash)} already in the stored benchmark; a merge only adds")
+        raise InputError(f"merge_refused: {', '.join(clash)} already in the stored benchmark; a merge only adds")
     theirs = {c["id"]: c for c in delta}
     kept = [_filled(c, theirs.get(c["id"]), fill.get(c["id"], ()), session, comparison) for c in stored]
     return kept + [_tag(c, session, comparison) for c in delta if c["id"] in ids]
@@ -86,7 +86,7 @@ def _same_samples(mine: dict, theirs: dict, merged: set[str], setup: dict, their
         expected = {mine[cid, m]} if (cid, m) in mine else added
         if expected and counts not in expected:
             what = "per process" if {c[0] for c in expected} == {counts[0]} else "runs"
-            raise Coded(f"merge_refused: unequal_samples: {cid}.{m}: {what} {list(counts)} in the delta, "
+            raise InputError(f"merge_refused: unequal_samples: {cid}.{m}: {what} {list(counts)} in the delta, "
                         f"{min(map(list, expected))} stored")
 
 

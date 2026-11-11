@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from cryptobench.shared import paths
-from cryptobench.shared.errors.coded import InputError
+from cryptobench.shared.errors.input_error import InputError
 from cryptobench.shared.document.document import AT_PATH, DocumentKind, parse_yaml
 from cryptobench.shared.catalogue.names import Names, fold
 

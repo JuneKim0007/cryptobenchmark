@@ -16,7 +16,7 @@ from ...dto.unit import UnitDossiers
 from ...files import json_text, sha256_text
 from ...result.gain import IMPROVED, WORSE, by_change
 from ...result.upgrades import edits_of
-from ...validation import require
+from cryptobench.shared.errors.validation import require
 from ...validation.dossiers.document import perf_of
 from ...validation.dossiers.parse import parse_dossiers
 from ...validation.replacements import consistent_units, validate_replacements

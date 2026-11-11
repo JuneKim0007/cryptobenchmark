@@ -11,7 +11,7 @@ from cryptobench.shared.paths import DEVICE, MANIFEST, MEASUREMENTS, PRIMITIVES,
 from cryptobench.shared import paths
 from .. import run_dir as rd
 from ..inputs.table import DEVICE_ID
-from ..stop.halt import Coded
+from cryptobench.shared.errors.input_error import InputError
 from .args import load_settings
 from .load import Loaded
 
@@ -27,11 +27,11 @@ def add_device_results_arg(parser: argparse.ArgumentParser) -> None:
 def select_device(root: Path, wanted: str | None) -> Path:
     found = Results(root).devices()
     if wanted and wanted not in found:
-        raise Coded(f"device_not_in_results: {wanted}; {root} holds {found}")
+        raise InputError(f"device_not_in_results: {wanted}; {root} holds {found}")
     if not found:
-        raise Coded(f"no_device_results: {root} holds no <device id>/{MANIFEST}; run the benchmark")
+        raise InputError(f"no_device_results: {root} holds no <device id>/{MANIFEST}; run the benchmark")
     if not wanted and len(found) > 1:
-        raise Coded(f"several_device_results: {root} holds {', '.join(found)}; set device.id or pass --device-results")
+        raise InputError(f"several_device_results: {root} holds {', '.join(found)}; set device.id or pass --device-results")
     return root / (wanted or found[0])
 
 
@@ -72,5 +72,5 @@ def fill_device_results(parser: argparse.ArgumentParser, args: argparse.Namespac
         args.device_results = select_device(_results_root(parser, args), loaded.read(DEVICE_ID))
     args.device_results = args.device_results.expanduser()
     if Results(args.device_results).devices() or _unfinished(args.device_results):
-        raise Coded(rd.not_device_results(args.device_results))
+        raise InputError(rd.not_device_results(args.device_results))
     _warn_if_temp(args.device_results)

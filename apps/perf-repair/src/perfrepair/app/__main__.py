@@ -20,14 +20,16 @@ from ..log import attach, step
 from ..scope.build import Scoping, build_scopes
 from ..stop import terminate
 from ..scope.units.build import build_units, unit_counts, units_document
-from ..validation import require, validate_manifest
+from cryptobench.shared.errors.failures import GateError
+from cryptobench.shared.errors.validation import require
+from ..validation import validate_manifest
 from ..validation.app import validate_app_facts, validate_scopes
 from ..validation.units import validate_units
 from .facts.app_facts import app_facts
 from .facts.dependencies import bundled, read_libraries
 from .detect import Detection, detect
 from .resolve import Primitives
-from .facts.gate import AppRoot, GateError, open_apps
+from .facts.gate import AppRoot, open_apps
 from .facts.path_id import path_id, unit_id
 from .facts.sdk import sdk_levels
 from .find.sources import build_files

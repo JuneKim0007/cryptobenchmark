@@ -5,7 +5,7 @@ from .. import paths
 from dataclasses import dataclass
 from pathlib import Path
 
-from ..errors.coded import InputError
+from ..errors.input_error import InputError
 from ..document.document import AT_PATH, DocumentKind
 from .glossary import deviation_problems
 from .names import fold

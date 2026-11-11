@@ -44,7 +44,7 @@ def test_the_known_failures_are_these_classes_in_this_order():
     assert [f"{c.__module__}.{c.__name__}" for c in pipeline.KNOWN] == [
         "device.adb.DeviceError", "device.identity.DeviceIdError", "device.capture.CaptureError", "sources.runner.EnergyError",
         "bundled.BundledError", "stages.config_check.ConfigCheckError", "scope.results.ScopeResultError", "scope.code_digest.CodeDigestError",
-        "timeouts.StepTimeout", "session.dynamic_temperature.Terminated", "cryptobench.shared.errors.coded.InputError"]
+        "timeouts.StepTimeout", "session.dynamic_temperature.Terminated", "cryptobench.shared.errors.input_error.InputError"]
 
 
 @pytest.mark.parametrize("known", pipeline.KNOWN, ids=lambda c: c.__name__)

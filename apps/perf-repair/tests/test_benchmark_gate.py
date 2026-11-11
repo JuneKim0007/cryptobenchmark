@@ -31,8 +31,8 @@ from perfrepair.files import read_json, read_yaml
 from perfrepair.grouping.build.stage import build_stage
 from perfrepair.result.configurations import Config, cross_session
 from perfrepair.screen.catalog import screening_catalog
-from perfrepair.stop import Halt
-from perfrepair.stop.halt import Coded
+from cryptobench.shared.errors.halt import Halt
+from cryptobench.shared.errors.input_error import InputError
 
 F = Path(__file__).parent / "fixtures"
 FOLDER = "fake-api36-00000000"
@@ -238,7 +238,7 @@ def test_the_estimate_ignores_a_delta_call_and_counts_the_whole_run(tmp_path):
 
 def test_another_device_connected_is_refused_before_the_delta(device, monkeypatch):
     monkeypatch.setenv("FAKE_DEVICE_ID", "another-device")
-    with pytest.raises(Coded, match="device_id_changed"):
+    with pytest.raises(InputError, match="device_id_changed"):
         gate(device, SHA_LOST)
     assert not (device / "delta").exists()
 
@@ -305,7 +305,7 @@ def staged_copy(device, tmp_path):
 
 
 def test_a_merge_refuses_an_id_the_benchmark_holds(device, tmp_path):
-    with pytest.raises(Coded, match="merge_refused"):
+    with pytest.raises(InputError, match="merge_refused"):
         merge_delta(device, staged_copy(device, tmp_path), {"g_fast"}, "s", "checked")
 
 

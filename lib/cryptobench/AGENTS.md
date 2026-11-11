@@ -33,8 +33,14 @@ cryptobench/shared/catalogue/vectors.py : known answers: read and checked whole,
 cryptobench/shared/catalogue/views.py : what an agent is shown: one entry with only its provider build's overrides (view_for), the groups' ids, descriptions and exemplars (list_groups), one group's members a page at a time (get_group)
 cryptobench/shared/document/__init__.py : package of the YAML document reader
 cryptobench/shared/document/document.py : parse_yaml, a YAML text as its one shape (a mapping unless named) or invalid_yaml at its line and column; DocumentKind: a versioned document's accepted schemaVersion (one or several), its reader's refusal text and error type; check, the one schemaVersion check every reader calls
-cryptobench/shared/errors/__init__.py : package of the coded errors
-cryptobench/shared/errors/coded.py : CODE and code_in, the code word a failure message starts with; InputError, the one coded error a refused input raises (`.code`, `.path`, `.detail`)
+cryptobench/shared/errors/__init__.py : package of the coded errors, importing nothing from the repo
+cryptobench/shared/errors/coded.py : CODE and code_in, the code word a failure message starts with; code_of, the code a failure carries as `.code`
+cryptobench/shared/errors/failures.py : AgentFailed (a provider's one coded failure line), GateError (the app gate's coded reasons), BenchmarkRunError (a pipeline.py run that failed), each on its own base
+cryptobench/shared/errors/glossary.py : Code: one code's default action, the actions stops.<code> may choose (none: fixed, and why), exit and next step; the actions stop, warn, skip
+cryptobench/shared/errors/halt.py : Halt, the exception terminate raises after its event
+cryptobench/shared/errors/input_error.py : InputError, the one coded error a refused input raises (`.code`, `.path`, `.detail`)
+cryptobench/shared/errors/policy.py : the stops reader the settings layer installs; a code's action, its default without one
+cryptobench/shared/errors/validation.py : ValidationFailed, code artifact_invalid, and require: the stage gate
 cryptobench/shared/paths/__init__.py : one interface to every path the Python modules use: `from cryptobench.shared import paths`
 cryptobench/shared/paths/device_dirs.py : DeviceDirs(sdk): folders on a device per API level, POSIX paths
 cryptobench/shared/paths/host.py : the user's and host's locations: home, the user's global.yaml, the Android SDK

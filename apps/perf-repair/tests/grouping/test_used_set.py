@@ -16,7 +16,7 @@ from cryptobench.shared.catalogue.signature import Component, Signature
 from perfrepair.dto.used import UsedItem, UsedSet
 from perfrepair.files import read_json, write_json
 from perfrepair.grouping.report.checks import report
-from perfrepair.validation import ValidationFailed
+from cryptobench.shared.errors.validation import ValidationFailed
 from perfrepair.validation.used import validate_used
 
 S_M1_P1, S_M1_P2, RAW, PAIR, PASSWORD, H1 = ("TypeC|ALG-S/M1|P1", "TypeC|ALG-S/M1|P2", "TypeC|ALG-RAW|P1",

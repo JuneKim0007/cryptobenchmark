@@ -14,7 +14,7 @@ from perfrepair.dto.screen import Verdict
 from perfrepair.grouping.interop_plan import plan, write_plan
 from perfrepair.grouping.interop_read import import_results
 from perfrepair.grouping.report.checks import report
-from perfrepair.validation import ValidationFailed
+from cryptobench.shared.errors.validation import ValidationFailed
 from perfrepair.validation.grouping.interop import validate_interop, validate_plan
 
 DIRECTIONS = {"pass": ("pass", "pass"), "fail": ("fail", "pass"), "not_checkable": ("not_checkable", "pass")}

@@ -20,7 +20,7 @@ from perfrepair.grouping.build import stage
 from perfrepair.grouping.build.stage import build_stage
 from perfrepair.screen.catalog import load_catalog
 from perfrepair.screen.evidence import batches
-from perfrepair.validation import ValidationFailed
+from cryptobench.shared.errors.validation import ValidationFailed
 from perfrepair.validation.grouping.output import read_groups
 from perfrepair.validation.parse.algorithm_classify import check_reply
 

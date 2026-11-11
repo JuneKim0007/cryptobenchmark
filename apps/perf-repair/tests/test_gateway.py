@@ -11,7 +11,8 @@ from perfrepair.ai.__main__ import main as ai
 from perfrepair.ai.attempt.escalate import next_tier
 from perfrepair.ai.parse.algorithm_classify import command as classify
 from perfrepair.ai.parse.grouping_assign import command as assign
-from perfrepair.ai.runtime.agent import AgentFailed, ScriptedConversations
+from cryptobench.shared.errors.failures import AgentFailed
+from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.gateway import registry
 from perfrepair.ai.runtime.gateway.args import add_agent_args
 from perfrepair.ai.runtime.gateway.claude_api import ClaudeConversations

@@ -1,7 +1,5 @@
-"""Halt: the one exception terminate raises; code_of: the code a failure carries in its field."""
+"""Halt: the one exception terminate raises."""
 from __future__ import annotations
-
-from cryptobench.shared.errors.coded import InputError
 
 
 class Halt(Exception):
@@ -11,12 +9,3 @@ class Halt(Exception):
         self.code, self.detail, self.next_step, self.exit, self.inner = code, detail, next_step, exit_code, inner
         self.reported = True
         super().__init__(f"{code}: {detail}")
-
-
-# a coded failure raised where no terminate decides it; the name its raisers import, one class with InputError
-Coded = InputError
-
-
-def code_of(e: BaseException) -> str | None:
-    code = getattr(e, "code", None)
-    return code if isinstance(code, str) else None

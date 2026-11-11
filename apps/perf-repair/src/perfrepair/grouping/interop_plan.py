@@ -11,7 +11,7 @@ from cryptobench.shared.catalogue.grouping import KEY_APP_HELD, KEY_PROVIDER_HEL
 from ..dto.interop import NOT_CHECKABLE, PairResult, PlannedPair, plan_document
 from ..dto.screen import Verdict
 from ..files import read_json, write_text
-from ..validation import require
+from cryptobench.shared.errors.validation import require
 from ..validation.grouping.interop import validate_plan
 from ..validation.grouping.output import read_groups
 from .report.rules import common_key_sizes

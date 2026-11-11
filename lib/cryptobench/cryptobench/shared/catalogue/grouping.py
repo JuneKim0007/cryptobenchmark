@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 
-from ..errors.coded import InputError
+from ..errors.input_error import InputError
 from ..document.document import NAMED, DocumentKind
 from .signature import Signature
 

@@ -8,13 +8,13 @@ from cryptobench.shared.catalogue.grouping import Item, qualified
 from ..dto.metrics import METRICS
 from ..dto.primitives import PrimitiveLine, PrimitivesTable, column, rounded
 from ..dto.screen import Verdict
-from ..stop.halt import Coded
+from cryptobench.shared.errors.input_error import InputError
 
 WORK_FIELDS = ("type", "algorithm", "provider", "operation", "keySize", "phase", "variant")
 Cells = dict[int | None, dict[str, Summary]]
 
 
-class NotScreened(Coded):
+class NotScreened(InputError):
     """names: every measured primitive without a verdict; path: the file that lists them, once the caller knows it."""
 
     def __init__(self, names: tuple[str, ...], path=None):
@@ -58,7 +58,7 @@ def _grouped(rows: list[PrimitiveRow], measurements: dict[str, dict[str, Summary
         name = qualified(r.type, r.algorithm, r.provider)
         key = (*(getattr(r, f) for f in WORK_FIELDS), status_of[name])
         if r.inputSize in grouped[key]:
-            raise Coded(f"primitive_line_collision: {r.rowId} repeats {key} at input size {r.inputSize}")
+            raise InputError(f"primitive_line_collision: {r.rowId} repeats {key} at input size {r.inputSize}")
         grouped[key][r.inputSize] = measurements.get(r.rowId) or {}
     return grouped
 

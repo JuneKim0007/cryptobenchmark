@@ -1,3 +1,3 @@
-from .benchmark_runner import BenchmarkRunError, benchmark_root, run_pipeline
+from .benchmark_runner import benchmark_root, run_pipeline
 
-__all__ = ["BenchmarkRunError", "benchmark_root", "run_pipeline"]
+__all__ = ["benchmark_root", "run_pipeline"]

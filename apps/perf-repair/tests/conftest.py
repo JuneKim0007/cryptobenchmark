@@ -10,7 +10,7 @@ from perfrepair.config import current, device_results, dotenv, load
 from perfrepair.failure import last_failure
 from perfrepair.catalog import signature
 from perfrepair.log.attach import SINK
-from perfrepair.stop import policy
+from cryptobench.shared.errors import policy
 
 
 @pytest.fixture(autouse=True)
