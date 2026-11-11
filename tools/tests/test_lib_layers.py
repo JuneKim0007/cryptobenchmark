@@ -1,7 +1,6 @@
 """lib cryptobench imports keep to RULES; relative imports and imports inside functions count; __main__ modules are the top layer."""
 import ast
 import pathlib
-import warnings
 
 import pytest
 
@@ -25,6 +24,8 @@ RULES = (
     ("cryptobench.shared.errors", REPO_WIDE),
     ("cryptobench.shared.log", REPO_WIDE),
 )
+# rule names whose package has not landed yet; the step that lands one removes it here
+PENDING = {"cryptobench.shared", "cryptobench.pipeline", "cryptobench.stages", "cryptobench.shared.errors", "cryptobench.shared.log"}
 
 
 def _within(name, prefix):
@@ -86,15 +87,20 @@ def _violations(importer, banned):
             yield f"{where}: {module} imports {target}, but {importer} must not import {', '.join(banned)}"
 
 
-def _present(importer):
-    return _on_disk(importer.removesuffix(".*").split("."))
+def _present(name):
+    return _on_disk(name.split("."))
+
+
+def test_every_rule_name_exists_or_is_pending():
+    names = {n.removesuffix(".*") for importer, banned in RULES for n in (importer, *banned)}
+    wrong = sorted(n for n in names if _within(n, "cryptobench") and _present(n) == (n in PENDING))
+    assert not wrong, f"each name must exist on disk or be in PENDING, not both: {wrong}"
 
 
 @pytest.mark.parametrize("importer, banned", RULES, ids=[importer for importer, _ in RULES])
 def test_imports_keep_to_the_rule(importer, banned):
-    if not _present(importer):
-        warnings.warn(f"layering rule for {importer}: not yet present, holds trivially")
-        return
+    if importer.removesuffix(".*") in PENDING:
+        pytest.skip(f"pending: {importer}")
     found = sorted(_violations(importer, banned))
     assert not found, "\n".join(found)
 
