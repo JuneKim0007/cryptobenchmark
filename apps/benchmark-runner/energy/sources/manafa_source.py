@@ -2,7 +2,8 @@
 import json, pathlib, subprocess
 
 from cryptobench.shared import paths
-from .runner import TOOLS, EnergyError, case_arguments
+from cryptobench.shared.errors.failures import EnergyError
+from .runner import TOOLS, case_arguments
 
 SESSION = TOOLS / "manafa_session.py"
 PREFLIGHT_SECONDS = 3

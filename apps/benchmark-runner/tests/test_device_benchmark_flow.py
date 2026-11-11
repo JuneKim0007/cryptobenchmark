@@ -5,6 +5,7 @@ import pytest
 import yaml
 
 from device.adb import DeviceError  # noqa: E402
+from cryptobench.shared.errors.failures import EnergyError  # noqa: E402
 from session import clocks_hook, cooldown_hook  # noqa: E402
 from stages import benchmark  # noqa: E402
 from fake_phone import Energy, Phone, fake_tools  # noqa: E402
@@ -83,7 +84,7 @@ def test_measured_capture_runs_inside_the_window_with_a_preflight_first(tmp_path
 
 def test_an_energy_window_that_cannot_open_costs_the_process_its_energy_never_its_timing(tmp_path, monkeypatch):
     def refused(_self, _folder):
-        raise benchmark.energy_stage.EnergyError("manafa_cannot_start: no session")
+        raise EnergyError("manafa_cannot_start: no session")
     monkeypatch.setattr(Energy, "window", refused)
     phone, _files, problems, results = measured(tmp_path, monkeypatch, MEASURED)
     assert problems == ["energy_failed: manafa_cannot_start: no session"]

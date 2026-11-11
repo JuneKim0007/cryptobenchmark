@@ -1,13 +1,9 @@
 """How the host runs apps/benchmark-runner/energy: the interpreter that has its packages, and the arguments of a run's cases."""
 import dataclasses, os, pathlib, subprocess
 from cryptobench.shared import paths
-from cryptobench.shared.errors.coded import Coded
+from cryptobench.shared.errors.failures import EnergyError
 
 TOOLS = paths.repo().energy
-
-
-class EnergyError(Coded):
-    pass
 
 
 @dataclasses.dataclass(frozen=True)

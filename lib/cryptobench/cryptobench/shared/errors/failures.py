@@ -1,7 +1,7 @@
 """The coded failures one package raises and another reports: each keeps its own base, so `except ValueError` misses it."""
 from __future__ import annotations
 
-from .coded import code_in
+from .coded import Coded, code_in
 
 
 class AgentFailed(RuntimeError):
@@ -24,3 +24,7 @@ class BenchmarkRunError(RuntimeError):
     def __init__(self, message: str):
         super().__init__(message)
         self.code = code_in(message)
+
+
+class EnergyError(Coded):
+    """Raised by the energy sources, reported by the runner; one class whichever name the sources load under."""

@@ -1,6 +1,7 @@
 """The energy hook around a device process: the window spans the device run, joules comes after it, a failed energy step costs only energy."""
 
 import energy_stage  # noqa: E402
+from cryptobench.shared.errors.failures import EnergyError  # noqa: E402
 from session import measure as measure_session  # noqa: E402
 from session import energy_hook  # noqa: E402
 from device.adb import DeviceError  # noqa: E402
@@ -23,7 +24,7 @@ class FailingEnergy(Energy):
 
     def joules(self, *_paths):
         super().joules()
-        raise energy_stage.EnergyError("apps/benchmark-runner/energy/energy.py: boom")
+        raise EnergyError("apps/benchmark-runner/energy/energy.py: boom")
 
 
 def run(tmp_path, captures, failing=(), problems=None, timed=True):

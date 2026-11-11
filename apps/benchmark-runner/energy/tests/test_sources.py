@@ -8,7 +8,8 @@ import rails_run  # noqa: E402
 from sources import SOURCES  # noqa: E402
 from sources import rails_source as rails_module  # noqa: E402
 from sources.rails_source import RailsSource  # noqa: E402
-from sources.runner import EnergyError, Host, case_arguments  # noqa: E402
+from sources.runner import Host, case_arguments  # noqa: E402
+from cryptobench.shared.errors.failures import EnergyError  # noqa: E402
 
 FAKE = pathlib.Path(__file__).parent / "fake_manafa"
 GOLDEN = rails_run.FIXTURES / "rails_energy.json"

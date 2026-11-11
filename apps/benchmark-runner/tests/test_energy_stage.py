@@ -2,6 +2,7 @@
 import pytest
 
 import energy_stage
+from cryptobench.shared.errors.failures import EnergyError  # noqa: E402
 
 
 def test_effective_entries_inherit_the_run_capture(tmp_path):
@@ -29,5 +30,5 @@ def test_entries_with_another_source_are_refused(tmp_path):
     effective = tmp_path / "effective.yaml"
     effective.write_text("run: {harness: {energy: {source: rails}}}\n"
                          "providers: {p: {t: {a: {}, b: {harness: {energy: {source: manafa}}}}}}\n")
-    with pytest.raises(energy_stage.EnergyError, match="energy_sources_differ"):
+    with pytest.raises(EnergyError, match="energy_sources_differ"):
         energy_stage.source(effective, "py")

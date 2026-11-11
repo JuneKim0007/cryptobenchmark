@@ -10,10 +10,11 @@ from cryptobench.shared import paths
 paths.add_energy_imports()
 from capture import capture, source as source_of  # noqa: E402
 from sources import SOURCES  # noqa: E402
-from sources.runner import EnergyError, Host  # noqa: E402
+from sources.runner import Host  # noqa: E402
 from cryptobench.shared.document.document import read_yaml
+from cryptobench.shared.errors.failures import EnergyError
 
-__all__ = ["EnergyError", "capture", "captures", "guarded", "source", "source_name"]
+__all__ = ["capture", "captures", "guarded", "source", "source_name"]
 
 
 def _entries(document):
