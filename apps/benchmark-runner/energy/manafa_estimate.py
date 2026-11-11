@@ -1,12 +1,10 @@
 """Joules from a stopped EManafa per case window; a number it did not give is not_measured with the reason."""
 import math
 
+from energy import NotMeasured
+
 KIND = "estimated"
 SOURCE = "manafa"
-
-
-class NotMeasured(Exception):
-    pass
 
 
 def one_line(error):
