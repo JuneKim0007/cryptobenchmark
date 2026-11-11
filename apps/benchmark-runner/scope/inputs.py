@@ -15,7 +15,7 @@ PAIR_MEMBERS = {"private": ".private", "public": ".public", "pair": ""}
 KOTLIN_TYPES = {"bytes": "ByteArray", "text": "String", "chars": "CharArray"}
 
 
-class InputError(Exception):
+class ScopeInputError(Exception):
     """The message is the not_compilable reason."""
 
 
@@ -34,7 +34,7 @@ def kind(type_text):
 def item(option):
     parts = str(option or "").split("|")
     if len(parts) != 3 or not parts[1]:
-        raise InputError(f"no_key_algorithm: option {option!r} is not Type|name|provider")
+        raise ScopeInputError(f"no_key_algorithm: option {option!r} is not Type|name|provider")
     return parts
 
 
@@ -49,17 +49,17 @@ def expression(parameter, scope, side="after"):
         return literal
     found = kind(parameter.type)
     if found is None:
-        raise InputError(f"unsupported_parameter: {parameter.name}: {parameter.type}")
+        raise ScopeInputError(f"unsupported_parameter: {parameter.name}: {parameter.type}")
     if found in PAIR_MEMBERS:
         if scope.key_size is None:
-            raise InputError(f"missing_input: keySize for {parameter.name}, none from {scope.input_source}")
+            raise ScopeInputError(f"missing_input: keySize for {parameter.name}, none from {scope.input_source}")
         kind_of, name, provider = item(scope.option)
         decoder = item(scope.current if side == "before" else scope.option)[2]
         return f'ScopeKeys.pair("{kind_of}", "{name}", "{provider}", {scope.key_size}, "{decoder}"){PAIR_MEMBERS[found]}'
     if found == "key":
         if scope.key_size is None:
-            raise InputError(f"missing_input: keySize for {parameter.name}, none from {scope.input_source}")
+            raise ScopeInputError(f"missing_input: keySize for {parameter.name}, none from {scope.input_source}")
         return f'ScopeInputs.secretKey("{key_algorithm(scope.option)}", {scope.key_size}, {SEED + 1})'
     if scope.input_size is None:
-        raise InputError(f"missing_input: inputSize for {parameter.name}, none from {scope.input_source}")
+        raise ScopeInputError(f"missing_input: inputSize for {parameter.name}, none from {scope.input_source}")
     return f"ScopeInputs.{found}({scope.input_size}, {SEED})"

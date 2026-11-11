@@ -34,9 +34,9 @@ def test_each_side_decodes_the_one_generated_pair_through_its_own_provider():
 
 def test_a_key_pair_without_a_size_and_a_file_without_a_size_say_which_input_is_missing():
     empty = SimpleNamespace(key_size=None, input_size=None, input_source="app", current=None, option="Cipher|RSA|BC")
-    with pytest.raises(scope_inputs.InputError, match="missing_input: keySize for p, none from app"):
+    with pytest.raises(scope_inputs.ScopeInputError, match="missing_input: keySize for p, none from app"):
         expression("PrivateKey", empty)
-    with pytest.raises(scope_inputs.InputError, match="missing_input: inputSize for p, none from app"):
+    with pytest.raises(scope_inputs.ScopeInputError, match="missing_input: inputSize for p, none from app"):
         expression("java.io.File", empty)
 
 

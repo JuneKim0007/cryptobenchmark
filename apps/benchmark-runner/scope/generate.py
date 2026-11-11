@@ -87,7 +87,7 @@ def admitted(scope, record):
         return None
     try:
         candidate = checked(scope)
-    except (scope_signature.SignatureError, scope_inputs.InputError) as reason:
+    except (scope_signature.SignatureError, scope_inputs.ScopeInputError) as reason:
         record.update(status="not_compilable", reason=str(reason))
         return None
     resolution = candidate[1]
