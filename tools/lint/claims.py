@@ -83,7 +83,7 @@ def claims(tree: Tree) -> list[str]:
 
 
 def stop_table(tree: Tree, code: Code) -> list[str]:
-    """docs/stops.md's Codes table lists exactly stop/codes.py's codes, each with its default."""
+    """docs/stops.md's Codes table lists exactly codes.yaml's stops entries, each with its default."""
     rows = {m.group(1): m.group(2) for m in re.finditer(r"^\| `(\w+)` \| `(\w+)` \|", section(tree.text.get(STOPS, ""), "Codes"), re.M)}
     defaults = {k: v.lower() for k, v in code.defaults.items()}
     problems = [f"{STOPS}: code {c} is not in {CODES}" for c in sorted(set(rows) - code.codes)]
