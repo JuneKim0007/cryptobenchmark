@@ -7,6 +7,7 @@ from device.adb import Device
 from device.identity import device_id
 from failure import fail, one_line, reported
 from cryptobench.shared.errors.coded import Coded
+from cryptobench.pipeline.stage import Stage, StageContext
 from global_file import global_config
 from cryptobench.shared import paths
 from results import layout as results_layout
@@ -78,6 +79,42 @@ def results_root(options):
     return pathlib.Path(options.results or paths.repo().default_results).expanduser().resolve()
 
 
+def published(context):
+    """The results root, after its temporary-folder warning."""
+    root = results_root(context.options)
+    results_layout.warn_if_temp(root)
+    return root
+
+
+def identified(context):
+    return identify(context.options, context.configuration, context.device)
+
+
+def harnessed(context):
+    return harness_run(context.options, context.configuration, context.device, checked_folder(context.options))
+
+
+def interoperated(context):
+    return interop_run(context.options, context.configuration, context.device, published(context))
+
+
+def checked(context):
+    return check_run(context.options, context.configuration, context.device, published(context))
+
+
+def measured(context):
+    options, configuration, device = context.options, context.configuration, context.device
+    results, (discovery, effective, capture, trial, files) = device_discover(options, configuration, device, published(context))
+    if not options.probe and (options.bench or device):
+        measure_cases(options, device, results, discovery, effective, capture, trial, files, context.problems)
+    manifest(results, "device" if device else "host", configuration, files, context.problems)
+
+
+# the first row whose option is set runs; None marks the plain run, the last row
+ROUTES: tuple[tuple[str | None, Stage], ...] = (
+    ("identify", identified), ("harness", harnessed), ("interop", interoperated), ("check", checked), (None, measured))
+
+
 def main():
     options = parse_options()
     sys.stdout.reconfigure(line_buffering=True)
@@ -89,21 +126,8 @@ def main():
     device = Device(paths.repo().gradle_root, options.stream, options.stacktrace) if options.device else None
     if device:
         device.connect()
-    if options.identify:
-        return identify(options, configuration, device)
-    if options.harness:
-        return harness_run(options, configuration, device, checked_folder(options))
-    root = results_root(options)
-    results_layout.warn_if_temp(root)
-    if options.interop:
-        return interop_run(options, configuration, device, root)
-    if options.check:
-        return check_run(options, configuration, device, root)
-    results, (discovery, effective, capture, trial, files) = device_discover(options, configuration, device, root)
-    problems = []
-    if not options.probe and (options.bench or device):
-        measure_cases(options, device, results, discovery, effective, capture, trial, files, problems)
-    manifest(results, "device" if device else "host", configuration, files, problems)
+    stage = next(stage for option, stage in ROUTES if option is None or getattr(options, option))
+    return stage(StageContext(options, configuration, device))
 
 
 def failure_line(error):

@@ -25,7 +25,7 @@ RULES = (
     ("cryptobench.shared.log", REPO_WIDE),
 )
 # rule names whose package has not landed yet; the step that lands one removes it here
-PENDING = {"cryptobench.pipeline", "cryptobench.stages", "cryptobench.shared.log"}
+PENDING = {"cryptobench.stages", "cryptobench.shared.log"}
 # what cryptobench/ itself may hold; every other module lives in one of these packages
 TOP_LEVEL = {"__init__.py", "shared", "pipeline", "stages"}
 

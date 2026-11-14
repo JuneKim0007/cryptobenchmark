@@ -12,6 +12,8 @@ The implementation guide under `algorithms/` and the Python that reads it, share
 ../../algorithms/provider-builds.yaml : data: every provider build the catalogues' measured facts ran on, keyed <name> @ <build>, with what each says of itself; a behaviour true of a provider and the ids it reaches
 ../../algorithms/vectors/ : known answers by family
 cryptobench/__init__.py : package of the Python library the benchmark runner and perf-repair share
+cryptobench/pipeline/__init__.py : package of the run's stage framework, importing no stage
+cryptobench/pipeline/stage.py : StageContext (options, configuration, device, the run's problems list), what each stage reads; Stage, a stage's shape
 cryptobench/shared/__init__.py : package of the components the stages share, importing neither the pipeline nor a stage
 cryptobench/shared/catalogue/__init__.py : package of the implementation guide's readers
 cryptobench/shared/catalogue/algorithms.py : reader of the catalogues, checked whole: entry fields, sources, contracts, type facts, provider overrides; lookup by family and id
