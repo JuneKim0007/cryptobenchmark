@@ -1,4 +1,4 @@
-# Every code once. kind: error | notice | outcome (a stored verdict or reason); default: the action today.
+# Every code once. kind: error | notice | outcome (a stored verdict or reason); default: the action today, where a reader resolves it.
 # stops: perf-repair's stops.<code> entry, in its table's order: the actions it may choose, exit, next step, why.
 schemaVersion: 1
 codes:
@@ -498,6 +498,7 @@ codes:
       exit: 1
       next: "pass a file that exists"
       why: "the input is unusable"
+  # E11: perf-repair: warn or stop by the value's source (inputs/resolve.py); runner harness and Kotlin config: stop; runner energy: a printed label (energy/energy.py)
   invalid:
     kind: error
     default: stop
@@ -522,6 +523,7 @@ codes:
       exit: 1
       next: "move the secret to the environment or .env"
       why: "the input is unusable"
+  # E11: perf-repair settings: stop; runner scope: the scope is skipped as not_compilable (scope/inputs.py)
   missing_input:
     kind: error
     default: stop
@@ -946,6 +948,7 @@ codes:
       exit: 1
       next: "name a run log summary lists"
       why: "the input is unusable"
+  # E11: perf-repair settings: warn; facade index: exit 1 (facade/index.py); Kotlin: a key class the peer cannot map (PeerKey.kt)
   unknown_key:
     kind: notice
     default: warn
@@ -1002,301 +1005,304 @@ codes:
       exit: 1
       next: "the option stays and a replace to it declares unverified_interop; only a line naming a missing device or config has a fix: make it and rerun the guide"
       why: "a notice; nothing to choose"
-  agreement_needs_key_pairs: {kind: error, default: stop}
-  agrees_differently: {kind: outcome, default: note}
-  algorithm_not_literal: {kind: outcome, default: skip}
-  allocation_runs_changed: {kind: notice, default: skip}
-  ambiguous_call: {kind: outcome, default: skip}
-  ambiguous_init: {kind: outcome, default: skip}
-  bench_failed: {kind: notice, default: warn}
-  bind_failed: {kind: error, default: stop}
-  blank_alias: {kind: error, default: stop}
-  blank_artifact: {kind: error, default: stop}
-  blank_provider: {kind: error, default: stop}
-  blank_rule_part: {kind: error, default: stop}
-  bundled_alias_taken: {kind: error, default: stop}
-  bundled_catalog: {kind: error, default: stop}
-  bundled_class_not_found: {kind: error, default: stop}
-  bundled_create_failed: {kind: error, default: stop}
-  bundled_factory_not_found: {kind: error, default: stop}
-  bundled_factory_not_static: {kind: error, default: stop}
-  bundled_mismatch: {kind: error, default: stop}
-  bundled_name_taken: {kind: error, default: stop}
-  bundled_not_a_provider: {kind: error, default: stop}
-  bundled_not_installed: {kind: error, default: stop}
-  call_failed: {kind: outcome, default: note}
-  call_moved: {kind: outcome, default: skip}
-  case_failed: {kind: error, default: skip}
-  charts_failed: {kind: notice, default: warn}
-  check_failed: {kind: outcome, default: skip}
-  cipher_needs_a_key: {kind: error, default: stop}
-  config_invalid: {kind: error, default: stop}
-  constant_iv: {kind: outcome, default: note}
-  consumption_failed: {kind: outcome, default: note}
-  cpu_not_locked: {kind: outcome, default: note}
-  cpu_pin_failed: {kind: notice, default: warn}
-  dangling_vector: {kind: error, default: stop}
-  decrypt_without_ciphertext: {kind: error, default: stop}
-  decrypts_differently: {kind: outcome, default: note}
-  device_id_bad_java_version: {kind: error, default: stop}
-  device_id_bad_sdk: {kind: error, default: stop}
-  device_id_empty_slug: {kind: error, default: stop}
-  device_id_fields_missing: {kind: error, default: stop}
-  device_not_attached: {kind: error, default: stop}
-  different_case: {kind: error, default: stop}
-  different_parameters: {kind: error, default: stop}
-  different_variant: {kind: error, default: stop}
-  digests_differently: {kind: outcome, default: note}
-  discovery_reprobed: {kind: notice, default: warn}
-  dry_run_failed: {kind: error, default: stop}
-  duplicate: {kind: error, default: stop}
-  duplicate_alias: {kind: error, default: stop}
-  duplicate_artifact: {kind: error, default: stop}
-  duplicate_case: {kind: error, default: stop}
-  duplicate_id: {kind: error, default: stop}
-  duplicate_name: {kind: error, default: stop}
-  empty_override: {kind: error, default: stop}
-  empty_rule: {kind: error, default: stop}
-  empty_window: {kind: outcome, default: note}
-  energy_capability_unknown: {kind: error, default: stop}
-  energy_failed: {kind: notice, default: warn}
-  energy_kinds_differ: {kind: error, default: stop}
-  energy_not_joined: {kind: notice, default: skip}
-  energy_sources_differ: {kind: error, default: stop}
-  exclude_matches_nothing: {kind: notice, default: warn}
-  extension_function: {kind: outcome, default: skip}
-  facts_unknown: {kind: error, default: stop}
-  file_missing: {kind: outcome, default: skip}
-  first_call_refused: {kind: outcome, default: note}
-  function_span: {kind: outcome, default: skip}
-  generation_refused: {kind: outcome, default: note}
-  generic_function: {kind: outcome, default: skip}
-  group_without_name: {kind: error, default: stop}
-  guide_build_fallback: {kind: notice, default: warn}
-  guide_recipe_unbuildable: {kind: outcome, default: note}
-  harness_build_failed: {kind: error, default: stop}
-  harness_other_device: {kind: error, default: stop}
-  hook_failed: {kind: notice, default: warn}
-  input_preparation_failed: {kind: error, default: stop}
-  instance_refused: {kind: outcome, default: note}
-  instantiation_failed: {kind: outcome, default: note}
-  instantiation_fails: {kind: outcome, default: note}
-  internal_error: {kind: error, default: stop}
-  invalid_alias: {kind: error, default: stop}
-  invalid_artifact: {kind: error, default: stop}
-  invalid_create: {kind: error, default: stop}
-  invalid_group: {kind: error, default: stop}
-  invalid_input_sizes: {kind: error, default: stop}
-  invalid_keys: {kind: error, default: stop}
-  invocation_failed: {kind: outcome, default: note}
-  iterations_not_applied: {kind: notice, default: skip}
-  iv_repeated: {kind: outcome, default: note}
-  key_generation_failed: {kind: error, default: stop}
-  key_inside_provider: {kind: outcome, default: note}
-  key_or_parameters_rejected: {kind: outcome, default: note}
-  key_parameters_and_key_sizes: {kind: error, default: stop}
-  key_refused: {kind: outcome, default: note}
-  key_size_not_in_guide: {kind: error, default: stop}
-  keystore_born_key: {kind: outcome, default: note}
-  mac_needs_a_secret_key: {kind: error, default: stop}
-  manafa_cannot_start: {kind: error, default: stop}
-  manafa_failed: {kind: error, default: stop}
-  manafa_missing: {kind: error, default: stop}
-  manafa_not_started: {kind: error, default: stop}
-  manafa_stop_failed: {kind: notice, default: warn}
-  measure_failed: {kind: outcome, default: skip}
-  mismatched_trial: {kind: error, default: stop}
-  missing_field: {kind: error, default: stop}
-  missing_key: {kind: error, default: stop}
-  missing_metric: {kind: error, default: stop}
-  missing_module: {kind: error, default: stop}
-  missing_parameter: {kind: outcome, default: skip}
-  missing_pass: {kind: error, default: stop}
-  missing_resource: {kind: error, default: stop}
-  missing_verdict: {kind: error, default: stop}
-  mixed_types: {kind: error, default: stop}
-  names_catalog_missing: {kind: error, default: stop}
-  negative: {kind: error, default: stop}
-  no_batterystats: {kind: outcome, default: note}
-  no_bytes: {kind: outcome, default: note}
-  no_call: {kind: outcome, default: note}
-  no_call_count: {kind: outcome, default: note}
-  no_call_for_type: {kind: outcome, default: note}
-  no_change: {kind: outcome, default: skip}
-  no_ciphertext_input: {kind: outcome, default: note}
-  no_clock_snapshot: {kind: outcome, default: note}
-  no_contract: {kind: outcome, default: note}
-  no_core: {kind: error, default: stop}
-  no_declared_length: {kind: outcome, default: note}
-  no_device: {kind: error, default: stop}
-  no_edits: {kind: outcome, default: skip}
-  no_encoding: {kind: outcome, default: note}
-  no_engine_read_back: {kind: outcome, default: note}
-  no_estimate: {kind: outcome, default: note}
-  no_frequencies: {kind: error, default: stop}
-  no_harness_operation: {kind: outcome, default: note}
-  no_init: {kind: outcome, default: skip}
-  no_iv: {kind: outcome, default: note}
-  no_joules_per_operation: {kind: outcome, default: note}
-  no_key: {kind: error, default: stop}
-  no_key_algorithm: {kind: outcome, default: skip}
-  no_key_generator: {kind: error, default: stop}
-  no_key_pair: {kind: outcome, default: note}
-  no_key_pairs: {kind: outcome, default: note}
-  no_known_vector_applied: {kind: notice, default: warn}
-  no_match: {kind: outcome, default: skip}
-  no_measured_key: {kind: error, default: stop}
-  no_measurement_slices: {kind: outcome, default: note}
-  no_message_input: {kind: outcome, default: note}
-  no_metrics: {kind: notice, default: skip}
-  no_operations: {kind: outcome, default: note}
-  no_peer_check: {kind: outcome, default: note}
-  no_peer_provider: {kind: outcome, default: note}
-  no_pinning: {kind: error, default: stop}
-  no_power_rails: {kind: error, default: stop}
-  no_rails: {kind: outcome, default: note}
-  no_samples: {kind: outcome, default: note}
-  no_sdk: {kind: error, default: stop}
-  no_signed_input: {kind: outcome, default: note}
-  no_size_asked_or_read: {kind: outcome, default: note}
-  no_size_bound: {kind: outcome, default: note}
-  no_temperatures: {kind: notice, default: warn}
-  no_vector: {kind: outcome, default: note}
-  non_exportable: {kind: outcome, default: note}
-  not_a_function: {kind: outcome, default: skip}
-  not_a_key: {kind: outcome, default: note}
-  not_a_list: {kind: error, default: stop}
-  not_a_mapping: {kind: error, default: stop}
-  not_asserted: {kind: outcome, default: note}
-  not_authenticated: {kind: outcome, default: note}
-  not_bytes: {kind: outcome, default: note}
-  not_checkable: {kind: outcome, default: note}
-  not_compared: {kind: outcome, default: note}
-  not_converted: {kind: notice, default: skip}
-  not_dry: {kind: error, default: stop}
-  not_finite: {kind: error, default: stop}
-  not_hex: {kind: outcome, default: note}
-  not_in_guide: {kind: error, default: stop}
-  not_in_plan: {kind: notice, default: skip}
-  not_installed: {kind: outcome, default: note}
-  not_measurable: {kind: error, default: stop}
-  not_measured: {kind: outcome, default: note}
-  not_merged: {kind: notice, default: skip}
-  not_positive: {kind: error, default: stop}
-  not_registered: {kind: error, default: stop}
-  not_repeatable: {kind: error, default: stop}
-  not_reversed: {kind: outcome, default: note}
-  not_runnable: {kind: outcome, default: skip}
-  not_supported: {kind: error, default: stop}
-  not_timed: {kind: error, default: stop}
-  not_tried: {kind: outcome, default: note}
-  not_whole: {kind: error, default: stop}
-  nothing_converted: {kind: error, default: stop}
-  nothing_measured: {kind: error, default: stop}
-  nothing_merged: {kind: error, default: stop}
-  nothing_prepared: {kind: error, default: stop}
-  nothing_selected: {kind: error, default: stop}
-  nothing_to_check: {kind: error, default: stop}
-  nothing_to_measure: {kind: error, default: stop}
-  operation_refused: {kind: outcome, default: note}
-  oracle_failed: {kind: outcome, default: note}
-  orphan_vector: {kind: outcome, default: note}
-  out_of_range: {kind: error, default: stop}
-  output_differs: {kind: outcome, default: note}
-  outputs_not_comparable: {kind: outcome, default: note}
-  overlapping_edits: {kind: outcome, default: skip}
-  override_matches_nothing: {kind: notice, default: warn}
-  parameters_ignored: {kind: notice, default: warn}
-  parameters_not_recoverable: {kind: outcome, default: note}
-  parameters_not_reported: {kind: outcome, default: note}
-  parameters_unknown: {kind: outcome, default: note}
-  parameters_unreadable: {kind: error, default: stop}
-  pass_without_metric: {kind: error, default: stop}
-  peer_differs: {kind: outcome, default: note}
-  peer_error: {kind: outcome, default: note}
-  peer_failed: {kind: outcome, default: note}
-  peer_key_rejected: {kind: outcome, default: note}
-  peer_parameters_rejected: {kind: outcome, default: note}
-  peer_refused: {kind: outcome, default: note}
-  peer_rejects: {kind: outcome, default: note}
-  peer_setup_failed: {kind: outcome, default: note}
-  peer_unavailable: {kind: outcome, default: note}
-  pinning_unknown: {kind: notice, default: warn}
-  preparation_failed: {kind: outcome, default: skip}
-  probe_exists: {kind: error, default: stop}
-  probe_failed: {kind: outcome, default: note}
-  produce_consume: {kind: outcome, default: note}
-  producer_failed: {kind: outcome, default: note}
-  provider_not_installed: {kind: error, default: stop}
-  rails_unresponsive: {kind: outcome, default: note}
-  raw_material_refused: {kind: outcome, default: note}
-  refused_plan: {kind: error, default: stop}
-  repeat_differs: {kind: outcome, default: note}
-  results_in_temp: {kind: notice, default: warn}
-  reverse_differs: {kind: outcome, default: note}
-  reverse_failed: {kind: outcome, default: note}
-  root_not_found: {kind: error, default: stop}
-  round_trip_failed: {kind: error, default: stop}
-  runtime_differs: {kind: notice, default: skip}
-  same_output: {kind: outcome, default: note}
-  scopes_conflict: {kind: error, default: stop}
-  setup_refused: {kind: outcome, default: note}
-  several_devices: {kind: error, default: stop}
-  signature_changed: {kind: outcome, default: skip}
-  signature_needs_a_key_pair: {kind: error, default: stop}
-  single_process: {kind: outcome, default: note}
-  stopped_on_failure: {kind: error, default: stop}
-  subprocess_failed: {kind: error, default: stop}
-  sustained_performance_off: {kind: outcome, default: note}
-  tags_differently: {kind: outcome, default: note}
-  tamper_accepted: {kind: outcome, default: note}
+  agreement_needs_key_pairs: {kind: error}
+  agrees_differently: {kind: outcome}
+  algorithm_not_literal: {kind: outcome}
+  allocation_runs_changed: {kind: notice}
+  ambiguous_call: {kind: outcome}
+  ambiguous_init: {kind: outcome}
+  bench_failed: {kind: notice}
+  bind_failed: {kind: error}
+  blank_alias: {kind: error}
+  blank_artifact: {kind: error}
+  blank_provider: {kind: error}
+  blank_rule_part: {kind: error}
+  bundled_alias_taken: {kind: error}
+  bundled_catalog: {kind: error}
+  bundled_class_not_found: {kind: error}
+  bundled_create_failed: {kind: error}
+  bundled_factory_not_found: {kind: error}
+  bundled_factory_not_static: {kind: error}
+  bundled_mismatch: {kind: error}
+  bundled_name_taken: {kind: error}
+  bundled_not_a_provider: {kind: error}
+  bundled_not_installed: {kind: error}
+  call_failed: {kind: outcome}
+  call_moved: {kind: outcome}
+  case_failed: {kind: error}
+  charts_failed: {kind: notice}
+  # E11: Kotlin: one case's check threw, so the case is skipped (RunnablePlan.kt); runner: checked cases failed, exit 1 (stages/check.py)
+  check_failed: {kind: outcome}
+  cipher_needs_a_key: {kind: error}
+  config_invalid: {kind: error}
+  constant_iv: {kind: outcome}
+  consumption_failed: {kind: outcome}
+  cpu_not_locked: {kind: outcome}
+  cpu_pin_failed: {kind: notice}
+  dangling_vector: {kind: error}
+  decrypt_without_ciphertext: {kind: error}
+  decrypts_differently: {kind: outcome}
+  device_id_bad_java_version: {kind: error}
+  device_id_bad_sdk: {kind: error}
+  device_id_empty_slug: {kind: error}
+  device_id_fields_missing: {kind: error}
+  device_not_attached: {kind: error}
+  different_case: {kind: error}
+  different_parameters: {kind: error}
+  different_variant: {kind: error}
+  digests_differently: {kind: outcome}
+  discovery_reprobed: {kind: notice}
+  dry_run_failed: {kind: error}
+  duplicate: {kind: error}
+  duplicate_alias: {kind: error}
+  duplicate_artifact: {kind: error}
+  duplicate_case: {kind: error}
+  duplicate_id: {kind: error}
+  duplicate_name: {kind: error}
+  empty_override: {kind: error}
+  empty_rule: {kind: error}
+  empty_window: {kind: outcome}
+  energy_capability_unknown: {kind: error}
+  energy_failed: {kind: notice}
+  energy_kinds_differ: {kind: error}
+  energy_not_joined: {kind: notice}
+  energy_sources_differ: {kind: error}
+  exclude_matches_nothing: {kind: notice}
+  extension_function: {kind: outcome}
+  facts_unknown: {kind: error}
+  file_missing: {kind: outcome}
+  first_call_refused: {kind: outcome}
+  function_span: {kind: outcome}
+  generation_refused: {kind: outcome}
+  generic_function: {kind: outcome}
+  group_without_name: {kind: error}
+  guide_build_fallback: {kind: notice}
+  guide_recipe_unbuildable: {kind: outcome}
+  harness_build_failed: {kind: error}
+  harness_other_device: {kind: error}
+  hook_failed: {kind: notice}
+  input_preparation_failed: {kind: error}
+  instance_refused: {kind: outcome}
+  instantiation_failed: {kind: outcome}
+  instantiation_fails: {kind: outcome}
+  internal_error: {kind: error}
+  invalid_alias: {kind: error}
+  invalid_artifact: {kind: error}
+  invalid_create: {kind: error}
+  invalid_group: {kind: error}
+  invalid_input_sizes: {kind: error}
+  invalid_keys: {kind: error}
+  invocation_failed: {kind: outcome}
+  iterations_not_applied: {kind: notice}
+  iv_repeated: {kind: outcome}
+  key_generation_failed: {kind: error}
+  key_inside_provider: {kind: outcome}
+  key_or_parameters_rejected: {kind: outcome}
+  key_parameters_and_key_sizes: {kind: error}
+  key_refused: {kind: outcome}
+  key_size_not_in_guide: {kind: error}
+  keystore_born_key: {kind: outcome}
+  mac_needs_a_secret_key: {kind: error}
+  manafa_cannot_start: {kind: error}
+  manafa_failed: {kind: error}
+  manafa_missing: {kind: error}
+  manafa_not_started: {kind: error}
+  manafa_stop_failed: {kind: notice}
+  measure_failed: {kind: outcome}
+  mismatched_trial: {kind: error}
+  missing_field: {kind: error}
+  missing_key: {kind: error}
+  missing_metric: {kind: error}
+  missing_module: {kind: error}
+  missing_parameter: {kind: outcome}
+  missing_pass: {kind: error}
+  missing_resource: {kind: error}
+  missing_verdict: {kind: error}
+  mixed_types: {kind: error}
+  names_catalog_missing: {kind: error}
+  negative: {kind: error}
+  no_batterystats: {kind: outcome}
+  no_bytes: {kind: outcome}
+  no_call: {kind: outcome}
+  no_call_count: {kind: outcome}
+  no_call_for_type: {kind: outcome}
+  no_change: {kind: outcome}
+  no_ciphertext_input: {kind: outcome}
+  no_clock_snapshot: {kind: outcome}
+  no_contract: {kind: outcome}
+  no_core: {kind: error}
+  no_declared_length: {kind: outcome}
+  no_device: {kind: error}
+  no_edits: {kind: outcome}
+  no_encoding: {kind: outcome}
+  no_engine_read_back: {kind: outcome}
+  no_estimate: {kind: outcome}
+  no_frequencies: {kind: error}
+  no_harness_operation: {kind: outcome}
+  no_init: {kind: outcome}
+  no_iv: {kind: outcome}
+  no_joules_per_operation: {kind: outcome}
+  no_key: {kind: error}
+  no_key_algorithm: {kind: outcome}
+  no_key_generator: {kind: error}
+  no_key_pair: {kind: outcome}
+  no_key_pairs: {kind: outcome}
+  no_known_vector_applied: {kind: notice}
+  no_match: {kind: outcome}
+  no_measured_key: {kind: error}
+  no_measurement_slices: {kind: outcome}
+  no_message_input: {kind: outcome}
+  no_metrics: {kind: notice}
+  no_operations: {kind: outcome}
+  no_peer_check: {kind: outcome}
+  no_peer_provider: {kind: outcome}
+  no_pinning: {kind: error}
+  no_power_rails: {kind: error}
+  no_rails: {kind: outcome}
+  no_samples: {kind: outcome}
+  no_sdk: {kind: error}
+  no_signed_input: {kind: outcome}
+  no_size_asked_or_read: {kind: outcome}
+  no_size_bound: {kind: outcome}
+  no_temperatures: {kind: notice}
+  no_vector: {kind: outcome}
+  non_exportable: {kind: outcome}
+  not_a_function: {kind: outcome}
+  not_a_key: {kind: outcome}
+  not_a_list: {kind: error}
+  not_a_mapping: {kind: error}
+  not_asserted: {kind: outcome}
+  not_authenticated: {kind: outcome}
+  not_bytes: {kind: outcome}
+  not_checkable: {kind: outcome}
+  not_compared: {kind: outcome}
+  not_converted: {kind: notice}
+  not_dry: {kind: error}
+  not_finite: {kind: error}
+  not_hex: {kind: outcome}
+  not_in_guide: {kind: error}
+  # E11: Kotlin convert drops the row (JetpackResults.kt); perf-repair: a run-log status (device/measured_check.py)
+  not_in_plan: {kind: notice}
+  not_installed: {kind: outcome}
+  not_measurable: {kind: error}
+  # E11: runner: a planned case missing from benchmark.json (stages/not_measured.py); manafa: an energy reason's prefix (energy/manafa_estimate.py)
+  not_measured: {kind: outcome}
+  not_merged: {kind: notice}
+  not_positive: {kind: error}
+  not_registered: {kind: error}
+  not_repeatable: {kind: error}
+  not_reversed: {kind: outcome}
+  not_runnable: {kind: outcome}
+  not_supported: {kind: error}
+  not_timed: {kind: error}
+  not_tried: {kind: outcome}
+  not_whole: {kind: error}
+  nothing_converted: {kind: error}
+  nothing_measured: {kind: error}
+  nothing_merged: {kind: error}
+  nothing_prepared: {kind: error}
+  nothing_selected: {kind: error}
+  nothing_to_check: {kind: error}
+  nothing_to_measure: {kind: error}
+  operation_refused: {kind: outcome}
+  oracle_failed: {kind: outcome}
+  orphan_vector: {kind: outcome}
+  out_of_range: {kind: error}
+  output_differs: {kind: outcome}
+  outputs_not_comparable: {kind: outcome}
+  overlapping_edits: {kind: outcome}
+  override_matches_nothing: {kind: notice}
+  parameters_ignored: {kind: notice}
+  parameters_not_recoverable: {kind: outcome}
+  parameters_not_reported: {kind: outcome}
+  parameters_unknown: {kind: outcome}
+  parameters_unreadable: {kind: error}
+  pass_without_metric: {kind: error}
+  peer_differs: {kind: outcome}
+  peer_error: {kind: outcome}
+  peer_failed: {kind: outcome}
+  peer_key_rejected: {kind: outcome}
+  peer_parameters_rejected: {kind: outcome}
+  peer_refused: {kind: outcome}
+  peer_rejects: {kind: outcome}
+  peer_setup_failed: {kind: outcome}
+  peer_unavailable: {kind: outcome}
+  pinning_unknown: {kind: notice}
+  preparation_failed: {kind: outcome}
+  probe_exists: {kind: error}
+  probe_failed: {kind: outcome}
+  produce_consume: {kind: outcome}
+  producer_failed: {kind: outcome}
+  provider_not_installed: {kind: error}
+  rails_unresponsive: {kind: outcome}
+  raw_material_refused: {kind: outcome}
+  refused_plan: {kind: error}
+  repeat_differs: {kind: outcome}
+  results_in_temp: {kind: notice}
+  reverse_differs: {kind: outcome}
+  reverse_failed: {kind: outcome}
+  root_not_found: {kind: error}
+  round_trip_failed: {kind: error}
+  runtime_differs: {kind: notice}
+  same_output: {kind: outcome}
+  scopes_conflict: {kind: error}
+  setup_refused: {kind: outcome}
+  several_devices: {kind: error}
+  signature_changed: {kind: outcome}
+  signature_needs_a_key_pair: {kind: error}
+  single_process: {kind: outcome}
+  stopped_on_failure: {kind: error}
+  subprocess_failed: {kind: error}
+  sustained_performance_off: {kind: outcome}
+  tags_differently: {kind: outcome}
+  tamper_accepted: {kind: outcome}
   temperature_discard_limit: {kind: error, default: skip, values: {nextCase: skip, stop: stop}}
-  temperature_gate_timeout: {kind: error, default: stop}
-  temperature_unreadable: {kind: error, default: skip}
-  thermal_throttle: {kind: outcome, default: note}
-  thermal_unavailable: {kind: notice, default: warn}
-  timed_phases: {kind: outcome, default: note}
-  timeout: {kind: error, default: stop}
-  too_few_runs: {kind: outcome, default: note}
-  trace_not_pulled: {kind: outcome, default: note}
-  trace_unreadable: {kind: outcome, default: note}
-  transformation_fails: {kind: outcome, default: note}
-  unavailable_recipe: {kind: error, default: stop}
-  unbalanced_call: {kind: outcome, default: skip}
-  uncovered: {kind: error, default: stop}
-  unequal_samples: {kind: error, default: stop}
-  unknown_compare: {kind: outcome, default: note}
-  unknown_key_material: {kind: outcome, default: note}
-  unknown_keys: {kind: error, default: stop}
-  unknown_parameters: {kind: outcome, default: skip}
-  unknown_per_call: {kind: error, default: stop}
-  unknown_section: {kind: error, default: stop}
-  unknown_status: {kind: outcome, default: note}
-  unknown_variant: {kind: error, default: stop}
-  unparseable_signature: {kind: outcome, default: skip}
-  unreadable_yaml: {kind: error, default: stop}
-  unsupported: {kind: error, default: stop}
-  unsupported_capture_schema: {kind: error, default: stop}
-  unsupported_expression: {kind: outcome, default: skip}
-  unsupported_kind: {kind: outcome, default: skip}
-  unsupported_language: {kind: outcome, default: skip}
-  unsupported_operation: {kind: error, default: stop}
-  unsupported_parameter: {kind: outcome, default: skip}
-  unsupported_schema: {kind: error, default: stop}
-  unsupported_schema_version: {kind: error, default: stop}
-  unused_setting: {kind: notice, default: warn}
-  usage: {kind: error, default: stop}
-  vararg_parameter: {kind: outcome, default: skip}
-  vector_incomplete: {kind: error, default: stop}
-  vector_iv_not_used: {kind: outcome, default: note}
-  vector_not_expressible: {kind: outcome, default: note}
-  vector_on_randomized_operation: {kind: error, default: stop}
-  vectors_folder_missing: {kind: error, default: stop}
-  verifies_differently: {kind: outcome, default: note}
-  verify_failed: {kind: error, default: stop}
-  verify_false: {kind: outcome, default: note}
-  verify_needs_a_key_pair: {kind: error, default: stop}
-  verify_without_signature: {kind: error, default: stop}
-  warmup_job_matches_nothing: {kind: notice, default: warn}
-  window_uncovered: {kind: outcome, default: note}
-  wrong_type: {kind: error, default: stop}
+  temperature_gate_timeout: {kind: error}
+  temperature_unreadable: {kind: error}
+  thermal_throttle: {kind: outcome}
+  thermal_unavailable: {kind: notice}
+  timed_phases: {kind: outcome}
+  timeout: {kind: error}
+  too_few_runs: {kind: outcome}
+  trace_not_pulled: {kind: outcome}
+  trace_unreadable: {kind: outcome}
+  transformation_fails: {kind: outcome}
+  unavailable_recipe: {kind: error}
+  unbalanced_call: {kind: outcome}
+  uncovered: {kind: error}
+  unequal_samples: {kind: error}
+  unknown_compare: {kind: outcome}
+  unknown_key_material: {kind: outcome}
+  unknown_keys: {kind: error}
+  unknown_parameters: {kind: outcome}
+  unknown_per_call: {kind: error}
+  unknown_section: {kind: error}
+  unknown_status: {kind: outcome}
+  unknown_variant: {kind: error}
+  unparseable_signature: {kind: outcome}
+  unreadable_yaml: {kind: error}
+  unsupported: {kind: error}
+  unsupported_capture_schema: {kind: error}
+  unsupported_expression: {kind: outcome}
+  unsupported_kind: {kind: outcome}
+  unsupported_language: {kind: outcome}
+  unsupported_operation: {kind: error}
+  unsupported_parameter: {kind: outcome}
+  unsupported_schema: {kind: error}
+  unsupported_schema_version: {kind: error}
+  unused_setting: {kind: notice}
+  usage: {kind: error}
+  vararg_parameter: {kind: outcome}
+  vector_incomplete: {kind: error}
+  vector_iv_not_used: {kind: outcome}
+  vector_not_expressible: {kind: outcome}
+  vector_on_randomized_operation: {kind: error}
+  vectors_folder_missing: {kind: error}
+  verifies_differently: {kind: outcome}
+  verify_failed: {kind: error}
+  verify_false: {kind: outcome}
+  verify_needs_a_key_pair: {kind: error}
+  verify_without_signature: {kind: error}
+  warmup_job_matches_nothing: {kind: notice}
+  window_uncovered: {kind: outcome}
+  wrong_type: {kind: error}

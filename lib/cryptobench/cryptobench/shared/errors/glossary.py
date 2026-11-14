@@ -1,5 +1,6 @@
-"""The glossary, codes.yaml: every code once with its kind and default action; Code: a code's stops.<code> entry, its
-default action, the actions `stops.<code>` may choose (none: fixed), exit code, next step and why."""
+"""The glossary, codes.yaml: every code once with its kind, and its default action where a reader resolves it;
+Code: a code's stops.<code> entry, its default action, the actions `stops.<code>` may choose (none: fixed), exit code,
+next step and why."""
 from __future__ import annotations
 
 from dataclasses import dataclass
