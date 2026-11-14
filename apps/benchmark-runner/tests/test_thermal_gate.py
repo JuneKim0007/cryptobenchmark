@@ -190,3 +190,9 @@ def test_each_process_reports_only_its_own_waits_and_discards(monkeypatch):
     assert session.records() == {"c": {"waitedSeconds": 240.0, "target": 35.5, "discards": 1}}
     assert session.hold("c") and session.verdict("c") == "clean"
     assert session.records() == {"c": {"waitedSeconds": 0.0, "target": 35.5, "discards": 0}}
+
+
+def test_a_gated_run_reads_the_temperature_once_at_each_end(tmp_path, monkeypatch):
+    heat = Heat(monkeypatch)
+    measured(tmp_path, monkeypatch, CASE)
+    assert heat.reads == 6  # the process's start, each case's hold and end, the process's end
