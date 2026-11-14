@@ -14,14 +14,14 @@
 - shared code: a module compiles against another module's classes only through the handoff types below; widening a list is a reviewed change to this guide.
 - shared code: `:environment:discovery` and `:preparation` use jca's `Attempt`, `ErrorText`; `:benchmark` and `:android` androidTest use jca's `Attempt`; it is the one catch rule (an Exception or LinkageError is a result, any other Error escapes), never copied.
 - shared code: `:environment:discovery`, `:config`, `:preparation`, `:benchmark` and `:android` androidTest use `:files` without a list; it holds names and pure rules only.
-- shared code: `:environment:discovery`, `:config`, `:preparation` and `:benchmark` use `:document` without a list, `:android` androidTest uses its `YamlCodec`.
+- shared code: `:environment:discovery`, `:config` and `:preparation` use `:document` without a list; `:benchmark` uses its `DocumentFields`, `:android` androidTest its `YamlCodec`.
 - shared code: `:config` uses settings' `Facts`, `HarnessSettings`, `Metric`, `Unsupported`.
 - shared code: `:preparation` uses settings' `HarnessSettings`, `Metric`.
 - shared code: `:benchmark` uses preparation's `BenchmarkCase`, `Operation`, `PreparedCase`, `Invocations`, `Invocation`, and for `RunnablePlan` `Preparation`, `Listing`, `PreparationException`, `StoppedOnFailureException`, `PreparedFile`, `Skip`, `SkipFile`, `GlobalSettings`, `OnFailure`, `FailureText`, `DocumentFile`, and settings' `HarnessSettings`, `EnergySettings`, `CpuSettings`, `Metric`.
 - shared code: `:android` androidTest uses preparation's `Preparation`, `DiscoveryCapability`, `InteropRun`, `InteropPlanFile`, `InteropFile`, `Invocations`, `PreparedCase`, `Skip`, `BenchmarkCase`, `Operation`, `KeyPlanner`, `KeyRecipe`, `KeyMaterial`, `KeyMaterialGenerator`; benchmark's `MetricSamples`, `PlanCheck`, `RunnablePlan`, `Refusal`, `EnergyCapability`, `CaseSettings`, `CaseRuns`, `Energy`, `WindowMarker`; settings' `CpuSettings`, `Metric`; discovery's `Discovery`, `BundledInstaller`, `BundledProviders`, `ProviderFactory`, `ProbeDirectory`.
 - shared code: `tools/` drivers call module entry points and writers; they are not modules and carry no handoff list.
 - timing: build keys, inputs and parameters in `:preparation`; the timed block calls only the prepared `Invocation`.
-- android: code in discovery, settings, preparation and benchmark uses only APIs in `android.jar`; `tools/android-api-check` compiles it without the JDK.
+- android: code in discovery, settings, document, preparation and benchmark uses only APIs in `android.jar`; `tools/android-api-check` compiles it without the JDK.
 - jvm: modules and tools target Java 17.
 - package: package root is `io.github.junekim0007.cryptobench`.
 - package: Kotlin sources under `apps/benchmark/modules/<m>/src/main/kotlin/` omit the package-root folders; `:android` keeps full package folders.
