@@ -6,21 +6,26 @@ modules:
     uses: {}
   jca:
     uses: {}
+  document:
+    uses: {}
   discovery:
     uses:
       jca: [failure.Attempt, failure.ErrorText]
       files: all
+      document: all
   settings:
     uses: {}
   config:
     uses:
       settings: [Facts, HarnessSettings, Metric, Unsupported]
       files: all
+      document: all
   preparation:
     uses:
       jca: [failure.Attempt, failure.ErrorText]
       settings: [HarnessSettings, Metric]
       files: all
+      document: all
   benchmark:
     uses:
       jca: [failure.Attempt]
@@ -51,12 +56,14 @@ consumers:
       settings: [CpuSettings, Metric]
       jca: [failure.Attempt]
       files: all
-      discovery: [Discovery, bundled.BundledInstaller, bundled.BundledProviders, bundled.ProviderFactory, write.ProbeDirectory, write.YamlCodec]
+      discovery: [Discovery, bundled.BundledInstaller, bundled.BundledProviders, bundled.ProviderFactory, write.ProbeDirectory]
+      document: [YamlCodec]
   cli:
     sources: apps/benchmark/cli/src/main/kotlin
     uses:
       jca: all
       files: all
+      document: all
       discovery: all
       settings: all
       config: all

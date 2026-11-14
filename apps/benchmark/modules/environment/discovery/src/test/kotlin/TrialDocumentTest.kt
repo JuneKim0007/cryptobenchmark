@@ -7,7 +7,7 @@ import io.github.junekim0007.cryptobench.discovery.contract.TrialOutcome
 import io.github.junekim0007.cryptobench.discovery.contract.TrialReport
 import io.github.junekim0007.cryptobench.discovery.contract.TriedKey
 import io.github.junekim0007.cryptobench.discovery.write.TrialDocument
-import io.github.junekim0007.cryptobench.discovery.write.YamlCodec
+import io.github.junekim0007.cryptobench.document.YamlCodec
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -33,7 +33,7 @@ class TrialDocumentTest {
 
     @Test
     fun roundTripsThroughYaml() {
-        val codec = YamlCodec()
+        val codec = YamlCodec.CAPTURE
         assertEquals(report, TrialDocument.parse(codec.load(codec.dump(TrialDocument.of(report)))))
     }
 

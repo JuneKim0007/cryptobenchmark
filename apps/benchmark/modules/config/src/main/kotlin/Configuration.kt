@@ -9,7 +9,7 @@ import io.github.junekim0007.cryptobench.config.inventory.InventoryBuilder
 import io.github.junekim0007.cryptobench.config.inventory.InventoryDocument
 import io.github.junekim0007.cryptobench.config.source.CaptureSource
 import io.github.junekim0007.cryptobench.config.source.TrialSource
-import io.github.junekim0007.cryptobench.config.yaml.YamlCodec
+import io.github.junekim0007.cryptobench.document.YamlCodec
 import io.github.junekim0007.cryptobench.config.yaml.YamlFiles
 import io.github.junekim0007.cryptobench.files.Beside
 import io.github.junekim0007.cryptobench.files.FileNames
@@ -60,7 +60,7 @@ class Configuration(
     private fun readFacts(file: File): Facts {
         require(file.isFile) { "missing_file: ${file.path} (--facts)" }
         return try {
-            Facts.read(YamlCodec().load(file.readText()))
+            Facts.read(YamlCodec.DOCUMENT.load(file.readText()))
         } catch (malformed: RuntimeException) {
             if (malformed is IllegalArgumentException) throw malformed
             throw IllegalArgumentException("unreadable_yaml: ${file.path}: ${malformed.message}", malformed)

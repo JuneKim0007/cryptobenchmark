@@ -2,7 +2,7 @@ package io.github.junekim0007.cryptobench.preparation
 
 import io.github.junekim0007.cryptobench.preparation.adapter.DiscoveryCapability
 import io.github.junekim0007.cryptobench.preparation.record.PreparedFile
-import io.github.junekim0007.cryptobench.preparation.shared.YamlCodec
+import io.github.junekim0007.cryptobench.document.YamlCodec
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
@@ -29,7 +29,7 @@ class PreparedFileTest {
         val record = PreparedFile(directory)
         Preparation(DiscoveryCapability(File(example, "preparation_capture_example.yaml"), File(example, "preparation_trial_example.yaml")))
             .prepareAll(effective, directory)
-        return YamlCodec().load(record.file.readText())
+        return YamlCodec.DOCUMENT.load(record.file.readText())
     }
 
     @Suppress("UNCHECKED_CAST")

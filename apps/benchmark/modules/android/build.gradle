@@ -98,6 +98,7 @@ dependencies {
     // device can be given is a host JVM's, which preparation correctly refuses.
     androidTestImplementation project(':environment:discovery')
     androidTestImplementation project(':files')
+    androidTestImplementation project(':document')
     androidTestImplementation "androidx.benchmark:benchmark-junit4:$benchmarkVersion"
     benchmarkCommonAar "androidx.benchmark:benchmark-common:$benchmarkVersion@aar"
     // 1.5.2, not a newer pin: benchmark-junit4 resolves androidx.test:runner strictly at

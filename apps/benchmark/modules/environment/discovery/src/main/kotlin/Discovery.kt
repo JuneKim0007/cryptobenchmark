@@ -17,7 +17,7 @@ import io.github.junekim0007.cryptobench.discovery.write.RequirementDocument
 import io.github.junekim0007.cryptobench.discovery.write.RequirementYamlWriter
 import io.github.junekim0007.cryptobench.discovery.write.TrialDocument
 import io.github.junekim0007.cryptobench.discovery.write.TrialYamlWriter
-import io.github.junekim0007.cryptobench.discovery.write.YamlCodec
+import io.github.junekim0007.cryptobench.document.YamlCodec
 import io.github.junekim0007.cryptobench.files.StampedName
 import java.io.File
 import java.security.Provider
@@ -28,7 +28,7 @@ class Discovery(
     private val trialRunner: TrialRunner = TrialRunner(),
     private val defaultRunTrial: DefaultRunTrial = DefaultRunTrial(),
     private val requirementTrial: RequirementTrial = RequirementTrial(),
-    private val codec: YamlCodec = YamlCodec(),
+    private val codec: YamlCodec = YamlCodec.CAPTURE,
 ) {
 
     private val captureWriter = EnvironmentYamlWriter(directory, codec)

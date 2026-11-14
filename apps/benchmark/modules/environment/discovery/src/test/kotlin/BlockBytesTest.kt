@@ -4,7 +4,7 @@ import io.github.junekim0007.cryptobench.discovery.contract.RequirementReport
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceRequirement
 import io.github.junekim0007.cryptobench.discovery.write.ProbeDirectory
 import io.github.junekim0007.cryptobench.discovery.write.RequirementYamlWriter
-import io.github.junekim0007.cryptobench.discovery.write.YamlCodec
+import io.github.junekim0007.cryptobench.document.YamlCodec
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.nio.file.Files
@@ -25,7 +25,7 @@ class BlockBytesTest {
                 linkedMapOf("name" to "Other", "version" to "1.0", "precedence" to 2, "services" to services, "attributes" to linkedMapOf("note" to "yes")),
             ),
         )
-        assertEquals(CAPTURE, YamlCodec().dump(document))
+        assertEquals(CAPTURE, YamlCodec.CAPTURE.dump(document))
     }
 
     @Test

@@ -13,7 +13,7 @@ import io.github.junekim0007.cryptobench.config.testset.dto.Override
 import io.github.junekim0007.cryptobench.config.testset.dto.Rule
 import io.github.junekim0007.cryptobench.config.testset.dto.TestSet
 import io.github.junekim0007.cryptobench.config.yaml.YamlFiles
-import io.github.junekim0007.cryptobench.config.yaml.YamlCodec
+import io.github.junekim0007.cryptobench.document.YamlCodec
 import io.github.junekim0007.cryptobench.settings.CpuSettings
 import io.github.junekim0007.cryptobench.settings.Facts
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
@@ -26,7 +26,7 @@ import org.junit.Test
 class EffectiveBuilderTest {
 
     private val files = YamlFiles()
-    private val codec = YamlCodec()
+    private val codec = YamlCodec.DOCUMENT
     private val inventory = InventoryBuilder().build(
         CaptureSource.parse(codec.load(Fixtures.CAPTURE)),
         TrialSource.parse(codec.load(Fixtures.TRIAL)),

@@ -5,7 +5,7 @@ import io.github.junekim0007.cryptobench.config.inventory.dto.InventoryEntry
 import io.github.junekim0007.cryptobench.config.source.CaptureSource
 import io.github.junekim0007.cryptobench.config.source.TrialSource
 import io.github.junekim0007.cryptobench.config.yaml.YamlFiles
-import io.github.junekim0007.cryptobench.config.yaml.YamlCodec
+import io.github.junekim0007.cryptobench.document.YamlCodec
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -13,7 +13,7 @@ import org.junit.Test
 class InventoryBuilderTest {
 
     private val files = YamlFiles()
-    private val codec = YamlCodec()
+    private val codec = YamlCodec.DOCUMENT
     private val capture = CaptureSource.parse(codec.load(Fixtures.CAPTURE))
     private val trial = TrialSource.parse(codec.load(Fixtures.TRIAL))
     private val names = InventoryBuilder.Files("probe_x.yaml", "trial_x.yaml")

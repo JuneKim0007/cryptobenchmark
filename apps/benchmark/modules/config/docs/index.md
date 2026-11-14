@@ -3,7 +3,7 @@
 ```
 apps/benchmark/modules/config/.gitignore : ignores /build
 apps/benchmark/modules/config/README.md : module summary and link to this index
-apps/benchmark/modules/config/build.gradle : Kotlin/JVM 17 library; snakeyaml 2.3 and :settings; passes examples.update to tests
+apps/benchmark/modules/config/build.gradle : Kotlin/JVM 17 library; snakeyaml 2.3, :settings, :files and :document; passes examples.update to tests
 apps/benchmark/modules/config/docs/config.md : authored files: global.yaml, test sets, rules, overrides, groups
 apps/benchmark/modules/config/docs/generated.md : inventory.yaml, effective.yaml and report.yaml: build order, skips, warnings, errors
 apps/benchmark/modules/config/docs/index.md : this map
@@ -68,7 +68,6 @@ apps/benchmark/modules/config/src/main/kotlin/yaml/DocumentHandler.kt : reader a
 apps/benchmark/modules/config/src/main/kotlin/yaml/DocumentReader.kt : reader interface with schemaVersion
 apps/benchmark/modules/config/src/main/kotlin/yaml/ProviderTree.kt : provider to type to name map, both directions
 apps/benchmark/modules/config/src/main/kotlin/yaml/ReadOnlyYamlFile.kt : read with missing, parse and schemaVersion checks
-apps/benchmark/modules/config/src/main/kotlin/yaml/YamlCodec.kt : SafeConstructor YAML, duplicate keys refused
 apps/benchmark/modules/config/src/main/kotlin/yaml/YamlFile.kt : stamped schemaVersion and .partial atomic write
 apps/benchmark/modules/config/src/main/kotlin/yaml/YamlFiles.kt : factory for YamlFile and ReadOnlyYamlFile
 apps/benchmark/modules/config/src/test/kotlin/AlgorithmNamesTest.kt : the cases shared with perf-repair, every catalogued spelling, inventory duplicates, rule names

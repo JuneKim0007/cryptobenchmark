@@ -6,7 +6,7 @@ import io.github.junekim0007.cryptobench.discovery.bundled.BundledInstaller
 import io.github.junekim0007.cryptobench.discovery.bundled.BundledProviders
 import io.github.junekim0007.cryptobench.discovery.bundled.ProviderFactory
 import io.github.junekim0007.cryptobench.discovery.write.ProbeDirectory
-import io.github.junekim0007.cryptobench.discovery.write.YamlCodec
+import io.github.junekim0007.cryptobench.document.YamlCodec
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.security.Security
@@ -20,7 +20,7 @@ class DeviceProbe {
         val into = DeviceDirectory.plan.apply { mkdirs() }
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val bundled = InstrumentationRegistry.getArguments().getString(BundledProviders.KEY)
-            ?.let { BundledProviders.read(YamlCodec().load(it)) }.orEmpty()
+            ?.let { BundledProviders.read(YamlCodec.CAPTURE.load(it)) }.orEmpty()
         val installed = BundledInstaller(ProviderFactory(instrumentation.targetContext.classLoader)).install(bundled)
         val providers = Security.getProviders()
         val discovery = Discovery(ProbeDirectory(into))

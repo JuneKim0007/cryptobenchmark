@@ -2,7 +2,7 @@ package io.github.junekim0007.cryptobench.preparation
 
 import io.github.junekim0007.cryptobench.preparation.guide.Guide
 import io.github.junekim0007.cryptobench.preparation.inbound.InboundFile
-import io.github.junekim0007.cryptobench.preparation.shared.YamlCodec
+import io.github.junekim0007.cryptobench.document.YamlCodec
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -20,7 +20,7 @@ class ParityFixturesTest {
 
     private fun stated(name: String): Map<String, Any> = Yaml(SafeConstructor(LoaderOptions())).load(File(parity, "$name.json").readText())
 
-    private fun read(name: String): Map<String, Any> = YamlCodec().load(File(parity, "$name.yaml").readText())
+    private fun read(name: String): Map<String, Any> = YamlCodec.DOCUMENT.load(File(parity, "$name.yaml").readText())
 
     @Test
     fun theGuideAndEffectiveReadToTheirStatedValues() {

@@ -6,7 +6,7 @@ import io.github.junekim0007.cryptobench.config.inventory.dto.InventorySource
 import io.github.junekim0007.cryptobench.config.names.AlgorithmNames
 import io.github.junekim0007.cryptobench.config.names.dto.Canonical
 import io.github.junekim0007.cryptobench.config.testset.dto.Rule
-import io.github.junekim0007.cryptobench.config.yaml.YamlCodec
+import io.github.junekim0007.cryptobench.document.YamlCodec
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
@@ -22,7 +22,7 @@ class AlgorithmNamesTest {
     @Test
     fun theCasesSharedWithPerfRepairResolveAlike() {
         val text = javaClass.getResource("/algorithm-names-cases.yaml")?.readText() ?: error("no algorithm-names-cases.yaml on the test classpath")
-        val cases = YamlCodec().load(text)["cases"] as List<Map<String, Any?>>
+        val cases = YamlCodec.DOCUMENT.load(text)["cases"] as List<Map<String, Any?>>
         assertTrue(cases.size > 20)
         for (case in cases) {
             val expected = Canonical(case["canonical"] as String, case["keySize"] as Int?, case["known"] as Boolean)
@@ -44,7 +44,7 @@ class AlgorithmNamesTest {
     @Test
     fun everyCataloguedSpellingResolvesToItsCanonicalName() {
         val text = AlgorithmNames::class.java.getResource(AlgorithmNames.RESOURCE)!!.readText()
-        val catalog = YamlCodec().load(text)["names"] as Map<String, Map<String, List<String>?>>
+        val catalog = YamlCodec.DOCUMENT.load(text)["names"] as Map<String, Map<String, List<String>?>>
         for ((type, spellings) in catalog) {
             for ((canonical, aliases) in spellings) {
                 for (spelling in listOf(canonical, canonical.lowercase()) + aliases.orEmpty()) {
@@ -56,7 +56,7 @@ class AlgorithmNamesTest {
 
     @Test
     fun aSpellingUnderTwoCanonicalNamesIsRefused() {
-        val document = YamlCodec().load("schemaVersion: 1\nnames:\n  MessageDigest:\n    SHA-1: [SHA]\n    SHA-0: [sha]\n")
+        val document = YamlCodec.DOCUMENT.load("schemaVersion: 1\nnames:\n  MessageDigest:\n    SHA-1: [SHA]\n    SHA-0: [sha]\n")
         val error = assertThrows(IllegalArgumentException::class.java) { AlgorithmNames.parse(document) }
         assertTrue(error.message!!.startsWith("names_catalog_duplicate:"))
     }

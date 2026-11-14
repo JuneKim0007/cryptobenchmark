@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.config.yaml
 
+import io.github.junekim0007.cryptobench.document.YamlCodec
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files

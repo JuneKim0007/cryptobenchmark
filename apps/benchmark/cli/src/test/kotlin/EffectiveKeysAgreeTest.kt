@@ -1,5 +1,5 @@
 import io.github.junekim0007.cryptobench.config.effective.EffectiveDocument
-import io.github.junekim0007.cryptobench.config.yaml.YamlCodec
+import io.github.junekim0007.cryptobench.document.YamlCodec
 import io.github.junekim0007.cryptobench.preparation.global.GlobalReader
 import io.github.junekim0007.cryptobench.preparation.inbound.InboundFile
 import io.github.junekim0007.cryptobench.preparation.request.PrimitiveReader
@@ -11,7 +11,7 @@ class EffectiveKeysAgreeTest {
 
     @Test
     fun everyKeyConfigWritesIsOnePreparationKnows() {
-        val codec = YamlCodec()
+        val codec = YamlCodec.DOCUMENT
         val written = codec.dump(linkedMapOf<String, Any>("schemaVersion" to 1) + EffectiveDocument.of(EffectiveDocument.parse(codec.load(EVERY_KEY))))
         val inbound = InboundFile.read("effective.yaml", written)
         GlobalReader.read(inbound)

@@ -17,7 +17,7 @@ import io.github.junekim0007.cryptobench.discovery.trial.requirement.Requirement
 import io.github.junekim0007.cryptobench.discovery.write.ProbeDirectory
 import io.github.junekim0007.cryptobench.discovery.write.RequirementDocument
 import io.github.junekim0007.cryptobench.discovery.write.RequirementYamlWriter
-import io.github.junekim0007.cryptobench.discovery.write.YamlCodec
+import io.github.junekim0007.cryptobench.document.YamlCodec
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -151,14 +151,14 @@ class RequirementTrialTest {
 
     @Test
     fun theDocumentRoundTrips() {
-        val codec = YamlCodec()
+        val codec = YamlCodec.CAPTURE
         assertEquals(JVM, RequirementDocument.parse(codec.load(codec.dump(RequirementDocument.of(JVM)))))
     }
 
     @Test
     fun theFileWrittenOneServiceAtATimeIsTheDocument() {
         val folder = Files.createTempDirectory("requirements").toFile()
-        val codec = YamlCodec()
+        val codec = YamlCodec.CAPTURE
         val file = RequirementYamlWriter(ProbeDirectory(folder)).write(JVM)
         assertEquals(codec.dump(RequirementDocument.of(JVM)), file.readText())
         folder.deleteRecursively()

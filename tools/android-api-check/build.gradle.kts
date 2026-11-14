@@ -27,6 +27,7 @@ sourceSets {
         kotlin.setSrcDirs(listOf(
             "../../apps/benchmark/modules/jca/src/main/kotlin",
             "../../apps/benchmark/modules/files/src/main/kotlin",
+            "../../apps/benchmark/modules/document/src/main/kotlin",
             "../../apps/benchmark/modules/environment/discovery/src/main/kotlin",
             "../../apps/benchmark/modules/settings/src/main/kotlin",
             "../../apps/benchmark/modules/preparation/src/main/kotlin",

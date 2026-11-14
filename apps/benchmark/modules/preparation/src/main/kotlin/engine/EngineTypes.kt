@@ -3,7 +3,7 @@ package io.github.junekim0007.cryptobench.preparation.engine
 import io.github.junekim0007.cryptobench.files.FileNames
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields
-import io.github.junekim0007.cryptobench.preparation.shared.YamlCodec
+import io.github.junekim0007.cryptobench.document.YamlCodec
 
 class EngineTypes private constructor(
     private val types: Map<String, List<Operation>>,
@@ -20,7 +20,7 @@ class EngineTypes private constructor(
         private val loaded: EngineTypes by lazy {
             val text = EngineTypes::class.java.getResourceAsStream(RESOURCE)?.use { it.readBytes().toString(Charsets.UTF_8) }
                 ?: throw IllegalStateException("missing_resource: $RESOURCE beside ${EngineTypes::class.java.name}")
-            val document = YamlCodec().load(text)
+            val document = YamlCodec.DOCUMENT.load(text)
             val types = DocumentFields.section(document, "types").entries.associate { (type, _) ->
                 EngineTypeName.fold(type) to DocumentFields.strings(DocumentFields.section(document, "types"), type).map(Operation::valueOf)
             }

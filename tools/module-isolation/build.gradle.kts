@@ -7,6 +7,7 @@ plugins {
 val moduleDirectories = mapOf(
     "files" to "../../apps/benchmark/modules/files",
     "jca" to "../../apps/benchmark/modules/jca",
+    "document" to "../../apps/benchmark/modules/document",
     "discovery" to "../../apps/benchmark/modules/environment/discovery",
     "config" to "../../apps/benchmark/modules/config",
     "preparation" to "../../apps/benchmark/modules/preparation",
@@ -29,11 +30,13 @@ configure(subprojects.filter { it.name in moduleDirectories }) {
 
     extensions.configure<org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension> {
         compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
+        val leaf = name in listOf("files", "jca", "document")
         val sources = listOfNotNull(
             File(moduleDirectory, "src/main/kotlin"),
-            rootDir.resolve(moduleDirectories.getValue("files")).resolve("src/main/kotlin").takeIf { name !in listOf("files", "jca") },
-            rootDir.resolve(moduleDirectories.getValue("jca")).resolve("src/main/kotlin").takeIf { name !in listOf("files", "jca") },
-            rootDir.resolve("../../apps/benchmark/modules/settings/src/main/kotlin").takeIf { name !in listOf("files", "discovery", "jca") },
+            rootDir.resolve(moduleDirectories.getValue("files")).resolve("src/main/kotlin").takeIf { !leaf },
+            rootDir.resolve(moduleDirectories.getValue("jca")).resolve("src/main/kotlin").takeIf { !leaf },
+            rootDir.resolve(moduleDirectories.getValue("document")).resolve("src/main/kotlin").takeIf { !leaf },
+            rootDir.resolve("../../apps/benchmark/modules/settings/src/main/kotlin").takeIf { !leaf && name != "discovery" },
             rootDir.resolve(moduleDirectories.getValue("preparation")).resolve("src/main/kotlin").takeIf { name == "benchmark" },
         )
         sourceSets["main"].kotlin.setSrcDirs(sources)

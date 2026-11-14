@@ -8,16 +8,17 @@
 - generality: module main code names no device, provider or algorithm; selection comes from `config/` and the recorded capture and trial; tests, fixtures and `config/` may name them.
 - capability: probe a per-device difference, record it in the trial or facts, and select behaviour from the recorded value; never branch on a provider name.
 - dependency: add no project dependency beyond the table in `docs/architecture.md`.
-- dependency: `:jca`, `:settings` and `:files` depend on no project; `:environment:discovery` depends only on `:jca` and `:files`.
+- dependency: `:jca`, `:settings`, `:files` and `:document` depend on no project; `:environment:discovery` depends only on `:jca`, `:files` and `:document`.
 - files: every file and folder name a Kotlin stage names is a constant of `:files`; `tools/module-isolation/names_check.py` checks them against Python's `CONTRACT` and `CONTRACT_PARTS` and bans hand-written names outside the module.
 - contract: a stage reads another stage's output from its file (capture, trial, inventory, effective, prepared, benchmark.json), never through that stage's classes.
 - shared code: a module compiles against another module's classes only through the handoff types below; widening a list is a reviewed change to this guide.
 - shared code: `:environment:discovery` and `:preparation` use jca's `Attempt`, `ErrorText`; `:benchmark` and `:android` androidTest use jca's `Attempt`; it is the one catch rule (an Exception or LinkageError is a result, any other Error escapes), never copied.
 - shared code: `:environment:discovery`, `:config`, `:preparation`, `:benchmark` and `:android` androidTest use `:files` without a list; it holds names and pure rules only.
+- shared code: `:environment:discovery`, `:config` and `:preparation` use `:document` without a list, `:android` androidTest uses its `YamlCodec`.
 - shared code: `:config` uses settings' `Facts`, `HarnessSettings`, `Metric`, `Unsupported`.
 - shared code: `:preparation` uses settings' `HarnessSettings`, `Metric`.
 - shared code: `:benchmark` uses preparation's `BenchmarkCase`, `Operation`, `PreparedCase`, `Invocations`, `Invocation`, and for `RunnablePlan` `Preparation`, `Listing`, `PreparationException`, `StoppedOnFailureException`, `PreparedFile`, `Skip`, `SkipFile`, `GlobalSettings`, `OnFailure`, `FailureText`, `DocumentFile`, and settings' `HarnessSettings`, `EnergySettings`, `CpuSettings`, `Metric`.
-- shared code: `:android` androidTest uses preparation's `Preparation`, `DiscoveryCapability`, `InteropRun`, `InteropPlanFile`, `InteropFile`, `Invocations`, `PreparedCase`, `Skip`, `BenchmarkCase`, `Operation`, `KeyPlanner`, `KeyRecipe`, `KeyMaterial`, `KeyMaterialGenerator`; benchmark's `MetricSamples`, `PlanCheck`, `RunnablePlan`, `Refusal`, `EnergyCapability`, `CaseSettings`, `CaseRuns`, `Energy`, `WindowMarker`; settings' `CpuSettings`, `Metric`; discovery's `Discovery`, `BundledInstaller`, `BundledProviders`, `ProviderFactory`, `ProbeDirectory`, `YamlCodec`.
+- shared code: `:android` androidTest uses preparation's `Preparation`, `DiscoveryCapability`, `InteropRun`, `InteropPlanFile`, `InteropFile`, `Invocations`, `PreparedCase`, `Skip`, `BenchmarkCase`, `Operation`, `KeyPlanner`, `KeyRecipe`, `KeyMaterial`, `KeyMaterialGenerator`; benchmark's `MetricSamples`, `PlanCheck`, `RunnablePlan`, `Refusal`, `EnergyCapability`, `CaseSettings`, `CaseRuns`, `Energy`, `WindowMarker`; settings' `CpuSettings`, `Metric`; discovery's `Discovery`, `BundledInstaller`, `BundledProviders`, `ProviderFactory`, `ProbeDirectory`.
 - shared code: `tools/` drivers call module entry points and writers; they are not modules and carry no handoff list.
 - timing: build keys, inputs and parameters in `:preparation`; the timed block calls only the prepared `Invocation`.
 - android: code in discovery, settings, preparation and benchmark uses only APIs in `android.jar`; `tools/android-api-check` compiles it without the JDK.

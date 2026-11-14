@@ -8,7 +8,7 @@ import io.github.junekim0007.cryptobench.preparation.parameter.resolve.Fingerpri
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.prepare.Listing
-import io.github.junekim0007.cryptobench.preparation.shared.YamlCodec
+import io.github.junekim0007.cryptobench.document.YamlCodec
 
 internal object PreparedDocument {
 
@@ -44,7 +44,7 @@ internal object PreparedDocument {
     fun case(prepared: PreparedCase): Map<String, Any> {
         val described = described(prepared)
         return LinkedHashMap(described).apply {
-            put("fingerprint", Fingerprint.of(YamlCodec().dump(described)))
+            put("fingerprint", Fingerprint.of(YamlCodec.DOCUMENT.dump(described)))
             prepared.perCall?.let { put("perCall", it.label) }
             put(RESOLVED_PARAMETERS, LinkedHashMap(prepared.resolvedParameters))
         }

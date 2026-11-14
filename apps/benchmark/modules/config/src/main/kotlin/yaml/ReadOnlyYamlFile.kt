@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.config.yaml
 
+import io.github.junekim0007.cryptobench.document.YamlCodec
 import org.yaml.snakeyaml.error.YAMLException
 import java.io.File
 

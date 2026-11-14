@@ -3,7 +3,7 @@
 ```
 apps/benchmark/modules/preparation/.gitignore : ignores /build
 apps/benchmark/modules/preparation/README.md : module summary and link to this index
-apps/benchmark/modules/preparation/build.gradle : Kotlin/JVM 17 library; snakeyaml 2.3 and api :settings; passes examples.update to tests
+apps/benchmark/modules/preparation/build.gradle : Kotlin/JVM 17 library; snakeyaml 2.3, api :settings, :files and :document; passes examples.update to tests
 apps/benchmark/modules/preparation/docs/index.md : this map
 apps/benchmark/modules/preparation/docs/interop.md : cross-provider interop check
 apps/benchmark/modules/preparation/docs/operations.md : operation consumption, timed calls, inputs, keys, parameter trees
@@ -98,7 +98,6 @@ apps/benchmark/modules/preparation/src/main/kotlin/resolve/SelectionExpander.kt 
 apps/benchmark/modules/preparation/src/main/kotlin/shared/DocumentFields.kt : typed field reads with named errors
 apps/benchmark/modules/preparation/src/main/kotlin/shared/DocumentFile.kt : YAML file read (schemaVersion check) and write
 apps/benchmark/modules/preparation/src/main/kotlin/shared/FailureText.kt : a failure as one record line: scrubbed and capped, object identity hashes dropped
-apps/benchmark/modules/preparation/src/main/kotlin/shared/YamlCodec.kt : SnakeYAML setup: safe load, no duplicate keys, indent 2
 apps/benchmark/modules/preparation/src/main/resources/io/github/junekim0007/cryptobench/preparation/engine/engine-operations.yaml : per engine type the operations the harness times, and the fallback; apps/benchmark-runner/results/manifest.py copies the types into each run's manifest.yaml `operations`
 apps/benchmark/modules/preparation/src/main/resources/io/github/junekim0007/cryptobench/preparation/operation/setup-catalog.yaml : per engine type, cipher mode or Mac name suffix, what a fixed call still does; JCA contract per row
 apps/benchmark/modules/preparation/src/test/kotlin/BenchmarkCaseTest.kt : case id and case validation tests

@@ -2,14 +2,14 @@ package io.github.junekim0007.cryptobench.config
 
 import io.github.junekim0007.cryptobench.config.global.GlobalDocument
 import io.github.junekim0007.cryptobench.config.testset.TestSetDocument
-import io.github.junekim0007.cryptobench.config.yaml.YamlCodec
+import io.github.junekim0007.cryptobench.document.YamlCodec
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class MalformedDocumentsTest {
 
-    private val codec = YamlCodec()
+    private val codec = YamlCodec.DOCUMENT
 
     @Test
     fun malformedDocumentsAreRefusedByName() {

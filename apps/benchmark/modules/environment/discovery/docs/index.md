@@ -3,7 +3,7 @@
 ```
 apps/benchmark/modules/environment/discovery/.gitignore : ignores /build
 apps/benchmark/modules/environment/discovery/README.md : module summary and link to this index
-apps/benchmark/modules/environment/discovery/build.gradle : Kotlin/JVM 17 library; snakeyaml 2.3
+apps/benchmark/modules/environment/discovery/build.gradle : Kotlin/JVM 17 library; api :jca; :files and :document
 apps/benchmark/modules/environment/discovery/docs/index.md : this map
 apps/benchmark/modules/environment/discovery/docs/probe.md : probe, trial and reuse behaviour
 apps/benchmark/modules/environment/discovery/docs/requirements.md : the requirement trial: facts per type, rules, file fields
@@ -82,7 +82,6 @@ apps/benchmark/modules/environment/discovery/src/main/kotlin/write/RequirementDo
 apps/benchmark/modules/environment/discovery/src/main/kotlin/write/RequirementYamlWriter.kt : writes requirements_<utc>.yaml
 apps/benchmark/modules/environment/discovery/src/main/kotlin/write/TrialDocument.kt : trial YAML schema (of, parse)
 apps/benchmark/modules/environment/discovery/src/main/kotlin/write/TrialYamlWriter.kt : writes trial_<utc>.yaml
-apps/benchmark/modules/environment/discovery/src/main/kotlin/write/YamlCodec.kt : snakeyaml dump and load, block style, indent 2
 apps/benchmark/modules/environment/discovery/src/test/kotlin/BlockBytesTest.kt : byte goldens of the BLOCK codec: a capture-shaped document with an alias, a streamed requirements file
 apps/benchmark/modules/environment/discovery/src/test/kotlin/BundledInstallerTest.kt : installer tests: reflection, append position, name clash, alias wrapper
 apps/benchmark/modules/environment/discovery/src/test/kotlin/BundledProvidersTest.kt : bundled list reading and spec validation
@@ -101,5 +100,4 @@ apps/benchmark/modules/environment/discovery/src/test/kotlin/ServiceAttributesTe
 apps/benchmark/modules/environment/discovery/src/test/kotlin/ServiceKeyTest.kt : ServiceKey tests
 apps/benchmark/modules/environment/discovery/src/test/kotlin/TrialDocumentTest.kt : trial schema tests
 apps/benchmark/modules/environment/discovery/src/test/kotlin/TrialRunnerTest.kt : TrialRunner tests
-apps/benchmark/modules/environment/discovery/src/test/kotlin/YamlCodecTest.kt : YamlCodec tests
 ```

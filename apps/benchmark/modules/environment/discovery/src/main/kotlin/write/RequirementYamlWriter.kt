@@ -1,12 +1,13 @@
 package io.github.junekim0007.cryptobench.discovery.write
 
 import io.github.junekim0007.cryptobench.discovery.contract.RequirementReport
+import io.github.junekim0007.cryptobench.document.YamlCodec
 import io.github.junekim0007.cryptobench.files.StampedName
 import java.io.File
 
 class RequirementYamlWriter(
     private val directory: ProbeDirectory,
-    private val codec: YamlCodec = YamlCodec(),
+    private val codec: YamlCodec = YamlCodec.CAPTURE,
 ) {
 
     // One service at a time: SnakeYAML holds a node per value of what it is given, and an API 26 heap is 48 MB.

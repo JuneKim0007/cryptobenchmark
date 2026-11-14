@@ -31,16 +31,18 @@ config/global.yaml + config/testsets/*.yaml
 |---|---|---|---|
 | `:files` | `apps/benchmark/modules/files` | none | none |
 | `:jca` | `apps/benchmark/modules/jca` | none | none |
-| `:environment:discovery` | `apps/benchmark/modules/environment/discovery` | `api :jca`, `implementation :files` | snakeyaml 2.3 |
+| `:document` | `apps/benchmark/modules/document` | none | snakeyaml 2.3 |
+| `:environment:discovery` | `apps/benchmark/modules/environment/discovery` | `api :jca`, `implementation :files`, `implementation :document` | none |
 | `:settings` | `apps/benchmark/modules/settings` | none | none |
-| `:config` | `apps/benchmark/modules/config` | `implementation :settings`, `implementation :files` | snakeyaml 2.3 |
-| `:preparation` | `apps/benchmark/modules/preparation` | `api :settings`, `api :jca`, `implementation :files` | snakeyaml 2.3 |
+| `:config` | `apps/benchmark/modules/config` | `implementation :settings`, `implementation :files`, `implementation :document` | snakeyaml 2.3 |
+| `:preparation` | `apps/benchmark/modules/preparation` | `api :settings`, `api :jca`, `implementation :files`, `implementation :document` | snakeyaml 2.3 |
 | `:benchmark` | `apps/benchmark/modules/benchmark` | `api :preparation`, `implementation :files` | snakeyaml 2.3 |
-| `:android` | `apps/benchmark/modules/android` | `androidTestImplementation :benchmark`, `:environment:discovery`, `:files` | benchmark-junit4 1.5.0; androidTest: androidx.test:runner 1.5.2, junit 4.13.2 |
+| `:android` | `apps/benchmark/modules/android` | `androidTestImplementation :benchmark`, `:environment:discovery`, `:files`, `:document` | benchmark-junit4 1.5.0; androidTest: androidx.test:runner 1.5.2, junit 4.13.2 |
 
 - JVM modules test with junit 4.13.2.
+- The SnakeYAML version is declared once, in `apps/benchmark/gradle/libs.versions.toml`; the cli and tools/ builds import it in their settings.
 
-- `apps/benchmark/settings.gradle` includes the seven projects; `rootProject.name = cryptobenchmark`.
+- `apps/benchmark/settings.gradle` includes the eight projects; `rootProject.name = cryptobenchmark`.
 - Package root: `io.github.junekim0007.cryptobench`.
 - Root buildscript pins AGP 8.13.2 and Kotlin plugin 2.2.21.
 - One wrapper, `apps/benchmark/gradlew`: Gradle 9.5.1.
@@ -53,7 +55,7 @@ config/global.yaml + config/testsets/*.yaml
 
 | project | languages | source layout |
 |---|---|---|
-| `:environment:discovery`, `:settings`, `:config`, `:preparation`, `:benchmark` | Kotlin | `src/main/kotlin/`, package root folders omitted |
+| `:document`, `:environment:discovery`, `:settings`, `:config`, `:preparation`, `:benchmark` | Kotlin | `src/main/kotlin/`, package root folders omitted |
 | `:android` | Kotlin main (`Affinity.kt`), C (`src/main/cpp/affinity.c`, `CMakeLists.txt`), Kotlin androidTest | full package folders |
 | `apps/benchmark-runner/` | Python 3 | commands and shared steps at the top; the other modules in one package per stage, imported with `apps/benchmark-runner/` on the path |
 | `apps/benchmark-runner/energy/`, `apps/benchmark-runner/analysis/*.py` | Python 3 | flat |
@@ -73,10 +75,11 @@ config/global.yaml + config/testsets/*.yaml
 | subproject | compiled sources | libraries |
 |---|---|---|
 | `files` | `apps/benchmark/modules/files/src/main/kotlin` | junit 4.13.2 (test) |
-| `discovery` | `apps/benchmark/modules/environment/discovery/src/main/kotlin` + `apps/benchmark/modules/files` | snakeyaml 2.3; junit 4.13.2 (test) |
-| `config` | `apps/benchmark/modules/config` + `apps/benchmark/modules/settings` + `apps/benchmark/modules/files` | same |
-| `preparation` | `apps/benchmark/modules/preparation` + `apps/benchmark/modules/settings` + `apps/benchmark/modules/files` | same |
-| `benchmark` | `apps/benchmark/modules/benchmark` + `apps/benchmark/modules/preparation` + `apps/benchmark/modules/settings` + `apps/benchmark/modules/files` | same |
+| `document` | `apps/benchmark/modules/document/src/main/kotlin` | snakeyaml 2.3; junit 4.13.2 (test) |
+| `discovery` | `apps/benchmark/modules/environment/discovery/src/main/kotlin` + `apps/benchmark/modules/files` + `apps/benchmark/modules/document` | snakeyaml 2.3; junit 4.13.2 (test) |
+| `config` | `apps/benchmark/modules/config` + `apps/benchmark/modules/settings` + `apps/benchmark/modules/files` + `apps/benchmark/modules/document` | same |
+| `preparation` | `apps/benchmark/modules/preparation` + `apps/benchmark/modules/settings` + `apps/benchmark/modules/files` + `apps/benchmark/modules/document` | same |
+| `benchmark` | `apps/benchmark/modules/benchmark` + `apps/benchmark/modules/preparation` + `apps/benchmark/modules/settings` + `apps/benchmark/modules/files` + `apps/benchmark/modules/document` | same |
 | `architecture` | tests only: the module subprojects' compiled classes against `tools/module-isolation/layers.yaml` | archunit 1.5.1, snakeyaml 2.3, junit 4.13.2 (test) |
 
 - `:settings` and `:android` are not subprojects.

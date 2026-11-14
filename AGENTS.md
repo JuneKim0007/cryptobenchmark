@@ -12,6 +12,7 @@
 - settings: harness key table, device support → `apps/benchmark/modules/settings/docs/index.md`
 - files: every Kotlin file and folder name, stamps, beside-a-file rules → `apps/benchmark/modules/files/docs/index.md`
 - jca: the catch rule, provider error text → `apps/benchmark/modules/jca/docs/index.md`
+- document: the YAML codec and its profiles → `apps/benchmark/modules/document/docs/index.md`
 - preparation: cases, keys, inputs, parameters → `apps/benchmark/modules/preparation/docs/index.md`
 - benchmark: plan check, measurement, `benchmark.json` → `apps/benchmark/modules/benchmark/docs/index.md`
 - android: instrumentation harness, device plan, core pinning → `apps/benchmark/modules/android/docs/index.md`
@@ -21,8 +22,7 @@
 - layout: directives live in `AGENTS.md` and `docs/contributing/`; facts live in the rest of `docs/` and `apps/benchmark/modules/<m>/docs/`; `apps/perf-repair/` keeps its own router, guides and docs.
 - change: one file, one responsibility.
 - map: adding, moving or deleting a file updates its owning map in the same change.
-- delete/rename: grep the symbol or path and remove its references first.
-- delete/rename: re-grep and confirm zero hits.
+- delete/rename: grep the symbol or path and remove its references first; re-grep and confirm zero hits.
 - conflict: code wins; a guide or doc that disagrees with the code is corrected, never followed.
 - check: after a code change, pass the commands in `docs/contributing/testing.md` for the touched area.
 - check: after a docs or guide change, pass `python3 tools/docs_lint.py`.
@@ -33,7 +33,6 @@
 - module schema change: code → `-Dexamples.update=true` run → module doc
 - harness setting: `Key` in `apps/benchmark/modules/settings/src/main/kotlin/Harness.kt` (`energy.*` in `EnergySettings.kt`, `cpu.*` in `CpuSettings.kt`) → field on the typed class → `apps/benchmark/modules/settings/docs/settings.md`
 - module file added: its line in `apps/benchmark/modules/<m>/docs/index.md`
-- guide change: `python3 tools/docs_lint.py`
 
 ## File structure
 
@@ -109,6 +108,7 @@ apps/benchmark/gradlew : the one Gradle wrapper, for the benchmark's root build,
 apps/benchmark/modules/android/ : instrumentation app: Jetpack harness, device plan, native core affinity
 apps/benchmark/modules/benchmark/ : plan check and measurement of prepared cases; benchmark.json
 apps/benchmark/modules/config/ : capture and trial to inventory.yaml; inventory and config/ to effective.yaml
+apps/benchmark/modules/document/ : the one YAML codec, a SnakeYAML setup per profile, shared by discovery, config and preparation
 apps/benchmark/modules/environment/discovery/ : provider and service probe, default-run and requirement trials, capture, trial and requirements YAML
 apps/benchmark/modules/files/ : every Kotlin file and folder name, stamps and beside-a-file rules; python's CONTRACT agrees
 apps/benchmark/modules/jca/ : the one catch rule and the provider-message scrubber every module that calls a provider shares
@@ -131,7 +131,7 @@ parity/ : fixtures both languages' tests read: YAML documents with the .json val
 pytest.ini : the Python apps' source folders on the test path, for pytest from the repository root
 requirements.txt : every host Python dependency
 settings.example.yaml : template for `settings.yaml`, the facade's root index
-tools/android-api-check/ : compiles jca, discovery, settings, preparation, benchmark against android.jar without the JDK
+tools/android-api-check/ : compiles jca, document, discovery, settings, preparation, benchmark against android.jar without the JDK
 tools/dead-code-allow.txt : vulture findings the dead-code check keeps, each with its reason
 tools/dead_code.py : dead-code check: vulture minus the allowlist; local only, fails without vulture
 tools/docs_lint.py : docs and guide graph check: maps, coverage, index.md, edges, reachability, size, banned text, names code must hold

@@ -1,6 +1,6 @@
 import io.github.junekim0007.cryptobench.config.AuthoredFiles
 import io.github.junekim0007.cryptobench.config.global.ProvidersDocument
-import io.github.junekim0007.cryptobench.config.yaml.YamlCodec
+import io.github.junekim0007.cryptobench.document.YamlCodec
 import io.github.junekim0007.cryptobench.files.FileNames
 import java.io.File
 import java.io.IOException
@@ -18,7 +18,7 @@ fun main(arguments: Array<String>) {
             linkedMapOf("global" to path, "testSet" to authored.testSetFile.path,
                         "bundled" to ProvidersDocument.bundledList(authored.global.providers.bundled))
         }
-        print(YamlCodec().dump(checked))
+        print(YamlCodec.DOCUMENT.dump(checked))
     } catch (expected: IllegalArgumentException) {
         fail(expected)
     } catch (expected: IllegalStateException) {

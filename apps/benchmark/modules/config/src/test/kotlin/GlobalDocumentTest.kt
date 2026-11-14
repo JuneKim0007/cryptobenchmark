@@ -8,7 +8,7 @@ import io.github.junekim0007.cryptobench.config.global.dto.BundledProvider
 import io.github.junekim0007.cryptobench.config.global.dto.MeasurePass
 import io.github.junekim0007.cryptobench.config.global.dto.ThermalGate
 import io.github.junekim0007.cryptobench.config.global.dto.Warmup
-import io.github.junekim0007.cryptobench.config.yaml.YamlCodec
+import io.github.junekim0007.cryptobench.document.YamlCodec
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
@@ -28,7 +28,7 @@ class GlobalDocumentTest {
 
     private fun run(text: String) = global(text).run
 
-    private fun effective(chosen: io.github.junekim0007.cryptobench.config.global.dto.GlobalConfig) = EffectiveDocument.parse(codec.load(YamlCodec().dump(EffectiveDocument.of(
+    private fun effective(chosen: io.github.junekim0007.cryptobench.config.global.dto.GlobalConfig) = EffectiveDocument.parse(codec.load(YamlCodec.DOCUMENT.dump(EffectiveDocument.of(
         EffectiveBuilder().build(chosen, testSet, inventory, EffectiveBuilder.Files("global.yaml", "testsets/scope.yaml", "inventory.yaml"))))))
 
     @Test
@@ -63,14 +63,14 @@ class GlobalDocumentTest {
               passes: {timing: {samples: 3}, allocation: {samples: 2}}
         """.trimIndent() + "\n")
         assertEquals(listOf(MeasurePass("timing", 3), MeasurePass("allocation", 2)), written.passes)
-        assertEquals(written, GlobalDocument.parse(codec.load(YamlCodec().dump(GlobalDocument.of(global("").copy(run = written))))).run)
+        assertEquals(written, GlobalDocument.parse(codec.load(YamlCodec.DOCUMENT.dump(GlobalDocument.of(global("").copy(run = written))))).run)
     }
 
     @Test
     fun aGateCanBeWrittenAndSwitchedOff() {
         val written = run("run: {thermalGate: {temperatureKeptCelsius: 36.0}}\n")
         assertEquals(ThermalGate(36.0), written.thermalGate)
-        assertEquals(written, GlobalDocument.parse(codec.load(YamlCodec().dump(GlobalDocument.of(global("").copy(run = written))))).run)
+        assertEquals(written, GlobalDocument.parse(codec.load(YamlCodec.DOCUMENT.dump(GlobalDocument.of(global("").copy(run = written))))).run)
         assertEquals(null, run("run: {}\n").thermalGate)
     }
 

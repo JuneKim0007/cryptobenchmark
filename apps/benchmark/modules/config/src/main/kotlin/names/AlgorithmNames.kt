@@ -1,7 +1,7 @@
 package io.github.junekim0007.cryptobench.config.names
 
 import io.github.junekim0007.cryptobench.config.names.dto.Canonical
-import io.github.junekim0007.cryptobench.config.yaml.YamlCodec
+import io.github.junekim0007.cryptobench.document.YamlCodec
 import io.github.junekim0007.cryptobench.files.FileNames
 import java.util.Locale
 
@@ -65,7 +65,7 @@ class AlgorithmNames private constructor(
         val catalog: AlgorithmNames by lazy {
             val text = AlgorithmNames::class.java.getResource(RESOURCE)?.readText()
                 ?: throw IllegalStateException("names_catalog_missing: $RESOURCE is not on the classpath")
-            parse(YamlCodec().load(text))
+            parse(YamlCodec.DOCUMENT.load(text))
         }
 
         fun fold(value: String): String = value.uppercase(Locale.ROOT)

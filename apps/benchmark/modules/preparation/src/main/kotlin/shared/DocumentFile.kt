@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation.shared
 
+import io.github.junekim0007.cryptobench.document.YamlCodec
 import org.yaml.snakeyaml.error.YAMLException
 import java.io.File
 import java.io.IOException
@@ -15,7 +16,7 @@ object DocumentFile {
 
     fun read(fileName: String, text: String, schemaName: String, supportedSchemaVersion: Int): Map<String, Any> {
         val document = try {
-            YamlCodec().load(text)
+            YamlCodec.DOCUMENT.load(text)
         } catch (failure: YAMLException) {
             throw IllegalArgumentException("unreadable_yaml: $fileName: ${failure.message}", failure)
         }
@@ -26,7 +27,7 @@ object DocumentFile {
         return document
     }
 
-    fun write(file: File, document: Any): File = writeText(file, YamlCodec().dump(document))
+    fun write(file: File, document: Any): File = writeText(file, YamlCodec.DOCUMENT.dump(document))
 
     fun writeText(file: File, text: String): File {
         val directory = file.parentFile

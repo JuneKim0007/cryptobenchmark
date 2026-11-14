@@ -4,7 +4,7 @@ import io.github.junekim0007.cryptobench.config.effective.EffectiveDocument
 import io.github.junekim0007.cryptobench.config.global.GlobalDocument
 import io.github.junekim0007.cryptobench.config.names.AlgorithmNames
 import io.github.junekim0007.cryptobench.config.names.dto.Canonical
-import io.github.junekim0007.cryptobench.config.yaml.YamlCodec
+import io.github.junekim0007.cryptobench.document.YamlCodec
 import io.github.junekim0007.cryptobench.config.yaml.YamlFiles
 import io.github.junekim0007.cryptobench.settings.Facts
 import org.junit.Assert.assertEquals
@@ -21,7 +21,7 @@ class ParityFixturesTest {
 
     private val parity = generateSequence(File("").absoluteFile) { it.parentFile }.map { File(it, "parity") }.firstOrNull { File(it, "duplicate-key.yaml").isFile }
         ?: error("parity/ not found above ${File("").absoluteFile}")
-    private val codec = YamlCodec()
+    private val codec = YamlCodec.DOCUMENT
 
     private fun stated(name: String): Map<String, Any> = Yaml(SafeConstructor(LoaderOptions())).load(File(parity, "$name.json").readText())
 

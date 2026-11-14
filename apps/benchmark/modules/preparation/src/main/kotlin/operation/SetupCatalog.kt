@@ -5,7 +5,7 @@ import io.github.junekim0007.cryptobench.preparation.engine.EngineTypeName
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.measurement.Variant
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields
-import io.github.junekim0007.cryptobench.preparation.shared.YamlCodec
+import io.github.junekim0007.cryptobench.document.YamlCodec
 import java.util.Locale
 
 /** setup-catalog.yaml: per engine type, cipher mode or name suffix, what a fixed call still does; notFixed always makes the instance per call. */
@@ -51,7 +51,7 @@ internal class SetupCatalog(document: Map<String, Any>) {
         val standard: SetupCatalog by lazy {
             val text = SetupCatalog::class.java.getResourceAsStream(RESOURCE)?.use { it.readBytes().toString(Charsets.UTF_8) }
                 ?: throw IllegalStateException("missing_resource: $RESOURCE beside ${SetupCatalog::class.java.name}")
-            SetupCatalog(YamlCodec().load(text))
+            SetupCatalog(YamlCodec.DOCUMENT.load(text))
         }
     }
 }

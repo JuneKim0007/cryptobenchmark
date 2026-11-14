@@ -34,7 +34,7 @@ apps/benchmark/gradlew -p tools/android-api-check compileKotlin -PandroidJar=<an
 ```
 
 - Default jar: `$ANDROID_HOME/platforms/android-36/android.jar`.
-- Compiles discovery, settings, preparation, benchmark sources with JVM target 1.8, `-no-jdk`, `android.jar` compileOnly.
+- Compiles jca, files, document, discovery, settings, preparation, benchmark sources with JVM target 1.8, `-no-jdk`, `android.jar` compileOnly.
 - CI: job `android-api` in `.github/workflows/jca-contract.yml` on Java 17 with `platforms;android-36`.
 
 ## analysis
