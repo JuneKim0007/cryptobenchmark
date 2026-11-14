@@ -3,7 +3,7 @@
 ```
 apps/benchmark/modules/benchmark/.gitignore : ignores /build
 apps/benchmark/modules/benchmark/README.md : module summary and link to this index
-apps/benchmark/modules/benchmark/build.gradle : Kotlin/JVM 17 library; api :preparation; snakeyaml 2.3; passes examples.update to tests
+apps/benchmark/modules/benchmark/build.gradle : Kotlin/JVM 17 library; api :preparation; :files, :document; snakeyaml 2.3; passes examples.update to tests
 apps/benchmark/modules/benchmark/docs/check.md : the end-to-end check: one call per case, oracles, measured decisions, check.yaml, the diff
 apps/benchmark/modules/benchmark/docs/index.md : this map
 apps/benchmark/modules/benchmark/docs/measure.md : plan check, host harness, benchmark.json, merge, Jetpack conversion

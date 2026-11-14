@@ -4,7 +4,7 @@ import io.github.junekim0007.cryptobench.files.FileNames
 import io.github.junekim0007.cryptobench.preparation.engine.EngineTypeName
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.measurement.Variant
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields
+import io.github.junekim0007.cryptobench.document.DocumentFields
 import io.github.junekim0007.cryptobench.document.YamlCodec
 import java.util.Locale
 

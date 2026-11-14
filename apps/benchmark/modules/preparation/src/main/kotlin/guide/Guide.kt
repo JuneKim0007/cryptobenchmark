@@ -1,10 +1,10 @@
 package io.github.junekim0007.cryptobench.preparation.guide
 
+import io.github.junekim0007.cryptobench.document.DocumentFields
 import io.github.junekim0007.cryptobench.files.Beside
 import io.github.junekim0007.cryptobench.files.FileNames
 import io.github.junekim0007.cryptobench.preparation.request.Selection
 import io.github.junekim0007.cryptobench.preparation.resolve.Rejection
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFile
 import java.io.File
 
@@ -36,7 +36,7 @@ class Guide(private val items: Map<String, Map<String, Any>>) {
             if (unsupported.isNotEmpty()) refused += Rejection(selection, selection.provider, "key_size_not_in_guide: $unsupported, the guide lists $accepted")
             val keySizes = selection.keySizes - unsupported.toSet()
             if (selection.keySizes.isNotEmpty() && keySizes.isEmpty()) continue
-            ready += selection.copy(keySizes = keySizes, parameters = selection.parameters.ifEmpty { DocumentFields.optionalSection(guided, "parameters") })
+            ready += selection.copy(keySizes = keySizes, parameters = selection.parameters.ifEmpty { DocumentFields.sectionOrEmpty(guided, "parameters") })
         }
         return ready to refused
     }
@@ -51,7 +51,7 @@ class Guide(private val items: Map<String, Map<String, Any>>) {
         fun read(file: File): Guide {
             val items = LinkedHashMap<String, Map<String, Any>>()
             val document = DocumentFile.read(file, SCHEMA_NAME, SUPPORTED_SCHEMA_VERSION)
-            for ((provider, types) in DocumentFields.optionalSection(document, "items")) for ((type, names) in DocumentFields.asSection(types, provider)) {
+            for ((provider, types) in DocumentFields.sectionOrEmpty(document, "items")) for ((type, names) in DocumentFields.asSection(types, provider)) {
                 for ((name, item) in DocumentFields.asSection(names, "$provider.$type")) items["$provider/$type/$name"] = DocumentFields.asSection(item, "$provider.$type.$name")
             }
             return Guide(items)

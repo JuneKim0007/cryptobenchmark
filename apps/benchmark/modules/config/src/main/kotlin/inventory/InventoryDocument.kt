@@ -2,14 +2,14 @@ package io.github.junekim0007.cryptobench.config.inventory
 
 import io.github.junekim0007.cryptobench.config.inventory.dto.Inventory
 import io.github.junekim0007.cryptobench.config.inventory.dto.InventoryEntry
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.boolean
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalBoolean
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalNumbers
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalString
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalStrings
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.section
 import io.github.junekim0007.cryptobench.config.yaml.DocumentHandler
 import io.github.junekim0007.cryptobench.config.yaml.ProviderTree
+import io.github.junekim0007.cryptobench.document.DocumentFields.boolean
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalBoolean
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalNumbers
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalString
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalStrings
+import io.github.junekim0007.cryptobench.document.DocumentFields.section
 
 object InventoryDocument : DocumentHandler<Inventory> {
 

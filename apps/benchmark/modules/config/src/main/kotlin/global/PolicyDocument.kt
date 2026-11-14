@@ -1,9 +1,9 @@
 package io.github.junekim0007.cryptobench.config.global
 
 import io.github.junekim0007.cryptobench.config.global.dto.Policy
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.choice
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.expectKeys
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalString
+import io.github.junekim0007.cryptobench.document.DocumentFields.choice
+import io.github.junekim0007.cryptobench.document.DocumentFields.expectKeys
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalString
 import java.util.Locale
 
 object PolicyDocument {

@@ -1,15 +1,15 @@
 package io.github.junekim0007.cryptobench.preparation.device
 
+import io.github.junekim0007.cryptobench.document.DocumentFields.boolean
+import io.github.junekim0007.cryptobench.document.DocumentFields.number
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSections
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalString
+import io.github.junekim0007.cryptobench.document.DocumentFields.sectionOrEmpty
+import io.github.junekim0007.cryptobench.document.DocumentFields.sections
+import io.github.junekim0007.cryptobench.document.DocumentFields.string
 import io.github.junekim0007.cryptobench.preparation.device.dto.TrialledDevice
 import io.github.junekim0007.cryptobench.preparation.device.dto.TrialledService
 import io.github.junekim0007.cryptobench.preparation.device.dto.TrialledTransformation
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.boolean
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.number
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.optionalSection
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.optionalSections
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.optionalString
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.sections
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.string
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFile
 import java.io.File
 
@@ -50,8 +50,8 @@ object TrialFile {
     )
 
     private fun measuredKeyAlgorithm(trialled: Map<String, Any>): String =
-        optionalString(optionalSection(trialled, "defaultRun"), "keyAlgorithm")
+        optionalString(sectionOrEmpty(trialled, "defaultRun"), "keyAlgorithm")
 
     private fun fixedKeySize(trialled: Map<String, Any>): Int? =
-        (optionalSection(trialled, "defaultRun")["fixedKeySize"] as? Number)?.toInt()
+        (sectionOrEmpty(trialled, "defaultRun")["fixedKeySize"] as? Number)?.toInt()
 }

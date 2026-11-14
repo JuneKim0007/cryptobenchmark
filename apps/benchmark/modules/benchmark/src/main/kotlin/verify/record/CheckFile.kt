@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.benchmark.verify.record
 
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields
+import io.github.junekim0007.cryptobench.document.DocumentFields
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFile
 import java.io.File
 

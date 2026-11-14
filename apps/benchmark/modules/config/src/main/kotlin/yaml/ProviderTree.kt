@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.config.yaml
 
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.asSection
+import io.github.junekim0007.cryptobench.document.DocumentFields.asSection
 
 object ProviderTree {
 

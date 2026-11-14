@@ -1,10 +1,10 @@
 package io.github.junekim0007.cryptobench.config.testset
 
 import io.github.junekim0007.cryptobench.config.testset.dto.Rule
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.asSection
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.expectKeys
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalStringOrNull
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.withPathInFailure
+import io.github.junekim0007.cryptobench.document.DocumentFields.asSection
+import io.github.junekim0007.cryptobench.document.DocumentFields.expectKeys
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalStringOrNull
+import io.github.junekim0007.cryptobench.document.DocumentFields.withPathInFailure
 
 object RuleDocument {
 

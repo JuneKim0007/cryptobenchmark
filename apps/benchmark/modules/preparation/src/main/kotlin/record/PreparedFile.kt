@@ -1,10 +1,10 @@
 package io.github.junekim0007.cryptobench.preparation.record
 
+import io.github.junekim0007.cryptobench.document.DocumentFields
 import io.github.junekim0007.cryptobench.files.FileNames
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.prepare.Listing
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFile
 import java.io.File
 

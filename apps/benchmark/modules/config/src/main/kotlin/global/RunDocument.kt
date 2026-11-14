@@ -5,16 +5,16 @@ import io.github.junekim0007.cryptobench.config.global.dto.MeasurePass
 import io.github.junekim0007.cryptobench.config.global.dto.RunSettings
 import io.github.junekim0007.cryptobench.config.global.dto.Warmup
 import io.github.junekim0007.cryptobench.config.testset.RuleDocument
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalSections
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.asSection
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.number
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.expectKeys
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.numbers
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optional
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalNumber
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalSection
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalString
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.strings
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSections
+import io.github.junekim0007.cryptobench.document.DocumentFields.asSection
+import io.github.junekim0007.cryptobench.document.DocumentFields.number
+import io.github.junekim0007.cryptobench.document.DocumentFields.expectKeys
+import io.github.junekim0007.cryptobench.document.DocumentFields.numbers
+import io.github.junekim0007.cryptobench.document.DocumentFields.optional
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalNumber
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSection
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalString
+import io.github.junekim0007.cryptobench.document.DocumentFields.strings
 
 object RunDocument {
 

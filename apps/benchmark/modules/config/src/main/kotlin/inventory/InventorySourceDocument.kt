@@ -1,8 +1,8 @@
 package io.github.junekim0007.cryptobench.config.inventory
 
 import io.github.junekim0007.cryptobench.config.inventory.dto.InventorySource
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.section
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.string
+import io.github.junekim0007.cryptobench.document.DocumentFields.section
+import io.github.junekim0007.cryptobench.document.DocumentFields.string
 
 object InventorySourceDocument {
 

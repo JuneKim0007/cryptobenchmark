@@ -63,7 +63,6 @@ apps/benchmark/modules/config/src/main/kotlin/testset/TestSetDocument.kt : test-
 apps/benchmark/modules/config/src/main/kotlin/testset/dto/Override.kt : one override and its validation
 apps/benchmark/modules/config/src/main/kotlin/testset/dto/Rule.kt : rule matching through AlgorithmNames, and specificity
 apps/benchmark/modules/config/src/main/kotlin/testset/dto/TestSet.kt : test-set model
-apps/benchmark/modules/config/src/main/kotlin/yaml/DocumentFields.kt : typed reads, expectKeys, path-annotated failures
 apps/benchmark/modules/config/src/main/kotlin/yaml/DocumentHandler.kt : reader and writer interface
 apps/benchmark/modules/config/src/main/kotlin/yaml/DocumentReader.kt : reader interface with schemaVersion
 apps/benchmark/modules/config/src/main/kotlin/yaml/ProviderTree.kt : provider to type to name map, both directions

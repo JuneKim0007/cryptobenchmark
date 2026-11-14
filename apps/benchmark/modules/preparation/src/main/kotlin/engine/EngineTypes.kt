@@ -2,7 +2,7 @@ package io.github.junekim0007.cryptobench.preparation.engine
 
 import io.github.junekim0007.cryptobench.files.FileNames
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields
+import io.github.junekim0007.cryptobench.document.DocumentFields
 import io.github.junekim0007.cryptobench.document.YamlCodec
 
 class EngineTypes private constructor(

@@ -2,11 +2,11 @@ package io.github.junekim0007.cryptobench.config.global
 
 import io.github.junekim0007.cryptobench.config.global.dto.StartMargin
 import io.github.junekim0007.cryptobench.config.global.dto.ThermalGate
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.boolean
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.expectKeys
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optional
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalNumber
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalString
+import io.github.junekim0007.cryptobench.document.DocumentFields.boolean
+import io.github.junekim0007.cryptobench.document.DocumentFields.expectKeys
+import io.github.junekim0007.cryptobench.document.DocumentFields.optional
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalNumber
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalString
 
 object ThermalGateDocument {
 

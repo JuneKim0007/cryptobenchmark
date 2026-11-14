@@ -1,15 +1,15 @@
 package io.github.junekim0007.cryptobench.config.source
 
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.boolean
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.number
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalBoolean
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalNumber
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalSection
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalSections
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalString
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.sections
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.string
 import io.github.junekim0007.cryptobench.config.yaml.DocumentReader
+import io.github.junekim0007.cryptobench.document.DocumentFields.boolean
+import io.github.junekim0007.cryptobench.document.DocumentFields.number
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalBoolean
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalNumber
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSection
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSections
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalString
+import io.github.junekim0007.cryptobench.document.DocumentFields.sections
+import io.github.junekim0007.cryptobench.document.DocumentFields.string
 
 object TrialSource : DocumentReader<TrialView> {
 

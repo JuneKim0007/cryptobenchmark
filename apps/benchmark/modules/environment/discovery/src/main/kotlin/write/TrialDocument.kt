@@ -6,15 +6,15 @@ import io.github.junekim0007.cryptobench.discovery.contract.TransformationTrialE
 import io.github.junekim0007.cryptobench.discovery.contract.TrialOutcome
 import io.github.junekim0007.cryptobench.discovery.contract.TrialReport
 import io.github.junekim0007.cryptobench.discovery.contract.TriedKey
-import io.github.junekim0007.cryptobench.discovery.write.DocumentFields.boolean
-import io.github.junekim0007.cryptobench.discovery.write.DocumentFields.number
-import io.github.junekim0007.cryptobench.discovery.write.DocumentFields.optionalBoolean
-import io.github.junekim0007.cryptobench.discovery.write.DocumentFields.optionalNumber
-import io.github.junekim0007.cryptobench.discovery.write.DocumentFields.optionalSection
-import io.github.junekim0007.cryptobench.discovery.write.DocumentFields.optionalSections
-import io.github.junekim0007.cryptobench.discovery.write.DocumentFields.optionalString
-import io.github.junekim0007.cryptobench.discovery.write.DocumentFields.sections
-import io.github.junekim0007.cryptobench.discovery.write.DocumentFields.string
+import io.github.junekim0007.cryptobench.document.DocumentFields.boolean
+import io.github.junekim0007.cryptobench.document.DocumentFields.number
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalBoolean
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalNumber
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSection
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalString
+import io.github.junekim0007.cryptobench.document.DocumentFields.sections
+import io.github.junekim0007.cryptobench.document.DocumentFields.sectionsIfKeyPresent
+import io.github.junekim0007.cryptobench.document.DocumentFields.string
 
 object TrialDocument {
 
@@ -86,7 +86,7 @@ object TrialDocument {
         type = string(document, TYPE),
         algorithm = string(document, ALGORITHM),
         outcome = outcome(document),
-        transformations = optionalSections(document, TRANSFORMATIONS).map { transformationEntry(it) },
+        transformations = sectionsIfKeyPresent(document, TRANSFORMATIONS).map { transformationEntry(it) },
         defaultRun = optionalSection(document, DEFAULT_RUN)?.let { defaultRunEntry(it) },
     )
 
@@ -131,7 +131,7 @@ object TrialDocument {
         bareName = optionalBoolean(document, BARE_NAME),
         keyMaterial = optionalString(document, KEY_MATERIAL),
         keyFormat = optionalString(document, KEY_FORMAT),
-        triedKeys = optionalSections(document, TRIED_KEYS).map { triedKeyEntry(it) },
+        triedKeys = sectionsIfKeyPresent(document, TRIED_KEYS).map { triedKeyEntry(it) },
         error = optionalString(document, ERROR),
     )
 

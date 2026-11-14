@@ -1,10 +1,10 @@
 package io.github.junekim0007.cryptobench.config.source
 
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.number
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.section
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.sections
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.string
 import io.github.junekim0007.cryptobench.config.yaml.DocumentReader
+import io.github.junekim0007.cryptobench.document.DocumentFields.number
+import io.github.junekim0007.cryptobench.document.DocumentFields.section
+import io.github.junekim0007.cryptobench.document.DocumentFields.sections
+import io.github.junekim0007.cryptobench.document.DocumentFields.string
 
 object CaptureSource : DocumentReader<CaptureView> {
 

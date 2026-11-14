@@ -7,13 +7,13 @@ import io.github.junekim0007.cryptobench.config.global.dto.ProviderSources
 import io.github.junekim0007.cryptobench.config.global.dto.RunSettings
 import io.github.junekim0007.cryptobench.config.global.dto.Selection
 import io.github.junekim0007.cryptobench.config.testset.RuleDocument
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.expectKeys
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalSection
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalSections
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.section
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.string
 import io.github.junekim0007.cryptobench.config.yaml.DocumentHandler
 import io.github.junekim0007.cryptobench.config.yaml.ReadOnlyYamlFile
+import io.github.junekim0007.cryptobench.document.DocumentFields.expectKeys
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSection
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSections
+import io.github.junekim0007.cryptobench.document.DocumentFields.section
+import io.github.junekim0007.cryptobench.document.DocumentFields.string
 
 object GlobalDocument : DocumentHandler<GlobalConfig> {
 

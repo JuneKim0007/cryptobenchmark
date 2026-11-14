@@ -16,12 +16,12 @@ import io.github.junekim0007.cryptobench.config.inventory.InventorySourceDocumen
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
 import io.github.junekim0007.cryptobench.config.global.RunDocument
 import io.github.junekim0007.cryptobench.config.global.dto.AnalysisSettings
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalNumbers
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalSection
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalSections
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalStrings
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.section
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.string
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalNumbers
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSection
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSections
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalStrings
+import io.github.junekim0007.cryptobench.document.DocumentFields.section
+import io.github.junekim0007.cryptobench.document.DocumentFields.string
 import io.github.junekim0007.cryptobench.config.yaml.DocumentHandler
 import io.github.junekim0007.cryptobench.config.yaml.ProviderTree
 

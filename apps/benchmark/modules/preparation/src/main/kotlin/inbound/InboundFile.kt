@@ -1,7 +1,7 @@
 package io.github.junekim0007.cryptobench.preparation.inbound
 
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.expectKeys
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.section
+import io.github.junekim0007.cryptobench.document.DocumentFields.expectKeys
+import io.github.junekim0007.cryptobench.document.DocumentFields.section
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFile
 import java.io.File
 

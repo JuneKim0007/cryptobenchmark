@@ -1,12 +1,12 @@
 package io.github.junekim0007.cryptobench.config.effective
 
 import io.github.junekim0007.cryptobench.config.effective.dto.Report
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.expectKeys
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalSections
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalStringOrNull
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalStrings
 import io.github.junekim0007.cryptobench.config.yaml.DocumentHandler
 import io.github.junekim0007.cryptobench.config.yaml.ReadOnlyYamlFile
+import io.github.junekim0007.cryptobench.document.DocumentFields.expectKeys
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSections
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalStringOrNull
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalStrings
 
 object ReportDocument : DocumentHandler<Report> {
 

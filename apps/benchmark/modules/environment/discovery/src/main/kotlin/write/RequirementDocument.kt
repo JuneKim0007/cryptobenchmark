@@ -3,14 +3,14 @@ package io.github.junekim0007.cryptobench.discovery.write
 import io.github.junekim0007.cryptobench.discovery.contract.KeyCacheStats
 import io.github.junekim0007.cryptobench.discovery.contract.RequirementReport
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceRequirement
-import io.github.junekim0007.cryptobench.discovery.write.DocumentFields.number
-import io.github.junekim0007.cryptobench.discovery.write.DocumentFields.optionalSection
-import io.github.junekim0007.cryptobench.discovery.write.DocumentFields.optionalSections
-import io.github.junekim0007.cryptobench.discovery.write.DocumentFields.optionalString
-import io.github.junekim0007.cryptobench.discovery.write.DocumentFields.optionalStrings
-import io.github.junekim0007.cryptobench.discovery.write.DocumentFields.section
-import io.github.junekim0007.cryptobench.discovery.write.DocumentFields.sections
-import io.github.junekim0007.cryptobench.discovery.write.DocumentFields.string
+import io.github.junekim0007.cryptobench.document.DocumentFields.number
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSection
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalString
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalStrings
+import io.github.junekim0007.cryptobench.document.DocumentFields.section
+import io.github.junekim0007.cryptobench.document.DocumentFields.sections
+import io.github.junekim0007.cryptobench.document.DocumentFields.sectionsIfKeyPresent
+import io.github.junekim0007.cryptobench.document.DocumentFields.string
 
 object RequirementDocument {
 
@@ -102,9 +102,9 @@ object RequirementDocument {
         conditions = optionalStrings(document, CONDITIONS),
         key = optionalSection(document, KEY).orEmpty(),
         runWith = optionalSection(document, RUN_WITH).orEmpty(),
-        keysTried = optionalSections(document, KEYS_TRIED),
+        keysTried = sectionsIfKeyPresent(document, KEYS_TRIED),
         facts = optionalSection(document, FACTS).orEmpty(),
-        aliases = optionalSections(document, ALIASES),
+        aliases = sectionsIfKeyPresent(document, ALIASES),
         millis = number(document, MILLIS).toLong(),
     )
 }

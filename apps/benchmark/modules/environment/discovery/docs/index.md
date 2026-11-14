@@ -75,7 +75,6 @@ apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/R
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/SignatureFacts.kt : Signature facts
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/Sweep.kt : an accepted set from single calls, as ranges
 apps/benchmark/modules/environment/discovery/src/main/kotlin/write/CaptureDocument.kt : capture YAML schema (of, parse)
-apps/benchmark/modules/environment/discovery/src/main/kotlin/write/DocumentFields.kt : typed reads of document keys
 apps/benchmark/modules/environment/discovery/src/main/kotlin/write/EnvironmentYamlWriter.kt : writes probe_<utc>.yaml
 apps/benchmark/modules/environment/discovery/src/main/kotlin/write/ProbeDirectory.kt : output directory: create-new, newest, sibling lookup
 apps/benchmark/modules/environment/discovery/src/main/kotlin/write/RequirementDocument.kt : requirements YAML schema (of, parse)

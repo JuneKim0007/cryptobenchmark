@@ -3,11 +3,11 @@ package io.github.junekim0007.cryptobench.preparation.device
 import io.github.junekim0007.cryptobench.preparation.device.dto.CapturedDevice
 import io.github.junekim0007.cryptobench.preparation.device.dto.CapturedProvider
 import io.github.junekim0007.cryptobench.preparation.device.dto.CapturedService
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.number
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.optionalStrings
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.optionalSections
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.sections
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.string
+import io.github.junekim0007.cryptobench.document.DocumentFields.number
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalStrings
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSections
+import io.github.junekim0007.cryptobench.document.DocumentFields.sections
+import io.github.junekim0007.cryptobench.document.DocumentFields.string
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFile
 import java.io.File
 

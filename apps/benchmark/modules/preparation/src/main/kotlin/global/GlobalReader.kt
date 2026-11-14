@@ -6,14 +6,14 @@ import io.github.junekim0007.cryptobench.preparation.inbound.InboundDocument
 import io.github.junekim0007.cryptobench.settings.Metric
 import io.github.junekim0007.cryptobench.preparation.measurement.Phase
 import io.github.junekim0007.cryptobench.preparation.measurement.Variant
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.choice
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.expectKeys
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.number
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.numbers
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.optionalSection
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.optionalStrings
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.string
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.strings
+import io.github.junekim0007.cryptobench.document.DocumentFields.choice
+import io.github.junekim0007.cryptobench.document.DocumentFields.expectKeys
+import io.github.junekim0007.cryptobench.document.DocumentFields.number
+import io.github.junekim0007.cryptobench.document.DocumentFields.numbers
+import io.github.junekim0007.cryptobench.document.DocumentFields.sectionOrEmpty
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalStrings
+import io.github.junekim0007.cryptobench.document.DocumentFields.string
+import io.github.junekim0007.cryptobench.document.DocumentFields.strings
 
 object GlobalReader {
 
@@ -37,7 +37,7 @@ object GlobalReader {
         processRepetitions = number(inbound.run, "processRepetitions").toInt(),
         seed = number(inbound.run, "seed").toLong(),
         onFailure = choice<OnFailure>("onFailure", string(inbound.policy, "onFailure")),
-        harness = HarnessSettings.read(optionalSection(inbound.run, "harness"), "run.harness"),
+        harness = HarnessSettings.read(sectionOrEmpty(inbound.run, "harness"), "run.harness"),
         variants = optionalStrings(inbound.run, "variants").map(Variant::of).ifEmpty { Variant.entries },
     )
 }

@@ -36,7 +36,7 @@ config/global.yaml + config/testsets/*.yaml
 | `:settings` | `apps/benchmark/modules/settings` | none | none |
 | `:config` | `apps/benchmark/modules/config` | `implementation :settings`, `implementation :files`, `implementation :document` | snakeyaml 2.3 |
 | `:preparation` | `apps/benchmark/modules/preparation` | `api :settings`, `api :jca`, `implementation :files`, `implementation :document` | snakeyaml 2.3 |
-| `:benchmark` | `apps/benchmark/modules/benchmark` | `api :preparation`, `implementation :files` | snakeyaml 2.3 |
+| `:benchmark` | `apps/benchmark/modules/benchmark` | `api :preparation`, `implementation :files`, `implementation :document` | snakeyaml 2.3 |
 | `:android` | `apps/benchmark/modules/android` | `androidTestImplementation :benchmark`, `:environment:discovery`, `:files`, `:document` | benchmark-junit4 1.5.0; androidTest: androidx.test:runner 1.5.2, junit 4.13.2 |
 
 - JVM modules test with junit 4.13.2.

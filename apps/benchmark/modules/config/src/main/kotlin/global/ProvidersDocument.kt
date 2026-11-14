@@ -2,11 +2,11 @@ package io.github.junekim0007.cryptobench.config.global
 
 import io.github.junekim0007.cryptobench.config.global.dto.BundledProvider
 import io.github.junekim0007.cryptobench.config.global.dto.ProviderSources
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.expectKeys
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalSections
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalStringOrNull
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.string
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.withPathInFailure
+import io.github.junekim0007.cryptobench.document.DocumentFields.expectKeys
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSections
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalStringOrNull
+import io.github.junekim0007.cryptobench.document.DocumentFields.string
+import io.github.junekim0007.cryptobench.document.DocumentFields.withPathInFailure
 
 object ProvidersDocument {
 

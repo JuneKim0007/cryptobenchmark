@@ -14,7 +14,7 @@
 - shared code: a module compiles against another module's classes only through the handoff types below; widening a list is a reviewed change to this guide.
 - shared code: `:environment:discovery` and `:preparation` use jca's `Attempt`, `ErrorText`; `:benchmark` and `:android` androidTest use jca's `Attempt`; it is the one catch rule (an Exception or LinkageError is a result, any other Error escapes), never copied.
 - shared code: `:environment:discovery`, `:config`, `:preparation`, `:benchmark` and `:android` androidTest use `:files` without a list; it holds names and pure rules only.
-- shared code: `:environment:discovery`, `:config` and `:preparation` use `:document` without a list, `:android` androidTest uses its `YamlCodec`.
+- shared code: `:environment:discovery`, `:config`, `:preparation` and `:benchmark` use `:document` without a list, `:android` androidTest uses its `YamlCodec`.
 - shared code: `:config` uses settings' `Facts`, `HarnessSettings`, `Metric`, `Unsupported`.
 - shared code: `:preparation` uses settings' `HarnessSettings`, `Metric`.
 - shared code: `:benchmark` uses preparation's `BenchmarkCase`, `Operation`, `PreparedCase`, `Invocations`, `Invocation`, and for `RunnablePlan` `Preparation`, `Listing`, `PreparationException`, `StoppedOnFailureException`, `PreparedFile`, `Skip`, `SkipFile`, `GlobalSettings`, `OnFailure`, `FailureText`, `DocumentFile`, and settings' `HarnessSettings`, `EnergySettings`, `CpuSettings`, `Metric`.

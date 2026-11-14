@@ -12,7 +12,7 @@
 - settings: harness key table, device support → `apps/benchmark/modules/settings/docs/index.md`
 - files: every Kotlin file and folder name, stamps, beside-a-file rules → `apps/benchmark/modules/files/docs/index.md`
 - jca: the catch rule, provider error text → `apps/benchmark/modules/jca/docs/index.md`
-- document: the YAML codec and its profiles → `apps/benchmark/modules/document/docs/index.md`
+- document: the YAML codec and its profiles, typed field reads → `apps/benchmark/modules/document/docs/index.md`
 - preparation: cases, keys, inputs, parameters → `apps/benchmark/modules/preparation/docs/index.md`
 - benchmark: plan check, measurement, `benchmark.json` → `apps/benchmark/modules/benchmark/docs/index.md`
 - android: instrumentation harness, device plan, core pinning → `apps/benchmark/modules/android/docs/index.md`
@@ -108,7 +108,7 @@ apps/benchmark/gradlew : the one Gradle wrapper, for the benchmark's root build,
 apps/benchmark/modules/android/ : instrumentation app: Jetpack harness, device plan, native core affinity
 apps/benchmark/modules/benchmark/ : plan check and measurement of prepared cases; benchmark.json
 apps/benchmark/modules/config/ : capture and trial to inventory.yaml; inventory and config/ to effective.yaml
-apps/benchmark/modules/document/ : the one YAML codec, a SnakeYAML setup per profile, shared by discovery, config and preparation
+apps/benchmark/modules/document/ : the one YAML codec, a SnakeYAML setup per profile, and DocumentFields; shared by discovery, config, preparation and benchmark
 apps/benchmark/modules/environment/discovery/ : provider and service probe, default-run and requirement trials, capture, trial and requirements YAML
 apps/benchmark/modules/files/ : every Kotlin file and folder name, stamps and beside-a-file rules; python's CONTRACT agrees
 apps/benchmark/modules/jca/ : the one catch rule and the provider-message scrubber every module that calls a provider shares

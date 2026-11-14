@@ -7,14 +7,14 @@ import io.github.junekim0007.cryptobench.config.global.dto.AnalysisSettings.Late
 import io.github.junekim0007.cryptobench.config.global.dto.AnalysisSettings.Statistic
 import io.github.junekim0007.cryptobench.config.global.dto.AnalysisSettings.ThroughputUnit
 import io.github.junekim0007.cryptobench.config.global.dto.AnalysisSettings.Units
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.choice
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.expectKeys
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalNumber
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalSection
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalString
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalStringOrNull
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalStrings
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.withPathInFailure
+import io.github.junekim0007.cryptobench.document.DocumentFields.choice
+import io.github.junekim0007.cryptobench.document.DocumentFields.expectKeys
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalNumber
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSection
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalString
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalStringOrNull
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalStrings
+import io.github.junekim0007.cryptobench.document.DocumentFields.withPathInFailure
 import java.util.Locale
 
 object AnalysisDocument {

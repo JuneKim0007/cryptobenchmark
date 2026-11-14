@@ -9,14 +9,14 @@ import io.github.junekim0007.cryptobench.config.entry.EntryKeys.OPERATIONS
 import io.github.junekim0007.cryptobench.config.entry.EntryKeys.HARNESS
 import io.github.junekim0007.cryptobench.config.testset.dto.Override
 import io.github.junekim0007.cryptobench.config.testset.dto.TestSet
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.expectKeys
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optional
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalNumbersOrNull
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalSection
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalSections
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.optionalString
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.section
-import io.github.junekim0007.cryptobench.config.yaml.DocumentFields.strings
+import io.github.junekim0007.cryptobench.document.DocumentFields.expectKeys
+import io.github.junekim0007.cryptobench.document.DocumentFields.optional
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalNumbersOrNull
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSection
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSections
+import io.github.junekim0007.cryptobench.document.DocumentFields.optionalString
+import io.github.junekim0007.cryptobench.document.DocumentFields.section
+import io.github.junekim0007.cryptobench.document.DocumentFields.strings
 import io.github.junekim0007.cryptobench.config.yaml.DocumentHandler
 import io.github.junekim0007.cryptobench.config.yaml.ReadOnlyYamlFile
 

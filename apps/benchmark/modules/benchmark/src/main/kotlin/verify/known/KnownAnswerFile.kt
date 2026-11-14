@@ -1,8 +1,8 @@
 package io.github.junekim0007.cryptobench.benchmark.verify.known
 
+import io.github.junekim0007.cryptobench.document.DocumentFields
 import io.github.junekim0007.cryptobench.files.FileNames
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFile
 import java.io.File
 
@@ -27,8 +27,8 @@ object KnownAnswerFile {
                 DocumentFields.string(vector, "id"), DocumentFields.string(vector, "source"), DocumentFields.string(vector, "type"),
                 listOf(DocumentFields.string(vector, "algorithm")) + DocumentFields.optionalStrings(vector, "aliases"),
                 DocumentFields.strings(vector, "operations").mapTo(LinkedHashSet()) { DocumentFields.choice<Operation>("operation", it) },
-                DocumentFields.optionalSection(vector, "key").takeIf { it.isNotEmpty() }?.let { key(it, "$path.key") },
-                DocumentFields.optionalSection(vector, "parameters").takeIf { it.isNotEmpty() }?.let { bytesIn(it) as Map<String, Any> },
+                DocumentFields.sectionOrEmpty(vector, "key").takeIf { it.isNotEmpty() }?.let { key(it, "$path.key") },
+                DocumentFields.sectionOrEmpty(vector, "parameters").takeIf { it.isNotEmpty() }?.let { bytesIn(it) as Map<String, Any> },
                 hex(DocumentFields.string(vector, "input")), hex(DocumentFields.string(vector, "output")), compare == PREFIX,
                 DocumentFields.optionalString(vector, "provider").ifEmpty { null }, DocumentFields.optionalString(vector, "origin").ifEmpty { null },
                 DocumentFields.optionalString(vector, "unexpressible").ifEmpty { null },

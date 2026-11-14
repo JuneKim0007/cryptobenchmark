@@ -1,11 +1,11 @@
 package io.github.junekim0007.cryptobench.preparation.interop.plan
 
+import io.github.junekim0007.cryptobench.document.DocumentFields.expectKeys
+import io.github.junekim0007.cryptobench.document.DocumentFields.number
+import io.github.junekim0007.cryptobench.document.DocumentFields.section
+import io.github.junekim0007.cryptobench.document.DocumentFields.sections
+import io.github.junekim0007.cryptobench.document.DocumentFields.string
 import io.github.junekim0007.cryptobench.files.FileNames
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.expectKeys
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.number
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.section
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.sections
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFields.string
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFile
 import java.io.File
 

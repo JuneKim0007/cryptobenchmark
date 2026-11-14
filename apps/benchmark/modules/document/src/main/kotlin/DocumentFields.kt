@@ -1,4 +1,4 @@
-package io.github.junekim0007.cryptobench.config.yaml
+package io.github.junekim0007.cryptobench.document
 
 object DocumentFields {
 
@@ -34,9 +34,16 @@ object DocumentFields {
 
     fun optionalBoolean(document: Map<String, Any>, key: String): Boolean = optional(document, key, false, ::boolean)
 
+    // absent stays apart from empty: null when the key is missing or null
     fun optionalSection(document: Map<String, Any>, key: String): Map<String, Any>? = optional(document, key, null, ::section)
 
+    fun sectionOrEmpty(document: Map<String, Any>, key: String): Map<String, Any> = optional(document, key, emptyMap(), ::section)
+
     fun optionalSections(document: Map<String, Any>, key: String): List<Map<String, Any>> = optional(document, key, emptyList(), ::sections)
+
+    // only a missing key is absent: `key: ~` fails as missing_field
+    fun sectionsIfKeyPresent(document: Map<String, Any>, key: String): List<Map<String, Any>> =
+        if (document.containsKey(key)) sections(document, key) else emptyList()
 
     fun optionalStrings(document: Map<String, Any>, key: String): List<String> = optional(document, key, emptyList(), ::strings)
 
@@ -55,6 +62,10 @@ object DocumentFields {
     fun <T> choice(path: String, value: String, options: Collection<T>, key: (T) -> String): T =
         options.firstOrNull { key(it).equals(value, ignoreCase = true) }
             ?: throw IllegalArgumentException("invalid: $path $value, one of ${options.map(key)}")
+
+    inline fun <reified E : Enum<E>> choice(field: String, name: String): E =
+        enumValues<E>().firstOrNull { it.name.equals(name, ignoreCase = true) }
+            ?: throw IllegalArgumentException("unknown_$field: $name, one of ${enumValues<E>().map { it.name }}")
 
     fun expectKeys(document: Map<String, Any>, allowed: Collection<String>, path: String) {
         val unknown = document.keys.filter { it !in allowed }
