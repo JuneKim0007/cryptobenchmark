@@ -4,7 +4,7 @@ import dataclasses, pathlib, time
 import effective_view, gradle_runner
 from device.adb import Device, measure_arguments
 from energy_session import EnergySession
-from session import clocks_hook, cooldown_hook, dynamic_temperature, thermal_gate, thermal_hook
+from session import clocks_hook, cooldown_hook, dynamic_temperature, thermal_hook
 from stages.took import elapsed
 from cryptobench.shared import paths
 from cryptobench.shared.document.document import read_yaml
@@ -46,9 +46,9 @@ def pass_arguments(run, one):
 
 
 def timed_hooks(run, one, isolation, gate):
-    """The gate holds in the launch loop, before these; its records join thermal.json here."""
+    """The gate holds in the launch loop, before these; Thermal writes its history into thermal.json."""
     per_case = isolation == effective_view.CASE_ISOLATION
-    return [cooldown_hook.Cooldown(run.cooldown, one.label, per_case), thermal_gate.GateRecords(gate), clocks_hook.Clocks(run.device), thermal_hook.Thermal(run.device, one.label)]
+    return [cooldown_hook.Cooldown(run.cooldown, one.label, per_case), clocks_hook.Clocks(run.device), thermal_hook.Thermal(run.device, one.label, gate.history)]
 
 
 def thermal_flag(process):

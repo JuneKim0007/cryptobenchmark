@@ -1,11 +1,11 @@
 """The production order of a device session's hooks, outermost first, per pass, as measuring.timed_hooks and benchmark build it."""
 from session import measure as measure_session
 from stages import benchmark
-from session import thermal_gate, thermal_hook
+from session import thermal_hook
 from test_device_benchmark_flow import MEASURED, measured
 from test_thermal_gate import CASE, Heat
 
-TIMED = ["Cooldown", "GateRecords", "Clocks", "Thermal"]
+TIMED = ["Cooldown", "Clocks", "Thermal"]
 
 
 def hook_orders(tmp_path, monkeypatch, run):
@@ -20,7 +20,7 @@ def hook_orders(tmp_path, monkeypatch, run):
     return seen
 
 
-def test_a_timed_session_without_energy_runs_cooldown_gate_clocks_thermal(tmp_path, monkeypatch):
+def test_a_timed_session_without_energy_runs_cooldown_clocks_thermal(tmp_path, monkeypatch):
     assert [names for _p, names, _h in hook_orders(tmp_path, monkeypatch, {"isolation": "case"})] == [TIMED]
 
 
@@ -39,10 +39,10 @@ def test_a_dry_capture_alone_has_only_the_energy_hook(tmp_path, monkeypatch):
     assert orders == [["EnergyCapture"]]
 
 
-def test_a_gated_run_has_the_same_order_and_thermal_holds_no_gate(tmp_path, monkeypatch):
+def test_a_gated_run_has_the_same_order_and_no_hook_holds_the_gate_only_its_history(tmp_path, monkeypatch):
     Heat(monkeypatch)
     (plan, names, hooks), = hook_orders(tmp_path, monkeypatch, CASE)
     assert names == TIMED
-    records, thermal = hooks[1], hooks[3]
-    assert isinstance(records, thermal_gate.GateRecords) and isinstance(thermal, thermal_hook.Thermal)
-    assert records.gate is plan.gate and plan.gate not in vars(thermal).values()
+    thermal = hooks[2]
+    assert isinstance(thermal, thermal_hook.Thermal) and thermal.history is plan.gate.history
+    assert not any(plan.gate in vars(hook).values() for hook in hooks)

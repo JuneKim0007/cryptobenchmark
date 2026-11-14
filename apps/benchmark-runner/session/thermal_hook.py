@@ -1,4 +1,5 @@
-"""Temperature around every case and process of a session, into each process's thermal.json, and one line per pass; never a failed case."""
+"""Temperature around every case and process of a session, into each process's thermal.json with the gate's history, and its lines
+per pass; never a failed case."""
 import json
 
 from device import thermal
@@ -29,8 +30,8 @@ def sleeps(data):
 class Thermal(Hooks):
     """With one process for every case there is no case boundary: each case gets the process's reading, scope run."""
 
-    def __init__(self, device, label):
-        self.device, self.label = device, label
+    def __init__(self, device, label, history):
+        self.device, self.label, self.history = device, label, history
         self.process_start, self.case_start, self.cases, self.paused = None, None, {}, {}
 
     def before_session(self):
@@ -47,18 +48,23 @@ class Thermal(Hooks):
         self.cases.setdefault(process.repetition, {})[case] = record(self.case_start, process.end_reading)
 
     def after_process(self, process):
-        end = thermal.read(self.device)
+        gated, end = self.history.records(), thermal.read(self.device)
         cases = self.cases.setdefault(process.repetition, {})
         paused = sleeps(process.data)
         for case in paused:
             cases.setdefault(case, record(self.process_start, end, scope="run"))
         self.paused[process.repetition] = paused
-        document = {"schemaVersion": SCHEMA_VERSION, "process": record(self.process_start, end), "cases": cases}
+        document = {"schemaVersion": SCHEMA_VERSION, "process": record(self.process_start, end),
+                    "cases": {case: reading | ({"gate": gated[case]} if case in gated else {}) for case, reading in cases.items()},
+                    "gate": self.history.document}
         paths.Measurement(process.into).thermal.write_text(json.dumps(document, indent=1))
 
     def after_session(self, _processes):
         print(summary(self.label, [c for cases in self.cases.values() for c in cases.values()],
                       [s for paused in self.paused.values() for s in paused.values()]))
+        line = self.history.summary()
+        if line:
+            print(f"gate:      {line}")
 
 
 def hottest(records):

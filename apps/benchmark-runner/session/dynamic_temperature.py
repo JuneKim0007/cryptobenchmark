@@ -4,6 +4,7 @@ import dataclasses, time
 
 from device import thermal
 from failure import warn
+from session.gate_history import GateHistory
 from cryptobench.shared.stats import equations as eq
 from cryptobench.shared.errors.coded import Coded
 from cryptobench.shared.errors.glossary import STOP
@@ -48,6 +49,9 @@ class Off:
 
     discard_limit = None
 
+    def __init__(self):
+        self.history = GateHistory()
+
     def hold(self, _case):
         return True
 
@@ -57,23 +61,14 @@ class Off:
     def verdict(self, _case, _end=None):
         return eq.IGNORED
 
-    def document(self):
-        return None
-
-    def records(self):
-        return {}
-
-    def summary(self):
-        return None
-
 
 class DynamicTemperature:
     """One session's start margin, shared by every case; a pass builds its own."""
 
     def __init__(self, device, settings, sensors, problems, label):
-        self.device, self.settings, self.sensors, self.problems, self.label = device, settings, sensors, problems, label
-        self.margin, self.held, self.started, self.discards = eq.first_margin(settings.rule), {}, None, 0
-        self.limits, self.waits = [], []
+        self.device, self.settings, self.problems, self.label = device, settings, problems, label
+        self.margin, self.started = eq.first_margin(settings.rule), None
+        self.history = GateHistory(label, {"sensors": list(sensors), "kept": settings.kept})
 
     def limit(self):
         return eq.start_limit(self.settings.kept, self.margin)
@@ -98,7 +93,8 @@ class DynamicTemperature:
             warn(f"temperature_unreadable: {case}: {reading.reason or 'no skin sensor in this reading'}; moving to the next case", self.problems)
             return False
         if self.cool_enough(reading):
-            self.started, _ = reading, self.note(case, limit, 0.0)
+            self.history.passed(case, limit, 0.0)
+            self.started = reading
             return True
         say(f"{case}: {reading.skin[1]:.1f} C, start limit {limit:.2f} C => waiting {self.settings.cooldown // SECONDS_PER_MINUTE} minutes to cool down, then polling every {self.settings.poll // SECONDS_PER_MINUTE} min")
         time.sleep(self.settings.cooldown)
@@ -109,18 +105,12 @@ class DynamicTemperature:
             waited = time.monotonic() - began
             if reading.skin and self.cool_enough(reading):
                 say(f"{case}: passed at {reading.skin[1]:.1f} C after {waited:.0f} s")
-                self.note(case, limit, waited)
+                self.history.passed(case, limit, waited)
                 return True
             if waited >= self.settings.terminate:
                 raise Terminated(f"temperature_gate_timeout: {case}: {self.label}: still above {limit:.2f} C after {waited:.0f} s; benchmark stopped")
             say(f"{case}: poll {polls}: {reading.skin[1]:.1f} C, waiting" if reading.skin else f"{case}: poll {polls}: unreadable, not a pass, waiting")
             time.sleep(self.settings.poll)
-
-    def note(self, case, limit, waited):
-        self.limits.append(limit)
-        self.waits.append(waited)
-        before = self.held.get(case, {})
-        self.held[case] = {"waitedSeconds": round(before.get("waitedSeconds", 0.0) + waited, 1), "target": limit, "discards": before.get("discards", 0)}
 
     def take_start(self):
         started, self.started = self.started, None
@@ -136,8 +126,7 @@ class DynamicTemperature:
         outcome = eq.HOT if reading.skin[1] >= self.settings.kept else eq.CLEAN
         self.margin = eq.next_margin(self.margin, outcome, self.settings.rule)
         if outcome == eq.HOT:
-            self.discards += 1
-            self.held[case]["discards"] += 1
+            self.history.discarded(case)
             say(f"{case}: discarded, ended at {reading.skin[1]:.1f} C, at or above {self.settings.kept:.1f} C; start margin now {self.margin.celsius:.2f} C; measuring again")
         return outcome
 
@@ -151,18 +140,6 @@ class DynamicTemperature:
             raise Terminated(line + "; benchmark stopped")
         warn(line + "; moving to the next case", self.problems)
         return f"case_failed: {line}"
-
-    def document(self):
-        return {"sensors": list(self.sensors), "kept": self.settings.kept}
-
-    def records(self):
-        """What this process's cases waited and discarded, then cleared for the next process."""
-        records, self.held = self.held, {}
-        return records
-
-    def summary(self):
-        limit = f"start limit {min(self.limits):.2f}-{max(self.limits):.2f} C" if self.limits else "no run started"
-        return f"{self.label}: {sum(1 for w in self.waits if w)} of {len(self.waits)} runs waited, {sum(self.waits):.0f} s; {self.discards} runs discarded; {limit}"
 
 
 @dataclasses.dataclass(frozen=True)

@@ -187,9 +187,9 @@ def test_each_process_reports_only_its_own_waits_and_discards(monkeypatch):
     heat.celsius = 45.0
     assert session.hold("c") and heat.slept == [180, 60]
     assert session.verdict("c") == "clean"
-    assert session.records() == {"c": {"waitedSeconds": 240.0, "target": 35.5, "discards": 1}}
+    assert session.history.records() == {"c": {"waitedSeconds": 240.0, "target": 35.5, "discards": 1}}
     assert session.hold("c") and session.verdict("c") == "clean"
-    assert session.records() == {"c": {"waitedSeconds": 0.0, "target": 35.5, "discards": 0}}
+    assert session.history.records() == {"c": {"waitedSeconds": 0.0, "target": 35.5, "discards": 0}}
 
 
 def test_a_gated_run_reads_the_temperature_once_at_each_end(tmp_path, monkeypatch):
