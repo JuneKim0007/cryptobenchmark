@@ -26,7 +26,7 @@ def action(code: Code) -> str:
     return code.action if code.fixed or chosen is None else chosen
 
 
-def resolve(code: str, value: str | None) -> str:
+def resolve(code: str, value: object) -> str:
     """The action an alias setting's value names for code; a value its `values` do not map takes the code's default."""
     entry = codes()[code]
-    return entry.get("values", {}).get(value, entry["default"])
+    return entry.get("values", {}).get(value, entry["default"]) if isinstance(value, str) else entry["default"]
