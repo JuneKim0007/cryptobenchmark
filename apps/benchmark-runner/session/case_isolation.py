@@ -2,7 +2,7 @@
 import re
 
 from cryptobench.shared.device import timeouts
-from failure import one_line
+from cryptobench.shared.errors.line import one_line
 from cryptobench.shared.device.adb import ONE_PASSED
 
 CASE_ARGUMENT = "case"   # CaseFilter.ARGUMENT

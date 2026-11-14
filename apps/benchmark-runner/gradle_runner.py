@@ -5,7 +5,7 @@ import sys
 
 from cryptobench.shared.device import timeouts
 
-from failure import one_line
+from cryptobench.shared.errors.line import one_line
 from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared import paths
 

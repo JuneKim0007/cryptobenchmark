@@ -12,7 +12,7 @@ from facade import tree
 from facade.check import check
 from facade.phases import run_phases
 from facade.tree import CATALOG
-from failure import one_line
+from cryptobench.shared.errors.line import one_line
 
 
 def _report(checked):

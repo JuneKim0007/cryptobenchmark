@@ -14,7 +14,7 @@ ROOT = paths.code_root()
 INDEXES = [("benchmark runner, cli, tools and lib", "", "docs/shared-functions.md",
             ["apps/benchmark-runner", "apps/benchmark-runner/energy", "apps/benchmark-runner/analysis", "apps/cli", "tools", paths.repo().library.relative_to(ROOT).as_posix()], 2),
            ("perf-repair", "apps/perf-repair", "docs/shared-functions.md", ["src"], 3)]
-GENERAL = {"apps/benchmark-runner/failure.py": {"one_line", "fail"}, "lib/cryptobench/cryptobench/shared/device/adb.py": {"PASSED", "ONE_PASSED"},
+GENERAL = {"apps/benchmark-runner/failure.py": {"fail"}, "lib/cryptobench/cryptobench/shared/errors/line.py": {"one_line"}, "lib/cryptobench/cryptobench/shared/device/adb.py": {"PASSED", "ONE_PASSED"},
            "apps/benchmark-runner/energy/energy.py": {"one_line"}, "apps/benchmark-runner/energy/manafa_estimate.py": {"one_line"},
            }
 

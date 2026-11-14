@@ -4,7 +4,8 @@ import subprocess, sys, time
 import bundled, dependencies, effective_view, energy_stage, gradle_runner
 from cryptobench.shared.device import timeouts
 from energy_session import EnergySession
-from failure import one_line, warn
+from failure import warn
+from cryptobench.shared.errors.line import one_line
 from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared import paths
 from session import case_isolation, energy_hook, passes, variant_order, warmup

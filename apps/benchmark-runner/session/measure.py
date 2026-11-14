@@ -3,7 +3,7 @@ each process and each case."""
 import dataclasses, pathlib, re
 
 import effective_view
-from failure import one_line
+from cryptobench.shared.errors.line import one_line
 from results import case_files
 from session import calibration, case_isolation, dynamic_temperature, launch
 from cryptobench.shared.device.adb import PASSED, DeviceError

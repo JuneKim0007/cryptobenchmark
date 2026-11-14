@@ -1,5 +1,5 @@
 """The only place a timed run of a case starts: each attempt is held for temperature, launched between the hooks, then judged."""
-from failure import one_line
+from cryptobench.shared.errors.line import one_line
 from session import calibration, case_isolation, dynamic_temperature
 from cryptobench.shared.stats import equations as eq
 

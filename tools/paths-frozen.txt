@@ -24,6 +24,7 @@ tools/screening_list.py: repo path apps/perf-repair/docs/screening-list.md # the
 tools/shared_functions.py: repo path apps/benchmark-runner # the folders and files the shared-functions tool indexes
 tools/shared_functions.py: repo path apps/benchmark-runner/analysis # the folders and files the shared-functions tool indexes
 tools/shared_functions.py: repo path lib/cryptobench/cryptobench/shared/device/adb.py # the folders and files the shared-functions tool indexes
+tools/shared_functions.py: repo path lib/cryptobench/cryptobench/shared/errors/line.py # the folders and files the shared-functions tool indexes
 tools/shared_functions.py: repo path apps/benchmark-runner/energy # the folders and files the shared-functions tool indexes
 tools/shared_functions.py: repo path apps/benchmark-runner/energy/energy.py # the folders and files the shared-functions tool indexes
 tools/shared_functions.py: repo path apps/benchmark-runner/energy/manafa_estimate.py # the folders and files the shared-functions tool indexes

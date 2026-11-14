@@ -25,7 +25,6 @@
 | `case_arguments(captures_found, capability, preparation, data, traces, dry_calls, out)` | `apps/benchmark-runner/energy/sources/runner.py` | - | sources.manafa_source, sources.rails_source |
 | `guarded(problems, step)` | `apps/benchmark-runner/energy_stage.py` | An energy step that fails costs this process its energy, never its timing: one error line, recorded. | session.energy_hook, stages.benchmark |
 | `fail(message)` | `apps/benchmark-runner/failure.py` | - | dependencies, pipeline |
-| `one_line(error)` | `apps/benchmark-runner/failure.py` | `' '.join(str(error).split())[:500]` | energy_stage, facade.py, gradle_runner, pipeline +4 |
 | `reported()` | `apps/benchmark-runner/failure.py` | A CommandError as fail() prints it; CommandError is imported here because dependencies.py imports this file before it checks for cryptobench. | dependencies, explain, pipeline, stages.harness |
 | `warn(line, problems)` | `apps/benchmark-runner/failure.py` | A warning on the terminal and, when the run keeps a list, in its manifest. | session.dynamic_temperature, stages.benchmark |
 | `global_config(argument)` | `apps/benchmark-runner/global_file.py` | - | dependencies, pipeline |
@@ -62,6 +61,7 @@
 | `read_yaml(path, shape)` | `lib/cryptobench/cryptobench/shared/document/document.py` | The file at path as parse_yaml reads it. | bundled, chart_input, cryptobench.shared.catalogue.interchange, device.capture +15 |
 | `dump_yaml(doc, profile)` | `lib/cryptobench/cryptobench/shared/document/dump.py` | `yaml.safe_dump(doc, **profile)` | chart_report, device.clocks, device.facts, results.manifest +1 |
 | `code_in(text)` | `lib/cryptobench/cryptobench/shared/errors/coded.py` | - | cryptobench.shared.errors.failures, cryptobench.shared.errors.input_error |
+| `one_line(error)` | `lib/cryptobench/cryptobench/shared/errors/line.py` | `' '.join(str(error).split())[:500]` | energy_stage, facade.py, gradle_runner, pipeline +4 |
 | `android_home()` | `lib/cryptobench/cryptobench/shared/paths/host.py` | `Path(os.environ.get('ANDROID_HOME') or home() / 'Library/Android/sdk')` | cryptobench.shared.device.adb, energy_stage, scope.compile |
 | `add_energy_imports()` | `lib/cryptobench/cryptobench/shared/paths/imports.py` | The runner imports energy's capture rules and sources; appended, so the runner's own modules keep their names. | dependencies, energy_stage |
 | `repo(root)` | `lib/cryptobench/cryptobench/shared/paths/repo.py` | `Repo(Path(root) if root is not None else roots.code_root())` | cryptobench.shared.catalogue.algorithms, cryptobench.shared.catalogue.deviations, cryptobench.shared.catalogue.families, cryptobench.shared.catalogue.glossary +22 |

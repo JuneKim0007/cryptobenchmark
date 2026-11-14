@@ -4,7 +4,7 @@ import sys
 
 from cryptobench.shared.device import timeouts
 from cryptobench.shared.device.adb import DeviceError
-from failure import one_line
+from cryptobench.shared.errors.line import one_line
 from cryptobench.shared import paths
 
 paths.add_energy_imports()
