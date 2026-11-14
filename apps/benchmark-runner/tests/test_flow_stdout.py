@@ -27,7 +27,11 @@ FLOWS = {
     "case_crash_retried": lambda tmp_path, monkeypatch: measured(tmp_path, monkeypatch, {"isolation": "case", "launchRetries": 1},
                                                                  cases=("a", "crash", "b"), crash=("crash",)),
     "energy_and_timing_passes": lambda tmp_path, monkeypatch: measured(tmp_path, monkeypatch, MEASURED),
+    "gate_energy_passes": lambda tmp_path, monkeypatch: (Heat(monkeypatch, start=35.7, rise=0.2, cooling=0.05),
+                                                         measured(tmp_path, monkeypatch, MEASURED | {"thermalGate": CASE["thermalGate"]})),
     "gate_discard": lambda tmp_path, monkeypatch: (Heat(monkeypatch, start=35.7, rise=0.4, cooling=0.05), measured(tmp_path, monkeypatch, CASE)),
+    "gate_cooldown": lambda tmp_path, monkeypatch: (Heat(monkeypatch), monkeypatch.setattr(flow.cooldown_hook.time, "sleep", lambda _s: None),
+                                                    measured(tmp_path, monkeypatch, CASE | {"caseCooldownSeconds": 4})),
     "run_isolation_warnings": lambda tmp_path, monkeypatch: (suppressed(monkeypatch), measured(
         tmp_path, monkeypatch, {"isolation": "run", "processRepetitions": 2, "warmup": {"iterations": 5, "jobs": [{"provider": "X", "type": "T", "name": "z"}]},
                                 "passes": {"energy": {"samples": 2}, "timing": {"samples": 2}}}, thermal=DUMP)),
