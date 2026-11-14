@@ -3,7 +3,7 @@ import re
 
 from cryptobench.shared.device import timeouts
 from failure import one_line
-from device.adb import ONE_PASSED
+from cryptobench.shared.device.adb import ONE_PASSED
 
 CASE_ARGUMENT = "case"   # CaseFilter.ARGUMENT
 LISTED = re.compile(r"^INSTRUMENTATION_STATUS: test=measure\[(.+)\]\s*$", re.M)

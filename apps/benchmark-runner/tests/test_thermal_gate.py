@@ -5,7 +5,7 @@ import pytest
 
 from stages import benchmark  # noqa: E402
 from device import thermal  # noqa: E402
-from device.adb import DeviceError  # noqa: E402
+from cryptobench.shared.device.adb import DeviceError  # noqa: E402
 from session import dynamic_temperature, thermal_hook  # noqa: E402
 from fake_phone import Phone  # noqa: E402
 from test_device_benchmark_flow import RUN, measured  # noqa: E402

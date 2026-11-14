@@ -2,7 +2,7 @@
 import zipfile
 
 from device import capture as captured, clocks
-from device.adb import PACKAGE
+from cryptobench.shared.device.adb import PACKAGE
 from cryptobench.shared import paths
 from cryptobench.shared.document.dump import dump_yaml
 

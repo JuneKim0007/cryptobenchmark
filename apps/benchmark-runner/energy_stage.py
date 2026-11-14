@@ -3,7 +3,7 @@ import sys
 
 
 from cryptobench.shared.device import timeouts
-from device.adb import DeviceError
+from cryptobench.shared.device.adb import DeviceError
 from failure import one_line
 from cryptobench.shared import paths
 

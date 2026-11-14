@@ -17,7 +17,7 @@ The instrumentation app that probes, prepares and measures on a device. Device r
 
 ## Device directories
 
-`DeviceDirectory.plan` (Kotlin) and `directories(sdk)` in `apps/benchmark-runner/device/adb.py` choose them; both read the API level.
+`DeviceDirectory.plan` (Kotlin) and `DeviceDirs(sdk)` in `lib/cryptobench/cryptobench/shared/paths/device_dirs.py` choose them; both read the API level.
 
 | API | plan directory | androidx output |
 |---|---|---|

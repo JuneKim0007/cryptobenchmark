@@ -7,7 +7,7 @@ import java.io.File
 
 /** One line per pinned case in cpu-pins.yaml: what was asked, and the core it ran on or why it did not. */
 object CorePins {
-    // Paired with apps/benchmark-runner/device/adb.py CPU_PINS.
+    // Paired with lib/cryptobench/cryptobench/shared/paths/names.py CPU_PINS.
 
     fun record(caseId: String, cpu: CpuSettings, outcome: CorePin.Outcome) {
         val result = when (outcome) {

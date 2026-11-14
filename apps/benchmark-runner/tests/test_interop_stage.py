@@ -4,7 +4,7 @@ import pytest
 import yaml
 
 from stages import interop_oracle as interop_stage  # noqa: E402
-from device.adb import DeviceError  # noqa: E402
+from cryptobench.shared.device.adb import DeviceError  # noqa: E402
 
 FILES = "/sdcard/plan"
 

@@ -10,9 +10,6 @@
 | `summarize_count(case, groups, metric)` | `apps/benchmark-runner/analysis/chart_model.py` | One case's runs of a count metric, as measured: no unit conversion. None when the case has no runs for it. | analyze, charts |
 | `variant(case)` | `apps/benchmark-runner/analysis/chart_model.py` | ' fixed' or ' notFixed' after a case's name, so an item's two variants never read as one; empty for a row without one. | analyze, chart_draw, chart_report |
 | `gradle_properties(bundled)` | `apps/benchmark-runner/bundled.py` | `[f"-PbundledArtifacts={','.join((entry['artifact'] for entry in bundled))}"] if bundled else []` | stages.benchmark, stages.check, stages.discover |
-| `ONE_PASSED` | `apps/benchmark-runner/device/adb.py` | `re.compile('^OK \\(1 test\\)', re.M)` | session.case_isolation, stages.interop_oracle |
-| `PASSED` | `apps/benchmark-runner/device/adb.py` | `re.compile('^OK \\(\\d+ tests?\\)', re.M)` | energy_session, session.measure, session.warmup, stages.check |
-| `instrumentation_report(output)` | `apps/benchmark-runner/device/adb.py` | - | energy_session, stages.check, stages.interop_oracle |
 | `read_runtime(path)` | `apps/benchmark-runner/device/capture.py` | `runtime(read_yaml(path))` | device.facts, device.identity |
 | `read(device)` | `apps/benchmark-runner/device/clocks.py` | `parse(device.shell(READ))` | device.facts, session.clocks_hook |
 | `capture_id(capture)` | `apps/benchmark-runner/device/identity.py` | `device_id(captured.read_runtime(capture))` | stages.discover, stages.harness, stages.interop |
@@ -57,12 +54,15 @@
 | `provider_builds()` | `lib/cryptobench/cryptobench/shared/catalogue/provider_builds.py` | `load()` | cryptobench.shared.catalogue.algorithms, cryptobench.shared.catalogue.guide_items, cryptobench.shared.catalogue.vectors, cryptobench.shared.catalogue.views |
 | `load(path)` | `lib/cryptobench/cryptobench/shared/catalogue/recipes.py` | - | cryptobench.shared.catalogue.algorithms, cryptobench.shared.catalogue.guide_items, cryptobench.shared.catalogue.vectors |
 | `view_for(identifier, provider, catalogue, builds)` | `lib/cryptobench/cryptobench/shared/catalogue/views.py` | provider: a build key "<name> @ <build>", or a name one build carries; none is the base entry. Only that build's differences apply; no other build's section is kept. | cryptobench.shared.catalogue.guide_items, cryptobench.shared.catalogue.vectors |
-| `run(step, command)` | `lib/cryptobench/cryptobench/shared/device/timeouts.py` | - | device.adb, gradle_runner, scope.compile, stages.benchmark |
+| `ONE_PASSED` | `lib/cryptobench/cryptobench/shared/device/adb.py` | `re.compile('^OK \\(1 test\\)', re.M)` | session.case_isolation, stages.interop_oracle |
+| `PASSED` | `lib/cryptobench/cryptobench/shared/device/adb.py` | `re.compile('^OK \\(\\d+ tests?\\)', re.M)` | energy_session, session.measure, session.warmup, stages.check |
+| `instrumentation_report(output)` | `lib/cryptobench/cryptobench/shared/device/adb.py` | - | energy_session, stages.check, stages.interop_oracle |
+| `run(step, command)` | `lib/cryptobench/cryptobench/shared/device/timeouts.py` | - | cryptobench.shared.device.adb, gradle_runner, scope.compile, stages.benchmark |
 | `parse_yaml(text, where, code, shape, error)` | `lib/cryptobench/cryptobench/shared/document/document.py` | An empty text is an empty shape; YAML that does not parse, or parses to another shape, is `<code>: <where>: ...`. | facade.index, results.manifest, stages.config_check, stages.discover |
 | `read_yaml(path, shape)` | `lib/cryptobench/cryptobench/shared/document/document.py` | The file at path as parse_yaml reads it. | bundled, chart_input, cryptobench.shared.catalogue.interchange, device.capture +15 |
 | `dump_yaml(doc, profile)` | `lib/cryptobench/cryptobench/shared/document/dump.py` | `yaml.safe_dump(doc, **profile)` | chart_report, device.clocks, device.facts, results.manifest +1 |
 | `code_in(text)` | `lib/cryptobench/cryptobench/shared/errors/coded.py` | - | cryptobench.shared.errors.failures, cryptobench.shared.errors.input_error |
-| `android_home()` | `lib/cryptobench/cryptobench/shared/paths/host.py` | `Path(os.environ.get('ANDROID_HOME') or home() / 'Library/Android/sdk')` | device.adb, energy_stage, scope.compile |
+| `android_home()` | `lib/cryptobench/cryptobench/shared/paths/host.py` | `Path(os.environ.get('ANDROID_HOME') or home() / 'Library/Android/sdk')` | cryptobench.shared.device.adb, energy_stage, scope.compile |
 | `add_energy_imports()` | `lib/cryptobench/cryptobench/shared/paths/imports.py` | The runner imports energy's capture rules and sources; appended, so the runner's own modules keep their names. | dependencies, energy_stage |
 | `repo(root)` | `lib/cryptobench/cryptobench/shared/paths/repo.py` | `Repo(Path(root) if root is not None else roots.code_root())` | cryptobench.shared.catalogue.algorithms, cryptobench.shared.catalogue.deviations, cryptobench.shared.catalogue.families, cryptobench.shared.catalogue.glossary +22 |
 | `code_root()` | `lib/cryptobench/cryptobench/shared/paths/roots.py` | $CRYPTOBENCH_CODE_ROOT, else the checkout of the script that runs, else this library's own; a script of checkout B beats a library installed from A. | cryptobench.shared.paths.repo, dead_code, facade.phases, lint.tree +6 |

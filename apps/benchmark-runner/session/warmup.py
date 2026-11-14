@@ -6,7 +6,7 @@ from cryptobench.shared.device import timeouts
 from session import case_isolation
 from session import dynamic_temperature, passes
 from device import thermal
-from device.adb import PASSED, DeviceError
+from cryptobench.shared.device.adb import PASSED, DeviceError
 
 DEFAULT_CASES = 3
 WARMUP_PASS = "warmup"   # PassArguments: any pass but energy and allocation captures no energy

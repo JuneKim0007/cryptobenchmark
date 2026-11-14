@@ -6,7 +6,7 @@ import io.github.junekim0007.cryptobench.files.Folders
 import java.io.File
 
 // adb shell cannot read Android/data on API 30, so from API 29 (androidx's own output rule) use the media directory.
-// Paired with apps/benchmark-runner/device/adb.py directories.
+// Paired with lib/cryptobench/cryptobench/shared/paths/device_dirs.py DeviceDirs.
 internal object DeviceDirectory {
 
     @Suppress("DEPRECATION")

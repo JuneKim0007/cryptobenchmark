@@ -2,7 +2,7 @@
 import dataclasses, re
 
 from cryptobench.shared.device import timeouts
-from device.adb import DeviceError
+from cryptobench.shared.device.adb import DeviceError
 
 TEMPERATURE = re.compile(r"Temperature\{mValue=([^,]+), mType=(-?\d+), mName=([^,}]+), mStatus=-?\d+\}")
 SKIN_TYPE = 3   # android.hardware.thermal TemperatureType.SKIN

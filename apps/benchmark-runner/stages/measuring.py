@@ -2,7 +2,7 @@
 import dataclasses, pathlib, time
 
 import effective_view, gradle_runner
-from device.adb import Device, measure_arguments
+from cryptobench.shared.device.adb import Device, measure_arguments
 from energy_session import EnergySession
 from session import clocks_hook, cooldown_hook, dynamic_temperature, thermal_hook
 from stages.took import elapsed

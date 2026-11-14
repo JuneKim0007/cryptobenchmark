@@ -1,7 +1,7 @@
 """Perfetto sessions on the device for energy; rails are read by apps/benchmark-runner/energy, this only starts, stops and pulls."""
 
 from cryptobench.shared import paths
-from device.adb import NO_DEFAULT_PROFILER, PASSED, DeviceError, instrumentation_report
+from cryptobench.shared.device.adb import NO_DEFAULT_PROFILER, PASSED, DeviceError, instrumentation_report
 
 TRACES, SCRATCH = paths.DeviceDirs.TRACES, paths.DeviceDirs.SCRATCH
 

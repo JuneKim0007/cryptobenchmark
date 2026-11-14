@@ -49,7 +49,6 @@ apps/benchmark-runner/bundled.py : providers.bundled of global.yaml: the digest'
 apps/benchmark-runner/demo.sh : one-command host demo run into results/demo/<device_id>
 apps/benchmark-runner/dependencies.py : the host modules a run needs, checked at its start; a missing one is one coded line and exit 1
 apps/benchmark-runner/device/__init__.py : package of the attached device's reads: adb, id, clocks, temperatures, facts
-apps/benchmark-runner/device/adb.py : adb steps of a --device run: identity by getprop, install, probe, push, AOT compile, instrument and its OK line, clear, pull, scope check
 apps/benchmark-runner/device/capture.py : a capture's runtime block, its schema version checked
 apps/benchmark-runner/device/clocks.py : per-core cpufreq over adb; clocks.yaml and cpuLocked
 apps/benchmark-runner/device/facts.py : device facts into discovery/facts.yaml

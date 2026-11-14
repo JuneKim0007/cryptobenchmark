@@ -17,6 +17,7 @@ from rails import trace
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 RUNNER = ROOT / "apps/benchmark-runner"
+DEVICE = ROOT / "lib/cryptobench/cryptobench/shared/device"
 KM = ROOT / "apps/benchmark/modules"
 AT = KM / "android/src/androidTest/kotlin/io/github/junekim0007/cryptobench"
 CLI = ROOT / "apps/benchmark/cli/src/main/kotlin"
@@ -43,11 +44,12 @@ def listed(text):
 
 
 def runner_strings():
-    """Every string constant in the runner's production Python."""
+    """Every string constant in the runner's production Python, the device steps it runs from the library included."""
     found = set()
-    for path in RUNNER.rglob("*.py"):
-        if {"tests", "__pycache__"}.isdisjoint(path.relative_to(RUNNER).parts):
-            found |= {n.value for n in ast.walk(ast.parse(path.read_text())) if isinstance(n, ast.Constant) and isinstance(n.value, str)}
+    for root in (RUNNER, DEVICE):
+        for path in root.rglob("*.py"):
+            if {"tests", "__pycache__"}.isdisjoint(path.relative_to(root).parts):
+                found |= {n.value for n in ast.walk(ast.parse(path.read_text())) if isinstance(n, ast.Constant) and isinstance(n.value, str)}
     return found
 
 
@@ -84,7 +86,7 @@ def test_metric_keys_of_benchmark_json():
 def test_instrumentation_arguments():
     assert case_isolation.CASE_ARGUMENT == const(AT / "CaseFilter.kt", "ARGUMENT")
     assert check.DRY_RUN == ["-e", const(AT / "EndToEndCheck.kt", "DRY_RUN"), "true"]
-    assert const(AT / "DeviceProbe.kt", "HOST_MILLIS") == "hostMillis" and '"DeviceProbe", "-e", "hostMillis"' in (RUNNER / "device/adb.py").read_text()
+    assert const(AT / "DeviceProbe.kt", "HOST_MILLIS") == "hostMillis" and '"DeviceProbe", "-e", "hostMillis"' in (DEVICE / "adb.py").read_text()
     assert bundled.KEY == const("environment/discovery/src/main/kotlin/bundled/BundledProviders.kt", "KEY")
 
 

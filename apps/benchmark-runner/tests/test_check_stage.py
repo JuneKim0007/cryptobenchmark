@@ -5,7 +5,7 @@ import pytest
 import yaml
 
 from stages import check  # noqa: E402
-from device.adb import DeviceError  # noqa: E402
+from cryptobench.shared.device.adb import DeviceError  # noqa: E402
 import gradle_runner  # noqa: E402
 
 FILES = "/sdcard/plan"

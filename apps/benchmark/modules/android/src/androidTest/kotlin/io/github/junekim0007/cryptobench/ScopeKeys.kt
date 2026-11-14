@@ -16,7 +16,7 @@ import java.security.spec.X509EncodedKeySpec
 
 /** Key pairs for generated scopes: from the key planner once per run and kept on the device; each side decodes the same bytes through its own provider. */
 object ScopeKeys {
-    // Paired with apps/benchmark-runner/device/adb.py SCOPE_KEYS; ScopedInterop's run starts without it.
+    // Paired with lib/cryptobench/cryptobench/shared/paths/device_dirs.py SCOPE_KEYS; ScopedInterop's run starts without it.
 
     private val pairs = HashMap<String, KeyPair>()
 

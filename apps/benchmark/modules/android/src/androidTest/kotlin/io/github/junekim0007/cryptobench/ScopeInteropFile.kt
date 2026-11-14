@@ -5,7 +5,7 @@ import java.io.File
 
 /** scoped-interop.yaml: one line per scope with its interop verdict. */
 object ScopeInteropFile {
-    // Paired with apps/benchmark-runner/device/adb.py SCOPED_INTEROP.
+    // Paired with lib/cryptobench/cryptobench/shared/paths/names.py SCOPED_INTEROP.
 
     fun write(directory: File, verdicts: List<ScopeCheck.Verdict>) {
         val lines = verdicts.joinToString("") { v ->

@@ -4,7 +4,7 @@ import json, types
 import pytest
 import yaml
 
-from device.adb import DeviceError  # noqa: E402
+from cryptobench.shared.device.adb import DeviceError  # noqa: E402
 from cryptobench.shared.errors.failures import EnergyError  # noqa: E402
 from session import clocks_hook, cooldown_hook  # noqa: E402
 from stages import benchmark  # noqa: E402
