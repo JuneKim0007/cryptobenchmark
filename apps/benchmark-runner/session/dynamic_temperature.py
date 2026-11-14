@@ -6,9 +6,10 @@ from device import thermal
 from failure import warn
 from cryptobench.shared.stats import equations as eq
 from cryptobench.shared.errors.coded import Coded
+from cryptobench.shared.errors.glossary import STOP
+from cryptobench.shared.errors.policy import resolve
 
 SECONDS_PER_MINUTE = 60
-STOP = "stop"
 UNREADABLE = "unreadable"
 
 
@@ -152,7 +153,7 @@ class DynamicTemperature:
 
     def discard_limit_reached(self, case):
         line = f"temperature_discard_limit: {case}: {self.settings.discard_limit} runs discarded"
-        if self.settings.on_discard_limit == STOP:
+        if resolve("temperature_discard_limit", self.settings.on_discard_limit) == STOP:
             raise Terminated(line + "; benchmark stopped")
         warn(line + "; moving to the next case", self.problems)
         return f"case_failed: {line}"
