@@ -2,7 +2,7 @@
 import re
 
 from cryptobench.shared import paths
-from cryptobench.shared.errors.failures import Stop
+from cryptobench.shared.errors.failures import CommandError
 
 CAPTURE = re.compile(r"probe_(\d{8}T\d{6}Z)\.yaml")
 
@@ -19,7 +19,7 @@ def pair(capture):
     """The trial written with this capture: the same stamp, never another trial in the folder."""
     trial = paths.Discovery(capture.parent).trial(_stamp(capture))
     if not trial.is_file():
-        raise Stop(f"missing_file: {trial} (the trial of {capture.name})")
+        raise CommandError(f"missing_file: {trial} (the trial of {capture.name})")
     return capture, trial
 
 
@@ -32,7 +32,7 @@ def added(directory, before):
     """The one capture a device probe added to directory beside those already there."""
     new = sorted(stamped(directory) - before)
     if len(new) != 1:
-        raise Stop(f"missing_file: {directory}/probe_<stamp>.yaml (the probe added {len(new)} captures, expected 1: {new})")
+        raise CommandError(f"missing_file: {directory}/probe_<stamp>.yaml (the probe added {len(new)} captures, expected 1: {new})")
     return pair(directory / new[0])
 
 
@@ -40,7 +40,7 @@ def printed(lines, directory):
     """The capture ProbeKt names on stdout, written or reused."""
     names = [line for line in lines if CAPTURE.fullmatch(line.rsplit("/", 1)[-1])]
     if len(names) != 1:
-        raise Stop(f"missing_file: {directory}/probe_<stamp>.yaml (ProbeKt named {len(names)} captures)")
+        raise CommandError(f"missing_file: {directory}/probe_<stamp>.yaml (ProbeKt named {len(names)} captures)")
     return pair(directory / names[0].rsplit("/", 1)[-1])
 
 

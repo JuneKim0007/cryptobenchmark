@@ -34,20 +34,20 @@ def _missing(module, python=sys.executable):
 
 def require(module, python=sys.executable):
     if line := _missing(module, python):
-        raise Stop(line)
+        raise CommandError(line)
 
 
 def require_energy(source_name, python=sys.executable):
     require(ENERGY[source_name], python)
 
 
-# Stop needs cryptobench, so the import-time check stops the way an entry point does
+# CommandError needs cryptobench, so the import-time check stops the way an entry point does
 for _module in BASE:
     if _line := _missing(_module):
         fail(_line)
 
 from cryptobench.shared import paths  # noqa: E402
-from cryptobench.shared.errors.failures import Stop  # noqa: E402
+from cryptobench.shared.errors.failures import CommandError  # noqa: E402
 from global_file import global_config  # noqa: E402
 
 paths.add_energy_imports()

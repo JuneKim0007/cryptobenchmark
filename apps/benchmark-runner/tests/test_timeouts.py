@@ -46,7 +46,7 @@ KNOWN = [
     "device.adb.DeviceError", "device.identity.DeviceIdError", "device.capture.CaptureError", "cryptobench.shared.errors.failures.EnergyError",
     "bundled.BundledError", "stages.config_check.ConfigCheckError", "scope.results.ScopeResultError", "scope.code_digest.CodeDigestError",
     "timeouts.StepTimeout", "session.dynamic_temperature.Terminated", "cryptobench.shared.errors.input_error.InputError",
-    "cryptobench.shared.errors.failures.Stop"]
+    "cryptobench.shared.errors.failures.CommandError"]
 
 
 def _class(name):

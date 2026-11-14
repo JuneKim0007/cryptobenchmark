@@ -3,7 +3,7 @@ import pathlib
 
 import yaml
 
-from cryptobench.shared.errors.failures import Stop
+from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared import paths
 from cryptobench.shared.document.document import read_yaml
 
@@ -32,14 +32,14 @@ def required(document, path):
     for key in path.split("."):
         value = value.get(key) if isinstance(value, dict) else None
         if value is None:
-            raise Stop(f"missing_field: {path} in effective.yaml")
+            raise CommandError(f"missing_field: {path} in effective.yaml")
     return value
 
 
 def metrics(document):
     listed = required(document, "run.metrics")
     if not listed:
-        raise Stop("missing_field: run.metrics in effective.yaml")
+        raise CommandError("missing_field: run.metrics in effective.yaml")
     return listed
 
 

@@ -4,7 +4,7 @@ import subprocess, sys, time
 import bundled, dependencies, effective_view, energy_stage, gradle_runner, timeouts
 from energy_session import EnergySession
 from failure import one_line, warn
-from cryptobench.shared.errors.failures import Stop
+from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared import paths
 from session import case_isolation, energy_hook, passes, variant_order, warmup
 from session import measure as measure_session
@@ -85,7 +85,7 @@ def measure_cases(options, device, results, discovery, effective, capture, trial
     repetitions, captures = effective_view.process_repetitions(document), energy_stage.captures(effective)
     timed = bool(captures - {"dry"})
     if captures - {"none"} and not device:
-        raise Stop("energy: only a --device run captures energy; set harness.energy.capture none for --bench")
+        raise CommandError("energy: only a --device run captures energy; set harness.energy.capture none for --bench")
     if captures - {"none"}:
         # the effective config holds the captures a test set turned on, which the first check could not see
         dependencies.require_energy(energy_stage.source_name(effective), options.energy_python)
@@ -149,7 +149,7 @@ def host_cases(options, document, capture, trial, effective, benchmark, preparat
 def kept(into, message, problems):
     """BenchKt writes each case's row as it finishes: when it dies, the rows it wrote are this run's, and its failure one problem line."""
     if not (paths.Measurement(into).json).is_file():
-        raise Stop(message)
+        raise CommandError(message)
     line = f"bench_failed: {one_line(message)}"
     print(f"warning: {line}")
     problems.append(line)

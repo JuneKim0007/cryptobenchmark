@@ -14,11 +14,11 @@ def fail(message):
 
 @contextlib.contextmanager
 def reported():
-    """A Stop as fail() prints it; Stop is imported here because dependencies.py imports this file before it checks for cryptobench."""
-    from cryptobench.shared.errors.failures import Stop
+    """A CommandError as fail() prints it; CommandError is imported here because dependencies.py imports this file before it checks for cryptobench."""
+    from cryptobench.shared.errors.failures import CommandError
     try:
         yield
-    except Stop as error:
+    except CommandError as error:
         fail(str(error))
 
 
