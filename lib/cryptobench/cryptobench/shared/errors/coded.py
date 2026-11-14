@@ -19,7 +19,7 @@ def code_of(e: BaseException) -> str | None:
 
 
 class Coded(Exception):
-    """A failure whose message is its own coded line; not a ValueError, so `except ValueError` never catches it for this."""
+    """A failure whose message is its own coded line; Coded adds no ValueError base."""
 
     # a `.code` set by the class or its __init__ wins over this reading of the message
     @cached_property

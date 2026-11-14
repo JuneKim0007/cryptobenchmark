@@ -19,7 +19,7 @@ def first_line(text: str) -> str:
     return LEADS_IN.sub("", (text or "").split("\n", 1)[0].strip())
 
 
-def code_of(text: str, fallback: str) -> str:
+def code_in_line(text: str, fallback: str) -> str:
     """The code word a detail starts with (`no_options: ...`, `missing_device_stage ...`), else fallback."""
     found = CODE.match(first_line(text))
     return (found.group(1) or found.group(2)) if found else fallback
@@ -54,7 +54,7 @@ def last_error(text: str) -> str:
 def _target(e: Event) -> str | None:
     if e.data.get("reported"):
         return None
-    code = e.data.get("code") or (code_of(e.detail, e.outcome) if e.outcome == "stop" else e.outcome)
+    code = e.data.get("code") or (code_in_line(e.detail, e.outcome) if e.outcome == "stop" else e.outcome)
     rest = after_code(e.detail, code)
     at = AT_STEP.match(rest)
     subject = f"app {e.app}" + (f" at {at.group(1)}" if at else "")
@@ -64,14 +64,14 @@ def _target(e: Event) -> str | None:
 def _guide_stop(e: Event) -> str | None:
     if e.data.get("reported"):
         return None
-    code = e.data.get("code") or code_of(e.detail, e.outcome)
+    code = e.data.get("code") or code_in_line(e.detail, e.outcome)
     return line(code, f"guide {e.step}", after_code(e.detail, code) + last_error(e.detail))
 
 
 def _device(e: Event) -> str | None:
     if e.data.get("reported"):
         return None
-    code = code_of(e.detail.split(": ", 1)[-1], e.outcome) if e.outcome == "failed" else e.outcome
+    code = code_in_line(e.detail.split(": ", 1)[-1], e.outcome) if e.outcome == "failed" else e.outcome
     return line(code, f"device {e.step}", first_line(e.detail) + last_error(e.detail))
 
 
@@ -104,7 +104,7 @@ def _finding(e: Event) -> str:
 
 
 def _error(e: Event) -> str:
-    code = e.data.get("code") or code_of(e.detail, "error")
+    code = e.data.get("code") or code_in_line(e.detail, "error")
     return line(code, "error", after_code(e.detail, code))
 
 

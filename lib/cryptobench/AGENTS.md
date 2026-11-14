@@ -34,7 +34,7 @@ cryptobench/shared/catalogue/views.py : what an agent is shown: one entry with o
 cryptobench/shared/document/__init__.py : package of the YAML document reader
 cryptobench/shared/document/document.py : parse_yaml, a YAML text as its one shape (a mapping unless named) or invalid_yaml at its line and column; DocumentKind: a versioned document's accepted schemaVersion (one or several), its reader's refusal text and error type; check, the one schemaVersion check every reader calls
 cryptobench/shared/errors/__init__.py : package of the coded errors, importing nothing from the repo
-cryptobench/shared/errors/coded.py : CODE and code_in, the code word a failure message starts with; code_of, the code a failure carries as `.code`; Coded, the marker of a failure whose message is its coded line (not a ValueError)
+cryptobench/shared/errors/coded.py : CODE and code_in, the code word a failure message starts with; code_of, the code a failure carries as `.code`; Coded, the marker of a failure whose message is its coded line (adds no ValueError base)
 cryptobench/shared/errors/failures.py : AgentFailed (a provider's one coded failure line), GateError (the app gate's coded reasons), BenchmarkRunError (a pipeline.py run that failed), each on its own base; EnergyError (an energy source failed), one class whichever name energy/sources loads under
 cryptobench/shared/errors/codes.yaml : the glossary: every code once with its kind and default action, an alias setting's values, perf-repair's stops.<code> entry
 cryptobench/shared/errors/glossary.py : codes.yaml read through importlib.resources; Code: one code's default action, the actions stops.<code> may choose (none: fixed, and why), exit and next step; the actions stop, warn

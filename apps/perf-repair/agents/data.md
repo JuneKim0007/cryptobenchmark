@@ -116,7 +116,7 @@ src/perfrepair/log/emit.py : emit(): one event as a log record; step(): a timed 
 src/perfrepair/log/progress.py : Progress: the line watch prints per event; a running counter per model step (done/pending, rejected, cost, elapsed)
 src/perfrepair/log/read.py : events.jsonl through read_jsonl, read whole or followed, whole lines only; `events_unreadable`
 src/perfrepair/log/sink.py : EventSink: each perfrepair record as an Event line in events.jsonl, then its view lines; records before the folder is known kept in order; append_repaired and log_dropped, its own two notices; a data value JSON cannot write kept as text
-src/perfrepair/log/status.py : the status view: one line per outcome (run header and end, app targets, device stages, guide stops, terminate's findings, errors, bugs), each starting with its code word, data.code before the detail's first word; a line already written by terminate is not repeated; a pointer finding is its detail; code_of and line, the one parser and formatter
+src/perfrepair/log/status.py : the status view: one line per outcome (run header and end, app targets, device stages, guide stops, terminate's findings, errors, bugs), each starting with its code word, data.code before the detail's first word; a line already written by terminate is not repeated; a pointer finding is its detail; code_in_line and line, the one parser and formatter
 src/perfrepair/log/stderr.py : the stderr handler: INFO and above, event records left out
 src/perfrepair/log/summary.py : summarize(): the chosen runs per stage and per app folder: time, step durations, items, decisions, model calls, rejections, top problems, slowest items, tokens, cost; their status lines
 src/perfrepair/log/summary_text.py : the summary as text lines, `status:` last

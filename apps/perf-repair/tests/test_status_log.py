@@ -14,7 +14,7 @@ from perfrepair.dto.event import BUG, END, ERROR, FINDING, RUN_END, RUN_START, E
 from perfrepair.log import attach
 from perfrepair.log.attach import SINK
 from perfrepair.log.read import read_events
-from perfrepair.log.status import code_of, status_line
+from perfrepair.log.status import code_in_line, status_line
 from perfrepair.log.views import render
 
 
@@ -26,7 +26,7 @@ def ev(stage, step, event, **kw):
     ("no_options: none of 3 scopes", "no_options"), ("missing_device_stage at grouping", "missing_device_stage"),
     ("bug: x", "bug"), ("pipeline exited 1 (device)", "fallback"), ("none of 46 scopes", "fallback"), ("", "fallback")])
 def test_a_code_is_an_underscored_word_or_a_word_before_a_colon(text, code):
-    assert code_of(text, "fallback") == code
+    assert code_in_line(text, "fallback") == code
 
 
 def test_each_line_kind_starts_with_its_code_word():
