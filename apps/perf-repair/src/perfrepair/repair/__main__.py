@@ -6,7 +6,6 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-
 from cryptobench.shared.paths import AppTree, RunTree
 from ..app.facts.path_id import absolute, app_id
 from ..dto.replacement import Replacement, read_replacements

@@ -6,7 +6,6 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
-
 from cryptobench.shared.paths import BENCHMARK_JSON, RunTree
 from ..dto.dossier import SETUP_DRIFT
 from ..files import json_text, read_json, read_yaml, write_text_making_parents

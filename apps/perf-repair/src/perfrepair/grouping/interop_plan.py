@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from itertools import combinations
 
-
 from cryptobench.shared.paths import GroupingTree
 from .. import run_dir as rd
 from cryptobench.shared.catalogue.names import same_engine

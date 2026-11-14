@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-
 from cryptobench.shared.paths import RunTree
 from cryptobench.shared.paths import BENCHMARK_COVERAGE
 from ..dto.benchmark_coverage import Coverage, coverage_document

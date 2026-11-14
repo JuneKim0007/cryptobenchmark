@@ -6,7 +6,6 @@ import time
 from dataclasses import replace
 from pathlib import Path
 
-
 from cryptobench.shared.paths import DEVICE, AppTree, RunTree
 from cryptobench.shared.errors.input_error import InputError
 from ..dto.device import DeviceRecord

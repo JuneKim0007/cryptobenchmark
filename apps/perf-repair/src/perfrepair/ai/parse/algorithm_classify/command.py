@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-
 from cryptobench.shared.paths import GroupingTree
 from ....dto.classify import UNSURE, Batch, batch_ids, batches_document, read_batches
 from ....dto.prompt import TaskPrompt

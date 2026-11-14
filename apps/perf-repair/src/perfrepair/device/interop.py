@@ -6,7 +6,6 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
-
 from cryptobench.shared.paths import GroupingTree, RunTree
 from .. import run_dir as rd
 from ..data_handler.inbound import manifest_file, read_manifest

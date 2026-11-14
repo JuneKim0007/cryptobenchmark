@@ -2,7 +2,6 @@
 before any model step; and the stop each path entry that is no app ends with."""
 from __future__ import annotations
 
-
 from cryptobench.shared.paths import RunTree
 from ..app.facts.path_id import path_id
 from ..app.facts.target_set import MISSING, Skipped

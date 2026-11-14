@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-
 from cryptobench.shared.paths import GroupingTree
 from ...dto.grouping_output import checks_document
 from ...files import write_json

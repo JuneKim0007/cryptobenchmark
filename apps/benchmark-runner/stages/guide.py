@@ -1,7 +1,6 @@
 """After effective.yaml says what runs: picks exactly those items from the implementation guide, beside it, for preparation."""
 import pathlib
 
-
 from cryptobench.shared import paths
 from cryptobench.shared.catalogue.guide_items import guide_items
 from cryptobench.shared.catalogue import vectors

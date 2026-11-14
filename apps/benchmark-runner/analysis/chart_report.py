@@ -1,7 +1,6 @@
 """The text a run leaves beside its charts: the summary table, the data the charts plot, and the manifest."""
 import json
 
-
 from chart_model import AUDIT_TOLERANCE, short, size_label, variant
 from cryptobench.shared import paths
 from cryptobench.shared.document.dump import dump_yaml

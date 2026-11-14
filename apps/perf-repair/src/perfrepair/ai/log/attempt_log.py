@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-
 from cryptobench.shared.paths import RunTree
 from cryptobench.shared.document.document import DocumentKind
 from ...dto.event import DECISION

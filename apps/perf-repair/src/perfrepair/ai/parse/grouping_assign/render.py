@@ -1,7 +1,6 @@
 """One item's message: one YAML block of its family, the family's groups and the item, each with the facts code knows."""
 from __future__ import annotations
 
-
 from cryptobench.shared.catalogue.groups import group_catalog
 from cryptobench.shared.catalogue.interchange import KEY, interchange
 from cryptobench.shared.catalogue.grouping import KEY_LABELS, Family, Item, Profile

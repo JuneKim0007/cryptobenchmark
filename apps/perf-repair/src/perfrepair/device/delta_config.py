@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-
 from cryptobench.shared import paths
 from ..dto.benchmark_coverage import PARTIAL, VARIANT_MISSING, Gap
 from cryptobench.shared.catalogue.grouping import parse_qualified

@@ -5,7 +5,6 @@ from __future__ import annotations
 from collections.abc import Callable, Iterable
 from pathlib import Path
 
-
 from cryptobench.shared.paths import RunTree
 from cryptobench.shared.paths import PRIMITIVES_MISSING
 from ..dto.event import FINDING

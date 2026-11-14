@@ -5,7 +5,6 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Callable
 
-
 from cryptobench.shared.paths import RunTree
 from cryptobench.shared.paths import BUNDLED_SUGGESTIONS
 from ..catalog.bundled_providers import BUNDLED_PROVIDERS, BundledCatalog

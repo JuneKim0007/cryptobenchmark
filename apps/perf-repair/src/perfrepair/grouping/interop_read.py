@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-
 from cryptobench.shared.paths import GroupingTree
 from ..dto.interop import PairResult, not_checkable_results
 from ..files import read_yaml

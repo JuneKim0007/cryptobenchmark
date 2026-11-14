@@ -7,7 +7,6 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 
-
 from cryptobench.shared.paths import RunTree
 from .. import run_dir as rd
 from ..data_handler.inbound import (
