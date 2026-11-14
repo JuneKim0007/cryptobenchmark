@@ -11,8 +11,8 @@ REPO = pathlib.Path(__file__).resolve().parents[2]
 PYTHON = ("apps/benchmark-runner", "apps/perf-repair/src", "apps/cli", "lib/cryptobench")
 KOTLIN = "apps/benchmark"
 HOLE = "\ue000"
-# a text's leading word, `{...}` as a hole; it is a code when underscored, or one word before a colon
-LEADING = re.compile(rf"^([a-z{HOLE}][a-z0-9_{HOLE}]*)([:; ]|$)")
+# a text's leading word, `{...}` as a hole, before a colon, a semicolon or the end; a code when underscored, or one word
+LEADING = re.compile(rf"^([a-z{HOLE}][a-z0-9_{HOLE}]*)([:;]|$)")
 REPORTERS = {"fail", "warn", "guarded", "terminate", "halt", "halt_of", "warning", "exit"}
 PREFIX = re.compile(r"^(?:warning|error|skipped|facade(?: [a-z]+)?): ")
 KOTLIN_LITERAL = re.compile(r'"((?:[^"\\$]|\\.|\$\{[^}]*\}|\$)*)"')
