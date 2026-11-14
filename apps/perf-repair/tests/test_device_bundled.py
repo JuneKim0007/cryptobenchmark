@@ -11,7 +11,7 @@ from perfrepair.device.bundled_config import bundled_config, configured, harness
 from perfrepair.device.bundled_missing import missing_set
 from perfrepair.device.bundled_suggest import suggest
 from perfrepair.dto.bundled import OFF, BundledPolicy, Coordinate, MissingProvider, entries_digest
-from perfrepair.dto.version import newest
+from cryptobench.shared.versions.order import newest
 from perfrepair.inputs.check import check_from_apps
 from perfrepair.validation.bundled import validate_suggestions
 
@@ -91,6 +91,12 @@ def test_each_bad_suggestions_file_names_its_problem_first(change, problem):
 def test_newest_follows_gradle_order_over_pinned_versions_only():
     assert newest(["1.9", "1.10", "1.+", None, "$v"]) == "1.10" and newest([None]) is None
     assert entries_digest([]) is None and entries_digest([{"a": 1}]) == entries_digest([{"a": 1}])
+
+
+def test_newest_today_ranks_a_qualifier_above_its_release_known_bug_fixed_in_1c():
+    # pins today's order, not Gradle's: 1-C fixes it and changes these two asserts
+    assert newest(["2.5.2", "2.5.2-rc1"]) == "2.5.2-rc1"
+    assert newest(["1.1.a", "1.1.1"]) == "1.1.a"
 
 
 def test_a_bare_off_in_yaml_is_off_with_no_warning():

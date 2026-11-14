@@ -36,7 +36,6 @@
 | `shipped_names(app_doc)` | `src/perfrepair/dto/shipped.py` | `{s.providerName for s in shipped(app_doc) if s.providerName}` | app.__main__, device.missing_rows, repair.dossier, result.dossier |
 | `read_units(doc)` | `src/perfrepair/dto/unit.py` | - | check.apps, repair.__main__, repair.dossier, report.app_report |
 | `units_by_scope(units)` | `src/perfrepair/dto/unit.py` | `{member: u for u in units for member in u.members}` | repair.edit.app, repair.harness, report.app_report, result.unit_dossiers |
-| `newest(versions)` | `src/perfrepair/dto/version.py` | - | app.facts.versions, device.bundled_suggest, dto.bundled |
 | `reported(step)` | `src/perfrepair/failure.py` | step's exit code when it returns one, else 0; a FAILURES exception is `error <it>` on stderr and its code's exit. | ai.__main__, app.__main__, data_handler.inbound.__main__, grouping.__main__ +6 |
 | `json_text(doc)` | `src/perfrepair/files.py` | `json.dumps(doc, indent=1)` | ai.runtime.engine.kind, ai.select.replay, ai.select.units, ai.select.upgrades +2 |
 | `read_json(path)` | `src/perfrepair/files.py` | `json.loads(read_text(path))` | ai.parse.algorithm_classify.command, ai.parse.grouping_assign.kind, ai.runtime.engine.charter_file, ai.runtime.engine.outbox +30 |

@@ -6,7 +6,7 @@ import hashlib
 import json
 from dataclasses import asdict, dataclass, field
 
-from .version import newest
+from cryptobench.shared.versions.order import newest
 
 SCHEMA_VERSION = 1
 OFF, SUGGEST, APPLY = "off", "suggest", "apply"

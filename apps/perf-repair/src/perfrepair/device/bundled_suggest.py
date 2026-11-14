@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import replace
 
 from ..catalog.bundled_providers import BundledCatalog
-from ..dto.version import newest
+from cryptobench.shared.versions.order import newest
 from ..dto.bundled import (NAME_TAKEN, NO_CATALOG_ROW, NO_COORDINATES, NO_PINNED_VERSION, Coordinate, MissingProvider,
                            Suggestion, Suggestions)
 

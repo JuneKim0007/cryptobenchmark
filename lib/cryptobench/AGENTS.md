@@ -63,5 +63,7 @@ cryptobench/shared/stats/__init__.py : package of how a benchmark session decide
 cryptobench/shared/stats/equations.py : every calculation the temperature gate and the run count use; no I/O
 cryptobench/shared/stats/stats.py : one definition of each per-case statistic: mean, sample SD, CoV, interpolated quantiles, IQR, QCD; which one leads
 cryptobench/shared/stats/units.py : DisplayUnits: nanoseconds per call in the chosen latency and throughput units; significant-figure numbers
+cryptobench/shared/versions/__init__.py : package of dependency versions
+cryptobench/shared/versions/order.py : a Gradle version: pinned or not; newest of several
 pyproject.toml : the shared library's package metadata
 ```

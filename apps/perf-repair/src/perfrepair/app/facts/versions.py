@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from ...dto.version import newest
+from cryptobench.shared.versions.order import newest
 
 _LITERAL = re.compile(r"""["']([\w.\-]+):([\w.\-]+):([^"'\s:@]+)(?:@\w+)?["']""")
 _VERSION = r"""(?:version\s*[:=]\s*["']([^"']+)["']|version\.ref\s*=\s*["']([^"']+)["'])"""
