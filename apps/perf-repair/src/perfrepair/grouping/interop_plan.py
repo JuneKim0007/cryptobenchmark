@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from itertools import combinations
 
-import yaml
 
 from cryptobench.shared.paths import GroupingTree
 from .. import run_dir as rd
@@ -15,6 +14,7 @@ from cryptobench.shared.errors.validation import require
 from ..validation.grouping.interop import validate_plan
 from ..validation.grouping.output import read_groups
 from .report.rules import common_key_sizes
+from cryptobench.shared.document.dump import dump_yaml
 
 
 ACROSS_KEY_CONTRACTS = "one key is application-held, the other inside the provider: a key cannot cross"
@@ -72,5 +72,5 @@ def plan_for(paths: GroupingTree, sites: frozenset[str] | None = None) -> dict:
 def write_plan(paths: GroupingTree, sites: frozenset[str] | None = None) -> list[PlannedPair]:
     document = plan_for(paths, sites)
     require("grouping/interop_plan.yaml", validate_plan(document, read_groups(paths)))
-    write_text(paths.interop_plan, yaml.safe_dump(document, sort_keys=False))
+    write_text(paths.interop_plan, dump_yaml(document))
     return [PlannedPair.from_json(p) for p in document["pairs"]]

@@ -1,13 +1,13 @@
 """One item's message: one YAML block of its family, the family's groups and the item, each with the facts code knows."""
 from __future__ import annotations
 
-import yaml
 
 from cryptobench.shared.catalogue.groups import group_catalog
 from cryptobench.shared.catalogue.interchange import KEY, interchange
 from cryptobench.shared.catalogue.grouping import KEY_LABELS, Family, Item, Profile
 from ....dto.grouping_state import Knowledge
 from cryptobench.shared.catalogue.signature import CONVENTION, UNKNOWN, Component, Signature
+from cryptobench.shared.document.dump import dump_yaml, WIDE_UNICODE
 
 EXAMPLES = 3
 NOT_KNOWN = "not known"
@@ -82,4 +82,4 @@ def render(item: Item, family: Family, knowledge: Knowledge, items: dict[int, It
     document = {"family": {"id": family.id, "description": family.description},
                 "groups": [_group(gid, g, items, profiles) for gid, g in sorted(groups.items())],
                 "item": {**shown, **({"resolved": resolved} if resolved else {}), **({"facts": facts} if facts else {})}}
-    return yaml.safe_dump(document, sort_keys=False, allow_unicode=True, width=200).rstrip()
+    return dump_yaml(document, WIDE_UNICODE).rstrip()

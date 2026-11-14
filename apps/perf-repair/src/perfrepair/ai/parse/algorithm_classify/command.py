@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-import yaml
 
 from cryptobench.shared.paths import GroupingTree
 from ....dto.classify import UNSURE, Batch, batch_ids, batches_document, read_batches
@@ -17,6 +16,7 @@ from ...log.where import Where
 from ...runtime.prompt import PromptLibrary
 from .kind import ClassifyKind, charter
 from .state import candidates, reviewed
+from cryptobench.shared.document.dump import dump_yaml
 
 
 def _dry_run(task: TaskPrompt, *_):
@@ -48,7 +48,7 @@ def classify(paths: GroupingTree, batches: list[Batch], verdicts: dict[int, Verd
     state = decide(kind, fixed, reviewer.conversations, paths.classify, reviewer.limits, echo=echo,
                    where=Where("screening", "classify"), device=paths.root.parent)
     proposals = candidates(state, batches, fixed.fingerprint)
-    write_text(paths.registry_candidates, yaml.safe_dump(proposals, sort_keys=False))
+    write_text(paths.registry_candidates, dump_yaml(proposals))
     counts: dict[str, int] = {}
     for a in state.answers.values():
         counts[a.answer] = counts.get(a.answer, 0) + 1

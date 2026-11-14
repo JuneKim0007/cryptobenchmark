@@ -99,7 +99,7 @@ def test_an_unreadable_or_old_done_mark_is_not_done(tmp_path, content):
 
 def test_only_the_record_writes_the_run_record_and_the_done_marks():
     src = Path(__file__).parents[1] / "src" / "perfrepair"
-    for pattern in (r"\.finished\b", r"\.run_record\(", r"\.device\.unlink|\.device, yaml"):
+    for pattern in (r"\.finished\b", r"\.run_record\(", r"\.device\.unlink|\.device, dump_yaml"):
         assert [str(p.relative_to(src)) for p in src.rglob("*.py") if re.search(pattern, p.read_text())] == ["run_dir/run_record.py"]
 
 

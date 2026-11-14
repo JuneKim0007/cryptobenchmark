@@ -6,13 +6,13 @@ import time
 from dataclasses import replace
 from pathlib import Path
 
-import yaml
 
 from cryptobench.shared.paths import DEVICE, AppTree, RunTree
 from cryptobench.shared.errors.input_error import InputError
 from ..dto.device import DeviceRecord
 from ..files import read_json, read_yaml, sha256_file, write_json, write_text
 from .lock import DeviceLock
+from cryptobench.shared.document.dump import dump_yaml
 
 OVERWRITE, RESUME, SKIP = "overwrite", "resume", "skip"
 ON_EXISTING = (OVERWRITE, RESUME, SKIP)
@@ -33,7 +33,7 @@ def load_device_record(device: Path) -> tuple[DeviceRecord | None, str | None]:
 
 
 def write_device_record(device: Path, record: DeviceRecord) -> Path:
-    return write_text(RunTree(device).device, yaml.safe_dump(record.to_json(), sort_keys=False), durable=True)
+    return write_text(RunTree(device).device, dump_yaml(record.to_json()), durable=True)
 
 
 def vouch_manifest(device: Path) -> None:

@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import yaml
 
 from cryptobench.shared.paths import GroupingTree
 from ..dto.interop import PairResult, not_checkable_results
 from ..files import read_yaml, write_text
 from cryptobench.shared.errors.validation import require
 from ..validation.grouping.interop import validate_results
+from cryptobench.shared.document.dump import dump_yaml
 
 
 def imported(paths: GroupingTree) -> list[PairResult] | None:
@@ -29,7 +29,7 @@ def import_results(paths: GroupingTree, source: Path) -> list[PairResult]:
 def write_results(paths: GroupingTree, results: dict, where: str = "grouping/interop.yaml",
                   plan: dict | None = None) -> list[PairResult]:
     require(where, validate_results(results, plan or _plan(paths)))
-    write_text(paths.interop, yaml.safe_dump(results, sort_keys=False))
+    write_text(paths.interop, dump_yaml(results))
     return imported(paths)
 
 

@@ -7,7 +7,6 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 
-import yaml
 
 from cryptobench.shared.paths import RunTree
 from .. import run_dir as rd
@@ -40,6 +39,7 @@ from .setup_fingerprint import (
     fingerprint,
     without_narrowed,
 )
+from cryptobench.shared.document.dump import dump_yaml
 
 RESULTS = "results"
 DRIFT_METRIC = "timeNs"
@@ -162,5 +162,5 @@ def rerun_whole(folder: Path, gaps: tuple[Gap, ...], session: str, on_device: bo
     config = write_rerun_config(Path(manifest.config), folder, {g.item for g in gaps})
     run_pipeline(config, folder.parent, "device" if on_device else "bench", benchmark=benchmark, echo=echo, device=folder)
     measured = read_yaml(RunTree(folder).manifest)
-    write_text_making_parents(RunTree(folder).manifest, yaml.safe_dump({**measured, "retried": _retried(gaps), "deltas": [
-        {"session": session, "cases": [], "rerun": True}]}, sort_keys=False))
+    write_text_making_parents(RunTree(folder).manifest, dump_yaml({**measured, "retried": _retried(gaps), "deltas": [
+        {"session": session, "cases": [], "rerun": True}]}))

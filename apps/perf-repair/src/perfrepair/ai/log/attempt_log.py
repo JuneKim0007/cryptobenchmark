@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import yaml
 
 from cryptobench.shared.paths import RunTree
 from cryptobench.shared.document.document import DocumentKind
@@ -12,6 +11,7 @@ from ...dto.event import DECISION
 from ...files import append_line, write_text_making_parents
 from ...log import emit, run_id
 from .where import Where
+from cryptobench.shared.document.dump import dump_yaml, UNICODE
 
 SCHEMA_VERSION = 1
 # a turn the gate did not take
@@ -58,11 +58,11 @@ class AttemptLog:
 
 
 def _header(job: str) -> str:
-    return yaml.safe_dump({"schemaVersion": SCHEMA_VERSION, "job": job}, sort_keys=False) + f"{ATTEMPTS}\n"
+    return dump_yaml({"schemaVersion": SCHEMA_VERSION, "job": job}) + f"{ATTEMPTS}\n"
 
 
 def _item(entry: dict) -> str:
-    return yaml.safe_dump([entry], sort_keys=False, allow_unicode=True)
+    return dump_yaml([entry], UNICODE)
 
 
 def _appendable(text: str) -> bool:

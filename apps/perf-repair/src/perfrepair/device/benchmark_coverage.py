@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import yaml
 
 from cryptobench.shared.paths import RunTree
 from cryptobench.shared.paths import BENCHMARK_COVERAGE
@@ -13,6 +12,7 @@ from ..files import write_text_making_parents
 from ..log import run_id
 from cryptobench.shared.errors.validation import require
 from ..validation.benchmark_coverage import validate_coverage
+from cryptobench.shared.document.dump import dump_yaml
 
 
 class CoverageFile:
@@ -26,7 +26,7 @@ class CoverageFile:
         self.deltas += [delta] if delta else []
         doc = coverage_document(run_id(), point, self.attempts, coverage, self.deltas)
         require(BENCHMARK_COVERAGE, validate_coverage(doc))
-        return write_text_making_parents(RunTree(device).log.benchmark_coverage, yaml.safe_dump(doc, sort_keys=False))
+        return write_text_making_parents(RunTree(device).log.benchmark_coverage, dump_yaml(doc))
 
 
 def clear_coverage(device: Path) -> None:

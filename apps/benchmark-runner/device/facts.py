@@ -1,11 +1,11 @@
 """Device facts for the settings table: what this device can support, gathered once after install and probe; nothing here decides."""
 import zipfile
 
-import yaml
 
 from device import capture as captured, clocks
 from device.adb import PACKAGE
 from cryptobench.shared import paths
+from cryptobench.shared.document.dump import dump_yaml
 
 NATIVE_LIBRARY = "libaffinity.so"
 APK = paths.repo().apk
@@ -43,5 +43,5 @@ def collect(device, capture):
 
 def gather(device, discovery, capture):
     path = paths.Discovery(discovery).facts
-    path.write_text(yaml.safe_dump(collect(device, capture), sort_keys=False))
+    path.write_text(dump_yaml(collect(device, capture)))
     return path

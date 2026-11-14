@@ -6,7 +6,6 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-import yaml
 
 from cryptobench.shared.paths import AppTree, RunTree
 from ..app.facts.path_id import absolute, app_id
@@ -28,6 +27,7 @@ from .dossier import dossier
 from .edit import edit_app, load_specs
 from .harness import harness
 from .inputs import read_effective
+from cryptobench.shared.document.dump import dump_yaml
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -102,7 +102,7 @@ def _harness(_ap: argparse.ArgumentParser, a: argparse.Namespace) -> int:
         if problems:
             s.outcome = "invalid"
             return _report(paths.harness, problems)
-        write_text(paths.harness, yaml.safe_dump(doc, sort_keys=False))
+        write_text(paths.harness, dump_yaml(doc))
         s.count(scopes=len(doc["scopes"]))
         s.wrote(paths.harness)
     print(f"{paths.harness}: {len(doc['scopes'])} scopes")

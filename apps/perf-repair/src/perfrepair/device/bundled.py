@@ -5,7 +5,6 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Callable
 
-import yaml
 
 from cryptobench.shared.paths import RunTree
 from cryptobench.shared.paths import BUNDLED_SUGGESTIONS
@@ -23,6 +22,7 @@ from .bundled_missing import missing_set
 from .bundled_suggest import suggest
 from .missing_rows import ONLY_DEVICE_BUILDS, bundled_rows
 from .primitives_missing import MissingList
+from cryptobench.shared.document.dump import dump_yaml
 
 CATALOG = f"catalog/{BUNDLED_PROVIDERS.name}"
 
@@ -34,7 +34,7 @@ def _write(folder: Path, policy: BundledPolicy, found: Suggestions) -> Path | No
         return None
     doc = found.to_json(policy.fromApps, CATALOG)
     require(BUNDLED_SUGGESTIONS, validate_suggestions(doc))
-    return write_text(path, yaml.safe_dump(doc, sort_keys=False))
+    return write_text(path, dump_yaml(doc))
 
 
 def _events(found: Suggestions, from_apps: str) -> None:

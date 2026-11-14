@@ -1,8 +1,8 @@
 """CPU clock state read through adb shell; locked means every online core's floor equals its ceiling."""
 import re
 
-import yaml
 from cryptobench.shared.document.document import read_yaml
+from cryptobench.shared.document.dump import dump_yaml
 
 
 READ = ('for c in /sys/devices/system/cpu/cpu[0-9]*; do f=$c/cpufreq; '
@@ -47,7 +47,7 @@ def write(path, before, after, cases=None):
     if cases:
         document["cases"] = cases
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(yaml.safe_dump(document, sort_keys=False))
+    path.write_text(dump_yaml(document))
     return path
 
 

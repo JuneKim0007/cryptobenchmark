@@ -6,13 +6,13 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
-import yaml
 
 from cryptobench.shared.paths import BENCHMARK_JSON, RunTree
 from ..dto.dossier import SETUP_DRIFT
 from ..files import json_text, read_json, read_yaml, write_text_making_parents
 from cryptobench.shared.errors.input_error import InputError
 from cryptobench.shared.document.document import parse_yaml
+from cryptobench.shared.document.dump import dump_yaml
 
 PLANNED = ("prepared", "skipped")
 NO_PLAN = "null"
@@ -108,8 +108,7 @@ def merge_delta(folder: Path, staged: Path, ids: set[str], session: str, compari
         texts[f"process-{n}"] = json_text(_benchmarks(a, b, ids, fill, session, comparison))
     for key in PLANNED:
         if files.get(key) and delta["files"].get(key):
-            texts[key] = yaml.safe_dump(_plan_file(key, read_yaml(folder / files[key]), read_yaml(staged / delta["files"][key])),
-                                        sort_keys=False)
+            texts[key] = dump_yaml(_plan_file(key, read_yaml(folder / files[key]), read_yaml(staged / delta["files"][key])))
     for key, text in texts.items():
         name = f"{key}/{BENCHMARK_JSON}" if key.startswith("process-") else f"{key}.yaml" if key in PLANNED else BENCHMARK_JSON
         write_text_making_parents(folder / out / name, text)
@@ -124,6 +123,6 @@ def merge_delta(folder: Path, staged: Path, ids: set[str], session: str, compari
     deltas = list(manifest.get("deltas") or []) + [{"session": session, "cases": sorted(ids), "comparison": comparison,
                                                      "from": str(staged), **({"filled": filled} if filled else {})}]
     tried = sorted(set(manifest.get("retried") or ()) | set(retried))
-    write_text_making_parents(RunTree(folder).manifest, yaml.safe_dump({**manifest, "files": files, "counts": counts, "deltas": deltas,
-                                                                    **({"retried": tried} if tried else {})}, sort_keys=False))
+    write_text_making_parents(RunTree(folder).manifest, dump_yaml({**manifest, "files": files, "counts": counts, "deltas": deltas,
+                                                                    **({"retried": tried} if tried else {})}))
     return Merged(tuple(sorted(ids)), str(out))

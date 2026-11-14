@@ -8,6 +8,7 @@ from results import layout as results_layout
 from cryptobench.shared import paths
 from results import run_inputs
 from cryptobench.shared.document.document import parse_yaml, read_yaml
+from cryptobench.shared.document.dump import dump_yaml
 
 ENGINE_OPERATIONS = paths.repo().engine_operations
 
@@ -22,7 +23,6 @@ def runtime(measured, captured, files):
 
 def units(files):
     """analysis.units as :config wrote it into effective.yaml: the display units every view of this run reads."""
-    import yaml
     effective = read_yaml(files["effective"]) if "effective" in files else None
     found = ((effective or {}).get("analysis") or {}).get("units")
     return {"units": found} if found else {}
@@ -38,7 +38,6 @@ def estimated_mark(energy_files):
 
 def operations():
     """Per engine type the operations the harness times, so a reader of the run needs no path into this repository."""
-    import yaml
     return {t: list(ops) for t, ops in (read_yaml(ENGINE_OPERATIONS).get("types") or {}).items()}
 
 
@@ -47,7 +46,6 @@ def survived(problems):
 
 
 def manifest(results, mode, configuration, files, problems=()):
-    import yaml
     def load(key):
         text = files[key].read_text()
         return json.loads(text) if files[key].suffix == ".json" else parse_yaml(text, str(files[key]))
@@ -71,14 +69,13 @@ def manifest(results, mode, configuration, files, problems=()):
         "operations": operations(),
     } | units(files) | estimated_mark(files.get("energy")) | survived(problems)
     path = paths.RunTree(results).manifest
-    results_layout.write_atomic(path, yaml.safe_dump(document, sort_keys=False))
+    results_layout.write_atomic(path, dump_yaml(document))
     print(f"wrote:     {path}")
 
 
 def add_to_manifest(results, added):
-    import yaml
     path = paths.RunTree(results).manifest
     document = read_yaml(path)
     document["files"].update({key: value.relative_to(results).as_posix() for key, value in added.items()})
-    results_layout.write_atomic(path, yaml.safe_dump(document, sort_keys=False))
+    results_layout.write_atomic(path, dump_yaml(document))
     print(f"wrote:     {path}")

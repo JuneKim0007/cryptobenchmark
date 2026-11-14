@@ -2,7 +2,6 @@
 before any model step; and the stop each path entry that is no app ends with."""
 from __future__ import annotations
 
-import yaml
 
 from cryptobench.shared.paths import RunTree
 from ..app.facts.path_id import path_id
@@ -11,6 +10,7 @@ from ..files import write_text
 from cryptobench.shared.errors.halt import Halt
 from ..stop import halt_of
 from .state import Guide
+from cryptobench.shared.document.dump import dump_yaml
 
 
 def write_targets(g: Guide) -> str:
@@ -18,7 +18,7 @@ def write_targets(g: Guide) -> str:
         # an earlier targets run's file would list apps this run does not run
         (RunTree(g.device).targets).unlink(missing_ok=True)
         return "--app runs one app; no targets.yaml"
-    path = write_text(RunTree(g.device).targets, yaml.safe_dump(g.target_set.document(), sort_keys=False))
+    path = write_text(RunTree(g.device).targets, dump_yaml(g.target_set.document()))
     return f"{path}: {len(g.target_set.apps)} apps, {len(g.target_set.skipped)} skipped"
 
 

@@ -5,7 +5,6 @@ from __future__ import annotations
 from collections.abc import Callable, Iterable
 from pathlib import Path
 
-import yaml
 
 from cryptobench.shared.paths import RunTree
 from cryptobench.shared.paths import PRIMITIVES_MISSING
@@ -15,6 +14,7 @@ from ..files import write_text_making_parents
 from ..log import emit, run_id
 from cryptobench.shared.errors.validation import require
 from ..validation.primitives_missing import validate_missing
+from cryptobench.shared.document.dump import dump_yaml
 
 
 class MissingList:
@@ -50,7 +50,7 @@ class MissingList:
             return
         doc = missing_document(run_id(), self.rows())
         require(PRIMITIVES_MISSING, validate_missing(doc))
-        write_text_making_parents(self.path, yaml.safe_dump(doc, sort_keys=False))
+        write_text_making_parents(self.path, dump_yaml(doc))
 
     def _point(self) -> None:
         # one event, so status.log says it once however many findings it sits among

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import yaml
 
 from cryptobench.shared.paths import GroupingTree
 from ...dto.grouping_output import checks_document
@@ -19,6 +18,7 @@ from ..interop_read import imported
 from .candidates import candidates
 from .output import assemble
 from .rules import check, check_interop
+from cryptobench.shared.document.dump import dump_yaml, WIDE
 
 
 def report(paths: GroupingTree, families: Families | None = None) -> dict:
@@ -35,7 +35,7 @@ def _report(paths: GroupingTree, families: Families | None) -> dict:
         write_json(path, doc)
     # a person promotes a row by hand: nothing at run time writes the catalog
     found = candidates(kind, knowledge, records, findings, active_outbox(paths.root).fingerprint, paths.group_candidates)
-    write_text(paths.group_candidates, yaml.safe_dump(found, sort_keys=False, width=200))
+    write_text(paths.group_candidates, dump_yaml(found, WIDE))
     return documents[paths.groups]
 
 

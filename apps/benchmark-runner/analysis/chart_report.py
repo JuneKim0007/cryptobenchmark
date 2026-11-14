@@ -1,10 +1,10 @@
 """The text a run leaves beside its charts: the summary table, the data the charts plot, and the manifest."""
 import json
 
-import yaml
 
 from chart_model import AUDIT_TOLERANCE, short, size_label, variant
 from cryptobench.shared import paths
+from cryptobench.shared.document.dump import dump_yaml
 
 
 def summary_table(cases):
@@ -55,4 +55,4 @@ def write(root, cases, cfg, written, counts=None):
         paths.Charts(root).metric_data(metric).write_text(json.dumps(rows, indent=1))
     paths.Charts(root).summary.write_text(text)
     paths.Charts(root).data.write_text(json.dumps(cases, indent=1))
-    paths.Charts(root).manifest.write_text(yaml.safe_dump(manifest(cases, cfg, written, root, counts), sort_keys=False))
+    paths.Charts(root).manifest.write_text(dump_yaml(manifest(cases, cfg, written, root, counts)))

@@ -1,12 +1,12 @@
 """After effective.yaml says what runs: picks exactly those items from the implementation guide, beside it, for preparation."""
 import pathlib
 
-import yaml
 
 from cryptobench.shared import paths
 from cryptobench.shared.catalogue.guide_items import guide_items
 from cryptobench.shared.catalogue import vectors
 from cryptobench.shared.document.document import read_yaml
+from cryptobench.shared.document.dump import dump_yaml
 
 def file_beside(effective):
     return paths.Configuration(pathlib.Path(effective).parent).guide
@@ -37,7 +37,7 @@ def write(effective, capture):
     for line in fallbacks(document):
         print(f"warning: {line}")
     written = file_beside(effective)
-    written.write_text(yaml.safe_dump(document, sort_keys=False))
+    written.write_text(dump_yaml(document))
     return written
 
 
@@ -53,5 +53,5 @@ def write_known_answers(effective, capture, configuration):
     for line in warnings:
         print(f"warning: {line}")
     written = paths.Configuration(pathlib.Path(effective).parent).known_answers
-    written.write_text(yaml.safe_dump(document, sort_keys=False))
+    written.write_text(dump_yaml(document))
     return written

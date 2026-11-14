@@ -6,7 +6,6 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
-import yaml
 
 from cryptobench.shared.paths import GroupingTree, RunTree
 from .. import run_dir as rd
@@ -18,6 +17,7 @@ from ..grouping.interop_plan import plan_for, write_plan
 from ..grouping.interop_read import imported, write_results
 from ..grouping.report.checks import report
 from .setup_fingerprint import provider_setup
+from cryptobench.shared.document.dump import dump_yaml
 
 DEVICE_MODE = "device"
 
@@ -96,7 +96,7 @@ def _current(paths: GroupingTree, document: dict, results: dict) -> bool:
 
 
 def _run(folder: Path, paths: GroupingTree, todo: list[PlannedPair], echo: Callable[[str], None]) -> dict[int, dict]:
-    write_text(paths.interop_pending, yaml.safe_dump(plan_document(todo), sort_keys=False))
+    write_text(paths.interop_pending, dump_yaml(plan_document(todo)))
     try:
         return _oracle(folder, paths.interop_pending, echo)
     finally:

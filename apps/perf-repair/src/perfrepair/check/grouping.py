@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 
-import yaml
 
 from cryptobench.shared.paths import GroupingTree
 from .. import run_dir as rd
@@ -18,6 +17,7 @@ from ..files import read_json
 from ..screen.catalog import Catalog
 from cryptobench.shared.errors.validation import ValidationFailed
 from ..validation.screen import validate_model_verdicts, validate_screen_document
+from cryptobench.shared.document.dump import dump_yaml
 
 
 def check_grouping(grouping: GroupingTree) -> list[str]:
@@ -67,6 +67,6 @@ def _classify(grouping: GroupingTree) -> dict[str, list[str]]:
     kind = ClassifyKind(batches, grouping)
     problems += kind.validate(saved, records) + rebuild_problems(kind, records)
     problems += validate_model_verdicts(rd.load_screen(grouping), saved.answers, review)
-    if proposals != yaml.safe_dump(candidates(saved, batches, review), sort_keys=False):
+    if proposals != dump_yaml(candidates(saved, batches, review)):
         problems.append(f"{grouping.registry_candidates.name} differs from the accepted answers")
     return {"grouping/classify": problems}
