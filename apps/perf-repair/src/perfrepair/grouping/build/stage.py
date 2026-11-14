@@ -10,7 +10,8 @@ from cryptobench.shared.catalogue.names import Names
 from ...data_handler.inbound import RunContext
 from cryptobench.shared.catalogue.grouping import items_document, profiles_document
 from ...dto.screen import CODE_GROUPED, screen_document
-from ...files import json_text, sha256_text, write_texts
+from ...files import json_text, sha256_text
+from cryptobench.shared.document.write import write_texts
 from ...log import step
 from ...probe.identified import alias_conflicts, identified
 from ...screen.catalog import Catalog

@@ -6,7 +6,8 @@ from pathlib import Path
 
 from cryptobench.shared.paths import AppTree, RunTree
 from cryptobench.shared.paths import APP_REPORT, SUMMARY
-from ..files import read_json, write_json, write_text
+from ..files import read_json, write_json
+from cryptobench.shared.document.write import write_text
 from ..log import step
 from ..result.modes import Mode
 from cryptobench.shared.errors.validation import require

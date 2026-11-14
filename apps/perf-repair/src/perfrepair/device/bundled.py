@@ -12,7 +12,7 @@ from ..catalog.bundled_providers import BUNDLED_PROVIDERS, BundledCatalog
 from ..data_handler.inbound import RunContext
 from ..dto.bundled import APPLY, OFF, BundledPolicy, Suggestions
 from ..dto.event import END
-from ..files import write_text
+from cryptobench.shared.document.write import write_text
 from ..log import emit, step
 from ..stop import CODES, terminate
 from cryptobench.shared.errors.validation import require

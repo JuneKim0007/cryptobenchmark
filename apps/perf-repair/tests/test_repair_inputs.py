@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from perfrepair.files import write_text
+from cryptobench.shared.document.write import write_text
 from perfrepair.repair.inputs import configured, read_effective, scope_inputs
 from repair_fixture import JAVA, scope
 

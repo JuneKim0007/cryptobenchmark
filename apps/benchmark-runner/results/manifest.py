@@ -4,11 +4,11 @@ import json
 from device import clocks
 from device.capture import runtime as capture_runtime
 from device.identity import device_id
-from results import layout as results_layout
 from cryptobench.shared import paths
 from results import run_inputs
 from cryptobench.shared.document.document import parse_yaml, read_yaml
 from cryptobench.shared.document.dump import dump_yaml
+from cryptobench.shared.document.write import MANIFEST, write_text
 
 ENGINE_OPERATIONS = paths.repo().engine_operations
 
@@ -69,7 +69,7 @@ def manifest(results, mode, configuration, files, problems=()):
         "operations": operations(),
     } | units(files) | estimated_mark(files.get("energy")) | survived(problems)
     path = paths.RunTree(results).manifest
-    results_layout.write_atomic(path, dump_yaml(document))
+    write_text(path, dump_yaml(document), staging=MANIFEST)
     print(f"wrote:     {path}")
 
 
@@ -77,5 +77,5 @@ def add_to_manifest(results, added):
     path = paths.RunTree(results).manifest
     document = read_yaml(path)
     document["files"].update({key: value.relative_to(results).as_posix() for key, value in added.items()})
-    results_layout.write_atomic(path, dump_yaml(document))
+    write_text(path, dump_yaml(document), staging=MANIFEST)
     print(f"wrote:     {path}")

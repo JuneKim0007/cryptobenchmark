@@ -9,7 +9,8 @@ from cryptobench.shared.catalogue.names import same_engine
 from cryptobench.shared.catalogue.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD, Profile, read_profiles
 from ..dto.interop import NOT_CHECKABLE, PairResult, PlannedPair, plan_document
 from ..dto.screen import Verdict
-from ..files import read_json, write_text
+from ..files import read_json
+from cryptobench.shared.document.write import write_text
 from cryptobench.shared.errors.validation import require
 from ..validation.grouping.interop import validate_plan
 from ..validation.grouping.output import read_groups

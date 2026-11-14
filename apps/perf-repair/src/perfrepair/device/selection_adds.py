@@ -9,7 +9,8 @@ from cryptobench.shared.paths import RunTree
 from ..data_handler.inbound import read_manifest
 from ..data_handler.inbound.manifest import manifest_file
 from cryptobench.shared.catalogue.grouping import Item, qualified
-from ..files import read_yaml, write_text
+from ..files import read_yaml
+from cryptobench.shared.document.write import write_text
 from cryptobench.shared.document.dump import dump_yaml, FLOW_LEAVES
 
 

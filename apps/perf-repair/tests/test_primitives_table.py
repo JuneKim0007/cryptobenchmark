@@ -7,7 +7,7 @@ from helpers import row, summary
 from perfrepair.data_handler.inbound.primitives import read_primitives
 from perfrepair.dto import Measurements
 from perfrepair.dto.primitives import PrimitivesTable, rounded
-from perfrepair.files import write_text
+from cryptobench.shared.document.write import write_text
 from perfrepair.result.primitives import build_table
 from perfrepair.validation.primitives import validate_primitives
 

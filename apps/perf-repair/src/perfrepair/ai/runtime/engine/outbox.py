@@ -7,7 +7,8 @@ from cryptobench.shared.paths import RunTree
 from ....dto.decision import OutboxRecord
 from cryptobench.shared.errors.input_error import InputError
 from ....dto.prompt import Charter
-from ....files import TEMP_SUFFIX, read_json, write_json, write_text
+from ....files import read_json, write_json
+from cryptobench.shared.document.write import TEMP_SUFFIX, write_text
 from . import charter_file
 
 OUTBOXES, ACTIVE = "outbox", "active"

@@ -16,7 +16,8 @@ from ..dto.change import CHANGES, TRACKS
 from ..dto.event import END
 from ..dto.pattern import PATTERNS, UNKNOWN_DEFAULT
 from ..failure import reported
-from ..files import read_json, write_text
+from ..files import read_json
+from cryptobench.shared.document.write import write_text
 from ..log import attach
 from ..log.read import read_events
 

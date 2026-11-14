@@ -13,7 +13,8 @@ from ..dto.replacement import Replacement, read_replacements
 from ..dto.site import Scope
 from ..dto.unit import read_units
 from ..dto.upgrade import UPGRADED
-from ..files import read_json, write_json, write_text
+from ..files import read_json, write_json
+from cryptobench.shared.document.write import write_text
 from .. import run_dir as rd
 from ..config.args import add_config_arg, load_settings, perf_mode
 from ..config.device_results import add_device_results_arg, fill_device_results
