@@ -6,6 +6,7 @@ import unittest
 
 import effective_view  # noqa: E402
 from session import passes, warmup  # noqa: E402
+from failure import reported  # noqa: E402
 
 
 class EffectiveView(unittest.TestCase):
@@ -24,7 +25,7 @@ class EffectiveView(unittest.TestCase):
 
     def test_metrics_are_read_and_their_absence_fails(self):
         self.assertEqual(["TIME", "ALLOCATION"], effective_view.metrics({"run": {"metrics": ["TIME", "ALLOCATION"]}}))
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(SystemExit), reported():
             effective_view.metrics({"run": {}})
 
     def test_a_missing_key_fails_with_its_code_not_a_key_error(self):
@@ -38,7 +39,7 @@ class EffectiveView(unittest.TestCase):
         }
         for path, read in reads.items():
             stderr = io.StringIO()
-            with self.subTest(path), contextlib.redirect_stderr(stderr), self.assertRaises(SystemExit):
+            with self.subTest(path), contextlib.redirect_stderr(stderr), self.assertRaises(SystemExit), reported():
                 read()
             self.assertEqual(f"error: missing_field: {path} in effective.yaml\n", stderr.getvalue())
 

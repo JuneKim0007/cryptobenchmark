@@ -11,6 +11,7 @@ import sys
 import effective_view
 from cryptobench.shared import paths
 from results import select
+from failure import reported
 from cryptobench.shared.document.document import read_yaml
 
 SECTIONS = ("run", "policy", "analysis")
@@ -65,4 +66,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    with reported():
+        main()

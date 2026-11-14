@@ -2,7 +2,7 @@
 import pathlib, time
 
 from device.identity import capture_id
-from failure import fail
+from cryptobench.shared.errors.failures import Stop
 from results import layout as results_layout
 from results.manifest import add_to_manifest, manifest
 from stages import interop_oracle
@@ -14,9 +14,9 @@ from cryptobench.shared import paths
 def interop_run(options, configuration, device, root):
     plan = pathlib.Path(options.interop)
     if not (options.bench or device) or options.harness:
-        fail("--interop: the pairs are checked on a --bench (host JVM) or a --device run, without --harness")
+        raise Stop("--interop: the pairs are checked on a --bench (host JVM) or a --device run, without --harness")
     if not plan.is_file():
-        fail(f"missing_file: {plan} (--interop)")
+        raise Stop(f"missing_file: {plan} (--interop)")
     mode = "device" if device else "host"
     with results_layout.staged(root) as stage:
         _, effective, capture, trial, _ = discover_staged(options, configuration, device, root, stage)

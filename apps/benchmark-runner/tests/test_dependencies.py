@@ -9,6 +9,7 @@ import yaml
 
 import dependencies
 from stages import benchmark
+from failure import reported
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 SCANNED = ("apps/benchmark-runner", "apps/cli", "tools", "apps/perf-repair/src", "lib/cryptobench")
@@ -88,7 +89,7 @@ def hidden(monkeypatch):
 
 def test_a_bench_without_matplotlib_is_one_coded_line_and_exit_1(config, hidden, capsys):
     hidden.add("matplotlib")
-    with pytest.raises(SystemExit) as stopped:
+    with pytest.raises(SystemExit) as stopped, reported():
         dependencies.check(options(bench=True), config({}))
     assert stopped.value.code == 1
     assert "missing_dependency: matplotlib" in capsys.readouterr().err
@@ -106,7 +107,7 @@ def test_perfetto_is_needed_only_when_a_device_run_captures_energy(config, hidde
     dependencies.check(options(device=True), config({}))
     captured = config({"harness": {"energy": {"capture": "measured"}}})
     dependencies.check(options(bench=True), captured)
-    with pytest.raises(SystemExit):
+    with pytest.raises(SystemExit), reported():
         dependencies.check(options(device=True), captured)
     assert "missing_dependency: perfetto;" in capsys.readouterr().err
 
@@ -118,7 +119,7 @@ def test_the_manafa_source_needs_manafa_not_perfetto(config, hidden):
 
 def test_the_energy_module_is_looked_for_in_the_energy_python(config):
     captured = config({"harness": {"energy": {"capture": "measured"}}})
-    with pytest.raises(SystemExit):
+    with pytest.raises(SystemExit), reported():
         dependencies.check(options(device=True, energy_python=str(ROOT / "no-such-python")), captured)
 
 
@@ -150,7 +151,7 @@ def test_a_failed_chart_script_is_a_warning_and_analysis_goes_on(tmp_path, monke
 ])
 def test_a_missing_module_is_exactly_one_stderr_line_perf_repair_reads(config, hidden, capsys, missing, asked, run):
     hidden.add(missing)
-    with pytest.raises(SystemExit) as stopped:
+    with pytest.raises(SystemExit) as stopped, reported():
         dependencies.check(options(**asked), config(run))
     assert stopped.value.code == 1
     assert capsys.readouterr() == ("", f"error: missing_dependency: {missing}; pip install -r requirements.txt\n")

@@ -5,7 +5,7 @@ import yaml
 
 import gradle_runner
 from device.adb import NO_DEFAULT_PROFILER, PASSED, DeviceError, instrumentation_report
-from failure import fail
+from cryptobench.shared.errors.failures import Stop
 from results.manifest import manifest
 from stages import guide
 from cryptobench.shared import paths
@@ -21,7 +21,7 @@ DRY_RUN = ["-e", "androidx.benchmark.dryRunMode.enable", "true"]
 
 def check_run(options, configuration, device, root):
     if not (options.bench or device) or options.harness or options.interop:
-        fail("--check: the cases are checked on a --bench (host JVM) or a --device run, without --harness or --interop")
+        raise Stop("--check: the cases are checked on a --bench (host JVM) or a --device run, without --harness or --interop")
     results, (_, effective, capture, trial, files) = device_discover(options, configuration, device, root)
     into = paths.RunTree(results).check.root
     shutil.rmtree(into, ignore_errors=True)
@@ -37,7 +37,7 @@ def check_run(options, configuration, device, root):
     failed = summary(paths.CheckFolder(into).result)
     manifest(results, "device" if device else "host", configuration, files | {"check": paths.CheckFolder(into).result})
     if failed:
-        fail(f"check_failed: {failed} cases failed or errored, see {paths.CheckFolder(into).result}")
+        raise Stop(f"check_failed: {failed} cases failed or errored, see {paths.CheckFolder(into).result}")
 
 
 def on_host(options, effective, capture, trial, known_answers, into):

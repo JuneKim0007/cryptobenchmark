@@ -4,7 +4,7 @@ import shutil, time
 import effective_view, gradle_runner
 from device import facts
 from device.identity import capture_id, device_id
-from failure import fail
+from cryptobench.shared.errors.failures import Stop
 from cryptobench.shared import paths
 from results import layout as results_layout
 import bundled
@@ -51,7 +51,7 @@ def discover(options, configuration, device, results):
         print(f"wrote:     {path}")
     effective = paths.Configuration(configured).effective
     if not effective.is_file():
-        fail(f"missing_file: {effective}")
+        raise Stop(f"missing_file: {effective}")
     bundled.check_effective(effective, shipped)
     summary(effective)
     elapsed("discover and configure", started)

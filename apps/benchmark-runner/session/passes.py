@@ -3,7 +3,7 @@ import dataclasses, time
 
 import effective_view
 import gradle_runner
-from failure import fail
+from cryptobench.shared.errors.failures import Stop
 from session.measure import process_folder
 from cryptobench.shared import paths
 
@@ -46,10 +46,10 @@ def read(document, captures):
     metrics, configured = effective_view.metrics(document), run.get("passes") or {}
     if not configured:
         if "measured" in captures:
-            fail("not_supported: energy.capture measured without run.passes.energy; energy is always measured in its own pass")
+            raise Stop("not_supported: energy.capture measured without run.passes.energy; energy is always measured in its own pass")
         return [Pass(None, None, tuple(metrics))]
     if "dry" in captures:
-        fail("not_supported: energy.capture dry with run.passes; the energy pass measures `measured` cases and its samples set the window")
+        raise Stop("not_supported: energy.capture dry with run.passes; the energy pass measures `measured` cases and its samples set the window")
     configured = without_idle_energy(configured, captures)
 
     def metrics_of(name):

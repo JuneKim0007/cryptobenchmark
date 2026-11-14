@@ -5,7 +5,8 @@ import sys
 
 import timeouts
 
-from failure import fail, one_line
+from failure import one_line
+from cryptobench.shared.errors.failures import Stop
 from cryptobench.shared import paths
 
 WRAPPER = paths.repo().gradlew
@@ -57,11 +58,15 @@ def output_of(arguments, main_class):
     return tool_lines(result.stdout)
 
 
-def run(arguments, stacktrace, stream=False, *, main_class, notices=None, properties=(), failed=fail):
+def _stop(message):
+    raise Stop(message)
+
+
+def run(arguments, stacktrace, stream=False, *, main_class, notices=None, properties=(), failed=_stop):
     """notices, when given, collects every passed-on line, so a caller can record it; properties are -P build properties;
     failed takes the failure's lines instead of stopping the run, for a caller that keeps what the tool wrote before it died."""
     if not WRAPPER.is_file():
-        fail(f"missing_file: {WRAPPER}")
+        raise Stop(f"missing_file: {WRAPPER}")
     command = _command(arguments, main_class, properties)
     if stream:
         result = timeouts.run("gradle", command, stdout=subprocess.PIPE, text=True)

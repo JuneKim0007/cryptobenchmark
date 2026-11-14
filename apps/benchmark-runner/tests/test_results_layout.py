@@ -5,7 +5,7 @@ import yaml
 
 from results import manifest  # noqa: E402
 from stages import harness  # noqa: E402
-from failure import fail  # noqa: E402
+from failure import fail, reported  # noqa: E402
 from results import layout, select  # noqa: E402
 from device.identity import device_id  # noqa: E402
 
@@ -81,7 +81,7 @@ def test_only_a_folder_with_a_manifest_is_a_device(tmp_path):
 def test_selection_is_one_coded_line(tmp_path, capsys, wanted, code):
     write(tmp_path / "a/manifest.yaml")
     write(tmp_path / "b/manifest.yaml")
-    with pytest.raises(SystemExit) as stopped:
+    with pytest.raises(SystemExit) as stopped, reported():
         select.device_folder(tmp_path, wanted)
     assert stopped.value.code == 1
     message = capsys.readouterr().err
@@ -89,7 +89,7 @@ def test_selection_is_one_coded_line(tmp_path, capsys, wanted, code):
 
 
 def test_a_root_with_no_finished_run_says_so(tmp_path, capsys):
-    with pytest.raises(SystemExit) as stopped:
+    with pytest.raises(SystemExit) as stopped, reported():
         select.device_folder(tmp_path)
     assert stopped.value.code == 1
     assert "no_device_results" in capsys.readouterr().err
@@ -115,7 +115,7 @@ def test_a_harness_measured_on_its_own_device_passes(tmp_path):
 
 def test_a_harness_measured_on_another_device_stops(tmp_path, capsys):
     capture = write(tmp_path / "probe.yaml", yaml.safe_dump({"schemaVersion": 1, "runtime": RUNTIME}))
-    with pytest.raises(SystemExit) as stopped:
+    with pytest.raises(SystemExit) as stopped, reported():
         harness.require_harness_device(harness_in(tmp_path / "d", "other-api1-00000000"), capture)
     assert stopped.value.code == 1
     assert "harness_other_device" in capsys.readouterr().err
@@ -123,7 +123,7 @@ def test_a_harness_measured_on_another_device_stops(tmp_path, capsys):
 
 def test_a_harness_run_takes_no_results_root():
     options = type("Options", (), {"results": "r", "harness": "h.yaml"})
-    with pytest.raises(SystemExit) as stopped:
+    with pytest.raises(SystemExit) as stopped, reported():
         harness.checked_folder(options)
     assert stopped.value.code == 1
 

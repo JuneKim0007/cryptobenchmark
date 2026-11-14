@@ -9,7 +9,7 @@ import pathlib
 import subprocess
 import sys
 
-from failure import fail
+from failure import fail, reported
 
 BASE = ("yaml", "cryptobench")
 ANALYSIS = "matplotlib"
@@ -27,19 +27,27 @@ def _found(module, python=sys.executable):
         return False
 
 
+def _missing(module, python=sys.executable):
+    """The coded line for a module that python cannot import, else None."""
+    return None if _found(module, python) else f"missing_dependency: {module}; pip install -r requirements.txt"
+
+
 def require(module, python=sys.executable):
-    if not _found(module, python):
-        fail(f"missing_dependency: {module}; pip install -r requirements.txt")
+    if line := _missing(module, python):
+        raise Stop(line)
 
 
 def require_energy(source_name, python=sys.executable):
     require(ENERGY[source_name], python)
 
 
+# Stop needs cryptobench, so the import-time check stops the way an entry point does
 for _module in BASE:
-    require(_module)
+    if _line := _missing(_module):
+        fail(_line)
 
 from cryptobench.shared import paths  # noqa: E402
+from cryptobench.shared.errors.failures import Stop  # noqa: E402
 from global_file import global_config  # noqa: E402
 
 paths.add_energy_imports()
@@ -76,4 +84,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    with reported():
+        main()

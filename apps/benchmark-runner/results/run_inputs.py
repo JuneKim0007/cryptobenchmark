@@ -3,7 +3,7 @@ import copy, hashlib, json
 
 
 import bundled
-from failure import fail
+from cryptobench.shared.errors.failures import Stop
 from cryptobench.shared.document.document import read_yaml
 
 
@@ -21,6 +21,6 @@ def digests(global_file):
     test_set = (document.get("selection") or {}).get("testSet")
     path = global_file.parent / test_set if test_set else None
     if path and not path.is_file():
-        fail(f"missing_file: {path} (selection.testSet)")
+        raise Stop(f"missing_file: {path} (selection.testSet)")
     selected = read_yaml(path) if path else None
     return {"bundled": digest(shipped), "config": digest({"global": document, "testSet": selected})}

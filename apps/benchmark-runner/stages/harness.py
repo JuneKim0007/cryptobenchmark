@@ -3,7 +3,8 @@ import pathlib, shutil, time
 
 
 from device.identity import capture_id
-from failure import fail
+from cryptobench.shared.errors.failures import Stop
+from failure import reported
 from cryptobench.shared import paths
 from results import layout as results_layout
 from results.manifest import manifest
@@ -23,7 +24,7 @@ def generate_scopes(options, scoped):
     plan, compiled = scope_generate.generate(options.harness, paths.repo().gradle_root, scoped)
     elapsed(f"generate and compile {len(compiled)} scopes", started)
     if not compiled:
-        fail(f"nothing_to_check: no scope compiled, see {scoped.parent / paths.SCOPED_PLAN_FAILED}")
+        raise Stop(f"nothing_to_check: no scope compiled, see {scoped.parent / paths.SCOPED_PLAN_FAILED}")
     print(f"wrote:     {plan}")
     return plan
 
@@ -34,7 +35,7 @@ def require_harness_device(harness, capture):
     if built_for.is_file():
         wanted, attached = read_yaml(built_for).get("deviceId"), capture_id(capture)
         if wanted != attached:
-            fail(f"harness_other_device: {harness} was built for {wanted}, the attached device is {attached}")
+            raise Stop(f"harness_other_device: {harness} was built for {wanted}, the attached device is {attached}")
 
 
 def check_scopes(options, configuration, device, results, scoped, plan):
@@ -67,11 +68,13 @@ def harness_run(options, configuration, device, results):
     try:
         with results_layout.kept_until_replaced(paths.RunTree(results).scoped.root) as scoped:
             try:
-                plan = generate_scopes(options, scoped)
-                files = check_scopes(options, configuration, device, results, scoped, plan)
+                # reported here: a Stop's error line comes before the kept plan's line
+                with reported():
+                    plan = generate_scopes(options, scoped)
+                    files = check_scopes(options, configuration, device, results, scoped, plan)
             except (HarnessError, scope_generate.GenerateError, scope_results.ScopeResultError) as error:
                 keep_failed_plan(scoped)
-                fail(str(error))
+                raise Stop(str(error)) from None
             except BaseException:
                 keep_failed_plan(scoped)
                 raise
@@ -82,7 +85,7 @@ def harness_run(options, configuration, device, results):
 
 def checked_folder(options):
     if options.results:
-        fail("--results: a --harness run writes checked/ beside its harness.yaml")
+        raise Stop("--results: a --harness run writes checked/ beside its harness.yaml")
     checked = pathlib.Path(options.harness).resolve().parent / paths.CHECKED
     results_layout.warn_if_temp(checked)
     return checked

@@ -1,4 +1,5 @@
 """One way to stop with a readable message."""
+import contextlib
 import sys
 
 
@@ -9,6 +10,16 @@ def one_line(error):
 def fail(message):
     print(f"error: {message}", file=sys.stderr)
     raise SystemExit(1)
+
+
+@contextlib.contextmanager
+def reported():
+    """An entry point's Stop as fail() prints it; imported here, so dependencies.py names a missing cryptobench first."""
+    from cryptobench.shared.errors.failures import Stop
+    try:
+        yield
+    except Stop as error:
+        fail(str(error))
 
 
 def warn(line, problems=None):

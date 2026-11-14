@@ -4,6 +4,7 @@ import json, pathlib, types
 import pytest
 
 from stages import benchmark  # noqa: E402
+from failure import reported  # noqa: E402
 
 OPTIONS = types.SimpleNamespace(stacktrace=False, stream=False)
 DOCUMENT = {"run": {"processRepetitions": 1}}
@@ -30,6 +31,6 @@ def test_rows_written_before_the_jvm_died_are_kept_and_the_death_is_a_problem(tm
 def test_a_death_before_any_row_fails_the_run_and_an_earlier_runs_file_is_not_taken_for_this_ones(tmp_path, monkeypatch):
     (tmp_path / "benchmark.json").write_text("{}")
     monkeypatch.setattr(benchmark.gradle_runner, "run", dying([]))
-    with pytest.raises(SystemExit) as stopped:
+    with pytest.raises(SystemExit) as stopped, reported():
         benchmark.host_cases(OPTIONS, DOCUMENT, "c", "t", "e", tmp_path, tmp_path, {}, [])
     assert stopped.value.code == 1

@@ -5,7 +5,7 @@ import argparse, json, os, pathlib, subprocess, sys, traceback
 import dependencies  # first: it reports a missing PyYAML, which the imports below need
 from device.adb import Device
 from device.identity import device_id
-from failure import fail, one_line
+from failure import fail, one_line, reported
 from cryptobench.shared.errors.coded import Coded
 from global_file import global_config
 from cryptobench.shared import paths
@@ -117,7 +117,8 @@ def failure_line(error):
 
 if __name__ == "__main__":
     try:
-        main()
+        with reported():
+            main()
     except Exception as error:
         if "--stacktrace" in sys.argv:
             traceback.print_exc()

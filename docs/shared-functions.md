@@ -27,8 +27,9 @@
 | `one_line(error)` | `apps/benchmark-runner/energy/manafa_estimate.py` | `' '.join(str(error).split()) or type(error).__name__` | manafa_session |
 | `case_arguments(captures_found, capability, preparation, data, traces, dry_calls, out)` | `apps/benchmark-runner/energy/sources/runner.py` | - | sources.manafa_source, sources.rails_source |
 | `guarded(problems, step)` | `apps/benchmark-runner/energy_stage.py` | An energy step that fails costs this process its energy, never its timing: one error line, recorded. | session.energy_hook, stages.benchmark |
-| `fail(message)` | `apps/benchmark-runner/failure.py` | - | dependencies, effective_view, global_file, gradle_runner +10 |
+| `fail(message)` | `apps/benchmark-runner/failure.py` | - | dependencies, pipeline |
 | `one_line(error)` | `apps/benchmark-runner/failure.py` | `' '.join(str(error).split())[:500]` | energy_stage, facade.py, gradle_runner, pipeline +4 |
+| `reported()` | `apps/benchmark-runner/failure.py` | An entry point's Stop as fail() prints it; imported here, so dependencies.py names a missing cryptobench first. | dependencies, explain, pipeline, stages.harness |
 | `warn(line, problems)` | `apps/benchmark-runner/failure.py` | A warning on the terminal and, when the run keeps a list, in its manifest. | session.dynamic_temperature, stages.benchmark |
 | `global_config(argument)` | `apps/benchmark-runner/global_file.py` | - | dependencies, pipeline |
 | `run(arguments, stacktrace, stream, main_class, notices, properties, failed)` | `apps/benchmark-runner/gradle_runner.py` | notices, when given, collects every passed-on line, so a caller can record it; properties are -P build properties; | session.passes, stages.benchmark, stages.check, stages.discover +2 |

@@ -3,6 +3,7 @@ import sys
 import pytest
 
 from results import run_inputs  # noqa: E402
+from failure import reported  # noqa: E402
 
 BASE = "schemaVersion: 1\nselection: {testSet: sets/a.yaml}\nrun: {seed: 1, phases: [WARM]}\nproviders: {bundled: [{artifact: 'g:a:1', create: X}]}\n"
 
@@ -41,7 +42,7 @@ def test_analysis_shows_results_and_reruns_nothing(tmp_path):
 
 def test_a_named_test_set_that_is_missing_is_refused(tmp_path, capsys):
     (tmp_path / "global.yaml").write_text(BASE)
-    with pytest.raises(SystemExit) as stopped:
+    with pytest.raises(SystemExit) as stopped, reported():
         run_inputs.digests(tmp_path / "global.yaml")
     assert stopped.value.code == 1
     assert f"missing_file: {tmp_path / 'sets/a.yaml'} (selection.testSet)" in capsys.readouterr().err

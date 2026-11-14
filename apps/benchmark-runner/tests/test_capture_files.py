@@ -3,6 +3,7 @@ import pytest
 
 from stages import capture_files  # noqa: E402
 from stages import discover  # noqa: E402
+from failure import reported  # noqa: E402
 
 
 def write(directory, stamp, trial=True):
@@ -22,14 +23,14 @@ def test_a_device_whose_clock_is_behind_still_gets_the_capture_it_just_wrote(tmp
 def test_the_trial_is_the_one_with_the_captures_stamp_never_another(tmp_path):
     write(tmp_path, "20270101T000000Z")
     write(tmp_path, "20260301T000000Z", trial=False)
-    with pytest.raises(SystemExit) as stopped:
+    with pytest.raises(SystemExit) as stopped, reported():
         capture_files.pair(tmp_path / "probe_20260301T000000Z.yaml")
     assert stopped.value.code == 1
 
 
 def test_a_probe_that_added_no_capture_stops(tmp_path):
     write(tmp_path, "20260301T000000Z")
-    with pytest.raises(SystemExit) as stopped:
+    with pytest.raises(SystemExit) as stopped, reported():
         capture_files.added(tmp_path, capture_files.stamped(tmp_path))
     assert stopped.value.code == 1
 

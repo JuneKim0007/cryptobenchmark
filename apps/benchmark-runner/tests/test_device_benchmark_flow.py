@@ -8,6 +8,7 @@ from device.adb import DeviceError  # noqa: E402
 from cryptobench.shared.errors.failures import EnergyError  # noqa: E402
 from session import clocks_hook, cooldown_hook  # noqa: E402
 from stages import benchmark  # noqa: E402
+from failure import reported  # noqa: E402
 from fake_phone import Energy, Phone, fake_tools  # noqa: E402
 
 OPTIONS = types.SimpleNamespace(stream=False, suppress_errors="", stacktrace=False, energy_python="python3", energy_accept_unresponsive=False)
@@ -146,13 +147,13 @@ def test_the_throttle_sleep_reaches_every_process_and_unset_passes_nothing(tmp_p
 
 
 def test_measured_energy_without_its_own_pass_is_refused(tmp_path, monkeypatch):
-    with pytest.raises(SystemExit) as stopped:
+    with pytest.raises(SystemExit) as stopped, reported():
         measured(tmp_path, monkeypatch, {"isolation": "case", "harness": {"energy": {"capture": "measured"}}})
     assert stopped.value.code == 1
 
 
 def test_dry_capture_is_refused_with_passes(tmp_path, monkeypatch):
-    with pytest.raises(SystemExit) as stopped:
+    with pytest.raises(SystemExit) as stopped, reported():
         measured(tmp_path, monkeypatch, {"harness": {"energy": {"capture": "dry"}}, "passes": {"timing": {"samples": 3}}})
     assert stopped.value.code == 1
 
