@@ -1,5 +1,5 @@
 """The glossary (codes.yaml) both ways: every code Python raises or reports and every code a Kotlin main source writes is
-in it; every code in it is written somewhere, or is a stored outcome."""
+in it; every code in it is written somewhere as a literal, or is a stored outcome."""
 import ast
 import pathlib
 import re
@@ -102,7 +102,13 @@ def test_every_raised_or_written_code_is_in_the_glossary():
     assert {p: sites for p, sites in raised.items() if "_" in p and not known(p)} == {}
 
 
+def guide_step(code, entry):
+    """`<step>_failed`, written only through a hole; perf-repair tests/test_stop.py pins these to the guide's steps."""
+    return code.endswith("_failed") and entry.get("stops", {}).get("next") == codes()["app_failed"]["stops"]["next"]
+
+
 def test_every_glossary_code_is_written_somewhere_or_is_a_stored_outcome():
-    written = python()[1] | set(kotlin())
-    unused = [c for c, e in codes().items() if e["kind"] != "outcome" and not any(re.fullmatch(p, c) for p in written)]
+    # a hole pattern would cover every entry it matches, so only a literal counts
+    written = {p for p in python()[1] | set(kotlin()) if "[" not in p}
+    unused = [c for c, e in codes().items() if e["kind"] != "outcome" and c not in written and not guide_step(c, e)]
     assert unused == []

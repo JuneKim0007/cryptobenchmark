@@ -77,9 +77,10 @@ def test_a_raised_code_is_carried_by_its_exception_type_never_only_by_its_words(
     assert found == []
 
 
-def test_every_guide_step_has_its_failed_code():
+def test_the_failed_codes_with_the_guide_steps_next_are_exactly_the_guide_steps():
     steps = [name for name, _ in DEVICE_LEVEL + APP_DRY + APP_DEVICE] + ["summary"]
-    assert [s for s in steps if f"{s}_failed" not in CODES] == []
+    guide = {c for c, v in CODES.items() if c.endswith("_failed") and v.next == CODES["app_failed"].next}
+    assert {f"{s}_failed" for s in steps} == guide
 
 
 def test_each_code_is_in_the_table_once_with_a_next_step():
