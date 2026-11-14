@@ -1,5 +1,5 @@
 """A --harness run on a fake phone: the scope check in its own process, its verdicts in the plan, and nothing timed."""
-import pathlib, types
+import contextlib, io, pathlib, types
 
 import pytest
 import yaml
@@ -31,17 +31,19 @@ def test_a_harness_run_writes_the_verdicts_into_the_plan_and_times_nothing(tmp_p
     assert (record["status"], record["interop"]["result"]) == ("checked", "passed")
 
 
-def test_a_failed_generate_leaves_the_plan_its_failure_line_names(tmp_path, monkeypatch, capsys):
+def test_a_failed_generate_leaves_the_plan_its_failure_line_names(tmp_path, monkeypatch):
     def generate(_harness, _root, out):
         out.mkdir(parents=True, exist_ok=True)
         (out / "scoped-plan.yaml").write_text("scopes: []\n")
         return out / "scoped-plan.yaml", []
     monkeypatch.setattr(harness.scope_generate, "generate", generate)
     monkeypatch.setattr(harness.scope_generate, "clean", lambda _root: None)
-    results = tmp_path / "checked"
-    with pytest.raises(SystemExit) as stopped:
+    results, stream = tmp_path / "checked", io.StringIO()
+    with pytest.raises(SystemExit) as stopped, contextlib.redirect_stdout(stream), contextlib.redirect_stderr(stream):
         harness.harness_run(types.SimpleNamespace(harness=str(tmp_path / "harness.yaml")), None, None, results)
     assert stopped.value.code == 1
-    named = capsys.readouterr().err.split("see ")[-1].strip()
+    lines = [line for line in stream.getvalue().splitlines() if line.startswith(("error:", "kept:"))]
+    assert [line.split(":")[0] for line in lines] == ["error", "kept"]
+    named = lines[0].split("see ")[-1].strip()
     assert named == str(results / harness.paths.SCOPED_PLAN_FAILED) and pathlib.Path(named).read_text() == "scopes: []\n"
     assert not (results / "scoped").exists()

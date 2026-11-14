@@ -14,7 +14,7 @@ def fail(message):
 
 @contextlib.contextmanager
 def reported():
-    """An entry point's Stop as fail() prints it; imported here, so dependencies.py names a missing cryptobench first."""
+    """A Stop as fail() prints it; Stop is imported here because dependencies.py imports this file before it checks for cryptobench."""
     from cryptobench.shared.errors.failures import Stop
     try:
         yield

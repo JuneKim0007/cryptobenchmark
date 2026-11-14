@@ -41,3 +41,9 @@ def test_bench_with_device_is_refused_by_argparse_with_exit_2():
     done = command("--bench", "--device")
     assert done.returncode == 2 and done.stdout == ""
     assert done.stderr.splitlines()[-1] == "pipeline.py: error: argument --device: not allowed with argument --bench"
+
+
+def test_a_stop_under_stacktrace_is_one_error_line_without_a_traceback(tmp_path):
+    missing = tmp_path / "absent.yaml"
+    done = command("--config", str(missing), "--bench", "--stacktrace")
+    assert (done.returncode, done.stderr) == (1, f"error: missing_file: {missing} (--config)\n")
