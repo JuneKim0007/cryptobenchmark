@@ -13,7 +13,7 @@ from perfrepair.guide.device_steps import DEVICE_LEVEL
 from perfrepair.dto.event import FINDING
 from perfrepair.inputs.table import STOP_ROWS
 from perfrepair.log.status import status_line
-from cryptobench.shared.errors.glossary import STOP, WARN
+from cryptobench.shared.errors.glossary import STOP
 from cryptobench.shared.errors.halt import Halt
 from perfrepair.stop import CODES, terminate
 from perfrepair.stop.codes import CODES_LIST, OVERRIDABLE
@@ -107,7 +107,7 @@ def test_a_default_stop_is_one_event_then_a_halt_with_its_next_step():
 
 def test_a_default_warning_returns_and_says_so_in_its_line():
     with captured_events() as events:
-        assert fire("not_on_device", item="P", app="a") == WARN
+        assert fire("not_on_device", item="P", app="a") == "warn"
     assert status_line(events[0]).startswith("not_on_device ") and "warn" in status_line(events[0])
 
 
@@ -119,7 +119,7 @@ def settings(tmp_path, text):
 
 def test_stops_warn_turns_an_overridable_stop_into_a_warning(tmp_path):
     settings(tmp_path, "stops: {perf_mode_unmeasured: warn}\n")
-    assert fire("perf_mode_unmeasured") == WARN
+    assert fire("perf_mode_unmeasured") == "warn"
 
 
 def test_a_fixed_code_ignores_the_setting_with_one_warning(tmp_path, caplog):
@@ -133,10 +133,10 @@ def test_a_fixed_code_ignores_the_setting_with_one_warning(tmp_path, caplog):
 
 def test_a_malformed_value_warns_and_takes_the_default(tmp_path, caplog):
     settings(tmp_path, "stops: {not_on_device: maybe}\n")
-    assert fire("not_on_device") == WARN
+    assert fire("not_on_device") == "warn"
     assert any(r.getMessage().startswith("invalid: stops.not_on_device") for r in caplog.records)
 
 
 def test_an_action_the_code_does_not_allow_is_malformed(tmp_path):
     settings(tmp_path, "stops: {bundled_missing: skip}\n")
-    assert fire("bundled_missing") == WARN
+    assert fire("bundled_missing") == "warn"

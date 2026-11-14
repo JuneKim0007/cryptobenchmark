@@ -9,7 +9,7 @@ from importlib import resources
 
 import yaml
 
-STOP, WARN = "stop", "warn"
+STOP = "stop"
 
 
 @dataclass(frozen=True)
