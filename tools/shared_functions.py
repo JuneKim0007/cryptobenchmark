@@ -9,12 +9,14 @@ import textwrap
 from cryptobench.shared import paths
 
 ROOT = paths.code_root()
+LIBRARY = paths.repo().library.relative_to(ROOT)
 
 # (title, router, doc, source roots each a module search path, least importing modules a function needs to be listed)
 INDEXES = [("benchmark runner, cli, tools and lib", "", "docs/shared-functions.md",
-            ["apps/benchmark-runner", "apps/benchmark-runner/energy", "apps/benchmark-runner/analysis", "apps/cli", "tools", paths.repo().library.relative_to(ROOT).as_posix()], 2),
+            ["apps/benchmark-runner", "apps/benchmark-runner/energy", "apps/benchmark-runner/analysis", "apps/cli", "tools", LIBRARY.as_posix()], 2),
            ("perf-repair", "apps/perf-repair", "docs/shared-functions.md", ["src"], 3)]
-GENERAL = {"apps/benchmark-runner/failure.py": {"fail"}, "lib/cryptobench/cryptobench/shared/errors/line.py": {"one_line"}, "lib/cryptobench/cryptobench/shared/device/adb.py": {"PASSED", "ONE_PASSED"},
+GENERAL = {"apps/benchmark-runner/failure.py": {"fail"}, (LIBRARY / "cryptobench/shared/errors/line.py").as_posix(): {"one_line"},
+           (LIBRARY / "cryptobench/shared/device/adb.py").as_posix(): {"PASSED", "ONE_PASSED"},
            "apps/benchmark-runner/energy/energy.py": {"one_line"}, "apps/benchmark-runner/energy/manafa_estimate.py": {"one_line"},
            }
 
