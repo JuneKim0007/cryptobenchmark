@@ -1,0 +1,1302 @@
+# Every code once. kind: error | notice | outcome (a stored verdict or reason); default: the action today.
+# stops: perf-repair's stops.<code> entry, in its table's order: the actions it may choose, exit, next step, why.
+schemaVersion: 1
+codes:
+  bundled_missing:
+    kind: error
+    default: warn
+    stops:
+      settable: [warn, stop]
+      exit: 1
+      next: "add the providers to providers.bundled in global.yaml, or set device.bundled.fromApps"
+      why: ""
+  not_on_device:
+    kind: error
+    default: warn
+    stops:
+      settable: [warn, stop]
+      exit: 1
+      next: "add it to providers.bundled in global.yaml and rerun the device stage"
+      why: ""
+  perf_mode_unmeasured:
+    kind: error
+    default: stop
+    stops:
+      settable: [stop, warn]
+      exit: 1
+      next: "measure on a device (guide --device), or drop the metric from apps.perfMode"
+      why: ""
+  perf_mode_maybe_unmeasured:
+    kind: error
+    default: warn
+    stops:
+      settable: [warn, stop]
+      exit: 1
+      next: "set run.harness.energy.capture: measured, or rely on the test set"
+      why: ""
+  energy_invalid:
+    kind: error
+    default: warn
+    stops:
+      settable: [warn, stop]
+      exit: 1
+      next: "the case has no energy number; rerun it with a longer window or more operations"
+      why: ""
+  energy_unreadable:
+    kind: error
+    default: warn
+    stops:
+      settable: [warn, stop]
+      exit: 1
+      next: "check the energy.json files the manifest lists"
+      why: ""
+  thermal_throttled_at_end:
+    kind: error
+    default: warn
+    stops:
+      settable: [warn, stop]
+      exit: 1
+      next: "the case ended throttled; let the phone cool, or read its numbers with care"
+      why: ""
+  no_required_metric:
+    kind: error
+    default: skip
+    stops:
+      settable: [skip, stop]
+      exit: 1
+      next: "the case has no required metric runs; check the benchmark transcript"
+      why: ""
+  invariant_undecided:
+    kind: error
+    default: warn
+    stops:
+      settable: [warn, stop]
+      exit: 1
+      next: "the source does not decide a rule; run python3 -m perfrepair.validation.invariants on the device folder and check each undecided finding by hand"
+      why: ""
+  run_metrics_overridden:
+    kind: notice
+    default: warn
+    stops:
+      settable: []
+      exit: 1
+      next: "remove run.metrics from the run config; apps.perfMode decides what is measured"
+      why: "a notice; nothing to choose"
+  missing_dependency:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "pip install -r requirements.txt"
+      why: "the input is unusable"
+  screening_catalog_mismatch:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "rerun grouping build, or set device.screening.catalog to the catalog screen.json names"
+      why: "continuing would mix runs or devices"
+  charter_mismatch:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "move the outbox aside or restore the prompts it was made with"
+      why: "continuing would mix runs or devices"
+  missing_device_stage:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "run the device stage once for this device, or leave --device-results unset"
+      why: "continuing would mix runs or devices"
+  outbox_unversioned:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "move the records into a fingerprint folder or remove them"
+      why: "continuing would mix runs or devices"
+  outbox_active_invalid:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "rewrite the active pointer to an existing fingerprint folder"
+      why: "continuing would mix runs or devices"
+  outbox_missing:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "restore the outbox folder the active pointer names, or remove the pointer"
+      why: "continuing would mix runs or devices"
+  outbox_fingerprint_invalid:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "the fingerprint is not a charter hash; remove the folder"
+      why: "continuing would mix runs or devices"
+  outbox_unkeyed:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "remove the records the current items do not key"
+      why: "continuing would mix runs or devices"
+  device_id_changed:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "the device changed between identify and probe; rerun on one device"
+      why: "continuing would mix runs or devices"
+  setup_mismatch:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "restore the setup the line names, or set device.benchmark.onSetupMismatch: rerun to measure the whole benchmark again"
+      why: "continuing would mix runs or devices"
+  not_benchmarked:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "measure the gaps the line lists: rerun the guide with its device stage, or read log/details/benchmark_coverage.yaml"
+      why: "continuing would mix runs or devices"
+  merge_refused:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "the stored benchmark is kept whole; rerun the guide"
+      why: "continuing would mix runs or devices"
+  device_not_in_results:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "pass --device-results or set device.id"
+      why: "continuing would mix runs or devices"
+  several_device_results:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "pass --device-results or set device.id"
+      why: "continuing would mix runs or devices"
+  no_device_results:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "run the device stage, or point --results-root at a results root"
+      why: "continuing would mix runs or devices"
+  not_device_results:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "pass a device folder cryptobenchmark wrote"
+      why: "continuing would mix runs or devices"
+  scoped_plan_mismatch:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "rerun the app's device step"
+      why: "continuing would mix runs or devices"
+  schema_version:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "rerun the step that writes the file"
+      why: "continuing would mix runs or devices"
+  device_busy:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "wait for the other run on the device folder to end"
+      why: "continuing would mix runs or devices"
+  missing_results:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "pass a device folder cryptobenchmark wrote"
+      why: "nothing is left to run"
+  several_project_roots:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "pass one of the project roots as --app"
+      why: "nothing is left to run"
+  no_options:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "see each scope's reason in dossiers.json noOptions"
+      why: "nothing is left to run"
+  no_replacement:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "every scope is kept; nothing to edit"
+      why: "nothing is left to run"
+  no_edit_applied:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "see each edit's reason in edits.json"
+      why: "nothing is left to run"
+  edit_invalid:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "read the lines the step printed above; fix and rerun the guide"
+      why: "nothing is left to run"
+  harness_invalid:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "read the lines the step printed above; fix and rerun the guide"
+      why: "nothing is left to run"
+  target_missing:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "fix the apps.targets entry; its earlier results stay"
+      why: "nothing is left to run"
+  run_exists:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "set onExisting to resume or overwrite, or name another run id"
+      why: "nothing is left to run"
+  no_targets:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "fix apps.targets: no entry is an app; the skip lines above say why"
+      why: "nothing is left to run"
+  prerequisites_failed:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "read the lines the step printed above; fix and rerun the guide"
+      why: "nothing is left to run"
+  targets_failed:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "read the lines the step printed above; fix and rerun the guide"
+      why: "nothing is left to run"
+  grouping_failed:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "read the lines the step printed above; fix and rerun the guide"
+      why: "nothing is left to run"
+  interop_failed:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "read the lines the step printed above; fix and rerun the guide"
+      why: "nothing is left to run"
+  app_failed:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "read the lines the step printed above; fix and rerun the guide"
+      why: "nothing is left to run"
+  dossier_failed:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "read the lines the step printed above; fix and rerun the guide"
+      why: "nothing is left to run"
+  upgrade_failed:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "read the lines the step printed above; fix and rerun the guide"
+      why: "nothing is left to run"
+  replace_failed:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "read the lines the step printed above; fix and rerun the guide"
+      why: "nothing is left to run"
+  edit_failed:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "read the lines the step printed above; fix and rerun the guide"
+      why: "nothing is left to run"
+  harness_failed:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "read the lines the step printed above; fix and rerun the guide"
+      why: "nothing is left to run"
+  device_failed:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "read the lines the step printed above; fix and rerun the guide"
+      why: "nothing is left to run"
+  report_failed:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "read the lines the step printed above; fix and rerun the guide"
+      why: "nothing is left to run"
+  summary_failed:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "read the lines the step printed above; fix and rerun the guide"
+      why: "nothing is left to run"
+  pipeline_failed:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "read the transcript line the status names"
+      why: "nothing is left to run"
+  pipeline_timeout:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "raise timeouts.pipeline, or check the device"
+      why: "nothing is left to run"
+  identify_failed:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "run apps/benchmark-runner/pipeline.py --identify by hand to see why"
+      why: "nothing is left to run"
+  claude_cli_failed:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "log in to the claude CLI, or check its binary and budget"
+      why: "nothing is left to run"
+  claude_cli_timeout:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "raise timeouts.claude, or check the claude CLI"
+      why: "nothing is left to run"
+  claude_api_failed:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "check ANTHROPIC_API_KEY and the API status"
+      why: "nothing is left to run"
+  claude_api_missing:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "pip install -e '.[api]'"
+      why: "nothing is left to run"
+  bug:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "the traceback is in log/bug.log; report it"
+      why: "nothing is left to run"
+  missing_file:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "pass a file that exists"
+      why: "the input is unusable"
+  invalid:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "fix the value in perfrepair.yaml, the environment or the flag the message names"
+      why: "the input is unusable"
+  invalid_yaml:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "fix the YAML of the file the message names"
+      why: "the input is unusable"
+  secret_key:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "move the secret to the environment or .env"
+      why: "the input is unusable"
+  missing_input:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "set the input, or restore its packaged default"
+      why: "the input is unusable"
+  unknown_gateway:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "name a registered gateway: claude or dry-run"
+      why: "the input is unusable"
+  missing_secret:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "set the secret in the environment or .env"
+      why: "the input is unusable"
+  wrong_version:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "fix the prompts folder or prompts.yaml the message names"
+      why: "the input is unusable"
+  placeholder_missing:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "fix the prompts folder or prompts.yaml the message names"
+      why: "the input is unusable"
+  missing_directory:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "fix the prompts folder or prompts.yaml the message names"
+      why: "the input is unusable"
+  prompt_missing:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "fix the prompts folder or prompts.yaml the message names"
+      why: "the input is unusable"
+  prompt_unknown:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "fix the prompts folder or prompts.yaml the message names"
+      why: "the input is unusable"
+  value_mismatch:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "fix the prompts folder or prompts.yaml the message names"
+      why: "the input is unusable"
+  lifetime_mismatch:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "a conversation was started out of order; report it"
+      why: "the input is unusable"
+  not_a_directory:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "pass the app's source folder as --app"
+      why: "the input is unusable"
+  not_readable:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "make the app folder readable"
+      why: "the input is unusable"
+  not_android_project:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "pass a folder holding an Android project root"
+      why: "the input is unusable"
+  escapes_root:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "remove the link that leaves the app folder"
+      why: "the input is unusable"
+  too_large:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "pass a smaller project root"
+      why: "the input is unusable"
+  over_budget:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "raise the budget the message names in perfrepair.yaml, or find why the item's message grew"
+      why: "the input is unusable"
+  bundled_catalog_yaml:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "fix the catalog file the message names"
+      why: "the input is unusable"
+  interchange_component:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "fix the catalog file the message names"
+      why: "the input is unusable"
+  interchange_key:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "fix the catalog file the message names"
+      why: "the input is unusable"
+  names_catalog_duplicate:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "fix the catalog file the message names"
+      why: "the input is unusable"
+  names_schema:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "fix the catalog file the message names"
+      why: "the input is unusable"
+  groups_invalid:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "fix the catalog file the message names"
+      why: "the input is unusable"
+  groups_schema:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "fix the catalog file the message names"
+      why: "the input is unusable"
+  screening_schema:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "fix the catalog file the message names"
+      why: "the input is unusable"
+  screening_shape:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "fix the catalog file the message names"
+      why: "the input is unusable"
+  screening_yaml:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "fix the catalog file the message names"
+      why: "the input is unusable"
+  algorithms_invalid:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "fix the catalog file the message names"
+      why: "the input is unusable"
+  recipes_invalid:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "fix the catalog file the message names"
+      why: "the input is unusable"
+  deviations_invalid:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "fix the catalog file the message names"
+      why: "the input is unusable"
+  glossary_unknown:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "fix the catalog file the message names"
+      why: "the input is unusable"
+  algorithm_unknown:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "name an algorithm or group id the catalogues hold"
+      why: "the input is unusable"
+  provider_build_unknown:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "name a build key of `algorithms/provider-builds.yaml`, or a name only one build carries"
+      why: "the input is unusable"
+  relations_schema:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "fix the catalog file the message names"
+      why: "the input is unusable"
+  events_unreadable:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "move the unreadable events.jsonl aside"
+      why: "the input is unusable"
+  item_not_configured:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "rerun the device stage with the item in the run config"
+      why: "the input is unusable"
+  manifest_without_device_id:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "rerun the benchmark"
+      why: "the input is unusable"
+  missing_effective:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "rerun the device stage"
+      why: "the input is unusable"
+  missing_parameters:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "rerun the inbound stage (or the guide's device stage)"
+      why: "the input is unusable"
+  missing_probe:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "rerun the device stage"
+      why: "the input is unusable"
+  missing_step:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "run the app's earlier steps first"
+      why: "the input is unusable"
+  no_dossier:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "rerun repair dossier, then repair edit, for the app"
+      why: "the input is unusable"
+  artifact_invalid:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "read the problems the line lists; rerun the step that wrote the artifact"
+      why: "the input is unusable"
+  invariant_failed:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "run python3 -m perfrepair.validation.invariants on the device folder; fix each blocking finding it prints"
+      why: "the input is unusable"
+  no_benchmark:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "rerun the benchmark"
+      why: "the input is unusable"
+  delta_unconfigured:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "restore the stored benchmark's config the line names, or rerun the device stage"
+      why: "the input is unusable"
+  no_events:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "run a command against the device folder first"
+      why: "the input is unusable"
+  no_reports:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "run the guide with --device first"
+      why: "the input is unusable"
+  no_screen:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "rerun grouping build, assign and report"
+      why: "the input is unusable"
+  primitive_line_collision:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "rerun the inbound stage (or the guide's device stage)"
+      why: "the input is unusable"
+  primitive_not_screened:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "grouping/items.json and the benchmark are from different runs; rerun the device stage"
+      why: "the input is unusable"
+  review_verdict:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "fill the verdict column with one of the listed values"
+      why: "the input is unusable"
+  run_context:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "report it"
+      why: "the input is unusable"
+  run_unknown:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "name a run log summary lists"
+      why: "the input is unusable"
+  unknown_key:
+    kind: notice
+    default: warn
+    stops:
+      settable: []
+      exit: 1
+      next: "remove the key, or fix its spelling"
+      why: "a notice; nothing to choose"
+  alias_conflict:
+    kind: notice
+    default: warn
+    stops:
+      settable: []
+      exit: 1
+      next: "nothing; a catalogued name keeps the catalog's function, any other is asked; settle the alias in algorithm-names.yaml"
+      why: "a notice; nothing to choose"
+  perf_mode_extra:
+    kind: notice
+    default: warn
+    stops:
+      settable: []
+      exit: 1
+      next: "drop the measurement from the run config to save device time"
+      why: "a notice; nothing to choose"
+  append_repaired:
+    kind: notice
+    default: warn
+    stops:
+      settable: []
+      exit: 1
+      next: "nothing; the partial line stays and readers skip it"
+      why: "a notice; nothing to choose"
+  log_dropped:
+    kind: notice
+    default: warn
+    stops:
+      settable: []
+      exit: 1
+      next: "name the device folder earlier in the command"
+      why: "a notice; nothing to choose"
+  stop_fixed:
+    kind: notice
+    default: warn
+    stops:
+      settable: []
+      exit: 1
+      next: "remove the stops.<code> entry"
+      why: "a notice; nothing to choose"
+  interop_unverified:
+    kind: notice
+    default: warn
+    stops:
+      settable: []
+      exit: 1
+      next: "the option stays and a replace to it declares unverified_interop; only a line naming a missing device or config has a fix: make it and rerun the guide"
+      why: "a notice; nothing to choose"
+  agreement_needs_key_pairs: {kind: error, default: stop}
+  agrees_differently: {kind: outcome, default: note}
+  algorithm_not_literal: {kind: outcome, default: skip}
+  allocation_runs_changed: {kind: notice, default: skip}
+  ambiguous_call: {kind: outcome, default: skip}
+  ambiguous_init: {kind: outcome, default: skip}
+  bench_failed: {kind: notice, default: warn}
+  bind_failed: {kind: error, default: stop}
+  blank_alias: {kind: error, default: stop}
+  blank_artifact: {kind: error, default: stop}
+  blank_provider: {kind: error, default: stop}
+  blank_rule_part: {kind: error, default: stop}
+  bundled_alias_taken: {kind: error, default: stop}
+  bundled_catalog: {kind: error, default: stop}
+  bundled_class_not_found: {kind: error, default: stop}
+  bundled_create_failed: {kind: error, default: stop}
+  bundled_factory_not_found: {kind: error, default: stop}
+  bundled_factory_not_static: {kind: error, default: stop}
+  bundled_mismatch: {kind: error, default: stop}
+  bundled_name_taken: {kind: error, default: stop}
+  bundled_not_a_provider: {kind: error, default: stop}
+  bundled_not_installed: {kind: error, default: stop}
+  call_failed: {kind: outcome, default: note}
+  call_moved: {kind: outcome, default: skip}
+  case_failed: {kind: error, default: skip}
+  charts_failed: {kind: notice, default: warn}
+  check_failed: {kind: outcome, default: skip}
+  cipher_needs_a_key: {kind: error, default: stop}
+  config_invalid: {kind: error, default: stop}
+  constant_iv: {kind: outcome, default: note}
+  consumption_failed: {kind: outcome, default: note}
+  cpu_not_locked: {kind: outcome, default: note}
+  cpu_pin_failed: {kind: notice, default: warn}
+  dangling_vector: {kind: error, default: stop}
+  decrypt_without_ciphertext: {kind: error, default: stop}
+  decrypts_differently: {kind: outcome, default: note}
+  device_id_bad_java_version: {kind: error, default: stop}
+  device_id_bad_sdk: {kind: error, default: stop}
+  device_id_empty_slug: {kind: error, default: stop}
+  device_id_fields_missing: {kind: error, default: stop}
+  device_not_attached: {kind: error, default: stop}
+  different_case: {kind: error, default: stop}
+  different_parameters: {kind: error, default: stop}
+  different_variant: {kind: error, default: stop}
+  digests_differently: {kind: outcome, default: note}
+  discovery_reprobed: {kind: notice, default: warn}
+  dry_run_failed: {kind: error, default: stop}
+  duplicate: {kind: error, default: stop}
+  duplicate_alias: {kind: error, default: stop}
+  duplicate_artifact: {kind: error, default: stop}
+  duplicate_case: {kind: error, default: stop}
+  duplicate_id: {kind: error, default: stop}
+  duplicate_name: {kind: error, default: stop}
+  empty_override: {kind: error, default: stop}
+  empty_rule: {kind: error, default: stop}
+  empty_window: {kind: outcome, default: note}
+  energy_capability_unknown: {kind: error, default: stop}
+  energy_failed: {kind: notice, default: warn}
+  energy_kinds_differ: {kind: error, default: stop}
+  energy_not_joined: {kind: notice, default: skip}
+  energy_sources_differ: {kind: error, default: stop}
+  exclude_matches_nothing: {kind: notice, default: warn}
+  extension_function: {kind: outcome, default: skip}
+  facts_unknown: {kind: error, default: stop}
+  file_missing: {kind: outcome, default: skip}
+  first_call_refused: {kind: outcome, default: note}
+  function_span: {kind: outcome, default: skip}
+  generation_refused: {kind: outcome, default: note}
+  generic_function: {kind: outcome, default: skip}
+  group_without_name: {kind: error, default: stop}
+  guide_build_fallback: {kind: notice, default: warn}
+  guide_recipe_unbuildable: {kind: outcome, default: note}
+  harness_build_failed: {kind: error, default: stop}
+  harness_other_device: {kind: error, default: stop}
+  hook_failed: {kind: notice, default: warn}
+  input_preparation_failed: {kind: error, default: stop}
+  instance_refused: {kind: outcome, default: note}
+  instantiation_failed: {kind: outcome, default: note}
+  instantiation_fails: {kind: outcome, default: note}
+  internal_error: {kind: error, default: stop}
+  invalid_alias: {kind: error, default: stop}
+  invalid_artifact: {kind: error, default: stop}
+  invalid_create: {kind: error, default: stop}
+  invalid_group: {kind: error, default: stop}
+  invalid_input_sizes: {kind: error, default: stop}
+  invalid_keys: {kind: error, default: stop}
+  invocation_failed: {kind: outcome, default: note}
+  iterations_not_applied: {kind: notice, default: skip}
+  iv_repeated: {kind: outcome, default: note}
+  key_generation_failed: {kind: error, default: stop}
+  key_inside_provider: {kind: outcome, default: note}
+  key_or_parameters_rejected: {kind: outcome, default: note}
+  key_parameters_and_key_sizes: {kind: error, default: stop}
+  key_refused: {kind: outcome, default: note}
+  key_size_not_in_guide: {kind: error, default: stop}
+  keystore_born_key: {kind: outcome, default: note}
+  mac_needs_a_secret_key: {kind: error, default: stop}
+  manafa_cannot_start: {kind: error, default: stop}
+  manafa_failed: {kind: error, default: stop}
+  manafa_missing: {kind: error, default: stop}
+  manafa_not_started: {kind: error, default: stop}
+  manafa_stop_failed: {kind: notice, default: warn}
+  measure_failed: {kind: outcome, default: skip}
+  mismatched_trial: {kind: error, default: stop}
+  missing_field: {kind: error, default: stop}
+  missing_key: {kind: error, default: stop}
+  missing_metric: {kind: error, default: stop}
+  missing_module: {kind: error, default: stop}
+  missing_parameter: {kind: outcome, default: skip}
+  missing_pass: {kind: error, default: stop}
+  missing_resource: {kind: error, default: stop}
+  missing_verdict: {kind: error, default: stop}
+  mixed_types: {kind: error, default: stop}
+  names_catalog_missing: {kind: error, default: stop}
+  negative: {kind: error, default: stop}
+  no_batterystats: {kind: outcome, default: note}
+  no_bytes: {kind: outcome, default: note}
+  no_call: {kind: outcome, default: note}
+  no_call_count: {kind: outcome, default: note}
+  no_call_for_type: {kind: outcome, default: note}
+  no_change: {kind: outcome, default: skip}
+  no_ciphertext_input: {kind: outcome, default: note}
+  no_clock_snapshot: {kind: outcome, default: note}
+  no_contract: {kind: outcome, default: note}
+  no_core: {kind: error, default: stop}
+  no_declared_length: {kind: outcome, default: note}
+  no_device: {kind: error, default: stop}
+  no_edits: {kind: outcome, default: skip}
+  no_encoding: {kind: outcome, default: note}
+  no_engine_read_back: {kind: outcome, default: note}
+  no_estimate: {kind: outcome, default: note}
+  no_frequencies: {kind: error, default: stop}
+  no_harness_operation: {kind: outcome, default: note}
+  no_init: {kind: outcome, default: skip}
+  no_iv: {kind: outcome, default: note}
+  no_joules_per_operation: {kind: outcome, default: note}
+  no_key: {kind: error, default: stop}
+  no_key_algorithm: {kind: outcome, default: skip}
+  no_key_generator: {kind: error, default: stop}
+  no_key_pair: {kind: outcome, default: note}
+  no_key_pairs: {kind: outcome, default: note}
+  no_known_vector_applied: {kind: notice, default: warn}
+  no_match: {kind: outcome, default: skip}
+  no_measured_key: {kind: error, default: stop}
+  no_measurement_slices: {kind: outcome, default: note}
+  no_message_input: {kind: outcome, default: note}
+  no_metrics: {kind: notice, default: skip}
+  no_operations: {kind: outcome, default: note}
+  no_peer_check: {kind: outcome, default: note}
+  no_peer_provider: {kind: outcome, default: note}
+  no_pinning: {kind: error, default: stop}
+  no_power_rails: {kind: error, default: stop}
+  no_rails: {kind: outcome, default: note}
+  no_samples: {kind: outcome, default: note}
+  no_sdk: {kind: error, default: stop}
+  no_signed_input: {kind: outcome, default: note}
+  no_size_asked_or_read: {kind: outcome, default: note}
+  no_size_bound: {kind: outcome, default: note}
+  no_temperatures: {kind: notice, default: warn}
+  no_vector: {kind: outcome, default: note}
+  non_exportable: {kind: outcome, default: note}
+  not_a_function: {kind: outcome, default: skip}
+  not_a_key: {kind: outcome, default: note}
+  not_a_list: {kind: error, default: stop}
+  not_a_mapping: {kind: error, default: stop}
+  not_asserted: {kind: outcome, default: note}
+  not_authenticated: {kind: outcome, default: note}
+  not_bytes: {kind: outcome, default: note}
+  not_checkable: {kind: outcome, default: note}
+  not_compared: {kind: outcome, default: note}
+  not_converted: {kind: notice, default: skip}
+  not_dry: {kind: error, default: stop}
+  not_finite: {kind: error, default: stop}
+  not_hex: {kind: outcome, default: note}
+  not_in_guide: {kind: error, default: stop}
+  not_in_plan: {kind: notice, default: skip}
+  not_installed: {kind: outcome, default: note}
+  not_measurable: {kind: error, default: stop}
+  not_measured: {kind: outcome, default: note}
+  not_merged: {kind: notice, default: skip}
+  not_positive: {kind: error, default: stop}
+  not_registered: {kind: error, default: stop}
+  not_repeatable: {kind: error, default: stop}
+  not_reversed: {kind: outcome, default: note}
+  not_runnable: {kind: outcome, default: skip}
+  not_supported: {kind: error, default: stop}
+  not_timed: {kind: error, default: stop}
+  not_tried: {kind: outcome, default: note}
+  not_whole: {kind: error, default: stop}
+  nothing_converted: {kind: error, default: stop}
+  nothing_measured: {kind: error, default: stop}
+  nothing_merged: {kind: error, default: stop}
+  nothing_prepared: {kind: error, default: stop}
+  nothing_selected: {kind: error, default: stop}
+  nothing_to_check: {kind: error, default: stop}
+  nothing_to_measure: {kind: error, default: stop}
+  operation_refused: {kind: outcome, default: note}
+  oracle_failed: {kind: outcome, default: note}
+  orphan_vector: {kind: outcome, default: note}
+  out_of_range: {kind: error, default: stop}
+  output_differs: {kind: outcome, default: note}
+  outputs_not_comparable: {kind: outcome, default: note}
+  overlapping_edits: {kind: outcome, default: skip}
+  override_matches_nothing: {kind: notice, default: warn}
+  parameters_ignored: {kind: notice, default: warn}
+  parameters_not_recoverable: {kind: outcome, default: note}
+  parameters_not_reported: {kind: outcome, default: note}
+  parameters_unknown: {kind: outcome, default: note}
+  parameters_unreadable: {kind: error, default: stop}
+  pass_without_metric: {kind: error, default: stop}
+  peer_differs: {kind: outcome, default: note}
+  peer_error: {kind: outcome, default: note}
+  peer_failed: {kind: outcome, default: note}
+  peer_key_rejected: {kind: outcome, default: note}
+  peer_parameters_rejected: {kind: outcome, default: note}
+  peer_refused: {kind: outcome, default: note}
+  peer_rejects: {kind: outcome, default: note}
+  peer_setup_failed: {kind: outcome, default: note}
+  peer_unavailable: {kind: outcome, default: note}
+  pinning_unknown: {kind: notice, default: warn}
+  preparation_failed: {kind: outcome, default: skip}
+  probe_exists: {kind: error, default: stop}
+  probe_failed: {kind: outcome, default: note}
+  produce_consume: {kind: outcome, default: note}
+  producer_failed: {kind: outcome, default: note}
+  provider_not_installed: {kind: error, default: stop}
+  rails_unresponsive: {kind: outcome, default: note}
+  raw_material_refused: {kind: outcome, default: note}
+  refused_plan: {kind: error, default: stop}
+  repeat_differs: {kind: outcome, default: note}
+  results_in_temp: {kind: notice, default: warn}
+  reverse_differs: {kind: outcome, default: note}
+  reverse_failed: {kind: outcome, default: note}
+  root_not_found: {kind: error, default: stop}
+  round_trip_failed: {kind: error, default: stop}
+  runtime_differs: {kind: notice, default: skip}
+  same_output: {kind: outcome, default: note}
+  scopes_conflict: {kind: error, default: stop}
+  setup_refused: {kind: outcome, default: note}
+  several_devices: {kind: error, default: stop}
+  signature_changed: {kind: outcome, default: skip}
+  signature_needs_a_key_pair: {kind: error, default: stop}
+  single_process: {kind: outcome, default: note}
+  stopped_on_failure: {kind: error, default: stop}
+  subprocess_failed: {kind: error, default: stop}
+  sustained_performance_off: {kind: outcome, default: note}
+  tags_differently: {kind: outcome, default: note}
+  tamper_accepted: {kind: outcome, default: note}
+  temperature_discard_limit: {kind: error, default: skip, values: {nextCase: skip, stop: stop}}
+  temperature_gate_timeout: {kind: error, default: stop}
+  temperature_unreadable: {kind: error, default: skip}
+  thermal_throttle: {kind: outcome, default: note}
+  thermal_unavailable: {kind: notice, default: warn}
+  timed_phases: {kind: outcome, default: note}
+  timeout: {kind: error, default: stop}
+  too_few_runs: {kind: outcome, default: note}
+  trace_not_pulled: {kind: outcome, default: note}
+  trace_unreadable: {kind: outcome, default: note}
+  transformation_fails: {kind: outcome, default: note}
+  unavailable_recipe: {kind: error, default: stop}
+  unbalanced_call: {kind: outcome, default: skip}
+  uncovered: {kind: error, default: stop}
+  unequal_samples: {kind: error, default: stop}
+  unknown_compare: {kind: outcome, default: note}
+  unknown_key_material: {kind: outcome, default: note}
+  unknown_keys: {kind: error, default: stop}
+  unknown_parameters: {kind: outcome, default: skip}
+  unknown_per_call: {kind: error, default: stop}
+  unknown_section: {kind: error, default: stop}
+  unknown_status: {kind: outcome, default: note}
+  unknown_variant: {kind: error, default: stop}
+  unparseable_signature: {kind: outcome, default: skip}
+  unreadable_yaml: {kind: error, default: stop}
+  unsupported: {kind: error, default: stop}
+  unsupported_capture_schema: {kind: error, default: stop}
+  unsupported_expression: {kind: outcome, default: skip}
+  unsupported_kind: {kind: outcome, default: skip}
+  unsupported_language: {kind: outcome, default: skip}
+  unsupported_operation: {kind: error, default: stop}
+  unsupported_parameter: {kind: outcome, default: skip}
+  unsupported_schema: {kind: error, default: stop}
+  unsupported_schema_version: {kind: error, default: stop}
+  unused_setting: {kind: notice, default: warn}
+  usage: {kind: error, default: stop}
+  vararg_parameter: {kind: outcome, default: skip}
+  vector_incomplete: {kind: error, default: stop}
+  vector_iv_not_used: {kind: outcome, default: note}
+  vector_not_expressible: {kind: outcome, default: note}
+  vector_on_randomized_operation: {kind: error, default: stop}
+  vectors_folder_missing: {kind: error, default: stop}
+  verifies_differently: {kind: outcome, default: note}
+  verify_failed: {kind: error, default: stop}
+  verify_false: {kind: outcome, default: note}
+  verify_needs_a_key_pair: {kind: error, default: stop}
+  verify_without_signature: {kind: error, default: stop}
+  warmup_job_matches_nothing: {kind: notice, default: warn}
+  window_uncovered: {kind: outcome, default: note}
+  wrong_type: {kind: error, default: stop}

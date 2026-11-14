@@ -15,7 +15,7 @@ tools/lint/claims.py: repo path apps/perf-repair/docs/shared-functions.md # the 
 tools/lint/claims.py: repo path apps/perf-repair/docs/stops.md # the docs lint's knowledge of repo paths: a checker's own table
 tools/lint/claims.py: repo path apps/perf-repair/src/perfrepair/config/settings.py # the docs lint's knowledge of repo paths: a checker's own table
 tools/lint/claims.py: repo path apps/perf-repair/src/perfrepair/inputs/table.py # the docs lint's knowledge of repo paths: a checker's own table
-tools/lint/claims.py: repo path apps/perf-repair/src/perfrepair/stop/codes.py # the docs lint's knowledge of repo paths: a checker's own table
+tools/lint/claims.py: repo path lib/cryptobench/cryptobench/shared/errors/codes.yaml # the docs lint's knowledge of repo paths: a checker's own table
 tools/lint/claims.py: repo path tools/lint/external-names.txt # the docs lint's knowledge of repo paths: a checker's own table
 tools/lint/paths.py: repo path apps/benchmark-runner/analysis/tests/golden_summary.md # the docs lint's knowledge of repo paths: a checker's own table
 tools/lint/paths.py: repo path apps/perf-repair # the docs lint's knowledge of repo paths: a checker's own table

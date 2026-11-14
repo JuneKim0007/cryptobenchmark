@@ -1,14 +1,14 @@
-"""Code: one code's default action, the actions `stops.<code>` may choose (none: fixed), exit code and next step."""
+"""The glossary, codes.yaml: every code once with its kind and default action; Code: a code's stops.<code> entry, its
+default action, the actions `stops.<code>` may choose (none: fixed), exit code, next step and why."""
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import cache
+from importlib import resources
 
-STOP, WARN, SKIP = "stop", "warn", "skip"
-ACTIONS = (STOP, WARN, SKIP)
-MIXES = "continuing would mix runs or devices"
-NOTHING = "nothing is left to run"
-UNUSABLE = "the input is unusable"
-NOTICE = "a notice; nothing to choose"
+import yaml
+
+STOP, WARN = "stop", "warn"
 
 
 @dataclass(frozen=True)
@@ -16,11 +16,22 @@ class Code:
     code: str
     action: str
     next: str
-    allowed: tuple[str, ...] = ()
-    # every code exits 1 today; argparse refuses its own errors with 2 before any code is reached
-    exit: int = 1
-    why: str = UNUSABLE
+    allowed: tuple[str, ...]
+    exit: int
+    why: str
 
     @property
     def fixed(self) -> bool:
         return not self.allowed
+
+
+@cache
+def codes() -> dict[str, dict]:
+    """Each code's entry, in the file's order."""
+    return yaml.safe_load(resources.files(__package__).joinpath("codes.yaml").read_text(encoding="utf-8"))["codes"]
+
+
+def stops() -> tuple[Code, ...]:
+    """The codes perf-repair's stops.<code> addresses, in the file's order."""
+    return tuple(Code(name, e["default"], s["next"], tuple(s["settable"]), s["exit"], s["why"])
+                 for name, e in codes().items() if (s := e.get("stops")))

@@ -4,6 +4,8 @@ from __future__ import annotations
 import posixpath
 import re
 
+import yaml
+
 from lint.markdown import BACKTICK, clean, section
 from lint.paths import join, router_of
 from lint.tree import ROOT, Tree
@@ -11,7 +13,7 @@ from lint.tree import ROOT, Tree
 SOURCE = (".py", ".kt", ".kts", ".java", ".sh", ".gradle", ".toml")
 DATA = (".md", ".yaml", ".yml", ".json", ".jsonl", ".tsv", ".txt", ".log", ".jks", ".apk", ".jar", ".html", ".png", ".svg", ".xml", ".env")
 TABLE = "apps/perf-repair/src/perfrepair/inputs/table.py"
-CODES = "apps/perf-repair/src/perfrepair/stop/codes.py"
+CODES = "lib/cryptobench/cryptobench/shared/errors/codes.yaml"
 MOVED = "apps/perf-repair/src/perfrepair/config/settings.py"
 STOPS = "apps/perf-repair/docs/stops.md"
 EXTERNAL = "tools/lint/external-names.txt"
@@ -30,16 +32,15 @@ class Code:
         self.text = "\n".join(_read(p) for p in tree.files if not p.endswith(".md") and not TESTS.search(p))
         self.words = set(WORD.findall(self.text))
         self.external = {line.split(" : ")[0] for line in _read(EXTERNAL).splitlines() if " : " in line}
-        table, codes = _read(TABLE), _read(CODES)
+        table = _read(TABLE)
         roles = re.findall(r'RoleRow\("([^"]+)"', table)
         role_keys = re.search(r"ROLE_KEYS = \(([^)]*)\)", table).group(1)
         keys = re.findall(r'"((?:%s)\.[^"\s]+)"' % "|".join(SECTIONS), table)
         keys += re.findall(r'^    "([\w.]+)": "', _read(MOVED), re.M)
         keys += [f"{r}.{k}" for r in roles for k in re.findall(r'"(\w+)"', role_keys) + ["budget"]]
-        self.defaults = dict(re.findall(r'_choice\(\s*"(\w+)",\s*(\w+)', codes))
-        self.codes = set(re.findall(r'_(?:fixed|choice)\(\s*"(\w+)"', codes))
-        steps = re.search(r"GUIDE_STEPS = \(([^)]*)\)", codes).group(1)
-        self.codes |= {f"{s}_failed" for s in re.findall(r'"(\w+)"', steps)}
+        stops = {c: e for c, e in yaml.safe_load(_read(CODES))["codes"].items() if "stops" in e}
+        self.defaults = {c: e["default"] for c, e in stops.items() if e["stops"]["settable"]}
+        self.codes = set(stops)
         self.keys = [k.split(".") for k in keys] + [["stops", c] for c in self.codes]
 
     def key(self, token: str) -> bool:

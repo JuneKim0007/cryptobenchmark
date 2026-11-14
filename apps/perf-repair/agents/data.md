@@ -127,7 +127,7 @@ src/perfrepair/run_dir/lock.py : DeviceLock: `<device>/.lock` by fcntl.flock, th
 src/perfrepair/run_dir/read.py : artifact loaders: rows, measurements, run log, screen.json (load_screen, load_screen_catalog, load_screen_review; `built`, the digests screen.json binds to), load_used (None without used.json), read_scopes, read_sites, read_edits, read_dossiers (schema_version on another version, through read_versioned)
 src/perfrepair/run_dir/run_record.py : RunRecord, the one writer of what a device folder says is done: runs/run_<id>.json (its id, onExisting, the facade's settings tree), each <app>/finished.json (is_done, app_done; cleared on an app's first rerun step with its report), device.yaml read, write and drop, vouch_manifest after a step that only adds files; the folder's lock held from open to close
 src/perfrepair/stop/__init__.py : re-exports: CODES, halt_of, terminate
-src/perfrepair/stop/codes.py : the code table: every stop, warn and skip code once with its default action, the actions stops.<code> may choose (none: fixed, and why), exit and next step
+src/perfrepair/stop/codes.py : the code table, loaded from the glossary: every stop, warn and skip code once with its default action, the actions stops.<code> may choose (none: fixed, and why), exit and next step
 src/perfrepair/stop/terminate.py : terminate(): the action resolved, one finding event with data.code, action and next (the code's, or next_step), then Halt, warn or skip
 src/perfrepair/watch/__init__.py : docstring only
 src/perfrepair/watch/__main__.py : command: `watch <device> [--from-start]`, log/watch.py on a device folder; Ctrl-C exits 130
