@@ -59,9 +59,9 @@ cryptobench/shared/paths/results.py : Results(root): the device folders of a res
 cryptobench/shared/paths/roots.py : code_root (this checkout), benchmark_root (the checkout a run measures), each with its environment variable
 cryptobench/shared/paths/run_tree.py : RunTree: every file of one results folder; its sections Configuration, Discovery, Preparation, Measurement, Analysis, Charts, CheckFolder, InteropFolder, Scoped, Logs, Review; AppTree, GroupingTree
 cryptobench/shared/paths/settings.py : against(settings_file, value), the one rule for a path a settings file names; in_temp
-cryptobench/shared/stats/__init__.py : package of how a benchmark session decides
+cryptobench/shared/stats/__init__.py : package of the benchmark's calculations, with no I/O: descriptive statistics, the gate's and run count's equations, display units
+cryptobench/shared/stats/descriptive.py : one definition of each per-case statistic: mean, sample SD, CoV, interpolated quantiles, IQR, QCD; which one leads
 cryptobench/shared/stats/equations.py : every calculation the temperature gate and the run count use; no I/O
-cryptobench/shared/stats/stats.py : one definition of each per-case statistic: mean, sample SD, CoV, interpolated quantiles, IQR, QCD; which one leads
 cryptobench/shared/stats/units.py : DisplayUnits: nanoseconds per call in the chosen latency and throughput units; significant-figure numbers
 cryptobench/shared/versions/__init__.py : package of dependency versions
 cryptobench/shared/versions/order.py : a Gradle version: pinned or not; newest of several

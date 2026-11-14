@@ -6,7 +6,7 @@ import math
 from dataclasses import replace
 from pathlib import Path
 
-from cryptobench.shared.stats import stats
+from cryptobench.shared.stats import descriptive
 
 
 from ...dto import PrimitiveRow, Summary
@@ -25,7 +25,7 @@ def summarise(processes: list[list[float]]) -> Summary:
     if len(values) == 1:
         v = values[0]
         return Summary(v, v, v, None, 1, None, None, kept)
-    s = stats.summarize(values)
+    s = descriptive.summarize(values)
     return Summary(s["median"], s["q1"], s["q3"], s["cov"] if s["mean"] else None, s["n"], *median_interval(kept), kept)
 
 

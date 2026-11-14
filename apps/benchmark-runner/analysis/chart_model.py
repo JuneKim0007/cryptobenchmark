@@ -1,10 +1,10 @@
 """One measured case as the charts and the summary need it: statistics on ns/op, shown in the unit that fits its group."""
 import re
 
-from cryptobench.shared.stats import stats
+from cryptobench.shared.stats import descriptive
 from chart_input import UNIDENTIFIED
 
-AUDIT_TOLERANCE = 1e-9         # relative; stats.py equals Jetpack's to ~1e-12 on real device data, so more than this is a real disagreement
+AUDIT_TOLERANCE = 1e-9         # relative; descriptive.py equals Jetpack's to ~1e-12 on real device data, so more than this is a real disagreement
 PAYLOAD_GROUPS = {1, 4, 5}      # symmetric-cipher, hash, mac: cost scales with the input, so throughput means something
 
 
@@ -44,7 +44,7 @@ def audit(case, ns):
 
 
 def summarize_case(case, groups, cfg):
-    ns = stats.summarize(runs_of(case))
+    ns = descriptive.summarize(runs_of(case))
     group_id, group_label = groups.get(case["id"], UNIDENTIFIED)
     size = case.get("inputSize")
     units = cfg["units"]
@@ -60,7 +60,7 @@ def summarize_case(case, groups, cfg):
     return {
         "id": case["id"], "group": group_id, "groupLabel": group_label, "type": case["type"], "algorithm": case["algorithm"],
         "provider": case["provider"], "operation": case["operation"], "keySize": case.get("keySize"), "inputSize": size,
-        "variant": case.get("variant"), "unit": unit, "ns": ns, "shown": shown, "lead": stats.headline(ns, cfg["headline"], cfg["limit"]),
+        "variant": case.get("variant"), "unit": unit, "ns": ns, "shown": shown, "lead": descriptive.headline(ns, cfg["headline"], cfg["limit"]),
         "noisy": ns["cov"] * 100 > cfg["limit"], "audit": audit(case, ns),
     }
 
@@ -88,7 +88,7 @@ def cleaning(case):
     pauses, counts = (metrics.get(GC_PAUSE) or {}).get("runs"), (metrics.get(GC_COUNT) or {}).get("runs")
     if not pauses or not counts:
         return None
-    return {"pauseMs": stats.summarize(pauses)["median"] / 1e6, "itersWithGc": sum(count > 0 for count in counts) / len(counts)}
+    return {"pauseMs": descriptive.summarize(pauses)["median"] / 1e6, "itersWithGc": sum(count > 0 for count in counts) / len(counts)}
 
 
 def estimated_energy(raw_cases):
@@ -107,5 +107,5 @@ def summarize_count(case, groups, metric):
     return {
         "id": case["id"], "group": group_id, "groupLabel": group_label, "type": case["type"], "algorithm": case["algorithm"],
         "provider": case["provider"], "operation": case["operation"], "keySize": case.get("keySize"), "inputSize": case.get("inputSize"),
-        "variant": case.get("variant"), "metric": metric, "label": COUNT_LABELS.get(metric, metric) + (" (estimated)" if block.get("kind") == "estimated" else ""), "runs": list(runs), "stats": stats.summarize(runs),
+        "variant": case.get("variant"), "metric": metric, "label": COUNT_LABELS.get(metric, metric) + (" (estimated)" if block.get("kind") == "estimated" else ""), "runs": list(runs), "stats": descriptive.summarize(runs),
     }

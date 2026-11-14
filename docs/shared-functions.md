@@ -67,7 +67,7 @@
 | `repo(root)` | `lib/cryptobench/cryptobench/shared/paths/repo.py` | `Repo(Path(root) if root is not None else roots.code_root())` | cryptobench.shared.catalogue.algorithms, cryptobench.shared.catalogue.deviations, cryptobench.shared.catalogue.families, cryptobench.shared.catalogue.glossary +22 |
 | `code_root()` | `lib/cryptobench/cryptobench/shared/paths/roots.py` | $CRYPTOBENCH_CODE_ROOT, else the checkout of the script that runs, else this library's own; a script of checkout B beats a library installed from A. | cryptobench.shared.paths.repo, dead_code, facade.phases, lint.tree +6 |
 | `against(settings_file, value)` | `lib/cryptobench/cryptobench/shared/paths/settings.py` | A path value of a settings file: ~ expanded, joined to the file's folder, resolved. | facade.index, stages.guide |
-| `summarize(runs)` | `lib/cryptobench/cryptobench/shared/stats/stats.py` | - | analyze, chart_model |
+| `summarize(runs)` | `lib/cryptobench/cryptobench/shared/stats/descriptive.py` | - | analyze, chart_model |
 | `clean(token)` | `tools/lint/markdown.py` | `re.sub('#.*$', '', re.sub(':\\d.*$', '', token.strip()))` | lint.claims, lint.tree |
 | `map_blocks(path, text)` | `tools/lint/markdown.py` | - | docs_lint, lint.tree |
 | `is_doc(path)` | `tools/lint/paths.py` | `not is_guide(path) and 'docs' in local(path).split('/')[:-1]` | docs_lint, lint.markdown |

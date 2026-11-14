@@ -7,7 +7,7 @@ import yaml
 
 import chart_input  # noqa: E402
 import charts  # noqa: E402
-from cryptobench.shared.stats.stats import summarize
+from cryptobench.shared.stats.descriptive import summarize
 from cryptobench.shared.stats.units import DisplayUnits, number
 
 CALM = [100.0, 101.0, 99.0, 100.0, 100.0] * 10

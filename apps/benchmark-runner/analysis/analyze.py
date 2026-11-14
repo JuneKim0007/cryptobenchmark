@@ -2,7 +2,7 @@
 
     analyze.py <benchmark.json> <out dir> [effective.yaml] [prepared.yaml]
 
-Statistics are stats.py's, taken on the runs the outlier gate keeps. analysis.charts in effective.yaml picks the
+Statistics are descriptive.py's, taken on the runs the outlier gate keeps. analysis.charts in effective.yaml picks the
 charts and its meanUpToCovPercent is the stability limit (default: all, 5%). The IQR bars are charts.py's.
 """
 import pathlib
@@ -10,7 +10,7 @@ import sys
 
 import chart_input  # noqa: E402
 import chart_model  # noqa: E402
-from cryptobench.shared.stats import stats
+from cryptobench.shared.stats import descriptive
 from cryptobench.shared.stats.units import number
 from outliers import split  # noqa: E402
 from cryptobench.shared import paths
@@ -21,7 +21,7 @@ RUN_LEVEL = ("throughput", "latency", "stability")
 
 def summarize(case, groups, cfg):
     runs, removed = split(chart_model.runs_of(case))
-    ns = stats.summarize(runs)
+    ns = descriptive.summarize(runs)
     size, units = case["inputSize"], cfg["units"]
     def rate(nanos): return units.throughput_of(nanos, size)
     group, group_label = groups.get(case["id"], chart_input.UNIDENTIFIED)
