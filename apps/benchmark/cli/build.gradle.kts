@@ -48,7 +48,7 @@ val bundledArtifacts = providers.gradleProperty("bundledArtifacts").orElse("").g
 
 dependencies {
     bundledArtifacts.forEach { implementation(it) }
-    implementation("org.yaml:snakeyaml:2.3")
+    implementation(libs.snakeyaml)
     testImplementation("junit:junit:4.13.2")
 }
 

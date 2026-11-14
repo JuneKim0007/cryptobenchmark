@@ -37,5 +37,5 @@ sourceSets {
 
 dependencies {
     compileOnly(files(androidJar))
-    implementation("org.yaml:snakeyaml:2.3")
+    implementation(libs.snakeyaml)
 }

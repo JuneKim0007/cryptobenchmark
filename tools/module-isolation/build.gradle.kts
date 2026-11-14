@@ -13,6 +13,8 @@ val moduleDirectories = mapOf(
     "benchmark" to "../../apps/benchmark/modules/benchmark",
 )
 
+val snakeyaml = libs.snakeyaml
+
 configure(subprojects.filter { it.name in moduleDirectories }) {
     apply(plugin = "org.jetbrains.kotlin.jvm")
 
@@ -47,7 +49,7 @@ configure(subprojects.filter { it.name in moduleDirectories }) {
     }
 
     dependencies {
-        "implementation"("org.yaml:snakeyaml:2.3")
+        "implementation"(snakeyaml)
         "testImplementation"("junit:junit:4.13.2")
     }
 

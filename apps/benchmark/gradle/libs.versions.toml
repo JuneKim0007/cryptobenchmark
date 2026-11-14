@@ -1,0 +1,6 @@
+# The one SnakeYAML version; the root build reads this file by default, cli and tools/ builds import it in their settings.
+[versions]
+snakeyaml = "2.3"
+
+[libraries]
+snakeyaml = { module = "org.yaml:snakeyaml", version.ref = "snakeyaml" }

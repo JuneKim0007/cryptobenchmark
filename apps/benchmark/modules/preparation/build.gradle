@@ -13,7 +13,7 @@ kotlin {
 }
 
 dependencies {
-    implementation 'org.yaml:snakeyaml:2.3'
+    implementation libs.snakeyaml
     api project(':settings')
     api project(':jca')
     implementation project(':files')

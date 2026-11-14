@@ -17,7 +17,7 @@ kotlin {
 
 dependencies {
     testImplementation("com.tngtech.archunit:archunit:1.5.1")
-    testImplementation("org.yaml:snakeyaml:2.3")
+    testImplementation(libs.snakeyaml)
     testImplementation("junit:junit:4.13.2")
 }
 
