@@ -3,7 +3,7 @@ import sys
 import types
 
 from session import calibration, case_isolation, dynamic_temperature  # noqa: E402
-from session import launch as launch_module  # noqa: E402
+from session import launch as launch_module, measure  # noqa: E402
 
 
 def data(tmp_path, repeat=70_000, ns=1600.0, warmup=1000):
@@ -33,7 +33,7 @@ def launches(monkeypatch, tmp_path, repeats):
         data(tmp_path, repeat=repeats[len(calls) - 1]).rename(pulled)
     monkeypatch.setattr(case_isolation, "launch_case", launch)
     plan = types.SimpleNamespace(gate=dynamic_temperature.Off(), retries=2, test_class="T", arguments=())
-    return launch_module.run_of_case(None, plan, None, "a", [], file), len(calls)
+    return launch_module.run_of_case(None, plan, measure.Process(1, tmp_path), "a", [], file), len(calls)
 
 
 def test_a_collapsed_launch_is_measured_again_and_kept_if_the_second_is_good(monkeypatch, tmp_path):

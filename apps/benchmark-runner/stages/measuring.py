@@ -48,7 +48,7 @@ def pass_arguments(run, one):
 def timed_hooks(run, one, isolation, gate):
     """The gate holds in the launch loop, before these; its records join thermal.json here."""
     per_case = isolation == effective_view.CASE_ISOLATION
-    return [cooldown_hook.Cooldown(run.cooldown, one.label, per_case), thermal_gate.GateRecords(gate), clocks_hook.Clocks(run.device), thermal_hook.Thermal(run.device, one.label, gate)]
+    return [cooldown_hook.Cooldown(run.cooldown, one.label, per_case), thermal_gate.GateRecords(gate), clocks_hook.Clocks(run.device), thermal_hook.Thermal(run.device, one.label)]
 
 
 def thermal_flag(process):

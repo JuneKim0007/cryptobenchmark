@@ -36,6 +36,8 @@ class Process:
     into: pathlib.Path
     cases: list = dataclasses.field(default_factory=list)
     failures: list = dataclasses.field(default_factory=list)
+    start_reading: object = None
+    end_reading: object = None
 
     @property
     def data(self):

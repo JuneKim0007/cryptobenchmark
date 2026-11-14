@@ -54,10 +54,7 @@ class Off:
     def take_start(self):
         return None
 
-    def note_end(self, _reading):
-        pass
-
-    def verdict(self, _case):
+    def verdict(self, _case, _end=None):
         return eq.IGNORED
 
     def document(self):
@@ -75,7 +72,7 @@ class DynamicTemperature:
 
     def __init__(self, device, settings, sensors, problems, label):
         self.device, self.settings, self.sensors, self.problems, self.label = device, settings, sensors, problems, label
-        self.margin, self.held, self.started, self.ended, self.discards = eq.first_margin(settings.rule), {}, None, None, 0
+        self.margin, self.held, self.started, self.discards = eq.first_margin(settings.rule), {}, None, 0
         self.limits, self.waits = [], []
 
     def limit(self):
@@ -129,13 +126,10 @@ class DynamicTemperature:
         started, self.started = self.started, None
         return started
 
-    def note_end(self, reading):
-        self.ended = reading
-
-    def verdict(self, case):
-        """The finished run: hot widens the margin and is discarded, clean may narrow it, an unreadable end says nothing about heat."""
-        reading = self.ended if self.ended is not None and self.ended.skin else self.readable(thermal.poll)
-        self.ended = None
+    def verdict(self, case, end=None):
+        """The finished run, judged on its end reading when readable: hot widens the margin and is discarded, clean may narrow it,
+        an unreadable end says nothing about heat."""
+        reading = end if end is not None and end.skin else self.readable(thermal.poll)
         if not reading.skin:
             warn(f"temperature_unreadable: {case}: after the run; run discarded, moving to the next case", self.problems)
             return UNREADABLE

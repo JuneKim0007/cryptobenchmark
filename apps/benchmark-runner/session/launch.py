@@ -33,8 +33,10 @@ def run_of_case(device, plan, process, case, hooks, pulled):
     while True:
         if not gate.hold(case):
             return f"case_failed: {case}: temperature_unreadable"
+        # the gate's start reading goes to the Thermal hook and its end reading comes back for the verdict, so a run is read once at each end
+        process.start_reading, process.end_reading = gate.take_start(), None
         failure = hooked_case(process, case, hooks, lambda: case_isolation.launch_case(device, plan.test_class, plan.arguments, case, pulled))
-        verdict = gate.verdict(case) if not failure else eq.IGNORED
+        verdict = gate.verdict(case, process.end_reading) if not failure else eq.IGNORED
         if verdict == dynamic_temperature.UNREADABLE:
             pulled.unlink(missing_ok=True)
             return f"case_failed: {case}: temperature_unreadable after the run"
