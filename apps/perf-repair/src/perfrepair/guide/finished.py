@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from cryptobench.shared.digest.tree import tree_digest
 from cryptobench.shared.paths import GroupingTree, RunTree
 from cryptobench.shared import paths
 from ..ai.select.job import NAME as SELECT
@@ -29,8 +30,7 @@ def _scoper_files(name: str) -> list[Path]:
 
 
 def scoper_version() -> str:
-    files = [p for name in SCOPER for p in _scoper_files(name)]
-    return sha256_text("\n".join(f"{p.relative_to(paths.PERFREPAIR.path)} {sha256_file(p)}" for p in files))
+    return tree_digest(paths.PERFREPAIR.path, [p for name in SCOPER for p in _scoper_files(name)])
 
 
 def _harness_version(g: Guide) -> str:
@@ -46,8 +46,7 @@ def code_versions(g: Guide) -> dict:
 
 def _tree_digest(g: Guide) -> str:
     named = (BUILD_NAMES + (CATALOG,))
-    files = [p for p in walk(g.app_root) if p.suffix in SOURCE_SUFFIXES or p.name in named]
-    return sha256_text("\n".join(f"{p.relative_to(g.app_root)} {sha256_file(p)}" for p in files))
+    return tree_digest(g.app_root, [p for p in walk(g.app_root) if p.suffix in SOURCE_SUFFIXES or p.name in named])
 
 
 def inputs(g: Guide, device: bool) -> dict:

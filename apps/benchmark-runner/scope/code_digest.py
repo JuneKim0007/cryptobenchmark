@@ -1,7 +1,6 @@
 """The digest of the code from a harness.yaml to a checked harness: perf-repair reads it from --identify, and a change reruns its apps."""
-import hashlib
-
 from cryptobench.shared import paths
+from cryptobench.shared.digest.tree import tree_digest
 from cryptobench.shared.errors.coded import Coded
 
 CODE = ("apps/benchmark-runner/scope/*.py", "apps/benchmark-runner/scope_generate.py", "apps/benchmark/modules/android/src/androidTest/**/Scope*.kt")
@@ -11,17 +10,13 @@ class CodeDigestError(Coded):
     pass
 
 
-def _sha256(data):
-    return hashlib.sha256(data).hexdigest()
-
-
 def digest(root=None, patterns=CODE):
     """A pattern that matches nothing is an error: after a move the digest would stop seeing those files, and no app would rerun."""
     root = paths.code_root() if root is None else root
-    lines = []
+    files = []
     for pattern in patterns:
-        files = sorted(root.glob(pattern))
-        if not files:
+        matched = sorted(root.glob(pattern))
+        if not matched:
             raise CodeDigestError(f"missing_file: {pattern} matches nothing under {root}")
-        lines += [f"{path.relative_to(root).as_posix()} {_sha256(path.read_bytes())}" for path in files]
-    return _sha256("\n".join(lines).encode())
+        files += matched
+    return tree_digest(root, files)
