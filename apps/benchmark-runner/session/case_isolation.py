@@ -1,7 +1,7 @@
 """isolation: case: one instrumentation process per case, so a case that kills its process loses only itself."""
 import re
 
-import timeouts
+from cryptobench.shared.device import timeouts
 from failure import one_line
 from device.adb import ONE_PASSED
 

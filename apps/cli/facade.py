@@ -7,7 +7,7 @@ import facade  # noqa: F401  first: it names a missing library and puts the benc
 
 # isort: split
 import dependencies  # noqa: F401  next: it reports a missing PyYAML, which everything below needs
-import timeouts
+from cryptobench.shared.device import timeouts
 from facade import tree
 from facade.check import check
 from facade.phases import run_phases

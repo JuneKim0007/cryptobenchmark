@@ -1,7 +1,7 @@
 """Device temperatures from `dumpsys thermalservice`, which an unrooted shell may read; sensors keep the names the thermal HAL gives them."""
 import dataclasses, re
 
-import timeouts
+from cryptobench.shared.device import timeouts
 from device.adb import DeviceError
 
 TEMPERATURE = re.compile(r"Temperature\{mValue=([^,]+), mType=(-?\d+), mName=([^,}]+), mStatus=-?\d+\}")

@@ -59,7 +59,7 @@ python3 apps/benchmark-runner/pipeline.py [--config PATH] [--results DIR] [--dis
 
 ## Timeouts
 
-Every host subprocess runs under a ceiling from `apps/benchmark-runner/timeouts.py`; past it the process is killed and the run stops with `error: timeout: <step> ran past <s> s: <command>`. A ceiling only catches a hang: each is several times the longest real step, and none is a setting.
+Every host subprocess runs under a ceiling from `lib/cryptobench/cryptobench/shared/device/timeouts.py`; past it the process is killed and the run stops with `error: timeout: <step> ran past <s> s: <command>`. A ceiling only catches a hang: each is several times the longest real step, and none is a setting.
 
 | step | ceiling | covers | why this value |
 |---|---|---|---|

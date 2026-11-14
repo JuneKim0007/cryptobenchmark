@@ -3,7 +3,7 @@ import re
 import subprocess
 import sys
 
-import timeouts
+from cryptobench.shared.device import timeouts
 
 from failure import one_line
 from cryptobench.shared.errors.failures import CommandError

@@ -99,7 +99,6 @@ apps/benchmark-runner/session/variant_order.py : run.variants on a device: an it
 apps/benchmark-runner/session/warmup.py : run.warmup: a pre-flight run of a few planned cases once per device session, off at 0 iterations; its output never pulled
 apps/benchmark-runner/stages/ : the run driver's stages, one per run kind; map in its AGENTS.md
 apps/benchmark-runner/tests/ : pytest and standalone tests for apps/benchmark-runner/
-apps/benchmark-runner/timeouts.py : ceilings of the host's subprocess steps (adb, install, instrument, case, gradle, compile, energy, analysis); expiry is one coded error
 apps/benchmark/build.gradle : root buildscript: Android Gradle plugin and Kotlin plugin versions
 apps/benchmark/cli/ : the host commands: probe, configure, parse-only check, bench, end-to-end check and its diff, convert, merges, interop; JCA contract tests
 apps/benchmark/gradle.properties : Gradle daemon JVM args and AndroidX flags

@@ -2,7 +2,7 @@
 import time
 
 import effective_view
-import timeouts
+from cryptobench.shared.device import timeouts
 from session import case_isolation
 from session import dynamic_temperature, passes
 from device import thermal

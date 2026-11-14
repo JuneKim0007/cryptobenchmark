@@ -1,7 +1,7 @@
 """The device half of pipeline.py --device: adb, the instrumentation classes, and the files they leave."""
 import os, re, subprocess, time
 
-import timeouts
+from cryptobench.shared.device import timeouts
 from cryptobench.shared import paths
 from cryptobench.shared.errors.coded import Coded
 

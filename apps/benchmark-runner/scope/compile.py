@@ -1,7 +1,7 @@
 """Compiles the android test sources with Gradle; returns the compiler's error lines, empty when it passed."""
 import os, re
 
-import timeouts
+from cryptobench.shared.device import timeouts
 from cryptobench.shared import paths
 
 TASK = ":android:compileReleaseAndroidTestJavaWithJavac"

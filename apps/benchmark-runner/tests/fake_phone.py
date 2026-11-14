@@ -6,7 +6,7 @@ from device import adb as device_module  # noqa: E402
 import gradle_runner  # noqa: E402
 import bundled
 from stages import config_check
-import timeouts  # noqa: E402
+from cryptobench.shared.device import timeouts  # noqa: E402
 
 OK = types.SimpleNamespace(returncode=0, stdout="", stderr="")
 MISSING = types.SimpleNamespace(returncode=1, stdout="", stderr="not found")
