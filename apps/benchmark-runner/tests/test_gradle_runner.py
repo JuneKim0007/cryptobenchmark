@@ -1,7 +1,7 @@
 import sys
 import unittest
 
-import gradle_runner  # noqa: E402
+from cryptobench.shared.device import gradle_runner  # noqa: E402
 
 
 class FailureMessage(unittest.TestCase):

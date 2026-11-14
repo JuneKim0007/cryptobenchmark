@@ -61,7 +61,6 @@ apps/benchmark-runner/energy_stage.py : energy steps of a --device run: capture 
 apps/benchmark-runner/explain.py : each resolved setting of a run and the file it came from
 apps/benchmark-runner/failure.py : one error line and exit; reported(), a CommandError as that line, at an entry point and in harness_run (removed when the harness becomes a stage)
 apps/benchmark-runner/global_file.py : the global.yaml a run reads: --config, CRYPTOBENCH_CONFIG, the user's, the repository's
-apps/benchmark-runner/gradle_runner.py : runs one command of apps/benchmark/cli by its main class; filters its failure to the tool's own lines
 apps/benchmark-runner/pipeline.py : run driver: options and refusals, ROUTES (the first set option's stage runs on one StageContext, the plain run last), one coded failure line; --probe (discover and configure only), --identify (device id, input and harness code digests, nothing written)
 apps/benchmark-runner/results/__init__.py : package of a run's results folder: layout, manifest, input digests, device selection, per-case files
 apps/benchmark-runner/results/case_files.py : process-N/cases/<case>.json: the path of a case's pulled benchmarkData, the folder emptied per process, benchmarkData.json merged from the files

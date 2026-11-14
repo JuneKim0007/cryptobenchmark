@@ -1,7 +1,8 @@
 """What every device session of a run shares: its context, hooks, push, conversion and the files it records."""
 import dataclasses, pathlib, time
 
-import effective_view, gradle_runner
+import effective_view
+from cryptobench.shared.device import gradle_runner
 from cryptobench.shared.device.adb import Device, measure_arguments
 from energy_session import EnergySession
 from session import clocks_hook, cooldown_hook, dynamic_temperature, thermal_hook

@@ -3,7 +3,7 @@ import contextlib, json, pathlib, types
 
 from session import case_isolation  # noqa: E402
 from cryptobench.shared.device import adb as device_module  # noqa: E402
-import gradle_runner  # noqa: E402
+from cryptobench.shared.device import gradle_runner  # noqa: E402
 import bundled
 from stages import config_check
 from cryptobench.shared.device import timeouts  # noqa: E402

@@ -6,7 +6,7 @@ import yaml
 
 from stages import check  # noqa: E402
 from cryptobench.shared.device.adb import DeviceError  # noqa: E402
-import gradle_runner  # noqa: E402
+from cryptobench.shared.device import gradle_runner  # noqa: E402
 
 FILES = "/sdcard/plan"
 OPTIONS = types.SimpleNamespace(suppress_errors="EMULATOR,UNLOCKED", stacktrace=False, stream=False)

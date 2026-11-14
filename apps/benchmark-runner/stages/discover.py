@@ -1,7 +1,8 @@
 """Discover and configure: the probe, ConfigureKt or ProbeKt, effective.yaml, and the device folder the capture names."""
 import shutil, time
 
-import effective_view, gradle_runner
+import effective_view
+from cryptobench.shared.device import gradle_runner
 from device import facts
 from device.identity import capture_id, device_id
 from cryptobench.shared.errors.failures import CommandError

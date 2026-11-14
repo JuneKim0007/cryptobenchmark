@@ -2,7 +2,7 @@
 import pathlib
 import re
 
-import gradle_runner
+from cryptobench.shared.device import gradle_runner
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 CLI = ROOT / "apps/benchmark/cli/src/main/kotlin"

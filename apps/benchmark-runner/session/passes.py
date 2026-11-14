@@ -2,7 +2,7 @@
 import dataclasses, time
 
 import effective_view
-import gradle_runner
+from cryptobench.shared.device import gradle_runner
 from cryptobench.shared.errors.failures import CommandError
 from session.measure import process_folder
 from cryptobench.shared import paths

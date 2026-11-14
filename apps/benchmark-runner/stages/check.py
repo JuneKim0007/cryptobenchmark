@@ -3,7 +3,7 @@ import shutil, time
 
 import yaml
 
-import gradle_runner
+from cryptobench.shared.device import gradle_runner
 from cryptobench.shared.device.adb import NO_DEFAULT_PROFILER, PASSED, DeviceError, instrumentation_report
 from cryptobench.shared.errors.failures import CommandError
 from results.manifest import manifest
