@@ -14,7 +14,7 @@ HOLE = "\ue000"
 # a text's leading word, `{...}` as a hole; it is a code when underscored, or one word before a colon
 LEADING = re.compile(rf"^([a-z{HOLE}][a-z0-9_{HOLE}]*)([:; ]|$)")
 REPORTERS = {"fail", "warn", "guarded", "terminate", "halt", "halt_of", "warning", "exit"}
-PREFIXES = ("warning: ", "error: ", "skipped: ")
+PREFIX = re.compile(r"^(?:warning|error|skipped|facade(?: [a-z]+)?): ")
 KOTLIN_LITERAL = re.compile(r'"((?:[^"\\$]|\\.|\$\{[^}]*\}|\$)*)"')
 KOTLIN_TEMPLATE = re.compile(r"\$\{[^}]*\}|\$[A-Za-z_]\w*")
 # a document kind, read as `unsupported_<kind>_schema`; never a code itself
@@ -40,7 +40,7 @@ def leading(text):
 
 
 def unprefixed(text):
-    return next((text[len(p):] for p in PREFIXES if text.startswith(p)), text)
+    return PREFIX.sub("", text, count=1)
 
 
 def literal(node):
@@ -67,7 +67,7 @@ def python():
                 if not isinstance(call, ast.Call) or not call.args or (text := literal(call.args[0])) is None:
                     continue
                 name = getattr(call.func, "id", getattr(call.func, "attr", ""))
-                if name == "print" and text.startswith(PREFIXES):
+                if name == "print" and PREFIX.match(text):
                     text = unprefixed(text)
                 elif not (isinstance(node, ast.Raise) or name in REPORTERS):
                     continue
@@ -77,7 +77,7 @@ def python():
 
 
 def kotlin():
-    """Every main-source string literal that starts with a code, after a warning:, error: or skipped: prefix."""
+    """Every main-source string literal that starts with a code, after a warning:, error:, skipped: or facade prefix."""
     found = {}
     for path in tracked(KOTLIN, "*.kt"):
         if "/src/main/" not in path.as_posix():

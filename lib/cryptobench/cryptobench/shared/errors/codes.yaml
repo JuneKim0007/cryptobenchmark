@@ -1033,12 +1033,16 @@ codes:
   charts_failed: {kind: notice}
   # E11: Kotlin: one case's check threw, so the case is skipped (RunnablePlan.kt); runner: checked cases failed, exit 1 (stages/check.py)
   check_failed: {kind: outcome}
+  check_ok: {kind: outcome}
   cipher_needs_a_key: {kind: error}
   config_invalid: {kind: error}
   constant_iv: {kind: outcome}
   consumption_failed: {kind: outcome}
   cpu_not_locked: {kind: outcome}
   cpu_pin_failed: {kind: notice}
+  crypto_failed: {kind: error}
+  crypto_not_run: {kind: outcome}
+  crypto_ok: {kind: outcome}
   dangling_vector: {kind: error}
   decrypt_without_ciphertext: {kind: error}
   decrypts_differently: {kind: outcome}
@@ -1078,6 +1082,9 @@ codes:
   group_without_name: {kind: error}
   guide_build_fallback: {kind: notice}
   guide_recipe_unbuildable: {kind: outcome}
+  guided_not_run: {kind: outcome}
+  guided_ok: {kind: outcome}
+  guided_stopped: {kind: error}
   harness_build_failed: {kind: error}
   harness_other_device: {kind: error}
   hook_failed: {kind: notice}
