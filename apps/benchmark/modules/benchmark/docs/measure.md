@@ -114,7 +114,7 @@ Harness settings as plain values, no androidx type.
 | any other problem with one case | `dropped` line `not_converted: <id>: <message>`; the other cases convert |
 | no row at all | `ConvertKt` stops with `nothing_converted` |
 | carried metrics | the `prepared.yaml` case's `metrics`, as `MetricKeys.of`; others androidx wrote are dropped; the only place `run.metrics` filters device rows |
-| ALLOCATION not requested | androidx still runs its allocation phase and writes `allocationCount`; it is not reported |
+| ALLOCATION not requested | androidx still runs its allocation phase on a device and writes `allocationCount`; it is not reported |
 | a requested metric absent | `not_converted: <id>: missing_field: metrics.<key> for <id>; androidx wrote [..]` |
 | case without `metrics` | `not_converted: <id>: missing_field: metrics for <id>` |
 | `timeNs.iterations` | `repeatIterations`, default 1 |

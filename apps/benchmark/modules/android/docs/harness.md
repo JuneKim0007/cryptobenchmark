@@ -80,7 +80,7 @@ JetpackCase.timed: PinnedCase.run { the energy pass: benchmarkRule.measureRepeat
 | profiling | when `profiling` is set | no; trace files only |
 | allocation | always, 5 runs | `allocationCount` only when `run.metrics` has `ALLOCATION` |
 
-ALLOCATION not requested: androidx still runs its allocation phase; it is not reported. `run.metrics` selects what is reported, not what runs; the filter is `JetpackResults`: `apps/benchmark/modules/benchmark/docs/measure.md#jetpack-conversion`.
+`run.metrics` selects what is reported, not what runs: [measure.md](../../benchmark/docs/measure.md#jetpack-conversion).
 
 | rule | value |
 |---|---|

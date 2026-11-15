@@ -40,8 +40,8 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 |---|---|
 | order | items as the plan lists them; an item's `fixed` and `notFixed` cases adjacent, `fixed` first in odd repetitions and `notFixed` first in even ones (A/B, then B/A: A/B/B/A over two) |
 | item | the case id without its last part `_fixed` or `_notFixed` |
-| process | `isolation: case`: each variant in its own process, so heap and JIT state never pass between them; `isolation: run` runs both in one process, in plan order |
-| same inputs | both from the same seed and key recipe; setup, inputs and buffers before the timer |
+| process | `isolation: case`: each variant in its own process; `isolation: run`: both in one process, in plan order |
+| inputs | message bytes from `run.seed`, equal for both; keys from unseeded `SecureRandom` per process, so they differ under `isolation: case` ([operations.md](../apps/benchmark/modules/preparation/docs/operations.md#variants)); setup, inputs and buffers before the timer |
 | cost | about 2x the device cases of an item that has two variants; key generation has one |
 
 ## Temperature
@@ -93,7 +93,7 @@ Why: the phone's power controller lowers the CPU limit once skin reaches its own
 
 ## Warm-up
 
-`run.warmup` ([config.md](../apps/benchmark/modules/config/docs/config.md)): one process before the first pass of a session on a `--device` benchmark run.
+`run.warmup` ([config.md](../apps/benchmark/modules/config/docs/config.md)): one process before the first pass of a `--device` benchmark run.
 
 | rule | value |
 |---|---|

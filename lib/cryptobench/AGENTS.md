@@ -1,6 +1,6 @@
 # lib/cryptobench
 
-The implementation guide under `algorithms/` and the Python that reads it, shared by `apps/benchmark-runner` and `apps/perf-repair`. Data never lives here; readers never live in `algorithms/`.
+The Python library of `apps/benchmark-runner` and `apps/perf-repair`: `shared/` (the readers of the implementation guide under `algorithms/`, paths, documents, device mechanics, results, settings), `pipeline/` (the stage framework) and `stages/` (one package per stage). Data never lives here; readers never live in `algorithms/`.
 
 ```
 ../../algorithms/ : data: `<family>_catalogue.yaml` per family, one entry per id `<type>|<canonical>` (key, required, optional, conditions, lifecycle, operations, contract, sourcedOnly, providers, provenance); `common.yaml` sources, keyStrength maps, deterministicRelied; `recipes.yaml` how each parameter object a row names is made; `deviations.yaml` facts shared by a set of names and builds, stated once;
@@ -123,7 +123,7 @@ cryptobench/stages/measurement/session/measure.py : one device measuring session
 cryptobench/stages/measurement/session/passes.py : run.passes: one device session per metric group, its device arguments and conversion, the merge per metric; MergeRunsKt over process repetitions
 cryptobench/stages/measurement/session/thermal_hook.py : session hook: temperature around every process and case into thermal.json with the gate's history, its lines per pass
 cryptobench/stages/measurement/session/variant_order.py : run.variants on a device: an item's fixed and notFixed cases adjacent, A/B then B/A over repetitions
-cryptobench/stages/measurement/session/warmup.py : run.warmup: a pre-flight run of a few planned cases once per device session, off at 0 iterations; its output never pulled
+cryptobench/stages/measurement/session/warmup.py : run.warmup: a pre-flight run of a few planned cases before the first pass, off at 0 iterations; its output never pulled
 cryptobench/stages/measurement/start_margin.py : the temperature gate's start margin: hot, clean and ignored outcomes, the start limit and how the margin moves; no I/O
 cryptobench/stages/measurement/tests/ : pytest tests of the measurement stage
 cryptobench/stages/measurement/thermal.py : device temperatures from dumpsys thermalservice: sensors by HAL name, status, sentinels skipped, unavailable as a reason

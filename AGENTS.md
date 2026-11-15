@@ -44,10 +44,10 @@
 AGENTS.md : agent router
 README.md : project entry page
 algorithms/ : the implementation guide: one catalogue per family, recipes, deviations, names, builds; map in lib/cryptobench/AGENTS.md
-apps/benchmark-runner/analysis/ : analysis of a benchmark.json: summary, charts, statistics
+apps/benchmark-runner/analysis/ : analysis of a benchmark.json, run by path: summary, charts, statistics
 apps/benchmark-runner/demo.sh : one-command host demo run into results/demo/<device_id>
 apps/benchmark-runner/dependencies.py : the host modules a run needs, checked at its start, cryptobench from this checkout; a missing one is one coded line and exit 1
-apps/benchmark-runner/energy/ : energy sources behind one seam (rails, manafa), pre-flight, joules per case, capture resolution
+apps/benchmark-runner/energy/ : the energy scripts --energy-python runs: rails and manafa readings, pre-flight, joules per case, the capture rule
 apps/benchmark-runner/explain.py : each resolved setting of a run and the file it came from
 apps/benchmark-runner/failure.py : one error line and exit; reported(), a CommandError as that line, around an entry point's main and passed into harness_run
 apps/benchmark-runner/pipeline.py : run driver: options and refusals, ROUTES (the first set option's stage runs on one StageContext, the plain run last; the routes compose the stages), one coded failure line; --probe (discover and configure only), --identify (device id, input and harness code digests, nothing written)
@@ -79,9 +79,9 @@ apps/perf-repair/ : cryptobenchmark results to crypto replacements applied per c
 config/ : authored run configuration: global settings and test sets
 docs/ : cross-module fact docs
 docs/contributing/ : directive guides
-lib/cryptobench/ : the Python library the runner and perf-repair share: the guide's readers; map in its AGENTS.md
+lib/cryptobench/ : the Python library the runner and perf-repair share: shared components, the stage framework, the run's stages; map in its AGENTS.md
 parity/ : fixtures both languages' tests read: YAML documents with the .json value each must read to, thermal.json as the runner writes it, a duplicate-key file
-pytest.ini : the Python apps' source folders on the test path, for pytest from the repository root
+pytest.ini : the Python apps' source folders, and the test folders other tests import, on the test path for pytest from the repository root
 requirements.txt : every host Python dependency
 settings.example.yaml : template for `settings.yaml`, the facade's root index
 tools/android-api-check/ : compiles jca, document, discovery, settings, preparation, benchmark against android.jar without the JDK

@@ -120,14 +120,14 @@ The benchmark measures through one device session: [device-session.md](device-se
 | passes | `run.passes`: one session per metric group, merged per metric | per case: timing 300 samples about 38 s, energy 100 about 20 s, allocation 100 about 15 to 30 s |
 | process per case | `run.isolation: case`: one `am instrument` per case | about 1 to 2 s per case and pass, plus the plan's preparation |
 | temperature | `dumpsys thermalservice` before and after every process and case, into `benchmark.json` per case | two `dumpsys` calls per case, under a second |
-| warm-up | `run.warmup`: a pre-flight of a few cases once per session, never measured | about 2 s plus 1 s per case at 10 samples, once per run |
+| warm-up | `run.warmup`: a pre-flight of a few cases before the first pass, never measured | about 2 s plus 1 s per case at 10 samples, once per run |
 | cool-down | `run.caseCooldownSeconds`: host sleep between measured cases | `(cases - 1) x seconds` per pass |
-| thermal gate | `run.thermalGate`: keeps every run of a case under a skin temperature ([device-session.md](device-session.md#thermal-gate)) | unknown until measured |
+| thermal gate | `run.thermalGate`: keeps every run of a case under a skin temperature ([device-session.md](device-session.md#thermal-gate)) | every `cooldownMinutes` hold and every discarded run measured again |
 | frequency caps | capped cores per case at its start and end in `clocks.yaml` | two sysfs reads per case, tens of ms |
 
 ### Recover a metric without a device
 
-Androidx always runs its allocation phase, so `benchmarkData.json` holds `allocationCount` for every case even when `run.metrics` was `[TIME]`. Converting it again reports it; nothing runs on the device:
+`benchmarkData.json` holds `allocationCount` for every case even when `run.metrics` was `[TIME]` ([measure.md](../apps/benchmark/modules/benchmark/docs/measure.md#jetpack-conversion)). Converting it again reports it; nothing runs on the device:
 
 ```
 D=results/<device_id>

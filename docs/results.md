@@ -19,7 +19,7 @@ perf-repair writes the second and third lines: [artifacts.md](../apps/perf-repai
 | `--results` | the root, default `<repo>/results` |
 | folder name | `deviceId` of the manifest below, from the probe |
 | staging | discovery and configure run in `<root>/.staging-*`, then move in; a run that fails there removes it and changes nothing |
-| a finished device | a folder holding `manifest.yaml`; a publish deletes the old manifest first, so a run failing later leaves the folder without one and its partial files for debugging |
+| a finished device | a folder holding `manifest.yaml`; a publish deletes the old manifest first, so a run failing later leaves the folder without one, its partial files kept |
 | `--discovery` | `overwrite` replaces `discovery/`; `keep` and `reuse` add to it |
 | `--interop` | beside a finished run: adds `interopPlan`, `interop` to its manifest, its capture to `discovery/`; `configuration/` and the other keys stay |
 | `--check` | a full discover and configure, then `check/`; the manifest gains `check` |

@@ -57,7 +57,7 @@ Only `cpu` declares `requires` and `resolve`. How config applies the result: `ap
 
 `cpu.core` outside `0..63` and not `big` fails `invalid: cpu.core <v>, an index 0..63 or big`.
 
-`run.metrics` (`Metric`): no device fact limits a metric; config refuses a name outside `Metric` (below). It selects what `benchmark.json` reports, not what androidx runs: ALLOCATION not requested: androidx still runs its allocation phase; it is not reported.
+`run.metrics` (`Metric`): no device fact limits a metric; config refuses a name outside `Metric` (below). It selects what `benchmark.json` reports, not what androidx runs ([measure.md](../../benchmark/docs/measure.md#jetpack-conversion)).
 
 | `Metric.read` input | failure |
 |---|---|
