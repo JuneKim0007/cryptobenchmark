@@ -1,6 +1,6 @@
 import json
 
-from stages import not_measured  # noqa: E402
+from cryptobench.stages.analysis import not_measured
 
 
 def test_a_planned_timed_case_absent_from_the_results_is_one_record(tmp_path):

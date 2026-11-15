@@ -1,9 +1,9 @@
-"""The benchmark of a plain run: on the device in passes and sessions, or on the host JVM; then the analysis."""
-import pathlib, subprocess, sys, time
+"""The benchmark of a plain run: on the device in passes and sessions, or on the host JVM."""
+import pathlib, time
 
 import dependencies, energy_stage
 from cryptobench.shared.settings import bundled, effective_view
-from cryptobench.shared.device import gradle_runner, timeouts
+from cryptobench.shared.device import gradle_runner
 from energy_session import EnergySession
 from cryptobench.pipeline.warn import warn
 from cryptobench.shared.errors.line import one_line
@@ -11,7 +11,6 @@ from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared import paths
 from session import case_isolation, energy_hook, passes, variant_order, warmup
 from session import measure as measure_session
-from stages import not_measured
 from stages.measuring import (Measuring, convert, energy_preflight, gated, pass_arguments, record, session_arguments, singles,
                               thermal_flag, timed_hooks)
 from cryptobench.shared.device.push import push
@@ -51,37 +50,6 @@ def dry_pass(session, into, preparation, problems, guarded):
     energy_stage.guarded(problems, step) if guarded else step()
 
 
-def analyse(results, files, effective, preparation, benchmark, written, repetitions):
-    print(f"wrote:     {paths.Measurement(benchmark).json}")
-    files["benchmark"] = paths.Measurement(benchmark).json
-    if repetitions > 1:
-        files["processes"] = written
-    started = time.monotonic()
-    data, prepared = str(paths.Measurement(benchmark).json), str(paths.Preparation(preparation).prepared)
-    # charts only show a benchmark already paid for: a failure warns, the first ends them, and the run keeps its files
-    analysis = str(paths.RunTree(results).analysis.root)
-    failed = (drawing_failed("analysis/analyze.py", data, analysis, str(effective), prepared)
-              or drawing_failed("analysis/run_counts.py", analysis, *map(str, written if repetitions > 1 else [data]))
-              or drawing_failed("analysis/charts.py", data, prepared, str(effective), str(results)))
-    if failed:
-        print(f"warning: charts_failed: {failed}")
-    elapsed("analyse", started)
-
-
-def drawing_failed(script, *arguments):
-    """The reason this analysis script failed, else None; what it says on stderr still reaches the run's output."""
-    try:
-        done = timeouts.run("analysis", [sys.executable, str(paths.repo().runner / script), *arguments], stderr=subprocess.PIPE, text=True, check=False)
-    except timeouts.StepTimeout as error:
-        return one_line(error)
-    if done.returncode == 0:
-        if done.stderr:
-            print(done.stderr, end="", file=sys.stderr)
-        return None
-    last = done.stderr.strip().splitlines()[-1:] or [f"exit {done.returncode}"]
-    return one_line(f"{script}: {last[0]}")
-
-
 def measure_cases(options, device, results, discovery, effective, capture, trial, files, problems):
     benchmark, preparation = paths.RunTree(results).benchmark.root, paths.RunTree(results).preparation.root
     started = time.monotonic()
@@ -102,9 +70,7 @@ def measure_cases(options, device, results, discovery, effective, capture, trial
     print(f"wrote:     {paths.Preparation(preparation).prepared}")
     elapsed("prepare and measure", started)
     collapse(files, preparation, processes)
-    if timed:
-        not_measured.report(paths.Preparation(preparation).prepared, paths.Measurement(benchmark).json, problems)
-        analyse(results, files, effective, preparation, benchmark, written, repetitions)
+    return timed, written, repetitions
 
 
 def device_cases(run, document, plan_files, captures, benchmark, preparation):

@@ -15,6 +15,8 @@ from cryptobench.shared.results import layout as results_layout
 from cryptobench.shared.results import run_inputs
 from cryptobench.shared.results.manifest import manifest
 from scope import code_digest
+from cryptobench.stages.analysis import not_measured
+from cryptobench.stages.analysis.scripts import analyse
 from cryptobench.stages.configuration import config_check, guide
 from stages.benchmark import measure_cases
 from stages.check import check_run
@@ -108,8 +110,17 @@ def measured(context):
     results, (discovery, effective, capture, trial, files) = discover_published(options, configuration, device, published(context), context.checked["bundled"])
     files["guide"] = guide.write(effective, capture)
     if not options.probe and (options.bench or device):
-        measure_cases(options, device, results, discovery, effective, capture, trial, files, context.problems)
+        benchmarked(options, device, results, discovery, effective, capture, trial, files, context.problems)
     manifest(results, "device" if device else "host", configuration, files, context.problems)
+
+
+def benchmarked(options, device, results, discovery, effective, capture, trial, files, problems):
+    """Measurement, then the analysis of what it timed."""
+    timed, written, repetitions = measure_cases(options, device, results, discovery, effective, capture, trial, files, problems)
+    if timed:
+        benchmark, preparation = paths.RunTree(results).benchmark.root, paths.RunTree(results).preparation.root
+        not_measured.report(paths.Preparation(preparation).prepared, paths.Measurement(benchmark).json, problems)
+        analyse(results, files, effective, preparation, benchmark, written, repetitions)
 
 
 # the first row whose option is set runs; None marks the plain run, the last row

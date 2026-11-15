@@ -1193,7 +1193,7 @@ codes:
   not_in_plan: {kind: notice}
   not_installed: {kind: outcome}
   not_measurable: {kind: error}
-  # E11: runner: a planned case missing from benchmark.json (stages/not_measured.py); manafa: an energy reason's prefix (energy/manafa_estimate.py)
+  # E11: runner: a planned case missing from benchmark.json (stages/analysis/not_measured.py); manafa: an energy reason's prefix (energy/manafa_estimate.py)
   not_measured: {kind: outcome}
   not_merged: {kind: notice}
   not_positive: {kind: error}

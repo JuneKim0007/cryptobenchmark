@@ -1,8 +1,7 @@
 """Planned timed cases the final benchmark.json lacks, whatever lost them: the device, the conversion or the merge."""
 import json
 
-
-from energy_stage import capture
+from cryptobench.shared.settings.energy_capture import capture
 from cryptobench.shared.document.document import read_yaml
 
 

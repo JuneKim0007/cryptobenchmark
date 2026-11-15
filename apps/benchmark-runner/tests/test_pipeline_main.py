@@ -31,8 +31,9 @@ def calls(monkeypatch, tmp_path):
     monkeypatch.setattr(pipeline.dependencies, "check", recorder("dependencies"))
     monkeypatch.setattr(pipeline, "Device", Device)
     monkeypatch.setattr(pipeline.paths, "repo", lambda: pipeline.paths.Repo(tmp_path))
-    for name in ("identify", "harness_run", "interop_run", "check_run", "measure_cases", "manifest"):
+    for name in ("identify", "harness_run", "interop_run", "check_run", "manifest"):
         monkeypatch.setattr(pipeline, name, recorder(name))
+    monkeypatch.setattr(pipeline, "measure_cases", recorder("measure_cases", (False, [], 1)))
     monkeypatch.setattr(pipeline, "checked_folder", recorder("checked_folder"))
     monkeypatch.setattr(pipeline.results_layout, "warn_if_temp", recorder("warn_if_temp"))
     monkeypatch.setattr(pipeline, "discover_published", recorder("discover_published", (tmp_path, (None, None, None, None, {}))))

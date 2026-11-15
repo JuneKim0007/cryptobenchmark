@@ -2,6 +2,7 @@
 import pytest
 import yaml
 
+from cryptobench.stages.analysis import scripts
 from cryptobench.stages.discovery import capture_files, facts
 from cryptobench.shared.results import layout
 from stages import benchmark, check
@@ -82,8 +83,8 @@ def test_a_failed_chart_script(tmp_path, monkeypatch, capsys):
     tools = tmp_path / "apps/benchmark-runner/analysis"
     tools.mkdir(parents=True)
     (tools / "analyze.py").write_text("import sys; print('broken input', file=sys.stderr); raise SystemExit(3)\n")
-    monkeypatch.setattr(benchmark.paths, "repo", lambda: benchmark.paths.Repo(tmp_path))
-    benchmark.analyse(tmp_path, {}, tmp_path / "effective.yaml", tmp_path / "preparation", tmp_path / "benchmark", [], 1)
+    monkeypatch.setattr(scripts.paths, "repo", lambda: scripts.paths.Repo(tmp_path))
+    scripts.analyse(tmp_path, {}, tmp_path / "effective.yaml", tmp_path / "preparation", tmp_path / "benchmark", [], 1)
     lines = capsys.readouterr().out.splitlines()
     assert lines[0] == f"wrote:     {tmp_path / 'benchmark/benchmark.json'}"
     assert lines[1] == "warning: charts_failed: analysis/analyze.py: broken input"

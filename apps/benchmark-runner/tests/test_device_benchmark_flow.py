@@ -7,6 +7,7 @@ import yaml
 from cryptobench.shared.device.adb import DeviceError  # noqa: E402
 from cryptobench.shared.errors.failures import EnergyError  # noqa: E402
 from session import clocks_hook, cooldown_hook  # noqa: E402
+import pipeline  # noqa: E402
 from stages import benchmark  # noqa: E402
 from failure import reported  # noqa: E402
 from fake_phone import Energy, Phone, fake_tools  # noqa: E402
@@ -38,12 +39,12 @@ def measured(tmp_path, monkeypatch, run, phone=None, **phone_options):
     monkeypatch.setattr(benchmark.dependencies, "require_energy", lambda *_arguments: None)
     phone = phone or Phone(tmp_path, **phone_options)
     fake_tools(monkeypatch, phone)
-    monkeypatch.setattr(benchmark, "analyse", lambda results, files, *_rest: files.update(benchmark=results / "benchmark/benchmark.json"))
+    monkeypatch.setattr(pipeline, "analyse", lambda results, files, *_rest: files.update(benchmark=results / "benchmark/benchmark.json"))
     monkeypatch.setattr(benchmark.energy_stage, "source", lambda *_arguments, **_options: Energy(phone))
     monkeypatch.setattr(benchmark.EnergySession, "pull_traces", lambda _self, _traces, fresh=True: phone.log.append("pull traces") or 0)
     results, effective, capture, trial = layout(tmp_path, run)
     files, problems = {"effective": effective}, []
-    benchmark.measure_cases(OPTIONS, phone, results, results / "discovery", effective, capture, trial, files, problems)
+    pipeline.benchmarked(OPTIONS, phone, results, results / "discovery", effective, capture, trial, files, problems)
     return phone, files, problems, results
 
 

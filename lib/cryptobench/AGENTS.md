@@ -87,6 +87,10 @@ cryptobench/shared/stats/units.py : DisplayUnits: nanoseconds per call in the ch
 cryptobench/shared/versions/__init__.py : package of dependency versions
 cryptobench/shared/versions/order.py : a Gradle version: pinned or not; newest of several
 cryptobench/stages/__init__.py : package of the run's stages, one package each, importing none of them
+cryptobench/stages/analysis/__init__.py : package of the analysis stage
+cryptobench/stages/analysis/not_measured.py : planned timed cases the final benchmark.json lacks: one not_measured line each, recorded in the manifest
+cryptobench/stages/analysis/scripts.py : the analysis scripts over a measured benchmark.json, by path; the first that fails is one charts_failed warning
+cryptobench/stages/analysis/tests/ : pytest tests of the analysis stage
 cryptobench/stages/configuration/__init__.py : package of the configuration stage
 cryptobench/stages/configuration/config_check.py : the parse-only check of a global.yaml and its test set before any build, through CheckConfigKt; providers.bundled from its output
 cryptobench/stages/configuration/global_file.py : the global.yaml a run reads: --config, CRYPTOBENCH_CONFIG, the user's, the repository's
