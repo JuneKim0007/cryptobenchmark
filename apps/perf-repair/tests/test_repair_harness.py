@@ -7,7 +7,8 @@ from cryptobench.shared.paths import AppTree
 from perfrepair.dto.site import (DOSSIERS_SCHEMA_VERSION, SCOPES_SCHEMA_VERSION, Scope, scope_id,
                                  REPLACEMENTS_SCHEMA_VERSION)
 from perfrepair.dto.replacement import Edit, read_replacements
-from perfrepair.files import read_json, write_json
+from perfrepair.files import read_json
+from cryptobench.shared.document.json_dump import write_json
 from perfrepair.repair.__main__ import main
 from perfrepair.repair.dependencies import dependencies, load
 from perfrepair.dto.unit import Link, Unit, unit_id

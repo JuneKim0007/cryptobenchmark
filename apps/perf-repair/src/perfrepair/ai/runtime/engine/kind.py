@@ -4,7 +4,7 @@ from typing import Any, Callable, Protocol
 
 from ....dto.decision import OutboxRecord
 from ....dto.prompt import TaskPrompt
-from ....files import json_text
+from cryptobench.shared.document.json_dump import json_text
 
 
 class DecisionKind(Protocol):

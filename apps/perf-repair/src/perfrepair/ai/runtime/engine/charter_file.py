@@ -6,7 +6,8 @@ from pathlib import Path
 from ....dto.charter import charter_document, read_charter
 from cryptobench.shared.errors.input_error import InputError
 from ....dto.prompt import Charter
-from ....files import read_json, write_json
+from ....files import read_json
+from cryptobench.shared.document.json_dump import write_json
 
 
 class CharterMismatch(InputError):

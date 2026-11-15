@@ -19,7 +19,8 @@ from ..dto.perf_mode import NO_EVIDENCE, PerfMode
 from ..dto.site import Scope
 from ..dto.dossier import reason_code
 from ..dto.unit import read_units
-from ..files import read_json, write_json
+from ..files import read_json
+from cryptobench.shared.document.json_dump import write_json
 from ..log import step
 from ..screen.catalog import Catalog
 from ..validation.grouping.output import read_groups

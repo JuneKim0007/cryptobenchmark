@@ -11,7 +11,7 @@ from ...dto.dossier import NO_SECURE_OPTION, PERSON_JUDGES, reason_code
 from ...dto.perf_mode import GENERIC_MODE
 from ...dto.upgrade import (FALLBACK_SOURCE, LIST_SOURCE, MODEL_SOURCE, NEEDS_MIGRATION, NO_SECURE, NOT_REACHED, STATIC_SOURCE,
                             Upgrade, UpgradeItem, read_upgrades)
-from ...files import json_text
+from cryptobench.shared.document.json_dump import json_text
 from cryptobench.shared.digest.tree import byte_digest
 from ...result.upgrades import edits_of, needs_person, settled
 from ...validation.dossiers.document import perf_of

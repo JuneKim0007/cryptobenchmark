@@ -40,7 +40,7 @@ from perfrepair.dto.primitives_missing import (
     pointer_line,
 )
 from perfrepair.dto.site import SITES_SCHEMA_VERSION
-from perfrepair.files import write_json
+from cryptobench.shared.document.json_dump import write_json
 from perfrepair.log.read import read_events
 from perfrepair.result.primitives import NotScreened, build_table
 from cryptobench.shared.errors import policy

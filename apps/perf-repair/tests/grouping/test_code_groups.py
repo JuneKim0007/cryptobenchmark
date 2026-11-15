@@ -10,7 +10,7 @@ from perfrepair.ai.runtime.engine.outbox import active_fingerprint, active_outbo
 from perfrepair.dto.grouping_state import Group, code_made
 from helpers import CATALOG
 from perfrepair.dto.screen import Verdict, screen_document
-from perfrepair.files import write_json
+from cryptobench.shared.document.json_dump import write_json
 from perfrepair.run_dir import built
 from perfrepair.grouping.interop_plan import write_plan
 from perfrepair.grouping.report.checks import report

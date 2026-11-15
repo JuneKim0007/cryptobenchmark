@@ -10,7 +10,7 @@ from perfrepair.dto.lifecycle import Step
 from perfrepair.dto.site import SCOPES_SCHEMA_VERSION
 from perfrepair.dto.site import Scope
 from perfrepair.dto.unit import Link, Unit
-from perfrepair.files import write_json
+from cryptobench.shared.document.json_dump import write_json
 from perfrepair.scope.build import build_scopes
 from perfrepair.scope.units.build import build_units
 from perfrepair.validation.finding import BLOCKING, UNDECIDED

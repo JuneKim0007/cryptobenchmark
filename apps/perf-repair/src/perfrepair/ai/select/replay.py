@@ -1,7 +1,8 @@
 """A Select source's file checked as written, then rebuilt from its outbox as the job projects it and compared byte for byte."""
 from __future__ import annotations
 
-from ...files import json_text, read_json
+from ...files import read_json
+from cryptobench.shared.document.json_dump import json_text
 from ..runtime.engine.outbox import OutboxError, active_outbox
 
 

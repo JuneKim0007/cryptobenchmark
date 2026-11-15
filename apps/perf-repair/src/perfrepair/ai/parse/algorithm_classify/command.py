@@ -7,7 +7,8 @@ from cryptobench.shared.paths import GroupingTree
 from ....dto.classify import UNSURE, Batch, batch_ids, batches_document, read_batches
 from ....dto.prompt import TaskPrompt
 from ....dto.screen import Verdict
-from ....files import read_json, write_json
+from ....files import read_json
+from cryptobench.shared.document.json_dump import write_json
 from cryptobench.shared.document.write import write_text
 from ...runtime.agent import Conversations, ScriptedConversations
 from ...runtime.engine.ask import Limits

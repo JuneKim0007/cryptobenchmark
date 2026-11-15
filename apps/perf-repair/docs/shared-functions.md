@@ -37,9 +37,7 @@
 | `read_units(doc)` | `src/perfrepair/dto/unit.py` | - | check.apps, repair.__main__, repair.dossier, report.app_report |
 | `units_by_scope(units)` | `src/perfrepair/dto/unit.py` | `{member: u for u in units for member in u.members}` | repair.edit.app, repair.harness, report.app_report, result.unit_dossiers |
 | `reported(step)` | `src/perfrepair/failure.py` | step's exit code when it returns one, else 0; a FAILURES exception is `error <it>` on stderr and its code's exit. | ai.__main__, app.__main__, data_handler.inbound.__main__, grouping.__main__ +6 |
-| `json_text(doc)` | `src/perfrepair/files.py` | `json.dumps(doc, indent=1)` | ai.runtime.engine.kind, ai.select.replay, ai.select.units, ai.select.upgrades +2 |
 | `read_json(path)` | `src/perfrepair/files.py` | `json.loads(read_text(path))` | ai.parse.algorithm_classify.command, ai.parse.grouping_assign.kind, ai.runtime.engine.charter_file, ai.runtime.engine.outbox +30 |
-| `write_json(path, doc, durable, exclusive)` | `src/perfrepair/files.py` | `write_text(path, json_text(doc), durable, exclusive)` | ai.parse.algorithm_classify.command, ai.runtime.engine.charter_file, ai.runtime.engine.decide, ai.runtime.engine.outbox +11 |
 | `write_text_making_parents(path, text)` | `src/perfrepair/files.py` | - | ai.log.attempt_log, device.benchmark_coverage, device.delta, device.delta_config +5 |
 | `attach(device_results)` | `src/perfrepair/log/attach.py` | At a command's start with no folder: handlers, a new run; again once the folder is known: events.jsonl. | ai.__main__, app.__main__, data_handler.inbound.__main__, grouping.__main__ +6 |
 | `run_id()` | `src/perfrepair/log/attach.py` | The attached run's id; a call outside any command run gets one of its own. | ai.log.attempt_log, data_handler.outbound.benchmark_runner, device.benchmark_coverage, device.gate +2 |

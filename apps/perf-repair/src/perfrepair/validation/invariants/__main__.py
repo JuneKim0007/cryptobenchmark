@@ -2,10 +2,10 @@
 from __future__ import annotations
 
 import argparse
-import json
 import sys
 from pathlib import Path
 
+from cryptobench.shared.document.json_dump import json_text
 from ..finding import BLOCKING, blocking, counts
 from . import run_invariants
 
@@ -27,7 +27,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"{name}: " + ", ".join(f"{n} {s}" for s, n in sorted(by.items())))
     print(f"invariants: {len(blocking(found))} blocking, {len(found) - len(blocking(found))} other")
     if args.json:
-        args.json.write_text(json.dumps({"counts": table, "findings": [v.to_json() for v in found]}, indent=1) + "\n")
+        args.json.write_text(json_text({"counts": table, "findings": [v.to_json() for v in found]}) + "\n")
     return 1 if blocking(found) else 0
 
 

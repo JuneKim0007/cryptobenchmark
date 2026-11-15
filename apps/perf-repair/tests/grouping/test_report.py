@@ -67,7 +67,7 @@ def test_report_writes_validated_checks_and_groups(paths):
 
 def test_report_refuses_an_unfinished_grouping(paths):
     from perfrepair.dto.grouping_state import Knowledge as K
-    from perfrepair.files import write_json
+    from cryptobench.shared.document.json_dump import write_json
     write_json(paths.knowledge, K().to_json())
     with pytest.raises(ValidationFailed, match="not decided yet"):
         report(paths, FAMILIES)

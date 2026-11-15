@@ -7,7 +7,7 @@ from pathlib import Path
 from cryptobench.shared.paths import RunTree
 from cryptobench.shared.paths import AI_LOGS
 from ..ai.log.attempt_log import read_log
-from ..files import write_json
+from cryptobench.shared.document.json_dump import write_json
 from .sheet import GROUPING, read_sheet
 from cryptobench.shared.errors.input_error import InputError
 

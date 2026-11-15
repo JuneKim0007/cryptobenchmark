@@ -8,7 +8,7 @@ from pathlib import Path
 from ....dto.decision import OutboxRecord
 from ....dto.event import END, START
 from ....dto.prompt import Charter
-from ....files import write_json
+from cryptobench.shared.document.json_dump import write_json
 from ....log import emit
 from ....log.emit import elapsed_ms
 from cryptobench.shared.errors.validation import require

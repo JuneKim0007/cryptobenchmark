@@ -9,7 +9,8 @@ import pytest
 
 from cryptobench.shared.paths import LOCK
 from cryptobench.shared.errors.input_error import InputError
-from perfrepair.files import read_json, write_json
+from perfrepair.files import read_json
+from cryptobench.shared.document.json_dump import write_json
 from cryptobench.shared.document.write import TEMP_SUFFIX
 from perfrepair.run_dir.lock import DeviceLock
 

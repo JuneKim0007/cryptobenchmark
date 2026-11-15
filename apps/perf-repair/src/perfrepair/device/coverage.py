@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from cryptobench.shared.paths import GroupingTree
 from ..ai.parse.grouping_assign.kind import GroupingKind
 from ..ai.runtime.engine.outbox import active_outbox
-from ..files import json_text
+from cryptobench.shared.document.json_dump import json_text
 from ..grouping.report.checks import report_documents
 
 

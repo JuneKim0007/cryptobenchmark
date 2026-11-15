@@ -15,7 +15,8 @@ from perfrepair.ai.runtime.engine.decide import decide
 from cryptobench.shared.catalogue.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD, KEY_UNKNOWN, Item, Profile, profiles_document, read_profiles
 from perfrepair.dto.grouping_state import Group, Knowledge
 from perfrepair.dto.interop import member, pair_status
-from perfrepair.files import read_json, write_json
+from perfrepair.files import read_json
+from cryptobench.shared.document.json_dump import write_json
 from perfrepair.grouping.interop_plan import write_plan
 from perfrepair.grouping.interop_read import import_results
 from perfrepair.grouping.report.checks import report

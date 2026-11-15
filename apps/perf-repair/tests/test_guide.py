@@ -20,7 +20,8 @@ from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.engine.decide import decide
 from perfrepair.ai.select.command import dry_run
 from perfrepair.ai.runtime.engine.outbox import active_outbox
-from perfrepair.files import read_json, write_json
+from perfrepair.files import read_json
+from cryptobench.shared.document.json_dump import write_json
 from perfrepair.grouping.report.checks import report
 from perfrepair.guide.run import run_app, run_sequence
 from perfrepair.guide.device_steps import DEVICE_LEVEL

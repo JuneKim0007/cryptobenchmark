@@ -3,7 +3,7 @@ import shutil
 from pathlib import Path
 
 import pytest
-from perfrepair.files import write_json
+from cryptobench.shared.document.json_dump import write_json
 from perfrepair.validation.finding import ADVISORY, BLOCKING, UNDECIDED
 from perfrepair.validation.grouping import invariants as inv
 from perfrepair.validation.invariants import load_grouping, run_invariants

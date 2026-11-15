@@ -37,7 +37,8 @@ from cryptobench.shared.catalogue.grouping import KEY_PROVIDER_HELD, items_docum
 from perfrepair.dto.grouping_state import Group, code_made
 from perfrepair.dto.screen import screen_document
 from cryptobench.shared.catalogue.signature import UNKNOWN
-from perfrepair.files import read_document, write_json
+from perfrepair.files import read_document
+from cryptobench.shared.document.json_dump import write_json
 from perfrepair.grouping.build.items import build
 from perfrepair.grouping.report.checks import report
 from perfrepair.grouping.report.rules import check

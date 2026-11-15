@@ -6,7 +6,7 @@ from grouping_data import BENCHMARK, FAMILIES, INVENTORY, NAMES, PREPARED, PROBE
 
 from cryptobench.shared.paths import GroupingTree
 from cryptobench.shared.catalogue.grouping import items_document, profiles_document
-from perfrepair.files import write_json
+from cryptobench.shared.document.json_dump import write_json
 from perfrepair.grouping.build.items import build
 from perfrepair.ai.parse.grouping_assign.kind import charter
 

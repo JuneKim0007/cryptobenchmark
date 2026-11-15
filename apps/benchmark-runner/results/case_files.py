@@ -3,6 +3,7 @@ import json
 import shutil
 
 from cryptobench.shared import paths
+from cryptobench.shared.document.json_dump import json_text
 
 
 def path(into, case):
@@ -19,5 +20,5 @@ def cleared(into):
 def merge(into, cases, data):
     """data from the kept files of cases, in their order: the first case's context, every case's benchmarks."""
     documents = [json.loads(path(into, case).read_text()) for case in cases]
-    data.write_text(json.dumps({"context": documents[0].get("context") or {},
-                                "benchmarks": [benchmark for document in documents for benchmark in document.get("benchmarks") or []]}, indent=1))
+    data.write_text(json_text({"context": documents[0].get("context") or {},
+                               "benchmarks": [benchmark for document in documents for benchmark in document.get("benchmarks") or []]}))

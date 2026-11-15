@@ -17,7 +17,7 @@ from cryptobench.shared.catalogue.grouping import Item, qualified
 from ..dto.grouping_state import Knowledge
 from ..dto.screen import ACCEPTED, BROKEN
 from ..dto.used import CANDIDATE, GROUP, SITE, UPGRADE, VIA, AppUse, UsedItem, UsedSet
-from ..files import write_json
+from cryptobench.shared.document.json_dump import write_json
 from ..log import step
 from cryptobench.shared.errors.validation import require
 from ..validation.used import validate_used

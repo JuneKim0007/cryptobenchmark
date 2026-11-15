@@ -13,7 +13,7 @@ from ...dto.perf_mode import GENERIC_MODE, PerfMode
 from ...dto.primitives import PrimitivesTable
 from ...dto.replacement import Replacement, read_replacements
 from ...dto.unit import UnitDossiers
-from ...files import json_text
+from cryptobench.shared.document.json_dump import json_text
 from cryptobench.shared.digest.tree import byte_digest
 from ...result.gain import IMPROVED, WORSE, by_change
 from ...result.upgrades import edits_of

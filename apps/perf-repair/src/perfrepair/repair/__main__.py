@@ -12,7 +12,8 @@ from ..dto.replacement import Replacement, read_replacements
 from ..dto.site import Scope
 from ..dto.unit import read_units
 from ..dto.upgrade import UPGRADED
-from ..files import read_json, write_json
+from ..files import read_json
+from cryptobench.shared.document.json_dump import write_json
 from cryptobench.shared.document.write import write_text
 from .. import run_dir as rd
 from ..config.args import add_config_arg, load_settings, perf_mode

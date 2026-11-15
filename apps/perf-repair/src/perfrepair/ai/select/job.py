@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ...files import write_json
+from cryptobench.shared.document.json_dump import write_json
 from cryptobench.shared.errors.validation import require
 from ..job import Job
 from ..tools.tool import args_schema

@@ -14,7 +14,8 @@ from perfrepair.device.used import used_set, write_used
 from cryptobench.shared.catalogue.grouping import profiles_document, read_profiles
 from cryptobench.shared.catalogue.signature import Component, Signature
 from perfrepair.dto.used import UsedItem, UsedSet
-from perfrepair.files import read_json, write_json
+from perfrepair.files import read_json
+from cryptobench.shared.document.json_dump import write_json
 from perfrepair.grouping.report.checks import report
 from cryptobench.shared.errors.validation import ValidationFailed
 from perfrepair.validation.used import validate_used

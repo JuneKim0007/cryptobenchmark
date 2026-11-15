@@ -9,7 +9,8 @@ from ..data_handler.inbound import build_run_log, comparability, manifest_file, 
 from ..data_handler.inbound.results import ended_throttled, thermal_of
 from ..dto import Measurements
 from ..dto.primitive import ROWS_SCHEMA_VERSION
-from ..files import read_json, write_json
+from ..files import read_json
+from cryptobench.shared.document.json_dump import write_json
 from ..log import step
 from cryptobench.shared.errors.validation import require
 from ..validation import validate_manifest, validate_measurements, validate_rows, validate_run_log

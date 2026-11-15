@@ -10,7 +10,8 @@ from cryptobench.shared.errors.input_error import InputError
 from perfrepair.dto.decision import OUTBOX_RECORD_DOC
 from cryptobench.shared.document.document import DocumentKind
 from perfrepair.dto.site import SCOPES_DOC
-from perfrepair.files import read_versioned, write_json
+from perfrepair.files import read_versioned
+from cryptobench.shared.document.json_dump import write_json
 from cryptobench.shared.errors.coded import code_of
 from perfrepair.stop import CODES
 

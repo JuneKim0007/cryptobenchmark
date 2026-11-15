@@ -27,10 +27,6 @@ def read_versioned(kind: DocumentKind, path: Path) -> dict:
     return kind.check(read_document(path), path)
 
 
-def json_text(doc: dict) -> str:
-    return json.dumps(doc, indent=1)
-
-
 def _ends_mid_line(path: Path) -> bool:
     if not path.is_file() or path.stat().st_size == 0:
         return False
@@ -86,10 +82,6 @@ def read_jsonl(path: Path) -> Jsonl:
             continue
         (cut.append(n) if value is CUT else records.append((n, value)))
     return Jsonl(records, cut, bad, bool(text) and not text.endswith("\n"))
-
-
-def write_json(path: Path, doc: dict, durable: bool = False, exclusive: bool = False) -> Path:
-    return write_text(path, json_text(doc), durable, exclusive)
 
 
 def write_text_making_parents(path: Path, text: str) -> Path:

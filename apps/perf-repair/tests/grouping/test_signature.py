@@ -35,7 +35,8 @@ from cryptobench.shared.catalogue.signature import (
     NON_EXPORTABLE,
     UNKNOWN,
 )
-from perfrepair.files import read_document, write_json
+from perfrepair.files import read_document
+from cryptobench.shared.document.json_dump import write_json
 from perfrepair.grouping.build.items import build
 from perfrepair.grouping.report.checks import report
 from perfrepair.probe.identified import identified, screened_out

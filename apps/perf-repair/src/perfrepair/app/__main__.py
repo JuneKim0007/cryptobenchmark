@@ -15,7 +15,7 @@ from ..dto.dossier import NOT_ON_DEVICE, NOT_ON_DEVICE_ABSENT, NOT_ON_DEVICE_STE
 from ..dto.site import SITES_SCHEMA_VERSION
 from ..config.device_results import add_device_results_arg, fill_device_results
 from ..failure import reported
-from ..files import write_json
+from cryptobench.shared.document.json_dump import write_json
 from ..log import attach, step
 from ..scope.build import Scoping, build_scopes
 from ..stop import terminate

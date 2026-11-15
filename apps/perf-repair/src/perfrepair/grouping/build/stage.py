@@ -10,7 +10,7 @@ from cryptobench.shared.catalogue.names import Names
 from ...data_handler.inbound import RunContext
 from cryptobench.shared.catalogue.grouping import items_document, profiles_document
 from ...dto.screen import CODE_GROUPED, screen_document
-from ...files import json_text
+from cryptobench.shared.document.json_dump import json_text
 from cryptobench.shared.digest.tree import byte_digest
 from cryptobench.shared.document.write import write_texts
 from ...log import step
