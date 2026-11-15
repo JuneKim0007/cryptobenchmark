@@ -60,7 +60,7 @@ CapturedEnvironment, TrialReport -> RequirementTrial -> RequirementReport -> Req
 | alias | `AliasedProvider(alias, provider)` | forwards `getService` and `getServices`; each service is re-bound so an instance reports the alias; property map copied except `Provider.id*` |
 | record | `ProviderProbe.capture(..., bundled)` | an installed name gets `origin: bundled` and its `artifact`; every other provider `platform` |
 
-Errors are `BundledProviderException` with a `code`. The preparation and perf-repair readers ignore capture keys they do not know; discovery's own reader requires `origin`, so `reusable` re-probes over a capture without it.
+Errors are `BundledProviderException` with a `code`. The preparation and perf-repair readers ignore capture keys they do not know; discovery's own reader requires `origin`; `reusable` re-probes over a capture without it.
 
 ## Runtime
 
