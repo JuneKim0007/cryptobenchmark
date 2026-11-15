@@ -1,8 +1,6 @@
 """Reading effective.yaml the way a run needs it: the settings, with what the run noticed joined back from report.yaml."""
 import pathlib
 
-import yaml
-
 from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared import paths
 from cryptobench.shared.document.document import read_yaml

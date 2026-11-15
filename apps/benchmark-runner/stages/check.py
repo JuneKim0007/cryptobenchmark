@@ -1,8 +1,6 @@
 """A --check run: every planned case called once through the real harness, on the host JVM or the device in one process, its output checked; check.yaml."""
 import shutil, time
 
-import yaml
-
 from cryptobench.shared.device import gradle_runner
 from cryptobench.shared.device.adb import NO_DEFAULT_PROFILER, PASSED, DeviceError, instrumentation_report
 from cryptobench.shared.errors.failures import CommandError
