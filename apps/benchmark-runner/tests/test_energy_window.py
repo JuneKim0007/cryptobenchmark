@@ -1,6 +1,6 @@
 """The energy hook around a device process: the window spans the device run, joules comes after it, a failed energy step costs only energy."""
 
-import energy_stage  # noqa: E402
+from cryptobench.stages.measurement.energy import steps as energy_stage
 from cryptobench.shared.errors.failures import EnergyError  # noqa: E402
 from session import measure as measure_session  # noqa: E402
 from session import energy_hook  # noqa: E402

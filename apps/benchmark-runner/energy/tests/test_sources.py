@@ -5,10 +5,10 @@ import pytest
 import yaml
 
 import rails_run  # noqa: E402
-from sources import SOURCES  # noqa: E402
-from sources import rails_source as rails_module  # noqa: E402
-from sources.rails_source import RailsSource  # noqa: E402
-from sources.runner import Host, case_arguments  # noqa: E402
+from cryptobench.stages.measurement.energy.sources import SOURCES
+from cryptobench.stages.measurement.energy.sources import rails_source as rails_module
+from cryptobench.stages.measurement.energy.sources.rails_source import RailsSource
+from cryptobench.stages.measurement.energy.sources.runner import Host, case_arguments
 from cryptobench.shared.errors.failures import EnergyError  # noqa: E402
 
 FAKE = pathlib.Path(__file__).parent / "fake_manafa"
@@ -85,7 +85,7 @@ def test_a_missing_manafa_is_one_coded_line(tmp_path, monkeypatch):
 
 
 def test_the_check_reports_what_it_got_and_never_reads_rails(tmp_path, monkeypatch, capsys):
-    monkeypatch.setattr("sources.manafa_source.PREFLIGHT_SECONDS", 0)
+    monkeypatch.setattr("cryptobench.stages.measurement.energy.sources.manafa_source.PREFLIGHT_SECONDS", 0)
     capability = manafa(monkeypatch).preflight(None, tmp_path, False)
     document = yaml.safe_load(capability.read_text())
     assert (document["source"], document["kind"], document["started"], document["usable"]) == ("manafa", "estimated", True, True)
@@ -99,7 +99,7 @@ def test_the_check_reports_what_it_got_and_never_reads_rails(tmp_path, monkeypat
     ("stop=fails", "manafa_stop_failed: unable to pull trace file"), ("consumption=fails", "consumption_failed: no samples"),
     ("consumption=zero", "no_estimate: 0.0")])
 def test_a_check_that_got_no_number_refuses_with_a_code(tmp_path, monkeypatch, behaviour, reason):
-    monkeypatch.setattr("sources.manafa_source.PREFLIGHT_SECONDS", 0)
+    monkeypatch.setattr("cryptobench.stages.measurement.energy.sources.manafa_source.PREFLIGHT_SECONDS", 0)
     with pytest.raises(EnergyError) as refused:
         manafa(monkeypatch, behaviour).preflight(None, tmp_path, False)
     assert str(refused.value) == f"manafa_cannot_start: {reason}"

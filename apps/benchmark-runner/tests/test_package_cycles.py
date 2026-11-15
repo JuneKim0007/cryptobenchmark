@@ -2,7 +2,7 @@ import ast
 import pathlib
 
 SCRIPTS = pathlib.Path(__file__).resolve().parent.parent
-# energy/ and analysis/ are search paths of their own; the runner appends energy/ to its path
+# energy/ and analysis/ are search paths of their own
 OWN_ROOTS = (SCRIPTS / "energy", SCRIPTS / "analysis")
 
 
@@ -13,7 +13,7 @@ def root_of(path):
 def search_path(path):
     root = root_of(path)
     if root == SCRIPTS:
-        return (SCRIPTS, SCRIPTS / "energy")
+        return (SCRIPTS,)
     return (root, SCRIPTS) if root == SCRIPTS / "energy" else (root,)
 
 
@@ -79,11 +79,10 @@ def cycles(edges):
     return [node for node in sorted(edges) if node in reachable(edges, node)]
 
 
-def test_every_package_is_a_node_with_edges_into_energy_and_analysis():
+def test_every_package_is_a_node_and_energy_imports_its_own_parts():
     edges = graph()
     assert {"energy", "analysis", "stages", "session", "scope", "device", "results"} <= set(edges)
-    assert "energy" in edges["energy_stage"]
-    assert {"capture", "rails"} <= graph(SCRIPTS / "energy")["energy"] and "runner" in graph(SCRIPTS / "energy" / "sources")["manafa_source"]
+    assert {"capture", "rails"} <= graph(SCRIPTS / "energy")["energy"]
 
 
 def test_no_package_of_the_runner_imports_itself_through_another():

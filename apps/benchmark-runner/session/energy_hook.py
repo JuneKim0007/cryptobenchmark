@@ -1,7 +1,7 @@
 """Session hook: the energy source's window around a process, its traces, dry pass and joules."""
 import contextlib
 
-import energy_stage
+from cryptobench.stages.measurement.energy import steps as energy_stage
 from session.measure import Hooks
 from cryptobench.shared import paths
 

@@ -27,7 +27,7 @@ class BenchmarkRunError(RuntimeError):
 
 
 class EnergyError(Coded):
-    """Raised by the energy sources, reported by the runner; one class whichever name the sources load under."""
+    """Raised by the energy sources, reported by the runner."""
 
 
 class CommandError(Coded):

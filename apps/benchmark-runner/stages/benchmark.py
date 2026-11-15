@@ -1,10 +1,11 @@
 """The benchmark of a plain run: on the device in passes and sessions, or on the host JVM."""
 import time
 
-import dependencies, energy_stage
+import dependencies
 from cryptobench.shared.settings import bundled, effective_view
 from cryptobench.shared.device import gradle_runner
-from energy_session import EnergySession
+from cryptobench.stages.measurement.energy import steps as energy_stage
+from cryptobench.stages.measurement.energy.session import EnergySession
 from cryptobench.pipeline.warn import warn
 from cryptobench.shared.errors.line import one_line
 from cryptobench.shared.errors.failures import CommandError

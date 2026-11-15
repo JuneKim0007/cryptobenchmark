@@ -52,7 +52,7 @@ cryptobench/shared/digest/__init__.py : package of the digests over bytes
 cryptobench/shared/digest/tree.py : byte_digest, the sha256 of some bytes; file_digest, of a file's bytes, None when absent; tree_digest, one digest of files in a given order, each its path under a root and its byte digest
 cryptobench/shared/errors/__init__.py : package of the coded errors, importing nothing from the repo
 cryptobench/shared/errors/coded.py : CODE and code_in, the code word a failure message starts with; code_of, the code a failure carries as `.code`; Coded, the marker of a failure whose message is its coded line (adds no ValueError base)
-cryptobench/shared/errors/failures.py : AgentFailed (a provider's one coded failure line), GateError (the app gate's coded reasons), BenchmarkRunError (a pipeline.py run that failed), each on its own base; EnergyError (an energy source failed), one class whichever name energy/sources loads under; CommandError (the runner's library code ends the run, its entry point prints the line)
+cryptobench/shared/errors/failures.py : AgentFailed (a provider's one coded failure line), GateError (the app gate's coded reasons), BenchmarkRunError (a pipeline.py run that failed), each on its own base; EnergyError (an energy source failed); CommandError (the runner's library code ends the run, its entry point prints the line)
 cryptobench/shared/errors/codes.yaml : the glossary: every code once with its kind, its default action where a reader resolves it, an alias setting's values, perf-repair's stops.<code> entry
 cryptobench/shared/errors/glossary.py : codes.yaml read through importlib.resources; Code: one code's default action, the actions stops.<code> may choose (none: fixed, and why), exit and next step; the action stop
 cryptobench/shared/errors/halt.py : Halt, the exception terminate raises after its event
@@ -101,6 +101,12 @@ cryptobench/stages/discovery/capture_files.py : the capture, trial and requireme
 cryptobench/stages/discovery/discover.py : discover and configure: probe or host discovery, ConfigureKt, effective.yaml summary; three end states: in place, staged (the caller publishes), published under the capture's device id
 cryptobench/stages/discovery/facts.py : device facts into discovery/facts.yaml
 cryptobench/stages/discovery/tests/ : pytest tests of the discovery stage
+cryptobench/stages/measurement/__init__.py : package of the measurement stage
+cryptobench/stages/measurement/energy/__init__.py : package of the energy steps of a --device run on the host
+cryptobench/stages/measurement/energy/session.py : Perfetto sessions on the device: start, stop, pull
+cryptobench/stages/measurement/energy/sources/ : one adapter per energy.source on the host; how the host runs apps/benchmark-runner/energy
+cryptobench/stages/measurement/energy/steps.py : energy steps of a --device run: capture selection, the run's energy source
+cryptobench/stages/measurement/tests/ : pytest tests of the measurement stage
 cryptobench/stages/verification/__init__.py : package of the verification stage
 cryptobench/stages/verification/check.py : --check run: every planned case once through the real harness (host CheckKt, device EndToEndCheck under the dry run), check.yaml, its summary and failures
 cryptobench/stages/verification/interop.py : --interop run: the plan's pairs on the host or device, published beside a finished run or as a new device folder; discovery's steps passed in

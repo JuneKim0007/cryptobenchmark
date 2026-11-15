@@ -1,16 +1,14 @@
 """The energy steps of pipeline.py --device: capture selection and the run's one energy source."""
 import sys
 
-
 from cryptobench.shared.device import timeouts
 from cryptobench.shared.device.adb import DeviceError
 from cryptobench.shared.errors.line import one_line
 from cryptobench.shared import paths
 from cryptobench.shared.settings.energy_capture import capture, source as source_of
 
-paths.add_energy_imports()
-from sources import SOURCES  # noqa: E402
-from sources.runner import Host  # noqa: E402
+from cryptobench.stages.measurement.energy.sources import SOURCES
+from cryptobench.stages.measurement.energy.sources.runner import Host
 from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.errors.failures import EnergyError
 

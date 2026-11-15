@@ -1,8 +1,6 @@
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from energy_session import EnergySession  # noqa: E402
+from cryptobench.stages.measurement.energy.session import EnergySession
 
 
 class Phone:

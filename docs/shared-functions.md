@@ -12,8 +12,6 @@
 | `read(device)` | `apps/benchmark-runner/device/thermal.py` | - | session.dynamic_temperature, session.thermal_hook, session.warmup |
 | `one_line(error)` | `apps/benchmark-runner/energy/energy.py` | `' '.join(str(error).split())[:200] or type(error).__name__` | none |
 | `one_line(error)` | `apps/benchmark-runner/energy/manafa_estimate.py` | `' '.join(str(error).split()) or type(error).__name__` | manafa_session |
-| `case_arguments(captures_found, capability, preparation, data, traces, dry_calls, out)` | `apps/benchmark-runner/energy/sources/runner.py` | - | sources.manafa_source, sources.rails_source |
-| `guarded(problems, step)` | `apps/benchmark-runner/energy_stage.py` | An energy step that fails costs this process its energy, never its timing: one error line, recorded. | session.energy_hook, stages.benchmark |
 | `fail(message)` | `apps/benchmark-runner/failure.py` | - | dependencies, pipeline |
 | `reported()` | `apps/benchmark-runner/failure.py` | A CommandError as fail() prints it; CommandError is imported here because dependencies.py imports this file before it checks for cryptobench. | dependencies, explain, pipeline, stages.harness |
 | `generate(harness_path, root, out, compiler)` | `apps/benchmark-runner/scope/generate.py` | No scope compiled still writes an empty catalog, so no failed scope's source is left to break the test APK. | scope_generate, stages.harness |
@@ -33,8 +31,8 @@
 | `load(path)` | `lib/cryptobench/cryptobench/shared/catalogue/recipes.py` | - | cryptobench.shared.catalogue.algorithms, cryptobench.shared.catalogue.guide_items, cryptobench.shared.catalogue.vectors |
 | `view_for(identifier, provider, catalogue, builds)` | `lib/cryptobench/cryptobench/shared/catalogue/views.py` | provider: a build key "<name> @ <build>", or a name one build carries; none is the base entry. Only that build's differences apply; no other build's section is kept. | cryptobench.shared.catalogue.guide_items, cryptobench.shared.catalogue.vectors |
 | `ONE_PASSED` | `lib/cryptobench/cryptobench/shared/device/adb.py` | `re.compile('^OK \\(1 test\\)', re.M)` | cryptobench.stages.verification.interop_oracle, session.case_isolation |
-| `PASSED` | `lib/cryptobench/cryptobench/shared/device/adb.py` | `re.compile('^OK \\(\\d+ tests?\\)', re.M)` | cryptobench.stages.verification.check, energy_session, session.measure, session.warmup |
-| `instrumentation_report(output)` | `lib/cryptobench/cryptobench/shared/device/adb.py` | - | cryptobench.stages.verification.check, cryptobench.stages.verification.interop_oracle, energy_session |
+| `PASSED` | `lib/cryptobench/cryptobench/shared/device/adb.py` | `re.compile('^OK \\(\\d+ tests?\\)', re.M)` | cryptobench.stages.measurement.energy.session, cryptobench.stages.verification.check, session.measure, session.warmup |
+| `instrumentation_report(output)` | `lib/cryptobench/cryptobench/shared/device/adb.py` | - | cryptobench.stages.measurement.energy.session, cryptobench.stages.verification.check, cryptobench.stages.verification.interop_oracle |
 | `platform(runtime)` | `lib/cryptobench/cryptobench/shared/device/capture.py` | The guide's name for where this capture ran: android-<sdk>, else jdk-<major> of a host JVM. | cryptobench.stages.configuration.guide, cryptobench.stages.verification.known_answers |
 | `read_runtime(path)` | `lib/cryptobench/cryptobench/shared/device/capture.py` | `runtime(read_yaml(path))` | cryptobench.shared.device.identity, cryptobench.stages.discovery.facts |
 | `read(device)` | `lib/cryptobench/cryptobench/shared/device/clocks.py` | `parse(device.shell(READ))` | cryptobench.stages.discovery.facts, session.clocks_hook |
@@ -49,9 +47,9 @@
 | `json_text(doc)` | `lib/cryptobench/cryptobench/shared/document/json_dump.py` | `json.dumps(doc, indent=1)` | chart_report, results.case_files, session.thermal_hook |
 | `write_text(path, text, durable, exclusive, staging)` | `lib/cryptobench/cryptobench/shared/document/write.py` | durable: the file and its folder are fsync'd; exclusive: an existing file is refused, checked before staging. | cryptobench.shared.document.json_dump, cryptobench.shared.results.manifest |
 | `code_in(text)` | `lib/cryptobench/cryptobench/shared/errors/coded.py` | - | cryptobench.shared.errors.failures, cryptobench.shared.errors.input_error |
-| `one_line(error, limit)` | `lib/cryptobench/cryptobench/shared/errors/line.py` | `' '.join(str(error).split())[:limit]` | cryptobench.shared.device.gradle_runner, cryptobench.stages.analysis.scripts, device.thermal, energy_stage +7 |
+| `one_line(error, limit)` | `lib/cryptobench/cryptobench/shared/errors/line.py` | `' '.join(str(error).split())[:limit]` | cryptobench.shared.device.gradle_runner, cryptobench.stages.analysis.scripts, cryptobench.stages.measurement.energy.steps, device.thermal +7 |
 | `android_home()` | `lib/cryptobench/cryptobench/shared/paths/host.py` | `Path(os.environ.get('ANDROID_HOME') or home() / 'Library/Android/sdk')` | cryptobench.shared.device.adb, scope.compile |
-| `platform_tools()` | `lib/cryptobench/cryptobench/shared/paths/host.py` | `android_home() / 'platform-tools'` | cryptobench.shared.device.adb, energy_stage |
+| `platform_tools()` | `lib/cryptobench/cryptobench/shared/paths/host.py` | `android_home() / 'platform-tools'` | cryptobench.shared.device.adb, cryptobench.stages.measurement.energy.steps |
 | `repo(root)` | `lib/cryptobench/cryptobench/shared/paths/repo.py` | `Repo(Path(root) if root is not None else roots.code_root())` | cryptobench.shared.catalogue.algorithms, cryptobench.shared.catalogue.deviations, cryptobench.shared.catalogue.families, cryptobench.shared.catalogue.glossary +24 |
 | `code_root()` | `lib/cryptobench/cryptobench/shared/paths/roots.py` | $CRYPTOBENCH_CODE_ROOT, else the checkout of the script that runs, else this library's own; a script of checkout B beats a library installed from A. | cryptobench.shared.paths.repo, dead_code, facade.phases, lint.tree +6 |
 | `against(settings_file, value)` | `lib/cryptobench/cryptobench/shared/paths/settings.py` | A path value of a settings file: ~ expanded, joined to the file's folder, resolved. | cryptobench.stages.verification.known_answers, facade.index |
@@ -64,10 +62,12 @@
 | `entry_count(document)` | `lib/cryptobench/cryptobench/shared/settings/effective_view.py` | `sum((len(names) for types in (document.get('providers') or {}).values() for names in types.values()))` | cryptobench.stages.discovery.discover, explain |
 | `read(effective_file)` | `lib/cryptobench/cryptobench/shared/settings/effective_view.py` | - | cryptobench.stages.discovery.discover, stages.benchmark |
 | `thermal_gate(document)` | `lib/cryptobench/cryptobench/shared/settings/effective_view.py` | run.thermalGate as :config validated it, or None when absent. | stages.benchmark, stages.measuring |
-| `capture(node, default)` | `lib/cryptobench/cryptobench/shared/settings/energy_capture.py` | `_energy(node).get('capture', default)` | cryptobench.stages.analysis.not_measured, dependencies, energy_stage |
-| `source(node, default)` | `lib/cryptobench/cryptobench/shared/settings/energy_capture.py` | `_energy(node).get('source', default)` | dependencies, energy_stage |
+| `capture(node, default)` | `lib/cryptobench/cryptobench/shared/settings/energy_capture.py` | `_energy(node).get('capture', default)` | cryptobench.stages.analysis.not_measured, cryptobench.stages.measurement.energy.steps, dependencies |
+| `source(node, default)` | `lib/cryptobench/cryptobench/shared/settings/energy_capture.py` | `_energy(node).get('source', default)` | cryptobench.stages.measurement.energy.steps, dependencies |
 | `summarize(runs)` | `lib/cryptobench/cryptobench/shared/stats/descriptive.py` | - | analyze, chart_model |
 | `global_config(argument)` | `lib/cryptobench/cryptobench/stages/configuration/global_file.py` | - | dependencies, pipeline |
+| `case_arguments(captures_found, capability, preparation, data, traces, dry_calls, out)` | `lib/cryptobench/cryptobench/stages/measurement/energy/sources/runner.py` | - | cryptobench.stages.measurement.energy.sources.manafa_source, cryptobench.stages.measurement.energy.sources.rails_source |
+| `guarded(problems, step)` | `lib/cryptobench/cryptobench/stages/measurement/energy/steps.py` | An energy step that fails costs this process its energy, never its timing: one error line, recorded. | session.energy_hook, stages.benchmark |
 | `clean(token)` | `tools/lint/markdown.py` | `re.sub('#.*$', '', re.sub(':\\d.*$', '', token.strip()))` | lint.claims, lint.tree |
 | `map_blocks(path, text)` | `tools/lint/markdown.py` | - | docs_lint, lint.tree |
 | `is_doc(path)` | `tools/lint/paths.py` | `not is_guide(path) and 'docs' in local(path).split('/')[:-1]` | docs_lint, lint.markdown |

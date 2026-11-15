@@ -50,8 +50,6 @@ apps/benchmark-runner/dependencies.py : the host modules a run needs, checked at
 apps/benchmark-runner/device/__init__.py : package of the attached device's reads the stages own: temperatures
 apps/benchmark-runner/device/thermal.py : device temperatures from dumpsys thermalservice: sensors by HAL name, status, sentinels skipped, unavailable as a reason
 apps/benchmark-runner/energy/ : energy sources behind one seam (rails, manafa), pre-flight, joules per case, capture resolution
-apps/benchmark-runner/energy_session.py : Perfetto sessions on the device: start, stop, pull
-apps/benchmark-runner/energy_stage.py : energy steps of a --device run: capture selection, the run's energy source
 apps/benchmark-runner/explain.py : each resolved setting of a run and the file it came from
 apps/benchmark-runner/failure.py : one error line and exit; reported(), a CommandError as that line, at an entry point and in harness_run (removed when the harness becomes a stage)
 apps/benchmark-runner/pipeline.py : run driver: options and refusals, ROUTES (the first set option's stage runs on one StageContext, the plain run last; the routes compose the stages), one coded failure line; --probe (discover and configure only), --identify (device id, input and harness code digests, nothing written)

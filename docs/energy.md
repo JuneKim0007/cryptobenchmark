@@ -36,7 +36,7 @@
 | `manafa` | `estimated` | `manafa` 0.4.14: `power_profile.xml`, cpufreq, batterystats | a short session |
 
 - A run has one source; entries that differ fail with `energy_sources_differ`.
-- `apps/benchmark-runner/energy_stage.py` picks the adapter; each adapter has `preflight`, `window` (around the device run) and `joules`.
+- `lib/cryptobench/cryptobench/stages/measurement/energy/steps.py` picks the adapter; each adapter has `preflight`, `window` (around the device run) and `joules`.
 - `manafa` facts, its pre-flight and its reasons: [energy-manafa.md](energy-manafa.md).
 
 ## Pre-flight
@@ -126,8 +126,6 @@
 ## Files
 
 ```
-apps/benchmark-runner/energy_session.py : starts, stops and pulls Perfetto sessions on the device
-apps/benchmark-runner/energy_stage.py : capture selection, the run's one source
 apps/benchmark-runner/energy/capture.py : resolves a node's capture and source against the default
 apps/benchmark-runner/energy/energy.pbtx : Perfetto config for the dry host session
 apps/benchmark-runner/energy/energy.py : rail traces to energy.json; the case windows both sources read
@@ -137,8 +135,10 @@ apps/benchmark-runner/energy/preflight.py : idle and busy traces to energy.yaml
 apps/benchmark-runner/energy/rails/ : cumulative counter arithmetic; trace queries for rails, markers, timed phases, clock offset
 apps/benchmark-runner/energy/requirements-manafa.txt : manafa, pinned; optional
 apps/benchmark-runner/energy/requirements.txt : perfetto, pyyaml
-apps/benchmark-runner/energy/sources/ : one adapter per energy.source on the host; how the host runs apps/benchmark-runner/energy
 apps/benchmark-runner/energy/tests/ : capture, counters, window, preflight, judge and source tests; a fake manafa; recorded rails output
+lib/cryptobench/cryptobench/stages/measurement/energy/session.py : starts, stops and pulls Perfetto sessions on the device
+lib/cryptobench/cryptobench/stages/measurement/energy/sources/ : one adapter per energy.source on the host; how the host runs apps/benchmark-runner/energy
+lib/cryptobench/cryptobench/stages/measurement/energy/steps.py : capture selection, the run's one source
 ```
 
 | command | arguments |

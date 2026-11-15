@@ -1,7 +1,7 @@
 
 import pytest
 
-import energy_stage
+from cryptobench.stages.measurement.energy import steps as energy_stage
 from cryptobench.shared.errors.failures import EnergyError  # noqa: E402
 
 

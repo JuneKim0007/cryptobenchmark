@@ -7,13 +7,6 @@ import sys
 from .repo import repo
 
 
-def add_energy_imports() -> None:
-    """The runner imports energy's sources; appended, so the runner's own modules keep their names."""
-    folder = str(repo().energy)
-    if folder not in sys.path:
-        sys.path.append(folder)
-
-
 def add_app_imports() -> None:
     """The facade runs the runner's and perf-repair's code in one process."""
     r = repo()
