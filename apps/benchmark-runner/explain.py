@@ -8,7 +8,7 @@ import pathlib
 import sys
 
 
-import effective_view
+from cryptobench.shared.settings import effective_view
 from cryptobench.shared import paths
 from results import select
 from failure import reported

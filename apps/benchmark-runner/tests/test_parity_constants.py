@@ -4,7 +4,7 @@ import ast
 import pathlib
 import re
 
-import bundled
+from cryptobench.shared.settings import bundled
 from analysis import chart_input
 from session import case_isolation, passes, thermal_hook, variant_order
 from scope import wrapper

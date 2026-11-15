@@ -2,7 +2,7 @@
 import copy, hashlib, json
 
 
-import bundled
+from cryptobench.shared.settings import bundled
 from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared.document.document import read_yaml
 

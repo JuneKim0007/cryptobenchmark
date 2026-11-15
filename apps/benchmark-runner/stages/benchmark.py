@@ -1,7 +1,8 @@
 """The benchmark of a plain run: on the device in passes and sessions, or on the host JVM; then the analysis."""
 import subprocess, sys, time
 
-import bundled, dependencies, effective_view, energy_stage
+import dependencies, energy_stage
+from cryptobench.shared.settings import bundled, effective_view
 from cryptobench.shared.device import gradle_runner, timeouts
 from energy_session import EnergySession
 from cryptobench.pipeline.warn import warn

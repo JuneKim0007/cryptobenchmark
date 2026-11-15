@@ -12,7 +12,7 @@ from cryptobench.shared import paths
 from cryptobench.shared.catalogue import vectors
 from stages.discover import device_discover
 from cryptobench.pipeline.took import elapsed
-import bundled
+from cryptobench.shared.settings import bundled
 from cryptobench.shared.document.document import read_yaml
 
 # androidx.benchmark 1.5.0: one call per measureRepeated, no warm-up, no timing, no output file

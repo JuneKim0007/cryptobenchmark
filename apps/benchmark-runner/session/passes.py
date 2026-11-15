@@ -1,7 +1,7 @@
 """run.passes: one device session per metric group, what each pass asks the device and converts, and the merge per metric of their results."""
 import dataclasses, time
 
-import effective_view
+from cryptobench.shared.settings import effective_view
 from cryptobench.shared.device import gradle_runner
 from cryptobench.shared.errors.failures import CommandError
 from session.measure import process_folder

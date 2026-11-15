@@ -4,7 +4,7 @@ import pathlib
 import tempfile
 import unittest
 
-import effective_view  # noqa: E402
+from cryptobench.shared.settings import effective_view  # noqa: E402
 from session import passes, warmup  # noqa: E402
 from failure import reported  # noqa: E402
 

@@ -9,7 +9,7 @@ TWO_NAMES = f"""
 import importlib, sys
 sys.path[:0] = [{str(RUNNER)!r}, {str(pathlib.Path(cryptobench.__file__).parents[1])!r}]
 by_package = importlib.import_module("energy.sources.manafa_source")
-import dependencies
+import energy_stage
 by_folder = importlib.import_module("sources.manafa_source")
 from cryptobench.shared.errors.failures import EnergyError
 assert by_package is not by_folder

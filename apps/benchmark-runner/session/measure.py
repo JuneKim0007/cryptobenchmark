@@ -2,7 +2,7 @@
 each process and each case."""
 import dataclasses, pathlib, re
 
-import effective_view
+from cryptobench.shared.settings import effective_view
 from cryptobench.shared.errors.line import one_line
 from results import case_files
 from session import calibration, case_isolation, dynamic_temperature, launch

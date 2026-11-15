@@ -4,7 +4,7 @@ import shlex
 import tempfile
 import unittest
 
-import bundled  # noqa: E402
+from cryptobench.shared.settings import bundled  # noqa: E402
 
 CONSCRYPT = {"artifact": "org.conscrypt:conscrypt-android:2.5.3", "create": "org.conscrypt.Conscrypt#newProvider"}
 

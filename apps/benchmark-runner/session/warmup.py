@@ -1,7 +1,7 @@
 """run.warmup: a pre-flight run of a few cases once per device session, before the first pass; its output is deleted, never pulled or converted."""
 import time
 
-import effective_view
+from cryptobench.shared.settings import effective_view
 from cryptobench.shared.device import timeouts
 from session import case_isolation
 from session import dynamic_temperature, passes
