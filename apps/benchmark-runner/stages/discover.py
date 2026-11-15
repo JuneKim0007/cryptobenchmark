@@ -7,7 +7,7 @@ from device import facts
 from cryptobench.shared.device.identity import capture_id, device_id
 from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared import paths
-from results import layout as results_layout
+from cryptobench.shared.results import layout as results_layout
 from cryptobench.shared.settings import bundled
 from stages import capture_files, config_check, guide
 from cryptobench.pipeline.took import elapsed

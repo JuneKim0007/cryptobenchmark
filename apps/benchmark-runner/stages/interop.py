@@ -3,8 +3,8 @@ import pathlib, time
 
 from cryptobench.shared.device.identity import capture_id
 from cryptobench.shared.errors.failures import CommandError
-from results import layout as results_layout
-from results.manifest import add_to_manifest, manifest
+from cryptobench.shared.results import layout as results_layout
+from cryptobench.shared.results.manifest import add_to_manifest, manifest
 from stages import interop_oracle
 from stages.discover import discover_staged, located
 from cryptobench.pipeline.took import elapsed

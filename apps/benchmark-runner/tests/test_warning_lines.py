@@ -3,7 +3,7 @@ import pytest
 import yaml
 
 from device import facts
-from results import layout
+from cryptobench.shared.results import layout
 from stages import benchmark, capture_files, check
 from stages.measuring import record
 from fake_phone import Phone

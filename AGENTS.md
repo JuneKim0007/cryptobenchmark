@@ -57,12 +57,8 @@ apps/benchmark-runner/explain.py : each resolved setting of a run and the file i
 apps/benchmark-runner/failure.py : one error line and exit; reported(), a CommandError as that line, at an entry point and in harness_run (removed when the harness becomes a stage)
 apps/benchmark-runner/global_file.py : the global.yaml a run reads: --config, CRYPTOBENCH_CONFIG, the user's, the repository's
 apps/benchmark-runner/pipeline.py : run driver: options and refusals, ROUTES (the first set option's stage runs on one StageContext, the plain run last), one coded failure line; --probe (discover and configure only), --identify (device id, input and harness code digests, nothing written)
-apps/benchmark-runner/results/__init__.py : package of a run's results folder: layout, manifest, input digests, device selection, per-case files
+apps/benchmark-runner/results/__init__.py : package of a measurement's per-case result files
 apps/benchmark-runner/results/case_files.py : process-N/cases/<case>.json: the path of a case's pulled benchmarkData, the folder emptied per process, benchmarkData.json merged from the files
-apps/benchmark-runner/results/layout.py : results/<device_id>/: staging, publishing into the device folder, the temporary-folder warning
-apps/benchmark-runner/results/manifest.py : results/<device_id>/manifest.yaml: files, counts, runtime, providers, input digests, units, the harness operations, energy mark, problems; files added beside a finished run
-apps/benchmark-runner/results/run_inputs.py : digests of a run's inputs, providers.bundled and global.yaml with its test set (analysis left out), for the manifest and --identify
-apps/benchmark-runner/results/select.py : the device folder of a results root a reader names, or the only one there
 apps/benchmark-runner/scope/__init__.py : package of the --harness run's sources: harness.yaml to compiled wrappers, interop plan, device verdicts
 apps/benchmark-runner/scope/code_digest.py : the digest of the code from a harness.yaml to a checked harness; a pattern matching nothing is an error
 apps/benchmark-runner/scope/compile.py : compiles the android test sources with Gradle; the compiler's error lines

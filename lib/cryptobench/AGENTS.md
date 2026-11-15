@@ -70,6 +70,11 @@ cryptobench/shared/paths/results.py : Results(root): the device folders of a res
 cryptobench/shared/paths/roots.py : code_root (this checkout), benchmark_root (the checkout a run measures), each with its environment variable
 cryptobench/shared/paths/run_tree.py : RunTree: every file of one results folder; its sections Configuration, Discovery, Preparation, Measurement, Analysis, Charts, CheckFolder, InteropFolder, Scoped, Logs, Review; AppTree, GroupingTree
 cryptobench/shared/paths/settings.py : against(settings_file, value), the one rule for a path a settings file names; in_temp
+cryptobench/shared/results/__init__.py : package of a run's results folder, importing no app
+cryptobench/shared/results/layout.py : results/<device_id>/: staging, publishing into the device folder, the temporary-folder warning
+cryptobench/shared/results/manifest.py : results/<device_id>/manifest.yaml: files, counts, runtime, providers, input digests, units, the harness operations, energy mark, problems; files added beside a finished run
+cryptobench/shared/results/run_inputs.py : digests of a run's inputs, providers.bundled and global.yaml with its test set (analysis left out), for the manifest and --identify
+cryptobench/shared/results/select.py : the device folder of a results root a reader names, or the only one there
 cryptobench/shared/settings/__init__.py : package of the run's settings readers the stages share
 cryptobench/shared/settings/bundled.py : providers.bundled of global.yaml: the digest's raw read, build property of the app or host CLI, DeviceProbe argument, effective record and check
 cryptobench/shared/settings/effective_view.py : effective.yaml with the warnings and skips of report.yaml

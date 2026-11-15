@@ -11,9 +11,9 @@ from cryptobench.shared.errors.coded import Coded
 from cryptobench.pipeline.stage import Stage, StageContext
 from global_file import global_config
 from cryptobench.shared import paths
-from results import layout as results_layout
-from results import run_inputs
-from results.manifest import manifest
+from cryptobench.shared.results import layout as results_layout
+from cryptobench.shared.results import run_inputs
+from cryptobench.shared.results.manifest import manifest
 from scope import code_digest
 from stages import config_check
 from stages.benchmark import measure_cases

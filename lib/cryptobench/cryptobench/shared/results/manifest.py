@@ -5,7 +5,7 @@ from cryptobench.shared.device import clocks
 from cryptobench.shared.device.capture import runtime as capture_runtime
 from cryptobench.shared.device.identity import device_id
 from cryptobench.shared import paths
-from results import run_inputs
+from cryptobench.shared.results import run_inputs
 from cryptobench.shared.document.document import parse_yaml, read_yaml
 from cryptobench.shared.document.dump import dump_yaml
 from cryptobench.shared.document.write import MANIFEST, write_text

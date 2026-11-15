@@ -1,7 +1,7 @@
 """The files a fake-phone device run leaves in its device folder, manifest included, as a sorted list."""
 import yaml
 
-from results.manifest import manifest
+from cryptobench.shared.results.manifest import manifest
 from test_device_benchmark_flow import DUMP, MEASURED, measured
 from test_manifest import PROBE
 

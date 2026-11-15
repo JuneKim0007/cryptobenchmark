@@ -17,11 +17,6 @@
 | `fail(message)` | `apps/benchmark-runner/failure.py` | - | dependencies, pipeline |
 | `reported()` | `apps/benchmark-runner/failure.py` | A CommandError as fail() prints it; CommandError is imported here because dependencies.py imports this file before it checks for cryptobench. | dependencies, explain, pipeline, stages.harness |
 | `global_config(argument)` | `apps/benchmark-runner/global_file.py` | - | dependencies, pipeline |
-| `publish(stage, target, discovery_mode)` | `apps/benchmark-runner/results/layout.py` | Everything staged moves in; the old manifest goes first, because a folder with one is a finished run. | stages.discover, stages.interop |
-| `staged(root)` | `apps/benchmark-runner/results/layout.py` | - | stages.discover, stages.interop |
-| `warn_if_temp(path)` | `apps/benchmark-runner/results/layout.py` | - | pipeline, stages.harness |
-| `manifest(results, mode, configuration, files, problems)` | `apps/benchmark-runner/results/manifest.py` | - | pipeline, stages.check, stages.harness, stages.interop |
-| `digests(global_file)` | `apps/benchmark-runner/results/run_inputs.py` | Parsed, not raw: a comment or a reordered key reruns nothing; the bundled list is its own input; analysis only | pipeline, results.manifest |
 | `generate(harness_path, root, out, compiler)` | `apps/benchmark-runner/scope/generate.py` | No scope compiled still writes an empty catalog, so no failed scope's source is left to break the test APK. | scope_generate, stages.harness |
 | `expression(parameter, scope, side)` | `apps/benchmark-runner/scope/inputs.py` | `side` picks the provider a key pair is decoded by: another provider's key class is converted at every init, a cost on one side only. | scope.generate, scope.wrapper |
 | `kind(type_text)` | `apps/benchmark-runner/scope/inputs.py` | `KINDS.get(normalised(type_text))` | scope.interop, scope.wrapper |
@@ -48,18 +43,23 @@
 | `read(device)` | `lib/cryptobench/cryptobench/shared/device/clocks.py` | `parse(device.shell(READ))` | device.facts, session.clocks_hook |
 | `run(arguments, stacktrace, stream, main_class, notices, properties, failed)` | `lib/cryptobench/cryptobench/shared/device/gradle_runner.py` | notices, when given, collects every passed-on line, so a caller can record it; properties are -P build properties; | session.passes, stages.benchmark, stages.check, stages.discover +2 |
 | `capture_id(capture)` | `lib/cryptobench/cryptobench/shared/device/identity.py` | `device_id(captured.read_runtime(capture))` | stages.discover, stages.harness, stages.interop |
-| `device_id(runtime)` | `lib/cryptobench/cryptobench/shared/device/identity.py` | - | pipeline, results.manifest, stages.discover |
+| `device_id(runtime)` | `lib/cryptobench/cryptobench/shared/device/identity.py` | - | cryptobench.shared.results.manifest, pipeline, stages.discover |
 | `push(device, options, plan, energy)` | `lib/cryptobench/cryptobench/shared/device/push.py` | dex2oat runs in the AOT compile, so the energy settle comes after it, never before; energy.yaml follows the settle. | stages.benchmark, stages.harness |
 | `run(step, command)` | `lib/cryptobench/cryptobench/shared/device/timeouts.py` | - | cryptobench.shared.device.adb, cryptobench.shared.device.gradle_runner, scope.compile, stages.benchmark |
-| `parse_yaml(text, where, code, shape, error)` | `lib/cryptobench/cryptobench/shared/document/document.py` | An empty text is an empty shape; YAML that does not parse, or parses to another shape, is `<code>: <where>: ...`. | facade.index, results.manifest, stages.config_check, stages.discover |
+| `parse_yaml(text, where, code, shape, error)` | `lib/cryptobench/cryptobench/shared/document/document.py` | An empty text is an empty shape; YAML that does not parse, or parses to another shape, is `<code>: <where>: ...`. | cryptobench.shared.results.manifest, facade.index, stages.config_check, stages.discover |
 | `read_yaml(path, shape)` | `lib/cryptobench/cryptobench/shared/document/document.py` | The file at path as parse_yaml reads it. | chart_input, cryptobench.shared.catalogue.interchange, cryptobench.shared.device.capture, cryptobench.shared.device.clocks +15 |
-| `dump_yaml(doc, profile)` | `lib/cryptobench/cryptobench/shared/document/dump.py` | `yaml.safe_dump(doc, **profile)` | chart_report, cryptobench.shared.device.clocks, device.facts, results.manifest +1 |
+| `dump_yaml(doc, profile)` | `lib/cryptobench/cryptobench/shared/document/dump.py` | `yaml.safe_dump(doc, **profile)` | chart_report, cryptobench.shared.device.clocks, cryptobench.shared.results.manifest, device.facts +1 |
 | `code_in(text)` | `lib/cryptobench/cryptobench/shared/errors/coded.py` | - | cryptobench.shared.errors.failures, cryptobench.shared.errors.input_error |
 | `one_line(error)` | `lib/cryptobench/cryptobench/shared/errors/line.py` | `' '.join(str(error).split())[:500]` | cryptobench.shared.device.gradle_runner, energy_stage, facade.py, pipeline +4 |
 | `android_home()` | `lib/cryptobench/cryptobench/shared/paths/host.py` | `Path(os.environ.get('ANDROID_HOME') or home() / 'Library/Android/sdk')` | cryptobench.shared.device.adb, energy_stage, scope.compile |
 | `repo(root)` | `lib/cryptobench/cryptobench/shared/paths/repo.py` | `Repo(Path(root) if root is not None else roots.code_root())` | cryptobench.shared.catalogue.algorithms, cryptobench.shared.catalogue.deviations, cryptobench.shared.catalogue.families, cryptobench.shared.catalogue.glossary +23 |
 | `code_root()` | `lib/cryptobench/cryptobench/shared/paths/roots.py` | $CRYPTOBENCH_CODE_ROOT, else the checkout of the script that runs, else this library's own; a script of checkout B beats a library installed from A. | cryptobench.shared.paths.repo, dead_code, facade.phases, lint.tree +6 |
 | `against(settings_file, value)` | `lib/cryptobench/cryptobench/shared/paths/settings.py` | A path value of a settings file: ~ expanded, joined to the file's folder, resolved. | facade.index, stages.guide |
+| `publish(stage, target, discovery_mode)` | `lib/cryptobench/cryptobench/shared/results/layout.py` | Everything staged moves in; the old manifest goes first, because a folder with one is a finished run. | stages.discover, stages.interop |
+| `staged(root)` | `lib/cryptobench/cryptobench/shared/results/layout.py` | - | stages.discover, stages.interop |
+| `warn_if_temp(path)` | `lib/cryptobench/cryptobench/shared/results/layout.py` | - | pipeline, stages.harness |
+| `manifest(results, mode, configuration, files, problems)` | `lib/cryptobench/cryptobench/shared/results/manifest.py` | - | pipeline, stages.check, stages.harness, stages.interop |
+| `digests(global_file)` | `lib/cryptobench/cryptobench/shared/results/run_inputs.py` | Parsed, not raw: a comment or a reordered key reruns nothing; the bundled list is its own input; analysis only | cryptobench.shared.results.manifest, pipeline |
 | `gradle_properties(bundled)` | `lib/cryptobench/cryptobench/shared/settings/bundled.py` | `[f"-PbundledArtifacts={','.join((entry['artifact'] for entry in bundled))}"] if bundled else []` | stages.benchmark, stages.check, stages.discover |
 | `entry_count(document)` | `lib/cryptobench/cryptobench/shared/settings/effective_view.py` | `sum((len(names) for types in (document.get('providers') or {}).values() for names in types.values()))` | explain, stages.discover |
 | `read(effective_file)` | `lib/cryptobench/cryptobench/shared/settings/effective_view.py` | - | stages.benchmark, stages.discover |

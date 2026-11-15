@@ -10,7 +10,7 @@ import sys
 
 from cryptobench.shared.settings import effective_view
 from cryptobench.shared import paths
-from results import select
+from cryptobench.shared.results import select
 from failure import reported
 from cryptobench.shared.document.document import read_yaml
 

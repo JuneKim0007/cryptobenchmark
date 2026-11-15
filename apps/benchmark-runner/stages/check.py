@@ -6,7 +6,7 @@ import yaml
 from cryptobench.shared.device import gradle_runner
 from cryptobench.shared.device.adb import NO_DEFAULT_PROFILER, PASSED, DeviceError, instrumentation_report
 from cryptobench.shared.errors.failures import CommandError
-from results.manifest import manifest
+from cryptobench.shared.results.manifest import manifest
 from stages import guide
 from cryptobench.shared import paths
 from cryptobench.shared.catalogue import vectors

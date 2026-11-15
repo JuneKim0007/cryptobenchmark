@@ -3,7 +3,7 @@ import ast, json, pathlib, re, time, types
 
 import pipeline
 from cryptobench.pipeline import took
-from results.manifest import add_to_manifest
+from cryptobench.shared.results.manifest import add_to_manifest
 from test_manifest import RUNTIME, layout, written
 from cryptobench.shared.device.identity import device_id
 
