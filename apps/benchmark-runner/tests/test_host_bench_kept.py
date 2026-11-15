@@ -3,7 +3,7 @@ import json, pathlib, types
 
 import pytest
 
-from stages import benchmark  # noqa: E402
+from cryptobench.stages.measurement import benchmark  # noqa: E402
 from failure import reported  # noqa: E402
 
 OPTIONS = types.SimpleNamespace(stacktrace=False, stream=False)

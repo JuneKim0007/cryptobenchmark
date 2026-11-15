@@ -102,11 +102,13 @@ cryptobench/stages/discovery/discover.py : discover and configure: probe or host
 cryptobench/stages/discovery/facts.py : device facts into discovery/facts.yaml
 cryptobench/stages/discovery/tests/ : pytest tests of the discovery stage
 cryptobench/stages/measurement/__init__.py : package of the measurement stage
+cryptobench/stages/measurement/benchmark.py : the plain run's benchmark: device passes and sessions or host processes, warm-up, dry pass; whether it timed anything, for the analysis; the energy interpreter check passed in
 cryptobench/stages/measurement/case_files.py : process-N/cases/<case>.json: the path of a case's pulled benchmarkData, the folder emptied per process, benchmarkData.json merged from the files
 cryptobench/stages/measurement/energy/__init__.py : package of the energy steps of a --device run on the host
 cryptobench/stages/measurement/energy/session.py : Perfetto sessions on the device: start, stop, pull
 cryptobench/stages/measurement/energy/sources/ : one adapter per energy.source on the host; how the host runs apps/benchmark-runner/energy
 cryptobench/stages/measurement/energy/steps.py : energy steps of a --device run: capture selection, the run's energy source
+cryptobench/stages/measurement/measuring.py : what a run's device sessions share: the Measuring context, the thermal gate's start, session and pass arguments, timed hooks, ConvertKt, per-process files
 cryptobench/stages/measurement/session/__init__.py : package of one device measuring session: processes, cases, passes, order, warm-up, hooks
 cryptobench/stages/measurement/session/calibration.py : whether androidx's warm-up left usable samples: collapsed calls per sample, a warm-up near its time limit
 cryptobench/stages/measurement/session/case_isolation.py : run.isolation case: one case's instrumentation process and its pull, the device's case listing

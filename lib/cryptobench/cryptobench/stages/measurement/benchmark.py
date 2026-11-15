@@ -1,7 +1,6 @@
 """The benchmark of a plain run: on the device in passes and sessions, or on the host JVM."""
 import time
 
-import dependencies
 from cryptobench.shared.settings import bundled, effective_view
 from cryptobench.shared.device import gradle_runner
 from cryptobench.stages.measurement.energy import steps as energy_stage
@@ -12,8 +11,8 @@ from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared import paths
 from cryptobench.stages.measurement.session import case_isolation, energy_hook, passes, variant_order, warmup
 from cryptobench.stages.measurement.session import measure as measure_session
-from stages.measuring import (Measuring, convert, energy_preflight, gated, pass_arguments, record, session_arguments, singles,
-                              thermal_flag, timed_hooks)
+from cryptobench.stages.measurement.measuring import (Measuring, convert, energy_preflight, gated, pass_arguments, record, session_arguments, singles,
+                                                         thermal_flag, timed_hooks)
 from cryptobench.shared.device.push import push
 from cryptobench.pipeline.took import elapsed
 from cryptobench.shared.document.document import read_yaml
@@ -51,7 +50,8 @@ def dry_pass(session, into, preparation, problems, guarded):
     energy_stage.guarded(problems, step) if guarded else step()
 
 
-def measure_cases(options, device, results, discovery, effective, capture, trial, files, problems):
+def measure_cases(options, device, results, discovery, effective, capture, trial, files, problems, require_energy):
+    """require_energy is the entry point's check of the energy interpreter, passed in."""
     benchmark, preparation = paths.RunTree(results).benchmark.root, paths.RunTree(results).preparation.root
     started = time.monotonic()
     document = effective_view.read(effective)["document"]
@@ -61,7 +61,7 @@ def measure_cases(options, device, results, discovery, effective, capture, trial
         raise CommandError("energy: only a --device run captures energy; set harness.energy.capture none for --bench")
     if captures - {"none"}:
         # the effective config holds the captures a test set turned on, which the first check could not see
-        dependencies.require_energy(energy_stage.source_name(effective), options.energy_python)
+        require_energy(energy_stage.source_name(effective), options.energy_python)
     if device:
         run = Measuring(device, EnergySession(device), energy_stage.source(effective, options.energy_python, options.stacktrace), options, discovery,
                         files, problems, effective_view.throttle_sleep(document), effective_view.case_cooldown(document))
@@ -100,7 +100,7 @@ def warm_up(run, document, preparation):
 def host_cases(options, document, capture, trial, effective, benchmark, preparation, files, problems):
     repetitions, written = effective_view.process_repetitions(document), []
     if (document.get("run") or {}).get("passes"):
-        print("warning: run.passes: only a --device run measures in passes; this run measures once per process")
+        warn("run.passes: only a --device run measures in passes; this run measures once per process")
     if effective_view.thermal_gate(document):
         warn("TEMPERATURE SET BUT DEVICE CAN'T POLL: host_runtime; running without it", problems)
     for repetition in range(1, repetitions + 1):

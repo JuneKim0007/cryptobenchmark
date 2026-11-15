@@ -3,7 +3,7 @@ import json, types
 
 import pytest
 
-from stages import benchmark  # noqa: E402
+from cryptobench.stages.measurement import benchmark  # noqa: E402
 from cryptobench.stages.measurement import thermal  # noqa: E402
 from cryptobench.shared.device.adb import DeviceError  # noqa: E402
 from cryptobench.stages.measurement.session import dynamic_temperature, thermal_hook  # noqa: E402

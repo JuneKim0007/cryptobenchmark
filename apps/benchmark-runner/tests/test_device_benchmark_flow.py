@@ -8,7 +8,7 @@ from cryptobench.shared.device.adb import DeviceError  # noqa: E402
 from cryptobench.shared.errors.failures import EnergyError  # noqa: E402
 from cryptobench.stages.measurement.session import clocks_hook, cooldown_hook  # noqa: E402
 import pipeline  # noqa: E402
-from stages import benchmark  # noqa: E402
+from cryptobench.stages.measurement import benchmark  # noqa: E402
 from failure import reported  # noqa: E402
 from fake_phone import Energy, Phone, fake_tools  # noqa: E402
 
@@ -36,7 +36,7 @@ def layout(tmp_path, run):
 
 
 def measured(tmp_path, monkeypatch, run, phone=None, **phone_options):
-    monkeypatch.setattr(benchmark.dependencies, "require_energy", lambda *_arguments: None)
+    monkeypatch.setattr(pipeline.dependencies, "require_energy", lambda *_arguments: None)
     phone = phone or Phone(tmp_path, **phone_options)
     fake_tools(monkeypatch, phone)
     monkeypatch.setattr(pipeline, "analyse", lambda results, files, *_rest: files.update(benchmark=results / "benchmark/benchmark.json"))

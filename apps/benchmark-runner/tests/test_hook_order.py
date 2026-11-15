@@ -1,6 +1,6 @@
 """The production order of a device session's hooks, outermost first, per pass, as measuring.timed_hooks and benchmark build it."""
 from cryptobench.stages.measurement.session import measure as measure_session
-from stages import benchmark
+from cryptobench.stages.measurement import benchmark
 from cryptobench.stages.measurement.session import thermal_hook
 from test_device_benchmark_flow import MEASURED, measured
 from test_thermal_gate import CASE, Heat

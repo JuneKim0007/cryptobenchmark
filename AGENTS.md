@@ -64,7 +64,7 @@ apps/benchmark-runner/scope/results.py : device interop verdicts into scoped-pla
 apps/benchmark-runner/scope/signature.py : Java method and Kotlin function header parser; header as a public static member
 apps/benchmark-runner/scope/wrapper.py : renders the per-variant wrappers and the GeneratedScopes catalog
 apps/benchmark-runner/scope_generate.py : generate and compile a harness's scopes alone, sources left in place
-apps/benchmark-runner/stages/ : the run driver's stages, one per run kind; map in its AGENTS.md
+apps/benchmark-runner/stages/ : the run driver's stage still in the runner, --harness; map in its AGENTS.md
 apps/benchmark-runner/tests/ : pytest and standalone tests for apps/benchmark-runner/
 apps/benchmark/build.gradle : root buildscript: Android Gradle plugin and Kotlin plugin versions
 apps/benchmark/cli/ : the host commands: probe, configure, parse-only check, bench, end-to-end check and its diff, convert, merges, interop; JCA contract tests

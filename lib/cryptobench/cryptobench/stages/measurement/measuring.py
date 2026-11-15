@@ -7,6 +7,7 @@ from cryptobench.shared.device.adb import Device, measure_arguments
 from cryptobench.stages.measurement.energy.session import EnergySession
 from cryptobench.stages.measurement.session import clocks_hook, cooldown_hook, dynamic_temperature, thermal_hook
 from cryptobench.pipeline.took import elapsed
+from cryptobench.pipeline.warn import warn
 from cryptobench.shared import paths
 from cryptobench.shared.document.document import read_yaml
 
@@ -74,7 +75,7 @@ def record(files, into, captures, device):
             files.setdefault("cpuPins", []).append(paths.Measurement(into).cpu_pins)
             for case, pin in (read_yaml(paths.Measurement(into).cpu_pins)).items():
                 if "failed" in pin:
-                    print(f"warning: cpu_pin_failed: {case}: {pin['failed']}")
+                    warn(f"cpu_pin_failed: {case}: {pin['failed']}")
 
 
 def singles(files, repetitions):

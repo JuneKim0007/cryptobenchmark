@@ -18,7 +18,7 @@ from scope import code_digest
 from cryptobench.stages.analysis import not_measured
 from cryptobench.stages.analysis.scripts import analyse
 from cryptobench.stages.configuration import config_check, guide
-from stages.benchmark import measure_cases
+from cryptobench.stages.measurement.benchmark import measure_cases
 from cryptobench.stages.verification.check import check_run, require_check_run
 from cryptobench.stages.discovery.discover import discover_published, discover_staged, host_runtime, located
 from stages.harness import harness_run, checked_folder
@@ -125,7 +125,7 @@ def measured(context):
 
 def benchmarked(options, device, results, discovery, effective, capture, trial, files, problems):
     """Measurement, then the analysis of what it timed."""
-    timed, written, repetitions = measure_cases(options, device, results, discovery, effective, capture, trial, files, problems)
+    timed, written, repetitions = measure_cases(options, device, results, discovery, effective, capture, trial, files, problems, dependencies.require_energy)
     if timed:
         benchmark, preparation = paths.RunTree(results).benchmark.root, paths.RunTree(results).preparation.root
         not_measured.report(paths.Preparation(preparation).prepared, paths.Measurement(benchmark).json, problems)

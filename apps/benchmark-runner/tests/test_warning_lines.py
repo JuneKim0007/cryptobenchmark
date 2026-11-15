@@ -5,9 +5,9 @@ import yaml
 from cryptobench.stages.analysis import scripts
 from cryptobench.stages.discovery import capture_files, facts
 from cryptobench.shared.results import layout
-from stages import benchmark
+from cryptobench.stages.measurement import benchmark
 from cryptobench.stages.verification import check
-from stages.measuring import record
+from cryptobench.stages.measurement.measuring import record
 from fake_phone import Phone
 from test_check_stage import RESULT
 from test_host_bench_kept import DOCUMENT, OPTIONS, dying
