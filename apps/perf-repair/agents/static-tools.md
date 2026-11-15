@@ -4,7 +4,7 @@
 - `docs/modes.md` : what each mode counts as an improvement
 
 ## Rules
-- ratios: `to ÷ from`; below 1 is better; only rows with the same operation, key size, input size and phase pair.
+- ratios: `to ÷ from`, inverted for a metric where higher is better; below 1 is better; only rows with the same operation, key size, input size and phase pair.
 - modes: one verdict rule in `criteria.yaml` for every perfMode; a mode differs only in its selected metrics, never by a name check.
 - confidence: pImprove grades, never gates; missing data is `not_measured`, never a loss.
 - screening: every consumer asks `screen/handler.py` built from `screen/catalog.py` `screening_catalog`; a screening status comes from `catalog/screening.yaml` data, never a name in code.

@@ -9,7 +9,7 @@
 - data: crypto libraries live in `app/facts/libraries.yaml`, sink and key-source patterns in `scope/patterns.yaml`, never in code.
 - detect: engine types come from the packaged names catalog, never the probe, and no site is filtered by registered names; a site the device cannot serve resolves `not_on_device` with `missing` and the next step.
 - drop: a site that is not the platform class is recorded in `sites.json` `dropped` with its reason; one without an enclosing function in `scopes.json` `unscoped`.
-- parser: ids, function bounds, sinks and the pattern key source come from a bracket-matching lexer over comment- and string-masked text, no grammar dependency, so ids do not depend on what is installed.
+- parser: ids, function bounds, sinks and the pattern key source come from a bracket-matching lexer over comment- and string-masked text, no grammar dependency; ids never depend on what is installed.
 - syntax: the lifecycle reads a tree-sitter tree through `scope/syntax/` only, the pinned optional extra `perf-repair[scope]` imported lazily in `parser.py`; without it every lifecycle is `unsupported` `parser_missing`, never a pattern fallback.
 - lifecycle: per engine type, the lifecycle calls, requirements, operations and consumers live in `scope/engines.yaml`, origin calls too; code names none of them.
 - lifecycle: `bounded` only when one method creates, configures and uses the object with no escape, consumer or deferred lambda; depth 1 stays in the class and is capped by `METHOD_BUDGET`; over it is `partially_bounded` `budget`.
@@ -17,7 +17,7 @@
 - units: links are read from lifecycles, never by name; inverse operations and key producers live in `scope/units/relations.yaml`; every link cites lines on both sides.
 - roots: one project root keeps the given name; several are units `<name>.<root dirs joined by '.'>`, each scanned from its root.
 - layers: `app/find/` reads only source text, never device data; `app/facts/` reads the app tree; `app/resolve.py` is the only module where a site meets the device's primitives (Probe, providers); `tests/test_layers.py` checks it.
-- ids: a scope id is `scope_id(app, file, function, line, call)`; output is sorted, so reruns are byte-identical.
+- ids: a scope id is `scope_id(app, file, function, line, call)`; output is sorted; reruns are byte-identical.
 
 ## Workflow
 - run: `python3 -m perfrepair.app --device-results <device> --app <src>`
@@ -59,7 +59,7 @@ src/perfrepair/scope/lifecycle/__init__.py : docstring only
 src/perfrepair/scope/lifecycle/binding.py : where the created object goes first: chain, local, field, returned, argument, discarded
 src/perfrepair/scope/lifecycle/depth1.py : one method away in the class: a field's other methods, a helper's callers, a callee; METHOD_BUDGET; requirement origins one away
 src/perfrepair/scope/lifecycle/origins.py : a value's origin in the closed list, read back through same-method definitions, with its line
-src/perfrepair/scope/lifecycle/output.py : whether a site's outputs are only compared with each other in its function, so none leaves it
+src/perfrepair/scope/lifecycle/output.py : whether a site's outputs are only compared with each other in its function, none leaving it
 src/perfrepair/scope/lifecycle/read.py : one site's Reading: its Lifecycle (binding, steps, requirements, operations, status, outputCompared) and each requirement's argument
 src/perfrepair/scope/lifecycle/settle.py : code settlement: field writes, in-class call arguments, returned values, a branch's operands; the budget; whether every path closes to one origin
 src/perfrepair/scope/lifecycle/slice.py : calls on one named object in one scope from a point on, shadowing-aware; its escapes

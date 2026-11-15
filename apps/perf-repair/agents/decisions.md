@@ -53,7 +53,7 @@ src/perfrepair/ai/runtime/agent/reply.py : AgentReply, AgentRefused
 src/perfrepair/ai/runtime/engine/ask.py : one item's asking: the budget check, turns in a conversation (a read tool's result is a turn too, up to Limits.calls), then fresh conversations; Answer; each turn's model latency and size
 src/perfrepair/ai/runtime/engine/budget.py : a role's Budget, the chars/4 measure, the fit: the message, the kind's narrowed one, or `over_budget`
 src/perfrepair/ai/runtime/engine/charter_file.py : an outbox's charter.json: written once, checked on each open (`charter_mismatch`), rehashed by the validator; a recorded charter's inputs
-src/perfrepair/ai/runtime/engine/decide.py : the item loop of the kinds Identify replaces (classify, grouping): gates, ask, durable commit, projections, --limit; each attempt into log/ai/<kind>.yaml; start and end events
+src/perfrepair/ai/runtime/engine/decide.py : the item loop of classify and grouping assign: gates, ask, durable commit, projections, --limit; each attempt into log/ai/<kind>.yaml; start and end events
 src/perfrepair/ai/runtime/engine/events.py : the real tokens and cost of a job's turns, from their replies' usage
 src/perfrepair/ai/runtime/engine/kind.py : DecisionKind contract (items for lookup, pending to ask, documents to write, optional gone, admit, evidence_digest and narrowed), item_of, evidence_of, project(kind, records), replay_problems: version count and replay equality; rebuild_problems: each file byte for byte
 src/perfrepair/ai/runtime/engine/outbox.py : the only commit: durable, exclusive, ordered records per charter fingerprint; charter.json before the first record; `active` pointer

@@ -8,7 +8,7 @@
 - scope: the model chooses one of code's candidates per unit and per broken use (`ai replace`, Select); everything else here is a static join, rewrite or report.
 - edit: apply by exact span only; a span that cannot be re-found or read is a coded rejection, never a guess.
 - edit: never write inside the app root; copies go to `<app>/original/` and `patched/`.
-- edit: a splice keeps the file's line count; harness extraction relies on it.
+- edit: a splice keeps the file's line count (harness extraction needs it).
 - edit: never edit a constant's declaration or render code from model text; constants come from `specs.yaml`.
 - edit: atomic over a unit's replaced members: one rejected member rejects them all, and the other rows say which and why; a member that stays has no edit.
 - edit: a new reason code goes in `EDIT_REASONS` (`validation/repair.py`) and the limits table of `docs/repair.md`.

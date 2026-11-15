@@ -1,13 +1,13 @@
 # perf-repair
 
 Reads cryptobenchmark results for one device and decides, per crypto call site of an app, which replacement the measurements favour for the metrics its perfMode selects (latency, throughput, memAlloc, energy, or generic); it applies the choice to a copy of the app and, with a phone, compiles and interop-checks it.
-Location: `apps/perf-repair/` inside the cryptobenchmark repo; the benchmark is found two levels up, `CRYPTOBENCH_ROOT` overrides.
+Location: `apps/perf-repair/` inside the cryptobenchmark repo; the benchmark is this checkout unless `CRYPTOBENCH_ROOT` names another.
 
 ## Setup
 
 - `pip install -r requirements.txt` from the repository root: every host Python dependency, Python 3.10+.
 - `pip install -e .` puts `perfrepair` on the path for `python3 -m perfrepair`; without the tree-sitter pins a scope's lifecycle is `unsupported`.
-- Copy `perfrepair.example.yaml` to `perfrepair.yaml` for the gateway, auth, model, effort per command, default paths, and the `device` and `apps` settings; `.env` (from `.env.example`) still works and holds `ANTHROPIC_API_KEY`. Precedence: `docs/settings.md`.
+- Copy `perfrepair.example.yaml` to `perfrepair.yaml` for the gateway, auth, model, effort per command, default paths, and the `device` and `apps` settings; `.env` (from `.env.example`) holds `ANTHROPIC_API_KEY` and may hold `PERFREPAIR_*` keys. Precedence: `docs/settings.md`.
 - `make check` runs docs-lint (with the names a doc uses checked against code) and the tests; `make dead-code` runs the local dead-code check, which needs vulture.
 
 | gateway (`--agent`), auth (`--auth`) | needs |
