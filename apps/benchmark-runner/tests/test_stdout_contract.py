@@ -2,7 +2,7 @@
 import ast, json, pathlib, re, time, types
 
 import pipeline
-from stages import took
+from cryptobench.pipeline import took
 from results.manifest import add_to_manifest
 from test_manifest import RUNTIME, layout, written
 from device.identity import device_id

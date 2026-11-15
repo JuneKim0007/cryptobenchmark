@@ -11,7 +11,7 @@ from stages import guide
 from cryptobench.shared import paths
 from cryptobench.shared.catalogue import vectors
 from stages.discover import device_discover
-from stages.took import elapsed
+from cryptobench.pipeline.took import elapsed
 import bundled
 from cryptobench.shared.document.document import read_yaml
 

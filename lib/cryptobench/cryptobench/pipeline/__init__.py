@@ -1,1 +1,1 @@
-"""The run's stage framework: what a stage reads and the shape of a stage; imports no stage."""
+"""The run's stage framework: what a stage reads, the shape of a stage, its warning and took: lines; imports no stage."""

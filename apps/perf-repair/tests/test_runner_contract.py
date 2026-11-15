@@ -8,7 +8,7 @@ from perfrepair.device.delta_estimate import TOOK
 REPO = Path(__file__).parents[3]
 FAKES = sorted((Path(__file__).parent / "fixtures").glob("*/apps/benchmark-runner/pipeline.py"))
 PRODUCERS = {"wrote:     ": REPO / "apps/benchmark-runner/results/manifest.py", "identity:  ": REPO / "apps/benchmark-runner/pipeline.py",
-             "took:      ": REPO / "apps/benchmark-runner/stages/took.py"}
+             "took:      ": REPO / "lib/cryptobench/cryptobench/pipeline/took.py"}
 
 
 def printed_prefixes(path: Path) -> set[str]:

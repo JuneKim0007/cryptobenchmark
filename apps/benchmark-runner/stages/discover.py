@@ -10,7 +10,7 @@ from cryptobench.shared import paths
 from results import layout as results_layout
 import bundled
 from stages import capture_files, config_check, guide
-from stages.took import elapsed
+from cryptobench.pipeline.took import elapsed
 from cryptobench.shared.document.document import parse_yaml
 
 

@@ -4,7 +4,7 @@ import subprocess, sys, time
 import bundled, dependencies, effective_view, energy_stage
 from cryptobench.shared.device import gradle_runner, timeouts
 from energy_session import EnergySession
-from failure import warn
+from cryptobench.pipeline.warn import warn
 from cryptobench.shared.errors.line import one_line
 from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared import paths
@@ -13,7 +13,7 @@ from session import measure as measure_session
 from stages import guide, not_measured
 from stages.measuring import (Measuring, convert, energy_preflight, gated, pass_arguments, push, record, session_arguments, singles,
                               thermal_flag, timed_hooks)
-from stages.took import elapsed
+from cryptobench.pipeline.took import elapsed
 from cryptobench.shared.document.document import read_yaml
 
 

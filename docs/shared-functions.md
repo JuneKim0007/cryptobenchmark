@@ -26,7 +26,6 @@
 | `guarded(problems, step)` | `apps/benchmark-runner/energy_stage.py` | An energy step that fails costs this process its energy, never its timing: one error line, recorded. | session.energy_hook, stages.benchmark |
 | `fail(message)` | `apps/benchmark-runner/failure.py` | - | dependencies, pipeline |
 | `reported()` | `apps/benchmark-runner/failure.py` | A CommandError as fail() prints it; CommandError is imported here because dependencies.py imports this file before it checks for cryptobench. | dependencies, explain, pipeline, stages.harness |
-| `warn(line, problems)` | `apps/benchmark-runner/failure.py` | A warning on the terminal and, when the run keeps a list, in its manifest. | session.dynamic_temperature, stages.benchmark |
 | `global_config(argument)` | `apps/benchmark-runner/global_file.py` | - | dependencies, pipeline |
 | `publish(stage, target, discovery_mode)` | `apps/benchmark-runner/results/layout.py` | Everything staged moves in; the old manifest goes first, because a folder with one is a finished run. | stages.discover, stages.interop |
 | `staged(root)` | `apps/benchmark-runner/results/layout.py` | - | stages.discover, stages.interop |
@@ -44,7 +43,8 @@
 | `device_discover(options, configuration, device, root)` | `apps/benchmark-runner/stages/discover.py` | A failed probe or configure leaves nothing; from here on the folder has its real name and no manifest until the run ends. | pipeline, stages.check |
 | `file_beside(effective)` | `apps/benchmark-runner/stages/guide.py` | `paths.Configuration(pathlib.Path(effective).parent).guide` | stages.benchmark, stages.check |
 | `push(device, options, plan, energy)` | `apps/benchmark-runner/stages/measuring.py` | dex2oat runs in the AOT compile, so the energy settle comes after it, never before; energy.yaml follows the settle. | stages.benchmark, stages.harness |
-| `elapsed(label, started)` | `apps/benchmark-runner/stages/took.py` | - | stages.benchmark, stages.check, stages.discover, stages.harness +2 |
+| `elapsed(label, started)` | `lib/cryptobench/cryptobench/pipeline/took.py` | - | stages.benchmark, stages.check, stages.discover, stages.harness +2 |
+| `warn(line, problems)` | `lib/cryptobench/cryptobench/pipeline/warn.py` | A warning on the terminal and, when the run keeps a list, in its manifest. | session.dynamic_temperature, stages.benchmark |
 | `algorithm_id(engine_type, canonical)` | `lib/cryptobench/cryptobench/shared/catalogue/algorithms.py` | `f'{engine_type}{SEPARATOR}{canonical}'` | cryptobench.shared.catalogue.groups, cryptobench.shared.catalogue.guide_items, cryptobench.shared.catalogue.vectors, cryptobench.shared.catalogue.views |
 | `algorithms()` | `lib/cryptobench/cryptobench/shared/catalogue/algorithms.py` | `load()` | cryptobench.shared.catalogue.groups, cryptobench.shared.catalogue.guide_items, cryptobench.shared.catalogue.vectors, cryptobench.shared.catalogue.views |
 | `fold(name)` | `lib/cryptobench/cryptobench/shared/catalogue/names.py` | `name.upper()` | cryptobench.shared.catalogue.algorithms, cryptobench.shared.catalogue.deviations, cryptobench.shared.catalogue.groups, cryptobench.shared.catalogue.guide_items +2 |

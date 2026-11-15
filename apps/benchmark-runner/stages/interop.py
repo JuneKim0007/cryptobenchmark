@@ -7,7 +7,7 @@ from results import layout as results_layout
 from results.manifest import add_to_manifest, manifest
 from stages import interop_oracle
 from stages.discover import discover_staged, located
-from stages.took import elapsed
+from cryptobench.pipeline.took import elapsed
 from cryptobench.shared import paths
 
 

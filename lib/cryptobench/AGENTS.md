@@ -14,6 +14,8 @@ The implementation guide under `algorithms/` and the Python that reads it, share
 cryptobench/__init__.py : package of the Python library the benchmark runner and perf-repair share
 cryptobench/pipeline/__init__.py : package of the run's stage framework, importing no stage
 cryptobench/pipeline/stage.py : StageContext (options, configuration, device, the run's problems list), what each stage reads; Stage, a stage's shape
+cryptobench/pipeline/took.py : the took: line of a timed step
+cryptobench/pipeline/warn.py : a stage's warning: line, added to the run's problems when it keeps a list
 cryptobench/shared/__init__.py : package of the components the stages share, importing neither the pipeline nor a stage
 cryptobench/shared/catalogue/__init__.py : package of the implementation guide's readers
 cryptobench/shared/catalogue/algorithms.py : reader of the catalogues, checked whole: entry fields, sources, contracts, type facts, provider overrides; lookup by family and id

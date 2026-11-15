@@ -13,7 +13,7 @@ from scope import results as scope_results
 from scope.harness import HarnessError
 from stages.discover import discover
 from stages.measuring import push
-from stages.took import elapsed
+from cryptobench.pipeline.took import elapsed
 from cryptobench.shared.document.document import read_yaml
 
 # beside scoped/, which a failed run rolls back: the plan a failure line points at

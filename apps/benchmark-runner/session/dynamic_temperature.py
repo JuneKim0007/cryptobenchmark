@@ -3,7 +3,7 @@ settings -> margin -> start limit -> hold -> run -> verdict -> next margin -> re
 import dataclasses, time
 
 from device import thermal
-from failure import warn
+from cryptobench.pipeline.warn import warn
 from session.gate_history import GateHistory
 from cryptobench.shared.stats import equations as eq
 from cryptobench.shared.errors.coded import Coded

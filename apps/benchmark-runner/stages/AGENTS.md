@@ -15,5 +15,4 @@ interop.py : --interop run: the plan's pairs on the host or device, published be
 interop_oracle.py : oracle steps of a --interop run: plan staging, host InteropKt, device InteropCheck, summary
 measuring.py : what a run's device sessions share: the Measuring context, the thermal gate's start, session and pass arguments, timed hooks, plan push, ConvertKt, per-process files
 not_measured.py : planned timed cases the final benchmark.json lacks: one not_measured line each, recorded in the manifest
-took.py : the took: line of a timed step
 ```
