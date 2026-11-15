@@ -65,7 +65,7 @@ except ModuleNotFoundError as error:
         raise
     fail(_outside_checkout("library (lib/cryptobench)"))
 # this checkout is the one this file sits in; samefile, since macOS paths ignore case
-_library = paths.repo(pathlib.Path(__file__).resolve().parents[2]).library.resolve()
+_library = paths.repo(paths.checkout_of(__name__)).library.resolve()
 if not any(folder.samefile(_library) for folder in _loaded().parents if _library.exists()):
     fail(_outside_checkout(_library))
 

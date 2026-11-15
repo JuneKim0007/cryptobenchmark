@@ -36,6 +36,15 @@ def code_root() -> Path:
     raise InputError(f"root_not_found: no folder above {script or __file__} has {ALGORITHMS}/ and {PIPELINE}; set {CODE_ROOT_ENV}")
 
 
+def checkout_of(module: str) -> Path:
+    """The checkout the file of the loaded module named module sits in."""
+    file = Path(sys.modules[module].__file__)
+    found = _walk_up(file)
+    if found is None:
+        raise InputError(f"root_not_found: no folder above {file} has {ALGORITHMS}/ and {PIPELINE}")
+    return found
+
+
 def benchmark_root(explicit: Path | str | None = None, error: type[Exception] = InputError) -> Path:
     """explicit, else $CRYPTOBENCH_ROOT, else this checkout; a folder without a pipeline is refused with error."""
     root = Path(explicit or os.environ.get(BENCHMARK_ROOT_ENV) or code_root())
