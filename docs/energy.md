@@ -102,7 +102,7 @@
 | `short_window` | < 20 polls |
 | `net_not_positive` | `netJoules` ≤ 0 |
 | `no_operations` | `operations` is 0 or absent |
-| `no_joules_per_operation` | `joulesPerOperation` is null and no reason above applies, so a valid case always has a number |
+| `no_joules_per_operation` | `joulesPerOperation` is null and no other reason applies, so a valid case always has a number |
 | `trace_not_pulled` | `measured`: the case's Jetpack trace is not in `traces/` |
 | `trace_unreadable: <error>` | `measured`: the trace processor failed on the case's trace |
 | `timed_phases: <n>` | `measured`: not exactly one timed phase |
