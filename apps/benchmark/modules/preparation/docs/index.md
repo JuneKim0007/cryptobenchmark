@@ -127,5 +127,5 @@ apps/benchmark/modules/preparation/src/test/kotlin/PreparedCaseTest.kt : prepare
 apps/benchmark/modules/preparation/src/test/kotlin/PreparedFileTest.kt : prepared.yaml content tests
 apps/benchmark/modules/preparation/src/test/kotlin/PrimitiveReaderTest.kt : providers-section read tests
 apps/benchmark/modules/preparation/src/test/kotlin/ResolvedParametersTest.kt : read-back tests per parameter kind: GCM, CBC, key wrap, OAEP, PSS, EC curve, key size
-apps/benchmark/modules/preparation/src/test/kotlin/SetupCatalogTest.kt : catalog rows per engine type and mode, variants per type
+apps/benchmark/modules/preparation/src/test/kotlin/SetupCatalogTest.kt : catalog rows per engine type and mode, variants per type, a generator row that would redo init refused
 ```

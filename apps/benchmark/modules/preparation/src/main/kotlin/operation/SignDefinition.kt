@@ -11,7 +11,7 @@ internal object SignDefinition : OperationDefinition {
     override val consumesParameters = true
     override val consumesInput = true
 
-    override fun invocation(prepared: PreparedCase): Invocation {
+    override fun invocation(prepared: PreparedCase, setup: SetupCatalog): Invocation {
         val spec = prepared.parameters?.next()
         val private = CaseArguments.pair(prepared.key).private
         val message = CaseArguments.preparedMessage(prepared)
@@ -22,6 +22,6 @@ internal object SignDefinition : OperationDefinition {
             signature.update(message)
             signature.sign()
         })
-        return call.invocation(SetupCatalog.standard.perCall(prepared.case), readBack = true)
+        return call.invocation(setup.perCall(prepared.case), readBack = true)
     }
 }

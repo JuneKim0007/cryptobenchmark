@@ -7,6 +7,7 @@ import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.operation.CaseArguments
 import io.github.junekim0007.cryptobench.preparation.operation.OperationDefinitions
+import io.github.junekim0007.cryptobench.preparation.operation.SetupCatalog
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
 import io.github.junekim0007.cryptobench.jca.failure.Attempt
 import io.github.junekim0007.cryptobench.preparation.shared.FailureText
@@ -27,7 +28,7 @@ internal object CrossCheck {
         val artifact = Attempt.of { travelling(definition.input(producer, key, null)) }
             .getOrElse { return Outcome.NotCheckable(FailureText.of(it, "producer_failed: ")) }
         return Attempt.of {
-            val returned = definition.invocation(PreparedCase(consumer, recipe, key, null, null, artifact)).once()
+            val returned = definition.invocation(PreparedCase(consumer, recipe, key, null, null, artifact), SetupCatalog.standard).once()
             if (returned is ByteArray && !returned.contentEquals(CaseArguments.seededMessage(producer))) {
                 Outcome.Fail("consumer returned other bytes than the producer's message")
             } else Outcome.Pass
@@ -38,7 +39,7 @@ internal object CrossCheck {
         val outputs = Attempt.of {
             listOf(first, second).map { case ->
                 val definition = OperationDefinitions.of(case.operation)
-                definition.invocation(PreparedCase(case, recipe, key, null, null, definition.input(case, key, null))).once()
+                definition.invocation(PreparedCase(case, recipe, key, null, null, definition.input(case, key, null)), SetupCatalog.standard).once()
             }
         }.getOrElse { return classify(it) }
         val (a, b) = outputs

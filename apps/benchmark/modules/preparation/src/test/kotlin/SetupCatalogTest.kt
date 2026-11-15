@@ -6,6 +6,8 @@ import io.github.junekim0007.cryptobench.preparation.measurement.Variant
 import io.github.junekim0007.cryptobench.preparation.operation.PerCall
 import io.github.junekim0007.cryptobench.preparation.operation.SetupCatalog
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class SetupCatalogTest {
@@ -50,5 +52,15 @@ class SetupCatalogTest {
         assertEquals(listOf(Variant.FIXED), catalog.variantsOf("KeyPairGenerator", both))
         assertEquals(listOf(Variant.FIXED), catalog.variantsOf("Unregistered", both))
         assertEquals(PerCall.OPERATION, perCall("KeyGenerator", "AES", Variant.NOT_FIXED))
+    }
+
+    @Test
+    fun aGeneratorWhoseRowWouldRedoItsInitIsRefusedNotTimedInitOnce() {
+        val two = SetupCatalog(mapOf("schemaVersion" to 1, "engines" to mapOf("KeyGenerator" to mapOf("fixed" to "operation"))))
+        val case = BenchmarkCase("KeyGenerator", "AES", "P", Operation.GENERATE_KEY, variant = Variant.NOT_FIXED)
+        val refused = assertThrows(IllegalArgumentException::class.java) { two.initOnce(case) }
+        assertTrue(refused.message!!, refused.message!!.startsWith("not_supported: KeyGenerator"))
+        assertEquals(PerCall.OPERATION, two.initOnce(case.copy(variant = Variant.FIXED)))
+        assertEquals(PerCall.OPERATION, catalog.initOnce(case))
     }
 }

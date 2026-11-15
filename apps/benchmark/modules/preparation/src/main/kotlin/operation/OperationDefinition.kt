@@ -26,5 +26,6 @@ internal interface OperationDefinition {
     /** Why a provider accepted this case's parameters and did not use them; null when it used them or nothing can tell. */
     fun parametersIgnored(case: BenchmarkCase, key: KeyMaterial, parameters: BoundParameters?): String? = null
 
-    fun invocation(prepared: PreparedCase): Invocation
+    /** setup decides what the timed call redoes; no definition looks the catalog up on its own. */
+    fun invocation(prepared: PreparedCase, setup: SetupCatalog): Invocation
 }

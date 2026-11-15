@@ -5,6 +5,7 @@ import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterialGen
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyPlanner
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
+import io.github.junekim0007.cryptobench.preparation.operation.Invocations
 import io.github.junekim0007.cryptobench.preparation.operation.OperationDefinitions
 import io.github.junekim0007.cryptobench.preparation.parameter.bind.ParameterBinder
 import io.github.junekim0007.cryptobench.preparation.parameter.resolve.ResolvedParameters
@@ -33,7 +34,7 @@ internal class CasePreparer(
         val keyParameters = if (recipe is KeyRecipe.None) bound(case.keyParameters, "key") else null
         val input = step("input_preparation_failed: ") { definition.input(case, material, parameters) }
         val candidate = PreparedCase(case, recipe, material, parameters, keyParameters, input)
-        val invocation = step("dry_run_failed: ") { definition.invocation(candidate) }
+        val invocation = step("dry_run_failed: ") { Invocations.of(candidate) }
         val result = step("dry_run_failed: ") { invocation.once() }
         step("parameters_unreadable: ") { definition.parametersIgnored(case, material, parameters) }?.let { throw PreparationException(it) }
         val resolved = step("parameters_unreadable: ") { ResolvedParameters.of(invocation.engine, material, result) }

@@ -11,13 +11,14 @@ internal object GenerateKeyDefinition : OperationDefinition {
     override val consumesParameters = false
     override val consumesInput = false
 
-    override fun invocation(prepared: PreparedCase): Invocation {
+    override fun invocation(prepared: PreparedCase, setup: SetupCatalog): Invocation {
+        val perCall = setup.initOnce(prepared.case)
         val generator = KeyGenerator.getInstance(prepared.case.algorithm, prepared.case.provider)
         val spec = prepared.keyParameters?.next()
         when {
             spec != null -> generator.init(spec)
             prepared.case.keySize != null -> generator.init(prepared.case.keySize)
         }
-        return Invocation(perIteration = { generator.generateKey() })
+        return Invocation(perIteration = { generator.generateKey() }, perCall = perCall)
     }
 }

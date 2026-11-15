@@ -11,9 +11,9 @@ internal object DigestDefinition : OperationDefinition {
     override val consumesParameters = false
     override val consumesInput = true
 
-    override fun invocation(prepared: PreparedCase): Invocation {
+    override fun invocation(prepared: PreparedCase, setup: SetupCatalog): Invocation {
         val message = CaseArguments.preparedMessage(prepared)
         val call = EngineCall({ MessageDigest.getInstance(prepared.case.algorithm, prepared.case.provider) }, { _, _ -> }, { digest -> digest.digest(message) })
-        return call.invocation(SetupCatalog.standard.perCall(prepared.case))
+        return call.invocation(setup.perCall(prepared.case))
     }
 }

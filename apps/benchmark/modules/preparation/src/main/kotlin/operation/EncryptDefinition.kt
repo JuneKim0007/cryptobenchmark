@@ -24,13 +24,13 @@ internal object EncryptDefinition : OperationDefinition {
         return "parameters_ignored: ${case.provider} accepted ${spec.javaClass.simpleName} and drew its own nonce; give the form it reads"
     }
 
-    override fun invocation(prepared: PreparedCase): Invocation {
+    override fun invocation(prepared: PreparedCase, setup: SetupCatalog): Invocation {
         val key = CipherKeys.encrypting(prepared.key)
         val message = CaseArguments.preparedMessage(prepared)
         val specs = CaseArguments.specPool(prepared.parameters)
         val call = CipherCall({ Cipher.getInstance(prepared.case.algorithm, prepared.case.provider) }, message, { cipher, n ->
             if (specs.isEmpty()) cipher.init(Cipher.ENCRYPT_MODE, key) else cipher.init(Cipher.ENCRYPT_MODE, key, specs[n % specs.size])
         })
-        return call.invocation(prepared.case)
+        return call.invocation(prepared.case, setup)
     }
 }

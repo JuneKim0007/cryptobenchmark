@@ -10,5 +10,5 @@ internal object TypeDefaultDefinition : OperationDefinition {
     override val consumesParameters = true
     override val consumesInput = true
 
-    override fun invocation(prepared: PreparedCase): Invocation = Invocation(perIteration = { null })
+    override fun invocation(prepared: PreparedCase, setup: SetupCatalog): Invocation = Invocation(perIteration = { null })
 }

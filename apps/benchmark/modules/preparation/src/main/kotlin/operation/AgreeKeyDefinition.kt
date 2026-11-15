@@ -11,7 +11,7 @@ internal object AgreeKeyDefinition : OperationDefinition {
     override val consumesParameters = true
     override val consumesInput = false
 
-    override fun invocation(prepared: PreparedCase): Invocation {
+    override fun invocation(prepared: PreparedCase, setup: SetupCatalog): Invocation {
         val pairs = prepared.key.keyPairsOrNull ?: throw IllegalArgumentException("agreement_needs_key_pairs")
         val spec = prepared.parameters?.next()
         val call = EngineCall({ KeyAgreement.getInstance(prepared.case.algorithm, prepared.case.provider) },
@@ -20,6 +20,6 @@ internal object AgreeKeyDefinition : OperationDefinition {
                 agreement.doPhase(pairs.last().public, true)
                 agreement.generateSecret()
             })
-        return call.invocation(SetupCatalog.standard.perCall(prepared.case))
+        return call.invocation(setup.perCall(prepared.case))
     }
 }

@@ -33,7 +33,7 @@ internal object VerifyDefinition : OperationDefinition {
         return OperationInput.SignedMessage(message, signature, spec)
     }
 
-    override fun invocation(prepared: PreparedCase): Invocation {
+    override fun invocation(prepared: PreparedCase, setup: SetupCatalog): Invocation {
         val input = prepared.input as? OperationInput.SignedMessage ?: throw IllegalArgumentException("verify_without_signature")
         val spec = input.spec
         val public = CaseArguments.pair(prepared.key).public
@@ -44,6 +44,6 @@ internal object VerifyDefinition : OperationDefinition {
             signature.update(input.message)
             check(signature.verify(input.signature)) { "verify_failed" }
         })
-        return call.invocation(SetupCatalog.standard.perCall(prepared.case), readBack = true)
+        return call.invocation(setup.perCall(prepared.case), readBack = true)
     }
 }

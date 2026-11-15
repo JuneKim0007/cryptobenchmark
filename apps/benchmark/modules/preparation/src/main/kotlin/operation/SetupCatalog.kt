@@ -31,6 +31,11 @@ internal class SetupCatalog(document: Map<String, Any>) {
         return PerCall.of(modes[mode]?.toString() ?: DocumentFields.string(row, "otherMode"))
     }
 
+    /** A generator times its generation after one init: its row must leave nothing else in the call. */
+    fun initOnce(case: BenchmarkCase): PerCall = perCall(case).also {
+        require(it == PerCall.OPERATION) { "not_supported: ${case.type} times its generation after one init; setup-catalog.yaml gives ${case.variant.label} ${it.label}" }
+    }
+
     private fun bySuffix(row: Map<String, Any>, algorithm: String): PerCall {
         val suffixes = DocumentFields.section(row, "suffixes").entries.firstOrNull { algorithm.endsWith(it.key.uppercase(Locale.ROOT)) }
         return PerCall.of(suffixes?.value?.toString() ?: DocumentFields.string(row, "otherSuffix"))

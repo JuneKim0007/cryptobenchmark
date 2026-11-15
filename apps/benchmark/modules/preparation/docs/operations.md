@@ -34,7 +34,7 @@ What each operation consumes, its timed call, inputs, keys and parameter trees. 
 | ENCRYPT spec pool | varying parameters: 256 specs drawn before timing, cycled `specs[n % size]` |
 | other operations | call `next()` on the parameters once |
 | `Invocation` | `perIteration` is timed; `once()` returns the exact result (Cipher output trimmed to bytes written); `again()` replays the last call with the parameters it drew, on a new instance when the call re-inits; `perCall` what the timed call redoes |
-| `Invocations.of(prepared)` | the case's invocation; used by the host and device harness |
+| `Invocations.of(prepared)` | the case's invocation, every definition handed the setup catalog; used by preparation's dry run and the host and device harness |
 
 ## Variants
 
@@ -66,7 +66,7 @@ Catalog: `src/main/resources/.../operation/setup-catalog.yaml`, read by `operati
 | Cipher GCM, CCM | init with the next fresh IV + operation | a nonce must not repeat under one key; the provider refuses a reused one |
 | Cipher, other mode | init + operation | unknown mode |
 | Cipher without a mode (stream or provider default) | operation when the initialised cipher has no IV, else init + operation | as above |
-| KeyGenerator, KeyPairGenerator | one variant, `fixed`: `generateKey()`/`generateKeyPair()` after one init | the generation is the work |
+| KeyGenerator, KeyPairGenerator | one variant, `fixed`: `generateKey()`/`generateKeyPair()` after one init; a row giving anything but `operation` is refused (`not_supported`) | the generation is the work |
 | a type not in the catalog | one variant, `fixed`, operation | |
 
 | rule | value |
