@@ -1,5 +1,4 @@
 """The known answers a --check run checks against: the guide's vectors filled per provider, plus the vectors global.yaml's selection.knownVectors names, resolved against global.yaml."""
-import pathlib
 
 from cryptobench.pipeline.warn import warn
 from cryptobench.shared import paths
@@ -20,6 +19,6 @@ def write_known_answers(effective, capture, configuration):
     document, warnings = vectors.filled(read_yaml(effective), platform(runtime), user_vectors(configuration))
     for line in warnings:
         warn(line)
-    written = paths.Configuration(pathlib.Path(effective).parent).known_answers
+    written = paths.Configuration.holding(effective).known_answers
     written.write_text(dump_yaml(document))
     return written

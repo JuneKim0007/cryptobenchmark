@@ -1,5 +1,4 @@
 """After effective.yaml says what runs: picks exactly those items from the implementation guide, beside it, for preparation."""
-import pathlib
 
 from cryptobench.pipeline.warn import warn
 from cryptobench.shared import paths
@@ -25,6 +24,6 @@ def write(effective, capture):
     document = guide_items(read_yaml(effective), platform(runtime))
     for line in fallbacks(document):
         warn(line)
-    written = paths.Configuration(pathlib.Path(effective).parent).guide
+    written = paths.Configuration.holding(effective).guide
     written.write_text(dump_yaml(document))
     return written

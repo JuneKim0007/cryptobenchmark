@@ -1,5 +1,5 @@
 """A --check run: every planned case called once through the real harness, on the host JVM or the device in one process, its output checked; check.yaml."""
-import pathlib, shutil, time
+import shutil, time
 
 from cryptobench.shared.device import gradle_runner
 from cryptobench.shared.device.adb import NO_DEFAULT_PROFILER, PASSED, DeviceError, instrumentation_report
@@ -47,7 +47,7 @@ def on_host(options, effective, capture, trial, known_answers, into):
 
 def on_device(device, options, effective, capture, trial, known_answers, into):
     device.clear_outputs((paths.CHECK_RESULT,))
-    device.push_plan(effective, paths.Configuration(pathlib.Path(effective).parent).guide, capture, trial, known_answers)
+    device.push_plan(effective, paths.Configuration.holding(effective).guide, capture, trial, known_answers)
     suppressed = ["-e", "androidx.benchmark.suppressErrors", options.suppress_errors] if options.suppress_errors else []
     output = device.instrument("EndToEndCheck", *NO_DEFAULT_PROFILER, *DRY_RUN, *suppressed)
     if not PASSED.search(output):

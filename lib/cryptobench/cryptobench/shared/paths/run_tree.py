@@ -22,6 +22,11 @@ class Configuration(Section):
     guide = property(lambda self: self.root / n.GUIDE)
     known_answers = property(lambda self: self.root / n.KNOWN_ANSWERS)
 
+    @classmethod
+    def holding(cls, file: Path | str) -> Configuration:
+        """The configuration folder a file of it sits in: guide.yaml and known-answers.yaml are written beside effective.yaml."""
+        return cls(Path(file).parent)
+
 
 class Discovery(Section):
     facts = property(lambda self: self.root / n.FACTS)
