@@ -41,7 +41,7 @@ def source_name(effective):
 
 
 def source(effective, python, stacktrace=False):
-    return SOURCES[source_name(effective)](Host(python, stacktrace, paths.android_home() / "platform-tools", timeouts.SECONDS["energy"]))
+    return SOURCES[source_name(effective)](Host(python, stacktrace, paths.platform_tools(), timeouts.SECONDS["energy"]))
 
 
 def guarded(problems, step):

@@ -52,7 +52,7 @@ class Device:
     def __init__(self, root, stream, stacktrace):
         self.root, self.stream, self.stacktrace = root, stream, stacktrace
         self.environment = dict(os.environ, ANDROID_HOME=str(paths.android_home()))
-        self.adb = paths.android_home() / "platform-tools/adb"
+        self.adb = paths.platform_tools() / "adb"
 
     def run(self, *arguments, check=True):
         result = timeouts.run("adb", [str(self.adb), *arguments], capture_output=True, text=True)

@@ -47,7 +47,7 @@ def measure_on_device(run, one, captures, preparation, isolation, repetitions, f
 def dry_pass(session, into, preparation, problems, guarded):
     """Beside a timed run its failure costs only energy; alone it is the whole measurement."""
     print("measure:   EnergyDryBenchmark inside a host trace session")
-    step = lambda: session.dry_pass(paths.repo().energy / "energy.pbtx", paths.Measurement(into).dry_trace, paths.Measurement(into).energy_dry, preparation)
+    step = lambda: session.dry_pass(paths.repo().energy_trace_config, paths.Measurement(into).dry_trace, paths.Measurement(into).energy_dry, preparation)
     energy_stage.guarded(problems, step) if guarded else step()
 
 

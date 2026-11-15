@@ -25,6 +25,7 @@ class Repo:
     pipeline = property(lambda self: self.root / roots.PIPELINE)
     dependencies = property(lambda self: self.runner / "dependencies.py")
     energy = property(lambda self: self.runner / "energy")
+    energy_trace_config = property(lambda self: self.energy / "energy.pbtx")
     gradle_root = property(lambda self: self.root / "apps/benchmark")
     gradlew = property(lambda self: self.gradle_root / "gradlew")
     benchmark_cli = property(lambda self: self.gradle_root / "cli")

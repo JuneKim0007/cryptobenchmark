@@ -17,3 +17,7 @@ def user_global() -> Path:
 
 def android_home() -> Path:
     return Path(os.environ.get("ANDROID_HOME") or home() / "Library/Android/sdk")
+
+
+def platform_tools() -> Path:
+    return android_home() / "platform-tools"

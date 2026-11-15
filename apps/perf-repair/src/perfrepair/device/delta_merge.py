@@ -6,7 +6,7 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
-from cryptobench.shared.paths import BENCHMARK_JSON, RunTree
+from cryptobench.shared.paths import BENCHMARK, BENCHMARK_JSON, PROCESS_FORM, RunTree
 from ..dto.dossier import SETUP_DRIFT
 from ..files import json_text, read_json, read_yaml, write_text_making_parents
 from cryptobench.shared.errors.input_error import InputError
@@ -100,11 +100,11 @@ def merge_delta(folder: Path, staged: Path, ids: set[str], session: str, compari
     theirs = [read_json(staged / p) for p in [delta["files"]["benchmark"], *(delta["files"].get("processes") or ())]]
     _same_samples(_samples(mine), _samples(theirs), ids | set(fill), _planned_alike(folder, files),
                   _planned_alike(staged, delta["files"]))
-    out = Path("benchmark") / f"merged-{session}"
+    out = Path(BENCHMARK) / f"merged-{session}"
     merged = _benchmarks(mine[0], theirs[0], ids, fill, session, comparison)
     texts = {"benchmark": json_text(merged)}
     for n, (a, b) in enumerate(zip(mine[1:], theirs[1:]), 1):
-        texts[f"process-{n}"] = json_text(_benchmarks(a, b, ids, fill, session, comparison))
+        texts[PROCESS_FORM.format(n)] = json_text(_benchmarks(a, b, ids, fill, session, comparison))
     for key in PLANNED:
         if files.get(key) and delta["files"].get(key):
             texts[key] = dump_yaml(_plan_file(key, read_yaml(folder / files[key]), read_yaml(staged / delta["files"][key])))
@@ -113,7 +113,7 @@ def merge_delta(folder: Path, staged: Path, ids: set[str], session: str, compari
         write_text_making_parents(folder / out / name, text)
     files.update({k: str(out / (f"{k}.yaml" if k in PLANNED else BENCHMARK_JSON)) for k in texts if not k.startswith("process-")})
     if files.get("processes"):
-        files["processes"] = [str(out / f"process-{n}/benchmark.json") for n in range(1, len(files["processes"]) + 1)]
+        files["processes"] = [str(out / PROCESS_FORM.format(n) / BENCHMARK_JSON) for n in range(1, len(files["processes"]) + 1)]
     counts = dict(manifest.get("counts") or {})
     counts["measured"] = counts.get("measured", 0) + len(ids)
     if "prepared" in texts:
