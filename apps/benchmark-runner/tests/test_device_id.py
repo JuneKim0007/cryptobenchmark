@@ -2,7 +2,7 @@ import sys
 
 import pytest
 
-from device.identity import DeviceIdError, device_id  # noqa: E402
+from cryptobench.shared.device.identity import DeviceIdError, device_id  # noqa: E402
 
 # Real block of a capture taken before the identity fields existed.
 OLD_HOST = {"model": "", "manufacturer": "", "hardware": "", "sdkInt": 0, "release": "", "javaVersion": "25.0.3", "defaultKeySizeProperty": ""}

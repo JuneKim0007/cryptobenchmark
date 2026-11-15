@@ -1,7 +1,7 @@
 """An --interop run: perf-repair's pairs checked on the host JVM or the device, published beside or as the device folder."""
 import pathlib, time
 
-from device.identity import capture_id
+from cryptobench.shared.device.identity import capture_id
 from cryptobench.shared.errors.failures import CommandError
 from results import layout as results_layout
 from results.manifest import add_to_manifest, manifest

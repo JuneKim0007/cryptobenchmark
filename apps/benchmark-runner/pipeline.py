@@ -4,7 +4,7 @@ import argparse, json, os, pathlib, subprocess, sys, traceback
 
 import dependencies  # first: it reports a missing PyYAML, which the imports below need
 from cryptobench.shared.device.adb import Device
-from device.identity import device_id
+from cryptobench.shared.device.identity import device_id
 from failure import fail, reported
 from cryptobench.shared.errors.line import one_line
 from cryptobench.shared.errors.coded import Coded

@@ -5,7 +5,7 @@ import pipeline
 from cryptobench.pipeline import took
 from results.manifest import add_to_manifest
 from test_manifest import RUNTIME, layout, written
-from device.identity import device_id
+from cryptobench.shared.device.identity import device_id
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 OUTBOUND = ROOT / "apps/perf-repair/src/perfrepair/data_handler/outbound/benchmark_runner.py"

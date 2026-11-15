@@ -5,18 +5,11 @@ from cryptobench.shared import paths
 from cryptobench.shared.catalogue.guide_items import guide_items
 from cryptobench.shared.catalogue import vectors
 from cryptobench.shared.document.document import read_yaml
+from cryptobench.shared.device.capture import platform
 from cryptobench.shared.document.dump import dump_yaml
 
 def file_beside(effective):
     return paths.Configuration(pathlib.Path(effective).parent).guide
-
-
-def platform(runtime):
-    """The guide's name for where this capture ran: android-<sdk>, else jdk-<major> of a host JVM."""
-    if runtime.get("sdkInt"):
-        return f"android-{runtime['sdkInt']}"
-    major = str(runtime.get("javaVersion") or "").split(".")[0]
-    return f"jdk-{major}" if major else None
 
 
 def fallbacks(document):

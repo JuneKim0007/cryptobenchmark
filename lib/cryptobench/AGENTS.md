@@ -41,7 +41,11 @@ cryptobench/shared/document/dump.py : dump_yaml, a value as YAML text through on
 cryptobench/shared/document/write.py : write_text, a file replaced whole through a temporary of its writer's own (mode as a plain open gives, fsync and folder fsync when durable, exclusive refuses an existing file); Staging, the temporary's name, mode and fsync per writer (STAGED, MANIFEST); write_texts, several files staged then renamed in order
 cryptobench/shared/device/__init__.py : package of the host's device steps, importing no app
 cryptobench/shared/device/adb.py : adb steps of a --device run: identity by getprop, install, probe, push, AOT compile, instrument and its OK line, clear, pull, scope check
+cryptobench/shared/device/capture.py : a capture's runtime block, its schema version checked; the guide's platform name for it
+cryptobench/shared/device/clocks.py : per-core cpufreq over adb; clocks.yaml and cpuLocked
 cryptobench/shared/device/gradle_runner.py : runs one command of apps/benchmark/cli by its main class; filters its failure to the tool's own lines
+cryptobench/shared/device/identity.py : device id from a capture's runtime block
+cryptobench/shared/device/push.py : a device run's plan push, the suppressErrors warning, then the energy settle's files
 cryptobench/shared/device/timeouts.py : ceilings of the host's subprocess steps (adb, install, instrument, case, gradle, compile, energy, analysis); expiry is one coded error
 cryptobench/shared/digest/__init__.py : package of the digests over bytes
 cryptobench/shared/digest/tree.py : byte_digest, the sha256 of some bytes; tree_digest, one digest of files in a given order, each its path under a root and its byte digest

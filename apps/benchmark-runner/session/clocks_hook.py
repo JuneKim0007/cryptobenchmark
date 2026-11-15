@@ -1,5 +1,5 @@
 """Session hook: the clock state around every process and case of a device session."""
-from device import clocks
+from cryptobench.shared.device import clocks
 from session.measure import Hooks
 from cryptobench.shared import paths
 

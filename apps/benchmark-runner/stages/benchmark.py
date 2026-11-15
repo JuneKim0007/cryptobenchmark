@@ -12,8 +12,9 @@ from cryptobench.shared import paths
 from session import case_isolation, energy_hook, passes, variant_order, warmup
 from session import measure as measure_session
 from stages import guide, not_measured
-from stages.measuring import (Measuring, convert, energy_preflight, gated, pass_arguments, push, record, session_arguments, singles,
+from stages.measuring import (Measuring, convert, energy_preflight, gated, pass_arguments, record, session_arguments, singles,
                               thermal_flag, timed_hooks)
+from cryptobench.shared.device.push import push
 from cryptobench.pipeline.took import elapsed
 from cryptobench.shared.document.document import read_yaml
 

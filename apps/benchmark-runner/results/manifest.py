@@ -1,9 +1,9 @@
 """results/<device_id>/manifest.yaml: what a finished run wrote, measured and survived."""
 import json
 
-from device import clocks
-from device.capture import runtime as capture_runtime
-from device.identity import device_id
+from cryptobench.shared.device import clocks
+from cryptobench.shared.device.capture import runtime as capture_runtime
+from cryptobench.shared.device.identity import device_id
 from cryptobench.shared import paths
 from results import run_inputs
 from cryptobench.shared.document.document import parse_yaml, read_yaml

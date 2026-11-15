@@ -4,7 +4,7 @@ import pathlib, types
 
 import yaml
 
-from device.identity import device_id
+from cryptobench.shared.device.identity import device_id
 from stages import discover
 from test_manifest import RUNTIME
 

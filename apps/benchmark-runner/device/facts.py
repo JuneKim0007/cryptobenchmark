@@ -1,7 +1,7 @@
 """Device facts for the settings table: what this device can support, gathered once after install and probe; nothing here decides."""
 import zipfile
 
-from device import capture as captured, clocks
+from cryptobench.shared.device import capture as captured, clocks
 from cryptobench.shared.device.adb import PACKAGE
 from cryptobench.shared import paths
 from cryptobench.shared.document.dump import dump_yaml

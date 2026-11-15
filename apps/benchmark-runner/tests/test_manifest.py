@@ -7,8 +7,8 @@ import tempfile
 import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
-from device.capture import CaptureError  # noqa: E402
-from device.identity import DeviceIdError, device_id  # noqa: E402
+from cryptobench.shared.device.capture import CaptureError  # noqa: E402
+from cryptobench.shared.device.identity import DeviceIdError, device_id  # noqa: E402
 from results import manifest as manifest_module  # noqa: E402
 from results.manifest import manifest  # noqa: E402
 from results import run_inputs  # noqa: E402

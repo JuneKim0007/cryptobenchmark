@@ -47,11 +47,8 @@ algorithms/ : the implementation guide: one catalogue per family, recipes, devia
 apps/benchmark-runner/analysis/ : analysis of a benchmark.json: summary, charts, statistics
 apps/benchmark-runner/demo.sh : one-command host demo run into results/demo/<device_id>
 apps/benchmark-runner/dependencies.py : the host modules a run needs, checked at its start, cryptobench from this checkout; a missing one is one coded line and exit 1
-apps/benchmark-runner/device/__init__.py : package of the attached device's reads: adb, id, clocks, temperatures, facts
-apps/benchmark-runner/device/capture.py : a capture's runtime block, its schema version checked
-apps/benchmark-runner/device/clocks.py : per-core cpufreq over adb; clocks.yaml and cpuLocked
+apps/benchmark-runner/device/__init__.py : package of the attached device's reads the stages own: temperatures, facts
 apps/benchmark-runner/device/facts.py : device facts into discovery/facts.yaml
-apps/benchmark-runner/device/identity.py : device id from a capture's runtime block
 apps/benchmark-runner/device/thermal.py : device temperatures from dumpsys thermalservice: sensors by HAL name, status, sentinels skipped, unavailable as a reason
 apps/benchmark-runner/energy/ : energy sources behind one seam (rails, manafa), pre-flight, joules per case, capture resolution
 apps/benchmark-runner/energy_session.py : Perfetto sessions on the device: start, stop, pull

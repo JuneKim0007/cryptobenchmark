@@ -1,4 +1,4 @@
-"""A capture's runtime block, read once for the runner; a capture of another schema version is refused."""
+"""A capture's runtime block, read once for the runner; a capture of another schema version is refused; the guide's name for its platform."""
 from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.errors.coded import Coded
 
@@ -18,3 +18,11 @@ def runtime(capture):
 
 def read_runtime(path):
     return runtime(read_yaml(path))
+
+
+def platform(runtime):
+    """The guide's name for where this capture ran: android-<sdk>, else jdk-<major> of a host JVM."""
+    if runtime.get("sdkInt"):
+        return f"android-{runtime['sdkInt']}"
+    major = str(runtime.get("javaVersion") or "").split(".")[0]
+    return f"jdk-{major}" if major else None

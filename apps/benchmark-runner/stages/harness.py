@@ -2,7 +2,7 @@
 import pathlib, shutil, time
 
 
-from device.identity import capture_id
+from cryptobench.shared.device.identity import capture_id
 from cryptobench.shared.errors.failures import CommandError
 from failure import reported
 from cryptobench.shared import paths
@@ -12,7 +12,7 @@ from scope import generate as scope_generate
 from scope import results as scope_results
 from scope.harness import HarnessError
 from stages.discover import discover
-from stages.measuring import push
+from cryptobench.shared.device.push import push
 from cryptobench.pipeline.took import elapsed
 from cryptobench.shared.document.document import read_yaml
 

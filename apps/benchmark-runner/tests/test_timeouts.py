@@ -43,7 +43,7 @@ def test_an_error_the_run_did_not_survive_is_one_line(error, line):
 
 
 KNOWN = [
-    "cryptobench.shared.device.adb.DeviceError", "device.identity.DeviceIdError", "device.capture.CaptureError", "cryptobench.shared.errors.failures.EnergyError",
+    "cryptobench.shared.device.adb.DeviceError", "cryptobench.shared.device.identity.DeviceIdError", "cryptobench.shared.device.capture.CaptureError", "cryptobench.shared.errors.failures.EnergyError",
     "cryptobench.shared.settings.bundled.BundledError", "stages.config_check.ConfigCheckError", "scope.results.ScopeResultError", "scope.code_digest.CodeDigestError",
     "cryptobench.shared.device.timeouts.StepTimeout", "session.dynamic_temperature.Terminated", "cryptobench.shared.errors.input_error.InputError",
     "cryptobench.shared.errors.failures.CommandError"]

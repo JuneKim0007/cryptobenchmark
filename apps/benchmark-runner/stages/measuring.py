@@ -1,4 +1,4 @@
-"""What every device session of a run shares: its context, hooks, push, conversion and the files it records."""
+"""What every device session of a run shares: its context, hooks, conversion and the files it records."""
 import dataclasses, pathlib, time
 
 from cryptobench.shared.settings import effective_view
@@ -63,15 +63,6 @@ def energy_preflight(options, source, session, discovery, files):
     files["energyCapability"] = capability
     elapsed("energy pre-flight and settle", started)
     return capability
-
-
-def push(device, options, plan, energy=None):
-    """dex2oat runs in the AOT compile, so the energy settle comes after it, never before; energy.yaml follows the settle."""
-    device.push_plan(*plan)
-    if options.suppress_errors:
-        print(f"warning: suppressErrors {options.suppress_errors}: these numbers are not comparable to an unsuppressed run")
-    if energy:
-        device.push_files(energy())
 
 
 def record(files, into, captures, device):

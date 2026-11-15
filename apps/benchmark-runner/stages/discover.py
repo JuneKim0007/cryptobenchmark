@@ -4,7 +4,7 @@ import shutil, time
 from cryptobench.shared.settings import effective_view
 from cryptobench.shared.device import gradle_runner
 from device import facts
-from device.identity import capture_id, device_id
+from cryptobench.shared.device.identity import capture_id, device_id
 from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared import paths
 from results import layout as results_layout

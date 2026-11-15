@@ -2,7 +2,7 @@
 import hashlib, re
 
 from cryptobench.shared.errors.coded import Coded
-from device import capture as captured
+from cryptobench.shared.device import capture as captured
 
 
 class DeviceIdError(Coded):

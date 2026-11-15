@@ -9,10 +9,6 @@
 | `size_label(size)` | `apps/benchmark-runner/analysis/chart_model.py` | `'n-a' if size is None else f'{size}B' if size < 1024 else f'{size // 1024}KiB'` | chart_draw, chart_report |
 | `summarize_count(case, groups, metric)` | `apps/benchmark-runner/analysis/chart_model.py` | One case's runs of a count metric, as measured: no unit conversion. None when the case has no runs for it. | analyze, charts |
 | `variant(case)` | `apps/benchmark-runner/analysis/chart_model.py` | ' fixed' or ' notFixed' after a case's name, so an item's two variants never read as one; empty for a row without one. | analyze, chart_draw, chart_report |
-| `read_runtime(path)` | `apps/benchmark-runner/device/capture.py` | `runtime(read_yaml(path))` | device.facts, device.identity |
-| `read(device)` | `apps/benchmark-runner/device/clocks.py` | `parse(device.shell(READ))` | device.facts, session.clocks_hook |
-| `capture_id(capture)` | `apps/benchmark-runner/device/identity.py` | `device_id(captured.read_runtime(capture))` | stages.discover, stages.harness, stages.interop |
-| `device_id(runtime)` | `apps/benchmark-runner/device/identity.py` | - | pipeline, results.manifest, stages.discover |
 | `read(device)` | `apps/benchmark-runner/device/thermal.py` | - | session.dynamic_temperature, session.thermal_hook, session.warmup |
 | `one_line(error)` | `apps/benchmark-runner/energy/energy.py` | `' '.join(str(error).split())[:200] or type(error).__name__` | none |
 | `one_line(error)` | `apps/benchmark-runner/energy/manafa_estimate.py` | `' '.join(str(error).split()) or type(error).__name__` | manafa_session |
@@ -36,7 +32,6 @@
 | `parsed(global_file)` | `apps/benchmark-runner/stages/config_check.py` | `parse_all([pathlib.Path(global_file)])[0]` | pipeline, stages.discover |
 | `device_discover(options, configuration, device, root)` | `apps/benchmark-runner/stages/discover.py` | A failed probe or configure leaves nothing; from here on the folder has its real name and no manifest until the run ends. | pipeline, stages.check |
 | `file_beside(effective)` | `apps/benchmark-runner/stages/guide.py` | `paths.Configuration(pathlib.Path(effective).parent).guide` | stages.benchmark, stages.check |
-| `push(device, options, plan, energy)` | `apps/benchmark-runner/stages/measuring.py` | dex2oat runs in the AOT compile, so the energy settle comes after it, never before; energy.yaml follows the settle. | stages.benchmark, stages.harness |
 | `elapsed(label, started)` | `lib/cryptobench/cryptobench/pipeline/took.py` | - | stages.benchmark, stages.check, stages.discover, stages.harness +2 |
 | `warn(line, problems)` | `lib/cryptobench/cryptobench/pipeline/warn.py` | A warning on the terminal and, when the run keeps a list, in its manifest. | session.dynamic_temperature, stages.benchmark |
 | `algorithm_id(engine_type, canonical)` | `lib/cryptobench/cryptobench/shared/catalogue/algorithms.py` | `f'{engine_type}{SEPARATOR}{canonical}'` | cryptobench.shared.catalogue.groups, cryptobench.shared.catalogue.guide_items, cryptobench.shared.catalogue.vectors, cryptobench.shared.catalogue.views |
@@ -49,11 +44,16 @@
 | `ONE_PASSED` | `lib/cryptobench/cryptobench/shared/device/adb.py` | `re.compile('^OK \\(1 test\\)', re.M)` | session.case_isolation, stages.interop_oracle |
 | `PASSED` | `lib/cryptobench/cryptobench/shared/device/adb.py` | `re.compile('^OK \\(\\d+ tests?\\)', re.M)` | energy_session, session.measure, session.warmup, stages.check |
 | `instrumentation_report(output)` | `lib/cryptobench/cryptobench/shared/device/adb.py` | - | energy_session, stages.check, stages.interop_oracle |
+| `read_runtime(path)` | `lib/cryptobench/cryptobench/shared/device/capture.py` | `runtime(read_yaml(path))` | cryptobench.shared.device.identity, device.facts |
+| `read(device)` | `lib/cryptobench/cryptobench/shared/device/clocks.py` | `parse(device.shell(READ))` | device.facts, session.clocks_hook |
 | `run(arguments, stacktrace, stream, main_class, notices, properties, failed)` | `lib/cryptobench/cryptobench/shared/device/gradle_runner.py` | notices, when given, collects every passed-on line, so a caller can record it; properties are -P build properties; | session.passes, stages.benchmark, stages.check, stages.discover +2 |
+| `capture_id(capture)` | `lib/cryptobench/cryptobench/shared/device/identity.py` | `device_id(captured.read_runtime(capture))` | stages.discover, stages.harness, stages.interop |
+| `device_id(runtime)` | `lib/cryptobench/cryptobench/shared/device/identity.py` | - | pipeline, results.manifest, stages.discover |
+| `push(device, options, plan, energy)` | `lib/cryptobench/cryptobench/shared/device/push.py` | dex2oat runs in the AOT compile, so the energy settle comes after it, never before; energy.yaml follows the settle. | stages.benchmark, stages.harness |
 | `run(step, command)` | `lib/cryptobench/cryptobench/shared/device/timeouts.py` | - | cryptobench.shared.device.adb, cryptobench.shared.device.gradle_runner, scope.compile, stages.benchmark |
 | `parse_yaml(text, where, code, shape, error)` | `lib/cryptobench/cryptobench/shared/document/document.py` | An empty text is an empty shape; YAML that does not parse, or parses to another shape, is `<code>: <where>: ...`. | facade.index, results.manifest, stages.config_check, stages.discover |
-| `read_yaml(path, shape)` | `lib/cryptobench/cryptobench/shared/document/document.py` | The file at path as parse_yaml reads it. | chart_input, cryptobench.shared.catalogue.interchange, cryptobench.shared.settings.bundled, cryptobench.shared.settings.effective_view +15 |
-| `dump_yaml(doc, profile)` | `lib/cryptobench/cryptobench/shared/document/dump.py` | `yaml.safe_dump(doc, **profile)` | chart_report, device.clocks, device.facts, results.manifest +1 |
+| `read_yaml(path, shape)` | `lib/cryptobench/cryptobench/shared/document/document.py` | The file at path as parse_yaml reads it. | chart_input, cryptobench.shared.catalogue.interchange, cryptobench.shared.device.capture, cryptobench.shared.device.clocks +15 |
+| `dump_yaml(doc, profile)` | `lib/cryptobench/cryptobench/shared/document/dump.py` | `yaml.safe_dump(doc, **profile)` | chart_report, cryptobench.shared.device.clocks, device.facts, results.manifest +1 |
 | `code_in(text)` | `lib/cryptobench/cryptobench/shared/errors/coded.py` | - | cryptobench.shared.errors.failures, cryptobench.shared.errors.input_error |
 | `one_line(error)` | `lib/cryptobench/cryptobench/shared/errors/line.py` | `' '.join(str(error).split())[:500]` | cryptobench.shared.device.gradle_runner, energy_stage, facade.py, pipeline +4 |
 | `android_home()` | `lib/cryptobench/cryptobench/shared/paths/host.py` | `Path(os.environ.get('ANDROID_HOME') or home() / 'Library/Android/sdk')` | cryptobench.shared.device.adb, energy_stage, scope.compile |

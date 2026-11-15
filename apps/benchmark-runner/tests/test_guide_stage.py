@@ -2,13 +2,14 @@
 import sys
 
 from stages import guide  # noqa: E402
+from cryptobench.shared.device.capture import platform  # noqa: E402
 from cryptobench.shared.catalogue.provider_builds import provider_builds  # noqa: E402
 
 
 def test_a_device_names_its_platform_and_a_host_its_jdk():
-    assert guide.platform({"sdkInt": 37, "javaVersion": "0"}) == "android-37"
-    assert guide.platform({"javaVersion": "25.0.1"}) == "jdk-25"
-    assert guide.platform({}) is None
+    assert platform({"sdkInt": 37, "javaVersion": "0"}) == "android-37"
+    assert platform({"javaVersion": "25.0.1"}) == "jdk-25"
+    assert platform({}) is None
 
 
 def test_an_exact_build_wins_and_a_newer_device_takes_the_nearest_below():
