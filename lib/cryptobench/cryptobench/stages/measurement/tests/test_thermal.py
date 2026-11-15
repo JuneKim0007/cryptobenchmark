@@ -1,6 +1,6 @@
 """dumpsys thermalservice as Android prints it: the HAL's current values first, the cached callback values when they are all there is."""
 
-from device import thermal  # noqa: E402
+from cryptobench.stages.measurement import thermal  # noqa: E402
 
 CACHED_ONLY = """IsStatusOverride: false
 Thermal Status: 0

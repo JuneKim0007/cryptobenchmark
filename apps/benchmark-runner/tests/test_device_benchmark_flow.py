@@ -6,7 +6,7 @@ import yaml
 
 from cryptobench.shared.device.adb import DeviceError  # noqa: E402
 from cryptobench.shared.errors.failures import EnergyError  # noqa: E402
-from session import clocks_hook, cooldown_hook  # noqa: E402
+from cryptobench.stages.measurement.session import clocks_hook, cooldown_hook  # noqa: E402
 import pipeline  # noqa: E402
 from stages import benchmark  # noqa: E402
 from failure import reported  # noqa: E402

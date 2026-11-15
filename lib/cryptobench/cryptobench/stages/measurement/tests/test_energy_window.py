@@ -2,8 +2,8 @@
 
 from cryptobench.stages.measurement.energy import steps as energy_stage
 from cryptobench.shared.errors.failures import EnergyError  # noqa: E402
-from session import measure as measure_session  # noqa: E402
-from session import energy_hook  # noqa: E402
+from cryptobench.stages.measurement.session import measure as measure_session  # noqa: E402
+from cryptobench.stages.measurement.session import energy_hook  # noqa: E402
 from cryptobench.shared.device.adb import DeviceError  # noqa: E402
 from fake_phone import Energy, Phone  # noqa: E402
 

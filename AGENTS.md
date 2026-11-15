@@ -47,14 +47,10 @@ algorithms/ : the implementation guide: one catalogue per family, recipes, devia
 apps/benchmark-runner/analysis/ : analysis of a benchmark.json: summary, charts, statistics
 apps/benchmark-runner/demo.sh : one-command host demo run into results/demo/<device_id>
 apps/benchmark-runner/dependencies.py : the host modules a run needs, checked at its start, cryptobench from this checkout; a missing one is one coded line and exit 1
-apps/benchmark-runner/device/__init__.py : package of the attached device's reads the stages own: temperatures
-apps/benchmark-runner/device/thermal.py : device temperatures from dumpsys thermalservice: sensors by HAL name, status, sentinels skipped, unavailable as a reason
 apps/benchmark-runner/energy/ : energy sources behind one seam (rails, manafa), pre-flight, joules per case, capture resolution
 apps/benchmark-runner/explain.py : each resolved setting of a run and the file it came from
 apps/benchmark-runner/failure.py : one error line and exit; reported(), a CommandError as that line, at an entry point and in harness_run (removed when the harness becomes a stage)
 apps/benchmark-runner/pipeline.py : run driver: options and refusals, ROUTES (the first set option's stage runs on one StageContext, the plain run last; the routes compose the stages), one coded failure line; --probe (discover and configure only), --identify (device id, input and harness code digests, nothing written)
-apps/benchmark-runner/results/__init__.py : package of a measurement's per-case result files
-apps/benchmark-runner/results/case_files.py : process-N/cases/<case>.json: the path of a case's pulled benchmarkData, the folder emptied per process, benchmarkData.json merged from the files
 apps/benchmark-runner/scope/__init__.py : package of the --harness run's sources: harness.yaml to compiled wrappers, interop plan, device verdicts
 apps/benchmark-runner/scope/code_digest.py : the digest of the code from a harness.yaml to a checked harness; a pattern matching nothing is an error
 apps/benchmark-runner/scope/compile.py : compiles the android test sources with Gradle; the compiler's error lines
@@ -68,20 +64,6 @@ apps/benchmark-runner/scope/results.py : device interop verdicts into scoped-pla
 apps/benchmark-runner/scope/signature.py : Java method and Kotlin function header parser; header as a public static member
 apps/benchmark-runner/scope/wrapper.py : renders the per-variant wrappers and the GeneratedScopes catalog
 apps/benchmark-runner/scope_generate.py : generate and compile a harness's scopes alone, sources left in place
-apps/benchmark-runner/session/__init__.py : package of one device measuring session: processes, cases, passes, order, warm-up, hooks
-apps/benchmark-runner/session/calibration.py : whether androidx's warm-up left usable samples: collapsed calls per sample, a warm-up near its time limit
-apps/benchmark-runner/session/case_isolation.py : run.isolation case: one case's instrumentation process and its pull, the device's case listing
-apps/benchmark-runner/session/clocks_hook.py : session hook: the clock state around every process and case into clocks.yaml
-apps/benchmark-runner/session/cooldown_hook.py : session hook: run.caseCooldownSeconds of host sleep between measured cases, one line per pass
-apps/benchmark-runner/session/dynamic_temperature.py : run.thermalGate facade: the startup decision, hold, verdict and start margin; the only caller of the equations
-apps/benchmark-runner/session/energy_hook.py : session hook: the energy source's window around a process, traces pulled per case, dry pass, joules
-apps/benchmark-runner/session/gate_history.py : what one temperature gate session did: per-case waits and discards for thermal.json, its per-pass line
-apps/benchmark-runner/session/launch.py : the only place a timed run of a case starts: hold, launch, verdict, retries
-apps/benchmark-runner/session/measure.py : one device measuring session of the benchmark: processes, a process per case or one for all, hooks; a process repetition's folder and line, a case's progress line
-apps/benchmark-runner/session/passes.py : run.passes: one device session per metric group, its device arguments and conversion, the merge per metric; MergeRunsKt over process repetitions
-apps/benchmark-runner/session/thermal_hook.py : session hook: temperature around every process and case into thermal.json with the gate's history, its lines per pass
-apps/benchmark-runner/session/variant_order.py : run.variants on a device: an item's fixed and notFixed cases adjacent, A/B then B/A over repetitions
-apps/benchmark-runner/session/warmup.py : run.warmup: a pre-flight run of a few planned cases once per device session, off at 0 iterations; its output never pulled
 apps/benchmark-runner/stages/ : the run driver's stages, one per run kind; map in its AGENTS.md
 apps/benchmark-runner/tests/ : pytest and standalone tests for apps/benchmark-runner/
 apps/benchmark/build.gradle : root buildscript: Android Gradle plugin and Kotlin plugin versions

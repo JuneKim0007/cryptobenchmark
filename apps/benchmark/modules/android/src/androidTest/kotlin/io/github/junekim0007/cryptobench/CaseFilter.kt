@@ -4,7 +4,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 
 /** The `case` argument: one id, or ids joined by commas in the order to run them; absent keeps every case in plan order. */
 object CaseFilter {
-    // Paired with apps/benchmark-runner/session/case_isolation.py CASE_ARGUMENT.
+    // Paired with lib/cryptobench/cryptobench/stages/measurement/session/case_isolation.py CASE_ARGUMENT.
     const val ARGUMENT = "case"
 
     private val argument: String? get() = InstrumentationRegistry.getArguments().getString(ARGUMENT)

@@ -1,7 +1,7 @@
 """The phone over adb, faked: an instrumentation per process, one log line per device step, and the host tools' files."""
 import contextlib, json, pathlib, types
 
-from session import case_isolation  # noqa: E402
+from cryptobench.stages.measurement.session import case_isolation  # noqa: E402
 from cryptobench.shared.device import adb as device_module  # noqa: E402
 from cryptobench.shared.device import gradle_runner  # noqa: E402
 from cryptobench.shared.device import timeouts  # noqa: E402

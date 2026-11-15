@@ -5,7 +5,7 @@ import tempfile
 import unittest
 
 from cryptobench.shared.settings import effective_view  # noqa: E402
-from session import passes, warmup  # noqa: E402
+from cryptobench.stages.measurement.session import passes, warmup  # noqa: E402
 from failure import reported  # noqa: E402
 
 

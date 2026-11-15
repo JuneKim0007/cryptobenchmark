@@ -1,7 +1,8 @@
 """The only place a timed run of a case starts: each attempt is held for temperature, launched between the hooks, then judged."""
 from cryptobench.shared.errors.line import one_line
-from session import calibration, case_isolation, dynamic_temperature
-from cryptobench.shared.stats import equations as eq
+from cryptobench.stages.measurement.session import calibration, case_isolation, dynamic_temperature
+from cryptobench.stages.measurement import start_margin as eq
+from cryptobench.pipeline.warn import warn
 
 
 def hooked_case(process, case, hooks, run_case):
@@ -55,4 +56,4 @@ def run_of_case(device, plan, process, case, hooks, pulled):
         if retries == 0:
             return reason
         retries -= 1
-        print(f"warning: {one_line(reason)}; measuring the case again, {retries} retries left")
+        warn(f"{one_line(reason)}; measuring the case again, {retries} retries left")

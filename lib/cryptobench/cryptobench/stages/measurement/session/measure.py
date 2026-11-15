@@ -4,10 +4,11 @@ import dataclasses, pathlib, re
 
 from cryptobench.shared.settings import effective_view
 from cryptobench.shared.errors.line import one_line
-from results import case_files
-from session import calibration, case_isolation, dynamic_temperature, launch
+from cryptobench.stages.measurement import case_files
+from cryptobench.stages.measurement.session import calibration, case_isolation, dynamic_temperature, launch
 from cryptobench.shared.device.adb import PASSED, DeviceError
 from cryptobench.shared import paths
+from cryptobench.pipeline.warn import warn
 
 COUNTED = re.compile(r"^Tests run: (\d+),\s+Failures: (\d+)", re.M)
 
@@ -124,7 +125,7 @@ def closed(process, hooks):
             hook.after_process(process)
         except Exception as error:
             if failed:
-                print(f"warning: hook_failed: {type(hook).__name__}.after_process: {type(error).__name__}: {one_line(error)}")
+                warn(f"hook_failed: {type(hook).__name__}.after_process: {type(error).__name__}: {one_line(error)}")
             failed = failed or error
     return failed
 
@@ -170,7 +171,7 @@ def all_cases(device, plan, process):
         counted = COUNTED.search(output)
         if not counted or counted.group(1) == counted.group(2):
             raise DeviceError(f"{plan.test_class} failed on the device:\n" + device.report(output))
-        print(f"warning: {plan.test_class}: " + device.report(output).replace("\n", "\nwarning: "))
+        warn(f"{plan.test_class}: " + device.report(output).replace("\n", "\nwarning: "))
     device.pull(device.data, process.data)
     # one process for every case: nothing to measure again without repeating them all
     process.failures.extend(f"case_failed: {line}" for line in calibration.short_samples(process.data))

@@ -93,7 +93,7 @@ object JetpackResults {
         CaseDocument.optionalSection(case[RESOLVED_PARAMETERS])
             ?: throw IllegalArgumentException("missing_field: $RESOLVED_PARAMETERS for $id; ${FileNames.PREPARED} predates schemaVersion 2")
 
-    // thermal.json of apps/benchmark-runner/session/thermal_hook.py: {"cases": {"<id>": {start, end, startStatus, endStatus, note?, gate?}}}
+    // thermal.json of lib/cryptobench/cryptobench/stages/measurement/session/thermal_hook.py: {"cases": {"<id>": {start, end, startStatus, endStatus, note?, gate?}}}
     @Suppress("UNCHECKED_CAST")
     fun thermalOf(text: String): Map<String, Map<String, Any?>> =
         (CaseDocument.optionalSection(CaseDocument.load(text)["cases"]) ?: emptyMap()).mapValues { (_, reading) -> reading as Map<String, Any?> }

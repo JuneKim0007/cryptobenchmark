@@ -3,11 +3,12 @@ import time
 
 from cryptobench.shared.settings import effective_view
 from cryptobench.shared.device import timeouts
-from session import case_isolation
-from session import dynamic_temperature, passes
-from device import thermal
+from cryptobench.stages.measurement.session import case_isolation
+from cryptobench.stages.measurement.session import dynamic_temperature, passes
+from cryptobench.stages.measurement import thermal
 from cryptobench.shared.device.adb import PASSED, DeviceError
 from cryptobench.shared.errors.line import one_line
+from cryptobench.pipeline.warn import warn
 
 DEFAULT_CASES = 3
 WARMUP_PASS = "warmup"   # PassArguments: any pass but energy and allocation captures no energy
@@ -44,7 +45,7 @@ def run(device, test_class, arguments, planned, cases, document, gate=dynamic_te
     iterations, jobs = settings(document)
     selected = chosen(planned, cases, jobs)
     if not selected:
-        print("warning: WARM-UP SKIPPED: run.warmup.jobs select no planned case; measuring without a warm-up")
+        warn("WARM-UP SKIPPED: run.warmup.jobs select no planned case; measuring without a warm-up")
         return []
     gate.hold("warm-up")
     before, started = thermal.read(device), time.monotonic()
@@ -58,7 +59,7 @@ def run(device, test_class, arguments, planned, cases, document, gate=dynamic_te
     device.clear_outputs()
     after = thermal.read(device)
     if failed:
-        print("warning: WARM-UP FAILED, measuring anyway: " + one_line(failed, 300))
+        warn("WARM-UP FAILED, measuring anyway: " + one_line(failed, 300))
         return []
     heat = (f"hottest {before.hottest:.1f} C before, {after.hottest:.1f} C after" if before.hottest is not None and after.hottest is not None
             else "temperature unavailable")

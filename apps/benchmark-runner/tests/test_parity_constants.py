@@ -6,7 +6,7 @@ import re
 
 from cryptobench.shared.settings import bundled
 from analysis import chart_input
-from session import case_isolation, passes, thermal_hook, variant_order
+from cryptobench.stages.measurement.session import case_isolation, passes, thermal_hook, variant_order
 from scope import wrapper
 from cryptobench.stages.verification import check
 from cryptobench.shared.device import capture

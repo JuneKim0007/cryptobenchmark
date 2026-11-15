@@ -15,4 +15,4 @@ lib/cryptobench/cryptobench/shared/catalogue/types.py:strengthSource : written t
 lib/cryptobench/cryptobench/shared/errors/policy.py:reset : tests/conftest.py clears the installed stops reader between tests
 apps/perf-repair/src/perfrepair/validation/catalogue_entry.py:catalogue_check : the check a new catalog entry gets in the later catalog phases; tests only until then
 lib/cryptobench/cryptobench/shared/paths/run_tree.py:bug : a test's handle on the bug log; the log sink writes it by name
-lib/cryptobench/cryptobench/shared/stats/equations.py:runs_needed : the temperature gate and run-count facades read it; next step
+lib/cryptobench/cryptobench/shared/stats/equations.py:runs_needed : the run-count facade reads it; next step

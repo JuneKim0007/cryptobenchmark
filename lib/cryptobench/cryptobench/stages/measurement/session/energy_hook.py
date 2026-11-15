@@ -2,7 +2,7 @@
 import contextlib
 
 from cryptobench.stages.measurement.energy import steps as energy_stage
-from session.measure import Hooks
+from cryptobench.stages.measurement.session.measure import Hooks
 from cryptobench.shared import paths
 
 

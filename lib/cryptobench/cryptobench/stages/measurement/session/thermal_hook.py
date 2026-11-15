@@ -2,8 +2,8 @@
 per pass; never a failed case."""
 import json
 
-from device import thermal
-from session.measure import Hooks
+from cryptobench.stages.measurement import thermal
+from cryptobench.stages.measurement.session.measure import Hooks
 from cryptobench.shared import paths
 from cryptobench.shared.document.json_dump import json_text
 

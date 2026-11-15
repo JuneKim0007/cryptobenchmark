@@ -2,8 +2,8 @@ import json
 import sys
 import types
 
-from session import calibration, case_isolation, dynamic_temperature  # noqa: E402
-from session import launch as launch_module, measure  # noqa: E402
+from cryptobench.stages.measurement.session import calibration, case_isolation, dynamic_temperature  # noqa: E402
+from cryptobench.stages.measurement.session import launch as launch_module, measure  # noqa: E402
 
 
 def data(tmp_path, repeat=70_000, ns=1600.0, warmup=1000):

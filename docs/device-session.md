@@ -4,13 +4,13 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 
 ## Session
 
-`apps/benchmark-runner/session/measure.py` runs every measuring session on a device, for the benchmark (`CryptoBenchmark`); it gives only its plan: the test class, the cases, how a process's files are pulled and converted.
+`lib/cryptobench/cryptobench/stages/measurement/session/measure.py` runs every measuring session on a device, for the benchmark (`CryptoBenchmark`); it gives only its plan: the test class, the cases, how a process's files are pulled and converted.
 
 | step | what runs |
 |---|---|
 | session | `processRepetitions` processes (folders `process-<n>/` when above 1), merged by `MergeRunsKt`; a case whose processes hold unequal run counts of a metric is not merged (`not_merged: <id>: unequal_samples: ...`), and a runtime value another process reports differently is one `runtime_differs: <key>: ...` line, the first kept |
 | process | clear the device's outputs; one `am instrument` per case (`isolation: case`) or one for all (`run`); pull `benchmarkData.json`, the plan files, `cpu-pins.yaml`; convert with `ConvertKt` |
-| hooks | around the session, each process and each case: the cool-down (`apps/benchmark-runner/session/cooldown_hook.py`), the clock state (`apps/benchmark-runner/session/clocks_hook.py`), the energy window (`apps/benchmark-runner/session/energy_hook.py`), the temperature with the thermal gate's history (`apps/benchmark-runner/session/thermal_hook.py`, `apps/benchmark-runner/session/gate_history.py`, [Thermal gate](#thermal-gate)); the gate itself is held only by the launch loop |
+| hooks | around the session, each process and each case: the cool-down (`lib/cryptobench/cryptobench/stages/measurement/session/cooldown_hook.py`), the clock state (`lib/cryptobench/cryptobench/stages/measurement/session/clocks_hook.py`), the energy window (`lib/cryptobench/cryptobench/stages/measurement/session/energy_hook.py`), the temperature with the thermal gate's history (`lib/cryptobench/cryptobench/stages/measurement/session/thermal_hook.py`, `lib/cryptobench/cryptobench/stages/measurement/session/gate_history.py`, [Thermal gate](#thermal-gate)); the gate itself is held only by the launch loop |
 | a case hook fails | an `Exception` in a hook's `before_case` or `after_case` costs that case only: `case_failed: <id>: hook_failed: <Hook>.<step>: <Type>: <message>` in `problems`, the case left out of the process's data; a failed `before_case` starts no instrumentation, the hooks that started it still run `after_case` |
 | a process hook fails to start | the hooks whose `before_process` ran, the failing one included, are abandoned in reverse (the energy window closes); the error ends the run as before |
 | a process hook fails to close | every other hook's `after_process` still runs (later failures print `warning: hook_failed: ...`), the pulled data is converted to `benchmark.json`, then the first error ends the run |
@@ -34,7 +34,7 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 
 ## Variants
 
-`run.variants` ([operations.md](../apps/benchmark/modules/preparation/docs/operations.md#variants)): the device prepares one case per variant of each item; `apps/benchmark-runner/session/variant_order.py` orders the benchmark's cases.
+`run.variants` ([operations.md](../apps/benchmark/modules/preparation/docs/operations.md#variants)): the device prepares one case per variant of each item; `lib/cryptobench/cryptobench/stages/measurement/session/variant_order.py` orders the benchmark's cases.
 
 | rule | value |
 |---|---|
@@ -46,7 +46,7 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 
 ## Temperature
 
-`apps/benchmark-runner/device/thermal.py` reads `adb shell dumpsys thermalservice`, which an unrooted shell may run (`/sys/class/thermal` can be denied to it); `apps/benchmark-runner/session/thermal_hook.py` reads it before and after every process and every case.
+`lib/cryptobench/cryptobench/stages/measurement/thermal.py` reads `adb shell dumpsys thermalservice`, which an unrooted shell may run (`/sys/class/thermal` can be denied to it); `lib/cryptobench/cryptobench/stages/measurement/session/thermal_hook.py` reads it before and after every process and every case.
 
 | rule | value |
 |---|---|
@@ -81,15 +81,15 @@ Why: the phone's power controller lowers the CPU limit once skin reaches its own
 | step | rule |
 |---|---|
 | on | `run.thermalGate` set; needs `isolation: case`; a `--device` run only |
-| startup | once, before the build: `device/thermal.py` `capability`: live type-3 (SKIN) sensors, or one reason. Anything else prints `TEMPERATURE SET BUT DEVICE CAN'T POLL` and the run goes on |
-| start limit | `temperatureKeptCelsius` minus the start margin. `session/dynamic_temperature.py` is the facade; the arithmetic is in `lib/cryptobench/cryptobench/shared/stats/equations.py` |
+| startup | once, before the build: `lib/cryptobench/cryptobench/stages/measurement/thermal.py` `capability`: live type-3 (SKIN) sensors, or one reason. Anything else prints `TEMPERATURE SET BUT DEVICE CAN'T POLL` and the run goes on |
+| start limit | `temperatureKeptCelsius` minus the start margin. `lib/cryptobench/cryptobench/stages/measurement/session/dynamic_temperature.py` is the facade; the arithmetic is in `lib/cryptobench/cryptobench/stages/measurement/start_margin.py` |
 | hold | before every launch of a run, the warm-up and the energy dry pass: above the limit, wait `cooldownMinutes`, then read every `pollMinutes` |
 | end | a run ending at or above `temperatureKeptCelsius` is discarded and measured again; the margin widens by `backoffFactor`, up to `maximumCelsius`; `cleanRunsToRecover` clean runs narrow it by `recoveryCelsius`, never below `initialCelsius` |
 | stop | still too hot after `pollTerminateMinutes`: the benchmark stops with `temperature_gate_timeout` |
 | limit | `discardLimit` discards of one run: `onDiscardLimit` |
 | unreadable | a reading is retried `readRetries` times; still unreadable: logged, that run is dropped, the next case goes on; a failed reading is never a pass |
 | other failures | crash, timeout, no data, collapsed calibration: `launchRetries` more launches, then the next case |
-| order | hold, then the case hooks, launch, hooks, verdict (`session/launch.py`) |
+| order | hold, then the case hooks, launch, hooks, verdict (`lib/cryptobench/cryptobench/stages/measurement/session/launch.py`) |
 
 ## Warm-up
 
@@ -127,4 +127,4 @@ Why: the phone's power controller lowers the CPU limit once skin reaches its own
 
 ## Calibration
 
-androidx sets the calls per sample from a warm-up moving average that one stall can inflate, down to one call. With `isolation: case`, a launch whose samples are under 1 ms (`session/calibration.py`) is measured once more; a second is `case_failed: <case>: miscalibrated`. `isolation: run` records the failure without measuring again. A warm-up that probably ended at androidx's 8 s limit instead of settling prints `note: warmup_near_cap`.
+androidx sets the calls per sample from a warm-up moving average that one stall can inflate, down to one call. With `isolation: case`, a launch whose samples are under 1 ms (`lib/cryptobench/cryptobench/stages/measurement/session/calibration.py`) is measured once more; a second is `case_failed: <case>: miscalibrated`. `isolation: run` records the failure without measuring again. A warm-up that probably ended at androidx's 8 s limit instead of settling prints `note: warmup_near_cap`.

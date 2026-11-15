@@ -1,7 +1,7 @@
 """Session hook: run.caseCooldownSeconds of host sleep before every measured case but a session's first; one line per pass."""
 import time
 
-from session.measure import Hooks
+from cryptobench.stages.measurement.session.measure import Hooks
 
 
 class Cooldown(Hooks):

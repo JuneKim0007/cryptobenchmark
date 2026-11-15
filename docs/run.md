@@ -116,7 +116,7 @@ The benchmark measures through one device session: [device-session.md](device-se
 
 | piece | what it is | device time it costs |
 |---|---|---|
-| session | `apps/benchmark-runner/session/measure.py`: processes over repetitions, hooks around each process and case | the sum of its passes |
+| session | `lib/cryptobench/cryptobench/stages/measurement/session/measure.py`: processes over repetitions, hooks around each process and case | the sum of its passes |
 | passes | `run.passes`: one session per metric group, merged per metric | per case: timing 300 samples about 38 s, energy 100 about 20 s, allocation 100 about 15 to 30 s |
 | process per case | `run.isolation: case`: one `am instrument` per case | about 1 to 2 s per case and pass, plus the plan's preparation |
 | temperature | `dumpsys thermalservice` before and after every process and case, into `benchmark.json` per case | two `dumpsys` calls per case, under a second |

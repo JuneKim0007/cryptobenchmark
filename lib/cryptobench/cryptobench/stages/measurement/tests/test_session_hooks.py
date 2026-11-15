@@ -3,7 +3,7 @@ import json
 
 import pytest
 
-from session import measure as measure_session  # noqa: E402
+from cryptobench.stages.measurement.session import measure as measure_session  # noqa: E402
 from fake_phone import Phone  # noqa: E402
 
 

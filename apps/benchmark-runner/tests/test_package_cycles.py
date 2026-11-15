@@ -81,7 +81,7 @@ def cycles(edges):
 
 def test_every_package_is_a_node_and_energy_imports_its_own_parts():
     edges = graph()
-    assert {"energy", "analysis", "stages", "session", "scope", "device", "results"} <= set(edges)
+    assert {"energy", "analysis", "stages", "scope"} <= set(edges)
     assert {"capture", "rails"} <= graph(SCRIPTS / "energy")["energy"]
 
 

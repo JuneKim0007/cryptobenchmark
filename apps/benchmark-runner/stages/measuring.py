@@ -5,7 +5,7 @@ from cryptobench.shared.settings import effective_view
 from cryptobench.shared.device import gradle_runner
 from cryptobench.shared.device.adb import Device, measure_arguments
 from cryptobench.stages.measurement.energy.session import EnergySession
-from session import clocks_hook, cooldown_hook, dynamic_temperature, thermal_hook
+from cryptobench.stages.measurement.session import clocks_hook, cooldown_hook, dynamic_temperature, thermal_hook
 from cryptobench.pipeline.took import elapsed
 from cryptobench.shared import paths
 from cryptobench.shared.document.document import read_yaml

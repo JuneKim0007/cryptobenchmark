@@ -4,8 +4,9 @@ import dataclasses, time
 from cryptobench.shared.settings import effective_view
 from cryptobench.shared.device import gradle_runner
 from cryptobench.shared.errors.failures import CommandError
-from session.measure import process_folder
+from cryptobench.stages.measurement.session.measure import process_folder
 from cryptobench.shared import paths
+from cryptobench.pipeline.warn import warn
 
 PASS_ARGUMENT = "cryptobench.pass"        # PassArguments.PASS
 SAMPLES_ARGUMENT = "cryptobench.samples"  # PassArguments.SAMPLES
@@ -64,7 +65,7 @@ def read(document, captures):
 def without_idle_energy(configured, captures):
     if ENERGY not in configured or "measured" in captures:
         return configured
-    print("warning: run.passes.energy: no case sets harness.energy.capture measured; the energy pass is skipped")
+    warn("run.passes.energy: no case sets harness.energy.capture measured; the energy pass is skipped")
     return {name: value for name, value in configured.items() if name != ENERGY}
 
 
