@@ -49,22 +49,9 @@ apps/benchmark-runner/demo.sh : one-command host demo run into results/demo/<dev
 apps/benchmark-runner/dependencies.py : the host modules a run needs, checked at its start, cryptobench from this checkout; a missing one is one coded line and exit 1
 apps/benchmark-runner/energy/ : energy sources behind one seam (rails, manafa), pre-flight, joules per case, capture resolution
 apps/benchmark-runner/explain.py : each resolved setting of a run and the file it came from
-apps/benchmark-runner/failure.py : one error line and exit; reported(), a CommandError as that line, at an entry point and in harness_run (removed when the harness becomes a stage)
+apps/benchmark-runner/failure.py : one error line and exit; reported(), a CommandError as that line, around an entry point's main and passed into harness_run
 apps/benchmark-runner/pipeline.py : run driver: options and refusals, ROUTES (the first set option's stage runs on one StageContext, the plain run last; the routes compose the stages), one coded failure line; --probe (discover and configure only), --identify (device id, input and harness code digests, nothing written)
-apps/benchmark-runner/scope/__init__.py : package of the --harness run's sources: harness.yaml to compiled wrappers, interop plan, device verdicts
-apps/benchmark-runner/scope/code_digest.py : the digest of the code from a harness.yaml to a checked harness; a pattern matching nothing is an error
-apps/benchmark-runner/scope/compile.py : compiles the android test sources with Gradle; the compiler's error lines
-apps/benchmark-runner/scope/dependencies.py : a scope's dependencies: imported, language-provided, stubbed, deferred or unsatisfied
-apps/benchmark-runner/scope/generate.py : harness.yaml to generated scope sources and scoped-plan.yaml; per-scope compile on failure
-apps/benchmark-runner/scope/harness.py : reads perf-repair's harness.yaml
-apps/benchmark-runner/scope/inputs.py : synthesisable parameter types and the value or ScopeInputs and ScopeKeys call that builds each
-apps/benchmark-runner/scope/interop.py : each scope's interop check: round trip with its partner by inverse link, output_changes for an upgrade, same output, or none
-apps/benchmark-runner/scope/languages.py : per-language row for scope sources: parser, suffix, statement end, provided names, tag stub, wrapper template
-apps/benchmark-runner/scope/results.py : device interop verdicts into scoped-plan.yaml
-apps/benchmark-runner/scope/signature.py : Java method and Kotlin function header parser; header as a public static member
-apps/benchmark-runner/scope/wrapper.py : renders the per-variant wrappers and the GeneratedScopes catalog
 apps/benchmark-runner/scope_generate.py : generate and compile a harness's scopes alone, sources left in place
-apps/benchmark-runner/stages/ : the run driver's stage still in the runner, --harness; map in its AGENTS.md
 apps/benchmark-runner/tests/ : pytest and standalone tests for apps/benchmark-runner/
 apps/benchmark/build.gradle : root buildscript: Android Gradle plugin and Kotlin plugin versions
 apps/benchmark/cli/ : the host commands: probe, configure, parse-only check, bench, end-to-end check and its diff, convert, merges, interop; JCA contract tests

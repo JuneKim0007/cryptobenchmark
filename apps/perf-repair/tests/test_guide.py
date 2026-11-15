@@ -1,7 +1,6 @@
 """The guide end to end on the fixtures: recorded results, the demo app, scripted model answers, no device."""
 import json
 import shutil
-import sys
 from dataclasses import replace as with_field
 from pathlib import Path
 
@@ -31,10 +30,11 @@ from perfrepair.check.run import validate_run
 from perfrepair.validation.dossiers.parse import parse_dossiers
 from perfrepair.screen.catalog import screening_catalog
 from perfrepair.app.facts.path_id import path_id
+from cryptobench.stages.verification.scope import generate as scope_generate
+from cryptobench.stages.verification.scope import harness as scope_harness
 
 F = Path(__file__).parent / "fixtures"
 APP, RESULTS, FAKE_ROOT = F / "app", F / "results" / "test-api36-00000000", F / "guide"
-SCRIPTS = Path(__file__).resolve().parents[3] / "apps/benchmark-runner"
 
 
 ENDS = []
@@ -81,9 +81,6 @@ def test_the_dry_guide_chains_every_step_to_a_harness_cryptobenchmark_reads(run)
     assert all(not problems for problems in validate_run(run, screening_catalog(None)).values())
     harness = yaml.safe_load(g.paths.harness.read_text())
     assert harness["scopes"] and all(s["current"] != s["option"] for s in harness["scopes"])
-    sys.path.insert(0, str(SCRIPTS))
-    from scope import generate as scope_generate
-    from scope import harness as scope_harness
     read = scope_harness.read(g.paths.harness)
     assert {s.id: (s.current, s.option) for s in read.scopes} == {s["id"]: (s["current"], s["option"])
                                                                    for s in harness["scopes"]}
@@ -264,13 +261,6 @@ def test_without_a_named_device_the_guide_makes_the_device_stage_then_reuses_it(
     # device.filterByApps: a probe, then the benchmark of the used set
     assert len((tmp_path / "results" / "runs.log").read_text().splitlines()) == 2
     assert sorted((device / "grouping" / "outbox").rglob("*.json")) == decided
-
-
-@pytest.fixture(autouse=True)
-def _scripts_off_path():
-    yield
-    if str(SCRIPTS) in sys.path:
-        sys.path.remove(str(SCRIPTS))
 
 
 def test_a_blocking_invariant_stops_before_the_replace_call(request, monkeypatch):

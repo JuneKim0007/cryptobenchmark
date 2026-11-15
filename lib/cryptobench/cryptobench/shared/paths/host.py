@@ -21,3 +21,8 @@ def android_home() -> Path:
 
 def platform_tools() -> Path:
     return android_home() / "platform-tools"
+
+
+def android_env() -> dict[str, str]:
+    """This process's environment with ANDROID_HOME set, for a Gradle child that builds the Android modules."""
+    return dict(os.environ, ANDROID_HOME=str(android_home()))

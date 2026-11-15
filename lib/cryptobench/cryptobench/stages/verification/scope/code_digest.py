@@ -3,7 +3,7 @@ from cryptobench.shared import paths
 from cryptobench.shared.digest.tree import tree_digest
 from cryptobench.shared.errors.coded import Coded
 
-CODE = ("apps/benchmark-runner/scope/*.py", "apps/benchmark-runner/scope_generate.py", "apps/benchmark/modules/android/src/androidTest/**/Scope*.kt")
+CODE = ("lib/cryptobench/cryptobench/stages/verification/scope/*.py", "apps/benchmark-runner/scope_generate.py", "apps/benchmark/modules/android/src/androidTest/**/Scope*.kt")
 
 
 class CodeDigestError(Coded):

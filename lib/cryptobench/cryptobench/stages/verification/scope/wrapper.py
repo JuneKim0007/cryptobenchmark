@@ -1,8 +1,8 @@
 """Renders the generated androidTest sources: one wrapper per scope variant, and the GeneratedScopes catalog."""
 from dataclasses import dataclass
 
-from scope import inputs as scope_inputs
-from scope import languages as scope_languages
+from cryptobench.stages.verification.scope import inputs as scope_inputs
+from cryptobench.stages.verification.scope import languages as scope_languages
 
 PACKAGE = "io.github.junekim0007.cryptobench.scoped"
 FOLDER = "modules/android/src/androidTest/java/io/github/junekim0007/cryptobench/scoped"

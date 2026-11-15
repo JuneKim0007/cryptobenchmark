@@ -1,7 +1,7 @@
 """Sorts a scope's dependencies into imported, language-provided, stubbed, left to the compiler, or unsatisfied."""
 from dataclasses import dataclass
 
-from scope import languages as scope_languages
+from cryptobench.stages.verification.scope import languages as scope_languages
 
 # The one stub shape: a log tag constant; anything else is never faked.
 STUBBED = "TAG"

@@ -30,7 +30,7 @@ python3 apps/benchmark-runner/pipeline.py [--config PATH] [--results DIR] [--dis
 | `--bench` | off | also prepare, measure and analyse on the JVM via the benchmark CLI (`BenchKt`) |
 | `--device` | off | probe, prepare and measure on the attached device over adb |
 | `--probe` | off | discovery and configure only, with `--device` on the device; the device folder and its manifest, nothing measured |
-| `--identify` | off | one line `identity:  {deviceId, mode, config, inputs, harness}` (JSON), `harness` the digest of `apps/benchmark-runner/scope/code_digest.py`, and nothing written: `getprop` on a device, `RuntimeFieldsKt` on a host; the id the probe would give |
+| `--identify` | off | one line `identity:  {deviceId, mode, config, inputs, harness}` (JSON), `harness` the digest of the files `lib/cryptobench/cryptobench/stages/verification/scope/code_digest.py` names, and nothing written: `getprop` on a device, `RuntimeFieldsKt` on a host; the id the probe would give |
 | `--suppress-errors ERRORS` | `CRYPTOBENCH_SUPPRESS_ERRORS`, else `""` | passed as `androidx.benchmark.suppressErrors`, e.g. `EMULATOR,UNLOCKED`; numbers are then not comparable; the variable reaches a run the guide or facade starts |
 | `--energy-python PYTHON` | `sys.executable` | interpreter with `apps/benchmark-runner/energy/requirements.txt` installed; `requirements-manafa.txt` too for `energy.source: manafa` |
 | `--energy-accept-unresponsive` | off | run energy cases on unresponsive rails, see [energy.md](energy.md#pre-flight) |

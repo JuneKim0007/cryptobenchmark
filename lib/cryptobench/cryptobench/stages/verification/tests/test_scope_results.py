@@ -2,7 +2,7 @@
 import pytest
 import yaml
 
-from scope import results as scope_results  # noqa: E402
+from cryptobench.stages.verification.scope import results as scope_results  # noqa: E402
 
 PLAN = {"schemaVersion": 1, "app": "fixture", "seed": 7, "scopes": [
     {"id": "aaaaaaaaaaaa", "function": "f", "inputs": {"inputSize": 64, "keySize": None}, "status": "compiled",

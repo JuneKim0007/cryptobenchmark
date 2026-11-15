@@ -1,6 +1,6 @@
 """After ScopedInterop: the device's verdicts into scoped-plan.yaml."""
-import yaml
 from cryptobench.shared.document.document import read_yaml
+from cryptobench.shared.document.dump import dump_yaml
 from cryptobench.shared.errors.coded import Coded
 
 CHECKED = ("passed", "unchecked")
@@ -23,5 +23,5 @@ def merge(plan_path, interop_path):
         if verdict.get("reason"):
             record["interop"]["reason"] = verdict["reason"]
         record["status"] = "checked" if verdict["interop"] in CHECKED else verdict["interop"]
-    plan_path.write_text(yaml.safe_dump(plan, sort_keys=False))
+    plan_path.write_text(dump_yaml(plan))
     return plan

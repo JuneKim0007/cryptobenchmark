@@ -14,14 +14,14 @@ from cryptobench.shared import paths
 from cryptobench.shared.results import layout as results_layout
 from cryptobench.shared.results import run_inputs
 from cryptobench.shared.results.manifest import manifest
-from scope import code_digest
+from cryptobench.stages.verification.scope import code_digest
 from cryptobench.stages.analysis import not_measured
 from cryptobench.stages.analysis.scripts import analyse
 from cryptobench.stages.configuration import config_check, guide
 from cryptobench.stages.measurement.benchmark import measure_cases
 from cryptobench.stages.verification.check import check_run, require_check_run
-from cryptobench.stages.discovery.discover import discover_published, discover_staged, host_runtime, located
-from stages.harness import harness_run, checked_folder
+from cryptobench.stages.discovery.discover import discover_in_place, discover_published, discover_staged, host_runtime, located
+from cryptobench.stages.verification.harness import harness_run, checked_folder
 from cryptobench.stages.verification.interop import interop_run
 
 
@@ -94,7 +94,8 @@ def identified(context):
 
 
 def harnessed(context):
-    return harness_run(context.options, context.configuration, context.device, checked_folder(context.options), context.checked["bundled"])
+    return harness_run(context.options, context.configuration, context.device, checked_folder(context.options), context.checked["bundled"],
+                       discover_in_place, reported)
 
 
 def interoperated(context):

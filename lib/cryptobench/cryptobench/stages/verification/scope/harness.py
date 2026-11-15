@@ -3,7 +3,7 @@ import pathlib, re
 from dataclasses import dataclass
 
 
-from scope import languages as scope_languages
+from cryptobench.stages.verification.scope import languages as scope_languages
 from cryptobench.shared.document.document import read_yaml
 
 SCOPE_KEYS = {"id", "language", "function", "before", "after", "imports", "inputs", "current", "option", "dependencies", "notMeasurable", "inverse", "upgrade"}

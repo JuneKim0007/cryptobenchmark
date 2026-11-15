@@ -5,8 +5,8 @@ from types import SimpleNamespace
 import pytest
 import yaml
 
-from scope import generate as scope_generate
-from scope import inputs as scope_inputs
+from cryptobench.stages.verification.scope import generate as scope_generate
+from cryptobench.stages.verification.scope import inputs as scope_inputs
 
 SCOPE = SimpleNamespace(key_size=2048, input_size=64, input_source="run", current="Cipher|RSA/ECB/OAEPPadding|A", option="Cipher|RSA/ECB/OAEPPadding|BC")
 

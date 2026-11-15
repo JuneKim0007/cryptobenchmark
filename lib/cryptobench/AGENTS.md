@@ -128,9 +128,22 @@ cryptobench/stages/measurement/tests/ : pytest tests of the measurement stage
 cryptobench/stages/measurement/thermal.py : device temperatures from dumpsys thermalservice: sensors by HAL name, status, sentinels skipped, unavailable as a reason
 cryptobench/stages/verification/__init__.py : package of the verification stage
 cryptobench/stages/verification/check.py : --check run: every planned case once through the real harness (host CheckKt, device EndToEndCheck under the dry run), check.yaml, its summary and failures
+cryptobench/stages/verification/harness.py : --harness run: scope generation, the harness's device check, interop verdicts into checked/; discovery and the entry point's error reporting passed in
 cryptobench/stages/verification/interop.py : --interop run: the plan's pairs on the host or device, published beside a finished run or as a new device folder; discovery's steps passed in
 cryptobench/stages/verification/interop_oracle.py : oracle steps of a --interop run: plan staging, host InteropKt, device InteropCheck, summary
 cryptobench/stages/verification/known_answers.py : --check's known-answers.yaml: the guide's vectors filled per provider, global.yaml's selection.knownVectors
+cryptobench/stages/verification/scope/__init__.py : package of the --harness run's sources: harness.yaml to compiled wrappers, interop plan, device verdicts; the harness code digest
+cryptobench/stages/verification/scope/code_digest.py : the digest of the code from a harness.yaml to a checked harness; a pattern matching nothing is an error
+cryptobench/stages/verification/scope/compile.py : compiles the android test sources with Gradle; the compiler's error lines
+cryptobench/stages/verification/scope/dependencies.py : a scope's dependencies: imported, language-provided, stubbed, deferred or unsatisfied
+cryptobench/stages/verification/scope/generate.py : harness.yaml to generated scope sources and scoped-plan.yaml; per-scope compile on failure
+cryptobench/stages/verification/scope/harness.py : reads perf-repair's harness.yaml
+cryptobench/stages/verification/scope/inputs.py : synthesisable parameter types and the value or ScopeInputs and ScopeKeys call that builds each
+cryptobench/stages/verification/scope/interop.py : each scope's interop check: round trip with its partner by inverse link, output_changes for an upgrade, same output, or none
+cryptobench/stages/verification/scope/languages.py : per-language row for scope sources: parser, suffix, statement end, provided names, tag stub, wrapper template
+cryptobench/stages/verification/scope/results.py : device interop verdicts into scoped-plan.yaml
+cryptobench/stages/verification/scope/signature.py : Java method and Kotlin function header parser; header as a public static member
+cryptobench/stages/verification/scope/wrapper.py : renders the per-variant wrappers and the GeneratedScopes catalog
 cryptobench/stages/verification/tests/ : pytest tests of the verification stage
 pyproject.toml : the shared library's package metadata
 ```

@@ -51,7 +51,7 @@ class Device:
 
     def __init__(self, root, stream, stacktrace):
         self.root, self.stream, self.stacktrace = root, stream, stacktrace
-        self.environment = dict(os.environ, ANDROID_HOME=str(paths.android_home()))
+        self.environment = paths.android_env()
         self.adb = paths.platform_tools() / "adb"
 
     def run(self, *arguments, check=True):

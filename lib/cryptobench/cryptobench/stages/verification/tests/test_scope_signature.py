@@ -1,11 +1,11 @@
 
 import pytest
 
-from scope import dependencies as scope_dependencies  # noqa: E402
-from scope import interop as scope_interop  # noqa: E402
-from scope import languages as scope_languages  # noqa: E402
-from scope import signature as scope_signature  # noqa: E402
-from scope.signature import Parameter  # noqa: E402
+from cryptobench.stages.verification.scope import dependencies as scope_dependencies  # noqa: E402
+from cryptobench.stages.verification.scope import interop as scope_interop  # noqa: E402
+from cryptobench.stages.verification.scope import languages as scope_languages  # noqa: E402
+from cryptobench.stages.verification.scope import signature as scope_signature  # noqa: E402
+from cryptobench.stages.verification.scope.signature import Parameter  # noqa: E402
 
 
 def test_java_header_keeps_the_body_and_strips_annotations():

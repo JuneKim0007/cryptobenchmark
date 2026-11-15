@@ -2,7 +2,7 @@
 an upgrade's swap changes the output by definition, so without a partner it is recorded and compares nothing."""
 from dataclasses import dataclass
 
-from scope import inputs as scope_inputs
+from cryptobench.stages.verification.scope import inputs as scope_inputs
 
 OUTPUT_CHANGES = "output_changes"
 

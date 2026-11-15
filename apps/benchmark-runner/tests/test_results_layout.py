@@ -5,7 +5,7 @@ import pytest
 import yaml
 
 from cryptobench.shared.results import manifest  # noqa: E402
-from stages import harness  # noqa: E402
+from cryptobench.stages.verification import harness  # noqa: E402
 from failure import fail, reported  # noqa: E402
 from cryptobench.shared.results import layout, select  # noqa: E402
 from cryptobench.shared.device.identity import device_id  # noqa: E402

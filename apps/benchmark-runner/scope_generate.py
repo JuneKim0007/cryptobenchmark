@@ -2,7 +2,7 @@
 import sys
 
 from cryptobench.shared import paths
-from scope.generate import generate
+from cryptobench.stages.verification.scope.generate import generate
 
 
 if __name__ == "__main__":

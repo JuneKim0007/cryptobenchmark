@@ -1,8 +1,8 @@
 # entries of tools/paths_check.py allowed to stay: <file>: <rule> # why; this list only shrinks (--shrink)
 apps/benchmark-runner/energy/manafa_session.py: repo path apps/benchmark-runner/energy/requirements-manafa.txt # energy scripts run under --energy-python, which may not have the library; printed text
-apps/benchmark-runner/scope/code_digest.py: repo path apps/benchmark-runner/scope/*.py # the code digest's glob patterns, matched under the root it is given
-apps/benchmark-runner/scope/code_digest.py: repo path apps/benchmark-runner/scope_generate.py # the code digest's glob patterns, matched under the root it is given
-apps/benchmark-runner/scope/code_digest.py: repo path apps/benchmark/modules/android/src/androidTest/**/Scope*.kt # the code digest's glob patterns, matched under the root it is given
+lib/cryptobench/cryptobench/stages/verification/scope/code_digest.py: repo path lib/cryptobench/cryptobench/stages/verification/scope/*.py # the code digest's glob patterns, matched under the root it is given
+lib/cryptobench/cryptobench/stages/verification/scope/code_digest.py: repo path apps/benchmark-runner/scope_generate.py # the code digest's glob patterns, matched under the root it is given
+lib/cryptobench/cryptobench/stages/verification/scope/code_digest.py: repo path apps/benchmark/modules/android/src/androidTest/**/Scope*.kt # the code digest's glob patterns, matched under the root it is given
 tools/dead_code.py: repo path apps/benchmark-runner # the folders the dead-code tool scans
 tools/dead_code.py: repo path apps/cli # the folders the dead-code tool scans
 tools/dead_code.py: repo path apps/perf-repair/src # the folders the dead-code tool scans

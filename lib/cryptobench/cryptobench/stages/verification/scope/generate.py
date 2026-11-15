@@ -1,17 +1,16 @@
 """harness.yaml to generated androidTest sources and scoped-plan.yaml; a scope that fails a check or the compiler is recorded and left out."""
 import pathlib, shutil
 
-import yaml
-
-from scope import compile as scope_compile
-from scope import dependencies as scope_dependencies
-from scope import harness as scope_harness
-from scope import inputs as scope_inputs
-from scope import interop as scope_interop
-from scope import languages as scope_languages
-from scope import signature as scope_signature
-from scope import wrapper as scope_wrapper
+from cryptobench.stages.verification.scope import compile as scope_compile
+from cryptobench.stages.verification.scope import dependencies as scope_dependencies
+from cryptobench.stages.verification.scope import harness as scope_harness
+from cryptobench.stages.verification.scope import inputs as scope_inputs
+from cryptobench.stages.verification.scope import interop as scope_interop
+from cryptobench.stages.verification.scope import languages as scope_languages
+from cryptobench.stages.verification.scope import signature as scope_signature
+from cryptobench.stages.verification.scope import wrapper as scope_wrapper
 from cryptobench.shared import paths
+from cryptobench.shared.document.dump import dump_yaml
 
 GENERATED_MARK = "/cryptobench/scoped/"
 
@@ -119,6 +118,6 @@ def generate(harness_path, root, out, compiler=scope_compile.gradle):
     out.mkdir(parents=True, exist_ok=True)
     document = {"schemaVersion": 1, "app": harness.app, "harness": str(pathlib.Path(harness_path).resolve()),
                 "seed": scope_inputs.SEED, "scopes": list(records.values())}
-    paths.Scoped(out).plan.write_text(yaml.safe_dump(document, sort_keys=False))
+    paths.Scoped(out).plan.write_text(dump_yaml(document))
     return paths.Scoped(out).plan, list(compiled)
 

@@ -1,5 +1,5 @@
 """Compiles the android test sources with Gradle; returns the compiler's error lines, empty when it passed."""
-import os, re
+import re
 
 from cryptobench.shared.device import timeouts
 from cryptobench.shared import paths
@@ -15,7 +15,7 @@ def errors(output, root):
 
 def gradle(root):
     command = [str(root / "gradlew"), "-p", str(root), TASK, "-q"]
-    result = timeouts.run("compile", command, capture_output=True, text=True, env=dict(os.environ, ANDROID_HOME=str(paths.android_home())))
+    result = timeouts.run("compile", command, capture_output=True, text=True, env=paths.android_env())
     if result.returncode == 0:
         return []
     output = result.stdout + result.stderr

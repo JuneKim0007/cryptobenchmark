@@ -1,22 +1,17 @@
 """A --harness run: perf-repair's scopes generated and interop-checked on the device, original against patched; nothing is timed."""
 import pathlib, shutil, time
 
-
-from cryptobench.shared.device.identity import capture_id
-from cryptobench.shared.errors.failures import CommandError
-from failure import reported
+from cryptobench.pipeline.took import elapsed
 from cryptobench.shared import paths
+from cryptobench.shared.device.identity import capture_id
+from cryptobench.shared.device.push import push
+from cryptobench.shared.document.document import read_yaml
+from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared.results import layout as results_layout
 from cryptobench.shared.results.manifest import manifest
-from scope import generate as scope_generate
-from scope import results as scope_results
-from scope.harness import HarnessError
-from cryptobench.stages.discovery.discover import discover_in_place
-from cryptobench.shared.device.push import push
-from cryptobench.pipeline.took import elapsed
-from cryptobench.shared.document.document import read_yaml
-
-# beside scoped/, which a failed run rolls back: the plan a failure line points at
+from cryptobench.stages.verification.scope import generate as scope_generate
+from cryptobench.stages.verification.scope import results as scope_results
+from cryptobench.stages.verification.scope.harness import HarnessError
 
 
 def generate_scopes(options, scoped):
@@ -38,9 +33,9 @@ def require_harness_device(harness, capture):
             raise CommandError(f"harness_other_device: {harness} was built for {wanted}, the attached device is {attached}")
 
 
-def check_scopes(options, configuration, device, results, scoped, plan, shipped):
-    """The interop check in one process; the files for the manifest."""
-    _discovery, effective, capture, trial, files = discover_in_place(options, configuration, device, results, shipped)
+def check_scopes(options, configuration, device, results, scoped, plan, shipped, discover):
+    """The interop check in one process; the files for the manifest. discover is discovery written in place into results."""
+    _discovery, effective, capture, trial, files = discover(options, configuration, device, results, shipped)
     require_harness_device(pathlib.Path(options.harness).resolve(), capture)
     push(device, options, [effective, capture, trial])
     started = time.monotonic()
@@ -63,15 +58,15 @@ def keep_failed_plan(scoped):
         print(f"kept:      {kept}")
 
 
-def harness_run(options, configuration, device, results, shipped):
+def harness_run(options, configuration, device, results, shipped, discover, reported):
+    """reported is the entry point's: a CommandError's error line comes before the kept plan's line."""
     paths.RunTree(results).scoped_plan_failed.unlink(missing_ok=True)
     try:
         with results_layout.kept_until_replaced(paths.RunTree(results).scoped.root) as scoped:
             try:
-                # reported here: a CommandError's error line comes before the kept plan's line
                 with reported():
                     plan = generate_scopes(options, scoped)
-                    files = check_scopes(options, configuration, device, results, scoped, plan, shipped)
+                    files = check_scopes(options, configuration, device, results, scoped, plan, shipped, discover)
             except (HarnessError, scope_generate.GenerateError, scope_results.ScopeResultError) as error:
                 keep_failed_plan(scoped)
                 raise CommandError(str(error)) from None
