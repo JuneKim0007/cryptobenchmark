@@ -9,12 +9,14 @@ Authored settings: `config/global*.yaml` and `config/testsets/*.yaml`, committed
 | `config/global.yaml` | `testsets/scope.yaml` | inputSizes `[64, 1024, 16384]`, seed 0 | harness `iterations: 100`; every other key takes its default |
 | `config/global-quick.yaml` | `testsets/quick.yaml` | inputSizes `[64, 1024, 16384]`, seed 42 | harness `{iterations: 5, profiling: none}`; analysis charts `[iqrBars, stability]` |
 | `config/global-demo.yaml` | `testsets/smoke.yaml` | inputSizes `[1024]`, seed 42 | no harness |
+| `config/global-check.yaml` | `testsets/known-answers.yaml` | inputSizes `[64]`, seed 42 | `providers.bundled` BouncyCastle as `BundledBC`, a second provider for the cross-provider check |
 
 | test set | contents |
 |---|---|
 | `testsets/scope.yaml` | 19 includes, baselines MD5, DESede/CBC/PKCS5Padding, ARCFOUR; AES 128/192/256, `AES_<n>/*` variants their own size; a `fresh(n)` IV or nonce for every AES GCM, CBC and CTR name and variant, DESede/CBC, ChaCha20 and ChaCha20-Poly1305; RSA 2048/4096 with inputSizes `[32]`; OAEP-SHA256 with explicit `OAEPParameterSpec` |
 | `testsets/quick.yaml` | 11 includes, one per primitive; AES 128/256 with the same variant and `fresh(n)` IV rules as scope; RSA/* keySizes `[2048]`, inputSizes `[32]`; harness iterations 5; ChaCha20 `ChaCha20ParameterSpec [fresh(12), 1]` |
 | `testsets/smoke.yaml` | SHA-256; AES/GCM/NoPadding with keySizes `[256]`, GCM 128 + `fresh(12)`; HmacSHA256 |
+| `testsets/known-answers.yaml` | 11 includes: every primitive with a known-answer vector in `algorithms/vectors/`; AES keySizes `[128, 256]` |
 
 Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 
@@ -56,9 +58,9 @@ Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 
 `onFailure` governs selected primitives that cannot run. A broken authored file (parse, `schemaVersion`, unknown section or key) always stops.
 
-`analysis` is read by `apps/benchmark-runner/analysis/analyze.py` and `charts.py`; `apps/benchmark-runner/pipeline.py` records `analysis.units` in `manifest.yaml`, where perf-repair reads it (`docs/tools.md`, `docs/results.md`). It is left out of the run's input digest, so a change reruns no measurement and applies from the next run's manifest.
+`analysis` is read by `apps/benchmark-runner/analysis/analyze.py` and `charts.py`; `apps/benchmark-runner/pipeline.py` records `analysis.units` in `manifest.yaml`, where perf-repair reads it (`docs/tools.md`, `docs/results.md`). It is left out of the run's input digest: a change reruns no measurement and applies from the next run's manifest.
 
-`providers.bundled` is for `--device` runs. `apps/benchmark-runner/pipeline.py` passes each `artifact` to the app build as `-PbundledArtifacts=a:b:1,c:d:2`, so it becomes an `implementation` dependency of `apps/benchmark/modules/android`. It also passes the list to `DeviceProbe`. On the device, discovery's `BundledInstaller` creates each provider by reflection and appends it after every platform provider. The capture then records it with `origin: bundled` and its `artifact`. A name that is already installed needs `alias`; without one the install fails with `bundled_name_taken`. Fields: `apps/benchmark/modules/environment/discovery/docs/probe.md`.
+`providers.bundled` is for `--device` runs. `apps/benchmark-runner/pipeline.py` passes each `artifact` to the app build as `-PbundledArtifacts=a:b:1,c:d:2`, an `implementation` dependency of `apps/benchmark/modules/android`. It also passes the list to `DeviceProbe`. On the device, discovery's `BundledInstaller` creates each provider by reflection and appends it after every platform provider. The capture then records it with `origin: bundled` and its `artifact`. A name that is already installed needs `alias`; without one the install fails with `bundled_name_taken`. Fields: `apps/benchmark/modules/environment/discovery/docs/probe.md`.
 
 ## testsets/*.yaml
 
@@ -90,7 +92,7 @@ Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 | blank part | refused |
 | `group` | needs `name`; may not contain `@` |
 | `provider`, `type` | equal ignoring case; missing = any |
-| `name` | same canonical name and key size (`algorithms/algorithm-names.yaml`), so `SHA256` matches `SHA-256`; missing = any |
+| `name` | same canonical name and key size (`algorithms/algorithm-names.yaml`): `SHA256` matches `SHA-256`; missing = any |
 | `name` with `*` | case-insensitive pattern, `*` = any text, against the given or the canonical spelling |
 | error path | e.g. `include[0]`, `overrides[2].match`, `selection.exclude[0]` |
 
@@ -107,7 +109,7 @@ Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 | rule | value |
 |---|---|
 | order | ascending specificity, ties by file order; the last applicable override wins per key |
-| sized variant | a wildcard matches `AES_128/...` by its canonical name `AES/...` too, so a variant's own `AES_128/*` rule goes after `AES/*`; an exact name never matches a variant |
+| sized variant | a wildcard matches `AES_128/...` by its canonical name `AES/...` too; a variant's own `AES_128/*` rule goes after `AES/*`; an exact name never matches a variant |
 | lists | replace |
 | `harness` | merges field by field, nested `energy` and `cpu` too |
 | override without `group` | applies to every group of that name |

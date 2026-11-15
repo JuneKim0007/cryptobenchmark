@@ -30,7 +30,7 @@ Host entry `ConfigureKt`: `docs/tools.md`.
 | `generatedFrom` | `capture`, `trial` file names; `device` = the capture's `runtime` block |
 | duplicate | two names with one canonical name and key size in one provider and type (a provider registering a second spelling as its own service): the first in trial order is kept, the other left out with the warning `duplicate_name: <provider>.<type> <kept> and <left out> are one name; <left out> left out` |
 | `warnings` | what the build left out; omitted when empty; `effective` puts them first in `report.yaml` `warnings` |
-| refused | an `inventory.yaml` that still holds two spellings of one name: `duplicate_name` |
+| refused | an `inventory.yaml` that holds two spellings of one name: `duplicate_name` |
 | pairing | capture and trial `capturedAtMillis` differ: `mismatched_trial: capture <a>, trial <b>` |
 
 ## Build order
