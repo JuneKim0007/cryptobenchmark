@@ -1,11 +1,11 @@
-# Per JCA engine type, cipher mode or Mac name suffix: what a fixed call still does per call (operation | initAndOperation); notFixed is getInstance + init + operation.
+# Per JCA engine type, cipher mode or Mac name suffix: what a fixed call still does per call (operation | initAndOperation, or byMode / bySuffix choosing one); notFixed is getInstance + init + operation.
 # Source: each engine's JCA API contract; read by operation/SetupCatalog; documented in modules/preparation/docs/operations.md#variants.
 schemaVersion: 1
 engines:
   MessageDigest: {fixed: operation, contract: "digest() resets the digest for further use"}
   Mac:
     contract: "doFinal() resets the Mac to its state after init(key); a GMAC nonce must not repeat under one key"
-    # interim until the generic builder reads lifecycle.reset from the catalogue
+    # GMAC follows its IV role's lifetime (perUse, rule unique), not lifecycle.reset: an afterInit reset would repeat the nonce
     fixed: bySuffix
     suffixes:
       GMAC: initAndOperation

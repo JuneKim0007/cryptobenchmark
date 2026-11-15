@@ -38,7 +38,14 @@ What each operation consumes, its timed call, inputs, keys and parameter trees. 
 
 ## Variants
 
-Each item is measured twice, as two cases (`run.variants`, default both). Setup outside the call runs once, before the timer, in `Invocations.of`; keys, inputs, spec pools and the output buffer are built before it too, from the same seed for both variants.
+Each item is measured twice, as two cases (`run.variants`, default both). Setup outside the call runs once, before the timer, in `Invocations.of`; keys, inputs, spec pools and the output buffer are built before it too.
+
+| material | across an item's two variants |
+|---|---|
+| message bytes | equal: `InputBytes.of(run.seed, size)` |
+| keys | unseeded `SecureRandom`, made once per key recipe per process: equal in one process, different when each variant runs in its own |
+| `fresh(n)` spec pools | unseeded `SecureRandom`, drawn per case: different bytes, same shape |
+| DECRYPT ciphertext, VERIFY signature | made per case from that case's key and spec |
 
 | variant | timed call |
 |---|---|
@@ -51,13 +58,13 @@ Catalog: `src/main/resources/.../operation/setup-catalog.yaml`, read by `operati
 |---|---|---|
 | MessageDigest | operation (`operation`) | `digest()` resets the digest |
 | Mac | operation | `doFinal()` resets the Mac to its state after `init(key)` |
-| Mac named `...GMAC` | init with the next fresh IV + operation | a GMAC nonce must not repeat under one key; interim until the builder reads `lifecycle.reset` |
+| Mac named `...GMAC` | init with the next fresh IV + operation | a GMAC nonce must not repeat under one key: its IV role lives `perUse` with `rule: unique`, whatever `lifecycle.reset` says |
 | Signature | operation after one init | `sign()`, `verify()` reset to the state after `initSign`/`initVerify` |
 | KeyAgreement | operation after one init | `generateSecret()` resets to the state after `init` |
 | Cipher ECB, NONE | operation | `doFinal()` resets the cipher to its state after init |
 | Cipher CBC, PCBC, CTS, CFB, OFB, CTR | init with the next fresh IV + operation (`initAndOperation`) | an IV must not repeat under one key |
 | Cipher GCM, CCM | init with the next fresh IV + operation | a nonce must not repeat under one key; the provider refuses a reused one |
-| Cipher, other mode | init + operation | unknown: the safe side |
+| Cipher, other mode | init + operation | unknown mode |
 | Cipher without a mode (stream or provider default) | operation when the initialised cipher has no IV, else init + operation | as above |
 | KeyGenerator, KeyPairGenerator | one variant, `fixed`: `generateKey()`/`generateKeyPair()` after one init | the generation is the work |
 | a type not in the catalog | one variant, `fixed`, operation | |
@@ -66,7 +73,7 @@ Catalog: `src/main/resources/.../operation/setup-catalog.yaml`, read by `operati
 |---|---|
 | `perCall` labels | `operation`, `initAndOperation`, `getInstanceInitAndOperation`; in `prepared.yaml` per case |
 | DECRYPT `initAndOperation` | init with the ciphertext's IV; decrypting may repeat one |
-| allocation | each variant is its own case, so its `allocationCount` is its own |
+| allocation | each variant is its own case with its own `allocationCount` |
 | order on a device | interleaved per item, each in its own process: [device-session.md](../../../../../docs/device-session.md#variants) |
 
 ## Inputs and keys
