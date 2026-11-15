@@ -47,7 +47,7 @@ algorithms/ : the implementation guide: one catalogue per family, recipes, devia
 apps/benchmark-runner/analysis/ : analysis of a benchmark.json: summary, charts, statistics
 apps/benchmark-runner/bundled.py : providers.bundled of global.yaml: the digest's raw read, build property of the app or host CLI, DeviceProbe argument, effective record and check
 apps/benchmark-runner/demo.sh : one-command host demo run into results/demo/<device_id>
-apps/benchmark-runner/dependencies.py : the host modules a run needs, checked at its start; a missing one is one coded line and exit 1
+apps/benchmark-runner/dependencies.py : the host modules a run needs, checked at its start, cryptobench from this checkout; a missing one is one coded line and exit 1
 apps/benchmark-runner/device/__init__.py : package of the attached device's reads: adb, id, clocks, temperatures, facts
 apps/benchmark-runner/device/capture.py : a capture's runtime block, its schema version checked
 apps/benchmark-runner/device/clocks.py : per-core cpufreq over adb; clocks.yaml and cpuLocked

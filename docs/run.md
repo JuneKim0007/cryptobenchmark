@@ -5,7 +5,7 @@
 | need | value |
 |---|---|
 | Java | 17 toolchain target; Kotlin comes from the Gradle plugin `kotlin("jvm")` 2.2.21 |
-| host Python deps | `pip install -r requirements.txt`; a missing module a run needs is `missing_dependency: <module>; pip install -r requirements.txt` and exit 1 at its start (`apps/benchmark-runner/dependencies.py`) |
+| host Python deps | `pip install -r requirements.txt`; a missing module a run needs is `missing_dependency: <module>; pip install -r requirements.txt` and exit 1 at its start (`apps/benchmark-runner/dependencies.py`); a `cryptobench` loaded from outside this checkout's `lib/cryptobench` is `library_outside_checkout` and exit 1 |
 | energy Python deps | in `requirements.txt`; `apps/benchmark-runner/energy/requirements.txt` for a separate `--energy-python`, see [energy.md](energy.md) |
 | `ANDROID_HOME` (`--device`) | default `~/Library/Android/sdk`; adb at `$ANDROID_HOME/platform-tools/adb` |
 | device state (`--device`) | `adb get-state` must print `device` |

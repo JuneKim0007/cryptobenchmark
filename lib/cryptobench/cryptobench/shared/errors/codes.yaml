@@ -1109,6 +1109,7 @@ codes:
   key_refused: {kind: outcome}
   key_size_not_in_guide: {kind: error}
   keystore_born_key: {kind: outcome}
+  library_outside_checkout: {kind: error, default: stop}
   mac_needs_a_secret_key: {kind: error}
   manafa_cannot_start: {kind: error}
   manafa_failed: {kind: error}

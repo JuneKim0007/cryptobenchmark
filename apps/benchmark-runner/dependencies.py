@@ -1,5 +1,5 @@
 """The host modules a run needs, checked before it starts: the first missing one is one coded line and exit 1.
-Importing this file checks PyYAML, so it comes before any import that needs it. perf-repair's guide runs it as a command:
+Importing this file checks PyYAML and that cryptobench is this checkout's own, so it comes before any import that needs them. perf-repair's guide runs it as a command:
 
     dependencies.py [--config global.yaml] [--bench | --device]
 """
@@ -46,7 +46,27 @@ for _module in BASE:
     if _line := _missing(_module):
         fail(_line)
 
-from cryptobench.shared import paths  # noqa: E402
+
+def _loaded():
+    return pathlib.Path(importlib.util.find_spec("cryptobench").origin).resolve().parent
+
+
+def _outside_checkout(library):
+    """The coded line for cryptobench loaded from another place than this checkout's library."""
+    return (f"library_outside_checkout: cryptobench loads from {_loaded()}, not from this checkout's {library}; "
+            "set PYTHONPATH to that folder or pip install -e it")
+
+
+try:
+    from cryptobench.shared import paths  # noqa: E402
+except ModuleNotFoundError as error:
+    # this checkout's library holds every module it imports, so a missing one is another library's
+    if not (error.name or "").startswith("cryptobench."):
+        raise
+    fail(_outside_checkout("library (lib/cryptobench)"))
+if not _loaded().is_relative_to(_library := paths.repo().library.resolve()):
+    fail(_outside_checkout(_library))
+
 from cryptobench.shared.errors.failures import CommandError  # noqa: E402
 from global_file import global_config  # noqa: E402
 

@@ -1,6 +1,8 @@
 import argparse
 import ast
+import os
 import pathlib
+import shutil
 import subprocess
 import sys
 
@@ -161,3 +163,29 @@ def test_the_command_without_pyyaml_prints_exactly_its_line():
     done = subprocess.run([sys.executable, "-S", str(ROOT / "apps/benchmark-runner/dependencies.py"), "--bench"], capture_output=True, text=True,
                           timeout=5, env={"PYTHONPATH": ""}, check=False)
     assert (done.returncode, done.stdout, done.stderr) == (1, "", "error: missing_dependency: yaml; pip install -r requirements.txt\n")
+
+
+def command(script, *flags, library):
+    env = {k: v for k, v in os.environ.items() if k not in ("CRYPTOBENCH_CODE_ROOT", "CRYPTOBENCH_SUPPRESS_ERRORS")}
+    return subprocess.run([sys.executable, str(ROOT / "apps/benchmark-runner" / script), *flags], capture_output=True, text=True,
+                          timeout=60, env={**env, "PYTHONPATH": str(library)}, check=False)
+
+
+@pytest.mark.parametrize("script, flags, unchanged", [
+    ("dependencies.py", (), (0, "", "")),
+    ("pipeline.py", ("--probe", "--bench"),
+     (1, "", "error: --probe, --identify: no measuring, so neither goes with --bench, --harness or --interop\n")),
+])
+def test_cryptobench_from_another_place_is_refused_and_this_checkouts_runs_as_before(tmp_path, script, flags, unchanged):
+    library = ROOT / "lib/cryptobench"
+    elsewhere, older = tmp_path / "elsewhere", tmp_path / "older"
+    shutil.copytree(library / "cryptobench", elsewhere / "cryptobench", ignore=shutil.ignore_patterns("__pycache__"))
+    (older / "cryptobench").mkdir(parents=True)
+    (older / "cryptobench/__init__.py").write_text("")
+    refused = "error: library_outside_checkout: cryptobench loads from {}, not from this checkout's {}; set PYTHONPATH to that folder or pip install -e it\n"
+    done = command(script, *flags, library=elsewhere)
+    assert (done.returncode, done.stdout, done.stderr) == (1, "", refused.format((elsewhere / "cryptobench").resolve(), library.resolve()))
+    done = command(script, *flags, library=older)
+    assert (done.returncode, done.stdout, done.stderr) == (1, "", refused.format((older / "cryptobench").resolve(), "library (lib/cryptobench)"))
+    done = command(script, *flags, library=library)
+    assert (done.returncode, done.stdout, done.stderr) == unchanged
