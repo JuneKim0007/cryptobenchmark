@@ -2,6 +2,7 @@
 
 from cryptobench.shared import paths
 from cryptobench.shared.device.adb import NO_DEFAULT_PROFILER, PASSED, DeviceError, instrumentation_report
+from cryptobench.shared.device.plan import pull_plan
 
 TRACES, SCRATCH = paths.DeviceDirs.TRACES, paths.DeviceDirs.SCRATCH
 
@@ -55,4 +56,4 @@ class EnergySession:
         trace.parent.mkdir(parents=True, exist_ok=True)
         self.device.pull(remote, trace)
         self.device.pull(f"{self.device.files}/{paths.ENERGY_DRY}", calls)
-        self.device.pull_plan(preparation)
+        pull_plan(self.device, preparation)

@@ -1,0 +1,35 @@
+"""The device plan: pushed and AOT-compiled, prepared and skipped pulled back, the per-run outputs cleared; a run's push with the
+suppressErrors warning and the energy settle's files."""
+from cryptobench.shared import paths
+from cryptobench.shared.device.adb import PACKAGE, DeviceError
+
+
+def push_plan(device, *files):
+    device.push_files(*files)
+    # Without androidx.benchmark's gradle plugin nothing AOT-compiles the APKs, and Jetpack fails
+    # every case with NOT-AOT-COMPILED.
+    for package in (PACKAGE, f"{PACKAGE}.test"):
+        compiled = device.shell(f"cmd package compile -f -m speed {package}")
+        if "Success" not in compiled:
+            raise DeviceError(f"AOT compile {package}: {compiled.strip()}")
+
+
+def pull_plan(device, preparation):
+    preparation.mkdir(parents=True, exist_ok=True)
+    device.pull(f"{device.files}/{paths.PREPARED}", paths.Preparation(preparation).prepared)
+    device.pull(f"{device.files}/{paths.SKIPPED}", paths.Preparation(preparation).skipped)
+
+
+def clear_outputs(device, plan_files=()):
+    """androidx's outputs and the plan directory's per-run files, so nothing of an earlier process is pulled as this one's."""
+    planned = " ".join(f"{device.files}/{name}" for name in (*plan_files, paths.CPU_PINS))
+    device.shell(f"rm -f {device.media}/*-benchmarkData.json {device.media}/*.perfetto-trace {device.media}/*.trace {planned}")
+
+
+def push(device, options, plan, energy=None):
+    """dex2oat runs in the AOT compile, so the energy settle comes after it, never before; energy.yaml follows the settle."""
+    push_plan(device, *plan)
+    if options.suppress_errors:
+        print(f"warning: suppressErrors {options.suppress_errors}: these numbers are not comparable to an unsuppressed run")
+    if energy:
+        device.push_files(energy())

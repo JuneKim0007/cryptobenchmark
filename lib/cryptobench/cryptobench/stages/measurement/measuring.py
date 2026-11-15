@@ -3,13 +3,15 @@ import dataclasses, pathlib, time
 
 from cryptobench.shared.settings import effective_view
 from cryptobench.shared.device import gradle_runner
-from cryptobench.shared.device.adb import Device, measure_arguments
+from cryptobench.shared.device.adb import NO_DEFAULT_PROFILER, Device
 from cryptobench.stages.measurement.energy.session import EnergySession
 from cryptobench.stages.measurement.session import clocks_hook, cooldown_hook, dynamic_temperature, thermal_hook
 from cryptobench.pipeline.took import elapsed
 from cryptobench.pipeline.warn import warn
 from cryptobench.shared import paths
 from cryptobench.shared.document.document import read_yaml
+
+THROTTLE_SLEEP = "androidx.benchmark.thermalThrottle.sleepDurationSeconds"
 
 
 @dataclasses.dataclass(frozen=True)
@@ -37,6 +39,17 @@ def convert(run, arguments):
 
 def gated(run, document):
     return dataclasses.replace(run, gate=dynamic_temperature.opened(run.device, effective_view.thermal_gate(document), run.problems), retries=effective_view.launch_retries(document))
+
+
+def measure_arguments(suppress, throttle_sleep=None):
+    return (NO_DEFAULT_PROFILER + (["-e", "androidx.benchmark.suppressErrors", suppress] if suppress else [])
+            + (["-e", THROTTLE_SLEEP, str(throttle_sleep)] if throttle_sleep is not None else []))
+
+
+def pull_pins(device, into):
+    """The per-case core pins a timed process writes beside its results."""
+    paths.Measurement(into).cpu_pins.unlink(missing_ok=True)
+    device.run("pull", f"{device.files}/{paths.CPU_PINS}", str(paths.Measurement(into).cpu_pins), check=False)
 
 
 def session_arguments(run):

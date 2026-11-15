@@ -19,12 +19,14 @@ RESULT = {"schemaVersion": 1, "summary": {"cases": 3, "outcomes": {"pass": 1, "f
 class FakeDevice:
 
     def __init__(self, output):
-        self.output, self.calls, self.files = output, [], FILES
+        self.output, self.calls, self.files, self.media = output, [], FILES, "/sdcard/media"
 
-    def clear_outputs(self, names):
-        self.calls.append(("clear", *names))
+    def shell(self, command):
+        if command.startswith("rm -f"):
+            self.calls.append(("clear", command.split()[-1]))
+        return "Success"
 
-    def push_plan(self, *files):
+    def push_files(self, *files):
         self.calls.append(("push", *map(str, files)))
 
     def instrument(self, test_class, *arguments):
@@ -33,9 +35,6 @@ class FakeDevice:
 
     def pull(self, remote, local):
         self.calls.append(("pull", remote, str(local)))
-
-    def pull_plan(self, into):
-        self.calls.append(("pull_plan", str(into)))
 
 
 def test_the_device_check_runs_every_case_in_one_dry_run_process_and_pulls_its_record(tmp_path):

@@ -3,6 +3,7 @@ import shutil, time
 
 from cryptobench.shared.device import gradle_runner
 from cryptobench.shared.device.adb import NO_DEFAULT_PROFILER, PASSED, DeviceError, instrumentation_report
+from cryptobench.shared.device.plan import clear_outputs, pull_plan, push_plan
 from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared.results.manifest import manifest
 from cryptobench.stages.verification import known_answers as answers
@@ -48,14 +49,14 @@ def on_host(options, effective, capture, trial, known_answers, into):
 
 
 def on_device(device, options, effective, capture, trial, known_answers, into):
-    device.clear_outputs((paths.CHECK_RESULT,))
-    device.push_plan(effective, paths.Configuration.holding(effective).guide, capture, trial, known_answers)
+    clear_outputs(device, (paths.CHECK_RESULT,))
+    push_plan(device, effective, paths.Configuration.holding(effective).guide, capture, trial, known_answers)
     suppressed = ["-e", "androidx.benchmark.suppressErrors", options.suppress_errors] if options.suppress_errors else []
     output = device.instrument("EndToEndCheck", *NO_DEFAULT_PROFILER, *DRY_RUN, *suppressed)
     if not PASSED.search(output):
         raise DeviceError("EndToEndCheck failed on the device:\n" + instrumentation_report(output))
     device.pull(f"{device.files}/{paths.CHECK_RESULT}", paths.CheckFolder(into).result)
-    device.pull_plan(paths.CheckFolder(into).preparation.root)
+    pull_plan(device, paths.CheckFolder(into).preparation.root)
 
 
 def summary(result):

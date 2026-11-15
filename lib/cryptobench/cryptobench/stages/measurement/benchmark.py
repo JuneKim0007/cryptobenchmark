@@ -11,9 +11,9 @@ from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared import paths
 from cryptobench.stages.measurement.session import case_isolation, energy_hook, passes, variant_order, warmup
 from cryptobench.stages.measurement.session import measure as measure_session
-from cryptobench.stages.measurement.measuring import (Measuring, convert, energy_preflight, gated, pass_arguments, record, session_arguments, singles,
-                                                         thermal_flag, timed_hooks)
-from cryptobench.shared.device.push import push
+from cryptobench.stages.measurement.measuring import (Measuring, convert, energy_preflight, gated, pass_arguments, pull_pins, record, session_arguments,
+                                                         singles, thermal_flag, timed_hooks)
+from cryptobench.shared.device.plan import pull_plan, push
 from cryptobench.pipeline.took import elapsed
 from cryptobench.shared.document.document import read_yaml
 
@@ -38,7 +38,7 @@ def measure_on_device(run, one, captures, preparation, isolation, repetitions, f
     arguments = pass_arguments(run, one)
     plan = measure_session.Plan("CryptoBenchmark", arguments, timed=bool(timed), order=variant_order.interleaved,
                                 cleared=(paths.PREPARED, paths.SKIPPED), stale=(paths.Preparation(preparation).prepared, paths.Preparation(preparation).skipped),
-                                pull_plan=lambda process: (device.pull_plan(preparation), device.pull_pins(process.into)), after_process=converted,
+                                pull_plan=lambda process: (pull_plan(device, preparation), pull_pins(device, process.into)), after_process=converted,
                                 gate=gate, retries=run.retries)
     measure_session.run_session(device, plan, repetitions, isolation, hooks, folder, run.problems)
 
@@ -92,7 +92,7 @@ def warm_up(run, document, preparation):
         return
     arguments = session_arguments(run)
     planned = case_isolation.listed(run.device.instrument("CryptoBenchmark", *arguments, "-e", "log", "true"))
-    run.device.pull_plan(preparation)
+    pull_plan(run.device, preparation)
     cases = read_yaml(paths.Preparation(preparation).prepared).get("cases") or []
     warmup.run(run.device, "CryptoBenchmark", arguments, planned, cases, document, run.gate.session("warm-up"))
 

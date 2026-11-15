@@ -87,7 +87,7 @@ def test_metric_keys_of_benchmark_json():
 def test_instrumentation_arguments():
     assert case_isolation.CASE_ARGUMENT == const(AT / "CaseFilter.kt", "ARGUMENT")
     assert check.DRY_RUN == ["-e", const(AT / "EndToEndCheck.kt", "DRY_RUN"), "true"]
-    assert const(AT / "DeviceProbe.kt", "HOST_MILLIS") == "hostMillis" and '"DeviceProbe", "-e", "hostMillis"' in (DEVICE / "adb.py").read_text()
+    assert const(AT / "DeviceProbe.kt", "HOST_MILLIS") == "hostMillis" and '"DeviceProbe", "-e", "hostMillis"' in (STAGES / "discovery/probe.py").read_text()
     assert bundled.KEY == const("environment/discovery/src/main/kotlin/bundled/BundledProviders.kt", "KEY")
 
 

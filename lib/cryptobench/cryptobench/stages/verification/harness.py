@@ -3,8 +3,9 @@ import pathlib, shutil, time
 
 from cryptobench.pipeline.took import elapsed
 from cryptobench.shared import paths
+from cryptobench.shared.device.adb import ONE_PASSED, DeviceError, instrumentation_report
 from cryptobench.shared.device.identity import capture_id
-from cryptobench.shared.device.push import push
+from cryptobench.shared.device.plan import push
 from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared.results import layout as results_layout
@@ -33,6 +34,20 @@ def require_harness_device(harness, capture):
             raise CommandError(f"harness_other_device: {harness} was built for {wanted}, the attached device is {attached}")
 
 
+def scoped_interop(device, into):
+    """ScopedInterop in its own process: every scope's verdict."""
+    interop = paths.Scoped(into).interop
+    interop.unlink(missing_ok=True)
+    into.mkdir(parents=True, exist_ok=True)
+    device.shell(f"rm -f {device.files}/{paths.SCOPED_INTEROP}")
+    device.shell(f"rm -rf {device.files}/{paths.DeviceDirs.SCOPE_KEYS}")
+    output = device.instrument("ScopedInterop")
+    if not ONE_PASSED.search(output):
+        raise DeviceError("ScopedInterop failed on the device:\n" + instrumentation_report(output))
+    device.pull(f"{device.files}/{paths.SCOPED_INTEROP}", interop)
+    return interop
+
+
 def check_scopes(options, configuration, device, results, scoped, plan, shipped, discover):
     """The interop check in one process; the files for the manifest. discover is discovery written in place into results."""
     _discovery, effective, capture, trial, files = discover(options, configuration, device, results, shipped)
@@ -40,7 +55,7 @@ def check_scopes(options, configuration, device, results, scoped, plan, shipped,
     push(device, options, [effective, capture, trial])
     started = time.monotonic()
     print("check:     ScopedInterop on the device")
-    interop = device.check_scopes(scoped)
+    interop = scoped_interop(device, scoped)
     record = scope_results.merge(plan, interop)
     files.update(scopedPlan=plan, scopedInterop=interop)
     for scope in record["scopes"]:

@@ -1,5 +1,5 @@
-"""The device half of pipeline.py --device: adb, the instrumentation classes, and the files they leave."""
-import os, re, subprocess, time
+"""The device half of pipeline.py --device: adb, the APK install, an instrumentation run and its report."""
+import os, re, subprocess
 
 from cryptobench.shared.device import timeouts
 from cryptobench.shared import paths
@@ -12,14 +12,6 @@ RUNNER = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
 NO_DEFAULT_PROFILER = ["-e", "androidx.benchmark.profiling.mode", "None"]
 PASSED = re.compile(r"^OK \(\d+ tests?\)", re.M)
 ONE_PASSED = re.compile(r"^OK \(1 test\)", re.M)
-
-
-THROTTLE_SLEEP = "androidx.benchmark.thermalThrottle.sleepDurationSeconds"
-
-
-def measure_arguments(suppress, throttle_sleep=None):
-    return (NO_DEFAULT_PROFILER + (["-e", "androidx.benchmark.suppressErrors", suppress] if suppress else [])
-            + (["-e", THROTTLE_SLEEP, str(throttle_sleep)] if throttle_sleep is not None else []))
 
 
 class DeviceError(Coded):
@@ -125,57 +117,11 @@ class Device:
                 reason += "; shell reaches the app's files only in a directory the app created"
             raise DeviceError(f"adb pull {remote}: {reason}")
 
-    def probe(self, discovery, arguments=()):
-        # The app must create its own directory: one made by shell is not writable by the app's uid.
-        self.shell(f"rm -rf {self.files}")
-        self.shell(f"rm -f {self.media}/*-benchmarkData.json")
-        output = self.instrument("DeviceProbe", "-e", "hostMillis", str(int(time.time() * 1000)), *arguments)
-        if "OK (1 test)" not in output:
-            raise DeviceError("DeviceProbe failed on the device:\n" + instrumentation_report(output))
-        self.pull(f"{self.files}/.", discovery)
-
     def push_files(self, *files):
         self.run("push", *map(str, files), f"{self.files}/")
-
-    def push_plan(self, *files):
-        self.push_files(*files)
-        # Without androidx.benchmark's gradle plugin nothing AOT-compiles the APKs, and Jetpack fails
-        # every case with NOT-AOT-COMPILED.
-        for package in (PACKAGE, f"{PACKAGE}.test"):
-            compiled = self.shell(f"cmd package compile -f -m speed {package}")
-            if "Success" not in compiled:
-                raise DeviceError(f"AOT compile {package}: {compiled.strip()}")
 
     def report(self, output):
         return instrumentation_report(output)
 
     def force_stop(self):
         self.run("shell", f"am force-stop {PACKAGE}", check=False)
-
-    def clear_outputs(self, plan_files=()):
-        """androidx's outputs and the plan directory's per-run files, so nothing of an earlier process is pulled as this one's."""
-        planned = " ".join(f"{self.files}/{name}" for name in (*plan_files, paths.CPU_PINS))
-        self.shell(f"rm -f {self.media}/*-benchmarkData.json {self.media}/*.perfetto-trace {self.media}/*.trace {planned}")
-
-    def pull_pins(self, into):
-        """The per-case core pins a timed process writes beside its results."""
-        paths.Measurement(into).cpu_pins.unlink(missing_ok=True)
-        self.run("pull", f"{self.files}/{paths.CPU_PINS}", str(paths.Measurement(into).cpu_pins), check=False)
-
-    def pull_plan(self, preparation):
-        preparation.mkdir(parents=True, exist_ok=True)
-        self.pull(f"{self.files}/{paths.PREPARED}", paths.Preparation(preparation).prepared)
-        self.pull(f"{self.files}/{paths.SKIPPED}", paths.Preparation(preparation).skipped)
-
-    def check_scopes(self, into):
-        """ScopedInterop in its own process: every scope's verdict."""
-        interop = paths.Scoped(into).interop
-        interop.unlink(missing_ok=True)
-        into.mkdir(parents=True, exist_ok=True)
-        self.shell(f"rm -f {self.files}/{paths.SCOPED_INTEROP}")
-        self.shell(f"rm -rf {self.files}/{paths.DeviceDirs.SCOPE_KEYS}")
-        output = self.instrument("ScopedInterop")
-        if not ONE_PASSED.search(output):
-            raise DeviceError("ScopedInterop failed on the device:\n" + instrumentation_report(output))
-        self.pull(f"{self.files}/{paths.SCOPED_INTEROP}", interop)
-        return interop

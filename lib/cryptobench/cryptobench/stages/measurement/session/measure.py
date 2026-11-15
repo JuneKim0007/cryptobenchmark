@@ -7,6 +7,7 @@ from cryptobench.shared.errors.line import one_line
 from cryptobench.stages.measurement import case_files
 from cryptobench.stages.measurement.session import calibration, case_isolation, dynamic_temperature, launch
 from cryptobench.shared.device.adb import PASSED, DeviceError
+from cryptobench.shared.device.plan import clear_outputs
 from cryptobench.shared import paths
 from cryptobench.pipeline.warn import warn
 
@@ -132,7 +133,7 @@ def closed(process, hooks):
 
 def measure(device, plan, process, isolation, hooks):
     print(f"measure:   {plan.test_class} on the device" + ("" if device.stream else "; --stream shows each case"))
-    device.clear_outputs(plan.cleared)
+    clear_outputs(device, plan.cleared)
     for stale in (process.data, *plan.stale):
         stale.unlink(missing_ok=True)
     if isolation == effective_view.CASE_ISOLATION:

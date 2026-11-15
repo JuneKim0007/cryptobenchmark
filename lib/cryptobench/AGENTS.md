@@ -41,12 +41,12 @@ cryptobench/shared/document/dump.py : dump_yaml, a value as YAML text through on
 cryptobench/shared/document/json_dump.py : json_text, a document as JSON text (indent 1); write_json, that text through write_text
 cryptobench/shared/document/write.py : write_text, a file replaced whole through a temporary of its writer's own (mode as a plain open gives, fsync and folder fsync when durable, exclusive refuses an existing file); Staging, the temporary's name, mode and fsync per writer (STAGED, MANIFEST); write_texts, several files staged then renamed in order
 cryptobench/shared/device/__init__.py : package of the host's device steps, importing no app
-cryptobench/shared/device/adb.py : adb steps of a --device run: identity by getprop, install, probe, push, AOT compile, instrument and its OK line, clear, pull, scope check
+cryptobench/shared/device/adb.py : the adb transport of a --device run: connect, identity by getprop, install, instrument and its OK line and report, push, pull, force-stop
 cryptobench/shared/device/capture.py : a capture's runtime block, its schema version checked; the guide's platform name for it
 cryptobench/shared/device/clocks.py : per-core cpufreq over adb; clocks.yaml and cpuLocked
 cryptobench/shared/device/gradle_runner.py : runs one command of apps/benchmark/cli by its main class; filters its failure to the tool's own lines
 cryptobench/shared/device/identity.py : device id from a capture's runtime block
-cryptobench/shared/device/push.py : a device run's plan push, the suppressErrors warning, then the energy settle's files
+cryptobench/shared/device/plan.py : the device plan: pushed and AOT-compiled, prepared and skipped pulled back, per-run outputs cleared; a run's push with the suppressErrors warning, then the energy settle's files
 cryptobench/shared/device/timeouts.py : ceilings of the host's subprocess steps (adb, install, instrument, case, gradle, compile, energy, analysis); expiry is one coded error
 cryptobench/shared/digest/__init__.py : package of the digests over bytes
 cryptobench/shared/digest/tree.py : byte_digest, the sha256 of some bytes; file_digest, of a file's bytes, None when absent; tree_digest, one digest of files in a given order, each its path under a root and its byte digest
@@ -100,6 +100,7 @@ cryptobench/stages/discovery/__init__.py : package of the discovery stage
 cryptobench/stages/discovery/capture_files.py : the capture, trial and requirements a discovery wrote, by path and paired by stamp; never the newest in a kept folder; the reuse that probed again
 cryptobench/stages/discovery/discover.py : discover and configure: probe or host discovery, ConfigureKt, effective.yaml summary; three end states: in place, staged (the caller publishes), published under the capture's device id
 cryptobench/stages/discovery/facts.py : device facts into discovery/facts.yaml
+cryptobench/stages/discovery/probe.py : DeviceProbe on the device: the plan directory emptied, the probe run, its capture and trial pulled into discovery/
 cryptobench/stages/discovery/tests/ : pytest tests of the discovery stage
 cryptobench/stages/measurement/__init__.py : package of the measurement stage
 cryptobench/stages/measurement/benchmark.py : the plain run's benchmark: device passes and sessions or host processes, warm-up, dry pass; whether it timed anything, for the analysis; the energy interpreter check passed in
@@ -108,7 +109,7 @@ cryptobench/stages/measurement/energy/__init__.py : package of the energy steps 
 cryptobench/stages/measurement/energy/session.py : Perfetto sessions on the device: start, stop, pull
 cryptobench/stages/measurement/energy/sources/ : one adapter per energy.source on the host; how the host runs apps/benchmark-runner/energy
 cryptobench/stages/measurement/energy/steps.py : energy steps of a --device run: capture selection, the run's energy source
-cryptobench/stages/measurement/measuring.py : what a run's device sessions share: the Measuring context, the thermal gate's start, session and pass arguments, timed hooks, ConvertKt, per-process files
+cryptobench/stages/measurement/measuring.py : what a run's device sessions share: the Measuring context, the thermal gate's start, the androidx arguments of a session and a pass, timed hooks, ConvertKt, per-process files and core pins
 cryptobench/stages/measurement/session/__init__.py : package of one device measuring session: processes, cases, passes, order, warm-up, hooks
 cryptobench/stages/measurement/session/calibration.py : whether androidx's warm-up left usable samples: collapsed calls per sample, a warm-up near its time limit
 cryptobench/stages/measurement/session/case_isolation.py : run.isolation case: one case's instrumentation process and its pull, the device's case listing
@@ -128,7 +129,7 @@ cryptobench/stages/measurement/tests/ : pytest tests of the measurement stage
 cryptobench/stages/measurement/thermal.py : device temperatures from dumpsys thermalservice: sensors by HAL name, status, sentinels skipped, unavailable as a reason
 cryptobench/stages/verification/__init__.py : package of the verification stage
 cryptobench/stages/verification/check.py : --check run: every planned case once through the real harness (host CheckKt, device EndToEndCheck under the dry run), check.yaml, its summary and failures
-cryptobench/stages/verification/harness.py : --harness run: scope generation, the harness's device check, interop verdicts into checked/; discovery and the entry point's error reporting passed in
+cryptobench/stages/verification/harness.py : --harness run: scope generation, ScopedInterop on the device, interop verdicts into checked/; discovery and the entry point's error reporting passed in
 cryptobench/stages/verification/interop.py : --interop run: the plan's pairs on the host or device, published beside a finished run or as a new device folder; discovery's steps passed in
 cryptobench/stages/verification/interop_oracle.py : oracle steps of a --interop run: plan staging, host InteropKt, device InteropCheck, summary
 cryptobench/stages/verification/known_answers.py : --check's known-answers.yaml: the guide's vectors filled per provider, global.yaml's selection.knownVectors

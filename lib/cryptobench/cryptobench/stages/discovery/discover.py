@@ -9,6 +9,7 @@ from cryptobench.shared import paths
 from cryptobench.shared.results import layout as results_layout
 from cryptobench.shared.settings import bundled
 from cryptobench.stages.discovery import capture_files, facts
+from cryptobench.stages.discovery.probe import probe
 from cryptobench.pipeline.took import elapsed
 from cryptobench.pipeline.warn import warn
 from cryptobench.shared.document.document import parse_yaml
@@ -36,7 +37,7 @@ def discover_in_place(options, configuration, device, results, shipped):
         device.install(bundled.gradle_properties(shipped))
         elapsed("build and install", started)
         started, before = time.monotonic(), capture_files.stamped(discovery)
-        device.probe(discovery, bundled.instrumentation_arguments(shipped))
+        probe(device, discovery, bundled.instrumentation_arguments(shipped))
         capture, trial = capture_files.added(discovery, before)
         known = facts.gather(device, discovery, capture)
         written = gradle_runner.run(f"{capture} {trial} {configured} {configuration} --facts={known}", options.stacktrace, options.stream, main_class="ConfigureKt")

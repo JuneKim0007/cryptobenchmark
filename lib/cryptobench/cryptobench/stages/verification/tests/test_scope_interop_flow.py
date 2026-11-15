@@ -11,7 +11,7 @@ from failure import reported  # noqa: E402
 
 def test_the_scope_check_is_its_own_process(tmp_path):
     phone = Phone(tmp_path)
-    interop = phone.check_scopes(tmp_path / "scoped")
+    interop = harness.scoped_interop(phone, tmp_path / "scoped")
     assert phone.log == ["clear", "instrument ScopedInterop", "pull scoped-interop.yaml"] and interop.name == "scoped-interop.yaml"
 
 
