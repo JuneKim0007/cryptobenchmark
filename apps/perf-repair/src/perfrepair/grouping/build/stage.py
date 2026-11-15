@@ -10,7 +10,8 @@ from cryptobench.shared.catalogue.names import Names
 from ...data_handler.inbound import RunContext
 from cryptobench.shared.catalogue.grouping import items_document, profiles_document
 from ...dto.screen import CODE_GROUPED, screen_document
-from ...files import json_text, sha256_text
+from ...files import json_text
+from cryptobench.shared.digest.tree import byte_digest
 from cryptobench.shared.document.write import write_texts
 from ...log import step
 from ...probe.identified import alias_conflicts, identified
@@ -67,7 +68,7 @@ def _build(manifest_path: Path, run: Path, catalog: Catalog, reviewer: Reviewer 
         verdicts, review = classify(paths, batches(unknown_evidence(context, items, verdicts)), verdicts, reviewer, echo)
         require("screen", validate_screen(verdicts, items, review))
     items_text, profiles_text = json_text(items_document(items)), json_text(profiles_document(profiles))
-    built = {"items": sha256_text(items_text), "profiles": sha256_text(profiles_text)}
+    built = {"items": byte_digest(items_text.encode()), "profiles": byte_digest(profiles_text.encode())}
     # screen.json first: its absence reads as "built without screening"; any later partial rename fails its digests
     write_texts([(paths.screen, json_text(screen_document(verdicts, catalog.identity(), built, review))),
                  (paths.profiles, profiles_text), (paths.items, items_text)])

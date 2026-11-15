@@ -48,7 +48,7 @@ cryptobench/shared/device/identity.py : device id from a capture's runtime block
 cryptobench/shared/device/push.py : a device run's plan push, the suppressErrors warning, then the energy settle's files
 cryptobench/shared/device/timeouts.py : ceilings of the host's subprocess steps (adb, install, instrument, case, gradle, compile, energy, analysis); expiry is one coded error
 cryptobench/shared/digest/__init__.py : package of the digests over bytes
-cryptobench/shared/digest/tree.py : byte_digest, the sha256 of some bytes; tree_digest, one digest of files in a given order, each its path under a root and its byte digest
+cryptobench/shared/digest/tree.py : byte_digest, the sha256 of some bytes; file_digest, of a file's bytes, None when absent; tree_digest, one digest of files in a given order, each its path under a root and its byte digest
 cryptobench/shared/errors/__init__.py : package of the coded errors, importing nothing from the repo
 cryptobench/shared/errors/coded.py : CODE and code_in, the code word a failure message starts with; code_of, the code a failure carries as `.code`; Coded, the marker of a failure whose message is its coded line (adds no ValueError base)
 cryptobench/shared/errors/failures.py : AgentFailed (a provider's one coded failure line), GateError (the app gate's coded reasons), BenchmarkRunError (a pipeline.py run that failed), each on its own base; EnergyError (an energy source failed), one class whichever name energy/sources loads under; CommandError (the runner's library code ends the run, its entry point prints the line)

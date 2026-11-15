@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import json
 import os
 from dataclasses import dataclass
@@ -30,16 +29,6 @@ def read_versioned(kind: DocumentKind, path: Path) -> dict:
 
 def json_text(doc: dict) -> str:
     return json.dumps(doc, indent=1)
-
-
-def sha256_text(text: str) -> str:
-    return hashlib.sha256(text.encode()).hexdigest()
-
-
-def sha256_file(path: Path) -> str | None:
-    """The digest of the file's bytes as written; None when it is absent."""
-    path = Path(path)
-    return hashlib.sha256(path.read_bytes()).hexdigest() if path.exists() else None
 
 
 def _ends_mid_line(path: Path) -> bool:

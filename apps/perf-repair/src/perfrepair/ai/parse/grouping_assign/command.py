@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from cryptobench.shared.paths import GroupingTree
 from ....dto.grouping_state import Knowledge, code_made
-from ....files import sha256_text
+from cryptobench.shared.digest.tree import byte_digest
 from ....dto.prompt import TaskPrompt
 from ...runtime.agent import Conversations, ScriptedConversations
 from ...runtime.engine.ask import Limits
@@ -14,7 +14,7 @@ from .kind import GroupingKind, charter
 
 
 def _dry_run(task: TaskPrompt, *_):
-    return {"group": "", "newGroup": {"id": f"dry-{sha256_text(task.item)[:12]}", "description": "dry run: no model was called"},
+    return {"group": "", "newGroup": {"id": f"dry-{byte_digest(task.item.encode())[:12]}", "description": "dry run: no model was called"},
             "amend": [], "reason": "dry run"}
 
 

@@ -2,6 +2,7 @@ import sys
 
 import pytest
 
+from cryptobench.shared.digest.tree import file_digest
 from scope import code_digest
 
 
@@ -46,3 +47,9 @@ def test_the_harness_code_is_these_patterns_each_matching_files():
                                 "apps/benchmark/modules/android/src/androidTest/**/Scope*.kt")
     root = code_digest.paths.code_root()
     assert all(sorted(root.glob(pattern)) for pattern in code_digest.CODE)
+
+
+def test_a_file_digest_is_the_sha256_of_its_bytes_and_none_when_absent(tmp_path):
+    (tmp_path / "f").write_bytes(b"abc")
+    assert file_digest(tmp_path / "f") == "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+    assert file_digest(tmp_path / "absent") is None

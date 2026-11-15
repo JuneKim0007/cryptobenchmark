@@ -9,7 +9,8 @@ from pathlib import Path
 from cryptobench.shared.paths import DEVICE, AppTree, RunTree
 from cryptobench.shared.errors.input_error import InputError
 from ..dto.device import DeviceRecord
-from ..files import read_json, read_yaml, sha256_file, write_json
+from ..files import read_json, read_yaml, write_json
+from cryptobench.shared.digest.tree import file_digest
 from cryptobench.shared.document.write import write_text
 from .lock import DeviceLock
 from cryptobench.shared.document.dump import dump_yaml
@@ -40,7 +41,7 @@ def vouch_manifest(device: Path) -> None:
     """A step that only added files to manifest.yaml: device.yaml records its digest again, so no stage reruns for it."""
     record, _ = load_device_record(device)
     if record is not None:
-        write_device_record(device, replace(record, manifest=sha256_file(RunTree(device).manifest)))
+        write_device_record(device, replace(record, manifest=file_digest(RunTree(device).manifest)))
 
 
 def drop_device_record(device: Path) -> None:

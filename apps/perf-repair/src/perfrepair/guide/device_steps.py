@@ -19,7 +19,7 @@ from ..dto.used import SITE
 from ..dto.metrics import METRICS, Metric
 from ..dto.perf_mode import PerfMode
 from ..failure import FAILURES
-from ..files import sha256_file
+from cryptobench.shared.digest.tree import file_digest
 from ..grouping.__main__ import main as grouping_main
 from ..log import emit, step
 from ..stop import terminate
@@ -87,8 +87,8 @@ def open_record(g: Guide, folder: Path) -> None:
     g.device = folder
     if g.record is not None:
         return
-    config = {"config": sha256_file(g.config) if g.config else None,
-              "settings": sha256_file(g.settings.file) if g.settings and g.settings.file else None}
+    config = {"config": file_digest(g.config) if g.config else None,
+              "settings": file_digest(g.settings.file) if g.settings and g.settings.file else None}
     try:
         g.record = RunRecord.open(folder, g.run_id, g.on_existing, {**config, "screening": g.catalog.sha256},
                                   g.run_settings)

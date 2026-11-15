@@ -11,7 +11,8 @@ from ...dto.dossier import NO_SECURE_OPTION, PERSON_JUDGES, reason_code
 from ...dto.perf_mode import GENERIC_MODE
 from ...dto.upgrade import (FALLBACK_SOURCE, LIST_SOURCE, MODEL_SOURCE, NEEDS_MIGRATION, NO_SECURE, NOT_REACHED, STATIC_SOURCE,
                             Upgrade, UpgradeItem, read_upgrades)
-from ...files import json_text, sha256_text
+from ...files import json_text
+from cryptobench.shared.digest.tree import byte_digest
 from ...result.upgrades import edits_of, needs_person, settled
 from ...validation.dossiers.document import perf_of
 from ...validation.upgrade import validate_upgrades
@@ -52,7 +53,7 @@ class UpgradeSource:
         for u in (u for u in self.rows if not u.identified):
             s = u.dossier.scope
             found = tuple(Candidate(o.alias, o.item, UPGRADE, option=o) for o in u.dossier.options)
-            digest = sha256_text(json_text({"perfMode": self.perf.to_json(), "item": u.to_json()}))
+            digest = byte_digest(json_text({"perfMode": self.perf.to_json(), "item": u.to_json()}).encode())
             out.append(SelectItem(u.key, f"{s.file}:{s.line}", found, False, digest, render(u), u))
         return out
 

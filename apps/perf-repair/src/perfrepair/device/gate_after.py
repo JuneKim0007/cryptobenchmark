@@ -8,7 +8,7 @@ from pathlib import Path
 from cryptobench.shared.paths import RunTree
 from .. import run_dir as rd
 from ..dto.used import names_digest
-from ..files import sha256_file
+from cryptobench.shared.digest.tree import file_digest
 from .inbound import write_inbound
 from .primitives import inputs as primitive_inputs
 from .primitives import write_primitives
@@ -28,5 +28,5 @@ def rebuilt(folder: Path, added: frozenset[str], echo: Callable[[str], None]) ->
     if benchmark:
         items = sorted(set(benchmark.get("items") or ()) | added)
         benchmark.update(items=items, used=names_digest(items))
-    rd.write_device_record(folder, replace(record, manifest=sha256_file(RunTree(folder).manifest),
+    rd.write_device_record(folder, replace(record, manifest=file_digest(RunTree(folder).manifest),
                                            primitives=primitive_inputs(folder), benchmark=benchmark))

@@ -1,11 +1,11 @@
 """The screening catalog a step judges by: `device.screening.catalog` from perfrepair.yaml, else the packaged one (logged)."""
 from __future__ import annotations
 
-import hashlib
 from dataclasses import dataclass
 from pathlib import Path
 
 from cryptobench.shared.catalogue.names import Names
+from cryptobench.shared.digest.tree import byte_digest
 from cryptobench.shared.errors.input_error import InputError
 from ..catalog.screening import SCREENING, Screening
 from ..config.load import Loaded
@@ -53,7 +53,7 @@ class Catalog:
 
 def load_catalog(path: Path, names: Names | None = None) -> Catalog:
     path = Path(path)
-    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    digest = byte_digest(path.read_bytes())
     # catalog names without a probe's aliases: the run-level verdicts recorded canonical names already
     names = names or Names.load()
     return Catalog(path, digest, Screening.load(path, names=names), names)

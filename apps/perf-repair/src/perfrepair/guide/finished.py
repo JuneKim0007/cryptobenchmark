@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from cryptobench.shared.digest.tree import tree_digest
+from cryptobench.shared.digest.tree import byte_digest, file_digest, tree_digest
 from cryptobench.shared.paths import GroupingTree, RunTree
 from cryptobench.shared import paths
 from ..ai.select.job import NAME as SELECT
@@ -11,7 +11,6 @@ from ..catalog.upgrades import CATALOG as UPGRADES
 from ..app.find.sources import BUILD_NAMES, CATALOG, walk
 from cryptobench.shared.errors.failures import BenchmarkRunError
 from ..data_handler.outbound.benchmark_runner import identify
-from ..files import sha256_file, sha256_text
 from ..source.language import SOURCE_SUFFIXES
 from cryptobench.shared.errors.input_error import InputError
 from .app_steps import device_config
@@ -50,10 +49,10 @@ def _tree_digest(g: Guide) -> str:
 
 
 def inputs(g: Guide, device: bool) -> dict:
-    return {"tree": _tree_digest(g), "scopes": sha256_file(g.paths.scopes), "units": sha256_file(g.paths.units), **g.code_versions,
-            "groups": sha256_file(GroupingTree(g.device).groups),
-            "rows": sha256_file(RunTree(g.device).rows), "measurements": sha256_file(RunTree(g.device).measurements),
-            "screening": g.catalog.sha256, "select": sha256_text(g.library.system(SELECT).text), "upgrades": sha256_file(UPGRADES), "perfMode": g.mode.name, "device": device,
+    return {"tree": _tree_digest(g), "scopes": file_digest(g.paths.scopes), "units": file_digest(g.paths.units), **g.code_versions,
+            "groups": file_digest(GroupingTree(g.device).groups),
+            "rows": file_digest(RunTree(g.device).rows), "measurements": file_digest(RunTree(g.device).measurements),
+            "screening": g.catalog.sha256, "select": byte_digest(g.library.system(SELECT).text.encode()), "upgrades": file_digest(UPGRADES), "perfMode": g.mode.name, "device": device,
             "maxChange": g.max_change, **_device_config(g, device)}
 
 
@@ -62,5 +61,5 @@ def _device_config(g: Guide, device: bool) -> dict:
     if not device:
         return {}
     config = device_config(g)
-    return {"benchmarkConfig": sha256_file(config) if config else None}
+    return {"benchmarkConfig": file_digest(config) if config else None}
 

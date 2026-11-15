@@ -1,6 +1,7 @@
 """The resolved settings tree: its nodes, the direction rule over them, its printed lines and the document a run record keeps."""
-import hashlib
 from dataclasses import dataclass
+
+from cryptobench.shared.digest.tree import byte_digest
 
 CATALOG = "catalog"
 PACKAGED, OVERRIDDEN = "packaged", "overridden"
@@ -20,7 +21,7 @@ class Node:
 
     @property
     def digest(self):
-        return hashlib.sha256(self.path.read_bytes()).hexdigest() if self.path.is_file() else None
+        return byte_digest(self.path.read_bytes()) if self.path.is_file() else None
 
 
 def _ancestors(node):

@@ -13,7 +13,8 @@ from ...dto.perf_mode import GENERIC_MODE, PerfMode
 from ...dto.primitives import PrimitivesTable
 from ...dto.replacement import Replacement, read_replacements
 from ...dto.unit import UnitDossiers
-from ...files import json_text, sha256_text
+from ...files import json_text
+from cryptobench.shared.digest.tree import byte_digest
 from ...result.gain import IMPROVED, WORSE, by_change
 from ...result.upgrades import edits_of
 from cryptobench.shared.errors.validation import require
@@ -34,8 +35,8 @@ def evidence(u: UnitDossiers, perf: PerfMode, table: PrimitivesTable | None = No
     another digest asks it again."""
     shown = {"lines": [digest_input(d, table) for d in u.dossiers]} if table is not None else {}
     shown |= {"warnings": list(warnings)} if warnings else {}
-    return sha256_text(json_text({"unit": u.entry(), "dossiers": [d.to_json() for d in u.dossiers], "perfMode": perf.to_json(),
-                                  **shown}))
+    return byte_digest(json_text({"unit": u.entry(), "dossiers": [d.to_json() for d in u.dossiers], "perfMode": perf.to_json(),
+                                  **shown}).encode())
 
 
 def label(u: UnitDossiers) -> str:

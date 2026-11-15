@@ -8,7 +8,8 @@ from cryptobench.shared.paths import MEASUREMENTS, PRIMITIVES
 from .. import run_dir as rd
 from cryptobench.shared.catalogue.grouping import read_items
 from ..dto.primitives import SCHEMA_LINE, PrimitivesTable
-from ..files import read_json, sha256_file
+from ..files import read_json
+from cryptobench.shared.digest.tree import file_digest
 from cryptobench.shared.document.write import write_text
 from ..log import step
 from ..result.primitives import NotScreened, build_table, statuses
@@ -20,8 +21,8 @@ from cryptobench.shared.errors.input_error import InputError
 def inputs(device: Path) -> dict[str, str | None]:
     """The digests the table is made from; items.json is bound into screen.json's own `built`."""
     grouping = GroupingTree(device)
-    return {"rows": sha256_file(RunTree(device).rows), "measurements": sha256_file(RunTree(device).measurements),
-            "screen": sha256_file(grouping.screen)}
+    return {"rows": file_digest(RunTree(device).rows), "measurements": file_digest(RunTree(device).measurements),
+            "screen": file_digest(grouping.screen)}
 
 
 def unusable(device: Path) -> str | None:

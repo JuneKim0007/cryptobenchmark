@@ -5,7 +5,8 @@ import re
 from pathlib import Path
 
 from cryptobench.shared.paths import AppTree, RunTree
-from ...files import read_json, sha256_text
+from ...files import read_json
+from cryptobench.shared.digest.tree import byte_digest
 
 _UNSAFE = re.compile(r"[^A-Za-z0-9._-]+")
 
@@ -16,7 +17,7 @@ def absolute(path: Path | str) -> Path:
 
 def path_id(path: Path | str) -> str:
     real = absolute(path)
-    return f"{_UNSAFE.sub('-', real.name).strip('.-_') or 'app'}-{sha256_text(str(real))[:8]}"
+    return f"{_UNSAFE.sub('-', real.name).strip('.-_') or 'app'}-{byte_digest(str(real).encode())[:8]}"
 
 
 def unit_id(pid: str, project_root: str) -> str:

@@ -7,7 +7,7 @@ from contextlib import contextmanager
 from pathlib import Path
 
 from ..dto.event import END, START
-from ..files import sha256_file
+from cryptobench.shared.digest.tree import file_digest
 
 EVENT_ATTR = "perfrepair_event"
 LOGGER = logging.getLogger("perfrepair.event")
@@ -35,7 +35,7 @@ class Step:
         self.counts.update(counts)
 
     def wrote(self, *paths: Path) -> None:
-        self.files.update({str(p): sha256_file(p) for p in paths})
+        self.files.update({str(p): file_digest(p) for p in paths})
 
     def data(self) -> dict:
         return {**({"counts": self.counts} if self.counts else {}), **({"files": self.files} if self.files else {})}

@@ -10,7 +10,8 @@ from ..dto.screen import Verdict, read_screen, read_screen_catalog, read_screen_
 from ..dto.site import DOSSIERS_DOC, EDITS_DOC, SCOPES_DOC, SITES_DOC
 from ..dto.upgrade import Upgrade, read_upgrades
 from ..dto.used import UsedSet
-from ..files import read_json, read_versioned, sha256_file
+from ..files import read_json, read_versioned
+from cryptobench.shared.digest.tree import file_digest
 
 
 def not_device_results(folder: Path) -> str:
@@ -31,7 +32,7 @@ def load_run_log(device: Path) -> RunLog:
 
 def built(paths: GroupingTree) -> dict:
     """The digests screen.json binds its verdicts to: items.json and profiles.json as they are on disk."""
-    return {"items": sha256_file(paths.items), "profiles": sha256_file(paths.profiles)}
+    return {"items": file_digest(paths.items), "profiles": file_digest(paths.profiles)}
 
 
 def _screen(paths: GroupingTree, reader):

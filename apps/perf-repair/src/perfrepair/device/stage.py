@@ -16,7 +16,7 @@ from ..dto.event import END
 from ..dto.metrics import Metric
 from ..dto.perf_mode import GENERIC_MODE, PerfMode
 from ..dto.primitives_missing import NOT_SCREENED
-from ..files import sha256_file
+from cryptobench.shared.digest.tree import file_digest
 from ..log import emit
 from ..result.primitives import NotScreened
 from ..run_dir.lock import DeviceLock
@@ -61,7 +61,7 @@ def _record(folder: Path, identity: dict, current: dict, done: Pass) -> None:
     bundled = {"applied": done.applied, "bundled": manifest.inputs.get("bundled"),
                "config": manifest.inputs.get("config")} if done.applied else {}
     rd.write_device_record(folder, DeviceRecord(identity["deviceId"], identity["mode"], runtime_summary(manifest.runtime),
-                                                current, sha256_file(RunTree(folder).manifest), primitive_inputs(folder), scoped,
+                                                current, file_digest(RunTree(folder).manifest), primitive_inputs(folder), scoped,
                                                 bundled))
 
 
@@ -94,7 +94,7 @@ def probe_device(root: Path, catalog: Catalog, config: Path | None = None, on_de
 
 def _made(r: Run, identity: dict, refresh: bool, detect: Callable[[Path], list[str]] | None) -> DeviceStage:
     folder, echo, on_device = r.folder, r.echo, r.on_device
-    current = {**identity["inputs"], "names": sha256_file(CATALOG), "screening": r.catalog.sha256}
+    current = {**identity["inputs"], "names": file_digest(CATALOG), "screening": r.catalog.sha256}
     before = seen(folder)
     done = scoped_pass(r, before, current, refresh, detect) if detect else whole_pass(r, before, current, refresh)
     drop_record(folder, done.todo)
