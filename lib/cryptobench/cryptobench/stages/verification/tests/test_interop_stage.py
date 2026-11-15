@@ -4,7 +4,7 @@ import pytest
 import yaml
 
 from cryptobench.stages.verification import interop_oracle as interop_stage  # noqa: E402
-from cryptobench.shared.device.adb import DeviceError  # noqa: E402
+from cryptobench.shared.device.adb import Device, DeviceError  # noqa: E402
 
 FILES = "/sdcard/plan"
 
@@ -13,7 +13,7 @@ RESULT = {"schemaVersion": 1, "pairs": [
     {"id": 2, "group": "gcm", "result": "pass", "reason": ""}]}
 
 
-class FakeDevice:
+class FakeDevice(Device):
 
     def __init__(self, output):
         self.output, self.calls, self.files = output, [], FILES

@@ -24,7 +24,7 @@ def on_host(capture, trial, plan, out, stacktrace, stream):
 
 def on_device(device, effective, capture, trial, plan, out):
     device.shell(f"rm -f {device.files}/{paths.INTEROP_RESULT}")
-    device.run("push", str(effective), str(capture), str(trial), str(plan), f"{device.files}/")
+    device.push_files(effective, capture, trial, plan)
     output = device.instrument("InteropCheck")
     if not ONE_PASSED.search(output):
         raise DeviceError("InteropCheck failed on the device:\n" + instrumentation_report(output))
