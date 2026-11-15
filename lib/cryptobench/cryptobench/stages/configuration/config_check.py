@@ -21,7 +21,7 @@ def parse_all(files):
     return parse_yaml("\n".join(output), "CheckConfigKt output", shape=list)
 
 
-# a run reads the answer before the build and again in discover; one Gradle start is enough
+# cached: CheckConfigKt starts Gradle, so a process asks it once
 @functools.cache
 def parsed(global_file):
     return parse_all([pathlib.Path(global_file)])[0]

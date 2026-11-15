@@ -1,6 +1,7 @@
 """Device facts for the settings table: what this device can support, gathered once after install and probe; nothing here decides."""
 import zipfile
 
+from cryptobench.pipeline.warn import warn
 from cryptobench.shared.device import capture as captured, clocks
 from cryptobench.shared.device.adb import PACKAGE
 from cryptobench.shared import paths
@@ -23,7 +24,7 @@ def installed_abi(device):
 def pinning(apk, abi):
     """None when the release APK is absent: unknown, never a false no_pinning."""
     if not apk.is_file():
-        print(f"warning: pinning_unknown: {apk} absent; facts.yaml records pinning null")
+        warn(f"pinning_unknown: {apk} absent; facts.yaml records pinning null")
         return None
     with zipfile.ZipFile(apk) as archive:
         return f"lib/{abi}/{NATIVE_LIBRARY}" in archive.namelist()

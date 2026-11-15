@@ -1,4 +1,4 @@
-# What the implementation guide says for each item of the effective file beside it; written by apps/benchmark-runner/stages/guide.py.
+# What the implementation guide says for each item of the effective file beside it; written by lib/cryptobench/cryptobench/stages/configuration/guide.py.
 schemaVersion: 1
 items:
   SUN:

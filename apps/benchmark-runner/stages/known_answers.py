@@ -1,4 +1,4 @@
-"""The known answers a --check run checks against: the guide's vectors filled per provider, plus global.yaml's own folder."""
+"""The known answers a --check run checks against: the guide's vectors filled per provider, plus the vectors global.yaml's selection.knownVectors names, resolved against global.yaml."""
 import pathlib
 
 from cryptobench.pipeline.warn import warn

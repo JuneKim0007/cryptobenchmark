@@ -2,6 +2,7 @@
 import subprocess, sys, time
 
 from cryptobench.pipeline.took import elapsed
+from cryptobench.pipeline.warn import warn
 from cryptobench.shared import paths
 from cryptobench.shared.device import timeouts
 from cryptobench.shared.errors.line import one_line
@@ -20,7 +21,7 @@ def analyse(results, files, effective, preparation, benchmark, written, repetiti
               or drawing_failed("analysis/run_counts.py", analysis, *map(str, written if repetitions > 1 else [data]))
               or drawing_failed("analysis/charts.py", data, prepared, str(effective), str(results)))
     if failed:
-        print(f"warning: charts_failed: {failed}")
+        warn(f"charts_failed: {failed}")
     elapsed("analyse", started)
 
 

@@ -1,6 +1,7 @@
 """The capture, trial and requirements a discovery wrote, known by path and paired by stamp; never the newest in a kept folder."""
 import re
 
+from cryptobench.pipeline.warn import warn
 from cryptobench.shared import paths
 from cryptobench.shared.errors.failures import CommandError
 
@@ -47,4 +48,4 @@ def printed(lines, directory):
 def reprobed(before, capture):
     """--discovery reuse probes again when no kept capture fits this JVM; ProbeKt prints the new capture without saying so."""
     if capture.name not in before:
-        print(f"warning: discovery_reprobed: no capture in {capture.parent} fits this JVM's runtime; --discovery reuse probed again")
+        warn(f"discovery_reprobed: no capture in {capture.parent} fits this JVM's runtime; --discovery reuse probed again")
