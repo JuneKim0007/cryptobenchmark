@@ -6,7 +6,7 @@ import re
 from typing import Callable
 
 from cryptobench.shared.paths import BUG_LOG
-from cryptobench.shared.errors.coded import CODE
+from cryptobench.shared.errors.coded import code_in
 from ..dto.event import BUG, END, ERROR, FINDING, RUN_END, RUN_START, Event
 
 DEVICE_OUTCOMES = ("ran", "reused", "failed")
@@ -21,8 +21,7 @@ def first_line(text: str) -> str:
 
 def code_in_line(text: str, fallback: str) -> str:
     """The code word a detail starts with (`no_options: ...`, `missing_device_stage ...`), else fallback."""
-    found = CODE.match(first_line(text))
-    return (found.group(1) or found.group(2)) if found else fallback
+    return code_in(first_line(text)) or fallback
 
 
 def after_code(text: str, code: str) -> str:
