@@ -48,7 +48,7 @@ for _module in BASE:
 
 
 def _loaded():
-    return pathlib.Path(importlib.util.find_spec("cryptobench").origin).resolve().parent
+    return pathlib.Path(next(iter(importlib.util.find_spec("cryptobench").submodule_search_locations))).resolve()
 
 
 def _outside_checkout(library):
@@ -64,7 +64,9 @@ except ModuleNotFoundError as error:
     if not (error.name or "").startswith("cryptobench."):
         raise
     fail(_outside_checkout("library (lib/cryptobench)"))
-if not _loaded().is_relative_to(_library := paths.repo().library.resolve()):
+# this checkout is the one this file sits in; samefile, since macOS paths ignore case
+_library = paths.repo(pathlib.Path(__file__).resolve().parents[2]).library.resolve()
+if not any(folder.samefile(_library) for folder in _loaded().parents if _library.exists()):
     fail(_outside_checkout(_library))
 
 from cryptobench.shared.errors.failures import CommandError  # noqa: E402

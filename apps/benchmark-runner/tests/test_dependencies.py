@@ -165,9 +165,9 @@ def test_the_command_without_pyyaml_prints_exactly_its_line():
     assert (done.returncode, done.stdout, done.stderr) == (1, "", "error: missing_dependency: yaml; pip install -r requirements.txt\n")
 
 
-def command(script, *flags, library):
+def command(script, *flags, library, root=ROOT):
     env = {k: v for k, v in os.environ.items() if k not in ("CRYPTOBENCH_CODE_ROOT", "CRYPTOBENCH_SUPPRESS_ERRORS")}
-    return subprocess.run([sys.executable, str(ROOT / "apps/benchmark-runner" / script), *flags], capture_output=True, text=True,
+    return subprocess.run([sys.executable, str(root / "apps/benchmark-runner" / script), *flags], capture_output=True, text=True,
                           timeout=60, env={**env, "PYTHONPATH": str(library)}, check=False)
 
 
@@ -187,5 +187,23 @@ def test_cryptobench_from_another_place_is_refused_and_this_checkouts_runs_as_be
     assert (done.returncode, done.stdout, done.stderr) == (1, "", refused.format((elsewhere / "cryptobench").resolve(), library.resolve()))
     done = command(script, *flags, library=older)
     assert (done.returncode, done.stdout, done.stderr) == (1, "", refused.format((older / "cryptobench").resolve(), "library (lib/cryptobench)"))
+    done = command(script, *flags, library=ROOT / "lib")
+    assert (done.returncode, done.stdout, done.stderr) == (1, "", refused.format((ROOT / "lib/cryptobench").resolve(), "library (lib/cryptobench)"))
     done = command(script, *flags, library=library)
     assert (done.returncode, done.stdout, done.stderr) == unchanged
+    variant = pathlib.Path(str(ROOT).swapcase())
+    if variant.exists():
+        for done in command(script, *flags, library=library, root=variant), command(script, *flags, library=variant / "lib/cryptobench"):
+            assert (done.returncode, done.stdout, done.stderr) == unchanged
+
+
+def test_a_launcher_inside_another_checkout_checks_the_checkout_dependencies_py_sits_in(tmp_path):
+    (tmp_path / "algorithms").mkdir()
+    (tmp_path / "apps/benchmark-runner").mkdir(parents=True)
+    (tmp_path / "apps/benchmark-runner/pipeline.py").write_text("")
+    launcher = tmp_path / "launch.py"
+    launcher.write_text(f"import sys\nsys.path.insert(0, {str(ROOT / 'apps/benchmark-runner')!r})\nimport dependencies\n")
+    env = {k: v for k, v in os.environ.items() if k not in ("CRYPTOBENCH_CODE_ROOT", "CRYPTOBENCH_SUPPRESS_ERRORS")}
+    done = subprocess.run([sys.executable, str(launcher)], capture_output=True, text=True, timeout=60,
+                          env={**env, "PYTHONPATH": str(ROOT / "lib/cryptobench")}, check=False)
+    assert (done.returncode, done.stdout, done.stderr) == (0, "", "")
