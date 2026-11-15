@@ -10,7 +10,7 @@ from ..dto.device import DeviceRecord
 from cryptobench.shared.catalogue.grouping import Item
 from ..dto.screen import Verdict
 from ..dto.used import names_digest
-from ..files import read_yaml
+from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.document.write import write_text
 from .selection_adds import write_test_set
 from cryptobench.shared.document.dump import dump_yaml, FLOW_LEAVES

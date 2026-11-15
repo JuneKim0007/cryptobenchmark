@@ -8,9 +8,9 @@ from pathlib import Path
 
 from cryptobench.shared.paths import BENCHMARK, BENCHMARK_JSON, PROCESS_FORM, RunTree
 from ..dto.dossier import SETUP_DRIFT
-from ..files import json_text, read_json, read_yaml, write_text_making_parents
+from ..files import json_text, read_json, write_text_making_parents
 from cryptobench.shared.errors.input_error import InputError
-from cryptobench.shared.document.document import parse_yaml
+from cryptobench.shared.document.document import parse_yaml, read_yaml
 from cryptobench.shared.document.dump import dump_yaml
 
 PLANNED = ("prepared", "skipped")

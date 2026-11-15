@@ -4,7 +4,7 @@ from pathlib import Path
 
 from cryptobench.shared.paths import GroupingTree
 from ..dto.interop import PairResult, not_checkable_results
-from ..files import read_yaml
+from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.document.write import write_text
 from cryptobench.shared.errors.validation import require
 from ..validation.grouping.interop import validate_results

@@ -6,7 +6,7 @@ from cryptobench.shared.paths import RunTree
 from ... import run_dir as rd
 from ...dto import BenchmarkManifest
 from cryptobench.shared.stats.units import DisplayUnits
-from ...files import read_yaml
+from cryptobench.shared.document.document import read_yaml
 
 
 def read_manifest(path: Path) -> tuple[BenchmarkManifest, Path]:

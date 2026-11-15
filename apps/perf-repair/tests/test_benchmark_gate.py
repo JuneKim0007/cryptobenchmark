@@ -27,7 +27,8 @@ from perfrepair.dto.benchmark_coverage import (
 )
 from perfrepair.dto.perf_mode import GENERIC_MODE
 from perfrepair.dto.used import UsedItem, UsedSet
-from perfrepair.files import read_json, read_yaml
+from perfrepair.files import read_json
+from cryptobench.shared.document.document import read_yaml
 from perfrepair.grouping.build.stage import build_stage
 from perfrepair.result.configurations import Config, cross_session
 from perfrepair.screen.catalog import screening_catalog

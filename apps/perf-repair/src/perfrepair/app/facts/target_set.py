@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from cryptobench.shared import paths
-from ...files import read_yaml
+from cryptobench.shared.document.document import read_yaml
 from ...inputs.check import (
     TARGETS_EXPECTED,
     target_ok,

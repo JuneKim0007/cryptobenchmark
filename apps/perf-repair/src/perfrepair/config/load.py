@@ -8,7 +8,7 @@ from typing import Any, Callable, Mapping
 
 from cryptobench.shared import paths
 from cryptobench.shared.errors.input_error import InputError
-from ..files import read_yaml
+from cryptobench.shared.document.document import read_yaml
 from ..inputs.resolve import CLI, Candidate, choose
 from ..inputs.table import ROLE_KEYS, Layer, RoleRow, Row
 from .settings import ConfigError, Settings, parse

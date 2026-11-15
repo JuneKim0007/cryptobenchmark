@@ -11,7 +11,7 @@ from .. import run_dir as rd
 from ..data_handler.inbound import manifest_file, read_manifest
 from ..data_handler.outbound.benchmark_runner import require_connected, run_pipeline
 from ..dto.interop import SCHEMA_VERSION, PairResult, PlannedPair, member_name, plan_document
-from ..files import read_yaml
+from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.document.write import write_text
 from ..grouping.interop_plan import plan_for, write_plan
 from ..grouping.interop_read import imported, write_results

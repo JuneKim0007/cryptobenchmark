@@ -9,7 +9,7 @@ from cryptobench.shared.paths import RunTree
 from ..dto.event import LOG
 from ..dto.metrics import ENERGY, METRICS, Metric
 from ..dto.perf_mode import PerfMode
-from ..files import read_yaml
+from cryptobench.shared.document.document import read_yaml
 from ..log import emit
 from ..stop import terminate
 from .selection import generated, relocated

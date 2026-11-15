@@ -5,9 +5,8 @@ from dataclasses import dataclass
 from functools import cache
 
 from cryptobench.shared import paths
-from cryptobench.shared.document.document import DocumentKind
+from cryptobench.shared.document.document import DocumentKind, read_yaml
 from ...dto.site import Scope
-from ...files import read_yaml
 
 RELATIONS = paths.SCOPE_RELATIONS.path
 SUPPORTED_SCHEMA = 1

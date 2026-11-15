@@ -25,7 +25,8 @@ from ..dto.benchmark_coverage import (
     Gap,
 )
 from ..dto.dossier import SETUP_DRIFT
-from ..files import read_json, read_yaml, write_text_making_parents
+from ..files import read_json, write_text_making_parents
+from cryptobench.shared.document.document import read_yaml
 from ..result.estimate import MIN_RUNS, compare
 from ..result.gain import UNCHANGED, change_of
 from .delta_config import DELTA, narrowed, write_delta_config, write_rerun_config

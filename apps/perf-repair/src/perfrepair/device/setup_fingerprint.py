@@ -7,7 +7,7 @@ from pathlib import Path
 from cryptobench.shared.paths import RunTree
 from ..data_handler.inbound import read_manifest
 from ..data_handler.inbound.manifest import manifest_file
-from ..files import read_yaml
+from cryptobench.shared.document.document import read_yaml
 
 # device id carries the build fingerprint; the runtime fields that change what one call costs
 RUNTIME = ("fingerprint", "compilationMode", "sdkInt", "javaRuntimeVersion")

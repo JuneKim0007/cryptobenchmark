@@ -8,7 +8,7 @@ from functools import lru_cache
 
 from cryptobench.shared import paths
 from ..dto.site import Scope
-from ..files import read_yaml
+from cryptobench.shared.document.document import read_yaml
 from ..source.brackets import CLOSE, OPEN, matching
 from ..source.code import Code
 from .dependencies import load

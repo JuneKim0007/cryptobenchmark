@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from ...files import read_yaml
+from cryptobench.shared.document.document import read_yaml
 
 import re
 from collections import defaultdict

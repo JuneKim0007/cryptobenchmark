@@ -26,7 +26,7 @@ from cryptobench.shared.catalogue.grouping import parse_qualified, qualified
 from ..dto.metrics import METRICS
 from ..dto.perf_mode import PerfMode
 from ..dto.used import UsedItem, UsedSet
-from ..files import read_yaml
+from cryptobench.shared.document.document import read_yaml
 from ..result.estimate import MIN_RUNS
 
 NO_HARNESS_OPERATION = "no_harness_operation: the harness times no operation of this engine type"

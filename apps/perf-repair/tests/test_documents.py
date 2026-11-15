@@ -56,7 +56,7 @@ def test_read_versioned_loads_then_checks(tmp_path):
 
 
 def test_read_yaml_refuses_bad_yaml_and_a_non_mapping_with_invalid_yaml_at_its_line_and_column(tmp_path):
-    from perfrepair.files import read_yaml
+    from cryptobench.shared.document.document import read_yaml
     bad = tmp_path / "bad.yaml"
     bad.write_text("a: 1\nb: [\n")
     with pytest.raises(InputError, match=rf"^invalid_yaml: {bad}: .* at line 3 column 1$") as e:

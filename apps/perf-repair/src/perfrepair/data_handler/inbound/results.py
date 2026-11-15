@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from ...files import read_json, read_yaml
+from ...files import read_json
+from cryptobench.shared.document.document import read_yaml
 
 import math
 from dataclasses import replace

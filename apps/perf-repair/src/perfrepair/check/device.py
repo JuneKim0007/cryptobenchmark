@@ -12,7 +12,8 @@ from ..data_handler.inbound.manifest import read_manifest
 from ..data_handler.inbound.primitives import read_primitives
 from ..device.primitives import status_of
 from cryptobench.shared.catalogue.grouping import read_items
-from ..files import read_json, read_yaml
+from ..files import read_json
+from cryptobench.shared.document.document import read_yaml
 from ..validation.benchmark_coverage import validate_coverage
 from ..validation.bundled import validate_suggestions
 from ..validation.events import validate_events

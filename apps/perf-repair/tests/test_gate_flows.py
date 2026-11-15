@@ -6,7 +6,8 @@ import pytest
 import yaml
 from cryptobench.shared.paths import RunTree
 from perfrepair import run_dir as rd
-from perfrepair.files import read_json, read_yaml
+from perfrepair.files import read_json
+from cryptobench.shared.document.document import read_yaml
 from perfrepair.guide.command import main as guide
 from test_device_flows import CALLS, GCM_FAST, HMAC, SHA, F, Flow, target
 

@@ -8,10 +8,9 @@ from functools import cache
 from pathlib import Path
 
 from cryptobench.shared import paths
-from cryptobench.shared.document.document import AT_PATH, DocumentKind
+from cryptobench.shared.document.document import AT_PATH, DocumentKind, read_yaml
 from ..dto.lifecycle import Lifecycle
 from ..dto.site import KEY_SOURCES, SINKS
-from ..files import read_yaml
 from ..source.code import Code
 from .extract import Function
 

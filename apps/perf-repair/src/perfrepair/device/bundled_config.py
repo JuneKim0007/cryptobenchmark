@@ -7,7 +7,7 @@ from pathlib import Path
 
 from cryptobench.shared.paths import RunTree
 from ..dto.bundled import applied_entries
-from ..files import read_yaml
+from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.errors.input_error import InputError
 from .selection import generated, relocated
 

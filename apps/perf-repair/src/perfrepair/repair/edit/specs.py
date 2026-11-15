@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from cryptobench.shared import paths
-from ...files import read_yaml
+from cryptobench.shared.document.document import read_yaml
 from ...source.language import Language
 from .literal import string_literal
 from .reject import Rejected

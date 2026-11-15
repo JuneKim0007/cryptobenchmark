@@ -4,7 +4,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from ...files import read_json, read_yaml
+from ...files import read_json
+from cryptobench.shared.document.document import read_yaml
 
 ENERGY_KEY = "energy"
 

@@ -6,7 +6,8 @@ from cryptobench.shared.paths import AppTree
 from ..dto.report import BROKEN_USES, SCHEMA_VERSION, stayed, unit_counts
 from ..dto.unit import read_units, units_by_scope
 from ..dto.upgrade import STATUSES as UPGRADE_STATUSES, UPGRADED
-from ..files import read_json, read_yaml
+from ..files import read_json
+from cryptobench.shared.document.document import read_yaml
 from ..result.modes import Mode
 from ..app.facts.project import project_name
 from ..run_dir import load_upgrades, read_scopes, read_sites

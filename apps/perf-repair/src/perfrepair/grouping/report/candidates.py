@@ -8,7 +8,7 @@ from cryptobench.shared.catalogue.groups import group_catalog, row_contracts
 from ...dto.decision import OutboxRecord
 from ...dto.grouping_output import Finding
 from ...dto.grouping_state import Answer, Knowledge
-from ...files import read_yaml
+from cryptobench.shared.document.document import read_yaml
 from ...log import run_id
 
 SOURCE = "model answers of grouping assign, unreviewed; a person adds a name to a group of algorithms/groups.yaml"

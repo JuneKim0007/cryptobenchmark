@@ -6,7 +6,7 @@ from functools import cache
 
 from cryptobench.shared import paths
 from ..dto.perf_mode import PerfMode
-from ..files import read_yaml
+from cryptobench.shared.document.document import read_yaml
 
 CRITERIA = paths.RESULT_CRITERIA.path
 

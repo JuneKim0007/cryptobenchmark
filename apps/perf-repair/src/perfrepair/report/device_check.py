@@ -4,7 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from cryptobench.shared.paths import AppTree
-from ..files import read_yaml
+from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.errors.input_error import InputError
 
 

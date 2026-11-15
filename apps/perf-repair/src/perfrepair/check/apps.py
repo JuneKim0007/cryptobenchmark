@@ -13,7 +13,8 @@ from ..ai.select.upgrades import UpgradeSource
 from ..dto.screen import Verdict
 from ..dto.site import Scope
 from ..dto.unit import read_units
-from ..files import read_json, read_yaml
+from ..files import read_json
+from cryptobench.shared.document.document import read_yaml
 from ..screen.catalog import Catalog
 from ..validation.dossiers.against_run import validate_dossiers
 from ..validation.dossiers.units import validate_dossier_units

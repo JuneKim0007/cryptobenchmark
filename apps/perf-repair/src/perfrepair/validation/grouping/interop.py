@@ -4,7 +4,7 @@ from pathlib import Path
 
 from cryptobench.shared.catalogue.grouping import KEY_APP_HELD, KEY_PROVIDER_HELD
 from ...dto.interop import RESULTS, SCHEMA_VERSION, PairResult, PlannedPair, interop_section, not_checkable_results
-from ...files import read_yaml
+from cryptobench.shared.document.document import read_yaml
 
 
 def _members(groups: dict) -> dict[str, set[str]]:

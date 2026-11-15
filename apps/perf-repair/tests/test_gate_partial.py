@@ -14,7 +14,8 @@ from perfrepair.device.measured_check import measured_check
 from perfrepair.device.setup_fingerprint import differing, without_narrowed
 from perfrepair.dto.benchmark_coverage import LOW_QUALITY, MEASURED, PARTIAL, Gap
 from perfrepair.dto.perf_mode import GENERIC_MODE
-from perfrepair.files import read_json, read_yaml
+from perfrepair.files import read_json
+from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.errors.input_error import InputError
 from test_benchmark_gate import (  # noqa: F401
     GCM,

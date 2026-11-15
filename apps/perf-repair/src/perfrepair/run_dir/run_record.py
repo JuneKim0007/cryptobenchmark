@@ -9,7 +9,8 @@ from pathlib import Path
 from cryptobench.shared.paths import DEVICE, AppTree, RunTree
 from cryptobench.shared.errors.input_error import InputError
 from ..dto.device import DeviceRecord
-from ..files import read_json, read_yaml, write_json
+from ..files import read_json, write_json
+from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.digest.tree import file_digest
 from cryptobench.shared.document.write import write_text
 from .lock import DeviceLock

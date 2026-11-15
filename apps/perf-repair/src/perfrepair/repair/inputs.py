@@ -6,7 +6,7 @@ from pathlib import Path
 from ..data_handler.inbound.manifest import manifest_file, read_manifest
 from cryptobench.shared.catalogue.grouping import parse_qualified
 from ..dto.site import Scope
-from ..files import read_yaml
+from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.errors.input_error import InputError
 
 
