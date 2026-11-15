@@ -3,6 +3,7 @@ from __future__ import annotations
 from ....dto.prompt import CorrectionPrompt, Lifetime, SystemPrompt, TaskPrompt
 from ..agent.conversation import LifetimeGuarded
 from cryptobench.shared.errors.failures import AgentFailed
+from cryptobench.shared.errors.line import one_line
 from ..agent.reply import AgentRefused, AgentReply
 
 DEFAULT_MODEL = "claude-opus-5-5"
@@ -58,7 +59,7 @@ class ClaudeClient:
                 **({"tools": [WEB_SEARCH]} if self.web_search else {}),
             )
         except self.api_error as e:
-            raise AgentFailed("claude_api_failed", " ".join(str(e).split())[:300]) from None
+            raise AgentFailed("claude_api_failed", one_line(e, 300)) from None
         if response.stop_reason == "refusal":
             raise AgentRefused(getattr(response.stop_details, "explanation", None) or "refused")
         text = next((b.text for b in response.content if b.type == "text"), "")

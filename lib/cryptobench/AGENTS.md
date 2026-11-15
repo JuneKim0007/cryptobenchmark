@@ -56,7 +56,7 @@ cryptobench/shared/errors/codes.yaml : the glossary: every code once with its ki
 cryptobench/shared/errors/glossary.py : codes.yaml read through importlib.resources; Code: one code's default action, the actions stops.<code> may choose (none: fixed, and why), exit and next step; the action stop
 cryptobench/shared/errors/halt.py : Halt, the exception terminate raises after its event
 cryptobench/shared/errors/input_error.py : InputError, the one coded error a refused input raises (`.code`, `.path`, `.detail`)
-cryptobench/shared/errors/line.py : one_line, a failure as one line of at most 500 characters
+cryptobench/shared/errors/line.py : one_line, a failure as one line of at most limit characters (500 unless given)
 cryptobench/shared/errors/policy.py : the stops reader the settings layer installs; a code's action, its default without one; resolve, an alias setting's value to its code's action
 cryptobench/shared/errors/validation.py : ValidationFailed, code artifact_invalid, and require: the stage gate
 cryptobench/shared/paths/__init__.py : one interface to every path the Python modules use: `from cryptobench.shared import paths`

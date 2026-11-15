@@ -7,6 +7,7 @@ from session import case_isolation
 from session import dynamic_temperature, passes
 from device import thermal
 from cryptobench.shared.device.adb import PASSED, DeviceError
+from cryptobench.shared.errors.line import one_line
 
 DEFAULT_CASES = 3
 WARMUP_PASS = "warmup"   # PassArguments: any pass but energy and allocation captures no energy
@@ -57,7 +58,7 @@ def run(device, test_class, arguments, planned, cases, document, gate=dynamic_te
     device.clear_outputs()
     after = thermal.read(device)
     if failed:
-        print("warning: WARM-UP FAILED, measuring anyway: " + " ".join(failed.split())[:300])
+        print("warning: WARM-UP FAILED, measuring anyway: " + one_line(failed, 300))
         return []
     heat = (f"hottest {before.hottest:.1f} C before, {after.hottest:.1f} C after" if before.hottest is not None and after.hottest is not None
             else "temperature unavailable")

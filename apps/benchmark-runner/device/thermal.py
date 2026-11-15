@@ -3,6 +3,7 @@ import dataclasses, re
 
 from cryptobench.shared.device import timeouts
 from cryptobench.shared.device.adb import DeviceError
+from cryptobench.shared.errors.line import one_line
 
 TEMPERATURE = re.compile(r"Temperature\{mValue=([^,]+), mType=(-?\d+), mName=([^,}]+), mStatus=-?\d+\}")
 SKIN_TYPE = 3   # android.hardware.thermal TemperatureType.SKIN
@@ -81,7 +82,7 @@ def read(device):
     try:
         return parse(device.shell("dumpsys thermalservice"))
     except (DeviceError, timeouts.StepTimeout) as error:
-        return Reading(None, None, None, "thermal_unavailable: " + " ".join(str(error).split())[:200])
+        return Reading(None, None, None, "thermal_unavailable: " + one_line(error, 200))
 
 
 def poll(device):
@@ -89,7 +90,7 @@ def poll(device):
     try:
         return parse(device.shell(SKIN_LINES))
     except (DeviceError, timeouts.StepTimeout) as error:
-        return Reading(None, None, None, "thermal_unavailable: " + " ".join(str(error).split())[:200])
+        return Reading(None, None, None, "thermal_unavailable: " + one_line(error, 200))
 
 
 def judged(text):
