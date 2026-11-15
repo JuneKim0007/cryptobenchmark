@@ -3,7 +3,7 @@ import pathlib
 from dataclasses import dataclass
 
 from cryptobench.shared.errors.input_error import InputError
-from cryptobench.shared.document.document import parse_yaml
+from cryptobench.shared.document.document import DocumentKind, parse_yaml
 from cryptobench.shared import paths
 from perfrepair.inputs.check import RUN_ID_FORM
 from perfrepair.run_dir.run_record import ON_EXISTING, OVERWRITE
@@ -15,6 +15,9 @@ SECTIONS = {"schemaVersion": None, "results": None, "run": ("id", "onExisting"),
 
 class SettingsIndexError(InputError):
     """One coded line about the index itself: nothing below it can be read."""
+
+
+INDEX = DocumentKind("settings index", SCHEMA_VERSION, "wrong_version: {path} schemaVersion {found} is not {version}", SettingsIndexError)
 
 
 @dataclass(frozen=True)
@@ -69,8 +72,7 @@ def read_index(file):
     file = pathlib.Path(file).expanduser().resolve()
     document = _document(file)
     _check_keys(document, file)
-    if document.get("schemaVersion") != SCHEMA_VERSION:
-        raise SettingsIndexError(f"wrong_version: {file} schemaVersion {document.get('schemaVersion')} is not {SCHEMA_VERSION}")
+    INDEX.check(document, file)
     crypto, llm = document.get("crypto") or {}, document.get("llm") or {}
     harness = crypto.get("harnessConfig")
     return Index(file, _path(document.get("results"), "results", file), _path(crypto.get("config"), "crypto.config", file),
