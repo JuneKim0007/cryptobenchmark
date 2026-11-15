@@ -7,7 +7,7 @@ import types
 import pytest
 import yaml
 
-from device import facts
+from cryptobench.stages.discovery import facts
 from cryptobench.stages.configuration import guide
 from stages import known_answers
 from cryptobench.shared.catalogue import guide_items, vectors

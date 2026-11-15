@@ -74,7 +74,7 @@ Only `cpu` declares `requires` and `resolve`. How config applies the result: `ap
 
 ## facts.yaml
 
-Written by `apps/benchmark-runner/device/facts.py` into the discovery directory.
+Written by `lib/cryptobench/cryptobench/stages/discovery/facts.py` into the discovery directory.
 
 | field | value |
 |---|---|

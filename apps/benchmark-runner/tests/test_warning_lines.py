@@ -2,9 +2,9 @@
 import pytest
 import yaml
 
-from device import facts
+from cryptobench.stages.discovery import capture_files, facts
 from cryptobench.shared.results import layout
-from stages import benchmark, capture_files, check
+from stages import benchmark, check
 from stages.measuring import record
 from fake_phone import Phone
 from test_check_stage import RESULT

@@ -8,7 +8,8 @@ from cryptobench.shared.results.manifest import manifest
 from stages import known_answers as answers
 from cryptobench.shared import paths
 from cryptobench.shared.catalogue import vectors
-from stages.discover import device_discover
+from cryptobench.stages.configuration import guide
+from cryptobench.stages.discovery.discover import discover_published
 from cryptobench.pipeline.took import elapsed
 from cryptobench.shared.settings import bundled
 from cryptobench.shared.document.document import read_yaml
@@ -17,10 +18,11 @@ from cryptobench.shared.document.document import read_yaml
 DRY_RUN = ["-e", "androidx.benchmark.dryRunMode.enable", "true"]
 
 
-def check_run(options, configuration, device, root):
+def check_run(options, configuration, device, root, shipped):
     if not (options.bench or device) or options.harness or options.interop:
         raise CommandError("--check: the cases are checked on a --bench (host JVM) or a --device run, without --harness or --interop")
-    results, (_, effective, capture, trial, files) = device_discover(options, configuration, device, root)
+    results, (_, effective, capture, trial, files) = discover_published(options, configuration, device, root, shipped)
+    files["guide"] = guide.write(effective, capture)
     into = paths.RunTree(results).check.root
     shutil.rmtree(into, ignore_errors=True)
     into.mkdir(parents=True)

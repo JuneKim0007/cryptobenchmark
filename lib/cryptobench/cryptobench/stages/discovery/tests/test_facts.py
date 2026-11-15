@@ -1,5 +1,5 @@
 import zipfile
-from device import facts
+from cryptobench.stages.discovery import facts
 
 
 class FakeDevice:

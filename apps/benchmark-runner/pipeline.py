@@ -15,10 +15,10 @@ from cryptobench.shared.results import layout as results_layout
 from cryptobench.shared.results import run_inputs
 from cryptobench.shared.results.manifest import manifest
 from scope import code_digest
-from cryptobench.stages.configuration import config_check
+from cryptobench.stages.configuration import config_check, guide
 from stages.benchmark import measure_cases
 from stages.check import check_run
-from stages.discover import device_discover, host_runtime
+from cryptobench.stages.discovery.discover import discover_published, host_runtime
 from stages.harness import harness_run, checked_folder
 from stages.interop import interop_run
 
@@ -92,20 +92,21 @@ def identified(context):
 
 
 def harnessed(context):
-    return harness_run(context.options, context.configuration, context.device, checked_folder(context.options))
+    return harness_run(context.options, context.configuration, context.device, checked_folder(context.options), context.checked["bundled"])
 
 
 def interoperated(context):
-    return interop_run(context.options, context.configuration, context.device, published(context))
+    return interop_run(context.options, context.configuration, context.device, published(context), context.checked["bundled"])
 
 
 def checked(context):
-    return check_run(context.options, context.configuration, context.device, published(context))
+    return check_run(context.options, context.configuration, context.device, published(context), context.checked["bundled"])
 
 
 def measured(context):
     options, configuration, device = context.options, context.configuration, context.device
-    results, (discovery, effective, capture, trial, files) = device_discover(options, configuration, device, published(context))
+    results, (discovery, effective, capture, trial, files) = discover_published(options, configuration, device, published(context), context.checked["bundled"])
+    files["guide"] = guide.write(effective, capture)
     if not options.probe and (options.bench or device):
         measure_cases(options, device, results, discovery, effective, capture, trial, files, context.problems)
     manifest(results, "device" if device else "host", configuration, files, context.problems)
@@ -121,14 +122,13 @@ def main():
     sys.stdout.reconfigure(line_buffering=True)
     configuration = global_config(options.config)
     # before any build; --identify runs no stage and starts no Gradle
-    if not options.identify:
-        config_check.parsed(configuration)
+    checked = None if options.identify else config_check.parsed(configuration)
     dependencies.check(options, configuration)
     device = Device(paths.repo().gradle_root, options.stream, options.stacktrace) if options.device else None
     if device:
         device.connect()
     stage = next(stage for option, stage in ROUTES if option is None or getattr(options, option))
-    return stage(StageContext(options, configuration, device))
+    return stage(StageContext(options, configuration, device, checked))
 
 
 def failure_line(error):

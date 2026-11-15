@@ -6,12 +6,12 @@ from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared.results import layout as results_layout
 from cryptobench.shared.results.manifest import add_to_manifest, manifest
 from stages import interop_oracle
-from stages.discover import discover_staged, located
+from cryptobench.stages.discovery.discover import discover_staged, located
 from cryptobench.pipeline.took import elapsed
 from cryptobench.shared import paths
 
 
-def interop_run(options, configuration, device, root):
+def interop_run(options, configuration, device, root, shipped):
     plan = pathlib.Path(options.interop)
     if not (options.bench or device) or options.harness:
         raise CommandError("--interop: the pairs are checked on a --bench (host JVM) or a --device run, without --harness")
@@ -19,7 +19,7 @@ def interop_run(options, configuration, device, root):
         raise CommandError(f"missing_file: {plan} (--interop)")
     mode = "device" if device else "host"
     with results_layout.staged(root) as stage:
-        _, effective, capture, trial, _ = discover_staged(options, configuration, device, root, stage)
+        _, effective, capture, trial, _ = discover_staged(options, configuration, device, root, stage, shipped)
         staged_plan = interop_oracle.stage_plan(plan, paths.RunTree(stage).interop.root)
         out = paths.InteropFolder(staged_plan.parent).result
         started = time.monotonic()

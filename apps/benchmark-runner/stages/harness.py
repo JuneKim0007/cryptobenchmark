@@ -11,7 +11,7 @@ from cryptobench.shared.results.manifest import manifest
 from scope import generate as scope_generate
 from scope import results as scope_results
 from scope.harness import HarnessError
-from stages.discover import discover
+from cryptobench.stages.discovery.discover import discover_in_place
 from cryptobench.shared.device.push import push
 from cryptobench.pipeline.took import elapsed
 from cryptobench.shared.document.document import read_yaml
@@ -38,9 +38,9 @@ def require_harness_device(harness, capture):
             raise CommandError(f"harness_other_device: {harness} was built for {wanted}, the attached device is {attached}")
 
 
-def check_scopes(options, configuration, device, results, scoped, plan):
+def check_scopes(options, configuration, device, results, scoped, plan, shipped):
     """The interop check in one process; the files for the manifest."""
-    _discovery, effective, capture, trial, files = discover(options, configuration, device, results)
+    _discovery, effective, capture, trial, files = discover_in_place(options, configuration, device, results, shipped)
     require_harness_device(pathlib.Path(options.harness).resolve(), capture)
     push(device, options, [effective, capture, trial])
     started = time.monotonic()
@@ -63,7 +63,7 @@ def keep_failed_plan(scoped):
         print(f"kept:      {kept}")
 
 
-def harness_run(options, configuration, device, results):
+def harness_run(options, configuration, device, results, shipped):
     paths.RunTree(results).scoped_plan_failed.unlink(missing_ok=True)
     try:
         with results_layout.kept_until_replaced(paths.RunTree(results).scoped.root) as scoped:
@@ -71,7 +71,7 @@ def harness_run(options, configuration, device, results):
                 # reported here: a CommandError's error line comes before the kept plan's line
                 with reported():
                     plan = generate_scopes(options, scoped)
-                    files = check_scopes(options, configuration, device, results, scoped, plan)
+                    files = check_scopes(options, configuration, device, results, scoped, plan, shipped)
             except (HarnessError, scope_generate.GenerateError, scope_results.ScopeResultError) as error:
                 keep_failed_plan(scoped)
                 raise CommandError(str(error)) from None

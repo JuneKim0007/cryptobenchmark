@@ -18,6 +18,7 @@ from rails import trace
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 RUNNER = ROOT / "apps/benchmark-runner"
 DEVICE = ROOT / "lib/cryptobench/cryptobench/shared/device"
+STAGES = ROOT / "lib/cryptobench/cryptobench/stages"
 KM = ROOT / "apps/benchmark/modules"
 AT = KM / "android/src/androidTest/kotlin/io/github/junekim0007/cryptobench"
 CLI = ROOT / "apps/benchmark/cli/src/main/kotlin"
@@ -44,9 +45,9 @@ def listed(text):
 
 
 def runner_strings():
-    """Every string constant in the runner's production Python, the device steps it runs from the library included."""
+    """Every string constant in the runner's production Python, the device steps and stages it runs from the library included."""
     found = set()
-    for root in (RUNNER, DEVICE):
+    for root in (RUNNER, DEVICE, STAGES):
         for path in root.rglob("*.py"):
             if {"tests", "__pycache__"}.isdisjoint(path.relative_to(root).parts):
                 found |= {n.value for n in ast.walk(ast.parse(path.read_text())) if isinstance(n, ast.Constant) and isinstance(n.value, str)}
@@ -119,13 +120,14 @@ def test_instrumentation_classes_the_runner_names_exist_with_tests():
 
 def test_host_main_classes_the_runner_names_exist():
     called = set()
-    for path in RUNNER.rglob("*.py"):
-        if "tests" not in path.relative_to(RUNNER).parts:
-            called |= set(re.findall(r'main_class="(\w+)Kt"', path.read_text()))
+    for root in (RUNNER, STAGES):
+        for path in root.rglob("*.py"):
+            if "tests" not in path.relative_to(root).parts:
+                called |= set(re.findall(r'main_class="(\w+)Kt"', path.read_text()))
     assert called == {"Probe", "Configure", "RuntimeFields", "Bench", "Check", "Interop", "Convert", "MergeRuns", "MergePasses"}
     assert all(re.search(r"^fun main\(", (CLI / f"{name}.kt").read_text(), re.M) for name in called)
     # CheckConfigKt goes through output_of with its name in a variable; CheckDiffKt has no Python caller
-    assert '"CheckConfigKt"' in (ROOT / "lib/cryptobench/cryptobench/stages/configuration/config_check.py").read_text()
+    assert '"CheckConfigKt"' in (STAGES / "configuration/config_check.py").read_text()
 
 
 def test_thermal_json_keys():
@@ -147,7 +149,7 @@ def test_schema_versions_across_the_boundary():
         (preflight.capability({}, {}, 1, False)["schemaVersion"],
          int(kotlin("benchmark/src/main/kotlin/check/EnergyCapability.kt", r'document\["schemaVersion"\] == (\d+)'))),
         (names.SCHEMA_VERSION, number("config/src/main/kotlin/names/AlgorithmNames.kt", "SCHEMA_VERSION")),
-        (int(re.search(r'"schemaVersion": (\d+)', (RUNNER / "device/facts.py").read_text()).group(1)), int(kotlin("settings/src/main/kotlin/Facts.kt", r'document\["schemaVersion"\] == (\d+)'))),
+        (int(re.search(r'"schemaVersion": (\d+)', (STAGES / "discovery/facts.py").read_text()).group(1)), int(kotlin("settings/src/main/kotlin/Facts.kt", r'document\["schemaVersion"\] == (\d+)'))),
     ]
     assert [python for python, _ in pairs] == [k for _, k in pairs]
     # thermal.json carries a version Python writes and no Kotlin reader checks (JetpackResults.thermalOf)

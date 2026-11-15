@@ -1,8 +1,7 @@
 
 import pytest
 
-from stages import capture_files  # noqa: E402
-from stages import discover  # noqa: E402
+from cryptobench.stages.discovery import capture_files, discover
 from failure import reported  # noqa: E402
 
 

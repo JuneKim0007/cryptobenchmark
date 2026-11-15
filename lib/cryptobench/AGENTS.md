@@ -13,7 +13,7 @@ The implementation guide under `algorithms/` and the Python that reads it, share
 ../../algorithms/vectors/ : known answers by family
 cryptobench/__init__.py : package of the Python library the benchmark runner and perf-repair share
 cryptobench/pipeline/__init__.py : package of the run's stage framework, importing no stage
-cryptobench/pipeline/stage.py : StageContext (options, configuration, device, the run's problems list), what each stage reads; Stage, a stage's shape
+cryptobench/pipeline/stage.py : StageContext (options, configuration, device, the parse-only check's answer, the run's problems list), what each stage reads; Stage, a stage's shape
 cryptobench/pipeline/took.py : the took: line of a timed step
 cryptobench/pipeline/warn.py : a stage's warning: line, added to the run's problems when it keeps a list
 cryptobench/shared/__init__.py : package of the components the stages share, importing neither the pipeline nor a stage
@@ -92,5 +92,10 @@ cryptobench/stages/configuration/config_check.py : the parse-only check of a glo
 cryptobench/stages/configuration/global_file.py : the global.yaml a run reads: --config, CRYPTOBENCH_CONFIG, the user's, the repository's
 cryptobench/stages/configuration/guide.py : after effective.yaml: exactly its items picked from the implementation guide, written as guide.yaml beside it; one fallback line per provider
 cryptobench/stages/configuration/tests/ : pytest tests of the configuration stage
+cryptobench/stages/discovery/__init__.py : package of the discovery stage
+cryptobench/stages/discovery/capture_files.py : the capture, trial and requirements a discovery wrote, by path and paired by stamp; never the newest in a kept folder; the reuse that probed again
+cryptobench/stages/discovery/discover.py : discover and configure: probe or host discovery, ConfigureKt, effective.yaml summary; three end states: in place, staged (the caller publishes), published under the capture's device id
+cryptobench/stages/discovery/facts.py : device facts into discovery/facts.yaml
+cryptobench/stages/discovery/tests/ : pytest tests of the discovery stage
 pyproject.toml : the shared library's package metadata
 ```

@@ -27,7 +27,7 @@ def calls(monkeypatch, tmp_path):
             seen.append("connect")
 
     monkeypatch.setattr(pipeline, "global_config", recorder("global_config", tmp_path / "global.yaml"))
-    monkeypatch.setattr(pipeline.config_check, "parsed", recorder("config_check"))
+    monkeypatch.setattr(pipeline.config_check, "parsed", recorder("config_check", {"bundled": []}))
     monkeypatch.setattr(pipeline.dependencies, "check", recorder("dependencies"))
     monkeypatch.setattr(pipeline, "Device", Device)
     monkeypatch.setattr(pipeline.paths, "repo", lambda: pipeline.paths.Repo(tmp_path))
@@ -35,7 +35,8 @@ def calls(monkeypatch, tmp_path):
         monkeypatch.setattr(pipeline, name, recorder(name))
     monkeypatch.setattr(pipeline, "checked_folder", recorder("checked_folder"))
     monkeypatch.setattr(pipeline.results_layout, "warn_if_temp", recorder("warn_if_temp"))
-    monkeypatch.setattr(pipeline, "device_discover", recorder("device_discover", (tmp_path, (None, None, None, None, {}))))
+    monkeypatch.setattr(pipeline, "discover_published", recorder("discover_published", (tmp_path, (None, None, None, None, {}))))
+    monkeypatch.setattr(pipeline.guide, "write", recorder("guide"))
 
     def run(**flags):
         monkeypatch.setattr(pipeline, "parse_options", lambda: argparse.Namespace(**{**FLAGS, **flags}))
@@ -49,11 +50,11 @@ START = ["global_config", "config_check", "dependencies"]
 
 
 @pytest.mark.parametrize("flags, order", [
-    ({}, START + ["warn_if_temp", "device_discover", "manifest"]),
-    ({"probe": True}, START + ["warn_if_temp", "device_discover", "manifest"]),
-    ({"probe": True, "device": True}, START + ["Device", "connect", "warn_if_temp", "device_discover", "manifest"]),
-    ({"bench": True}, START + ["warn_if_temp", "device_discover", "measure_cases", "manifest"]),
-    ({"device": True}, START + ["Device", "connect", "warn_if_temp", "device_discover", "measure_cases", "manifest"]),
+    ({}, START + ["warn_if_temp", "discover_published", "guide", "manifest"]),
+    ({"probe": True}, START + ["warn_if_temp", "discover_published", "guide", "manifest"]),
+    ({"probe": True, "device": True}, START + ["Device", "connect", "warn_if_temp", "discover_published", "guide", "manifest"]),
+    ({"bench": True}, START + ["warn_if_temp", "discover_published", "guide", "measure_cases", "manifest"]),
+    ({"device": True}, START + ["Device", "connect", "warn_if_temp", "discover_published", "guide", "measure_cases", "manifest"]),
     ({"check": True, "bench": True}, START + ["warn_if_temp", "check_run"]),
     ({"interop": "plan.yaml", "bench": True}, START + ["warn_if_temp", "interop_run"]),
     ({"harness": "harness.yaml", "device": True}, START + ["Device", "connect", "checked_folder", "harness_run"]),

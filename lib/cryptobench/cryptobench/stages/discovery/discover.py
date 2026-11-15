@@ -3,14 +3,12 @@ import shutil, time
 
 from cryptobench.shared.settings import effective_view
 from cryptobench.shared.device import gradle_runner
-from device import facts
 from cryptobench.shared.device.identity import capture_id, device_id
 from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared import paths
 from cryptobench.shared.results import layout as results_layout
 from cryptobench.shared.settings import bundled
-from cryptobench.stages.configuration import config_check, guide
-from stages import capture_files
+from cryptobench.stages.discovery import capture_files, facts
 from cryptobench.pipeline.took import elapsed
 from cryptobench.pipeline.warn import warn
 from cryptobench.shared.document.document import parse_yaml
@@ -25,14 +23,14 @@ def summary(effective):
     print(f"effective: {effective_view.entry_count(view['document'])} entries, {len(view['skipped'])} skipped")
 
 
-def discover(options, configuration, device, results):
+def discover_in_place(options, configuration, device, results, shipped):
+    """Writes discovery/ and configuration/ straight into results; shipped is providers.bundled as the parse-only check read it."""
     discovery, configured = paths.RunTree(results).discovery.root, paths.RunTree(results).configuration.root
     if options.discovery == "overwrite" and discovery.exists():
         shutil.rmtree(discovery)
     discovery.mkdir(parents=True, exist_ok=True)
 
     print(f"config:    {configuration}")
-    shipped = config_check.parsed(configuration)["bundled"]
     if device:
         started = time.monotonic()
         device.install(bundled.gradle_properties(shipped))
@@ -62,7 +60,7 @@ def discover(options, configuration, device, results):
 
 
 def located(results, capture_name):
-    """By the name discover() returned: after a publish into a kept discovery/ the folder holds older captures too."""
+    """By the name discover_in_place() returned: after a publish into a kept discovery/ the folder holds older captures too."""
     discovery, configured = paths.RunTree(results).discovery.root, paths.RunTree(results).configuration.root
     capture, trial = capture_files.pair(discovery / capture_name)
     effective = paths.Configuration(configured).effective
@@ -78,22 +76,21 @@ def seed_reuse(options, root, stage):
         results_layout.merge_folder(existing, paths.RunTree(stage).discovery.root)
 
 
-def discover_staged(options, configuration, device, root, stage):
+def discover_staged(options, configuration, device, root, stage, shipped):
+    """Everything stays in stage; the caller publishes it."""
     if options.discovery == "reuse":
         seed_reuse(options, root, stage)
-    return discover(options, configuration, device, stage)
+    return discover_in_place(options, configuration, device, stage, shipped)
 
 
-def device_discover(options, configuration, device, root):
+def discover_published(options, configuration, device, root, shipped):
     """A failed probe or configure leaves nothing; from here on the folder has its real name and no manifest until the run ends."""
     with results_layout.staged(root) as stage:
-        capture = discover_staged(options, configuration, device, root, stage)[2]
+        capture = discover_staged(options, configuration, device, root, stage, shipped)[2]
         results = root / capture_id(capture)
         results_layout.publish(stage, results, options.discovery)
     print(f"results:   {results}")
-    parts = located(results, capture.name)
-    parts[4]["guide"] = guide.write(parts[1], parts[2])
-    return results, parts
+    return results, located(results, capture.name)
 
 
 def host_runtime(options):
