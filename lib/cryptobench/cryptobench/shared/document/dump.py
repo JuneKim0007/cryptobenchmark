@@ -1,4 +1,4 @@
-"""dump_yaml: a value as YAML text through one named profile, the option set whose bytes its writer has always written."""
+"""dump_yaml: a value as YAML text through one named profile, each profile the option set of one group of writers."""
 from __future__ import annotations
 
 from types import MappingProxyType

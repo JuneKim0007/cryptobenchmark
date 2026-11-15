@@ -1,4 +1,4 @@
-"""json_text: a document as the JSON text its writers have always written; write_json, that text through the atomic write_text."""
+"""json_text: a document as JSON text, indent 1; write_json, that text through the atomic write_text."""
 from __future__ import annotations
 
 import json
