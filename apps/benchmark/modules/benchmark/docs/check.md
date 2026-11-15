@@ -1,6 +1,6 @@
 # End-to-end check
 
-Every planned case goes the real path once, untimed, and its output is checked.
+Every planned case goes the real path once, untimed, and its output is checked. Run it after any change to preparation or the harness.
 
 ```
 global.yaml + test set -> effective.yaml -> preparation -> PlanCheck -> Invocations.of(case) -> one harness call -> oracles -> check.yaml

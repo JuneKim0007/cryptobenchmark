@@ -43,7 +43,7 @@ Read from `grouping/groups.json`, `profiles.json`, `checks.json`, `screen.json` 
 | `signature_agrees` | blocking | two members know different values of one signature component (`known` or `convention`), or `checks.json` holds `resolved_parameters_differ` for the group |
 | `no_runnable_no_options` | blocking | a dossier option names a member of a group with no runnable member |
 | `interop_not_run` | advisory | a group with two or more runnable members while `interop.status` is `not_run` |
-| `algorithm_split` | advisory | one canonical name of `screen.json` in several groups of a family, with members of equal screen status, key contract and signature in each |
+| `algorithm_split` | advisory | one canonical name of `screen.json` in several groups of a family, with members of equal screen status, key contract and signature in each; it merges nothing, whether to merge is the model's call |
 | `grouping_stable` | blocking | with `--against`: two items whose key contract, key kind, runs and signature are equal in both runs are together in one run and apart in the other |
 
 - A screened-out item in `groups.json` is `broken` (`platform_deprecated` is per app, never in screen.json); a `broken` item is never an option (`refused_target`, `dto/screen.py`).

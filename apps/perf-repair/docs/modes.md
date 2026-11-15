@@ -26,7 +26,7 @@ A decision's mode is its perfMode: which registry metrics (`src/perfrepair/dto/m
 | `generic` (`overall`) | at least one selected metric is `improved` ([Labels](#labels)) |
 
 - Either mode drops an option with `no_gain`: one metric `worse` and none at or below `improvingRatio`.
-
+- Noise is answered with more runs or processes, never a stricter gate.
 - An option's estimate is missing when a selected metric has no ratio for the pair (not measured on a side, a zero median before, or energy of different kinds). A listed perfMode needs every selected metric; `generic` requires none; an option with no estimate at all is dropped, a scope left with none is `no_evidence`, a current item never measured `current_not_measured`.
 - A selected metric without data is the static reason `no_evidence: <metric>`, logged; never a proxy and never a loss. Levels:
 
