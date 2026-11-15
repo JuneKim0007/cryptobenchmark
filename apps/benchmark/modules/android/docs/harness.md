@@ -27,7 +27,7 @@ The instrumentation app that probes, prepares and measures on a device. Device r
 | rule | value |
 |---|---|
 | plan directory holds | pushed plan inputs; capture, trial, skipped, prepared, `cpu-pins.yaml`, `energy-dry.yaml`, `scoped-interop.yaml` |
-| why media from API 29 | API 30 denies `adb shell` any read of `/sdcard/Android/data`; androidx itself writes to the media directory from API 29 |
+| media from API 29 | androidx writes to the media directory from API 29; API 30 denies `adb shell` any read of `/sdcard/Android/data` |
 | androidx output | androidx's own choice per API level; the script only mirrors it |
 | no media directory mounted | `no_storage: external storage is not mounted for <package>` |
 | `getprop ro.build.version.sdk` not a number | `no_sdk: getprop ro.build.version.sdk printed '<v>'` |

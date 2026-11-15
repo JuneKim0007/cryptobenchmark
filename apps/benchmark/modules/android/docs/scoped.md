@@ -41,7 +41,7 @@ python3 apps/benchmark-runner/pipeline.py --device --harness <harness.yaml>
 | item | value |
 |---|---|
 | package | `io.github.junekim0007.cryptobench.scoped.s<id>.before` and `.after` |
-| Java | `public final class ScopeFunction`; the method becomes `public static ... throws Exception`, since a swap can add a checked exception; annotations dropped |
+| Java | `public final class ScopeFunction`; the method becomes `public static ... throws Exception`; annotations dropped |
 | Kotlin | `object ScopeFunction`; visibility, `override`, `open`, `final`, `inline`, `tailrec`, `external` dropped |
 | catalog | `scoped.GeneratedScopes`, loaded by name through `ScopeCatalog`; absent: `missing_class` |
 | imports | `imports` lines, terminated per language |
@@ -61,7 +61,7 @@ python3 apps/benchmark-runner/pipeline.py --device --harness <harness.yaml>
 
 ## Inputs
 
-Each side builds its own inputs (`b`/`a`-prefixed values in `GeneratedScopes`), so a function that changes its input in place never changes what the other side receives; a consumer's artifact comes from the before producer on that side's own inputs.
+Each side builds its own inputs (`b`/`a`-prefixed values in `GeneratedScopes`): a function that changes its input in place never changes the other side's; a consumer's artifact comes from the before producer on that side's own inputs.
 
 `harness.yaml` `schemaVersion: 6`; `inputs: {inputSize, keySize, from}`, `from` is `app` (the scope's static sizes) or `run` (the run's configured sizes); any other value is `invalid`. `scoped-plan.yaml` carries `inputs` with `from`.
 
@@ -73,7 +73,7 @@ Each side builds its own inputs (`b`/`a`-prefixed values in `GeneratedScopes`), 
 | `SecretKey`, `Key`, `SecretKeySpec` | `SecretKeySpec` of `keySize / 8` random bytes, seed 8; algorithm = the option's name up to `/` |
 | `PrivateKey`, `PublicKey`, `KeyPair` | `ScopeKeys`: the key planner's pair for the option's item at `keySize`, generated once per run and kept in `scope-keys/` on the device, every process has the same bytes, each side decodes them through its own provider: before `current`'s, after `option`'s (another provider's key class is converted at every init); a key that cannot be built is that scope's `call_failed` |
 | `File` | a new temp file of `inputSize` random bytes, seed 7, per call |
-| `boolean`, `byte`, `short`, `int`, `long`, `float`, `double`, `char`, in Java or Kotlin spelling | one fixed value: `true`, `1`, `1L`, `1f`, `1.0`, `'a'`; nothing says what the function does with it, so a function that fails or takes a short path on it is `call_failed` or dilutes the ratio |
+| `boolean`, `byte`, `short`, `int`, `long`, `float`, `double`, `char`, in Java or Kotlin spelling | one fixed value: `true`, `1`, `1L`, `1f`, `1.0`, `'a'`; a function that fails on it is `call_failed` |
 
 ## Dependencies
 
@@ -89,7 +89,7 @@ Each side builds its own inputs (`b`/`a`-prefixed values in `GeneratedScopes`), 
 | check | chosen when | passes when |
 |---|---|---|
 | `round_trip` | a scope whose `inverse` is `produce` and its partner (an `inverse` link of perf-repair's `units.json`, never a name), the consumer takes exactly one parameter of the producer's return type, the producer exactly one of the consumer's | before-produce then after-consume, and after-produce then before-consume, restore the input; when either is an `upgrade`, each side runs its own produce and consume |
-| `output_changes` | an `upgrade` scope (it replaces a broken algorithm) with no round-trip partner | never checked: its output differs by definition |
+| `output_changes` | an `upgrade` scope (it replaces a broken algorithm) with no round-trip partner | never checked |
 | `same_output` | a function with a value | two calls of before agree and after equals before |
 | `none` | void or `Unit` | never checked |
 
@@ -97,7 +97,7 @@ Each side builds its own inputs (`b`/`a`-prefixed values in `GeneratedScopes`), 
 |---|---|---|
 | `passed` | yes | the check passed |
 | `unchecked` | yes | `none`, `output_changes`, `no_output`, or `nondeterministic_output` (a randomized primitive with no partner) |
-| `not_comparable` | no | `identity_only_output`: before returned an object with no value equality (`equals` from `Object`, or a primitive array other than bytes and chars), so two calls cannot be compared |
+| `not_comparable` | no | `identity_only_output`: before returned an object with no value equality (`equals` from `Object`, or a primitive array other than bytes and chars) |
 | `interop_failed` | no | the check failed; reason names the direction or `outputs_differ` |
 | `call_failed` | no | a variant threw on its inputs |
 
