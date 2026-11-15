@@ -4,7 +4,6 @@ import pathlib
 import pytest
 import yaml
 
-from stages import known_answers  # noqa: E402
 from cryptobench.shared.catalogue import vectors  # noqa: E402
 from cryptobench.shared.errors.input_error import InputError  # noqa: E402
 
@@ -70,9 +69,3 @@ def test_a_counter_1_provider_runs_the_counter_1_vector_only():
 def test_a_run_with_no_compared_vector_says_so():
     _, compared = vectors.coverage([{"case": {"type": "MessageDigest", "algorithm": "MD5"}, "oracles": {"knownAnswer": {"verdict": "not_checkable", "reason": "no_vector: x"}}}])
     assert not compared
-
-
-def test_user_folder_is_relative_to_the_global_file(tmp_path):
-    settings = tmp_path / "g.yaml"
-    settings.write_text(yaml.safe_dump({"selection": {"testSet": "t", "knownVectors": "mine"}}))
-    assert known_answers.user_vectors(settings) == tmp_path / "mine"

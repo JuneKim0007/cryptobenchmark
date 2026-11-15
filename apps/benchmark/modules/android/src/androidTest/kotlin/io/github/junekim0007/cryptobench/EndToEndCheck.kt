@@ -29,7 +29,7 @@ class EndToEndCheck(caseId: String, private val case: BenchmarkCase) : JetpackCa
     }
 
     companion object {
-        // Paired with apps/benchmark-runner/stages/check.py DRY_RUN.
+        // Paired with lib/cryptobench/cryptobench/stages/verification/check.py DRY_RUN.
         private const val DRY_RUN = "androidx.benchmark.dryRunMode.enable"
         private val records = mutableListOf<CaseRecord>()
         private val started = System.nanoTime()

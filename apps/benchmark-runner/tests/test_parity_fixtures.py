@@ -9,7 +9,7 @@ import yaml
 
 from cryptobench.stages.discovery import facts
 from cryptobench.stages.configuration import guide
-from stages import known_answers
+from cryptobench.stages.verification import known_answers
 from cryptobench.shared.catalogue import guide_items, vectors
 from cryptobench.shared.catalogue.names import NAMES_DOC, Canonical, Names
 from cryptobench.shared.document.document import parse_yaml, read_yaml

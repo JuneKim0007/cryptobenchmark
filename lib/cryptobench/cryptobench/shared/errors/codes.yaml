@@ -1031,7 +1031,7 @@ codes:
   call_moved: {kind: outcome}
   case_failed: {kind: error}
   charts_failed: {kind: notice}
-  # E11: Kotlin: one case's check threw, so the case is skipped (RunnablePlan.kt); runner: checked cases failed, exit 1 (stages/check.py)
+  # E11: Kotlin: one case's check threw, so the case is skipped (RunnablePlan.kt); runner: checked cases failed, exit 1 (cryptobench/stages/verification/check.py)
   check_failed: {kind: outcome}
   check_ok: {kind: outcome}
   cipher_needs_a_key: {kind: error}

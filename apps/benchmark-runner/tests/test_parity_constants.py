@@ -8,7 +8,7 @@ from cryptobench.shared.settings import bundled
 from analysis import chart_input
 from session import case_isolation, passes, thermal_hook, variant_order
 from scope import wrapper
-from stages import check
+from cryptobench.stages.verification import check
 from cryptobench.shared.device import capture
 from cryptobench.shared.catalogue import guide_items, names, vectors
 from cryptobench.shared.paths import device_dirs

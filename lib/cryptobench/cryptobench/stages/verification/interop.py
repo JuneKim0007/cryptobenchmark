@@ -5,13 +5,13 @@ from cryptobench.shared.device.identity import capture_id
 from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared.results import layout as results_layout
 from cryptobench.shared.results.manifest import add_to_manifest, manifest
-from stages import interop_oracle
-from cryptobench.stages.discovery.discover import discover_staged, located
+from cryptobench.stages.verification import interop_oracle
 from cryptobench.pipeline.took import elapsed
 from cryptobench.shared import paths
 
 
-def interop_run(options, configuration, device, root, shipped):
+def interop_run(options, configuration, device, root, shipped, discover_staged, located):
+    """discover_staged and located are discovery's, passed in: the discovery runs inside this stage's staging folder."""
     plan = pathlib.Path(options.interop)
     if not (options.bench or device) or options.harness:
         raise CommandError("--interop: the pairs are checked on a --bench (host JVM) or a --device run, without --harness")

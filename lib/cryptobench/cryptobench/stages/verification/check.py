@@ -5,12 +5,11 @@ from cryptobench.shared.device import gradle_runner
 from cryptobench.shared.device.adb import NO_DEFAULT_PROFILER, PASSED, DeviceError, instrumentation_report
 from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared.results.manifest import manifest
-from stages import known_answers as answers
+from cryptobench.stages.verification import known_answers as answers
 from cryptobench.shared import paths
 from cryptobench.shared.catalogue import vectors
-from cryptobench.stages.configuration import guide
-from cryptobench.stages.discovery.discover import discover_published
 from cryptobench.pipeline.took import elapsed
+from cryptobench.pipeline.warn import warn
 from cryptobench.shared.settings import bundled
 from cryptobench.shared.document.document import read_yaml
 
@@ -18,11 +17,14 @@ from cryptobench.shared.document.document import read_yaml
 DRY_RUN = ["-e", "androidx.benchmark.dryRunMode.enable", "true"]
 
 
-def check_run(options, configuration, device, root, shipped):
+def require_check_run(options, device):
+    """Before discovery: a --check that cannot run writes nothing."""
     if not (options.bench or device) or options.harness or options.interop:
         raise CommandError("--check: the cases are checked on a --bench (host JVM) or a --device run, without --harness or --interop")
-    results, (_, effective, capture, trial, files) = discover_published(options, configuration, device, root, shipped)
-    files["guide"] = guide.write(effective, capture)
+
+
+def check_run(options, configuration, device, results, effective, capture, trial, files):
+    """After the route published discovery and wrote guide.yaml into results."""
     into = paths.RunTree(results).check.root
     shutil.rmtree(into, ignore_errors=True)
     into.mkdir(parents=True)
@@ -71,5 +73,5 @@ def summary(result):
     for line in lines:
         print(f"check:     {line}")
     if not compared:
-        print("warning: no_known_vector_applied: no case was compared with a known answer; list vectors in the guide entries")
+        warn("no_known_vector_applied: no case was compared with a known answer; list vectors in the guide entries")
     return len(bad)

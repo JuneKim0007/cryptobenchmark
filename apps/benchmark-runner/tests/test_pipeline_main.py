@@ -4,6 +4,7 @@ import argparse
 import pytest
 
 import pipeline
+from cryptobench.shared.errors.failures import CommandError
 
 FLAGS = {"probe": False, "identify": False, "interop": None, "harness": None, "check": False, "bench": False, "device": False,
          "config": None, "results": None, "stream": False, "stacktrace": False}
@@ -56,7 +57,7 @@ START = ["global_config", "config_check", "dependencies"]
     ({"probe": True, "device": True}, START + ["Device", "connect", "warn_if_temp", "discover_published", "guide", "manifest"]),
     ({"bench": True}, START + ["warn_if_temp", "discover_published", "guide", "measure_cases", "manifest"]),
     ({"device": True}, START + ["Device", "connect", "warn_if_temp", "discover_published", "guide", "measure_cases", "manifest"]),
-    ({"check": True, "bench": True}, START + ["warn_if_temp", "check_run"]),
+    ({"check": True, "bench": True}, START + ["warn_if_temp", "discover_published", "guide", "check_run"]),
     ({"interop": "plan.yaml", "bench": True}, START + ["warn_if_temp", "interop_run"]),
     ({"harness": "harness.yaml", "device": True}, START + ["Device", "connect", "checked_folder", "harness_run"]),
     ({"identify": True}, ["global_config", "dependencies", "identify"]),
@@ -68,3 +69,9 @@ def test_the_stages_of_each_run_kind_in_order(calls, flags, order):
 
 def test_interop_wins_over_check_when_parse_options_lets_both_through(calls):
     assert calls(interop="plan.yaml", check=True, bench=True)[-1] == "interop_run"
+
+
+def test_a_check_without_bench_or_device_is_refused_before_discovery(calls, monkeypatch):
+    monkeypatch.setattr(pipeline, "discover_published", lambda *_arguments: pytest.fail("discovered"))
+    with pytest.raises(CommandError, match="^--check: "):
+        calls(check=True)

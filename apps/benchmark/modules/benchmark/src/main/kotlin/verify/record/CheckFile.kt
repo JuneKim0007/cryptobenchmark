@@ -4,7 +4,7 @@ import io.github.junekim0007.cryptobench.document.DocumentFields
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFile
 import java.io.File
 
-// check.yaml: the end-to-end check's per-case records and their counts; read back by RecordDiff and apps/benchmark-runner/stages/check.py.
+// check.yaml: the end-to-end check's per-case records and their counts; read back by RecordDiff and lib/cryptobench/cryptobench/stages/verification/check.py.
 object CheckFile {
 
     private const val SCHEMA = 1

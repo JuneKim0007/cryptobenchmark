@@ -19,10 +19,10 @@ from cryptobench.stages.analysis import not_measured
 from cryptobench.stages.analysis.scripts import analyse
 from cryptobench.stages.configuration import config_check, guide
 from stages.benchmark import measure_cases
-from stages.check import check_run
-from cryptobench.stages.discovery.discover import discover_published, host_runtime
+from cryptobench.stages.verification.check import check_run, require_check_run
+from cryptobench.stages.discovery.discover import discover_published, discover_staged, host_runtime, located
 from stages.harness import harness_run, checked_folder
-from stages.interop import interop_run
+from cryptobench.stages.verification.interop import interop_run
 
 
 def parse_options():
@@ -98,17 +98,26 @@ def harnessed(context):
 
 
 def interoperated(context):
-    return interop_run(context.options, context.configuration, context.device, published(context), context.checked["bundled"])
+    return interop_run(context.options, context.configuration, context.device, published(context), context.checked["bundled"], discover_staged, located)
+
+
+def guided(context, root):
+    """Discovery published under the capture's device id, then guide.yaml beside its effective.yaml."""
+    results, (discovery, effective, capture, trial, files) = discover_published(context.options, context.configuration, context.device, root, context.checked["bundled"])
+    files["guide"] = guide.write(effective, capture)
+    return results, discovery, effective, capture, trial, files
 
 
 def checked(context):
-    return check_run(context.options, context.configuration, context.device, published(context), context.checked["bundled"])
+    root = published(context)
+    require_check_run(context.options, context.device)
+    results, _, effective, capture, trial, files = guided(context, root)
+    return check_run(context.options, context.configuration, context.device, results, effective, capture, trial, files)
 
 
 def measured(context):
     options, configuration, device = context.options, context.configuration, context.device
-    results, (discovery, effective, capture, trial, files) = discover_published(options, configuration, device, published(context), context.checked["bundled"])
-    files["guide"] = guide.write(effective, capture)
+    results, discovery, effective, capture, trial, files = guided(context, published(context))
     if not options.probe and (options.bench or device):
         benchmarked(options, device, results, discovery, effective, capture, trial, files, context.problems)
     manifest(results, "device" if device else "host", configuration, files, context.problems)

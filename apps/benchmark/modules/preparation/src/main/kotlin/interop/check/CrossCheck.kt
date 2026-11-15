@@ -6,6 +6,7 @@ import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterial
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.operation.CaseArguments
+import io.github.junekim0007.cryptobench.preparation.operation.Invocations
 import io.github.junekim0007.cryptobench.preparation.operation.OperationDefinitions
 import io.github.junekim0007.cryptobench.preparation.operation.SetupCatalog
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
@@ -38,8 +39,7 @@ internal object CrossCheck {
     fun sameOutput(first: BenchmarkCase, second: BenchmarkCase, recipe: KeyRecipe, key: KeyMaterial): Outcome {
         val outputs = Attempt.of {
             listOf(first, second).map { case ->
-                val definition = OperationDefinitions.of(case.operation)
-                definition.invocation(PreparedCase(case, recipe, key, null, null, definition.input(case, key, null)), SetupCatalog.standard).once()
+                Invocations.of(PreparedCase(case, recipe, key, null, null, OperationDefinitions.of(case.operation).input(case, key, null))).once()
             }
         }.getOrElse { return classify(it) }
         val (a, b) = outputs

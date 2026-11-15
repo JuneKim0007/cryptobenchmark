@@ -101,5 +101,11 @@ cryptobench/stages/discovery/capture_files.py : the capture, trial and requireme
 cryptobench/stages/discovery/discover.py : discover and configure: probe or host discovery, ConfigureKt, effective.yaml summary; three end states: in place, staged (the caller publishes), published under the capture's device id
 cryptobench/stages/discovery/facts.py : device facts into discovery/facts.yaml
 cryptobench/stages/discovery/tests/ : pytest tests of the discovery stage
+cryptobench/stages/verification/__init__.py : package of the verification stage
+cryptobench/stages/verification/check.py : --check run: every planned case once through the real harness (host CheckKt, device EndToEndCheck under the dry run), check.yaml, its summary and failures
+cryptobench/stages/verification/interop.py : --interop run: the plan's pairs on the host or device, published beside a finished run or as a new device folder; discovery's steps passed in
+cryptobench/stages/verification/interop_oracle.py : oracle steps of a --interop run: plan staging, host InteropKt, device InteropCheck, summary
+cryptobench/stages/verification/known_answers.py : --check's known-answers.yaml: the guide's vectors filled per provider, global.yaml's selection.knownVectors
+cryptobench/stages/verification/tests/ : pytest tests of the verification stage
 pyproject.toml : the shared library's package metadata
 ```
