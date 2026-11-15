@@ -99,5 +99,5 @@ tools/paths-frozen.txt : what tools/paths_check.py still finds, each with its re
 tools/paths_check.py : path rules outside lib/cryptobench/cryptobench/shared/paths/ and the linkage of every data file to a production reader; frozen list only shrinks
 tools/screening_list.py : writes apps/perf-repair/docs/screening-list.md from the screening catalog
 tools/shared_functions.py : writes docs/shared-functions.md and apps/perf-repair/docs/shared-functions.md from the import graph; --check fails on drift
-tools/tests/ : pytest for the repo tools and repo-wide checks: lib layering, the error-code glossary both ways, the lib wheel's data
+tools/tests/ : pytest for the repo tools and repo-wide checks: lib layering, the runner holding only entry points, the error-code glossary both ways, the lib wheel's data
 ```

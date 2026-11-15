@@ -22,10 +22,7 @@ RULES = (
     ("cryptobench.pipeline", ("cryptobench.stages",)),
     ("cryptobench.stages.*", ("cryptobench.stages",)),
     ("cryptobench.shared.errors", REPO_WIDE),
-    ("cryptobench.shared.log", REPO_WIDE),
 )
-# rule names whose package has not landed yet; the step that lands one removes it here
-PENDING = {"cryptobench.shared.log"}
 # what cryptobench/ itself may hold; every other module lives in one of these packages
 TOP_LEVEL = {"__init__.py", "shared", "pipeline", "stages"}
 
@@ -95,16 +92,14 @@ def _present(name):
     return _on_disk(name.split("."))
 
 
-def test_every_rule_name_exists_or_is_pending():
+def test_every_rule_name_exists():
     names = {n.removesuffix(".*") for importer, banned in RULES for n in (importer, *banned)}
-    wrong = sorted(n for n in names if _within(n, "cryptobench") and _present(n) == (n in PENDING))
-    assert not wrong, f"each name must exist on disk or be in PENDING, not both: {wrong}"
+    missing = sorted(n for n in names if _within(n, "cryptobench") and not _present(n))
+    assert not missing, f"each rule name must exist on disk: {missing}"
 
 
 @pytest.mark.parametrize("importer, banned", RULES, ids=[importer for importer, _ in RULES])
 def test_imports_keep_to_the_rule(importer, banned):
-    if importer.removesuffix(".*") in PENDING:
-        pytest.skip(f"pending: {importer}")
     found = sorted(_violations(importer, banned))
     assert not found, "\n".join(found)
 

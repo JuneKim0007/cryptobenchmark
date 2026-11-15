@@ -63,7 +63,7 @@ cryptobench/shared/errors/validation.py : ValidationFailed, code artifact_invali
 cryptobench/shared/paths/__init__.py : one interface to every path the Python modules use: `from cryptobench.shared import paths`
 cryptobench/shared/paths/device_dirs.py : DeviceDirs(sdk): folders on a device per API level, POSIX paths
 cryptobench/shared/paths/host.py : the user's and host's locations: home, the user's global.yaml, the Android SDK and its platform-tools
-cryptobench/shared/paths/imports.py : the apps' source folders on the import path, for this process and a child
+cryptobench/shared/paths/imports.py : the apps' source folders on the import path, for the facade's process and its children; in shared/paths because tools/paths_check.py allows sys.path and PYTHONPATH edits nowhere else
 cryptobench/shared/paths/names.py : the file and folder names of a results folder, and CONTRACT: those shared with Kotlin
 cryptobench/shared/paths/packaged.py : packaged(package, name) through importlib and a named constant per data file a package ships
 cryptobench/shared/paths/repo.py : Repo and repo(root): one checkout's named locations

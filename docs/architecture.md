@@ -57,11 +57,13 @@ config/global.yaml + config/testsets/*.yaml
 |---|---|---|
 | `:document`, `:environment:discovery`, `:settings`, `:config`, `:preparation`, `:benchmark` | Kotlin | `src/main/kotlin/`, package root folders omitted |
 | `:android` | Kotlin main (`Affinity.kt`), C (`src/main/cpp/affinity.c`, `CMakeLists.txt`), Kotlin androidTest | full package folders |
-| `apps/benchmark-runner/` | Python 3 | commands and shared steps at the top; the other modules in one package per stage, imported with `apps/benchmark-runner/` on the path |
+| `apps/benchmark-runner/` | Python 3 | the entry points `pipeline.py`, `dependencies.py`, `explain.py`, `scope_generate.py` and their error line `failure.py`; every other module they import is in `lib/cryptobench` (`tools/tests/test_runner_layout.py`) |
+| `lib/cryptobench/cryptobench/` | Python 3 | `shared/` components, `pipeline/` the stage framework, `stages/<stage>/` one package per stage: configuration, discovery, measurement, analysis, verification |
 | `apps/benchmark-runner/energy/`, `apps/benchmark-runner/analysis/*.py` | Python 3 | flat |
 | `apps/benchmark-runner/demo.sh` | bash | |
 
 - No `.java` source is tracked under `apps/benchmark/modules/`.
+- A stage imports no other stage and `shared/` imports no stage; the routes in `pipeline.py` compose the stages, passing a step in where it runs inside another stage's staging or rollback (`tools/tests/test_lib_layers.py`).
 
 ## Example files
 
