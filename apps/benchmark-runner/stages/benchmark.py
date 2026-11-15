@@ -154,9 +154,7 @@ def kept(into, message, problems):
     """BenchKt writes each case's row as it finishes: when it dies, the rows it wrote are this run's, and its failure one problem line."""
     if not (paths.Measurement(into).json).is_file():
         raise CommandError(message)
-    line = f"bench_failed: {one_line(message)}"
-    print(f"warning: {line}")
-    problems.append(line)
+    warn(f"bench_failed: {one_line(message)}", problems)
 
 
 def collapse(files, preparation, repetitions):

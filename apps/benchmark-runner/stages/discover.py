@@ -11,13 +11,14 @@ from cryptobench.shared.results import layout as results_layout
 from cryptobench.shared.settings import bundled
 from stages import capture_files, config_check, guide
 from cryptobench.pipeline.took import elapsed
+from cryptobench.pipeline.warn import warn
 from cryptobench.shared.document.document import parse_yaml
 
 
 def summary(effective):
     view = effective_view.read(effective)
     for warning in view["warnings"]:
-        print(f"warning: {warning}")
+        warn(warning)
     for skip in view["skipped"]:
         print(f"skipped: {skip.get('provider', '*')} {skip.get('type', '*')} {skip.get('name', '*')}: {skip['reason']}")
     print(f"effective: {effective_view.entry_count(view['document'])} entries, {len(view['skipped'])} skipped")

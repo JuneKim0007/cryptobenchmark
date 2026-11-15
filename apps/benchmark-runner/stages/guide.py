@@ -1,6 +1,7 @@
 """After effective.yaml says what runs: picks exactly those items from the implementation guide, beside it, for preparation."""
 import pathlib
 
+from cryptobench.pipeline.warn import warn
 from cryptobench.shared import paths
 from cryptobench.shared.catalogue.guide_items import guide_items
 from cryptobench.shared.catalogue import vectors
@@ -27,7 +28,7 @@ def write(effective, capture):
     runtime = read_yaml(capture).get("runtime") or {}
     document = guide_items(read_yaml(effective), platform(runtime))
     for line in fallbacks(document):
-        print(f"warning: {line}")
+        warn(line)
     written = file_beside(effective)
     written.write_text(dump_yaml(document))
     return written
@@ -43,7 +44,7 @@ def write_known_answers(effective, capture, configuration):
     runtime = read_yaml(capture).get("runtime") or {}
     document, warnings = vectors.filled(read_yaml(effective), platform(runtime), user_vectors(configuration))
     for line in warnings:
-        print(f"warning: {line}")
+        warn(line)
     written = paths.Configuration(pathlib.Path(effective).parent).known_answers
     written.write_text(dump_yaml(document))
     return written
