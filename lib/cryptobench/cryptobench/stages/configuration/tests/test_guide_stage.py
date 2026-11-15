@@ -1,7 +1,7 @@
 """Which build of the guide a device reads, and that a fallback is said once per provider."""
 import sys
 
-from stages import guide  # noqa: E402
+from cryptobench.stages.configuration import guide
 from cryptobench.shared.device.capture import platform  # noqa: E402
 from cryptobench.shared.catalogue.provider_builds import provider_builds  # noqa: E402
 

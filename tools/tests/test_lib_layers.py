@@ -1,4 +1,4 @@
-"""lib cryptobench imports keep to RULES; relative imports and imports inside functions count; __main__ modules are the top layer."""
+"""lib cryptobench imports keep to RULES; relative imports and imports inside functions count; __main__ modules are the top layer; tests/ folders are not the library."""
 import ast
 import pathlib
 
@@ -25,7 +25,7 @@ RULES = (
     ("cryptobench.shared.log", REPO_WIDE),
 )
 # rule names whose package has not landed yet; the step that lands one removes it here
-PENDING = {"cryptobench.stages", "cryptobench.shared.log"}
+PENDING = {"cryptobench.shared.log"}
 # what cryptobench/ itself may hold; every other module lives in one of these packages
 TOP_LEVEL = {"__init__.py", "shared", "pipeline", "stages"}
 
@@ -63,6 +63,8 @@ def _targets(node, here, is_package):
 
 def _imports():
     for path in sorted((LIB / "cryptobench").rglob("*.py")):
+        if "tests" in path.relative_to(LIB).parts:
+            continue
         parts = list(path.relative_to(LIB).with_suffix("").parts)
         is_package = parts[-1] == "__init__"
         here = parts[:-1] if is_package else parts

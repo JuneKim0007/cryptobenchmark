@@ -2,7 +2,7 @@ import sys
 
 import pytest
 
-import global_file  # noqa: E402
+from cryptobench.stages.configuration import global_file
 from failure import reported  # noqa: E402
 
 

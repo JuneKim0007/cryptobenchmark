@@ -71,7 +71,7 @@ if not any(folder.samefile(_library) for folder in _loaded().parents if _library
 
 from cryptobench.shared.errors.failures import CommandError  # noqa: E402
 from cryptobench.shared.settings.energy_capture import capture, source  # noqa: E402
-from global_file import global_config  # noqa: E402
+from cryptobench.stages.configuration.global_file import global_config  # noqa: E402
 
 
 def _run_of(configuration):

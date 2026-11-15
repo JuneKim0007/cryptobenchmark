@@ -125,7 +125,7 @@ def test_host_main_classes_the_runner_names_exist():
     assert called == {"Probe", "Configure", "RuntimeFields", "Bench", "Check", "Interop", "Convert", "MergeRuns", "MergePasses"}
     assert all(re.search(r"^fun main\(", (CLI / f"{name}.kt").read_text(), re.M) for name in called)
     # CheckConfigKt goes through output_of with its name in a variable; CheckDiffKt has no Python caller
-    assert '"CheckConfigKt"' in (RUNNER / "stages/config_check.py").read_text()
+    assert '"CheckConfigKt"' in (ROOT / "lib/cryptobench/cryptobench/stages/configuration/config_check.py").read_text()
 
 
 def test_thermal_json_keys():

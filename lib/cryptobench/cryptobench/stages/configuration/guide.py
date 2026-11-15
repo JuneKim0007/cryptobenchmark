@@ -4,13 +4,9 @@ import pathlib
 from cryptobench.pipeline.warn import warn
 from cryptobench.shared import paths
 from cryptobench.shared.catalogue.guide_items import guide_items
-from cryptobench.shared.catalogue import vectors
 from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.device.capture import platform
 from cryptobench.shared.document.dump import dump_yaml
-
-def file_beside(effective):
-    return paths.Configuration(pathlib.Path(effective).parent).guide
 
 
 def fallbacks(document):
@@ -29,22 +25,6 @@ def write(effective, capture):
     document = guide_items(read_yaml(effective), platform(runtime))
     for line in fallbacks(document):
         warn(line)
-    written = file_beside(effective)
-    written.write_text(dump_yaml(document))
-    return written
-
-
-def user_vectors(configuration):
-    """selection.knownVectors of global.yaml, against that file; a test set's vectors are read only by --check."""
-    named = (read_yaml(configuration).get("selection") or {}).get("knownVectors")
-    return paths.against(configuration, named) if named else None
-
-
-def write_known_answers(effective, capture, configuration):
-    runtime = read_yaml(capture).get("runtime") or {}
-    document, warnings = vectors.filled(read_yaml(effective), platform(runtime), user_vectors(configuration))
-    for line in warnings:
-        warn(line)
-    written = paths.Configuration(pathlib.Path(effective).parent).known_answers
+    written = paths.Configuration(pathlib.Path(effective).parent).guide
     written.write_text(dump_yaml(document))
     return written

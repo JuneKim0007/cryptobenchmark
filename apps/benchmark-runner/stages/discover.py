@@ -9,7 +9,8 @@ from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared import paths
 from cryptobench.shared.results import layout as results_layout
 from cryptobench.shared.settings import bundled
-from stages import capture_files, config_check, guide
+from cryptobench.stages.configuration import config_check, guide
+from stages import capture_files
 from cryptobench.pipeline.took import elapsed
 from cryptobench.pipeline.warn import warn
 from cryptobench.shared.document.document import parse_yaml

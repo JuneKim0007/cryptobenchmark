@@ -9,13 +9,13 @@ from failure import fail, reported
 from cryptobench.shared.errors.line import one_line
 from cryptobench.shared.errors.coded import Coded
 from cryptobench.pipeline.stage import Stage, StageContext
-from global_file import global_config
+from cryptobench.stages.configuration.global_file import global_config
 from cryptobench.shared import paths
 from cryptobench.shared.results import layout as results_layout
 from cryptobench.shared.results import run_inputs
 from cryptobench.shared.results.manifest import manifest
 from scope import code_digest
-from stages import config_check
+from cryptobench.stages.configuration import config_check
 from stages.benchmark import measure_cases
 from stages.check import check_run
 from stages.discover import device_discover, host_runtime

@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 
 from perfrepair.catalog.screening import SCREENING
 from perfrepair.guide.settings_tree import llm_tree, packaged_catalogs
-from stages.config_check import ConfigCheckError, parse_all
+from cryptobench.stages.configuration.config_check import ConfigCheckError, parse_all
 
 from cryptobench.shared import paths
 from facade import tree as settings_tree

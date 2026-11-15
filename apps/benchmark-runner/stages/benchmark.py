@@ -1,5 +1,5 @@
 """The benchmark of a plain run: on the device in passes and sessions, or on the host JVM; then the analysis."""
-import subprocess, sys, time
+import pathlib, subprocess, sys, time
 
 import dependencies, energy_stage
 from cryptobench.shared.settings import bundled, effective_view
@@ -11,7 +11,7 @@ from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared import paths
 from session import case_isolation, energy_hook, passes, variant_order, warmup
 from session import measure as measure_session
-from stages import guide, not_measured
+from stages import not_measured
 from stages.measuring import (Measuring, convert, energy_preflight, gated, pass_arguments, record, session_arguments, singles,
                               thermal_flag, timed_hooks)
 from cryptobench.shared.device.push import push
@@ -96,7 +96,7 @@ def measure_cases(options, device, results, discovery, effective, capture, trial
     if device:
         run = Measuring(device, EnergySession(device), energy_stage.source(effective, options.energy_python, options.stacktrace), options, discovery,
                         files, problems, effective_view.throttle_sleep(document), effective_view.case_cooldown(document))
-        written, processes = device_cases(run, document, [effective, guide.file_beside(effective), capture, trial], captures, benchmark, preparation)
+        written, processes = device_cases(run, document, [effective, paths.Configuration(pathlib.Path(effective).parent).guide, capture, trial], captures, benchmark, preparation)
     else:
         written, processes = host_cases(options, document, capture, trial, effective, benchmark, preparation, files, problems), repetitions
     print(f"wrote:     {paths.Preparation(preparation).prepared}")

@@ -8,7 +8,8 @@ import pytest
 import yaml
 
 from device import facts
-from stages import guide
+from cryptobench.stages.configuration import guide
+from stages import known_answers
 from cryptobench.shared.catalogue import guide_items, vectors
 from cryptobench.shared.catalogue.names import NAMES_DOC, Canonical, Names
 from cryptobench.shared.document.document import parse_yaml, read_yaml
@@ -60,8 +61,8 @@ def test_the_known_answers_writer_writes_the_shared_known_answers(tmp_path, monk
     effective, capture, configuration = tmp_path / "effective.yaml", tmp_path / "probe.yaml", tmp_path / "global.yaml"
     for path in (effective, capture, configuration):
         path.write_text("{}\n")
-    monkeypatch.setattr(guide.vectors, "filled", lambda *_arguments: (stated("known-answers"), []))
-    assert guide.write_known_answers(effective, capture, configuration).read_text() == (PARITY / "known-answers.yaml").read_text()
+    monkeypatch.setattr(known_answers.vectors, "filled", lambda *_arguments: (stated("known-answers"), []))
+    assert known_answers.write_known_answers(effective, capture, configuration).read_text() == (PARITY / "known-answers.yaml").read_text()
     assert stated("known-answers")["schemaVersion"] == vectors.SCHEMA_VERSION
 
 

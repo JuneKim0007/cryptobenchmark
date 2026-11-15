@@ -1,11 +1,11 @@
 """A --check run: every planned case called once through the real harness, on the host JVM or the device in one process, its output checked; check.yaml."""
-import shutil, time
+import pathlib, shutil, time
 
 from cryptobench.shared.device import gradle_runner
 from cryptobench.shared.device.adb import NO_DEFAULT_PROFILER, PASSED, DeviceError, instrumentation_report
 from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared.results.manifest import manifest
-from stages import guide
+from stages import known_answers as answers
 from cryptobench.shared import paths
 from cryptobench.shared.catalogue import vectors
 from stages.discover import device_discover
@@ -24,7 +24,7 @@ def check_run(options, configuration, device, root):
     into = paths.RunTree(results).check.root
     shutil.rmtree(into, ignore_errors=True)
     into.mkdir(parents=True)
-    known_answers = guide.write_known_answers(effective, capture, configuration)
+    known_answers = answers.write_known_answers(effective, capture, configuration)
     files["knownAnswers"] = known_answers
     started = time.monotonic()
     if device:
@@ -45,7 +45,7 @@ def on_host(options, effective, capture, trial, known_answers, into):
 
 def on_device(device, options, effective, capture, trial, known_answers, into):
     device.clear_outputs((paths.CHECK_RESULT,))
-    device.push_plan(effective, guide.file_beside(effective), capture, trial, known_answers)
+    device.push_plan(effective, paths.Configuration(pathlib.Path(effective).parent).guide, capture, trial, known_answers)
     suppressed = ["-e", "androidx.benchmark.suppressErrors", options.suppress_errors] if options.suppress_errors else []
     output = device.instrument("EndToEndCheck", *NO_DEFAULT_PROFILER, *DRY_RUN, *suppressed)
     if not PASSED.search(output):

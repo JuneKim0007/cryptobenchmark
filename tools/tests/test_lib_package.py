@@ -1,4 +1,4 @@
-"""A wheel built from lib/cryptobench ships the glossary codes.yaml beside its loader."""
+"""A wheel built from lib/cryptobench ships the glossary codes.yaml beside its loader, and no tests/ folder."""
 import pathlib
 import shutil
 import subprocess
@@ -15,3 +15,4 @@ def test_the_built_wheel_holds_the_glossary(tmp_path):
     [wheel] = (tmp_path / "dist").glob("*.whl")
     names = zipfile.ZipFile(wheel).namelist()
     assert {"cryptobench/shared/errors/codes.yaml", "cryptobench/shared/errors/glossary.py"} <= set(names)
+    assert not [name for name in names if "/tests/" in name]

@@ -86,5 +86,11 @@ cryptobench/shared/stats/equations.py : every calculation the temperature gate a
 cryptobench/shared/stats/units.py : DisplayUnits: nanoseconds per call in the chosen latency and throughput units; significant-figure numbers
 cryptobench/shared/versions/__init__.py : package of dependency versions
 cryptobench/shared/versions/order.py : a Gradle version: pinned or not; newest of several
+cryptobench/stages/__init__.py : package of the run's stages, one package each, importing none of them
+cryptobench/stages/configuration/__init__.py : package of the configuration stage
+cryptobench/stages/configuration/config_check.py : the parse-only check of a global.yaml and its test set before any build, through CheckConfigKt; providers.bundled from its output
+cryptobench/stages/configuration/global_file.py : the global.yaml a run reads: --config, CRYPTOBENCH_CONFIG, the user's, the repository's
+cryptobench/stages/configuration/guide.py : after effective.yaml: exactly its items picked from the implementation guide, written as guide.yaml beside it; one fallback line per provider
+cryptobench/stages/configuration/tests/ : pytest tests of the configuration stage
 pyproject.toml : the shared library's package metadata
 ```
