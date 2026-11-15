@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from cryptobench.shared.paths import RunTree
+from cryptobench.shared.settings import energy_capture
 from ..dto.event import LOG
 from ..dto.metrics import ENERGY, METRICS, Metric
 from ..dto.perf_mode import PerfMode
@@ -40,15 +41,11 @@ def harness_of(on_device: bool) -> Harness:
     return DEVICE if on_device else HOST
 
 
-def _capture(run: dict) -> str | None:
-    return ((run.get("harness") or {}).get("energy") or {}).get("capture")
-
-
 def switched_on(doc: dict) -> set[str]:
     """The registry `run` switches a global.yaml turns on: run.metrics, and energy when the run captures it."""
     run = doc.get("run") or {}
     on = set(run.get("metrics") or DEFAULT_METRICS)
-    return on | ({ENERGY.run} if _capture(run) in CAPTURES else set())
+    return on | ({ENERGY.run} if energy_capture.capture(run, default=None) in CAPTURES else set())
 
 
 def run_metrics(perf: PerfMode, harness: Harness) -> list[str]:
@@ -64,7 +61,7 @@ def _owned_run(run: dict, perf: PerfMode, harness: Harness) -> dict:
     # RunSettings.kt refuses an allocation pass without ALLOCATION in run.metrics
     if ALLOCATION_PASS in passes and ALLOCATION_RUN not in metrics:
         owned["passes"] = {k: v for k, v in passes.items() if k != ALLOCATION_PASS}
-    if not harness.captures_energy and _capture(run) in CAPTURES:
+    if not harness.captures_energy and energy_capture.capture(run, default=None) in CAPTURES:
         section = run["harness"]
         owned["harness"] = {**section, "energy": {**section["energy"], "capture": "none"}}
     return owned

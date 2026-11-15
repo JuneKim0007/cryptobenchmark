@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from cryptobench.shared.paths import RunTree
+from cryptobench.shared.settings import energy_capture
 from .. import run_dir as rd
 from ..data_handler.inbound import read_manifest
 from ..data_handler.inbound.manifest import manifest_file
@@ -47,7 +48,7 @@ def planned_set(device: Path) -> UsedSet:
 def _metrics(case: dict, perf: PerfMode) -> list[str]:
     """What the case was planned to measure, of what the perfMode selects."""
     planned = set(case.get("metrics") or ("TIME",))
-    capture = (((case.get("harness") or {}).get("energy") or {}).get("capture"))
+    capture = energy_capture.capture(case, default=None)
     chosen = [m.name for m in METRICS if m.run in planned or (m.kinds and capture in ENERGY_CAPTURES)]
     return [m for m in chosen if m in perf.names]
 
