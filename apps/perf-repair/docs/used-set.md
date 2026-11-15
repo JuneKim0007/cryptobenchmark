@@ -1,6 +1,6 @@
 # Used set
 
-With `device.filterByApps` (default `true`) the guide hands probe_device the targets' detect, and the device stage runs in two passes, so the apps are scanned on today's probe before anything is measured:
+With `device.filterByApps` (default `true`) the guide hands probe_device the targets' detect, and the device stage runs in two passes; the apps are scanned on the current probe before anything is measured:
 
 ```mermaid
 flowchart LR
@@ -13,69 +13,69 @@ flowchart LR
 |---|---|
 | probe | `pipeline.py --probe` (`--device --probe` on a phone) when the plan reruns the probe; the benchmark run later reuses it on a host (`--discovery reuse`), a phone probes again |
 | detect | each target's app step (`perfrepair.app`), no model; an app that fails here stops later at its own app step; the app step does not run twice |
-| used | `used.json` ([artifacts.md](artifacts.md#usedjson)): what the sites resolve to, their groups' members, for an item not yet grouped its candidates, so the benchmark already holds every option the model may later group it with, and for a broken item its upgrade targets (the list's, else its family's accepted items), so everything offered is measured first; the model is asked after the benchmark |
-| measured set | the used set joined with what device.yaml `benchmark.items` says was measured: a set grows, never shrinks, so a target removed keeps its rows |
+| used | `used.json` ([artifacts.md](artifacts.md#usedjson)): what the sites resolve to, their groups' members, for an item not yet grouped its candidates, for a broken item its upgrade targets (the list's, else its family's accepted items); the model is asked after the benchmark |
+| measured set | the used set joined with what device.yaml `benchmark.items` says was measured: it grows, never shrinks: a removed target keeps its rows |
 | benchmark | reruns for the plan's reasons; a set that grew or shrank reruns nothing: what it lacks is the [gate](#benchmark-gate)'s delta; a record without `benchmark` whose manifest is the base config's measured the whole base selection |
-| selection | `used-global.yaml`: the base `global.yaml`, its test set resolved, with one `selection.exclude` rule `{provider, type, name}` per device item (a declared transformation is one) outside the measured set; an item sharing its provider, type and canonical name with a kept one is never excluded; the base test set's includes, groups and overrides stay; `used-testset.yaml` is that test set with one `{provider, type, name}` include per used item the trial can run, in the provider's declared spelling, so a used item the test set lacks is planned (an empty include plans everything and is kept) |
-| probe digest | the manifest then carries the generated config's digest; device.yaml `benchmark.config` maps it back to the base digest, so the probe is judged by the base `global.yaml` |
+| selection | `used-global.yaml`: the base `global.yaml`, its test set resolved, with one `selection.exclude` rule `{provider, type, name}` per device item (a declared transformation is one) outside the measured set; an item sharing its provider, type and canonical name with a kept one is never excluded; the base test set's includes, groups and overrides stay; `used-testset.yaml` is that test set with one `{provider, type, name}` include per used item the trial can run, in the provider's declared spelling; a used item the test set lacks is planned (an empty include plans everything and is kept) |
+| probe digest | the manifest then carries the generated config's digest; device.yaml `benchmark.config` maps it back to the base digest; the probe is judged by the base `global.yaml` |
 | no item | no target reaches a device item: the base selection is measured, logged `device selection`, device.yaml records no `benchmark` |
 | off | `false`: `used.json` removed, every askable item asked; a record with `benchmark` reruns the benchmark on the base config (`device.filterByApps off: ...`); the gate checks the measured plan's items in place of the used set, with no anchors |
 
-- A changed set reruns nothing: a whole rerun is hours and discards valid data; the gate measures only the gap, under the stored setup, with anchors against cross-session drift.
+- A changed set reruns nothing; the gate measures only the gap, under the stored setup, with anchors against cross-session drift.
 - A first run makes two pipeline runs (probe, then benchmark); later runs with the same targets make none.
 - Logged: `device used` (`deviceItems`, `apps`, `sites`, `matched`, `used`, per `via`), `device selection` (`deviceItems`, `measured`, `excluded`), `device grouping` (`items` asked of, `asked`, `notUsed`).
-- Each excluded item the base selection never held is one `exclude_matches_nothing` warning in `effective.yaml`: harmless, and the price of not repeating cryptobenchmark's include matching here.
+- Each excluded item the base selection never held is one `exclude_matches_nothing` warning in `effective.yaml`.
 
 ## Benchmark gate
 
-`device/gate.py`, twice per guide run before a model call: after the used set (before grouping assign) and after grouping (the set made again from today's groups, before replace). Unit: (item, operation, variant, key size, input size, metric), each planned case of `prepared.yaml` per metric the perfMode selects; written to `log/details/benchmark_coverage.yaml`, its rows on `primitives_missing.yaml` as `not_benchmarked`.
+`device/gate.py`, twice per guide run before a model call: after the used set (before grouping assign) and after grouping (the set made again from the current groups, before replace). Unit: (item, operation, variant, key size, input size, metric), each planned case of `prepared.yaml` per metric the perfMode selects; written to `log/details/benchmark_coverage.yaml`, its rows on `primitives_missing.yaml` as `not_benchmarked`.
 
 | class | found | action |
 |---|---|---|
 | `never_planned` | a used item no case plans (outside the test set) | the delta |
 | `lost` | a planned case absent from the rows (`no_samples`, a failed process) | the delta, once |
-| `repeats` | lost again after the delta: `manifest.yaml` `retried` lists the cases a delta measured again, so no later run spends another | coded; not sent to the model |
+| `repeats` | lost again after the delta: `manifest.yaml` `retried` lists the cases a delta measured again; no later delta measures them again | coded; not sent to the model |
 | `refused` | the run log has it `skipped` or `not_runnable` (provider refusal, `not_repeatable`, the keystore provisioning gap) | coded |
 | `partial` | the case has rows, not this metric (`metric_missing`), or another variant of it has rows, not this one (`variant_missing`) | the delta: a partial-only delta keeps of `run.variants` the gaps' variants and of `run.passes` timing and the missing metrics' passes; the merge adds the missing metric to the stored case beside its untouched runs, `deltas[].filled`, the case reading as the delta's session |
-| `low_quality` | fewer runs than `MIN_RUNS` (`result/estimate.py`, the floor pImprove needs) | coded: the run block set the samples, so a delta under the same setup measures as few; no estimate, no stop |
+| `low_quality` | fewer runs than `MIN_RUNS` (`result/estimate.py`, the floor pImprove needs) | coded; no estimate, no stop |
 | `no_operation` | the type has no operations in the benchmark's `manifest.yaml` `operations`, the harness's list per engine type; a manifest without it skips this class | coded |
 
 | step | rule |
 |---|---|
-| onGap | `device.benchmark.onGap`: `delta` (default) measures the delta gaps once per gate point; `stop` ends `not_benchmarked` listing them; a gap left after the delta stops `not_benchmarked`, a fixed stop: a warning would measure, or go on, against what `onGap` or `--device-results` said |
+| onGap | `device.benchmark.onGap`: `delta` (default) measures the delta gaps once per gate point; `stop` ends `not_benchmarked` listing them; a gap left after the delta stops `not_benchmarked`, a fixed stop |
 | `--device-results` | no config to run with: `not_benchmarked` with the command that makes the device stage itself |
 | device | `--identify` before the delta: another device id than the folder's is `device_id_changed` |
 | delta config | `delta/global.yaml`: the stored benchmark's own config (`manifest.config`), run block untouched, its test set's include replaced by the gap items and their anchors, overrides kept |
 | printed | `delta:     <n> cases of <k> gap items and <a> anchors, about <m> min at <s> s a case`, from the stored plan and the last `took:      prepare and measure` line |
 | session | the same `pipeline.py` run: warm-up, thermal gate (the stored run's setting), per-case process, repetitions, variant order, passes |
-| anchors | the used items of a gap's family sharing an app with it, measured: every case measured in both sessions is compared on `timeNs` by `change_of` (`result/gain.py`, `criteria.yaml`); one beyond noise and past `improvingRatio` is `setup_drift`, and the delta's cases carry `sessionDrift`; no case compared (no anchor, or overrides left none shared) is `unchecked`: no comparison, so not read as undrifted, a line says why and its estimates carry `cross_session`. `deltas[].comparison` holds `checked`, `setup_drift` or `unchecked`; the delta's line says drift is unreliable on a host, whose clocks are not locked |
-| fingerprint | `device/setup_fingerprint.py` (a partial-only delta: the passes it left out and a subset of the variants are no difference), read from the stored benchmark's own files against the delta's, first after a `--probe` so a difference costs no session, again after measuring: device id, build fingerprint, compile mode, SDK or JVM, bundled providers with versions, process files, the energy mark, the effective `run` block and `prepared.yaml` `run`, and per shared case its parameters, harness, metrics and perCall; a difference stops `setup_mismatch` naming the field, nothing merged; `device.benchmark.onSetupMismatch: rerun` measures the whole benchmark again instead, the only whole rerun the gate starts |
-| merge | add-only: a case id the stored benchmark holds is refused (`merge_refused`); per case and metric the run count in the benchmark and each process file, a shared case's against its own, an added or filled one's against the stored cases planned with the same harness block, whatever their item (none alike, its own override: no check), else `unequal_samples`; new files under `benchmark/merged-<session>/`, `manifest.yaml` renamed in last with `deltas`, so an interrupt leaves the stored benchmark whole |
+| anchors | the used items of a gap's family sharing an app with it, measured: every case measured in both sessions is compared on `timeNs` by `change_of` (`result/gain.py`, `criteria.yaml`); one beyond noise and past `improvingRatio` is `setup_drift`, and the delta's cases carry `sessionDrift`; no case compared (no anchor, or overrides left none shared) is `unchecked`: a line says why and its estimates carry `cross_session`. `deltas[].comparison` holds `checked`, `setup_drift` or `unchecked`; on a host the delta's line says drift is unreliable (clocks not locked) |
+| fingerprint | `device/setup_fingerprint.py` (a partial-only delta: the passes it left out and a subset of the variants are no difference), read from the stored benchmark's own files against the delta's, first after a `--probe`, again after measuring: device id, build fingerprint, compile mode, SDK or JVM, bundled providers with versions, process files, the energy mark, the effective `run` block and `prepared.yaml` `run`, and per shared case its parameters, harness, metrics and perCall; a difference stops `setup_mismatch` naming the field, nothing merged; `device.benchmark.onSetupMismatch: rerun` measures the whole benchmark again instead, the only whole rerun the gate starts |
+| merge | add-only: a case id the stored benchmark holds is refused (`merge_refused`); per case and metric the run count in the benchmark and each process file, a shared case's against its own, an added or filled one's against the stored cases planned with the same harness block, whatever their item (none alike, its own override: no check), else `unequal_samples`; new files under `benchmark/merged-<session>/`, `manifest.yaml` renamed in last with `deltas` |
 | after | inbound and primitives again, device.yaml rewritten; `finished.json` sees new rows, the app's static steps rerun, Select asks only units whose dossier changed |
 | dossier | a pair across sessions is `cross_session` in `needsReview`; across a drifted one its estimate is `setup_drift`, not sent |
 
-- Not recorded, so not compared: the harness APK digest and a Mainline provider update without a build fingerprint change.
-- `run.onExisting: overwrite` discards the benchmark (owner decision): no gate rule guards it.
+- Not compared (not recorded): the harness APK digest and a Mainline provider update without a build fingerprint change.
+- `run.onExisting: overwrite` discards the benchmark; no gate rule guards it.
 
 ## Bundled providers
 
-A target can ship a JCA provider the device does not register. Measuring without it compares nothing the app runs, so the step after detect names each one, code only, no model (`device/bundled.py`).
+The step after detect names each JCA provider a target ships that the device does not register; code only, no model (`device/bundled.py`).
 
 | step | rule |
 |---|---|
 | missing | a provider a target's `app.json` `bundled` names, or a target's site resolved `not_on_device` to, neither among the probe's own providers (`origin` not `bundled`) nor shipped by a group:name in the base `providers.bundled` |
 | version | per app its build files' pin (a literal coordinate, a Gradle map, a version catalog entry; several in one app: the newest); apps that differ: the newest not in the row's `badVersions`, each app's pin kept in `missing[].coordinates[].pins`; a variable or a range is no pin |
-| `stops.bundled_missing` | `warn`: one terminate event and line `device bundled_missing: warn`, the run goes on; `stop`: the same event with outcome `stop`, the guide stops `bundled_missing`, listing provider, coordinates and apps, before the benchmark; the probe has run, since detect resolves against it. A stopped run resumes: a kept probe is reused |
+| `stops.bundled_missing` | `warn`: one terminate event and line `device bundled_missing: warn`, the run goes on; `stop`: the same event with outcome `stop`, the guide stops `bundled_missing`, listing provider, coordinates and apps, before the benchmark; the probe has run. A stopped run resumes: a kept probe is reused |
 | `fromApps` | `off`: no file, the catalog's verdicts are not logged; `suggest`: `bundled-suggestions.yaml`; `apply`: the same, and its matched rows are built in; on a host nothing is built: `applied` stays 0, the `device bundled` line ends `nothing applied: only a --device run builds and installs bundled providers`, and the provider stays missing |
 | matched | a catalog row of the coordinate's group:name for that provider, unblocked, at a pinned version not in its `badVersions`; every pin bad: blocked |
 | blocked | the row's `blocked` reason; listed, never applied; the provider stays missing |
 | unmatched | `no_catalog_row`, `no_coordinates` (a site names it, no build file ships it), `no_pinned_version`, `name_taken` (two rows register one name: the first wins); stays missing |
-| apply | `bundled-global.yaml`: the base and the entries, the base's first; the measured set's config is made from it; the per-app harness builds them too, or a candidate from an applied provider would not exist there |
-| second probe | when the probe's bundled artifacts are not the config's (`the probe does not hold the providers.bundled this run measures`), probe and screen run again on that config before the used set, so `grouping/items.json` holds the provider's items and the code-made groups cross providers; one more pipeline run, never a model call; a `--device` run only, since a host probe never holds them |
-| used set | a harness-bundled provider's item enters `used.json`, so stays measured, only when a site resolves to its type, canonical name and key size; a group or candidate reach alone does not bring it |
-| rerun | device.yaml `bundled.applied` holds the entries' digest; a different set reruns the benchmark on today's probe (`the providers.bundled entries device.bundled.fromApps applies changed`). `bundled.bundled` and `bundled.config` map the manifest's digests back to the base's, as `benchmark.config` does, so the base `global.yaml` still judges the probe and an unchanged set runs nothing |
+| apply | `bundled-global.yaml`: the base and the entries, the base's first; the measured set's config is made from it; the per-app harness builds them too |
+| second probe | when the probe's bundled artifacts are not the config's (`the probe does not hold the providers.bundled this run measures`), probe and screen run again on that config before the used set, so `grouping/items.json` holds the provider's items and the code-made groups cross providers; one more pipeline run, never a model call; a `--device` run only |
+| used set | a harness-bundled provider's item enters `used.json` only when a site resolves to its type, canonical name and key size; a group or candidate reach alone does not bring it |
+| rerun | device.yaml `bundled.applied` holds the entries' digest; a different set reruns the benchmark on the current probe (`the providers.bundled entries device.bundled.fromApps applies changed`). `bundled.bundled` and `bundled.config` map the manifest's digests back to the base's, as `benchmark.config` does; the base `global.yaml` judges the probe and an unchanged set runs nothing |
 
-- On a host the base's `providers.bundled` covers no provider: nothing builds it, so it stays missing, `host_cannot_build` in `log/details/primitives_missing.yaml` ([run-log.md](run-log.md)).
-- With `device.filterByApps` only: without it nothing is detected before the benchmark, so the step does not run, and any applied set is dropped with a benchmark on the base. `--device-results` names a finished folder, so it does not run there either.
+- On a host a missing provider stays missing (nothing builds it): `host_cannot_build` in `log/details/primitives_missing.yaml` ([run-log.md](run-log.md)).
+- The step runs with `device.filterByApps` only; without it any applied set is dropped with a benchmark on the base. It does not run with `--device-results`.
 - Logged: `device bundled` (`missing`, `matched`, `blocked`, `unmatched`, `applied`), one `device bundled.<kind>` per non-empty kind with `data.items` (only `missing` with `off`), `device bundled_missing` with `data {code, items}`.
 - An applied provider measures under its alias: a site naming the provider's own name still resolves `not_on_device`, and its items enter the used set only through a group whose algorithm another site names.

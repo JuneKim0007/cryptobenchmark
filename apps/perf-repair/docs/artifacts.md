@@ -48,7 +48,7 @@
 | `.lock` | the guide and probe_device(), `fcntl.flock`, the holder's pid | a second run: `device_busy` | none |
 | `*/outbox/<fingerprint>/charter.json` | the engine, when it opens the outbox | the engine (`charter_mismatch`), validation | `check/device.py`: rehashed to the folder's name |
 | `log/events.jsonl` | every command, appended | watch, log summary, the views | `validation/events.py` |
-| `log/status.log`, `log/ai/<stage>.log`, `log/bug.log` | the event sink, from the same events | people, log summary (status) | none: `log/views.py` renders them; [run-log.md](run-log.md) |
+| `log/status.log`, `log/bug.log` | the event sink, from the same events | people, log summary (status) | none: `log/views.py` renders them; [run-log.md](run-log.md) |
 | `log/pipeline/<run id>.log` | `benchmark_runner.py`, appended per `pipeline.py` call | people, a `pipeline_failed` finding's ref | none |
 | `log/details/primitives_missing.yaml`, `log/details/benchmark_coverage.yaml` | the guide, through `device/primitives_missing.py` and `device/benchmark_coverage.py` (each gate point); rewritten whole | people; no stage reads them back | `validation/primitives_missing.py`, `validation/benchmark_coverage.py`, before writing; [run-log.md](run-log.md) |
 | `delta/`, `benchmark/merged-<session>/` | the benchmark gate's delta (`device/delta.py`, `device/delta_merge.py`): its config, test set and pipeline results; the merged files beside the stored ones | the merge; `manifest.yaml` then names the merged files and lists `deltas` | the setup fingerprint and an add-only merge ([used-set.md](used-set.md#benchmark-gate)) |
@@ -89,7 +89,7 @@
 
 ## `primitives.tsv`
 
-One stored, compact view of the benchmark results, smaller than `rows.json` and `measurements.json`.
+One stored, compact view of the benchmark results.
 
 | part | holds |
 |---|---|
@@ -97,11 +97,11 @@ One stored, compact view of the benchmark results, smaller than `rows.json` and 
 | key columns | `type`, `algorithm`, `provider`, `operation`, `keySize`, `phase`, `variant`, `status`: one line per key; `type` and `phase` keep two primitives apart that share the rest, `variant` (`fixed`, `notFixed`) the two benchmark variants of one primitive, never mixed |
 | `status` | the item's run-level `grouping/screen.json` status (no targetSdk); deprecated lines stay with their status, a site's current call needs its own line |
 | `<metric>@<input size>` | the median, per registry metric (`dto/metrics.py`) with runs and per input size it was measured at, `@-` without an input size; `-` where that size was not measured |
-| `<metric>.n` | the fewest runs among that metric's cells: one energy window beside fifty timings is `energyJ.n` 1, `timeNs.n` 50 |
+| `<metric>.n` | the fewest runs among that metric's cells |
 | `<metric>.cv` | the largest coefficient of variation among that metric's cells |
 
-- Stored in the registry units (`timeNs` in ns/op), never in the display units: a unit change rewrites no file; a reader converts when it shows a line.
-- Numbers carry 4 significant digits: the table is for reading; `measurements.json` keeps the runs, and pImprove is computed from it, never from the table.
+- Stored in the registry units (`timeNs` in ns/op), never in the display units; a reader converts when it shows a line.
+- Numbers carry 4 significant digits; pImprove is computed from `measurements.json`, never from the table.
 - Device stage: rebuilt when `rows.json`, `measurements.json` or `grouping/screen.json` differ from the digests `device.yaml` `primitives` recorded, when inbound or screen rerun, when it is missing or in another schema, and with `guide --refresh`; else reused ([pipeline.md](pipeline.md) Device stage).
 
 ## `used.json`
@@ -115,10 +115,10 @@ The device items the target apps need, and which app needs each; code joins site
 | `items[]` | `{item, via, apps}`: the qualified name, the strongest way any app reaches it, the apps that do |
 | `via: site` | an app's site resolves to it |
 | `via: group` | a member of the group of a `site` item: its options |
-| `via: candidate` | the `site` item has no grouping record yet: every askable item of its family whose signature no component both know sets apart, and the members of their model groups; the model may group them together |
+| `via: candidate` | the `site` item has no grouping record yet: every askable item of its family whose signature no component both know sets apart, and the members of their model groups |
 
 - A site that resolves to no item (`unresolved_*`, `not_on_device`, `name_conflict`, an engine type no family covers) adds nothing.
-- Rewritten on each run before the benchmark, and after a screen rerun; absent with `device.filterByApps: false`, so nothing narrows grouping.
+- Rewritten on each run before the benchmark, and after a screen rerun; absent with `device.filterByApps: false`, and then nothing narrows grouping.
 
 ## `manifest.yaml` (cryptobenchmark)
 
@@ -138,6 +138,6 @@ The device items the target apps need, and which app needs each; code joins site
 | Status | Means |
 |---|---|
 | `measured` | a case produced samples |
-| `skipped` | preparation or config dropped it (skipped.yaml); `refused`, allowed by the dto, is one inbound never writes |
+| `skipped` | preparation or config dropped it (skipped.yaml) |
 | `unmeasured` | prepared, but no samples came back and no file says why (`no_samples`); or in `benchmark.json` without runs of a required metric (`no_required_metric`), left out of the rows |
 | `not_runnable` | the inventory marks it `runs: false` (stage `trial`) |

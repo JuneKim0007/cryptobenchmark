@@ -20,7 +20,7 @@ The signature is best effort and exists only to reduce model calls: contract row
 
 | Engine type | Splits |
 |---|---|
-| Cipher | base, mode, padding, digest, mgf1, wrap, passwordBased, kdf, key |
+| Cipher | base, mode, padding, digest, mgf1, wrap, passwordBased, kdf, derivedBits, key |
 | Signature | scheme, digest, mgf1, salt, curve, encoding, prehashed, key |
 | Mac | construction, digest, passwordBased, kdf, key |
 | MessageDigest | function |
@@ -28,14 +28,13 @@ The signature is best effort and exists only to reduce model calls: contract row
 | KeyGenerator, KeyPairGenerator | function, consumer, key, keyMaterial |
 
 - Seed: names of one family whose signatures, the key aside, are equal share a proposed row; the key contract splits a row at build, never in the catalog.
-- A generator's `key` is its trial's: no attribute says whether the key it makes stays inside the provider.
-
+- A generator's `key` is its trial's.
 - `keyMaterial` is the trial's `defaultRun.keyMaterial`, else `exportable` for `app_held` and `non_exportable` for `provider_held`, else `unknown`; a generator whose default run failed records nothing.
 - `keyMaterial` is the one component where `unknown` decides: gate C refuses to join an unknown side to a known one; a generator whose key contract is unknown joins nothing (Generators).
 - A screened-out generator group splits by `keyMaterial` too; no other screened-out group id changes.
 - A model answer joins no group across a component both sides know (gate C).
 - A model never joins a code-made group; it may join a catalog group whose members' known components agree with its own.
-- Decided: a password-based name's derived key length (`_128`/`_256`, `128BIT`) is the `derivedBits` component and splits, because the provider derives the key from the name; a key size the call passes (`AES_128/...`) does not split.
+- A password-based name's derived key length (`_128`/`_256`, `128BIT`) is the `derivedBits` component and splits; a key size the call passes (`AES_128/...`) does not split.
 
 ## Generators
 
@@ -48,5 +47,5 @@ The signature is best effort and exists only to reduce model calls: contract row
 | any other format or none, a run that failed or did not run, sizes whose keys disagree | `unknown` |
 
 - Cross-check: the same provider's consumers of that key algorithm (a run whose `keyAlgorithm` is the generator's name; a run that failed names none, so any consumer of the key's kind counts), by their key attributes; one known contract that differs makes it `unknown` with `keyContractConflict` and a `key_contract_conflict` finding in `checks.json`.
-- `unknown` joins no group: a screened-out or listed one is a code-made group of one (`screen/groups.py`); an unlisted one is asked, and gate C refuses an answer that joins any group with it or joins a group holding it; the failure is a missing option, never a swap that moves a key out of its provider.
-- The prompt is unchanged: the model sees only the `facts.key.key` it already reads.
+- `unknown` joins no group: a screened-out or listed one is a code-made group of one (`screen/groups.py`); an unlisted one is asked, and gate C refuses an answer that joins any group with it or joins a group holding it.
+- The model sees a generator's key contract only as `facts.key.key`.

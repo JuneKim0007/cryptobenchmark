@@ -7,9 +7,6 @@ flowchart LR
     O[outbound: benchmark_runner] -- global.yaml --> B[cryptobenchmark pipeline.py]
     B -- results/device_id/manifest.yaml --> I[inbound]
     B -- manifest --> G[grouping: build, assign per item, report]
-    I -- rows, measurements --> E[evidence + triage: static]
-    G -- grouping/groups.json --> E
-    W --> V
     A[app: detect, scope] -- app/scopes.json --> D[repair dossier]
     G -- grouping/groups.json --> D
     I -- rows, measurements --> D
@@ -70,9 +67,9 @@ Before any stage it runs `apps/benchmark-runner/dependencies.py` (a missing modu
 | several targets | a metric is required only by a target with a list | the same |
 
 - The line `measures: <metrics> on the <harness>, perfMode <name>; not measured: <metrics>` prints before any run.
-- A base `global.yaml` that already says so is used as it is, its digest unchanged. Otherwise `<device>/metrics-global.yaml` is the base with the decided `run.metrics`, and the device stage reads it as its base: a perfMode that changes what is measured changes `inputs.config`, so the next device stage reruns probe and benchmark.
+- A base `global.yaml` that already says so is used as it is, its digest unchanged. Otherwise `<device>/metrics-global.yaml` is the base with the decided `run.metrics`, and the device stage reads it as its base; a perfMode that changes what is measured changes `inputs.config` and the next device stage reruns probe and benchmark.
 - A `run.metrics` written in the base that differs is `run_metrics_overridden`, one warning; `perfMode` wins. The generated file also drops what the config would refuse without the metric: `run.passes.allocation`, and on a host `run.harness.energy.capture`.
-- Energy captured with `energy` not selected is logged `perf_mode_extra`: device time no decision reads.
+- Energy captured with `energy` not selected is logged `perf_mode_extra`.
 - Decided where the guide makes the device folder (`--results-root` set, no `--device-results` or `device.id`); a named device folder is taken as measured. An existing run that lacks a metric: [run.md](../../../docs/run.md#recover-a-metric-without-a-device).
 
 | input | digest kept in | probe | benchmark | inbound | screen (grouping build) | primitives |
@@ -89,9 +86,9 @@ Before any stage it runs `apps/benchmark-runner/dependencies.py` (a missing modu
 
 - A stage also runs when its output is missing: no manifest (probe), no `files.benchmark` (benchmark), no `rows.json` (inbound), no `grouping/screen.json` (screen), no `primitives.tsv` (primitives); and when a stage it reads from reruns.
 - Probe and benchmark are one `pipeline.py --bench` (`--device` on a phone); on a host a kept probe is passed `--discovery reuse`; a phone always probes again, logged `ran: a device benchmark probes the device it measures`.
-- Without device.yaml (or unreadable), inbound and screen rerun; probe and benchmark are judged by the manifest's `inputs`, so a `pipeline.py --probe` run is kept. A fresh root runs everything.
-- `device.yaml` is removed before the first stage runs and written after the last, so an interrupted call leaves no record and the next call reruns what the record would have vouched for; a failed pipeline run leaves no manifest ([results.md](../../../docs/results.md)).
-- The device id is the build fingerprint only, so adding a bundled provider keeps the folder; the digests, not the id, trigger the rerun.
+- Without device.yaml (or unreadable), inbound and screen rerun; probe and benchmark are judged by the manifest's `inputs`, and a `pipeline.py --probe` run is kept. A fresh root runs everything.
+- `device.yaml` is removed before the first stage runs and written after the last: an interrupted call leaves no record and the next call reruns those stages; a failed pipeline run leaves no manifest ([results.md](../../../docs/results.md)).
+- The device id comes from the build only: adding a bundled provider keeps the folder; the digests, not the id, trigger the rerun.
 - Each stage prints `device <stage>: reused` or `device <stage>: ran: <reason>`; a probe writing another folder than `--identify` named is `device_id_changed`.
 - With `device.screening.aiReview` on, probe_device builds without the review; run `grouping build` for it.
 
@@ -101,13 +98,13 @@ With `device.filterByApps` the device stage probes, detects the targets and meas
 
 ## Grouping knowledge
 
-`device/coverage.py`, on every guide run, never stored: pending is every item neither screened out nor catalog-listed (`probe/identified.py`), in `used.json` (every one without it), with no record in the active outbox; the rest is `notUsed`, `ran: <n> of <m> items asked, <k> not used by the targets` (a `dropped` record counts: it was asked).
+`device/coverage.py`, on every guide run, never stored: pending is every item neither screened out nor catalog-listed (`probe/identified.py`), in `used.json` (every one without it), with no record in the active outbox; the rest is `notUsed`, `ran: <n> of <m> items asked, <k> not used by the targets` (a `dropped` record counts as asked).
 
 | found | model calls | `guide grouping:` |
-|---|---|---|---|
-| nothing pending, saved files current | | 0 | `reused` |
-| nothing pending, `knowledge.json`, `checks.json` or `groups.json` not what the outbox and items make | | 0 | `rebuilt from the kept decisions` |
-| items pending | | one conversation per pending item | `ran: <n> of <m> items asked` |
+|---|---|---|
+| nothing pending, saved files current | 0 | `reused` |
+| nothing pending, `knowledge.json`, `checks.json` or `groups.json` not what the outbox and items make | 0 | `rebuilt from the kept decisions` |
+| items pending | one conversation per pending item | `ran: <n> of <m> items asked` |
 
 - A named folder (`--device-results`, `device.id`) without `grouping/items.json` stops with `missing_device_stage`; with it, pending items are asked as above.
 - A device-stage rerun that changes the items reaches this step the same way: new primitives are asked, removed ones leave `groups.json`, and moved ids change nothing (`docs/grouping.md` Record key).

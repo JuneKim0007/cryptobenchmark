@@ -61,7 +61,7 @@ Each line starts with a code word, then what it is about, then `: <detail>`; `lo
 
 ## Primitives missing
 
-`<device>/log/details/primitives_missing.yaml`, schema 1: `schemaVersion`, `run` (the run id), `missing` (a list of rows). Only `device/primitives_missing.py` writes it, atomically, and whole on every change, so a killed run leaves what it knew. It holds an empty list from the moment the guide has the device folder, so a clean run leaves no stale file.
+`<device>/log/details/primitives_missing.yaml`, schema 1: `schemaVersion`, `run` (the run id), `missing` (a list of rows). Only `device/primitives_missing.py` writes it, atomically and whole on every change; it holds an empty list from the moment the guide has the device folder.
 
 | field | holds |
 |---|---|
@@ -85,10 +85,10 @@ Each line starts with a code word, then what it is about, then `: <detail>`; `lo
 | `variant_not_measured` | a scope whose primitive was measured only in the other benchmark variant (`dossiers.json` `noOptions`) | always `skipped` |
 | `not_benchmarked` | a used item with a gap in the benchmark gate's check, `next` its class and reason | `skipped` for a coded gap, else `stopped` |
 
-- The guide holds the rows in memory: no stage reads this file back, so the rule of this folder stands.
-- `## to check primitives skipped or stopped due to not downloading them go <path>` is one `finding` event, emitted with the run's first row, so `status.log` has it once per run, among the findings it points from; none with an empty list.
+- No stage reads this file back; the guide holds the rows in memory.
+- `## to check primitives skipped or stopped due to not downloading them go <path>` is one `finding` event, emitted with the run's first row, once per run; none with an empty list.
 - The guide prints the same line once, last of all it prints, whether it stopped or finished, when the list is not empty.
-- A standalone `perfrepair.app` writes no list: only the guide runs every source.
+- A standalone `perfrepair.app` writes no list.
 
 ## Event fields
 
@@ -107,7 +107,7 @@ Each line starts with a code word, then what it is about, then `: <detail>`; `lo
 - A static step emits `start` and `end`; a model step emits `start`, a `decision` per attempt, `end`.
 - No prompt or reply text is in an event; the attempt log and the outbox record hold it.
 - Records logged before the device folder is known are kept and written, in order, once it is; a command that never names an existing folder writes nothing.
-- Each line is one append of a whole line; an append to a file a crash left mid-line writes a newline first, so the cut line stays its own line, and the sink adds one `append_repaired` finding.
+- Each line is one append of a whole line; an append to a file a crash left mid-line writes a newline first and the sink adds one `append_repaired` finding.
 - Every reader of a JSON-lines file goes through `files.read_jsonl`: whole lines only; a line that is a prefix of JSON, cut by a crash, is skipped; any other line that does not parse is refused; the validator reports a partial last line.
 - Records past the 10000 kept before the device folder is known are counted, one `log_dropped` finding when the folder is bound; a `data` value of a shape JSON cannot write is written as text.
 - The stderr lines are the same as without the log: event records stay off stderr, and setting lines at DEBUG reach only `events.jsonl`.

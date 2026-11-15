@@ -12,7 +12,7 @@
 
 ## Precedence
 
-`broken` > `platform_deprecated` > `accepted` > `unknown`; the first that applies is the verdict. The model review only changes an `unknown` verdict ([Model review](#model-review)); the don't-lower-the-status rule ranks `broken` < `platform_deprecated` < `unverified` = `unknown` < `accepted` (`dto/screen.py` `RANK`): a model's `accepted` is an opinion, not a citation, so a same-algorithm swap between `unverified` and `unknown` is allowed in both directions.
+`broken` > `platform_deprecated` > `accepted` > `unknown`; the first that applies is the verdict. The model review only changes an `unknown` verdict ([Model review](#model-review)); the don't-lower-the-status rule ranks `broken` < `platform_deprecated` < `unverified` = `unknown` < `accepted` (`dto/screen.py` `RANK`); a same-algorithm swap between `unverified` and `unknown` is allowed in both directions.
 
 ## Lookup
 
@@ -20,7 +20,7 @@
 - key size: dropped; `AES_256/GCM/NoPadding` is looked up as `AES/GCM/NoPadding`.
 - components: a transformation `base/mode/padding` is `broken` when its base or its mode is listed.
 - nominal mode: a mode the names catalog maps another mode onto for a base (`modeSynonyms`) never matches that base; `RSA/ECB/*` is not ECB.
-- platform: applies only with a targetSdk; `screen/stage.py` passes none, so `grouping/screen.json` never says `platform_deprecated`.
+- platform: applies only with a targetSdk; `screen/stage.py` passes none; `grouping/screen.json` never says `platform_deprecated`.
 - recorded key: each verdict in `screen.json` (schema 5) carries the `canonical` name and `keySize` it was looked up by, and `providerHeld` from the item's key contract; `null` for a `name_conflict`. A `broken` or `platform_deprecated` verdict needs a canonical name. `keySize` is recorded provenance: no group key, status or target rule reads it.
 
 ## Use
@@ -29,7 +29,7 @@
 - a run without `screen.json` asks every item, and dossiers and evidence apply no status rule.
 - never a target: a `broken` target is refused always, the same algorithm from another provider included; a `platform_deprecated`, `unverified` or `unknown` target (only a cited `accepted` row may be a different algorithm) is allowed only with the current item's canonical name (any key size: the dossier's pins match it) and at no worse a status (`dto/screen.py` `refused_target`); a broken current goes to Select's broken uses ([upgrade.md](upgrade.md)); dossier options ([replacement.md](replacement.md) Contracts) follow it.
 - per app: the dossier step raises screen.json's verdict by app.json's `targetSdk` with `ScreeningHandler.for_app`, the gate `verdict` uses; evidence is run-level and sees no platform status.
-- handler: `grouping build`, `repair dossier`, the guide and `check` judge by the catalog `screen/catalog.py` `screening_catalog` resolves ([Settings](#settings)); the dossier step takes the handler as a parameter, not from a RunContext, since it has no manifest.
+- handler: `grouping build`, `repair dossier`, the guide and `check` judge by the catalog `screen/catalog.py` `screening_catalog` resolves ([Settings](#settings)).
 - assign: the prompt does not ask the model to mark a group weak; screening decides it.
 
 ## Settings
@@ -41,32 +41,32 @@
 | `device.screening.catalog` names a file | that file, relative to `perfrepair.yaml` | none |
 | `device.screening.catalog` names no file | none: the step exits non-zero with `missing_file` | none |
 
-- Catalog identity: `screen.json` records `catalog: {source, sha256}` (`source` is `packaged` or the file's path); `repair dossier`, the guide (at its prerequisites step, before any other step runs) and `check` compare it with the catalog they resolved and refuse a different `sha256` with `screening_catalog_mismatch`, so a run is never judged by two catalogs. Same content under another path passes.
-- A named catalog that does not load, or is no path (`invalid`), is never replaced by the packaged one: skipping screening would let a broken algorithm become a target. The row is `OnInvalid.ERROR`.
+- Catalog identity: `screen.json` records `catalog: {source, sha256}` (`source` is `packaged` or the file's path); `repair dossier`, the guide (at its prerequisites step, before any other step runs) and `check` compare it with the catalog they resolved and refuse a different `sha256` with `screening_catalog_mismatch`. Same content under another path passes.
+- A named catalog that does not load, or is no path (`invalid`), is never replaced by the packaged one. The row is `OnInvalid.ERROR`.
 - The resolution is the `device.screening.catalog` row of `inputs/table.py` ([settings.md](settings.md) Inputs).
 
 ## Model review
 
-With `screening.aiReview: true`, `grouping build` asks the classify role (`ai/parse/algorithm_classify/`, settings role `device.screening.classify`) about the items no catalog row decides, after the static screen and before `screen.json` is written. Off (the default), the build makes no model call.
+With `device.screening.aiReview: true`, `grouping build` asks the classify role (`ai/parse/algorithm_classify/`, settings role `device.screening.classify`) about the items no catalog row decides, after the static screen and before `screen.json` is written. Off (the default), the build makes no model call.
 
 | Rule | Value |
 |---|---|
-| asked | `unknown` items with a canonical name; a `name_conflict` has no key a verdict could be recorded by; a sourced row is never second-guessed |
+| asked | `unknown` items with a canonical name, never a `name_conflict` and never an item a row decides |
 | batch | 10 items per decision, in item order (`screen/evidence.py` `BATCH`); the batch key is its ids |
 | evidence | engine type, name, canonical, provider, family, trial `instantiates` and error, `className`, attributes; all recorded by code, no tool that runs code |
 | answer | per listed id: `deprecated`, `accepted` or `unsure`, and a reason |
 | gate | only listed ids, each exactly once, an allowed value, a non-empty reason (`validation/parse/algorithm_classify.py`) |
-| outbox | `grouping/classify/outbox/<fingerprint>/`; the charter inputs are the whole evidence, so another unknown set starts a new outbox and a reverted one resumes; a rebuild resumes without new calls |
+| outbox | `grouping/classify/outbox/<fingerprint>/`; the charter inputs are the whole evidence: another unknown set starts a new outbox, a reverted one resumes; a rebuild resumes without new calls |
 | dropped batch | every item of it stays `unknown` (answer `unsure`, reason `dropped: ...`) |
-| dry run | `--agent dry-run` answers `unsure` for every id, so no verdict changes |
+| dry run | `--agent dry-run` answers `unsure` for every id |
 
 | Answer | Verdict | Effect |
 |---|---|---|
-| `deprecated` | `broken`, `source: model:<fingerprint>`, applied at once | grouped by code, never a target; a wrong one only removes a candidate |
+| `deprecated` | `broken`, `source: model:<fingerprint>`, applied at once | grouped by code, never a target |
 | `accepted` | `unverified`, `source: model:<fingerprint>` | asked by assign; a source, never a target (except as the same algorithm); a row in `grouping/registry-candidates.yaml` |
 | `unsure` | unchanged `unknown` | none |
 
-- `screen.json` then carries `review: {fingerprint}`; its validator refuses a `model:` source without a `review`, or one that is not `model:<review fingerprint>`, so no verdict is sourced by a model run screen.json does not name; `check` validates the classify outbox, `classify/classified.json` and `registry-candidates.yaml` against it and refuses a model-sourced verdict no answer sets.
+- `screen.json` then carries `review: {fingerprint}`; its validator refuses a `model:` source without a `review`, or one that is not `model:<review fingerprint>`; `check` validates the classify outbox, `classify/classified.json` and `registry-candidates.yaml` against it and refuses a model-sourced verdict no answer sets.
 - Confirming: a person turns a `registry-candidates.yaml` row (`id`, `type`, `name`, `canonical`, `provider`, `reason`, `fingerprint`) into a sourced `crypto` row of the configured `device.screening.catalog`; the next build screens it `accepted` statically and the model no longer sees it.
 
 ## Data (`src/perfrepair/catalog/screening.yaml`)

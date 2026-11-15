@@ -13,7 +13,7 @@
 - Command: `python3 -m perfrepair.validation.invariants <device> [--apps <folder>] [--against <device>] [--json <file>]`; one line per finding, a count per invariant, exit 1 on any `blocking`.
 - Guide: before an app's `replace` step, a `blocking` finding of its own scopes or of a group its dossiers draw from stops with `invariant_failed`; then an `undecided` one is `invariant_undecided`, a warning by default (`stops.invariant_undecided: stop` stops); advisory ones are only printed by the command.
 - Guide: scoping rules read the source from the `--app` it was given, not app.json `root`.
-- `--apps`: the folder that holds the app trees, when app.json `root` has moved; without a readable source a scoping rule is `undecided`.
+- `--apps`: the folder that holds the app trees when it is not app.json `root`; without a readable source a scoping rule is `undecided`.
 
 ## Boundaries
 
@@ -46,9 +46,8 @@ Read from `grouping/groups.json`, `profiles.json`, `checks.json`, `screen.json` 
 | `algorithm_split` | advisory | one canonical name of `screen.json` in several groups of a family, with members of equal screen status, key contract and signature in each |
 | `grouping_stable` | blocking | with `--against`: two items whose key contract, key kind, runs and signature are equal in both runs are together in one run and apart in the other |
 
-- A screened-out item in `groups.json` is `broken` (`platform_deprecated` is per app, never in screen.json), and a `broken` item is never an option (`refused_target`, `dto/screen.py`), so a screened-out group is exempt unless a dossier names it.
+- A screened-out item in `groups.json` is `broken` (`platform_deprecated` is per app, never in screen.json); a `broken` item is never an option (`refused_target`, `dto/screen.py`).
 - A failed interop pair is never an option: `validation/dossiers/dossier.py` refuses it; no invariant repeats it.
-- `algorithm_split` is advisory: a false split loses options and joins nothing wrong; whether to merge is the model's call.
 
 ## Scoping
 
@@ -57,7 +56,7 @@ Read from each app's `scopes.json` and `units.json` against the source under app
 | Invariant | Severity | Fails when |
 |---|---|---|
 | `site_line_holds_call` | blocking | the cited line does not start the recorded `call` (whitespace ignored, the call may run on over its lines) |
-| `held_in_field_setup_once` | blocking | a `held_in_field` scope's use one method away sits in a function that calls the factory of the engine type, or the engine's configuration on the same receiver; a configuration call is accepted when every `fixed` row of the scope's type and algorithm in `rows.json` has `perCall` `initAndOperation`: that variant measures a re-init per call, so the pattern is right |
+| `held_in_field_setup_once` | blocking | a `held_in_field` scope's use one method away sits in a function that calls the factory of the engine type, or the engine's configuration on the same receiver; a configuration call is accepted when every `fixed` row of the scope's type and algorithm in `rows.json` has `perCall` `initAndOperation` |
 | `created_per_call_one_function` | blocking | a `created_per_call` scope's use line holds no call of that name, or no use is inside the function around the site |
 | `inverse_link_sides` | blocking | the operations read from an `inverse` link's step lines (`scope/engines.yaml` operations, `scope/units/relations.yaml` steps) are not inverses in `relations.yaml` |
 

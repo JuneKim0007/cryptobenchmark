@@ -73,9 +73,9 @@ The type facts of each entry in `../../algorithms/<family>_catalogue.yaml` ([alg
 | `availability_unknown` | the candidate's `minSdk` is null, or above API 1 with the app's unread, and its provider is not bundled |
 | `not_measured` | it does not run, its provider is absent, or `rows.json` has no line of it |
 | `deprecated` | screening refuses it for this app (`refused_target`), or a broken current's candidate is not `accepted` |
-| `same_engine` | a member of the current item's group from its own provider under the same canonical name (`AES/...` and `AES_128/...`): one engine, no signal to measure, and the key size that tells them apart is never known at the site; kept in `notOffered`, never offered |
+| `same_engine` | a member of the current item's group from its own provider under the same canonical name (`AES/...` and `AES_128/...`); kept in `notOffered`, never offered |
 | `not_listed` | a broken current's accepted candidate the upgrade list leaves out while it has a measured target |
-| `no_gain` | of a current that is not broken, of any class: one estimate proven worse (ratio at or above `1 / improvingRatio`, `pImprove` at or below 1 minus the top level's floor, `result/criteria.yaml`) and no estimate at or below `improvingRatio`; an estimate with `pImprove` null proves nothing and saves nothing unless its ratio improves |
+| `no_gain` | of a current that is not broken, of any class: one estimate proven worse (ratio at or above `1 / improvingRatio`, `pImprove` at or below 1 minus the top level's floor, `result/criteria.yaml`) and no estimate at or below `improvingRatio`; an estimate with `pImprove` null is never proven worse, and its ratio still counts as improving |
 
 - Every reason found is listed, not the first.
 - A candidate of the current item's canonical name is left to grouping: it is a drop-in or nothing.
@@ -89,14 +89,14 @@ The type facts of each entry in `../../algorithms/<family>_catalogue.yaml` ([alg
 
 ## Two tracks
 
-An option's `track` says whether it is the provider path or a recommendation. It is a label for people: no step reads it to allow or refuse a swap (`result/options.py` sets it, `validation/dossiers/dossier.py` checks it).
+An option's `track` says whether it is the provider path or a recommendation; no step reads it to allow or refuse a swap (`result/options.py` sets it, `validation/dossiers/dossier.py` checks it).
 
 | `track` | Holds when | Means |
 |---|---|---|
 | `provider_path` | a drop-in, the same canonical name, from another provider, and both the provider the site is on and the one offered are in the app's process (Availability) | the same output from another implementation the app already has |
-| `recommendation` | any other option | a swap and what would have to change; deliberately loose |
+| `recommendation` | any other option | a swap and what would have to change |
 
-- The provider a site is on (`result/provider_path.py`): the one it names; a name the app ships and the harness measures under its alias (`app.json` `bundled`, the probe's `artifact`) is that alias's item; a `default` site in an app that inserts a provider it ships at position 1 (`registers` `call`, `position`, matched to `catalog/bundled-providers.yaml` `create`) is on that provider's item when it registers the name, so the platform member is its provider path back; any `default` site's options carry `resolved_by_order`.
+- The provider a site is on (`result/provider_path.py`): the one it names; a name the app ships and the harness measures under its alias (`app.json` `bundled`, the probe's `artifact`) is that alias's item; a `default` site in an app that inserts a provider it ships at position 1 (`registers` `call`, `position`, matched to `catalog/bundled-providers.yaml` `create`) is on that provider's item when it registers the name; any `default` site's options carry `resolved_by_order`.
 - A same-canonical member from the current item's own provider is `same_engine`, never an option; a group of nothing else plans no interop pair.
 
 ## Review facts
@@ -111,7 +111,7 @@ Every option carries three fields code computes; the model is not asked for them
 
 | `needsReview` | Holds when the output changes and |
 |---|---|
-| `reach_local_unverified`, `reach_return_unverified`, `reach_unknown`, `reach_persist` | its reach: `local` is a pattern reading, and a returned value's callers are not read |
+| `reach_local_unverified`, `reach_return_unverified`, `reach_unknown`, `reach_persist` | its reach is `local`, `return`, `unknown` or `persist` |
 | `field_bound` | the lifecycle's binding is `field` |
 | `output_length_changes` | another output kind, an output length of null on either side, or two lengths |
 | `key_changes` | the diff's `key` is not `same` |
@@ -120,7 +120,7 @@ Every option carries three fields code computes; the model is not asked for them
 | `adds_dependency` | the candidate's provider is the harness's, not the app's (any output) |
 | `resolved_by_order` | the site's provider is the default order's (any output, any track) |
 
-- A recommendation stays a recommendation: `return` and `local` reach stay `local-edit`, offered up to `apps.maxChange`, deliberately loose; `needsReview` says what a person checks before it means anything for the app.
+- `return` and `local` reach stay `local-edit`, offered up to `apps.maxChange`; `needsReview` lists what a person checks.
 
 ## `apps.maxChange`
 

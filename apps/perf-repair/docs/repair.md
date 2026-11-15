@@ -8,7 +8,6 @@ Command: `python3 -m perfrepair.repair <step> --device-results <device> --app <s
 | edit | | `scopes.json`, `replacements.json`, `upgrades.json`'s `upgraded` rows, the app tree (read only) | `edits.json`; `original/` and `patched/` copies of the changed files |
 | harness | | `scopes.json`, `replacements.json`, `edits.json`, `dossiers.json`, `original/`, `patched/`, the manifest's `effective.yaml` | `harness.yaml`; `harness/<scope>/before.<ext>`, `after.<ext>` |
 
-
 ## Edit kinds
 
 | Kind | Fields | Change |
@@ -20,14 +19,14 @@ Command: `python3 -m perfrepair.repair <step> --device-results <device> --app <s
 - A scope's call is re-found on `scope.line`, inside lines `scope.start..scope.end`, by its text with whitespace and comments ignored.
 - `scope.call` is the call's source from the engine type to its closing parenthesis.
 - The `init` is `v.init(` where `v` is assigned the call's result, or a bare `init(` in a Kotlin `.apply { }` or `.run { }` on the call.
-- Spec fields are the keys a results row's `parameters` carry (`tagBits`, `ivBytes`, `digest`, `mgf1`), so a row's pins name them directly.
+- Spec fields are the keys a results row's `parameters` carry (`tagBits`, `ivBytes`, `digest`, `mgf1`).
 - A random-bytes field (`ivBytes`) renders a fresh `SecureRandom` array, only for an `init` whose mode is in `encryptingModes`.
 - Splices keep line numbers: newlines of a replaced span follow the new text.
 - Every applied scope of one file shares that file's `patched/` copy.
 
 ## edits.json
 
-`{"schemaVersion": 1, "app", "edits": [{"scope", "status": "applied"|"rejected", "reason", "diff"}]}`, one row per `replace` decision, in scope id order; `reason` is null when applied, `diff` empty when rejected.
+`{"schemaVersion": 1, "app", "edits": [{"scope", "status": "applied"|"rejected", "reason", "diff"}]}`, one row per `replace` decision (an `upgraded` broken use included), in scope id order; `reason` is null when applied, `diff` empty when rejected.
 
 | Reason | Means |
 |---|---|
@@ -41,7 +40,7 @@ Command: `python3 -m perfrepair.repair <step> --device-results <device> --app <s
 | `missing_parameter`, `unknown_parameters` | an edit lacks its field, or its fields match no single spec |
 | `unsupported_kind`, `unsupported_language` | an edit kind or file suffix this step does not handle |
 | `file_missing`, `no_edits`, `no_change`, `overlapping_edits` | the source file is gone, the replacement has no edits, the edits change nothing, two scopes' spans overlap |
-| `unit_member_rejected` | another member of its unit was rejected, so no member is applied; the row's `blockedBy` is `<scope>: <reason>`; the report's edit reason carries it |
+| `unit_member_rejected` | another member of its unit was rejected and no member is applied; the row's `blockedBy` is `<scope>: <reason>`; the report's edit reason carries it |
 
 ## harness.yaml
 
@@ -66,10 +65,10 @@ scopes:
 
 - Paths are relative to the folder of `harness.yaml`; only applied scopes are listed.
 - `inverse` is the scope's partner by an `inverse` link of `units.json`, both sides applied; cryptobenchmark's round trip takes it, never a name.
-- `upgrade`: the swap replaces a broken algorithm, so its output differs by definition; see [upgrade.md](upgrade.md).
+- `upgrade: true`: the swap replaces a broken algorithm and its output differs ([upgrade.md](upgrade.md)).
 - `current` and `option` are two different items: the pair cryptobenchmark's primitive interop oracle checks.
 - `before` and `after` are lines `scope.start..scope.end` of the original and patched file, verbatim. When two units applied edits in one function, `after` comes from `patched-alone/<unit>/`, that unit's edits only: the function is checked as original, A swapped only, B swapped only, never with both.
-- `imports` keeps a line whose simple name or alias a function's text uses (Kotlin: in any position, since an extension reads as a member; an operator or delegate convention name always); a header annotation's import is dropped with the annotation; a wildcard stays only while a dependency is unresolved.
+- `imports` keeps a line whose simple name or alias a function's text uses (Kotlin: in any position; an operator or delegate convention name always); a header annotation's import is dropped with the annotation; a wildcard stays only while a dependency is unresolved.
 - `notMeasurable: no_operation`: the function only creates, configures or hands back its primitive (`repair/operation.py`, setup names in `repair/setup_calls.yaml`); cryptobenchmark records it and never generates it. A form the check cannot read counts as an operation.
 - `dependencies` is the union over both functions: identifiers not declared in the function, not after another receiver's `.`, not a keyword, not imported, and not in `repair/names.yaml`.
 - `inputs` is one entry per scope, never one per size; `from` says where its sizes came from:
@@ -80,7 +79,7 @@ scopes:
 | `from: run` | otherwise; an item's sizes are the union over its `providers.<p>.<type>.<name>` and `<name>@<group>` entries of `effective.yaml`, the name matched case-insensitively |
 | item `inputSize`s | the entry's `inputSizes`, else `run.inputSizes` (preparation's rule) |
 | item `keySize`s | the entry's `keySizes`; none when the provider chose the size (`providerDefaults: [keySize]` records no value) |
-| chosen size | the largest size configured for both `current` and `option`, so before and after run at a size the benchmark configured for each, and the largest because it spreads the function's per-call setup over the most data; none shared is null, which the harness reports `missing_input` |
+| chosen size | the largest size configured for both `current` and `option`; none shared is null, which the harness reports `missing_input` |
 | `item_not_configured` | `current` or `option` has no entry: the device folder's manifest is not the run the groups came from; the step fails |
 | `missing_effective` | the manifest has no `files.effective`; the step fails |
 
@@ -92,8 +91,8 @@ scopes:
 | imports | by name only: a Java name used only as a member after `.` keeps no import; a kept wildcard may resolve none of the names |
 | no_operation | tokens around the call, not data flow: a field the function sets is an operation when it calls one of its own methods |
 | argument split | generic angle brackets are not counted, so `f(Map<A, B>)` reads as two arguments |
-| pin with an app-supplied IV | rejected; the IV length cannot be changed without changing the app's data flow |
+| pin with an app-supplied IV | rejected |
 | default provider | the first by precedence that registers the name; a Cipher transformation also matches like JCA: `A/M`, `A//P`, then `A`, within the service's `SupportedModes` and `SupportedPaddings` |
-| app-registered provider | `Security.insertProviderAt(<a shipped provider's create>, 1)` puts it ahead of the device for a `default` site, whose current item becomes its harness alias's; `addProvider` or another position moves nothing; every `default` site's option says `resolved_by_order`: static order is a candidate, never proof |
+| app-registered provider | `Security.insertProviderAt(<a shipped provider's create>, 1)` puts it ahead of the device for a `default` site, whose current item becomes its harness alias's; `addProvider` or another position moves nothing; every `default` site's option says `resolved_by_order` |
 | provider rejecting the key at `init` | not skipped |
 | Cipher transformation served only through its base service | not resolved |

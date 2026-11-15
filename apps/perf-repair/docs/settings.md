@@ -27,7 +27,7 @@
 - `aiGateway.<name>.effort` or `PERFREPAIR_EFFORT` sets every role, assign included; `--effort` or the role's own `effort` sets one role.
 - `--agent`, `PERFREPAIR_AGENT` and `aiGateway.use` name the gateway; a role's `gateway` overrides them for that role.
 - Gateway, model and effort stay out of the charter fingerprint: changing them never rotates an outbox.
-- Each resolved value records its source: `cli`, `env <VAR>`, `file <path> [section]`, `.env <VAR>`, `default [role]`; each is logged once as `setting <key>: <value> (<source>)` (`config/load.py`): at INFO, so on stderr, when a file or the environment chose it; at DEBUG when it is a flag or a default, kept only in `log/events.jsonl`.
+- Each resolved value records its source: `cli`, `env <VAR>`, `file <path> [section]`, `.env <VAR>`, `default [role]`; each is logged once as `setting <key>: <value> (<source>)` (`config/load.py`): at INFO (on stderr) when a file or the environment chose it; at DEBUG when it is a flag or a default, kept only in `log/events.jsonl`.
 
 ## Keys
 
@@ -42,20 +42,20 @@
 | `aiGateway.claude.effort` | `low`, `medium`, `high`, `xhigh`, `max` | `medium` | warning | `--effort`; `PERFREPAIR_EFFORT` |
 | `aiGateway.claude.binary` | a command | `claude` | warning | the CLI of `auth: subscription` |
 | `paths.prompts` | a folder | packaged prompts | warning | `--prompts` |
-| `device.id` | a folder under `--results-root` | its only device | error | every command's device folder when `--device-results` is unset; a fallback would read another device's numbers |
+| `device.id` | a folder under `--results-root` | its only device | error | every command's device folder when `--device-results` is unset |
 | `device.screening.catalog` | a file | the packaged `catalog/screening.yaml`, logged | error | `grouping build`, `repair dossier`, `guide`, `validation` ([screening.md](screening.md) Settings) |
 | `device.screening.aiReview` | `true`, `false` | `false` | warning | `grouping build`: the model review of unknown items |
 | `device.grouping.turns`, `device.grouping.sessions`, `device.grouping.limit` | positive integers | 3, 2, all items | warning | `grouping assign`, the last its `--limit` |
 | `device.benchmark.onGap`, `device.benchmark.onSetupMismatch` | `delta`, `stop`; `stop`, `rerun` | `delta`; `stop` | warning | the benchmark gate (`device/gate.py`, [used-set.md](used-set.md) Benchmark gate): a used item a delta can measure is measured once with only the gaps, or `stop` ends with `not_benchmarked`; a delta whose setup differs stops `setup_mismatch` naming the field, `rerun` measures the whole benchmark again, the only way the gate starts one |
 | `device.filterByApps` | `true`, `false` | `true` | warning | the guide (`guide/device_steps.py` prerequisites): `true` detects the targets on the probe, writes `used.json` and has the device stage measure, and grouping ask, only the items they use and their options; `false` removes `used.json`, every item is asked and the base selection measured ([used-set.md](used-set.md)) |
-| `device.bundled.fromApps` | `off`, `suggest`, `apply` | `off` | warning | the same step: `suggest` writes `<device>/bundled-suggestions.yaml` from `catalog/bundled-providers.yaml`; `apply` also builds its matched, unblocked rows into the generated config at the app's pinned version, on a `--device` run only. Not recommended: prepare `providers.bundled` yourself |
+| `device.bundled.fromApps` | `off`, `suggest`, `apply` | `off` | warning | the same step: `suggest` writes `<device>/bundled-suggestions.yaml` from `catalog/bundled-providers.yaml`; `apply` also builds its matched, unblocked rows into the generated config at the app's pinned version, on a `--device` run only |
 | `apps.targets` | a list of `{root: ...}`, `{path: ...}` (each with an optional `perfMode`) or bare paths, relative to the file; or a string: a targets file of that list ([targets.md](targets.md)) | none | warning | `guide` without `--app`: every app the entries resolve to, in order, the rest skipped with their reason; `--app` runs one; an entry's `perfMode` (as `apps.perfMode`) is that app's for its dossier, verdict, report and `finished.json`; `--perf-mode` outranks it; the device stage checks the union |
 | `apps.perfMode` | `generic` or `all` (every registry key, overall judgement), or a list of `latency`, `throughput`, `memAlloc`, `energy` ([modes.md](modes.md)) | `generic` | warning | `guide --perf-mode`: the metrics the dossiers and the replace render carry; owns `run.metrics` of the benchmark ([pipeline.md](pipeline.md) Device stage), a differing `run.metrics` warns |
 | `apps.limit` | a positive integer | all scopes | warning | `guide --limit` |
 | `apps.device` | `true`, `false` | `false` | warning | `guide --device`: the per-app device step (compile and interop check of `harness.yaml`) and the report; with probe_device it also makes the device stage on the phone, else on the host |
-| `apps.review` | `true`, `false` | `false` | warning | `ai replace` and the guide: a reviewer one tier up reads each Select pick that will edit code, never `none`, a keep or a person's ([decisions.md](decisions.md) Select); off spends no review tokens |
+| `apps.review` | `true`, `false` | `false` | warning | `ai replace` and the guide: a reviewer one tier up reads each Select pick that will edit code, never `none`, a keep or a person's ([decisions.md](decisions.md) Select) |
 | `apps.maxChange` | `drop-in`, `local-edit`, `migration` ([change-classes.md](change-classes.md)) | `drop-in` | warning | `guide --max-change`: the highest change class a dossier option may have; higher ones are recommendations, never applied |
-| `timeouts.claude`, `timeouts.pipeline` | seconds, positive integers | 3600, 86400 | warning | each `claude -p` call (read at spawn) and each `pipeline.py` call, `--identify` included (read when it starts), by `config/timeouts.py`: past it the child and its children are killed; `claude_cli_timeout` is a coded failure the step's `<step>_failed` line carries, `pipeline_timeout` one stop |
+| `timeouts.claude`, `timeouts.pipeline` | seconds, positive integers; `timeouts.pipeline` also `unlimited` | 3600, 518400 | warning | each `claude -p` call (read at spawn) and each `pipeline.py` call, `--identify` included (read when it starts), by `config/timeouts.py`: past it the child and its children are killed; `claude_cli_timeout` is a coded failure the step's `<step>_failed` line carries, `pipeline_timeout` one stop |
 | `stops.bundled_missing`, `stops.not_on_device`, `stops.perf_mode_unmeasured`, `stops.perf_mode_maybe_unmeasured`, `stops.energy_invalid`, `stops.energy_unreadable`, `stops.thermal_throttled_at_end`, `stops.no_required_metric`, `stops.invariant_undecided` | each code's allowed actions ([stops.md](stops.md)) | the code's default | warning | read when the code fires |
 
 | role | file section | role default | budget |
@@ -75,13 +75,13 @@
 
 | value comes from | row policy | result |
 |---|---|---|
-| a CLI flag | any | error: the user typed it now; `--turns`, `--perf-mode`, `--agent` at argparse (exit 2), `--effort`, `--auth`, `--model` at spawn (exit 1) |
+| a CLI flag | any | error; `--turns`, `--perf-mode`, `--agent` at argparse (exit 2), `--effort`, `--auth`, `--model` at spawn (exit 1) |
 | the file, the environment or `.env` | `OnInvalid.USE_DEFAULT` | one warning, then the default; the command proceeds |
-| the file, the environment or `.env` | `OnInvalid.ERROR` | error: a fallback is unsafe, it could allow broken algorithms or reach the wrong provider or account |
+| the file, the environment or `.env` | `OnInvalid.ERROR` | error |
 
 - The warning: `invalid: <key> <value>, <expected>; using the default <default> (<source>)`, or `; ignored (<source>)` when the row has no default.
-- The default is the row's: the role's code default, then the general one; lower layers are skipped, so a bad role `effort` never picks up a dearer `PERFREPAIR_EFFORT`.
-- One exception: a bad value in a gateway's block counts as unset at that layer, so a valid `.env` value below it still applies.
+- The default is the row's: the role's code default, then the general one; lower layers are skipped.
+- One exception: a bad value in a gateway's block counts as unset at that layer, and a valid `.env` value below it applies.
 - A check runs when a command reads the row. A command that reads no row of a section says nothing about its values; a role's values and a gateway's block are read only by a model-calling command.
 - A section that is not a mapping: an error when it holds an `OnInvalid.ERROR` row, else a warning `invalid: <section> <value>, a mapping; ignored`.
 
@@ -93,7 +93,7 @@
 | `missing_secret: <VAR>: gateway <name> ...` | the gateway's secret is in neither the environment nor `.env` |
 | `invalid: <key> <value>, <expected> (<source>)` | a bad flag, or a bad value of an `OnInvalid.ERROR` row |
 | `secret_key: <path>` | a key that names an API key, token, secret or password, or a value shaped like an Anthropic key; anywhere in the file, lists and unknown keys included |
-| `invalid_yaml: <file>` | the file is not YAML, so no secret check is possible |
+| `invalid_yaml: <file>` | the file is not YAML |
 | `missing_file: <file> (<origin>)` | the flag or `PERFREPAIR_CONFIG` names no file |
 | `missing_file: <input>: <value> (<source>)` | a set `device.screening.catalog` does not load |
 | `several_device_results`, `device_not_in_results`, `no_device_results`, `not_device_results` | `--results-root` does not name one device: [artifacts.md](artifacts.md#folders) |
@@ -139,7 +139,7 @@ device:
 | `claude`, `auth: api` | `auth`, `model`, `effort` | `ANTHROPIC_API_KEY` | the Messages API; needs `pip install -e .[api]` |
 | `dry-run` | none | none | no model |
 
-- `--agent claude` names the gateway, and without `auth` it runs the logged-in CLI, never the API key: billing follows `auth`, and only `auth: api` or `--auth api` reaches the Messages API.
+- `--agent claude` without `auth` runs the logged-in CLI, never the API key; only `auth: api` or `--auth api` reaches the Messages API.
 - `aiGateway.use: nope` is `unknown_gateway`, one error line at spawn; `claude-code` is no gateway name: `--agent claude-code` is a usage error and `PERFREPAIR_AGENT=claude-code` is `unknown_gateway`.
 - A CLI that cannot be started or answers with an error is `claude_cli_failed`, one error line from the command; `auth: subscription` runs it, and every `pipeline.py` call runs, without `ANTHROPIC_API_KEY` or `ANTHROPIC_AUTH_TOKEN` in the child environment (`child/env.py`).
 - `auth: api` without the `anthropic` package is `claude_api_missing`.

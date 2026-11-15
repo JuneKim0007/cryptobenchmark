@@ -19,7 +19,7 @@ Select's broken uses ([decisions.md](decisions.md) Select): row `apps.replace`, 
 | `no_secure_option` | the family has no accepted, measured member; a report line, the run goes on |
 | `not_reached` | another `noOptions` reason came first, named in `reason` |
 
-- Code decides edit or person from these facts; the model's risk list plays no part. A `return` reach is a person's: its callers are not read, and a caller may store the value (threema `calcVerification` is stored and compared later). Only the lifecycle's `outputCompared` lifts it: the function reads its outputs only to compare them with each other and keeps none (`scope/lifecycle/output.py`).
-- A `local` reach stays an edit, with `reach_local_unverified` in `review`: `sinks` are patterns over the body, so a store they do not name reads `local`.
+- Code decides edit or person from these facts; the model's risk list plays no part. A `return` reach is a person's (`reach_return_unverified`) unless the lifecycle's `outputCompared` holds: the function reads its outputs only to compare them with each other and keeps none (`scope/lifecycle/output.py`).
+- A `local` reach stays an edit, with `reach_local_unverified` in `review`.
 - `person_judges: <reasons>` in `noOptions`: every accepted, measured member is refused by a reject reason, such as `deterministic_lost` or `strength_unknown`; the row's `needs` are those reasons.
 - An upgrade's swap gets no `same_output` check: `harness.yaml` marks it `upgrade: true`, the plan records `output_changes` and compares nothing for it. A partner in the harness keeps `round_trip`, each side on its own variant's artifact.
