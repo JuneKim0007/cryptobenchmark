@@ -2,7 +2,7 @@
 import sys
 
 from cryptobench.shared.device import timeouts
-from cryptobench.shared.device.adb import DeviceError
+from cryptobench.shared.device.adb import DeviceError, DeviceLost
 from cryptobench.shared.errors.line import one_line
 from cryptobench.shared import paths
 from cryptobench.shared.settings.energy_capture import capture, source as source_of
@@ -46,6 +46,8 @@ def guarded(problems, step):
     """An energy step that fails costs this process its energy, never its timing: one error line, recorded."""
     try:
         step()
+    except DeviceLost:
+        raise
     except (EnergyError, DeviceError, timeouts.StepTimeout) as error:
         line = "energy_failed: " + one_line(error)
         print(f"error: {line}", file=sys.stderr)

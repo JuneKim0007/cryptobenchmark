@@ -9,7 +9,7 @@ from cryptobench.pipeline.warn import warn
 from cryptobench.shared.errors.line import one_line
 from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared import paths
-from cryptobench.stages.measurement.session import case_isolation, energy_hook, passes, variant_order, warmup
+from cryptobench.stages.measurement.session import case_isolation, energy_hook, passes, reconnect, variant_order, warmup
 from cryptobench.stages.measurement.session import measure as measure_session
 from cryptobench.stages.measurement.measuring import (Measuring, convert, energy_preflight, gated, pass_arguments, pull_pins, record, session_arguments,
                                                          singles, thermal_flag, timed_hooks)
@@ -39,7 +39,7 @@ def measure_on_device(run, one, captures, preparation, isolation, repetitions, f
     plan = measure_session.Plan("CryptoBenchmark", arguments, timed=bool(timed), order=variant_order.interleaved,
                                 cleared=(paths.PREPARED, paths.SKIPPED), stale=(paths.Preparation(preparation).prepared, paths.Preparation(preparation).skipped),
                                 pull_plan=lambda process: (pull_plan(device, preparation), pull_pins(device, process.into)), after_process=converted,
-                                gate=gate, retries=run.retries)
+                                gate=gate, retries=run.retries, reconnect=run.reconnect)
     measure_session.run_session(device, plan, repetitions, isolation, hooks, folder, run.problems)
 
 
@@ -63,8 +63,10 @@ def measure_cases(options, device, results, discovery, effective, capture, trial
         # the effective config holds the captures a test set turned on, which the first check could not see
         require_energy(energy_stage.source_name(effective), options.energy_python)
     if device:
+        waits = reconnect.Reconnect.of(device, options)
+        print(waits.line())
         run = Measuring(device, EnergySession(device), energy_stage.source(effective, options.energy_python, options.stacktrace), options, discovery,
-                        files, problems, effective_view.throttle_sleep(document), effective_view.case_cooldown(document))
+                        files, problems, effective_view.throttle_sleep(document), effective_view.case_cooldown(document), reconnect=waits)
         written, processes = device_cases(run, document, [effective, paths.Configuration.holding(effective).guide, capture, trial], captures, benchmark, preparation)
     else:
         written, processes = host_cases(options, document, capture, trial, effective, benchmark, preparation, files, problems), repetitions
@@ -79,9 +81,10 @@ def device_cases(run, document, plan_files, captures, benchmark, preparation):
     chosen, repetitions = passes.read(document, captures), effective_view.process_repetitions(document)
     energy = any(one.captures(captures) - {"none"} for one in chosen)
     run = gated(run, document)
-    push(run.device, run.options, plan_files, (lambda: energy_preflight(run.options, run.source, run.session, run.discovery, run.files)) if energy else None)
+    energy_step = (lambda: energy_preflight(run.options, run.source, run.session, run.discovery, run.files)) if energy else None
+    run.reconnect.retried(lambda: push(run.device, run.options, plan_files, energy_step), "the plan push")
     isolation = effective_view.isolation(document)
-    warm_up(run, document, preparation)
+    run.reconnect.retried(lambda: warm_up(run, document, preparation), "the warm-up")
     measure_one = lambda one, folder, written: measure_on_device(run, one, captures, preparation, isolation, repetitions, folder, written)
     return passes.run_all(chosen, repetitions, benchmark, measure_one, run.options), repetitions * len(chosen)
 

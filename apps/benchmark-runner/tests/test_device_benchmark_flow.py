@@ -12,7 +12,8 @@ from cryptobench.stages.measurement import benchmark  # noqa: E402
 from failure import reported  # noqa: E402
 from fake_phone import Energy, Phone, fake_tools  # noqa: E402
 
-OPTIONS = types.SimpleNamespace(stream=False, suppress_errors="", stacktrace=False, energy_python="python3", energy_accept_unresponsive=False)
+OPTIONS = types.SimpleNamespace(stream=False, suppress_errors="", stacktrace=False, energy_python="python3", energy_accept_unresponsive=False,
+                                reconnect_wait_minutes=None, reconnect_poll_seconds=None)
 
 
 def steps(phone):

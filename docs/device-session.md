@@ -15,7 +15,20 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 | a process hook fails to start | the hooks whose `before_process` ran, the failing one included, are abandoned in reverse (the energy window closes); the error ends the run as before |
 | a process hook fails to close | every other hook's `after_process` still runs (later failures print `warning: hook_failed: ...`), the pulled data is converted to `benchmark.json`, then the first error ends the run |
 | Ctrl-C, SIGTERM, SIGHUP | the signals map to Ctrl-C (`pipeline.py` `STOP_SIGNALS`; SIGHUP where the platform has it); the interrupt kills `adb`, not the test it started, so the session force-stops the app on the device before abandoning the hooks; the run then ends as an interrupt |
+| lost device | [Lost device](#lost-device) |
 | any stop inside a process | after the hooks are abandoned, `prepared.yaml`, `skipped.yaml` and `cpu-pins.yaml` are pulled once more (a failed pull: `warning: plan_not_pulled: ...`); the process's `case_failed` lines join `problems`; the manifest is written marked `partial` ([results.md](results.md#manifestyaml)) |
+
+## Lost device
+
+`lib/cryptobench/cryptobench/shared/device/adb.py` turns any adb call whose output names a lost transport (`device unauthorized`, `device offline`, `device '<serial>' not found`, `no devices/emulators found`, `error: closed`, adb server errors), and an `am instrument` that did not pass while `adb get-state` no longer says `device`, into `device_lost: adb <command>: <reason>`.
+
+| rule | value |
+|---|---|
+| printed at measurement start | `device:    a lost adb transport is waited for up to <m> min, adb get-state every <s> s` |
+| in a case | never a failed case: `lib/cryptobench/cryptobench/stages/measurement/session/reconnect.py` polls `adb get-state` until it says `device`, then the same case is held by the gate and launched again; its retries and discards are unchanged |
+| outside a case | the step (output clear, case listing, plan pull, a hook's process step, plan push, gate start, warm-up) runs again once the device is back |
+| past the bound | `device_lost: <reason>; not back after <s> s (adb get-state: <state>); run stopped`: the hooks close without waiting again, the cases measured so far stay, the manifest is marked `partial`, the run exits 1 |
+| discovery | install, probe and configure do not wait: a lost device there ends the run |
 
 ## Passes
 

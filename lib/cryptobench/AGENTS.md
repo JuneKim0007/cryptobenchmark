@@ -41,7 +41,7 @@ cryptobench/shared/document/dump.py : dump_yaml, a value as YAML text through on
 cryptobench/shared/document/json_dump.py : json_text, a document as JSON text (indent 1); write_json, that text through write_text
 cryptobench/shared/document/write.py : write_text, a file replaced whole through a temporary of its writer's own (mode as a plain open gives, fsync and folder fsync when durable, exclusive refuses an existing file); Staging, the temporary's name, mode and fsync per writer (STAGED, MANIFEST); write_texts, several files staged then renamed in order
 cryptobench/shared/device/__init__.py : package of the host's device steps, importing no app
-cryptobench/shared/device/adb.py : the adb transport of a --device run: connect, identity by getprop, install, instrument and its OK line and report, push, pull, force-stop
+cryptobench/shared/device/adb.py : the adb transport of a --device run: connect, identity by getprop, install, instrument and its OK line and report, push, pull, force-stop; a lost transport as DeviceLost, adb get-state
 cryptobench/shared/device/capture.py : a capture's runtime block, its schema version checked; the guide's platform name for it
 cryptobench/shared/device/clocks.py : per-core cpufreq over adb; clocks.yaml and cpuLocked
 cryptobench/shared/device/gradle_runner.py : runs one command of apps/benchmark/cli by its main class; filters its failure to the tool's own lines
@@ -122,6 +122,7 @@ cryptobench/stages/measurement/session/gate_history.py : what one temperature ga
 cryptobench/stages/measurement/session/launch.py : the only place a timed run of a case starts: hold, launch, verdict, retries
 cryptobench/stages/measurement/session/measure.py : one device measuring session of the benchmark: processes, a process per case or one for all, hooks; a process repetition's folder and line, a case's progress line
 cryptobench/stages/measurement/session/passes.py : run.passes: one device session per metric group, its device arguments and conversion, the merge per metric; MergeRunsKt over process repetitions
+cryptobench/stages/measurement/session/reconnect.py : a lost adb transport mid-run: the bounded wait polling adb get-state, the step or case again, DeviceGone past the bound
 cryptobench/stages/measurement/session/thermal_hook.py : session hook: temperature around every process and case into thermal.json with the gate's history, its lines per pass
 cryptobench/stages/measurement/session/variant_order.py : run.variants on a device: an item's fixed and notFixed cases adjacent, A/B then B/A over repetitions
 cryptobench/stages/measurement/session/warmup.py : run.warmup: a pre-flight run of a few planned cases before the first pass, off at 0 iterations; its output never pulled

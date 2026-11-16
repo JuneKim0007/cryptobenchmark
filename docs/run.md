@@ -18,8 +18,8 @@ The command for both sides is `apps/cli/facade.py` ([facade.md](facade.md)); thi
 ```
 python3 apps/benchmark-runner/pipeline.py [--config PATH] [--results DIR] [--discovery overwrite|keep|reuse]
                             [--bench | --device] [--suppress-errors ERRORS] [--energy-python PYTHON]
-                            [--energy-accept-unresponsive] [--stacktrace] [--stream] [--harness HARNESS_YAML]
-                            [--interop PLAN_YAML] [--probe] [--identify]
+                            [--energy-accept-unresponsive] [--reconnect-wait-minutes M] [--reconnect-poll-seconds S]
+                            [--stacktrace] [--stream] [--harness HARNESS_YAML] [--interop PLAN_YAML] [--probe] [--identify]
 ```
 
 | flag | default | effect |
@@ -34,6 +34,7 @@ python3 apps/benchmark-runner/pipeline.py [--config PATH] [--results DIR] [--dis
 | `--suppress-errors ERRORS` | `CRYPTOBENCH_SUPPRESS_ERRORS`, else `""` | passed as `androidx.benchmark.suppressErrors`, e.g. `EMULATOR,UNLOCKED`; numbers are then not comparable; the variable reaches a run the guide or facade starts |
 | `--energy-python PYTHON` | `sys.executable` | interpreter with `apps/benchmark-runner/energy/requirements.txt` installed; `requirements-manafa.txt` too for `energy.source: manafa` |
 | `--energy-accept-unresponsive` | off | run energy cases on unresponsive rails, see [energy.md](energy.md#pre-flight) |
+| `--reconnect-wait-minutes M`, `--reconnect-poll-seconds S` | 60, 10 (`lib/cryptobench/cryptobench/stages/measurement/session/reconnect.py`) | `--device`: how long a lost adb transport is waited for before the run stops, and how often `adb get-state` is asked meanwhile ([device-session.md](device-session.md#lost-device)); without `--device` or negative fails |
 | `--stacktrace` | off | print the tool's full output on failure |
 | `--stream` | off | show each tool's progress |
 | `--harness HARNESS_YAML` | off | with `--device`: generate, compile, install and interop-check perf-repair's scopes, original against patched, instead of the plan's cases; nothing is timed, see [scoped.md](../apps/benchmark/modules/android/docs/scoped.md) |

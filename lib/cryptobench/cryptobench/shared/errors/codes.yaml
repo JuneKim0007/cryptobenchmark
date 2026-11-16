@@ -1050,6 +1050,7 @@ codes:
   device_id_bad_sdk: {kind: error}
   device_id_empty_slug: {kind: error}
   device_id_fields_missing: {kind: error}
+  device_lost: {kind: error}
   device_not_attached: {kind: error}
   different_case: {kind: error}
   different_parameters: {kind: error}

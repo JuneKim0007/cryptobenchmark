@@ -6,7 +6,7 @@ from cryptobench.shared.device import timeouts
 from cryptobench.stages.measurement.session import case_isolation
 from cryptobench.stages.measurement.session import dynamic_temperature, passes
 from cryptobench.stages.measurement import thermal
-from cryptobench.shared.device.adb import PASSED, DeviceError
+from cryptobench.shared.device.adb import PASSED, DeviceError, DeviceLost
 from cryptobench.shared.device.plan import clear_outputs
 from cryptobench.shared.errors.line import one_line
 from cryptobench.pipeline.warn import warn
@@ -54,6 +54,8 @@ def run(device, test_class, arguments, planned, cases, document, gate=dynamic_te
     try:
         output = device.instrument(test_class, *arguments, *named, step="case")
         failed = None if PASSED.search(output) else device.report(output)
+    except DeviceLost:
+        raise
     except (DeviceError, timeouts.StepTimeout) as error:
         device.force_stop()
         failed = str(error)
