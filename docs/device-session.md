@@ -116,7 +116,7 @@ Why: the phone's power controller lowers the CPU limit once skin reaches its own
 | `run` | `measure:   one process for every case (isolation: run)` | one `am instrument` holding every timed case |
 
 - Progress: after each case `case:      <n> of <m> <id> ok` or `... failed`.
-- `cases/`: emptied when a process starts; a stopped run keeps the files of the cases it finished, and `benchmarkData.json` holds them all.
+- `cases/`: empty when a process starts, since the run's publish moved an earlier unit aside ([results.md](results.md#device-folder)); a stopped run keeps the files of the cases it finished, and `benchmarkData.json` holds them all.
 - Device time: a process per case costs about 1 to 2 s of instrumentation start plus the plan's preparation on the device, per case and per pass.
 
 - Why: a provider that leaks native memory across calls can abort its process (seen: a bundled provider's HMAC throwing `std::bad_alloc` after many `doFinal` calls on one reused `Mac`). In one process that ends every case after it; with a process per case the OS reclaims the memory when the case's process exits, and only that case is lost.

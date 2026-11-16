@@ -149,7 +149,7 @@ def planned(device, plan):
 def each_case(device, plan, process, hooks):
     process.cases = plan.order(process.repetition, planned(device, plan))
     print(f"measure:   one process per case ({len(process.cases)} cases, isolation: case)")
-    case_files.cleared(process.into)
+    case_files.opened(process.into)
     measured = []
     for number, case in enumerate(process.cases, 1):
         failure = launch.run_of_case(device, plan, process, case, hooks, case_files.path(process.into, case))

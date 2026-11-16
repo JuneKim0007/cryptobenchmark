@@ -26,7 +26,7 @@ python3 apps/benchmark-runner/pipeline.py [--config PATH] [--results DIR] [--dis
 |---|---|---|
 | `--config PATH` | `$CRYPTOBENCH_CONFIG`, then `~/.config/cryptobench/global.yaml`, then `config/global.yaml` | the `global.yaml` to run; one named by the flag or the variable and missing is `missing_file` |
 | `--results DIR` | `<repo>/results` | results root; the run writes `<DIR>/<device_id>/` ([results.md](results.md#device-folder)) |
-| `--discovery` | `overwrite` | `overwrite` clears `discovery/` first; `keep` adds a new capture; `reuse` keeps this device's capture, found by asking the JVM for its id first |
+| `--discovery` | `overwrite` | `overwrite` starts an empty `discovery/`, the old one moving aside with its unit ([results.md](results.md#device-folder)); `keep` adds a new capture; `reuse` keeps this device's capture, found by asking the JVM for its id first |
 | `--bench` | off | also prepare, measure and analyse on the JVM via the benchmark CLI (`BenchKt`) |
 | `--device` | off | probe, prepare and measure on the attached device over adb |
 | `--probe` | off | discovery and configure only, with `--device` on the device; the device folder and its manifest, nothing measured |
@@ -49,7 +49,7 @@ python3 apps/benchmark-runner/pipeline.py [--config PATH] [--results DIR] [--dis
 | `--interop` without `--bench` or `--device`, or with `--harness` | fails |
 | `--probe` or `--identify` with `--bench`, `--harness` or `--interop` | fails |
 | `global.yaml` or its test set refused by `CheckConfigKt`, any run but `--identify` | one line before any build |
-| `--probe`, or neither `--bench` nor `--device` | discover and configure only, then a manifest that replaces the device's last one |
+| `--probe`, or neither `--bench` nor `--device` | discover and configure only, then a manifest; the device's last unit moved aside first ([results.md](results.md#device-folder)) |
 | any failure | prints `error: <message>`, exits 1; an error with no code of its own is `subprocess_failed: <command> exited <n>` or `internal_error: <type>: <message>`, with the traceback under `--stacktrace` |
 
 - Host discovery runs `ProbeKt`; `--discovery reuse` runs `RuntimeFieldsKt` first, then adds `--reuse`; with no kept capture that fits the JVM's runtime it probes again and prints `warning: discovery_reprobed: ...`.

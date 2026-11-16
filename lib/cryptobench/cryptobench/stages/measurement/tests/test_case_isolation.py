@@ -24,14 +24,14 @@ def test_a_case_that_kills_its_process_loses_only_itself(tmp_path):
     assert sorted(p.name for p in (process.into / "cases").iterdir()) == ["a.json", "b.json"]
 
 
-def test_the_merged_file_is_the_one_the_kept_case_files_give_and_an_earlier_runs_files_are_gone(tmp_path):
+def test_the_merged_file_is_the_one_the_kept_case_files_give_and_a_file_already_there_is_never_deleted(tmp_path):
     stale = tmp_path / "benchmark/cases/old.json"
     stale.parent.mkdir(parents=True)
     stale.write_text("{}")
     process, = session(Phone(tmp_path, cases=("a", "b")), tmp_path, "case")
     kept = [json.loads((process.into / "cases" / f"{case}.json").read_text()) for case in ("a", "b")]
     expected = {"context": kept[0]["context"], "benchmarks": [b for document in kept for b in document["benchmarks"]]}
-    assert process.data.read_text() == json.dumps(expected, indent=1) and not stale.exists()
+    assert process.data.read_text() == json.dumps(expected, indent=1) and stale.read_text() == "{}"
 
 
 def test_isolation_run_keeps_one_process_for_every_case(tmp_path):
@@ -47,7 +47,7 @@ def test_the_listing_is_the_planned_cases_in_order():
 
 
 def test_one_data_file_from_many_cases_keeps_the_first_context_in_the_order_given(tmp_path):
-    case_files.cleared(tmp_path)
+    case_files.opened(tmp_path)
     for case, n in (("x", 1), ("y", 2), ("z", 3)):
         case_files.path(tmp_path, case).write_text(json.dumps({"context": {"n": n}, "benchmarks": [{"name": case}]}))
     case_files.merge(tmp_path, ["y", "x"], tmp_path / "benchmarkData.json")

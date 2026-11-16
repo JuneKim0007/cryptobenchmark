@@ -7,7 +7,7 @@
 
 ```
 <results root>/<device_id>/
-  discovery/ configuration/ preparation/ benchmark/ analysis/ chart/ interop/ manifest.yaml
+  discovery/ configuration/ preparation/ benchmark/ analysis/ chart/ check/ interop/ manifest.yaml superseded/
   rows.json measurements.json run_log.json primitives.tsv grouping/ summary.json summary.md
   <path_id>/ sites.json app.json ... harness.yaml checked/ report.json report.md
 ```
@@ -19,8 +19,11 @@ perf-repair writes the second and third lines: [artifacts.md](../apps/perf-repai
 | `--results` | the root, default `<repo>/results` |
 | folder name | `deviceId` of the manifest below, from the probe |
 | staging | discovery and configure run in `<root>/.staging-*`, then move in; a run that fails there removes it and changes nothing |
-| a finished device | a folder holding `manifest.yaml`; a publish deletes the old manifest first, so a run failing later leaves the folder without one, its partial files kept |
-| `--discovery` | `overwrite` replaces `discovery/`; `keep` and `reuse` add to it |
+| a finished device | a folder holding `manifest.yaml` |
+| unit | `manifest.yaml`, `configuration/`, `preparation/`, `benchmark/`, `analysis/`, `chart/`, `check/`, `interop/`; `discovery/` too under `--discovery overwrite` |
+| a publish | the unit already in the folder, finished or not, is renamed whole into `superseded/<UTC stamp>[-<n>]/` (manifest first), one line `warning: run_superseded: <folder>: <names> moved to <path>`; then the staged folders move in; nothing is deleted |
+| `superseded/<stamp>/` | one earlier unit, the device folder's own layout; `-<n>` from 2 on when that second already has one; nothing reads it |
+| `--discovery` | `overwrite`: the old `discovery/` moves aside with its unit; `keep` and `reuse` add to it, and it stays |
 | `--interop` | beside a finished run: adds `interopPlan`, `interop` to its manifest, its capture to `discovery/`; `configuration/` and the other keys stay |
 | `--check` | a full discover and configure, then `check/`; the manifest gains `check` |
 | `--harness` | writes `checked/` beside `harness.yaml`, itself laid out as this table's device folder without the device level |

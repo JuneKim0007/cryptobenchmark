@@ -1251,6 +1251,7 @@ codes:
   reverse_failed: {kind: outcome}
   root_not_found: {kind: error}
   round_trip_failed: {kind: error}
+  run_superseded: {kind: notice}
   runtime_differs: {kind: notice}
   same_output: {kind: outcome}
   scopes_conflict: {kind: error}
