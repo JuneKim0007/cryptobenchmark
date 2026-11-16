@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from cryptobench.shared.paths import BUG_LOG
-from .emit import elapsed_ms, emit
+from .emit import LOGGER, elapsed_ms, emit
 from .event import RUN_END, RUN_START
 from .sink import EventSink, Views
 from .stderr import Stderr, stderr_handler
@@ -29,8 +29,8 @@ def _sink(root: str, views: Views) -> None:
     global SINK, _root
     if (root, views) == (_root, SINK.views):
         return
-    if _root is not None:
-        logging.getLogger(_root).removeHandler(SINK)
+    for logger in ([logging.getLogger(_root)] if _root is not None else []) + [LOGGER]:
+        logger.removeHandler(SINK)
     SINK, _root = EventSink(views), root
 
 
@@ -41,10 +41,12 @@ def attach(root: str, views: Views, device_results: Path | None = None) -> None:
     logger = logging.getLogger(root)
     if not any(isinstance(h, Stderr) for h in logger.handlers):
         logger.addHandler(stderr_handler())
-    if SINK not in logger.handlers:
-        logger.addHandler(SINK)
-    # DEBUG reaches events.jsonl only; stderr keeps INFO
-    logger.setLevel(logging.DEBUG)
+    # the root's own records and the library's events (which a root above them already receives); DEBUG reaches
+    # events.jsonl only, stderr keeps INFO
+    for target in (logger,) if LOGGER.name.startswith(f"{root}.") else (logger, LOGGER):
+        if SINK not in target.handlers:
+            target.addHandler(SINK)
+        target.setLevel(logging.DEBUG)
     # a command another command calls in-process joins the caller's run
     global _opened
     if _depth == 0 and device_results is None:

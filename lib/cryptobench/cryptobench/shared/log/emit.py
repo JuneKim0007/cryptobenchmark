@@ -9,8 +9,8 @@ from pathlib import Path
 from .event import END, START
 from cryptobench.shared.digest.tree import file_digest
 
-EVENT_ATTR = "perfrepair_event"
-LOGGER = logging.getLogger("perfrepair.event")
+EVENT_ATTR = "cryptobench_event"
+LOGGER = logging.getLogger("cryptobench.event")
 
 
 def emit(stage: str, step: str, event: str, *, kind: str = "static", item: str | None = None, app: str | None = None,

@@ -51,15 +51,16 @@ def fake_benchmark_root(monkeypatch):
 @pytest.fixture(autouse=True)
 def detached_log():
     """A command's attach() lasts for its process; each test starts without its handlers, level or stops reader."""
-    logger = logging.getLogger("perfrepair")
-    handlers, level = list(logger.handlers), logger.level
+    loggers = [logging.getLogger("perfrepair"), logging.getLogger("cryptobench.event")]
+    kept = [(list(logger.handlers), logger.level) for logger in loggers]
     yield
     policy.reset()
     current.reset()
     last_failure()
     log_attach.SINK.close()
-    logger.handlers[:] = handlers
-    logger.setLevel(level)
+    for logger, (handlers, level) in zip(loggers, kept):
+        logger.handlers[:] = handlers
+        logger.setLevel(level)
 
 
 @pytest.fixture

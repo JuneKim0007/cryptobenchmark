@@ -61,9 +61,9 @@ cryptobench/shared/errors/input_error.py : InputError, the one coded error a ref
 cryptobench/shared/errors/line.py : one_line, a failure as one line of at most limit characters (500 unless given)
 cryptobench/shared/errors/policy.py : the stops reader the settings layer installs; a code's action, its default without one; resolve, an alias setting's value to its code's action
 cryptobench/shared/errors/validation.py : ValidationFailed, code artifact_invalid, and require: the stage gate
-cryptobench/shared/log/__init__.py : package of the event log library code writes through; a command attaches the handlers
-cryptobench/shared/log/attach.py : attach(root, views): the stderr handler and the event sink a command installs on its root logger, then the device folder it binds; command_run(): run_start and run_end of the outermost command; run_id(): the attached run's id; bug_log(), nested(), current_run()
-cryptobench/shared/log/emit.py : emit(): one event as a log record (logger perfrepair.event); step(): a timed start and end with counts and the digests of the files written; a step ended by a Halt records its code and `reported`; elapsed_ms
+cryptobench/shared/log/__init__.py : package of the event log library code writes through, and the handlers a command attaches
+cryptobench/shared/log/attach.py : attach(root, views): the stderr handler and the event sink a command installs on its root logger (the sink on cryptobench.event too), then the device folder it binds; command_run(): run_start and run_end of the outermost command; run_id(): the attached run's id; bug_log(), nested(), current_run()
+cryptobench/shared/log/emit.py : emit(): one event as a log record (logger cryptobench.event, attribute cryptobench_event); step(): a timed start and end with counts and the digests of the files written; a step ended by a Halt records its code and `reported`; elapsed_ms
 cryptobench/shared/log/event.py : Event: one events.jsonl line (schema 1); event names (a `finding`: a coded fact for the status log), kinds, each field's types
 cryptobench/shared/log/sink.py : EventSink(views): each record under the root logger as an Event line in events.jsonl, then each view's line; records before the folder is known kept in order; append_repaired and log_dropped, its own two notices; a data value JSON cannot write kept as text
 cryptobench/shared/log/stderr.py : the stderr handler: INFO and above, event records left out

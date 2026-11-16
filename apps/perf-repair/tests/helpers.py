@@ -116,7 +116,7 @@ def captured_events():
             if getattr(record, EVENT_ATTR, None) is not None:
                 events.append(to_event(record, "r1"))
 
-    handler, logger = Capture(logging.DEBUG), logging.getLogger("perfrepair")
+    handler, logger = Capture(logging.DEBUG), logging.getLogger("cryptobench.event")
     level = logger.level
     logger.addHandler(handler)
     logger.setLevel(logging.DEBUG)
