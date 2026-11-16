@@ -1,11 +1,12 @@
 """Stops and reruns into one results root, through pipeline.main on the fake phone: the probe and configure are faked, publish, measure and manifest are real."""
-import argparse, itertools, json
+import argparse, itertools, json, os, pathlib, subprocess, sys
 
 import pytest
 import yaml
 
 import pipeline
 from cryptobench.shared.device.adb import DeviceError
+from cryptobench.shared.errors.input_error import InputError
 from cryptobench.shared import paths
 from cryptobench.stages.discovery import discover
 from cryptobench.stages.verification import check
@@ -149,3 +150,24 @@ def test_a_run_that_fails_part_way_names_its_error_in_the_partial_manifest(tmp_p
     with pytest.raises(DeviceError):
         rerun()
     assert manifest_of(rerun.device)["partial"]["reason"] == "DeviceError: adb shell: closed by the test"
+
+
+HOLD = "import sys; from cryptobench.shared.results.lock import DeviceLock; DeviceLock.take(sys.argv[1]); print('held', flush=True); sys.stdin.read()"
+
+
+def test_a_second_run_on_the_same_results_root_is_device_busy_and_writes_nothing(tmp_path, monkeypatch):
+    rerun = Rerun(tmp_path, monkeypatch)
+    rerun.root.mkdir()
+    library = pathlib.Path(paths.__file__).parents[3]
+    holder = subprocess.Popen([sys.executable, "-c", HOLD, str(rerun.root)], stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True,
+                              env={**os.environ, "PYTHONPATH": str(library)})
+    try:
+        assert holder.stdout.readline().strip() == "held"
+        with pytest.raises(InputError, match=rf"^device_busy: {rerun.root} is in use by another run \(pid {holder.pid}\)"):
+            rerun()
+        assert sorted(p.name for p in rerun.root.iterdir()) == [paths.LOCK]
+    finally:
+        holder.stdin.close()
+        holder.wait(10)
+    rerun()
+    assert paths.finished(rerun.device)

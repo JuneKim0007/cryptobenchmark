@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Runs the host pipeline in order and reports one readable failure."""
-import argparse, json, os, pathlib, signal, subprocess, sys, traceback
+import argparse, contextlib, json, os, pathlib, signal, subprocess, sys, traceback
 
 import dependencies  # first: it reports a missing PyYAML, which the imports below need
 from cryptobench.shared.device.adb import Device
@@ -13,6 +13,7 @@ from cryptobench.stages.configuration.global_file import global_config
 from cryptobench.shared import paths
 from cryptobench.shared.results import layout as results_layout
 from cryptobench.shared.results import partial, run_inputs
+from cryptobench.shared.results.lock import DeviceLock
 from cryptobench.shared.results.manifest import manifest
 from cryptobench.stages.verification.scope import code_digest
 from cryptobench.stages.analysis import not_measured
@@ -90,11 +91,13 @@ def results_root(options):
     return pathlib.Path(options.results or paths.repo().default_results).expanduser().resolve()
 
 
+@contextlib.contextmanager
 def published(context):
-    """The results root, after its temporary-folder warning."""
+    """The results root, after its temporary-folder warning, held by this run alone: a second run on it is device_busy."""
     root = results_root(context.options)
     results_layout.warn_if_temp(root)
-    return root
+    with DeviceLock.take(root):
+        yield root
 
 
 def identified(context):
@@ -107,7 +110,8 @@ def harnessed(context):
 
 
 def interoperated(context):
-    return interop_run(context.options, context.configuration, context.device, published(context), context.checked["bundled"], discover_staged, located)
+    with published(context) as root:
+        return interop_run(context.options, context.configuration, context.device, root, context.checked["bundled"], discover_staged, located)
 
 
 def guided(context, root):
@@ -127,20 +131,21 @@ def guided_in(context):
 
 
 def checked(context):
-    root = published(context)
     require_check_run(context.options, context.device)
-    return check_run(context.options, context.configuration, context.device, root, guided_in(context), located)
+    with published(context) as root:
+        return check_run(context.options, context.configuration, context.device, root, guided_in(context), located)
 
 
 def measured(context):
     options, configuration, device = context.options, context.configuration, context.device
-    results, discovery, effective, capture, trial, files = guided(context, published(context))
-    mode = "device" if device else "host"
-    if not options.probe and (options.bench or device):
-        stopped = lambda record, pulled: manifest(results, mode, configuration, files | pulled, context.problems, partial=record)
-        with partial.kept(results, stopped):
-            benchmarked(options, device, results, discovery, effective, capture, trial, files, context.problems)
-    manifest(results, mode, configuration, files, context.problems)
+    with published(context) as root:
+        results, discovery, effective, capture, trial, files = guided(context, root)
+        mode = "device" if device else "host"
+        if not options.probe and (options.bench or device):
+            stopped = lambda record, pulled: manifest(results, mode, configuration, files | pulled, context.problems, partial=record)
+            with partial.kept(results, stopped):
+                benchmarked(options, device, results, discovery, effective, capture, trial, files, context.problems)
+        manifest(results, mode, configuration, files, context.problems)
 
 
 def benchmarked(options, device, results, discovery, effective, capture, trial, files, problems):

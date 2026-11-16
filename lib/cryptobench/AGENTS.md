@@ -73,6 +73,7 @@ cryptobench/shared/paths/run_tree.py : RunTree: every file of one results folder
 cryptobench/shared/paths/settings.py : against(settings_file, value), the one rule for a path a settings file names; in_temp
 cryptobench/shared/results/__init__.py : package of a run's results folder, importing no app
 cryptobench/shared/results/layout.py : results/<device_id>/: staging, publishing into the device folder after the earlier unit moves to superseded/<stamp>/, the temporary-folder warning
+cryptobench/shared/results/lock.py : DeviceLock: `<folder>/.lock` by fcntl.flock (POSIX), the holder's pid; another process is device_busy, the holding one takes it again; a results root (pipeline.py) or a device folder (perf-repair)
 cryptobench/shared/results/manifest.py : results/<device_id>/manifest.yaml: files, counts, runtime, providers, input digests, units, the harness operations, energy mark, problems, the partial mark of a stopped run; files added beside a finished run
 cryptobench/shared/results/partial.py : a run that stopped: the partial record (reason, case runs per process folder) its manifest is written with, a failed write one warning
 cryptobench/shared/results/run_inputs.py : digests of a run's inputs, providers.bundled and global.yaml with its test set (analysis left out), for the manifest and --identify

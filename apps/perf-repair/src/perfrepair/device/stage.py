@@ -19,7 +19,7 @@ from ..dto.primitives_missing import NOT_SCREENED
 from cryptobench.shared.digest.tree import file_digest
 from ..log import emit
 from ..result.primitives import NotScreened
-from ..run_dir.lock import DeviceLock
+from cryptobench.shared.results.lock import DeviceLock
 from ..screen.catalog import Catalog
 from .measures import check_measures, owned_config
 from .missing_rows import not_screened_rows
