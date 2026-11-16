@@ -1,7 +1,7 @@
 package io.github.junekim0007.cryptobench.preparation
 
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyCandidate
-import io.github.junekim0007.cryptobench.preparation.key.plan.KeySource
+import io.github.junekim0007.cryptobench.preparation.measurement.KeySource
 import io.github.junekim0007.cryptobench.preparation.measurement.Variant
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.parameter.bind.ParameterBinder

@@ -1,4 +1,4 @@
-package io.github.junekim0007.cryptobench.preparation.key.plan
+package io.github.junekim0007.cryptobench.preparation.measurement
 
 /** Where a case's key comes from: algorithm null is the measured key; provider `same` the case's own, `any` the case's own then every provider, else the named one. */
 data class KeySource(val algorithm: String? = null, val provider: String = SAME) {

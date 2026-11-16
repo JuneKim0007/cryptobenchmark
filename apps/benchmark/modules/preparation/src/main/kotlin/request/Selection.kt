@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation.request
 
-import io.github.junekim0007.cryptobench.preparation.key.plan.KeySource
+import io.github.junekim0007.cryptobench.preparation.measurement.KeySource
 import io.github.junekim0007.cryptobench.preparation.measurement.Variant
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
