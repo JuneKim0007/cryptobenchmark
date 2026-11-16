@@ -9,7 +9,7 @@ from cryptobench.shared.catalogue.interchange import Interchange
 from perfrepair.config import current, device_results, dotenv, load
 from perfrepair.failure import last_failure
 from perfrepair.catalog import signature
-from perfrepair.log.attach import SINK
+from cryptobench.shared.log import attach as log_attach
 from cryptobench.shared.errors import policy
 
 
@@ -57,7 +57,7 @@ def detached_log():
     policy.reset()
     current.reset()
     last_failure()
-    SINK.close()
+    log_attach.SINK.close()
     logger.handlers[:] = handlers
     logger.setLevel(level)
 

@@ -11,8 +11,8 @@ from cryptobench.shared.document.append import append_line
 from perfrepair.files import read_jsonl
 from perfrepair.log import attach
 from cryptobench.shared.log.emit import emit
-from perfrepair.log import sink as sink_module
-from perfrepair.log.attach import SINK
+from cryptobench.shared.log import sink as sink_module
+from cryptobench.shared.log import attach as log_attach
 from perfrepair.log.read import Follower, read_events
 from perfrepair.validation.events import validate_events
 
@@ -25,7 +25,7 @@ def logger():
     before, level = list(root.handlers), root.level
     root.handlers[:] = []
     yield root
-    SINK.close()
+    log_attach.SINK.close()
     root.handlers[:], root.level = before, level
 
 

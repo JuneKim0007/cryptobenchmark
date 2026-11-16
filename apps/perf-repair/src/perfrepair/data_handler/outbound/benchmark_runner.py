@@ -15,7 +15,7 @@ from ...config.timeouts import pipeline_seconds
 from cryptobench.shared import paths
 from cryptobench.shared.errors.failures import BenchmarkRunError
 from cryptobench.shared.errors.input_error import InputError
-from ...log import run_id
+from cryptobench.shared.log.attach import run_id
 from cryptobench.shared.stop.terminate import terminate
 
 MISSING_DEPENDENCY = "missing_dependency: "

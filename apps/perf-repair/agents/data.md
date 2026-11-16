@@ -107,12 +107,11 @@ src/perfrepair/inputs/__init__.py : docstring only
 src/perfrepair/inputs/check.py : Invalid and the checks a row or a gateway's settings class names
 src/perfrepair/inputs/resolve.py : choose(): the first set candidate under its OnInvalid; unknown_key; resolve(): one input from its chain of candidates; Need, Resolved, InputError (`invalid`, `missing_file`, `missing_input`), a ../../lib/cryptobench/cryptobench/shared/errors/input_error.py InputError; a found default and a skipped optional input logged
 src/perfrepair/inputs/table.py : every setting, one Row or RoleRow each (key, chain, check, default, OnInvalid; Need and packaged default for a file input); STOP_ROWS, one per overridable stop code, and the fixed codes known so setting one is not an unknown key; known_tree
-src/perfrepair/log/__init__.py : exports attach, bug_log, command_run, run_id
+src/perfrepair/log/__init__.py : exports attach
 src/perfrepair/log/__main__.py : command: `summary <device> [--run ID | --last] [--json]`, the runs of events.jsonl, status lines last
-src/perfrepair/log/attach.py : attach(): the stderr handler and the event sink a command installs, then the device folder it binds; command_run(): run_start and run_end of the outermost command; run_id(): the attached run's id; nested(), current_run()
+src/perfrepair/log/attach.py : attach(): the library's attach under the `perfrepair` logger with log/views.py's VIEWS
 src/perfrepair/log/progress.py : Progress: the line watch prints per event; a running counter per model step (done/pending, rejected, cost, elapsed)
 src/perfrepair/log/read.py : events.jsonl through read_jsonl, read whole or followed, whole lines only; `events_unreadable`
-src/perfrepair/log/sink.py : EventSink: each perfrepair record as an Event line in events.jsonl, then its view lines; records before the folder is known kept in order; append_repaired and log_dropped, its own two notices; a data value JSON cannot write kept as text
 src/perfrepair/log/status.py : the status view: one line per outcome (run header and end, app targets, device stages, guide stops, terminate's findings, errors, bugs), each starting with its code word, data.code before the detail's first word; a line already written by terminate is not repeated; a pointer finding is its detail; code_in_line and line, the one parser and formatter
 src/perfrepair/log/summary.py : summarize(): the chosen runs per stage and per app folder: time, step durations, items, decisions, model calls, rejections, top problems, slowest items, tokens, cost; their status lines
 src/perfrepair/log/summary_text.py : the summary as text lines, `status:` last

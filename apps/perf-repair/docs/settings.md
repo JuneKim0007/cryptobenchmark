@@ -115,7 +115,7 @@ An input that loads a file, `device.screening.catalog`, also has a `Need` and a 
 | the packaged default loads | used; one log line `<input>: <source> <note>`, code `default` |
 | nothing found | `REQUIRED`, `DEFAULT`: error `missing_input`; `OPTIONAL`: the null value, one log line, code `not_found` |
 
-- Log records go through the standard `logging` module (logger `perfrepair.inputs`) with `extra` `code`, `input`, `source`; each command's `__main__` attaches the stderr handler and the event sink (`log/attach.py`), nothing does at import.
+- Log records go through the standard `logging` module (logger `perfrepair.inputs`) with `extra` `code`, `input`, `source`; each command's `__main__` attaches the stderr handler and the event sink (`log/attach.py`, through `../../lib/cryptobench/cryptobench/shared/log/attach.py`), nothing does at import.
 - `PERFREPAIR_CONFIG` and `--perfrepair-config` name the file, so they sit outside the rows.
 
 ## Gateways

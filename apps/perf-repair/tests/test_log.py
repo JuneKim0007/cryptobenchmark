@@ -10,7 +10,7 @@ from perfrepair import failure
 from cryptobench.shared.log.event import FIELDS, SCHEMA_VERSION, Event
 from perfrepair.log import attach
 from cryptobench.shared.log.emit import emit, step
-from perfrepair.log.attach import SINK
+from cryptobench.shared.log import attach as log_attach
 from perfrepair.log.read import read_events
 from perfrepair.log.views import render
 
@@ -21,7 +21,7 @@ def logger():
     before, level = list(root.handlers), root.level
     root.handlers[:] = []
     yield root
-    SINK.close()
+    log_attach.SINK.close()
     root.handlers[:], root.level = before, level
 
 

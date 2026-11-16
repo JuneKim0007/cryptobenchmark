@@ -12,9 +12,8 @@ from cryptobench.shared.errors.failures import AgentFailed, BenchmarkRunError, G
 from cryptobench.shared.errors.halt import Halt
 from cryptobench.shared.errors.validation import ValidationFailed
 from cryptobench.shared.log.event import BUG, ERROR
-from .log import bug_log, command_run
+from cryptobench.shared.log.attach import bug_log, command_run, nested
 from cryptobench.shared.log.emit import emit
-from .log.attach import nested
 from cryptobench.shared.stop.codes import CODES
 
 # ValueError covers JSON and YAML parse errors and every coded error (InputError, CatalogMismatch, ...)

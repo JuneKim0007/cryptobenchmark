@@ -12,7 +12,7 @@ from perfrepair.dto.prompt import SystemPrompt, TaskPrompt
 from perfrepair.ai.runtime.prompt import PromptLibrary
 from perfrepair.dto.perf_mode import PerfMode
 from cryptobench.shared.log.emit import EVENT_ATTR
-from perfrepair.log.sink import to_event
+from cryptobench.shared.log.sink import to_event
 from perfrepair.result.modes import mode_of
 
 FIRST_CANDIDATE = re.compile(r"^  (C\d+) = ", re.M)

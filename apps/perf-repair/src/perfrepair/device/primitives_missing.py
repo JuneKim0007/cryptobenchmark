@@ -10,7 +10,7 @@ from cryptobench.shared.paths import PRIMITIVES_MISSING
 from cryptobench.shared.log.event import FINDING
 from ..dto.primitives_missing import MissingRow, missing_document, pointer_line
 from ..files import write_text_making_parents
-from ..log import run_id
+from cryptobench.shared.log.attach import run_id
 from cryptobench.shared.log.emit import emit
 from cryptobench.shared.errors.validation import require
 from ..validation.primitives_missing import validate_missing

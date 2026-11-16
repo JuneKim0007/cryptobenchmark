@@ -9,7 +9,7 @@ from cryptobench.shared.document.document import DocumentKind
 from cryptobench.shared.log.event import DECISION
 from cryptobench.shared.document.append import append_line
 from ...files import write_text_making_parents
-from ...log import run_id
+from cryptobench.shared.log.attach import run_id
 from cryptobench.shared.log.emit import emit
 from .where import Where
 from cryptobench.shared.document.dump import dump_yaml, UNICODE

@@ -4,7 +4,7 @@
 
 ```mermaid
 flowchart LR
-    S[stages: shared/log/emit.py emit, step] -- event records --> K[log/sink.py EventSink]
+    S[stages: shared/log/emit.py emit, step] -- event records --> K[shared/log/sink.py EventSink]
     P[benchmark_runner, device/energy.py, app detect] -- finding events --> K
     K -- one line per event --> E[log/events.jsonl]
     K -- views.py, per event --> V[status.log, bug.log]
