@@ -102,6 +102,7 @@ class Charts(Section):
 class CheckFolder(Section):
     result = property(lambda self: self.root / n.CHECK_RESULT)
     preparation = property(lambda self: Preparation(self.root / n.PREPARATION))
+    configuration = property(lambda self: Configuration(self.root / n.CONFIGURATION))
 
 
 class InteropFolder(Section):

@@ -44,6 +44,7 @@ def check_run(options, configuration, device, root, discovered, located):
         results = root / capture_id(capture)
         beside = paths.finished(results)
         if beside:
+            paths.RunTree(stage).configuration.root.rename(paths.CheckFolder(into).configuration.root)
             results_layout.publish_beside(stage, results, paths.CHECK)
         else:
             results_layout.publish(stage, results, options.discovery)
@@ -54,8 +55,8 @@ def check_run(options, configuration, device, root, discovered, located):
     else:
         written = {"guide": tree.configuration.guide, "knownAnswers": tree.configuration.known_answers, "check": tree.check.result}
         manifest(results, "device" if device else "host", configuration, located(results, capture.name)[-1] | written)
-    if failed:
     results_layout.report_superseded(results)
+    if failed:
         raise CommandError(f"check_failed: {failed} cases failed or errored, see {tree.check.result}")
 
 

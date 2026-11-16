@@ -94,6 +94,8 @@ def test_a_check_on_a_finished_run_publishes_beside_it(tmp_path, monkeypatch):
     assert after["files"] == {**measured["files"], "check": "check/check.yaml"} and tree.configuration.effective.read_text() == effective
     assert tree.benchmark.json.is_file() and tree.check.result.is_file() and not tree.superseded.exists()
     assert len(tree.discovery.captures()) == 2
+    ran_with = tree.check.configuration
+    assert all(f.is_file() for f in (ran_with.effective, ran_with.guide, ran_with.known_answers)) and not tree.configuration.known_answers.exists()
 
 
 CHECKED = yaml.safe_dump({"summary": {"cases": 1, "outcomes": {"pass": 1}, "oracles": {}}, "cases": [{"id": "a", "outcome": "pass"}]})
@@ -109,8 +111,6 @@ def test_a_check_into_a_new_folder_is_its_own_unit(tmp_path, monkeypatch):
     assert all((rerun.device / path).is_file() for path in files.values())
 
 
-def test_a_partial_manifest_is_not_a_finished_device(tmp_path):
-    written(tmp_path / "done/manifest.yaml", "schemaVersion: 1\n")
 def test_a_rerun_reports_what_superseded_holds_at_its_end(tmp_path, monkeypatch, capsys):
     rerun = Rerun(tmp_path, monkeypatch)
     rerun()
@@ -120,6 +120,8 @@ def test_a_rerun_reports_what_superseded_holds_at_its_end(tmp_path, monkeypatch,
     assert last.startswith(f"warning: superseded_kept: {paths.RunTree(rerun.device).superseded}: 1 earlier unit, ")
 
 
+def test_a_partial_manifest_is_not_a_finished_device(tmp_path):
+    written(tmp_path / "done/manifest.yaml", "schemaVersion: 1\n")
     written(tmp_path / "stopped/manifest.yaml", yaml.safe_dump({"schemaVersion": 1, "partial": {"reason": "interrupted"}}))
     assert paths.Results(tmp_path).devices() == ["done"]
     assert paths.finished(tmp_path / "done") and not paths.finished(tmp_path / "stopped") and not paths.finished(tmp_path / "none")

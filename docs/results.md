@@ -29,7 +29,7 @@ perf-repair writes the second and third lines: [artifacts.md](../apps/perf-repai
 | a crash during the move-aside | the unit may be split across two `superseded/<stamp>/` folders, or partly still in place for the next publish to move; every file is in one of them |
 | `--discovery` | `overwrite`: the old `discovery/` moves aside with its unit; `keep` and `reuse` add to it, and it stays |
 | `--interop` | beside a finished run: adds `interopPlan`, `interop` to its manifest, its capture to `discovery/`, `interop/` replaced; `configuration/` and the other keys stay; else a publish with its own manifest |
-| `--check` | discover, configure and check inside the stage; beside a finished run: adds `check` to its manifest, its capture to `discovery/`, `check/` replaced; `configuration/` and the other keys stay; else a publish whose manifest lists `guide`, `knownAnswers`, `check` |
+| `--check` | discover, configure and check inside the stage; beside a finished run: adds `check` to its manifest, its capture to `discovery/`, `check/` replaced, with the check's own `configuration/` (`effective.yaml`, `guide.yaml`, `known-answers.yaml`, ...) under it; the run's `configuration/` and the other keys stay; else a publish whose manifest lists `guide`, `knownAnswers`, `check` |
 | `--harness` | writes `checked/` beside `harness.yaml`, itself laid out as this table's device folder without the device level |
 | a killed process | `.staging-*` stays behind and nothing reads it; a device folder it was measuring has no manifest, reads as unfinished, and the next publish moves it aside |
 | root under `/tmp`, `/var/tmp`, `/var/folders` or the system temp folder | one line `warning: results_in_temp: ...`; the run goes on |
@@ -53,7 +53,7 @@ Paths relative to the device folder.
 | `benchmark/cases/` | `<id>.json`: one case's pulled `benchmarkData.json`, in each process folder | `--device` with `run.isolation: case` ([device-session.md](device-session.md#one-process-per-case)) |
 | `benchmark/` | `energy.json`, `traces/` (`*.perfetto-trace`, `dry.pftrace`), `energy-dry.yaml`; `manafa/` (`manafa.log`, power profile) with `energy.source: manafa` | energy capture |
 | `scoped/` | `scoped-plan.yaml` with each scope's interop verdict merged in, `scoped-interop.yaml` (the device's verdicts); a failed run keeps only `scoped-plan.failed.yaml` beside `scoped/` | `--harness`, under `checked/`: [scoped.md](../apps/benchmark/modules/android/docs/scoped.md) |
-| `check/` | `check.yaml` (one record per case), `preparation/` (that process's `prepared.yaml`, `skipped.yaml`) | `--check`: [check.md](../apps/benchmark/modules/benchmark/docs/check.md) |
+| `check/` | `check.yaml` (one record per case), `preparation/` (that process's `prepared.yaml`, `skipped.yaml`); `configuration/` (the settings it ran with) when published beside a finished run | `--check`: [check.md](../apps/benchmark/modules/benchmark/docs/check.md) |
 | `interop/` | `interop_plan.yaml` (the plan, copied), `interop.yaml` | `--interop`: [interop.md](../apps/benchmark/modules/preparation/docs/interop.md) |
 | `analysis/` | `summary.md`, `run-counts.md` (per case: runs, iters per run, calls per iter, runs discarded for heat, seconds waited for temperature), `throughput.png`, `latency.png`, `stability.png`, `<metric>-vs-time.png` | with `benchmark.json` |
 | `chart/<run-id>/` | `summary.md`, `chart-data.json`, `manifest.yaml`, IQR bars per chart group | with `benchmark.json`; `analysis.dir` moves it |
