@@ -4,7 +4,7 @@
 
 ```mermaid
 flowchart LR
-    S[stages: log/emit.py emit, step] -- event records --> K[log/sink.py EventSink]
+    S[stages: shared/log/emit.py emit, step] -- event records --> K[shared/log/sink.py EventSink]
     P[benchmark_runner, device/energy.py, app detect] -- finding events --> K
     K -- one line per event --> E[log/events.jsonl]
     K -- views.py, per event --> V[status.log, bug.log]
@@ -20,7 +20,7 @@ Every command appends to `<device>/log/`, except `details/primitives_missing.yam
 
 | file | holds |
 |---|---|
-| `events.jsonl` | one JSON line per event, every field on every line (`dto/event.py`, schema 1); the only stream commands write |
+| `events.jsonl` | one JSON line per event, every field on every line (`../../lib/cryptobench/cryptobench/shared/log/event.py`, schema 1); the only stream commands write |
 | `status.log` | one line per outcome a person acts on, a `run` header and `end` line per run |
 | `ai/<job>.yaml` | every attempt of one AI job ([decisions.md](decisions.md) AI base); not a view: each attempt's event points at its entry |
 | `bug.log` | each exception that is not a coded error, with its traceback |

@@ -80,7 +80,6 @@ src/perfrepair/dto/classify.py : Evidence (one unknown item as the classify mode
 src/perfrepair/dto/decision.py : OutboxRecord (schema 3): one committed decision of any kind, the tier asked and the model that answered it, and the evidence digest when its kind declares one
 src/perfrepair/dto/device.py : DeviceRecord: device.yaml (deviceId, mode, runtime summary, input digests, the manifest's sha256, primitives.tsv's input digests, the used-set benchmark: generated config digest, measured set digest and items)
 src/perfrepair/dto/dossier.py : Dossier, Option (pins null = unknown), Estimate (pImprove null = n<2), NoEstimate; Option.interop (pair_status), Option.screen (the app's status); NO_OPTION_REASONS in filter order and reason_code, pin_text; not_on_device_sites, a site list's missing names and which are absent
-src/perfrepair/dto/event.py : Event: one events.jsonl line (schema 1); event names (a `finding`: a coded fact for the status log), kinds, each field's types
 src/perfrepair/dto/grouping_output.py : Finding and checks.json
 src/perfrepair/dto/grouping_state.py : Answer, Amendment, Group, Knowledge (open_groups: a family's catalog and model-made groups, never a `code_` one; retired: memberless groups a record still names); the `code_` id prefix
 src/perfrepair/dto/interop.py : PlannedPair, PairResult; interop_plan.yaml with its notCheckable pairs, the groups.json interop section, failed_pairs, pair_status, PAIR_STATUSES
@@ -103,20 +102,17 @@ src/perfrepair/dto/site.py : Scope, scope_id; each app artifact's schema version
 src/perfrepair/dto/unit.py : Link, Unit, Stay, PairInterop, UnitDossiers (one decision: a unit, its members' dossiers, the members that stay, inverse pairs' interop), unit_id, unit_entry, read_units, link kinds and their evidence
 src/perfrepair/dto/upgrade.py : UpgradeItem (dossiers.json `upgrades` row: a broken use's dossier, identified, linked, providerHeld, its options' own medians, the screening reason); Upgrade and upgrades.json (schema 1): upgraded, needs_migration, no_secure_option, not_reached; as a Replacement for the edit step
 src/perfrepair/dto/used.py : UsedSet, UsedItem, AppUse: used.json (schema 1); via site, group, candidate or upgrade; names_digest
-src/perfrepair/files.py : text, JSON and YAML read (YAML through parse_yaml); read_versioned (a document refused unless its DocumentKind accepts it); a text write that makes its parent folders, through the shared atomic write_text; one-line append, a newline first after a cut line; read_jsonl, the one JSON-lines reader (whole lines, cut lines skipped, bad ones listed)
+src/perfrepair/files.py : text, JSON and YAML read (YAML through parse_yaml); read_versioned (a document refused unless its DocumentKind accepts it); a text write that makes its parent folders, through the shared atomic write_text; read_jsonl, the one JSON-lines reader (whole lines, cut lines skipped, bad ones listed)
 src/perfrepair/inputs/__init__.py : docstring only
 src/perfrepair/inputs/check.py : Invalid and the checks a row or a gateway's settings class names
 src/perfrepair/inputs/resolve.py : choose(): the first set candidate under its OnInvalid; unknown_key; resolve(): one input from its chain of candidates; Need, Resolved, InputError (`invalid`, `missing_file`, `missing_input`), a ../../lib/cryptobench/cryptobench/shared/errors/input_error.py InputError; a found default and a skipped optional input logged
 src/perfrepair/inputs/table.py : every setting, one Row or RoleRow each (key, chain, check, default, OnInvalid; Need and packaged default for a file input); STOP_ROWS, one per overridable stop code, and the fixed codes known so setting one is not an unknown key; known_tree
-src/perfrepair/log/__init__.py : exports attach, bug_log, command_run, emit, run_id, step
+src/perfrepair/log/__init__.py : exports attach
 src/perfrepair/log/__main__.py : command: `summary <device> [--run ID | --last] [--json]`, the runs of events.jsonl, status lines last
-src/perfrepair/log/attach.py : attach(): the stderr handler and the event sink a command installs, then the device folder it binds; command_run(): run_start and run_end of the outermost command; run_id(): the attached run's id; nested(), current_run()
-src/perfrepair/log/emit.py : emit(): one event as a log record; step(): a timed start and end with counts and the digests of the files written; a step ended by a Halt records its code and `reported`
+src/perfrepair/log/attach.py : attach(): the library's attach under the `perfrepair` logger with log/views.py's VIEWS
 src/perfrepair/log/progress.py : Progress: the line watch prints per event; a running counter per model step (done/pending, rejected, cost, elapsed)
 src/perfrepair/log/read.py : events.jsonl through read_jsonl, read whole or followed, whole lines only; `events_unreadable`
-src/perfrepair/log/sink.py : EventSink: each perfrepair record as an Event line in events.jsonl, then its view lines; records before the folder is known kept in order; append_repaired and log_dropped, its own two notices; a data value JSON cannot write kept as text
 src/perfrepair/log/status.py : the status view: one line per outcome (run header and end, app targets, device stages, guide stops, terminate's findings, errors, bugs), each starting with its code word, data.code before the detail's first word; a line already written by terminate is not repeated; a pointer finding is its detail; code_in_line and line, the one parser and formatter
-src/perfrepair/log/stderr.py : the stderr handler: INFO and above, event records left out
 src/perfrepair/log/summary.py : summarize(): the chosen runs per stage and per app folder: time, step durations, items, decisions, model calls, rejections, top problems, slowest items, tokens, cost; their status lines
 src/perfrepair/log/summary_text.py : the summary as text lines, `status:` last
 src/perfrepair/log/views.py : the views, each a function of one event: bug.log, status.log; render() recomputes them
@@ -125,9 +121,6 @@ src/perfrepair/run_dir/__init__.py : re-exports layout and read: the `run_dir` n
 src/perfrepair/run_dir/lock.py : DeviceLock: `<device>/.lock` by fcntl.flock, the holder's pid; another process is device_busy, the holding one takes it again
 src/perfrepair/run_dir/read.py : artifact loaders: rows, measurements, run log, screen.json (load_screen, load_screen_catalog, load_screen_review; `built`, the digests screen.json binds to), load_used (None without used.json), read_scopes, read_sites, read_edits, read_dossiers (schema_version on another version, through read_versioned)
 src/perfrepair/run_dir/run_record.py : RunRecord, the one writer of what a device folder says is done: runs/run_<id>.json (its id, onExisting, the facade's settings tree), each <app>/finished.json (is_done, app_done; cleared on an app's first rerun step with its report), device.yaml read, write and drop, vouch_manifest after a step that only adds files; the folder's lock held from open to close
-src/perfrepair/stop/__init__.py : re-exports: CODES, halt_of, terminate
-src/perfrepair/stop/codes.py : the code table, loaded from the glossary: every stop, warn and skip code once with its default action, the actions stops.<code> may choose (none: fixed, and why), exit and next step
-src/perfrepair/stop/terminate.py : terminate(): the action resolved, one finding event with data.code, action and next (the code's, or next_step), then Halt, warn or skip
 src/perfrepair/watch/__init__.py : docstring only
 src/perfrepair/watch/__main__.py : command: `watch <device> [--from-start]`, log/watch.py on a device folder; Ctrl-C exits 130
 ```

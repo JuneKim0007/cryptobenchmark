@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ..dto.event import FIELDS, KINDS, SCHEMA_VERSION
+from cryptobench.shared.log.event import FIELDS, KINDS, SCHEMA_VERSION
 from ..files import read_jsonl
 
 

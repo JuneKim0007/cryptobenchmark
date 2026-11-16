@@ -4,8 +4,8 @@ from __future__ import annotations
 from cryptobench.shared.errors import policy
 from cryptobench.shared.errors.glossary import STOP
 from cryptobench.shared.errors.halt import Halt
-from ..dto.event import FINDING
-from ..log import emit
+from cryptobench.shared.log.event import FINDING
+from cryptobench.shared.log.emit import emit
 from .codes import CODES
 
 

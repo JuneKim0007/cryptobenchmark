@@ -2,7 +2,7 @@
 that run and keeps them. What is read when a code fires or a child starts (stops, timeouts) reads them here."""
 from __future__ import annotations
 
-from ..log.attach import current_run
+from cryptobench.shared.log.attach import current_run
 from .load import Loaded
 
 _loaded: Loaded | None = None

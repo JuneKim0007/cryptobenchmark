@@ -11,8 +11,8 @@ from perfrepair.dto import PrimitiveRow, Summary
 from perfrepair.dto.prompt import SystemPrompt, TaskPrompt
 from perfrepair.ai.runtime.prompt import PromptLibrary
 from perfrepair.dto.perf_mode import PerfMode
-from perfrepair.log.emit import EVENT_ATTR
-from perfrepair.log.sink import to_event
+from cryptobench.shared.log.emit import EVENT_ATTR
+from cryptobench.shared.log.sink import to_event
 from perfrepair.result.modes import mode_of
 
 FIRST_CANDIDATE = re.compile(r"^  (C\d+) = ", re.M)
@@ -116,7 +116,7 @@ def captured_events():
             if getattr(record, EVENT_ATTR, None) is not None:
                 events.append(to_event(record, "r1"))
 
-    handler, logger = Capture(logging.DEBUG), logging.getLogger("perfrepair")
+    handler, logger = Capture(logging.DEBUG), logging.getLogger("cryptobench.event")
     level = logger.level
     logger.addHandler(handler)
     logger.setLevel(logging.DEBUG)

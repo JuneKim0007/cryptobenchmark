@@ -4,7 +4,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from ..data_handler.inbound.energy import InvalidCase, invalid_cases
-from ..stop import terminate
+from cryptobench.shared.stop.terminate import terminate
 
 
 def _per_case(found: list[InvalidCase]) -> dict[str, list[InvalidCase]]:

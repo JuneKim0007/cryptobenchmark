@@ -9,7 +9,7 @@ from cryptobench.shared.catalogue.interchange import Interchange
 from perfrepair.config import current, device_results, dotenv, load
 from perfrepair.failure import last_failure
 from perfrepair.catalog import signature
-from perfrepair.log.attach import SINK
+from cryptobench.shared.log import attach as log_attach
 from cryptobench.shared.errors import policy
 
 
@@ -51,15 +51,16 @@ def fake_benchmark_root(monkeypatch):
 @pytest.fixture(autouse=True)
 def detached_log():
     """A command's attach() lasts for its process; each test starts without its handlers, level or stops reader."""
-    logger = logging.getLogger("perfrepair")
-    handlers, level = list(logger.handlers), logger.level
+    loggers = [logging.getLogger("perfrepair"), logging.getLogger("cryptobench.event")]
+    kept = [(list(logger.handlers), logger.level) for logger in loggers]
     yield
     policy.reset()
     current.reset()
     last_failure()
-    SINK.close()
-    logger.handlers[:] = handlers
-    logger.setLevel(level)
+    log_attach.SINK.close()
+    for logger, (handlers, level) in zip(loggers, kept):
+        logger.handlers[:] = handlers
+        logger.setLevel(level)
 
 
 @pytest.fixture

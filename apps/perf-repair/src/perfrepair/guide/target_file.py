@@ -7,7 +7,7 @@ from ..app.facts.path_id import path_id
 from ..app.facts.target_set import MISSING, Skipped
 from cryptobench.shared.document.write import write_text
 from cryptobench.shared.errors.halt import Halt
-from ..stop import halt_of
+from cryptobench.shared.stop.terminate import halt_of
 from .state import Guide
 from cryptobench.shared.document.dump import dump_yaml
 

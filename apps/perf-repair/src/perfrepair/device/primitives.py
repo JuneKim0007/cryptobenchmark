@@ -11,7 +11,7 @@ from ..dto.primitives import SCHEMA_LINE, PrimitivesTable
 from ..files import read_json
 from cryptobench.shared.digest.tree import file_digest
 from cryptobench.shared.document.write import write_text
-from ..log import step
+from cryptobench.shared.log.emit import step
 from ..result.primitives import NotScreened, build_table, statuses
 from cryptobench.shared.errors.validation import require
 from ..validation import validate_measurements, validate_primitives

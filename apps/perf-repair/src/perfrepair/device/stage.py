@@ -12,12 +12,12 @@ from ..data_handler.inbound import read_manifest
 from ..data_handler.outbound.benchmark_runner import check_dependencies, identify
 from ..dto.bundled import BundledPolicy
 from ..dto.device import DeviceRecord, runtime_summary
-from ..dto.event import END
+from cryptobench.shared.log.event import END
 from ..dto.metrics import Metric
 from ..dto.perf_mode import GENERIC_MODE, PerfMode
 from ..dto.primitives_missing import NOT_SCREENED
 from cryptobench.shared.digest.tree import file_digest
-from ..log import emit
+from cryptobench.shared.log.emit import emit
 from ..result.primitives import NotScreened
 from ..run_dir.lock import DeviceLock
 from ..screen.catalog import Catalog

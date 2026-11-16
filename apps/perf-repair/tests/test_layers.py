@@ -7,7 +7,7 @@ ROOT = Path(__file__).parents[1] / "src" / "perfrepair"
 
 LAYERS = [
     ("dto", "catalog"),
-    ("files", "run_dir", "inputs", "log", "stop", "child"),
+    ("files", "run_dir", "inputs", "log", "child"),
     ("config",),
     ("data_handler",),
     ("result",),

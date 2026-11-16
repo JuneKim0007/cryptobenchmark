@@ -13,7 +13,7 @@ from perfrepair.device import stage as device_stage, stage_run
 from perfrepair.device.measures import switched_on
 from perfrepair.device.stage_pass import DEVICE_PROBES
 from perfrepair.device.stage import probe_device
-from perfrepair.dto.event import END
+from cryptobench.shared.log.event import END
 from perfrepair.dto.metrics import TIME
 from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.screen.catalog import load_catalog, screening_catalog
@@ -332,12 +332,12 @@ def test_a_missing_module_stops_before_any_pipeline_run(setup, monkeypatch):
 
 def test_unselected_measurements_and_run_level_energy_are_logged_not_refused(setup, caplog):
     root, config = setup
-    with caplog.at_level("INFO", logger="perfrepair.event"):
+    with caplog.at_level("INFO", logger="cryptobench.event"):
         _probe(root, config, ["energy", "latency"], on_device=True)
     assert "energyJ is selected but" in caplog.text
     _with_run(config, "run: {harness: {energy: {capture: measured}}}\n")
     caplog.clear()
-    with caplog.at_level("INFO", logger="perfrepair.event"):
+    with caplog.at_level("INFO", logger="cryptobench.event"):
         _probe(root, config, ["latency"], on_device=True)
     assert "perf_mode_extra:" in caplog.text and "energyJ" in caplog.text
     assert switched_on({"run": {"metrics": ["TIME"], "harness": {"energy": {"capture": "measured"}}}}) == {"TIME", "energy"}

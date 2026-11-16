@@ -20,7 +20,7 @@ from ..failure import last_failure
 from ..result.modes import Mode
 from ..run_dir.run_record import OVERWRITE, RunRecord
 from ..screen.catalog import Catalog
-from ..stop import terminate
+from cryptobench.shared.stop.terminate import terminate
 
 
 @dataclass

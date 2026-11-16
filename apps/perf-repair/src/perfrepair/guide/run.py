@@ -5,14 +5,15 @@ import time
 from dataclasses import dataclass
 
 from cryptobench.shared.errors.failures import AgentFailed
-from ..dto.event import END
+from cryptobench.shared.log.event import END
 from ..failure import FAILURES
-from ..log import attach, emit
-from ..log.emit import elapsed_ms
+from ..log import attach
+from cryptobench.shared.log.emit import elapsed_ms, emit
 from ..result.primitives import NotScreened
 from cryptobench.shared.errors.coded import code_of
 from cryptobench.shared.errors.halt import Halt
-from ..stop import CODES, halt_of
+from cryptobench.shared.stop.codes import CODES
+from cryptobench.shared.stop.terminate import halt_of
 from .app_steps import APP_DEVICE, APP_DRY
 from .state import Guide
 

@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Callable
 
-from ..dto.event import BUG, DECISION, END, ERROR, FINDING, LOG, RUN_END, RUN_START, START, Event
+from cryptobench.shared.log.event import BUG, DECISION, END, ERROR, FINDING, LOG, RUN_END, RUN_START, START, Event
 from .status import status_line
 from .views import counts_text, seconds
 

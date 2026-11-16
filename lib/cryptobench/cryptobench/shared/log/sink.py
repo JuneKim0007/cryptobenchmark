@@ -1,4 +1,4 @@
-"""EventSink: every perfrepair log record as one Event line in events.jsonl, then the view lines it renders to."""
+"""EventSink: every log record under a command's root logger as one Event line in events.jsonl, then the line each view renders."""
 from __future__ import annotations
 
 import dataclasses
@@ -7,17 +7,18 @@ import logging
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Callable
 
-from cryptobench.shared.paths import RunTree
-from cryptobench.shared.paths import EVENTS
-from ..dto.event import FINDING, LOG, Event
-from ..files import append_line
+from cryptobench.shared.document.append import append_line
+from cryptobench.shared.paths import EVENTS, RunTree
 from .emit import EVENT_ATTR
-from .views import VIEWS
+from .event import FINDING, LOG, Event
 
 # records logged before the device folder is known; a command that never names one drops them
 BUFFER_LIMIT = 10000
 EXTRA_KEYS = ("code", "input", "source")
+# (file under the device folder, the line one event renders to there, or None)
+Views = tuple[tuple[str, Callable[[Event], str | None]], ...]
 
 
 def timestamp(created: float) -> str:
@@ -37,8 +38,9 @@ def to_event(record: logging.LogRecord, run: str) -> Event:
 
 class EventSink(logging.Handler):
 
-    def __init__(self):
+    def __init__(self, views: Views):
         super().__init__(logging.DEBUG)
+        self.views = views
         self.folder: Path | None = None
         self.run: str | None = None
         self.buffer: list[Event] = []
@@ -98,7 +100,7 @@ class EventSink(logging.Handler):
         event = dataclasses.replace(event, ref=self._relative(event.ref), data=data)
         # default=str: a value of a shape no writer planned is written as text, never lost with its event
         cut = [EVENTS] if append_line(RunTree(self.folder).log.events, json.dumps(event.to_json(), default=str)) else []
-        for name, view in VIEWS:
+        for name, view in self.views:
             line = view(event)
             if line is not None and append_line(self.folder / name, line):
                 cut.append(name)

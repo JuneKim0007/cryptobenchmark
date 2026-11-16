@@ -6,7 +6,7 @@ from cryptobench.shared.paths import GroupingTree
 from ...dto.grouping_output import checks_document
 from cryptobench.shared.document.json_dump import write_json
 from cryptobench.shared.document.write import write_text
-from ...log import step
+from cryptobench.shared.log.emit import step
 from ...ai.runtime.engine.kind import project
 from ...ai.runtime.engine.outbox import active_outbox
 from cryptobench.shared.errors.validation import require

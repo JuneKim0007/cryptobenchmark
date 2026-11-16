@@ -10,8 +10,9 @@ from cryptobench.shared.paths import RunTree
 from perfrepair import failure
 from perfrepair.ai.runtime.engine.decide import decide
 from perfrepair.ai.log.where import Where
-from perfrepair.dto.event import Event
-from perfrepair.log import attach, step
+from cryptobench.shared.log.event import Event
+from perfrepair.log import attach
+from cryptobench.shared.log.emit import step
 from perfrepair.log.__main__ import main as log_main
 from perfrepair.log.read import read_events
 from perfrepair.log.summary import summarize

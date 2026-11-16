@@ -18,7 +18,7 @@ jobs:
       - name: perf-repair
         run: make -C apps/perf-repair check
       - name: runner, cli and tools
-        run: python3 -m pytest apps/benchmark-runner/tests apps/benchmark-runner/energy/tests apps/benchmark-runner/analysis/tests apps/cli/tests tools/tests lib/cryptobench/cryptobench/stages
+        run: python3 -m pytest apps/benchmark-runner/tests apps/benchmark-runner/energy/tests apps/benchmark-runner/analysis/tests apps/cli/tests tools/tests lib/cryptobench/cryptobench
       - name: paths check
         run: python3 tools/paths_check.py
       - name: standalone

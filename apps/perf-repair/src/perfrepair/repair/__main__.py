@@ -18,7 +18,8 @@ from cryptobench.shared.document.write import write_text
 from .. import run_dir as rd
 from ..config.args import add_config_arg, load_settings, perf_mode
 from ..config.device_results import add_device_results_arg, fill_device_results
-from ..log import attach, step
+from ..log import attach
+from cryptobench.shared.log.emit import step
 from ..failure import reported
 from ..dto.change import CHANGES, DROP_IN
 from ..dto.perf_mode import GENERIC, PerfMode

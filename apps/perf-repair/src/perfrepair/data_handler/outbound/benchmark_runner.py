@@ -15,8 +15,8 @@ from ...config.timeouts import pipeline_seconds
 from cryptobench.shared import paths
 from cryptobench.shared.errors.failures import BenchmarkRunError
 from cryptobench.shared.errors.input_error import InputError
-from ...log import run_id
-from ...stop import terminate
+from cryptobench.shared.log.attach import run_id
+from cryptobench.shared.stop.terminate import terminate
 
 MISSING_DEPENDENCY = "missing_dependency: "
 # the id is known only to the run, so the run says where its manifest went

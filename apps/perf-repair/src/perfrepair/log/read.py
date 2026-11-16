@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from cryptobench.shared.errors.input_error import InputError
-from ..dto.event import Event
+from cryptobench.shared.log.event import Event
 from ..files import CUT, jsonl_value, read_jsonl
 
 

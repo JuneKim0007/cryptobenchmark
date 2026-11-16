@@ -5,7 +5,7 @@ import time
 from pathlib import Path
 from typing import Callable, TextIO
 
-from ..dto.event import RUN_END
+from cryptobench.shared.log.event import RUN_END
 from .progress import Line, Progress
 from .read import Follower
 

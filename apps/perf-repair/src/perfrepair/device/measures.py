@@ -7,12 +7,12 @@ from pathlib import Path
 
 from cryptobench.shared.paths import RunTree
 from cryptobench.shared.settings import energy_capture
-from ..dto.event import LOG
+from cryptobench.shared.log.event import LOG
 from ..dto.metrics import ENERGY, METRICS, Metric
 from ..dto.perf_mode import PerfMode
 from cryptobench.shared.document.document import read_yaml
-from ..log import emit
-from ..stop import terminate
+from cryptobench.shared.log.emit import emit
+from cryptobench.shared.stop.terminate import terminate
 from .selection import generated, relocated
 
 DEFAULT_METRICS = ("TIME",)

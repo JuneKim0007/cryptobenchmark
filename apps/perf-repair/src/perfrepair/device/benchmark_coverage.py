@@ -8,7 +8,7 @@ from cryptobench.shared.paths import RunTree
 from cryptobench.shared.paths import BENCHMARK_COVERAGE
 from ..dto.benchmark_coverage import Coverage, coverage_document
 from ..files import write_text_making_parents
-from ..log import run_id
+from cryptobench.shared.log.attach import run_id
 from cryptobench.shared.errors.validation import require
 from ..validation.benchmark_coverage import validate_coverage
 from cryptobench.shared.document.dump import dump_yaml

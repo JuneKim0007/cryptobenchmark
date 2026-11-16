@@ -11,7 +11,7 @@ from perfrepair.dto.interop import failed_pairs
 from perfrepair.files import read_json
 from perfrepair.grouping import interop_plan
 from perfrepair.guide.command import main as guide
-from perfrepair.log.emit import EVENT_ATTR
+from cryptobench.shared.log.emit import EVENT_ATTR
 
 
 def oracle_runs(f: Flow) -> list[int]:

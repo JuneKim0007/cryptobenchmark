@@ -9,7 +9,7 @@ from cryptobench.shared.paths import APP_REPORT, SUMMARY
 from ..files import read_json
 from cryptobench.shared.document.json_dump import write_json
 from cryptobench.shared.document.write import write_text
-from ..log import step
+from cryptobench.shared.log.emit import step
 from ..result.modes import Mode
 from cryptobench.shared.errors.validation import require
 from ..validation.report import validate_report

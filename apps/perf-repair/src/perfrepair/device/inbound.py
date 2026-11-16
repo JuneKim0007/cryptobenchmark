@@ -11,10 +11,10 @@ from ..dto import Measurements
 from ..dto.primitive import ROWS_SCHEMA_VERSION
 from ..files import read_json
 from cryptobench.shared.document.json_dump import write_json
-from ..log import step
+from cryptobench.shared.log.emit import step
 from cryptobench.shared.errors.validation import require
 from ..validation import validate_manifest, validate_measurements, validate_rows, validate_run_log
-from ..stop import terminate
+from cryptobench.shared.stop.terminate import terminate
 from cryptobench.shared.errors.input_error import InputError
 
 

@@ -6,9 +6,11 @@ from pathlib import Path
 
 from cryptobench.shared.paths import RunTree
 from cryptobench.shared.document.document import DocumentKind
-from ...dto.event import DECISION
-from ...files import append_line, write_text_making_parents
-from ...log import emit, run_id
+from cryptobench.shared.log.event import DECISION
+from cryptobench.shared.document.append import append_line
+from ...files import write_text_making_parents
+from cryptobench.shared.log.attach import run_id
+from cryptobench.shared.log.emit import emit
 from .where import Where
 from cryptobench.shared.document.dump import dump_yaml, UNICODE
 

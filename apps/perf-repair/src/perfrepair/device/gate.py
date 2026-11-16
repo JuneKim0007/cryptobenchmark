@@ -20,8 +20,9 @@ from cryptobench.shared.catalogue.grouping import read_items
 from ..dto.perf_mode import PerfMode
 from ..dto.used import UsedSet
 from ..files import read_json
-from ..log import run_id, step
-from ..stop import terminate
+from cryptobench.shared.log.attach import run_id
+from cryptobench.shared.log.emit import step
+from cryptobench.shared.stop.terminate import terminate
 from .benchmark_coverage import CoverageFile
 from .delta import Delta, rerun_whole, run_delta
 from .gate_after import rebuilt
