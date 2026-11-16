@@ -68,7 +68,7 @@ An entry is checked as `run.harness` merged with its own harness. When the run s
 | `key`, `parameters`, `operations` | override value; a written key `algorithm` or `provider` checked on the inventory ([entry.md](entry.md#key-source)) |
 | `variants` | override, else include, `secure` removed; absent when neither asks, so `run.variants` applies ([entry.md](entry.md#variants)) |
 | `harness` | only the fields its overrides set, after the device check |
-| `providerDefaults.keySize` | no `keySizes` or `key` override and a key size was observed |
+| `providerDefaults.keySize` | no `keySizes` override, no `key` spec tree (a bare `algorithm` or `provider` is none) and a key size was observed |
 | `providerDefaults.parameters` | no `parameters` override and the provider chose some |
 | `providerDefaults.modeAndPadding` | bare name |
 

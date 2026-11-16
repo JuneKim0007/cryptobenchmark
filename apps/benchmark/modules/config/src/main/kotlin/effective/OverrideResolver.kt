@@ -1,6 +1,7 @@
 package io.github.junekim0007.cryptobench.config.effective
 
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveEntry
+import io.github.junekim0007.cryptobench.config.entry.KeySource
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
 import io.github.junekim0007.cryptobench.config.testset.dto.Include
 import io.github.junekim0007.cryptobench.config.testset.dto.Override
@@ -30,7 +31,8 @@ internal class OverrideResolver(private val overrides: List<Override>, private v
             variants = variants,
             harness = harness,
             providerDefaults = listOfNotNull(
-                "keySize".takeIf { keySizes == null && key.isEmpty() && observed.keySizes.isNotEmpty() },
+                // a key source alone names no size: only a spec tree replaces the provider's default size
+                "keySize".takeIf { keySizes == null && key.keys.all { it in KeySource.KEYS } && observed.keySizes.isNotEmpty() },
                 "parameters".takeIf { parameters.isEmpty() && observed.providerChose.isNotEmpty() },
                 "modeAndPadding".takeIf { observed.bareName },
             ),

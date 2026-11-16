@@ -53,6 +53,16 @@ class OverrideResolverTest {
         assertEquals(curve, entry.key)
     }
 
+    /** A key source alone (provider, algorithm) leaves the provider's default size in force; a spec beside it does not. */
+    @Test
+    fun aKeySourceAloneKeepsTheProvidersDefaultSize() {
+        val chacha = Inventory.Located("SunJCE", "Cipher", "ChaCha20-Poly1305", InventoryEntry(runs = true, keySizes = listOf(256)))
+        val sourced = OverrideResolver(listOf(Override(Rule(name = "ChaCha20-Poly1305"), key = mapOf("provider" to "any")))).resolve(chacha, null)
+        assertEquals(listOf("keySize"), sourced.providerDefaults)
+        val spec = mapOf("provider" to "any", "class" to "javax.crypto.spec.SecretKeySpec")
+        assertEquals(emptyList<String>(), OverrideResolver(listOf(Override(Rule(name = "ChaCha20-Poly1305"), key = spec))).resolve(chacha, null).providerDefaults)
+    }
+
     /** A group is one primitive measured twice, so an override can name the group and leave the other alone. */
     @Test
     fun anOverrideCanNameOneGroup() {
