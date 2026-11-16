@@ -35,7 +35,7 @@ from ..inputs.table import (
 from ..log import attach
 from ..result.modes import Mode, mode_of
 from ..run_dir.run_record import ON_EXISTING, OVERWRITE
-from ..stop import terminate
+from cryptobench.shared.stop.terminate import terminate
 from .outcome import write_outcome
 from .state import Guide
 from .targets import run_targets

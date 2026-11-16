@@ -60,6 +60,10 @@ cryptobench/shared/errors/input_error.py : InputError, the one coded error a ref
 cryptobench/shared/errors/line.py : one_line, a failure as one line of at most limit characters (500 unless given)
 cryptobench/shared/errors/policy.py : the stops reader the settings layer installs; a code's action, its default without one; resolve, an alias setting's value to its code's action
 cryptobench/shared/errors/validation.py : ValidationFailed, code artifact_invalid, and require: the stage gate
+cryptobench/shared/log/__init__.py : package of the event log library code writes through; a command attaches the handlers
+cryptobench/shared/log/emit.py : emit(): one event as a log record (logger perfrepair.event); step(): a timed start and end with counts and the digests of the files written; a step ended by a Halt records its code and `reported`; elapsed_ms
+cryptobench/shared/log/event.py : Event: one events.jsonl line (schema 1); event names (a `finding`: a coded fact for the status log), kinds, each field's types
+cryptobench/shared/log/stderr.py : the stderr handler: INFO and above, event records left out
 cryptobench/shared/paths/__init__.py : one interface to every path the Python modules use: `from cryptobench.shared import paths`
 cryptobench/shared/paths/device_dirs.py : DeviceDirs(sdk): folders on a device per API level, POSIX paths
 cryptobench/shared/paths/host.py : the user's and host's locations: home, the user's global.yaml, the Android SDK and its platform-tools
@@ -84,6 +88,9 @@ cryptobench/shared/stats/__init__.py : package of the benchmark's calculations, 
 cryptobench/shared/stats/descriptive.py : one definition of each per-case statistic: mean, sample SD, CoV, interpolated quantiles, IQR, QCD; which one leads
 cryptobench/shared/stats/equations.py : every calculation the run count uses; no I/O
 cryptobench/shared/stats/units.py : DisplayUnits: nanoseconds per call in the chosen latency and throughput units; significant-figure numbers
+cryptobench/shared/stop/__init__.py : package of the terminator: the code table and terminate()
+cryptobench/shared/stop/codes.py : the code table, loaded from the glossary: every stop, warn and skip code once with its default action, the actions stops.<code> may choose (none: fixed, and why), exit and next step
+cryptobench/shared/stop/terminate.py : terminate(): the action resolved, one finding event with data.code, action and next (the code's, or next_step), then Halt, warn or skip; halt_of(): a fixed stop's Halt handed back
 cryptobench/shared/versions/__init__.py : package of dependency versions
 cryptobench/shared/versions/order.py : a Gradle version: pinned or not; newest of several
 cryptobench/stages/__init__.py : package of the run's stages, one package each, importing none of them

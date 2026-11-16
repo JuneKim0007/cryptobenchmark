@@ -21,7 +21,7 @@ from ..dto.dossier import reason_code
 from ..dto.unit import read_units
 from ..files import read_json
 from cryptobench.shared.document.json_dump import write_json
-from ..log import step
+from cryptobench.shared.log.emit import step
 from ..screen.catalog import Catalog
 from ..validation.grouping.output import read_groups
 from ..result.candidates import Family

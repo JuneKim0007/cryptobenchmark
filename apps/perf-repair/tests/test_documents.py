@@ -13,11 +13,13 @@ from perfrepair.dto.site import SCOPES_DOC
 from perfrepair.files import read_versioned
 from cryptobench.shared.document.json_dump import write_json
 from cryptobench.shared.errors.coded import code_of
-from perfrepair.stop import CODES
+from cryptobench.shared.log import event
+from cryptobench.shared.stop.codes import CODES
 
 
 def _kinds() -> list[DocumentKind]:
-    found = {}
+    # events.jsonl's kind moved with the event log into the library
+    found = {id(event.EVENT_DOC): event.EVENT_DOC}
     for info in pkgutil.walk_packages(perfrepair.__path__, "perfrepair."):
         if info.name.endswith("__main__"):
             continue

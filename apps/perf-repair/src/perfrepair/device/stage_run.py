@@ -9,9 +9,9 @@ from pathlib import Path
 from cryptobench.shared.paths import RunTree
 from ..data_handler.outbound.benchmark_runner import run_pipeline
 from ..dto.bundled import BundledPolicy
-from ..dto.event import END
+from cryptobench.shared.log.event import END
 from ..grouping.build.stage import build_stage
-from ..log import emit, step
+from cryptobench.shared.log.emit import emit, step
 from ..screen.catalog import Catalog
 from cryptobench.shared.errors.input_error import InputError
 from .energy import report_invalid

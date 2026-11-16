@@ -13,12 +13,12 @@ from ...dto.screen import CODE_GROUPED, screen_document
 from cryptobench.shared.document.json_dump import json_text
 from cryptobench.shared.digest.tree import byte_digest
 from cryptobench.shared.document.write import write_texts
-from ...log import step
+from cryptobench.shared.log.emit import step
 from ...probe.identified import alias_conflicts, identified
 from ...screen.catalog import Catalog
 from ...screen.evidence import batches, unknown_evidence
 from ...screen.stage import screen_items
-from ...stop.terminate import terminate
+from cryptobench.shared.stop.terminate import terminate
 from cryptobench.shared.errors.validation import require
 from ...validation import validate_screen
 from ...validation.grouping.items import validate_items

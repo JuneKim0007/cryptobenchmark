@@ -6,11 +6,10 @@ import time
 from pathlib import Path
 
 from ....dto.decision import OutboxRecord
-from ....dto.event import END, START
+from cryptobench.shared.log.event import END, START
 from ....dto.prompt import Charter
 from cryptobench.shared.document.json_dump import write_json
-from ....log import emit
-from ....log.emit import elapsed_ms
+from cryptobench.shared.log.emit import elapsed_ms, emit
 from cryptobench.shared.errors.validation import require
 from ...log.attempt_log import AttemptLog
 from ...log.where import Where

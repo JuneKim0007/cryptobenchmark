@@ -13,7 +13,7 @@ from cryptobench.shared.paths import APP_REPORT, CHECKED, DOSSIERS, EDITS, HARNE
 from ..app.facts.project import gradle_name
 from ..config.device_results import add_device_results_arg, fill_device_results
 from ..dto.change import CHANGES, TRACKS
-from ..dto.event import END
+from cryptobench.shared.log.event import END
 from ..dto.pattern import PATTERNS, UNKNOWN_DEFAULT
 from ..failure import reported
 from ..files import read_json

@@ -7,7 +7,7 @@ import pytest
 from perfrepair.inputs.resolve import Candidate, InputError, Need, resolve
 from perfrepair.inputs.table import Row
 from perfrepair.log import attach
-from perfrepair.log.stderr import Stderr
+from cryptobench.shared.log.stderr import Stderr
 
 
 def read(path):

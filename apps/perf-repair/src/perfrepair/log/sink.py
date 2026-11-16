@@ -10,9 +10,9 @@ from pathlib import Path
 
 from cryptobench.shared.paths import RunTree
 from cryptobench.shared.paths import EVENTS
-from ..dto.event import FINDING, LOG, Event
+from cryptobench.shared.log.event import FINDING, LOG, Event
 from ..files import append_line
-from .emit import EVENT_ATTR
+from cryptobench.shared.log.emit import EVENT_ATTR
 from .views import VIEWS
 
 # records logged before the device folder is known; a command that never names one drops them

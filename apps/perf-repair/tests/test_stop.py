@@ -1,4 +1,4 @@
-"""stop/: the code table against every raise site and the docs; terminate's actions and the stops.<code> resolution."""
+"""cryptobench.shared.stop: the code table against every raise site and the docs; terminate's actions and the stops.<code> resolution."""
 import ast
 import logging
 import re
@@ -10,13 +10,13 @@ from perfrepair.config.load import load
 from perfrepair.config.stops import install_stops
 from perfrepair.guide.app_steps import APP_DEVICE, APP_DRY
 from perfrepair.guide.device_steps import DEVICE_LEVEL
-from perfrepair.dto.event import FINDING
+from cryptobench.shared.log.event import FINDING
 from perfrepair.inputs.table import STOP_ROWS
 from perfrepair.log.status import status_line
 from cryptobench.shared.errors.glossary import STOP
 from cryptobench.shared.errors.halt import Halt
-from perfrepair.stop import CODES, terminate
-from perfrepair.stop.codes import CODES_LIST, OVERRIDABLE
+from cryptobench.shared.stop.codes import CODES, CODES_LIST, OVERRIDABLE
+from cryptobench.shared.stop.terminate import terminate
 from helpers import captured_events
 
 SRC = Path(__file__).parents[1] / "src" / "perfrepair"

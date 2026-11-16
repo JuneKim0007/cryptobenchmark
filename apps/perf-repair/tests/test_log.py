@@ -7,8 +7,9 @@ import pytest
 from cryptobench.shared.paths import RunTree
 from cryptobench.shared.paths import AI_LOGS
 from perfrepair import failure
-from perfrepair.dto.event import FIELDS, SCHEMA_VERSION, Event
-from perfrepair.log import attach, emit, step
+from cryptobench.shared.log.event import FIELDS, SCHEMA_VERSION, Event
+from perfrepair.log import attach
+from cryptobench.shared.log.emit import emit, step
 from perfrepair.log.attach import SINK
 from perfrepair.log.read import read_events
 from perfrepair.log.views import render

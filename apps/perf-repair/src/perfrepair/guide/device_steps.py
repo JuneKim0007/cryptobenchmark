@@ -13,7 +13,7 @@ from ..device.missing_rows import measured_rows
 from ..device.stage import probe_device
 from ..device.used import clear_used, write_used
 from cryptobench.shared.errors.input_error import InputError
-from ..dto.event import END
+from cryptobench.shared.log.event import END
 from ..dto.interop import NOT_CHECKABLE
 from ..dto.used import SITE
 from ..dto.metrics import METRICS, Metric
@@ -21,8 +21,8 @@ from ..dto.perf_mode import PerfMode
 from ..failure import FAILURES
 from cryptobench.shared.digest.tree import file_digest
 from ..grouping.__main__ import main as grouping_main
-from ..log import emit, step
-from ..stop import terminate
+from cryptobench.shared.log.emit import emit, step
+from cryptobench.shared.stop.terminate import terminate
 from ..report.command import device_summary
 from ..review.sheet import write_sheet
 from ..run_dir.run_record import RunRecord

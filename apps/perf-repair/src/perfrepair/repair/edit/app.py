@@ -9,12 +9,12 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from cryptobench.shared.paths import AppTree
-from ...dto.event import FINDING
+from cryptobench.shared.log.event import FINDING
 from ...dto.replacement import Replacement
 from ...dto.site import EDITS_SCHEMA_VERSION, Scope
 from ...dto.unit import Unit, units_by_scope
 from ...files import write_text_making_parents
-from ...log import emit
+from cryptobench.shared.log.emit import emit
 from ...source.code import Code
 from .alone import write_alone
 from .plan import language, plan

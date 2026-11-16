@@ -13,7 +13,7 @@ from perfrepair.device import stage as device_stage, stage_run
 from perfrepair.device.measures import switched_on
 from perfrepair.device.stage_pass import DEVICE_PROBES
 from perfrepair.device.stage import probe_device
-from perfrepair.dto.event import END
+from cryptobench.shared.log.event import END
 from perfrepair.dto.metrics import TIME
 from perfrepair.dto.perf_mode import PerfMode
 from perfrepair.screen.catalog import load_catalog, screening_catalog

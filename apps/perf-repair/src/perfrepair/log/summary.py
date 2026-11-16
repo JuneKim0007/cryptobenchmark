@@ -7,7 +7,7 @@ from collections import Counter
 from datetime import datetime
 
 from cryptobench.shared.errors.input_error import InputError
-from ..dto.event import DECISION, END, LOG, RUN_END, RUN_START, Event
+from cryptobench.shared.log.event import DECISION, END, LOG, RUN_END, RUN_START, Event
 from .status import status_line
 
 TOP = 5

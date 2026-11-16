@@ -33,7 +33,7 @@ from ..dto.shipped import shipped, shipped_names
 from ..dto.used import UsedSet
 from ..files import read_json
 from ..run_dir import read_sites
-from ..stop import CODES
+from cryptobench.shared.stop.codes import CODES
 from cryptobench.shared.errors.glossary import STOP
 from cryptobench.shared.errors.policy import action
 

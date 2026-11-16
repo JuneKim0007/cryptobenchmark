@@ -6,7 +6,7 @@ import time
 from contextlib import contextmanager
 from pathlib import Path
 
-from ..dto.event import END, START
+from .event import END, START
 from cryptobench.shared.digest.tree import file_digest
 
 EVENT_ATTR = "perfrepair_event"

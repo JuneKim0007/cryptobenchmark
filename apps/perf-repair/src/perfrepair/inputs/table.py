@@ -12,7 +12,7 @@ from ..dto.benchmark_coverage import GAP_DELTA, ON_GAP, ON_SETUP_MISMATCH, SETUP
 from ..dto.bundled import OFF
 from ..dto.change import DROP_IN
 from ..dto.perf_mode import GENERIC
-from ..stop.codes import CODES_LIST, OVERRIDABLE
+from cryptobench.shared.stop.codes import CODES_LIST, OVERRIDABLE
 from .check import (
     check_any,
     check_bool,

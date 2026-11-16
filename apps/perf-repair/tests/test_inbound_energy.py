@@ -5,7 +5,7 @@ import logging
 
 from perfrepair.data_handler.inbound.energy import invalid_cases
 from perfrepair.device.energy import report_invalid
-from perfrepair.log.emit import EVENT_ATTR
+from cryptobench.shared.log.emit import EVENT_ATTR
 
 
 def _energy(path, cases):

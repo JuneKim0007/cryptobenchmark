@@ -10,10 +10,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from cryptobench.shared.paths import BUG_LOG
-from ..dto.event import RUN_END, RUN_START
-from .emit import elapsed_ms, emit
+from cryptobench.shared.log.event import RUN_END, RUN_START
+from cryptobench.shared.log.emit import elapsed_ms, emit
 from .sink import EventSink
-from .stderr import Stderr, stderr_handler
+from cryptobench.shared.log.stderr import Stderr, stderr_handler
 
 ROOT = "perfrepair"
 SINK = EventSink()

@@ -8,7 +8,8 @@ from cryptobench.shared.paths import RunTree
 from cryptobench.shared.paths import EVENTS
 from perfrepair import failure
 from perfrepair.files import append_line, read_jsonl
-from perfrepair.log import attach, emit
+from perfrepair.log import attach
+from cryptobench.shared.log.emit import emit
 from perfrepair.log import sink as sink_module
 from perfrepair.log.attach import SINK
 from perfrepair.log.read import Follower, read_events

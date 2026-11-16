@@ -41,9 +41,6 @@
 | `write_text_making_parents(path, text)` | `src/perfrepair/files.py` | - | ai.log.attempt_log, device.benchmark_coverage, device.delta, device.delta_config +5 |
 | `attach(device_results)` | `src/perfrepair/log/attach.py` | At a command's start with no folder: handlers, a new run; again once the folder is known: events.jsonl. | ai.__main__, app.__main__, data_handler.inbound.__main__, grouping.__main__ +6 |
 | `run_id()` | `src/perfrepair/log/attach.py` | The attached run's id; a call outside any command run gets one of its own. | ai.log.attempt_log, data_handler.outbound.benchmark_runner, device.benchmark_coverage, device.gate +2 |
-| `elapsed_ms(started)` | `src/perfrepair/log/emit.py` | `int((time.monotonic() - started) * 1000)` | ai.job, ai.runtime.engine.decide, guide.run, log.attach |
-| `emit(stage, step, event, kind, item, app, outcome, durationMs, tokens, costUsd, ref, detail, data, level)` | `src/perfrepair/log/emit.py` | - | ai.job, ai.log.attempt_log, ai.runtime.engine.decide, device.bundled +12 |
-| `step(stage, name, kind, item, app, detail, data)` | `src/perfrepair/log/emit.py` | - | app.__main__, device.bundled, device.gate, device.inbound +9 |
 | `status_line(e)` | `src/perfrepair/log/status.py` | - | log.progress, log.summary, log.views |
 | `string_literal(value, language)` | `src/perfrepair/repair/edit/literal.py` | - | repair.edit.algorithm, repair.edit.provider, repair.edit.specs |
 | `apply(text, splices)` | `src/perfrepair/repair/edit/splice.py` | Newlines inside a replaced span follow the new text, so a scope's lines `start..end` stay put in the copy. | repair.edit.alone, repair.edit.app, repair.edit.plan |
@@ -80,8 +77,6 @@
 | `of_build_file(name)` | `src/perfrepair/source/language.py` | Groovy and properties build files are lexed by Java's comment and string rules. | app.facts.dependencies, app.facts.kind, app.facts.sdk |
 | `of_file(name)` | `src/perfrepair/source/language.py` | - | app.find.sources, repair.edit.plan, scope.build, scope.units.shapes +1 |
 | `mask(text, language, strings)` | `src/perfrepair/source/lexer.py` | Comments always, and string contents when `strings`, become spaces; newlines and quotes stay. | app.facts.dependencies, app.facts.kind, app.facts.sdk, repair.dependencies +2 |
-| `halt_of(code, detail)` | `src/perfrepair/stop/terminate.py` | A fixed stop terminated and its Halt handed back, for a caller that records it instead of raising it. | guide.run, guide.target_file, guide.targets |
-| `terminate(code, detail, stage, step, item, app, ref, data, inner, trace, next_step)` | `src/perfrepair/stop/terminate.py` | Returns warn or skip; trace: lines the Halt's message carries and the status line leaves out; next_step: what this | app.__main__, data_handler.outbound.benchmark_runner, device.bundled, device.energy +6 |
 | `perf_of(doc)` | `src/perfrepair/validation/dossiers/document.py` | - | ai.select.units, ai.select.upgrades, validation.dossiers.against_run, validation.dossiers.parse |
 | `read_groups(paths)` | `src/perfrepair/validation/grouping/output.py` | - | check.run, grouping.interop_plan, repair.dossier |
 | `validate_manifest(manifest, base)` | `src/perfrepair/validation/manifest.py` | - | app.__main__, check.device, device.inbound |

@@ -16,9 +16,10 @@ from ..dto.site import SITES_SCHEMA_VERSION
 from ..config.device_results import add_device_results_arg, fill_device_results
 from ..failure import reported
 from cryptobench.shared.document.json_dump import write_json
-from ..log import attach, step
+from ..log import attach
+from cryptobench.shared.log.emit import step
 from ..scope.build import Scoping, build_scopes
-from ..stop import terminate
+from cryptobench.shared.stop.terminate import terminate
 from ..scope.units.build import build_units, unit_counts, units_document
 from cryptobench.shared.errors.failures import GateError
 from cryptobench.shared.errors.validation import require

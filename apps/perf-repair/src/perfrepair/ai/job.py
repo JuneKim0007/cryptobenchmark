@@ -9,10 +9,9 @@ from pathlib import Path
 from typing import Callable, ClassVar
 
 from ..dto.decision import OutboxRecord
-from ..dto.event import END, START
+from cryptobench.shared.log.event import END, START
 from ..dto.prompt import Charter, SystemPrompt, TaskPrompt
-from ..log import emit
-from ..log.emit import elapsed_ms
+from cryptobench.shared.log.emit import elapsed_ms, emit
 from cryptobench.shared.errors.validation import require
 from ..validation.json_reply import check_reply
 from .attempt.escalate import MAX_ESCALATIONS, next_tier

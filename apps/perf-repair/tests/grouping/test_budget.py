@@ -23,7 +23,7 @@ from perfrepair.failure import reported
 from perfrepair.inputs.table import GROUPING_ASSIGN
 from perfrepair.log import attach
 from perfrepair.log.read import read_events
-from perfrepair.stop import CODES
+from cryptobench.shared.stop.codes import CODES
 
 KEY = "device.grouping.assign.budget"
 MANY = 200

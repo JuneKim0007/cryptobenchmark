@@ -7,7 +7,7 @@ from typing import Callable
 
 from cryptobench.shared.paths import BUG_LOG
 from cryptobench.shared.errors.coded import code_in
-from ..dto.event import BUG, END, ERROR, FINDING, RUN_END, RUN_START, Event
+from cryptobench.shared.log.event import BUG, END, ERROR, FINDING, RUN_END, RUN_START, Event
 
 DEVICE_OUTCOMES = ("ran", "reused", "failed")
 AT_STEP = re.compile(r"^at (\S+): ")
