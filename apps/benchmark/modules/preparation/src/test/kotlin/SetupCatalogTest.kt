@@ -65,4 +65,16 @@ class SetupCatalogTest {
         assertEquals(PerCall.OPERATION, two.initOnce(case.copy(variant = Variant.FIXED)))
         assertEquals(PerCall.OPERATION, catalog.initOnce(case))
     }
+
+    /** A row's `variants` names its paths; anything but distinct known names is refused, never guessed. */
+    @Test
+    fun aRowsVariantsListIsItsPaths() {
+        fun row(variants: Any) = SetupCatalog(mapOf("schemaVersion" to 1, "engines" to mapOf("Mac" to mapOf("fixed" to "operation", "variants" to variants))))
+        assertEquals(listOf("fixed"), row(listOf("fixed")).applicable("Mac"))
+        assertEquals(PerCall.OPERATION, row(listOf("fixed")).perCall(BenchmarkCase("Mac", "HmacSHA256", "P", Operation.TYPE_DEFAULT, variant = Variant.NOT_FIXED)))
+        for (bad in listOf(emptyList<String>(), listOf("fast"), listOf("fixed", "fixed"))) {
+            val refused = assertThrows(IllegalArgumentException::class.java) { row(bad).applicable("Mac") }
+            assertTrue(refused.message!!, refused.message!!.startsWith("invalid: setup-catalog.yaml engines.Mac.variants"))
+        }
+    }
 }

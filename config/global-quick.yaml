@@ -2,6 +2,7 @@ schemaVersion: 1                 # required
 selection:                       # required
   testSet: testsets/quick.yaml   # required
 run:                             # optional
+  variants: [fixed, notFixed]     # optional, default [fixed, notFixed, secure]; secure is not built yet
   inputSizes: [64, 1024, 16384]  # optional, default [1024]
   phases: [WARM]                 # optional, default [WARM]
   metrics: [TIME]                # optional, default [TIME]

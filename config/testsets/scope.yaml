@@ -42,6 +42,12 @@ overrides:
     set: {keySizes: [256]}
   - match: {type: Cipher, name: "RSA/*"}
     set: {keySizes: [2048, 4096], inputSizes: [32]}
+  # a provider without its own RSA key pair generator (a JDK's SunJCE) takes the first provider's that has one
+  - match: {type: Cipher, name: "RSA/*"}
+    set: {key: {provider: any}}
+  # a provider without a generator of the measured ChaCha20-Poly1305 key (a JDK's SunJCE) takes the first provider's that has one
+  - match: {type: Cipher, name: ChaCha20-Poly1305}
+    set: {key: {provider: any}}
   - match: {type: Signature, name: SHA256withRSA}
     set: {keySizes: [2048, 4096]}
   - match: {type: Signature, name: SHA256withECDSA}

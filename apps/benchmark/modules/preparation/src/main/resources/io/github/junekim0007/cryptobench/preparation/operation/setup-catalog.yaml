@@ -12,8 +12,8 @@ engines:
     otherSuffix: operation
   Signature: {fixed: operation, contract: "sign() and verify() reset the object to its state after initSign or initVerify"}
   KeyAgreement: {fixed: operation, contract: "generateSecret() resets the object to its state after init"}
-  KeyGenerator: {variants: one, contract: "generateKey() is the measured work; init once by the case"}
-  KeyPairGenerator: {variants: one, contract: "generateKeyPair() is the measured work; initialize once by the case"}
+  KeyGenerator: {variants: [fixed, secure], contract: "generateKey() is the measured work; init once by the case"}
+  KeyPairGenerator: {variants: [fixed, secure], contract: "generateKeyPair() is the measured work; initialize once by the case"}
   Cipher:
     contract: "doFinal() resets the cipher to its state after init; an IV or nonce must not repeat under one key"
     fixed: byMode

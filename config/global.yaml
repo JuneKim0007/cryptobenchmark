@@ -5,6 +5,7 @@ selection:                       # required
   testSet: testsets/scope.yaml   # required — relative to this file
 
 run:                             # optional
+  variants: [fixed, notFixed]     # optional, default [fixed, notFixed, secure]; secure is not built yet
   inputSizes: [64, 1024, 16384]  # optional, default [1024] — bytes per call
   seed: 0                        # optional, default 0 — seeds the input bytes
   harness:

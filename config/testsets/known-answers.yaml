@@ -16,5 +16,8 @@ include:
   - {type: Signature, name: Ed25519}
 
 overrides:
+  # a provider without its own AESWrap key generator (Android's platform BC) takes the first provider's that has one
+  - match: {type: Cipher, name: AESWrap}
+    set: {key: {provider: any}}
   - match: {type: Cipher, name: "AES*"}
     set: {keySizes: [128, 256]}

@@ -85,7 +85,7 @@ Type names match case-insensitively.
 |---|---|
 | operations | entry `operations` narrows the type's list |
 | expansion | provider x operation x keySize x inputSize x phase x variant; variant innermost: an item's two variants are adjacent |
-| variant axis | the entry's asked paths that its setup-catalog row applies: `[fixed, notFixed]` for an operation row, `[fixed, secure]` for a `variants: one` row (key generation) and a type the catalog lacks; some dropped: one `path_not_applicable` notice per entry whose own `variants` asked for them, printed as a `warning:` line (paths from `run.variants` drop without one); all dropped: the selection is rejected `path_not_applicable` |
+| variant axis | the entry's asked paths that its setup-catalog row applies: a row's `variants` list (`[fixed, secure]` for key generation), `[fixed, notFixed]` for a row without one, `[fixed, secure]` for a type the catalog lacks; a row's list of anything but distinct `fixed`, `notFixed`, `secure`: `invalid`; some dropped: one `path_not_applicable` notice per entry whose own `variants` asked for them, printed as a `warning:` line (paths from `run.variants` drop without one); all dropped: the selection is rejected `path_not_applicable` |
 | keySize axis | only when the operation consumes key size and `keySizes` is set, else one null |
 | inputSize axis | only when the operation consumes input, else one null |
 | harness | `run.harness` merged with the entry's |

@@ -18,8 +18,14 @@ internal class SetupCatalog(document: Map<String, Any>) {
     fun paths(type: String, asked: List<Variant>): Pair<List<Variant>, List<Variant>> =
         asked.partition { it.label in applicable(type) }
 
-    // a `variants: one` row (key generation) and a type the catalog lacks: fixed and secure; every other row: fixed and notFixed
-    fun applicable(type: String): List<String> = if (single(type)) ONE else OPERATION
+    // a row's `variants` list (key generation: fixed and secure); a row without one: fixed and notFixed; a type the catalog lacks: fixed and secure
+    fun applicable(type: String): List<String> {
+        val row = engines[EngineTypeName.fold(type)] ?: return GENERATION
+        if (VARIANTS !in row) return OPERATION
+        val paths = DocumentFields.strings(row, VARIANTS)
+        require(paths.isNotEmpty() && paths.all { it in PATHS } && paths.distinct() == paths) { "invalid: $RESOURCE engines.$type.$VARIANTS $paths, distinct names of $PATHS" }
+        return paths
+    }
 
     // hasIv is asked only for a cipher transformation without a mode
     fun perCall(case: BenchmarkCase, hasIv: () -> Boolean = { false }): PerCall {
@@ -45,15 +51,16 @@ internal class SetupCatalog(document: Map<String, Any>) {
         return PerCall.of(suffixes?.value?.toString() ?: DocumentFields.string(row, "otherSuffix"))
     }
 
-    private fun single(type: String): Boolean {
-        val row = engines[EngineTypeName.fold(type)] ?: return true
-        return row["variants"] == "one"
-    }
+    // a type with no notFixed path makes its instance once: the call is the operation alone
+    private fun single(type: String): Boolean = Variant.NOT_FIXED.label !in applicable(type)
 
     companion object {
 
         private const val FIXED = "fixed"
-        private val ONE = listOf(Variant.FIXED.label, "secure")
+        private const val VARIANTS = "variants"
+        private const val SECURE = "secure"
+        private val PATHS = Variant.entries.map { it.label } + SECURE
+        private val GENERATION = listOf(Variant.FIXED.label, SECURE)
         private val OPERATION = listOf(Variant.FIXED.label, Variant.NOT_FIXED.label)
         private const val BY_MODE = "byMode"
         private const val BY_SUFFIX = "bySuffix"

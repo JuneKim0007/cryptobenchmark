@@ -66,8 +66,8 @@ Catalog: `src/main/resources/.../operation/setup-catalog.yaml`, read by `operati
 | Cipher GCM, CCM | init with the next fresh IV + operation | a nonce must not repeat under one key; the provider refuses a reused one |
 | Cipher, other mode | init + operation | unknown mode |
 | Cipher without a mode (stream or provider default) | operation when the initialised cipher has no IV, else init + operation | as above |
-| KeyGenerator, KeyPairGenerator | `variants: one`, paths `[fixed, secure]`, `secure` not built: `fixed`, `generateKey()`/`generateKeyPair()` after one init; a row giving anything but `operation` is refused (`not_supported`) | the generation is the work |
-| a type not in the catalog | as `variants: one`: `fixed`, operation | |
+| KeyGenerator, KeyPairGenerator | `variants: [fixed, secure]`, `secure` not built: `fixed`, `generateKey()`/`generateKeyPair()` after one init; a row giving anything but `operation` is refused (`not_supported`) | the generation is the work |
+| a type not in the catalog | paths `[fixed, secure]`: `fixed`, operation | |
 
 | rule | value |
 |---|---|
