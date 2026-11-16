@@ -42,3 +42,4 @@ def interop_run(options, configuration, device, root, shipped, discover_staged, 
         add_to_manifest(results, added)
     else:
         manifest(results, mode, configuration, located(results, capture.name)[-1] | added)
+    results_layout.report_superseded(results)

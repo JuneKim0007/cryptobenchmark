@@ -111,6 +111,15 @@ def test_a_check_into_a_new_folder_is_its_own_unit(tmp_path, monkeypatch):
 
 def test_a_partial_manifest_is_not_a_finished_device(tmp_path):
     written(tmp_path / "done/manifest.yaml", "schemaVersion: 1\n")
+def test_a_rerun_reports_what_superseded_holds_at_its_end(tmp_path, monkeypatch, capsys):
+    rerun = Rerun(tmp_path, monkeypatch)
+    rerun()
+    assert "superseded_kept" not in capsys.readouterr().out
+    rerun()
+    last = capsys.readouterr().out.splitlines()[-1]
+    assert last.startswith(f"warning: superseded_kept: {paths.RunTree(rerun.device).superseded}: 1 earlier unit, ")
+
+
     written(tmp_path / "stopped/manifest.yaml", yaml.safe_dump({"schemaVersion": 1, "partial": {"reason": "interrupted"}}))
     assert paths.Results(tmp_path).devices() == ["done"]
     assert paths.finished(tmp_path / "done") and not paths.finished(tmp_path / "stopped") and not paths.finished(tmp_path / "none")

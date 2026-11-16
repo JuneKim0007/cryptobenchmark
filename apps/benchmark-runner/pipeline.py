@@ -146,6 +146,7 @@ def measured(context):
             with partial.kept(results, stopped):
                 benchmarked(options, device, results, discovery, effective, capture, trial, files, context.problems)
         manifest(results, mode, configuration, files, context.problems)
+        results_layout.report_superseded(results)
 
 
 def benchmarked(options, device, results, discovery, effective, capture, trial, files, problems):

@@ -1265,6 +1265,7 @@ codes:
   single_process: {kind: outcome}
   stopped_on_failure: {kind: error}
   subprocess_failed: {kind: error}
+  superseded_kept: {kind: notice}
   sustained_performance_off: {kind: outcome}
   tags_differently: {kind: outcome}
   tamper_accepted: {kind: outcome}

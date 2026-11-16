@@ -93,6 +93,18 @@ def test_two_move_asides_in_one_second_never_meet(tmp_path, monkeypatch):
         ("20261117T120000Z", "first"), ("20261117T120000Z-2", "second")]
 
 
+def test_the_superseded_report_counts_units_and_bytes_and_is_silent_without_the_folder(tmp_path, capsys):
+    target = tmp_path / "device"
+    layout.report_superseded(target)
+    assert capsys.readouterr().out == ""
+    for run in ("first", "second"):
+        write(target / "benchmark/benchmark.json", "x" * 500_000)
+        layout.supersede(target, "overwrite")
+    capsys.readouterr()
+    layout.report_superseded(target)
+    assert capsys.readouterr().out == f"warning: superseded_kept: {target / 'superseded'}: 2 earlier units, 1.0 MB; never pruned, remove by hand\n"
+
+
 def test_interop_beside_a_finished_run_keeps_its_configuration_and_adds_to_its_manifest(tmp_path):
     target = tmp_path / "device"
     probe = write(target / "discovery/probe_old.yaml", yaml.safe_dump({"schemaVersion": 1, "runtime": RUNTIME}))

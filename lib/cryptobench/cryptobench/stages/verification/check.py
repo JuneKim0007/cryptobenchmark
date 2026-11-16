@@ -55,6 +55,7 @@ def check_run(options, configuration, device, root, discovered, located):
         written = {"guide": tree.configuration.guide, "knownAnswers": tree.configuration.known_answers, "check": tree.check.result}
         manifest(results, "device" if device else "host", configuration, located(results, capture.name)[-1] | written)
     if failed:
+    results_layout.report_superseded(results)
         raise CommandError(f"check_failed: {failed} cases failed or errored, see {tree.check.result}")
 
 

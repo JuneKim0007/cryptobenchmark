@@ -25,6 +25,8 @@ perf-repair writes the second and third lines: [artifacts.md](../apps/perf-repai
 | a publish | the unit already in the folder, finished or not, is renamed whole into `superseded/<UTC stamp>[-<n>]/` (manifest first), one line `warning: run_superseded: <folder>: <names> moved to <path>`; then the staged folders move in; nothing is deleted |
 | fewer `processRepetitions` or passes on a rerun | the earlier `process-<n>/` and `<pass>/` folders move aside inside `benchmark/` with the unit; `benchmark/` holds only this run's |
 | `superseded/<stamp>/` | one earlier unit, the device folder's own layout; `-<n>` from 2 on when that second already has one; nothing reads it |
+| `superseded/` disk use | never pruned; removed by hand; a publishing run's last line, when the folder exists, is `warning: superseded_kept: <folder>/superseded: <n> earlier units, <size> MB; never pruned, remove by hand` |
+| a crash during the move-aside | the unit may be split across two `superseded/<stamp>/` folders, or partly still in place for the next publish to move; every file is in one of them |
 | `--discovery` | `overwrite`: the old `discovery/` moves aside with its unit; `keep` and `reuse` add to it, and it stays |
 | `--interop` | beside a finished run: adds `interopPlan`, `interop` to its manifest, its capture to `discovery/`, `interop/` replaced; `configuration/` and the other keys stay; else a publish with its own manifest |
 | `--check` | discover, configure and check inside the stage; beside a finished run: adds `check` to its manifest, its capture to `discovery/`, `check/` replaced; `configuration/` and the other keys stay; else a publish whose manifest lists `guide`, `knownAnswers`, `check` |

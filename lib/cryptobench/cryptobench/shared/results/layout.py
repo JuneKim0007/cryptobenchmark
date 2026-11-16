@@ -1,5 +1,5 @@
 """<results root>/<device_id>/: the probe names the folder, so a run stages its discovery beside it until then; an earlier unit moves aside whole."""
-import contextlib, datetime, itertools, pathlib, shutil, tempfile
+import contextlib, datetime, itertools, os, pathlib, shutil, tempfile
 
 from cryptobench.shared import paths
 
@@ -78,6 +78,24 @@ def supersede(target, discovery_mode):
         (target / name).rename(into / name)
     print(f"warning: run_superseded: {target}: {', '.join(present)} moved to {into}")
     return into
+
+
+def held_bytes(root):
+    total = 0
+    for folder, _, files in os.walk(root):
+        for name in files:
+            with contextlib.suppress(OSError):
+                total += os.lstat(os.path.join(folder, name)).st_size
+    return total
+
+
+def report_superseded(target):
+    """At a run's end, what superseded/ holds; nothing prunes it."""
+    root = paths.RunTree(target).superseded
+    if not root.is_dir():
+        return
+    units = sum(1 for p in root.iterdir() if p.is_dir())
+    print(f"warning: superseded_kept: {root}: {units} earlier {'unit' if units == 1 else 'units'}, {held_bytes(root) / 1e6:.1f} MB; never pruned, remove by hand")
 
 
 def publish(stage, target, discovery_mode):
