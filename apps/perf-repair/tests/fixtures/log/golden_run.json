@@ -1,0 +1,192 @@
+{
+ "events": [
+  {
+   "schemaVersion": 1,
+   "ts": "TS",
+   "run": "RUN",
+   "stage": "run",
+   "step": "app",
+   "event": "run_start",
+   "kind": "static",
+   "item": null,
+   "app": null,
+   "outcome": null,
+   "durationMs": null,
+   "tokens": null,
+   "costUsd": null,
+   "ref": null,
+   "detail": "app --app a",
+   "data": {}
+  },
+  {
+   "schemaVersion": 1,
+   "ts": "TS",
+   "run": "RUN",
+   "stage": "config",
+   "step": "load",
+   "event": "log",
+   "kind": "static",
+   "item": null,
+   "app": null,
+   "outcome": "debug",
+   "durationMs": null,
+   "tokens": null,
+   "costUsd": null,
+   "ref": null,
+   "detail": "setting a: 1 (default)",
+   "data": {}
+  },
+  {
+   "schemaVersion": 1,
+   "ts": "TS",
+   "run": "RUN",
+   "stage": "inputs",
+   "step": "inputs",
+   "event": "log",
+   "kind": "static",
+   "item": null,
+   "app": null,
+   "outcome": "info",
+   "durationMs": null,
+   "tokens": null,
+   "costUsd": null,
+   "ref": null,
+   "detail": "an input line",
+   "data": {
+    "code": "missing_input",
+    "input": "a"
+   }
+  },
+  {
+   "schemaVersion": 1,
+   "ts": "TS",
+   "run": "RUN",
+   "stage": "grouping",
+   "step": "build",
+   "event": "start",
+   "kind": "static",
+   "item": "i1",
+   "app": null,
+   "outcome": null,
+   "durationMs": null,
+   "tokens": null,
+   "costUsd": null,
+   "ref": null,
+   "detail": "",
+   "data": {}
+  },
+  {
+   "schemaVersion": 1,
+   "ts": "TS",
+   "run": "RUN",
+   "stage": "grouping",
+   "step": "build",
+   "event": "end",
+   "kind": "static",
+   "item": "i1",
+   "app": null,
+   "outcome": "ok",
+   "durationMs": "MS",
+   "tokens": null,
+   "costUsd": null,
+   "ref": null,
+   "detail": "",
+   "data": {
+    "counts": {
+     "items": 2
+    },
+    "files": {
+     "out.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    }
+   }
+  },
+  {
+   "schemaVersion": 1,
+   "ts": "TS",
+   "run": "RUN",
+   "stage": "grouping",
+   "step": "assign",
+   "event": "decision",
+   "kind": "model",
+   "item": "i1",
+   "app": null,
+   "outcome": "dropped",
+   "durationMs": 1200,
+   "tokens": {
+    "input": 10,
+    "output": 2
+   },
+   "costUsd": 0.001,
+   "ref": "log/ai/grouping.yaml#1",
+   "detail": "",
+   "data": {
+    "calls": 1
+   }
+  },
+  {
+   "schemaVersion": 1,
+   "ts": "TS",
+   "run": "RUN",
+   "stage": "device",
+   "step": "s",
+   "event": "finding",
+   "kind": "static",
+   "item": "P",
+   "app": "a",
+   "outcome": "warn",
+   "durationMs": null,
+   "tokens": null,
+   "costUsd": null,
+   "ref": null,
+   "detail": "P is not on the device",
+   "data": {
+    "code": "not_on_device",
+    "action": "warn",
+    "next": "add it to providers.bundled in global.yaml and rerun the device stage"
+   }
+  },
+  {
+   "schemaVersion": 1,
+   "ts": "TS",
+   "run": "RUN",
+   "stage": "run",
+   "step": "error",
+   "event": "error",
+   "kind": "static",
+   "item": null,
+   "app": null,
+   "outcome": "error",
+   "durationMs": null,
+   "tokens": null,
+   "costUsd": null,
+   "ref": null,
+   "detail": "missing_file: x",
+   "data": {}
+  },
+  {
+   "schemaVersion": 1,
+   "ts": "TS",
+   "run": "RUN",
+   "stage": "run",
+   "step": "app",
+   "event": "run_end",
+   "kind": "static",
+   "item": null,
+   "app": null,
+   "outcome": "error",
+   "durationMs": "MS",
+   "tokens": null,
+   "costUsd": null,
+   "ref": null,
+   "detail": "",
+   "data": {}
+  }
+ ],
+ "status": [
+  "run RUN TS: app --app a",
+  "not_on_device P app a: warn: P is not on the device; next: add it to providers.bundled in global.yaml and rerun the device stage",
+  "missing_file error: x",
+  "end RUN: error (Ns)"
+ ],
+ "stderr": "an input line\nerror missing_file: x\n"
+}
