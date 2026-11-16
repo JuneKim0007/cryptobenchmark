@@ -11,7 +11,7 @@ from pathlib import Path
 from cryptobench.shared.paths import RunTree
 from cryptobench.shared.paths import EVENTS
 from cryptobench.shared.log.event import FINDING, LOG, Event
-from ..files import append_line
+from cryptobench.shared.document.append import append_line
 from cryptobench.shared.log.emit import EVENT_ATTR
 from .views import VIEWS
 

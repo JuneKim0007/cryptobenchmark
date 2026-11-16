@@ -36,6 +36,7 @@ cryptobench/shared/catalogue/types.py : TypeRow: an algorithm's output kind, Pro
 cryptobench/shared/catalogue/vectors.py : known answers: read and checked whole, filled per provider for one run, --check's coverage lines
 cryptobench/shared/catalogue/views.py : what an agent is shown: one entry with only its provider build's overrides (view_for), the groups' ids, descriptions and exemplars (list_groups), one group's members a page at a time (get_group)
 cryptobench/shared/document/__init__.py : package of the YAML document reader and writer and the JSON document writer
+cryptobench/shared/document/append.py : append_line, one whole line appended, a newline first after a line a crash cut
 cryptobench/shared/document/document.py : parse_yaml, a YAML text as its one shape (a mapping unless named) or invalid_yaml at its line and column; DocumentKind: a versioned document's accepted schemaVersion (one or several), its reader's refusal text and error type; check, the one schemaVersion check every reader calls
 cryptobench/shared/document/dump.py : dump_yaml, a value as YAML text through one named profile (BLOCK, FLOW_LEAVES, WIDE, UNICODE, WIDE_UNICODE), each the option set its writers have always written
 cryptobench/shared/document/json_dump.py : json_text, a document as JSON text (indent 1); write_json, that text through write_text

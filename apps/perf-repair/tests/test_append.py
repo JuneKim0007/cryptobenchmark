@@ -1,4 +1,4 @@
-"""files.append_line after a crash cut a line, files.read_jsonl for its three readers, and the sink's own notices."""
+"""append_line after a crash cut a line, files.read_jsonl for its three readers, and the sink's own notices."""
 import json
 import logging
 
@@ -7,7 +7,8 @@ import pytest
 from cryptobench.shared.paths import RunTree
 from cryptobench.shared.paths import EVENTS
 from perfrepair import failure
-from perfrepair.files import append_line, read_jsonl
+from cryptobench.shared.document.append import append_line
+from perfrepair.files import read_jsonl
 from perfrepair.log import attach
 from cryptobench.shared.log.emit import emit
 from perfrepair.log import sink as sink_module
