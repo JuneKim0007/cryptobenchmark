@@ -57,7 +57,7 @@ START = ["global_config", "config_check", "dependencies"]
     ({"probe": True, "device": True}, START + ["Device", "connect", "warn_if_temp", "discover_published", "guide", "manifest"]),
     ({"bench": True}, START + ["warn_if_temp", "discover_published", "guide", "measure_cases", "manifest"]),
     ({"device": True}, START + ["Device", "connect", "warn_if_temp", "discover_published", "guide", "measure_cases", "manifest"]),
-    ({"check": True, "bench": True}, START + ["warn_if_temp", "discover_published", "guide", "check_run"]),
+    ({"check": True, "bench": True}, START + ["warn_if_temp", "check_run"]),
     ({"interop": "plan.yaml", "bench": True}, START + ["warn_if_temp", "interop_run"]),
     ({"harness": "harness.yaml", "device": True}, START + ["Device", "connect", "checked_folder", "harness_run"]),
     ({"identify": True}, ["global_config", "dependencies", "identify"]),

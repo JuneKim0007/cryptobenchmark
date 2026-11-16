@@ -30,9 +30,9 @@ def interop_run(options, configuration, device, root, shipped, discover_staged, 
         elapsed("interop check", started)
         interop_oracle.summary(out)
         results = root / capture_id(capture)
-        finished = paths.RunTree(results).manifest.is_file()
+        finished = paths.finished(results)
         if finished:
-            results_layout.publish_interop(stage, results)
+            results_layout.publish_beside(stage, results, paths.INTEROP)
         else:
             results_layout.publish(stage, results, options.discovery)
     interop = paths.RunTree(results).interop

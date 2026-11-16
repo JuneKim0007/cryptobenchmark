@@ -19,13 +19,13 @@ perf-repair writes the second and third lines: [artifacts.md](../apps/perf-repai
 | `--results` | the root, default `<repo>/results` |
 | folder name | `deviceId` of the manifest below, from the probe |
 | staging | discovery and configure run in `<root>/.staging-*`, then move in; a run that fails there removes it and changes nothing |
-| a finished device | a folder holding `manifest.yaml` |
+| a finished device | a folder whose `manifest.yaml` has no top-level `partial:` (`lib/cryptobench/cryptobench/shared/paths/results.py` `finished`); every reader that lists devices or decides "beside a finished run" asks it |
 | unit | `manifest.yaml`, `configuration/`, `preparation/`, `benchmark/`, `analysis/`, `chart/`, `check/`, `interop/`; `discovery/` too under `--discovery overwrite` |
 | a publish | the unit already in the folder, finished or not, is renamed whole into `superseded/<UTC stamp>[-<n>]/` (manifest first), one line `warning: run_superseded: <folder>: <names> moved to <path>`; then the staged folders move in; nothing is deleted |
 | `superseded/<stamp>/` | one earlier unit, the device folder's own layout; `-<n>` from 2 on when that second already has one; nothing reads it |
 | `--discovery` | `overwrite`: the old `discovery/` moves aside with its unit; `keep` and `reuse` add to it, and it stays |
-| `--interop` | beside a finished run: adds `interopPlan`, `interop` to its manifest, its capture to `discovery/`; `configuration/` and the other keys stay |
-| `--check` | a full discover and configure, then `check/`; the manifest gains `check` |
+| `--interop` | beside a finished run: adds `interopPlan`, `interop` to its manifest, its capture to `discovery/`, `interop/` replaced; `configuration/` and the other keys stay; else a publish with its own manifest |
+| `--check` | discover, configure and check inside the stage; beside a finished run: adds `check` to its manifest, its capture to `discovery/`, `check/` replaced; `configuration/` and the other keys stay; else a publish whose manifest lists `guide`, `knownAnswers`, `check` |
 | `--harness` | writes `checked/` beside `harness.yaml`, itself laid out as this table's device folder without the device level |
 | a killed process | `.staging-*` stays behind; nothing reads it, delete it |
 | root under `/tmp`, `/var/tmp`, `/var/folders` or the system temp folder | one line `warning: results_in_temp: ...`; the run goes on |

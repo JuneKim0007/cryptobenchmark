@@ -35,13 +35,18 @@ def layout(tmp_path, run):
     return results, effective, capture, trial
 
 
-def measured(tmp_path, monkeypatch, run, phone=None, **phone_options):
+def measured_fakes(monkeypatch, phone):
+    """The host tools, analysis and energy source a measuring run calls, faked around the phone."""
     monkeypatch.setattr(pipeline.dependencies, "require_energy", lambda *_arguments: None)
-    phone = phone or Phone(tmp_path, **phone_options)
     fake_tools(monkeypatch, phone)
     monkeypatch.setattr(pipeline, "analyse", lambda results, files, *_rest: files.update(benchmark=results / "benchmark/benchmark.json"))
     monkeypatch.setattr(benchmark.energy_stage, "source", lambda *_arguments, **_options: Energy(phone))
     monkeypatch.setattr(benchmark.EnergySession, "pull_traces", lambda _self, _traces, fresh=True: phone.log.append("pull traces") or 0)
+
+
+def measured(tmp_path, monkeypatch, run, phone=None, **phone_options):
+    phone = phone or Phone(tmp_path, **phone_options)
+    measured_fakes(monkeypatch, phone)
     results, effective, capture, trial = layout(tmp_path, run)
     files, problems = {"effective": effective}, []
     pipeline.benchmarked(OPTIONS, phone, results, results / "discovery", effective, capture, trial, files, problems)

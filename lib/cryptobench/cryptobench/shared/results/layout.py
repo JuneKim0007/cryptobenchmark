@@ -91,8 +91,8 @@ def publish(stage, target, discovery_mode):
             folder.rename(target / folder.name)
 
 
-def publish_interop(stage, target):
-    """Beside a finished run: its capture joins discovery/, and its configuration and manifest stay what they were."""
+def publish_beside(stage, target, name):
+    """Beside a finished run: its capture joins discovery/, the stage's `name` folder replaces the run's, and its configuration and manifest stay."""
     merge_folder(paths.RunTree(stage).discovery.root, paths.RunTree(target).discovery.root)
-    replace_folder(paths.RunTree(stage).interop.root, paths.RunTree(target).interop.root)
+    replace_folder(stage / name, target / name)
 

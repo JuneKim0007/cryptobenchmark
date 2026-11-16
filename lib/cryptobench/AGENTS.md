@@ -67,7 +67,7 @@ cryptobench/shared/paths/imports.py : the apps' source folders on the import pat
 cryptobench/shared/paths/names.py : the file and folder names of a results folder, and CONTRACT: those shared with Kotlin
 cryptobench/shared/paths/packaged.py : packaged(package, name) through importlib and a named constant per data file a package ships
 cryptobench/shared/paths/repo.py : Repo and repo(root): one checkout's named locations
-cryptobench/shared/paths/results.py : Results(root): the device folders of a results root
+cryptobench/shared/paths/results.py : Results(root): the finished device folders of a results root; finished, a manifest without partial:
 cryptobench/shared/paths/roots.py : code_root (this checkout), benchmark_root (the checkout a run measures), each with its environment variable
 cryptobench/shared/paths/run_tree.py : RunTree: every file of one results folder; its sections Configuration, Discovery, Preparation, Measurement, Analysis, Charts, CheckFolder, InteropFolder, Scoped, Logs, Review; AppTree, GroupingTree
 cryptobench/shared/paths/settings.py : against(settings_file, value), the one rule for a path a settings file names; in_temp
@@ -128,7 +128,7 @@ cryptobench/stages/measurement/start_margin.py : the temperature gate's start ma
 cryptobench/stages/measurement/tests/ : pytest tests of the measurement stage
 cryptobench/stages/measurement/thermal.py : device temperatures from dumpsys thermalservice: sensors by HAL name, status, sentinels skipped, unavailable as a reason
 cryptobench/stages/verification/__init__.py : package of the verification stage
-cryptobench/stages/verification/check.py : --check run: every planned case once through the real harness (host CheckKt, device EndToEndCheck under the dry run), check.yaml, its summary and failures
+cryptobench/stages/verification/check.py : --check run: every planned case once through the real harness (host CheckKt, device EndToEndCheck under the dry run), check.yaml, its summary and failures, published beside a finished run or as a new device folder; discovery's steps passed in
 cryptobench/stages/verification/harness.py : --harness run: scope generation, ScopedInterop on the device, interop verdicts into checked/; discovery and the entry point's error reporting passed in
 cryptobench/stages/verification/interop.py : --interop run: the plan's pairs on the host or device, published beside a finished run or as a new device folder; discovery's steps passed in
 cryptobench/stages/verification/interop_oracle.py : oracle steps of a --interop run: plan staging, host InteropKt, device InteropCheck, summary

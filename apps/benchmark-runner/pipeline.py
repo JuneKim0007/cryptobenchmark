@@ -109,11 +109,19 @@ def guided(context, root):
     return results, discovery, effective, capture, trial, files
 
 
+def guided_in(context):
+    """guided's steps inside a stage the caller publishes: discovery there, then guide.yaml beside its effective.yaml."""
+    def discovered(root, stage):
+        _, effective, capture, trial, files = discover_staged(context.options, context.configuration, context.device, root, stage, context.checked["bundled"])
+        files["guide"] = guide.write(effective, capture)
+        return effective, capture, trial, files
+    return discovered
+
+
 def checked(context):
     root = published(context)
     require_check_run(context.options, context.device)
-    results, _, effective, capture, trial, files = guided(context, root)
-    return check_run(context.options, context.configuration, context.device, results, effective, capture, trial, files)
+    return check_run(context.options, context.configuration, context.device, root, guided_in(context), located)
 
 
 def measured(context):

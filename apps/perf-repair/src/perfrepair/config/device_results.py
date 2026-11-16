@@ -6,7 +6,7 @@ import functools
 import logging
 from pathlib import Path
 
-from cryptobench.shared.paths import Results, RunTree
+from cryptobench.shared.paths import Results, finished
 from cryptobench.shared.paths import DEVICE, MANIFEST, MEASUREMENTS, PRIMITIVES, ROWS, RUN_LOG
 from cryptobench.shared import paths
 from .. import run_dir as rd
@@ -58,12 +58,12 @@ def device_root(parser: argparse.ArgumentParser, args: argparse.Namespace, loade
     return root
 
 
-# a benchmark that did not end removed the manifest first; these files of the earlier run stay behind
+# a benchmark that did not end left no finished manifest; these files of the earlier run stay behind
 STAGE_FILES = (DEVICE, ROWS, MEASUREMENTS, RUN_LOG, PRIMITIVES)
 
 
 def _unfinished(folder: Path) -> bool:
-    return not (RunTree(folder).manifest).is_file() and any((folder / f).exists() for f in STAGE_FILES)
+    return not finished(folder) and any((folder / f).exists() for f in STAGE_FILES)
 
 
 def fill_device_results(parser: argparse.ArgumentParser, args: argparse.Namespace, loaded: Loaded | None = None) -> None:
