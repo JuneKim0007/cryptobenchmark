@@ -171,3 +171,24 @@ def test_a_second_run_on_the_same_results_root_is_device_busy_and_writes_nothing
         holder.wait(10)
     rerun()
     assert paths.finished(rerun.device)
+
+
+def test_fewer_repetitions_on_a_rerun_leave_no_process_folder_of_the_earlier_run(tmp_path, monkeypatch):
+    rerun = Rerun(tmp_path, monkeypatch)
+    rerun({"processRepetitions": 3})
+    rerun({"processRepetitions": 2})
+    benchmark = paths.RunTree(rerun.device).benchmark.root
+    assert sorted(p.name for p in benchmark.glob("process-*")) == ["process-1", "process-2"]
+    [aside] = rerun.aside()
+    assert sorted(p.name for p in (aside / "benchmark").glob("process-*")) == ["process-1", "process-2", "process-3"]
+    assert manifest_of(rerun.device)["files"]["clocks"] == [f"benchmark/process-{n}/clocks.yaml" for n in (1, 2)]
+
+
+def test_fewer_passes_on_a_rerun_leave_no_pass_folder_of_the_earlier_run(tmp_path, monkeypatch):
+    rerun = Rerun(tmp_path, monkeypatch)
+    rerun({"metrics": ["TIME", "ALLOCATION"], "passes": {"timing": {"samples": 3}, "allocation": {"samples": 3}}})
+    rerun({"metrics": ["TIME"]})
+    assert sorted(p.name for p in paths.RunTree(rerun.device).benchmark.root.iterdir() if p.is_dir()) == ["cases"]
+    [aside] = rerun.aside()
+    assert sorted(p.name for p in (aside / "benchmark").iterdir() if p.is_dir()) == ["allocation", "timing"]
+    assert json.loads((aside / "benchmark/benchmark.json").read_text())["cases"]

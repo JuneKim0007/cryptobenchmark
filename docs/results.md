@@ -23,6 +23,7 @@ perf-repair writes the second and third lines: [artifacts.md](../apps/perf-repai
 | a finished device | a folder whose `manifest.yaml` has no top-level `partial:` (`lib/cryptobench/cryptobench/shared/paths/results.py` `finished`); every reader that lists devices or decides "beside a finished run" asks it |
 | unit | `manifest.yaml`, `configuration/`, `preparation/`, `benchmark/`, `analysis/`, `chart/`, `check/`, `interop/`; `discovery/` too under `--discovery overwrite` |
 | a publish | the unit already in the folder, finished or not, is renamed whole into `superseded/<UTC stamp>[-<n>]/` (manifest first), one line `warning: run_superseded: <folder>: <names> moved to <path>`; then the staged folders move in; nothing is deleted |
+| fewer `processRepetitions` or passes on a rerun | the earlier `process-<n>/` and `<pass>/` folders move aside inside `benchmark/` with the unit; `benchmark/` holds only this run's |
 | `superseded/<stamp>/` | one earlier unit, the device folder's own layout; `-<n>` from 2 on when that second already has one; nothing reads it |
 | `--discovery` | `overwrite`: the old `discovery/` moves aside with its unit; `keep` and `reuse` add to it, and it stays |
 | `--interop` | beside a finished run: adds `interopPlan`, `interop` to its manifest, its capture to `discovery/`, `interop/` replaced; `configuration/` and the other keys stay; else a publish with its own manifest |
