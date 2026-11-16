@@ -30,8 +30,13 @@ object KeySource {
             else "no_key_generator: ${if (written == ANY) "no provider registers" else "${candidates.single()} registers no"} ${GENERATORS.joinToString(" or ")} $algorithm"
     }
 
+    // a registered name through the catalogue's spellings, or an alias the capture lists for it (an OID among them)
     private fun generates(inventory: Inventory, provider: String, algorithm: String): Boolean {
         val types = inventory.providers[provider].orEmpty()
-        return GENERATORS.any { type -> types[type].orEmpty().keys.any { AlgorithmNames.catalog.matches(type, algorithm, it) } }
+        return GENERATORS.any { type ->
+            types[type].orEmpty().any { (name, entry) ->
+                AlgorithmNames.catalog.matches(type, algorithm, name) || entry.aliases.any { AlgorithmNames.fold(it) == AlgorithmNames.fold(algorithm) }
+            }
+        }
     }
 }

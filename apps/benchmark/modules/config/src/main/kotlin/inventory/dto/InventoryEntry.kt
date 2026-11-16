@@ -9,6 +9,7 @@ data class InventoryEntry(
     val providerChose: String = "",
     val bareName: Boolean = false,
     val reason: String = "",
+    val aliases: List<String> = emptyList(),
 ) {
 
     init {

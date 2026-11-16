@@ -8,7 +8,9 @@ generatedFrom:
 providers:
   SUN:
     MessageDigest:
-      SHA-256: {runs: true}
+      SHA-256:
+        runs: true
+        aliases: [2.16.840.1.101.3.4.2.1, OID.2.16.840.1.101.3.4.2.1]
       SHA-512: {runs: true}
   SunJCE:
     Cipher:
@@ -23,11 +25,19 @@ providers:
         keyAlgorithm: AES
         keyProvider: SunJCE
     Mac:
-      HmacSHA256: {runs: true, keyAlgorithm: HmacSHA256, keyProvider: SunJCE}
+      HmacSHA256:
+        runs: true
+        keyAlgorithm: HmacSHA256
+        keyProvider: SunJCE
+        aliases: [1.2.840.113549.2.9]
     KeyGenerator:
       AES:
         runs: true
         keySizes: [256]
         keyAlgorithm: AES
         keyProvider: SunJCE
-      HmacSHA256: {runs: true, keyAlgorithm: HmacSHA256, keyProvider: SunJCE}
+      HmacSHA256:
+        runs: true
+        keyAlgorithm: HmacSHA256
+        keyProvider: SunJCE
+        aliases: [1.2.840.113549.2.9]

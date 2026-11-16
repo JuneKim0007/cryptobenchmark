@@ -24,7 +24,8 @@ Host entry `ConfigureKt`: `docs/tools.md`.
 |---|---|
 | entries | one per trial default run, service and transformation; trial entries without `defaultRun` are left out |
 | provider order | capture precedence, then providers seen only in the trial |
-| entry fields | `runs`, `keySizes`, `inputSizes`, `keyAlgorithm`, `keyProvider`, `providerChose`, `bareName`, `reason`; empty ones omitted |
+| entry fields | `runs`, `keySizes`, `inputSizes`, `keyAlgorithm`, `keyProvider`, `providerChose`, `bareName`, `reason`, `aliases`; empty ones omitted |
+| `aliases` | the aliases the capture lists for the service of that provider, type and name (OIDs among them); a transformation has none |
 | `inputSizes` | recorded only when the run's input size differs from the trial's `defaultRunInputSize` |
 | `reason` | trial error, else `failed` |
 | `generatedFrom` | `capture`, `trial` file names; `device` = the capture's `runtime` block |

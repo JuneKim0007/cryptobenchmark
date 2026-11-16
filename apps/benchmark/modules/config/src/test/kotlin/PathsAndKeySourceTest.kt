@@ -4,6 +4,7 @@ import io.github.junekim0007.cryptobench.config.effective.EffectiveBuilder
 import io.github.junekim0007.cryptobench.config.effective.EffectiveDocument
 import io.github.junekim0007.cryptobench.config.global.GlobalDocument
 import io.github.junekim0007.cryptobench.config.inventory.InventoryBuilder
+import io.github.junekim0007.cryptobench.config.inventory.InventoryDocument
 import io.github.junekim0007.cryptobench.config.source.CaptureSource
 import io.github.junekim0007.cryptobench.config.source.TrialSource
 import io.github.junekim0007.cryptobench.config.testset.TestSetDocument
@@ -126,6 +127,24 @@ class PathsAndKeySourceTest {
         assertEquals(listOf("SUN.MessageDigest.SHA-256", "SunJCE.Cipher.AES/CBC/PKCS5PADDING"),
             effective.providers.flatMap { (p, t) -> t.flatMap { (type, e) -> e.keys.map { "$p.$type.$it" } } })
         assertEquals(listOf("no_key_generator: no provider registers KeyGenerator or KeyPairGenerator RSA"), effective.skipped.map { it.reason })
+    }
+
+    /** key.algorithm may be any alias the capture lists for the generator, an OID too; inventory.yaml carries the aliases. */
+    @Test
+    fun aGeneratorAliasFromTheCaptureIsAccepted() {
+        val capture = Fixtures.CAPTURE.replace("{name: SunJCE, version: '25', precedence: 2, services: []}",
+            "{name: SunJCE, version: '25', precedence: 2, services: [{type: KeyGenerator, algorithm: AES, aliases: [2.16.840.1.101.3.4.1]}]}")
+        val aliased = InventoryBuilder().build(CaptureSource.parse(codec.load(capture)), TrialSource.parse(codec.load(Fixtures.TRIAL + GENERATORS)),
+            InventoryBuilder.Files("probe_x.yaml", "trial_x.yaml"))
+        assertEquals(listOf("2.16.840.1.101.3.4.1"), aliased.providers.getValue("SunJCE").getValue("KeyGenerator").getValue("AES").aliases)
+        assertEquals(aliased, InventoryDocument.parse(codec.load(codec.dump(InventoryDocument.of(aliased)))))
+        val effective = EffectiveBuilder().build(
+            GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: t.yaml}\n")),
+            TestSetDocument.parse(codec.load("schemaVersion: 1\ndescription: d\ninclude:\n- {type: Cipher}\noverrides:\n" +
+                "- match: {name: AES/CBC/PKCS5PADDING}\n  set: {key: {algorithm: 2.16.840.1.101.3.4.1}}\n" +
+                "- match: {name: RSA}\n  set: {key: {algorithm: 1.2.840.113549.1.1.1}}\n")), aliased, names)
+        assertEquals(listOf("AES", "AES/CBC/PKCS5PADDING"), effective.providers.getValue("SunJCE").getValue("Cipher").keys.toList())
+        assertEquals(listOf("no_key_generator: SunJCE registers no KeyGenerator or KeyPairGenerator 1.2.840.113549.1.1.1"), effective.skipped.map { it.reason })
     }
 
     @Test

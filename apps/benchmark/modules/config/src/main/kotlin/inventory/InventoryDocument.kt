@@ -26,6 +26,7 @@ object InventoryDocument : DocumentHandler<Inventory> {
     private const val PROVIDER_CHOSE = "providerChose"
     private const val BARE_NAME = "bareName"
     private const val REASON = "reason"
+    private const val ALIASES = "aliases"
 
     override fun of(value: Inventory): Map<String, Any> = linkedMapOf<String, Any>(
         GENERATED_FROM to InventorySourceDocument.of(value.generatedFrom),
@@ -47,6 +48,7 @@ object InventoryDocument : DocumentHandler<Inventory> {
         if (entry.providerChose.isNotEmpty()) put(PROVIDER_CHOSE, entry.providerChose)
         if (entry.bareName) put(BARE_NAME, true)
         if (entry.reason.isNotEmpty()) put(REASON, entry.reason)
+        if (entry.aliases.isNotEmpty()) put(ALIASES, entry.aliases)
     }
 
     private fun entryOf(document: Map<String, Any>): InventoryEntry = InventoryEntry(
@@ -58,5 +60,6 @@ object InventoryDocument : DocumentHandler<Inventory> {
         providerChose = optionalString(document, PROVIDER_CHOSE),
         bareName = optionalBoolean(document, BARE_NAME),
         reason = optionalString(document, REASON),
+        aliases = optionalStrings(document, ALIASES),
     )
 }

@@ -27,7 +27,7 @@ class InventoryBuilder {
                     warnings += "duplicate_name: $provider.${entry.type} $first and ${entry.name} are one name; ${entry.name} left out"
                     continue
                 }
-                types.getOrPut(entry.type) { LinkedHashMap() }[entry.name] = inventoryEntry(entry.run, trial.defaultRunInputSize)
+                types.getOrPut(entry.type) { LinkedHashMap() }[entry.name] = inventoryEntry(entry.run, trial.defaultRunInputSize, capture.aliasesOf(provider, entry.type, entry.name))
             }
             providers[provider] = types
         }
@@ -36,7 +36,7 @@ class InventoryBuilder {
 
     data class Files(val capture: String, val trial: String)
 
-    private fun inventoryEntry(run: TrialView.DefaultRun, defaultRunInputSize: Int?): InventoryEntry = InventoryEntry(
+    private fun inventoryEntry(run: TrialView.DefaultRun, defaultRunInputSize: Int?, aliases: List<String>): InventoryEntry = InventoryEntry(
         runs = run.works,
         keySizes = listOfNotNull(run.keySize),
         inputSizes = listOfNotNull(run.inputSize?.takeIf { it != defaultRunInputSize }),
@@ -45,5 +45,6 @@ class InventoryBuilder {
         providerChose = run.providerChose,
         bareName = run.bareName,
         reason = if (run.works) "" else run.error.ifEmpty { "failed" },
+        aliases = aliases,
     )
 }

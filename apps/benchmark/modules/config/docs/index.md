@@ -58,7 +58,7 @@ apps/benchmark/modules/config/src/main/kotlin/inventory/dto/InventorySource.kt :
 apps/benchmark/modules/config/src/main/kotlin/names/AlgorithmNames.kt : algorithm-names.yaml reader: canonical name and key size, rule name match, identifier fold
 apps/benchmark/modules/config/src/main/kotlin/names/dto/Canonical.kt : canonical name, key-size constraint, catalogued or not
 apps/benchmark/modules/config/src/main/kotlin/source/CaptureSource.kt : reads a discovery capture file as CaptureView
-apps/benchmark/modules/config/src/main/kotlin/source/CaptureView.kt : capture fields config uses
+apps/benchmark/modules/config/src/main/kotlin/source/CaptureView.kt : capture fields config uses: time, runtime, provider order, each service's aliases
 apps/benchmark/modules/config/src/main/kotlin/source/TrialSource.kt : reads a discovery trial file as TrialView
 apps/benchmark/modules/config/src/main/kotlin/source/TrialView.kt : trial fields config uses
 apps/benchmark/modules/config/src/main/kotlin/testset/RuleDocument.kt : rule {provider, type, name, group} reader and writer
