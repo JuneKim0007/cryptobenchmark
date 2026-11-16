@@ -2,22 +2,23 @@ package io.github.junekim0007.cryptobench.config.effective
 
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveEntry
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
+import io.github.junekim0007.cryptobench.config.testset.dto.Include
 import io.github.junekim0007.cryptobench.config.testset.dto.Override
+import io.github.junekim0007.cryptobench.config.testset.dto.Rule
 import io.github.junekim0007.cryptobench.config.inventory.dto.Inventory
 
-internal class OverrideResolver(private val overrides: List<Override>) {
+/** variants: an override's set, else an include's, else the run's; within each the most specific, then the later, wins. */
+internal class OverrideResolver(private val overrides: List<Override>, private val includes: List<Include> = emptyList(), private val runVariants: List<String> = emptyList()) {
 
     fun resolve(located: Inventory.Located, group: String?): EffectiveEntry {
-        val applicable = overrides
-            .withIndex()
-            .filter { (_, override) -> override.match.matches(located) && override.match.appliesTo(group) }
-            .sortedWith(compareBy({ it.value.match.specificity }, { it.index }))
-            .map { it.value }
+        val applicable = applicable(overrides, Override::match, located, group)
         val keySizes = applicable.lastOrNull { it.keySizes != null }?.keySizes
         val inputSizes = applicable.lastOrNull { it.inputSizes != null }?.inputSizes
         val key = applicable.lastOrNull { it.key != null }?.key.orEmpty()
         val parameters = applicable.lastOrNull { it.parameters != null }?.parameters.orEmpty()
         val operations = applicable.lastOrNull { it.operations != null }?.operations.orEmpty()
+        val variants = applicable.lastOrNull { it.variants != null }?.variants
+            ?: applicable(includes, Include::rule, located, group).lastOrNull { it.variants != null }?.variants ?: runVariants
         val harness = applicable.fold(HarnessSettings()) { merged, override -> merged.mergedWith(override.harness) }
         val observed = located.entry
         return EffectiveEntry(
@@ -26,6 +27,7 @@ internal class OverrideResolver(private val overrides: List<Override>) {
             key = key,
             parameters = parameters,
             operations = operations,
+            variants = variants,
             harness = harness,
             providerDefaults = listOfNotNull(
                 "keySize".takeIf { keySizes == null && key.isEmpty() && observed.keySizes.isNotEmpty() },
@@ -34,4 +36,10 @@ internal class OverrideResolver(private val overrides: List<Override>) {
             ),
         )
     }
+
+    private fun <T> applicable(items: List<T>, rule: (T) -> Rule, located: Inventory.Located, group: String?): List<T> = items
+        .withIndex()
+        .filter { (_, item) -> rule(item).matches(located) && rule(item).appliesTo(group) }
+        .sortedWith(compareBy({ rule(it.value).specificity }, { it.index }))
+        .map { it.value }
 }

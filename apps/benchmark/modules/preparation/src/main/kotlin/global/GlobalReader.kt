@@ -38,6 +38,6 @@ object GlobalReader {
         seed = number(inbound.run, "seed").toLong(),
         onFailure = choice<OnFailure>("onFailure", string(inbound.policy, "onFailure")),
         harness = HarnessSettings.read(sectionOrEmpty(inbound.run, "harness"), "run.harness"),
-        variants = optionalStrings(inbound.run, "variants").map(Variant::of).ifEmpty { Variant.entries },
+        variants = if ("variants" in inbound.run) optionalStrings(inbound.run, "variants").map(Variant::of) else Variant.entries,
     )
 }

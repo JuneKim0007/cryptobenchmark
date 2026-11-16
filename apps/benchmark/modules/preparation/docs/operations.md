@@ -38,7 +38,7 @@ What each operation consumes, its timed call, inputs, keys and parameter trees. 
 
 ## Variants
 
-Each item is measured twice, as two cases (`run.variants`, default both). Setup outside the call runs once, before the timer, in `Invocations.of`; keys, inputs, spec pools and the output buffer are built before it too.
+Each item is measured once per path its entry's `variants` keeps ([prepare.md](prepare.md#resolution)), each its own case. Setup outside the call runs once, before the timer, in `Invocations.of`; keys, inputs, spec pools and the output buffer are built before it too.
 
 | material | across an item's two variants |
 |---|---|
@@ -66,8 +66,8 @@ Catalog: `src/main/resources/.../operation/setup-catalog.yaml`, read by `operati
 | Cipher GCM, CCM | init with the next fresh IV + operation | a nonce must not repeat under one key; the provider refuses a reused one |
 | Cipher, other mode | init + operation | unknown mode |
 | Cipher without a mode (stream or provider default) | operation when the initialised cipher has no IV, else init + operation | as above |
-| KeyGenerator, KeyPairGenerator | one variant, `fixed`: `generateKey()`/`generateKeyPair()` after one init; a row giving anything but `operation` is refused (`not_supported`) | the generation is the work |
-| a type not in the catalog | one variant, `fixed`, operation | |
+| KeyGenerator, KeyPairGenerator | `variants: one`, paths `[fixed, secure]`, `secure` not built: `fixed`, `generateKey()`/`generateKeyPair()` after one init; a row giving anything but `operation` is refused (`not_supported`) | the generation is the work |
+| a type not in the catalog | as `variants: one`: `fixed`, operation | |
 
 | rule | value |
 |---|---|
@@ -84,11 +84,12 @@ Catalog: `src/main/resources/.../operation/setup-catalog.yaml`, read by `operati
 | DECRYPT input | seeded message encrypted once; carries ciphertext and spec (provider `AlgorithmParameters` when no spec); round trip checked, `round_trip_failed` |
 | VERIFY input | seeded message signed once and verified; carries message and signature |
 | asymmetric cipher | encrypt with the first pair's public key, decrypt with its private key |
-| key | the trial's `keyAlgorithm` and `fixedKeySize`: discovery's `KeyNames` is the one naming rule; none recorded: `no_measured_key: <type>.<alg>` |
-| generator provider | the case's provider, then all providers in precedence order; first with an available generator |
+| key | entry `key.algorithm`, else the trial's `keyAlgorithm` and `fixedKeySize` (the size kept when the written name is the measured one): discovery's `KeyNames` is the one naming rule; neither: `no_measured_key: <type>.<alg>` |
+| generator provider | entry `key.provider`: `same` (default) the case's provider, else the named one; no other provider is tried |
+| interop check | the key shared by both members: the producer's provider, then all providers in precedence order ([interop.md](interop.md)) |
 | DEVICE_DECIDES | secret `KeyGenerator` first, then a one-pair `KeyPairGenerator` |
 | PEER_PAIRS | two key pairs |
-| no generator | `no_key_generator: <KeyGenerator\|KeyPairGenerator>.<alg>`; `no_key_generator: <alg>` for DEVICE_DECIDES |
+| no generator | `no_key_generator: <KeyGenerator\|KeyPairGenerator>.<alg> in <provider>`; `no_key_generator: <alg> in <provider>` for DEVICE_DECIDES |
 | recipe keySize | case keySize, else the size parsed from the name |
 | entry `key` | keyed operations: goes to the key generator; GENERATE_KEY(_PAIR): the measured init spec |
 | randomness | unseeded `SecureRandom()` |

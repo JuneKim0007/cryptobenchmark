@@ -1,6 +1,8 @@
 package io.github.junekim0007.cryptobench.preparation
 
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyCandidate
+import io.github.junekim0007.cryptobench.preparation.key.plan.KeySource
+import io.github.junekim0007.cryptobench.preparation.measurement.Variant
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.parameter.bind.ParameterBinder
 import io.github.junekim0007.cryptobench.preparation.port.Availability
@@ -126,5 +128,32 @@ class CaseResolverTest {
     fun anOperationTheTypeDoesNotHaveIsRejected() {
         val wrong = Selection("MessageDigest", "SHA-256", provider = "AndroidOpenSSL", operations = setOf(Operation.SIGN))
         assertEquals(listOf("unsupported_operation"), resolver.resolve(request(wrong)).rejections.map { it.reason.substringBefore(':') })
+    }
+
+    /** An entry's own variants beat the run's; the row's paths decide which run, a dropped one is one notice. */
+    @Test
+    fun theEntrysVariantsMeetTheRowsPaths() {
+        val both = listOf(Variant.FIXED, Variant.NOT_FIXED)
+        val resolution = resolver.resolve(request(
+            Selection("MessageDigest", "SHA-256", provider = "AndroidOpenSSL", variants = both),
+            Selection("MessageDigest", "SHA-256", provider = "BC"),
+            Selection("KeyGenerator", "AES", provider = "AndroidOpenSSL", variants = both),
+            Selection("KeyGenerator", "AES", provider = "AndroidOpenSSL", group = "never", variants = listOf(Variant.NOT_FIXED)),
+        ))
+        assertEquals(listOf(
+            "MessageDigest_SHA-256_DIGEST_AndroidOpenSSL_i1024_WARM_fixed",
+            "MessageDigest_SHA-256_DIGEST_AndroidOpenSSL_i1024_WARM_notFixed",
+            "MessageDigest_SHA-256_DIGEST_BC_i1024_WARM_fixed",
+            "KeyGenerator_AES_GENERATE-KEY_AndroidOpenSSL_WARM_fixed",
+        ), resolution.cases.map { it.id })
+        assertEquals(listOf("path_not_applicable: AndroidOpenSSL.KeyGenerator.AES applies [fixed, secure], [notFixed] dropped"), resolution.notices)
+        assertEquals(listOf("KeyGenerator/AES@*: path_not_applicable: AndroidOpenSSL.KeyGenerator.AES applies [fixed, secure], [notFixed] dropped"),
+            resolution.rejections.map { it.toString() })
+    }
+
+    @Test
+    fun aKeySourceOnAnEntryThatTakesNoKeyIsUnused() {
+        val digest = Selection("MessageDigest", "SHA-256", provider = "AndroidOpenSSL", keySource = KeySource(provider = "BC"))
+        assertEquals(listOf("unused_setting: [key.algorithm/provider] reaches no call of [DIGEST]"), resolver.resolve(request(digest)).rejections.map { it.reason })
     }
 }

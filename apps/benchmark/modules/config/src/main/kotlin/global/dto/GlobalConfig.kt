@@ -6,4 +6,6 @@ data class GlobalConfig(
     val policy: Policy = Policy(),
     val analysis: AnalysisSettings = AnalysisSettings(),
     val providers: ProviderSources = ProviderSources(),
+    // what the parse fell back from, for report.yaml
+    val notices: List<String> = emptyList(),
 )

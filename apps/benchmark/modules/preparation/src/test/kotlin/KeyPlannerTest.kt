@@ -3,6 +3,7 @@ package io.github.junekim0007.cryptobench.preparation
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyCandidate
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyPlanner
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
+import io.github.junekim0007.cryptobench.preparation.key.plan.KeySource
 import io.github.junekim0007.cryptobench.preparation.engine.EngineTypes
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
@@ -30,8 +31,8 @@ class KeyPlannerTest {
 
     private val planner = KeyPlanner(device)
 
-    private fun plan(type: String, algorithm: String, provider: String = "AndroidOpenSSL", keySize: Int? = null) =
-        planner.plan(BenchmarkCase(type, algorithm, provider, EngineTypes.standard().operationsOf(type).first(), keySize = keySize, inputSize = 1024))
+    private fun plan(type: String, algorithm: String, provider: String = "AndroidOpenSSL", keySize: Int? = null, source: KeySource = KeySource()) =
+        planner.plan(BenchmarkCase(type, algorithm, provider, EngineTypes.standard().operationsOf(type).first(), keySize = keySize, inputSize = 1024, keySource = source))
 
     @Test
     fun theDeviceDecidesTheCipherKey() {
@@ -48,9 +49,26 @@ class KeyPlannerTest {
     }
 
     @Test
-    fun theCasesProviderGeneratesWhenItCanOtherwisePrecedenceDecides() {
+    fun theCasesProviderGeneratesAndNoOtherUnlessNamed() {
         assertEquals(KeyRecipe.Pair("RSA", 2048, "BC"), plan("Signature", "SHA256withRSA", provider = "BC", keySize = 2048))
-        assertEquals(KeyRecipe.Secret("AES", 128, "AndroidOpenSSL"), plan("Cipher", "AES/CBC/PKCS5Padding", provider = "Vault", keySize = 128))
+        assertEquals(KeyRecipe.Unavailable("no_key_generator: AES in Vault"), plan("Cipher", "AES/CBC/PKCS5Padding", provider = "Vault", keySize = 128))
+        assertEquals(KeyRecipe.Secret("AES", 128, "AndroidOpenSSL"),
+            plan("Cipher", "AES/CBC/PKCS5Padding", provider = "Vault", keySize = 128, source = KeySource(provider = "AndroidOpenSSL")))
+        assertEquals(KeyRecipe.Unavailable("no_key_generator: KeyPairGenerator.RSA in Vault"),
+            plan("Signature", "SHA256withRSA", provider = "BC", keySize = 2048, source = KeySource(provider = "Vault")))
+    }
+
+    @Test
+    fun aWrittenAlgorithmReplacesTheMeasuredKey() {
+        assertEquals(KeyRecipe.Secret("HmacSHA256", null, "AndroidOpenSSL"), plan("Mac", "HmacSHA512", source = KeySource(algorithm = "HmacSHA256")))
+        assertEquals(KeyRecipe.Secret("AES", 128, "AndroidOpenSSL"), plan("Cipher", "AES_128/GCM/NoPadding", source = KeySource(algorithm = "aes")))
+    }
+
+    @Test
+    fun theInteropCheckTakesAnyProvidersGenerator() {
+        val interop = KeyPlanner(device, anyProvider = true)
+        assertEquals(KeyRecipe.Secret("AES", 128, "AndroidOpenSSL"),
+            interop.plan(BenchmarkCase("Cipher", "AES/CBC/PKCS5Padding", "Vault", Operation.ENCRYPT, keySize = 128, inputSize = 16)))
     }
 
     @Test
@@ -60,8 +78,8 @@ class KeyPlannerTest {
 
     @Test
     fun noGeneratorIsAnUnavailableRecipe() {
-        assertEquals(KeyRecipe.Unavailable("no_key_generator: Serpent"), plan("Cipher", "Serpent/CBC/NoPadding"))
-        assertEquals(KeyRecipe.Unavailable("no_key_generator: KeyGenerator.HmacSHA512"), plan("Mac", "HmacSHA512"))
+        assertEquals(KeyRecipe.Unavailable("no_key_generator: Serpent in AndroidOpenSSL"), plan("Cipher", "Serpent/CBC/NoPadding"))
+        assertEquals(KeyRecipe.Unavailable("no_key_generator: KeyGenerator.HmacSHA512 in AndroidOpenSSL"), plan("Mac", "HmacSHA512"))
     }
 
     @Test

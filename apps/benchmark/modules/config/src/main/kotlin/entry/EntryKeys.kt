@@ -7,5 +7,6 @@ internal object EntryKeys {
     const val KEY = "key"
     const val PARAMETERS = "parameters"
     const val OPERATIONS = "operations"
+    const val VARIANTS = "variants"
     const val HARNESS = "harness"
 }

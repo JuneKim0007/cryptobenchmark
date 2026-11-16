@@ -8,6 +8,7 @@ data class EffectiveEntry(
     val key: Map<String, Any> = emptyMap(),
     val parameters: Map<String, Any> = emptyMap(),
     val operations: List<String> = emptyList(),
+    val variants: List<String> = emptyList(),
     val providerDefaults: List<String> = emptyList(),
     val harness: HarnessSettings = HarnessSettings(),
 )

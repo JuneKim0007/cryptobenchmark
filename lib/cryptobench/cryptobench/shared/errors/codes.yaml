@@ -1228,6 +1228,7 @@ codes:
   parameters_unreadable: {kind: error}
   partial_manifest_failed: {kind: notice}
   pass_without_metric: {kind: error}
+  path_not_applicable: {kind: notice}
   peer_differs: {kind: outcome}
   peer_error: {kind: outcome}
   peer_failed: {kind: outcome}
@@ -1258,6 +1259,7 @@ codes:
   runtime_differs: {kind: notice}
   same_output: {kind: outcome}
   scopes_conflict: {kind: error}
+  secure_path_unavailable: {kind: notice}
   setup_refused: {kind: outcome}
   several_devices: {kind: error}
   signature_changed: {kind: outcome}
@@ -1306,6 +1308,7 @@ codes:
   unused_setting: {kind: notice}
   usage: {kind: error}
   vararg_parameter: {kind: outcome}
+  variants_fallback: {kind: notice}
   vector_incomplete: {kind: error}
   vector_iv_not_used: {kind: outcome}
   vector_not_expressible: {kind: outcome}

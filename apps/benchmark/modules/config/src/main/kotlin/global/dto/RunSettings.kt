@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.config.global.dto
 
+import io.github.junekim0007.cryptobench.config.entry.Variants
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
 import io.github.junekim0007.cryptobench.settings.Metric
 
@@ -7,8 +8,8 @@ data class RunSettings(
     val inputSizes: List<Int> = listOf(1024),
     val phases: List<String> = listOf("WARM"),
     val metrics: List<String> = listOf("TIME"),
-    // each measured item once per variant: fixed keeps the setup the API lets a call keep, notFixed makes it every call
-    val variants: List<String> = VARIANTS,
+    // each item once per path: fixed keeps the setup the API lets a call keep, notFixed makes it every call, secure is not built
+    val variants: List<String> = Variants.NAMES,
     val processRepetitions: Int = 1,
     // case: one device process per measured case, so a case that kills its process loses only itself
     val isolation: String = CASE,
@@ -31,9 +32,7 @@ data class RunSettings(
         require(inputSizes.isNotEmpty() && inputSizes.all { it > 0 }) { "invalid: inputSizes $inputSizes" }
         require(phases.isNotEmpty() && phases.none { it.isBlank() }) { "invalid: phases $phases" }
         Metric.read(metrics, "run.metrics")
-        require(variants.isNotEmpty() && variants.all { it in VARIANTS } && variants.distinct().size == variants.size) {
-            "invalid: run.variants $variants, expected distinct values of $VARIANTS"
-        }
+        require(Variants.valid(variants)) { "invalid: run.variants $variants, expected distinct values of ${Variants.NAMES}" }
         require(processRepetitions >= 1) { "not_positive: processRepetitions $processRepetitions" }
         require(passes.map { it.name }.toSet().size == passes.size) { "duplicate: run.passes ${passes.map { it.name }}" }
         require(passes.isEmpty() || passes.any { it.name == MeasurePass.TIMING }) {
@@ -53,6 +52,5 @@ data class RunSettings(
         const val CASE = "case"
         const val LAUNCH_RETRIES = 2
         val ISOLATIONS = listOf(CASE, "run")
-        val VARIANTS = listOf("fixed", "notFixed")
     }
 }

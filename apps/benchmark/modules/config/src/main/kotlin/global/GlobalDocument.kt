@@ -46,6 +46,7 @@ object GlobalDocument : DocumentHandler<GlobalConfig> {
             policy = optionalSection(document, POLICY)?.let { PolicyDocument.parse(it, POLICY) } ?: Policy(),
             analysis = optionalSection(document, ANALYSIS)?.let { AnalysisDocument.parse(it, ANALYSIS) } ?: AnalysisSettings(),
             providers = optionalSection(document, PROVIDERS)?.let { ProvidersDocument.parse(it, PROVIDERS) } ?: ProviderSources(),
+            notices = optionalSection(document, RUN)?.let { RunDocument.notices(it, RUN) }.orEmpty(),
         )
     }
 

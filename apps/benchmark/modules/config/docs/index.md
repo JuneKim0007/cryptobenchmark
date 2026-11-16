@@ -5,6 +5,7 @@ apps/benchmark/modules/config/.gitignore : ignores /build
 apps/benchmark/modules/config/README.md : module summary and link to this index
 apps/benchmark/modules/config/build.gradle : Kotlin/JVM 17 library; snakeyaml 2.3, :settings, :files and :document; passes examples.update to tests
 apps/benchmark/modules/config/docs/config.md : authored files: global.yaml, test sets, rules, overrides, groups
+apps/benchmark/modules/config/docs/entry.md : an entry's variants and key source: values, precedence, notices, checks
 apps/benchmark/modules/config/docs/generated.md : inventory.yaml, effective.yaml and report.yaml: build order, skips, warnings, errors
 apps/benchmark/modules/config/docs/index.md : this map
 apps/benchmark/modules/config/example/config_capture_example.yaml : example input capture
@@ -19,7 +20,7 @@ apps/benchmark/modules/config/src/main/kotlin/Configuration.kt : facade: invento
 apps/benchmark/modules/config/src/main/kotlin/effective/EffectiveBuilder.kt : global x test set x inventory x facts to EffectiveConfig
 apps/benchmark/modules/config/src/main/kotlin/effective/EffectiveDocument.kt : effective.yaml schema
 apps/benchmark/modules/config/src/main/kotlin/effective/LocatedMatch.kt : Rule.matches(Inventory.Located)
-apps/benchmark/modules/config/src/main/kotlin/effective/OverrideResolver.kt : merges applicable overrides into one EffectiveEntry
+apps/benchmark/modules/config/src/main/kotlin/effective/OverrideResolver.kt : merges applicable overrides into one EffectiveEntry; variants from overrides, includes, then the run
 apps/benchmark/modules/config/src/main/kotlin/effective/ReportDocument.kt : report.yaml schema
 apps/benchmark/modules/config/src/main/kotlin/effective/SkipDocument.kt : one skip record as a map, shared by effective and report
 apps/benchmark/modules/config/src/main/kotlin/effective/StoppedOnFailureException.kt : stop-policy failure carrying all skips
@@ -30,6 +31,8 @@ apps/benchmark/modules/config/src/main/kotlin/effective/dto/EffectiveSource.kt :
 apps/benchmark/modules/config/src/main/kotlin/effective/dto/Report.kt : run id, warnings and skips of one effective build
 apps/benchmark/modules/config/src/main/kotlin/effective/dto/Skip.kt : skip record {stage, provider?, type?, name?, reason}
 apps/benchmark/modules/config/src/main/kotlin/entry/EntryKeys.kt : per-primitive key names shared by test-set overrides and effective entries
+apps/benchmark/modules/config/src/main/kotlin/entry/KeySource.kt : a key's written algorithm and provider checked against the inventory's generators
+apps/benchmark/modules/config/src/main/kotlin/entry/Variants.kt : variants names, the [fixed] fallback and its notice, secure dropped with one notice
 apps/benchmark/modules/config/src/main/kotlin/global/AnalysisDocument.kt : analysis section reader and writer
 apps/benchmark/modules/config/src/main/kotlin/global/GlobalDocument.kt : global.yaml schema
 apps/benchmark/modules/config/src/main/kotlin/global/PolicyDocument.kt : policy section reader and writer
@@ -60,6 +63,7 @@ apps/benchmark/modules/config/src/main/kotlin/source/TrialSource.kt : reads a di
 apps/benchmark/modules/config/src/main/kotlin/source/TrialView.kt : trial fields config uses
 apps/benchmark/modules/config/src/main/kotlin/testset/RuleDocument.kt : rule {provider, type, name, group} reader and writer
 apps/benchmark/modules/config/src/main/kotlin/testset/TestSetDocument.kt : test-set schema
+apps/benchmark/modules/config/src/main/kotlin/testset/dto/Include.kt : one include: its rule and its variants
 apps/benchmark/modules/config/src/main/kotlin/testset/dto/Override.kt : one override and its validation
 apps/benchmark/modules/config/src/main/kotlin/testset/dto/Rule.kt : rule matching through AlgorithmNames, and specificity
 apps/benchmark/modules/config/src/main/kotlin/testset/dto/TestSet.kt : test-set model
@@ -84,6 +88,7 @@ apps/benchmark/modules/config/src/test/kotlin/InventoryBuilderTest.kt : inventor
 apps/benchmark/modules/config/src/test/kotlin/MalformedDocumentsTest.kt : malformed documents refused by name
 apps/benchmark/modules/config/src/test/kotlin/OverrideResolverTest.kt : override precedence tests
 apps/benchmark/modules/config/src/test/kotlin/ParityFixturesTest.kt : parity/ global, effective, facts, algorithm-names and scalars read to their .json values; the duplicate-key refusal and exponent read
+apps/benchmark/modules/config/src/test/kotlin/PathsAndKeySourceTest.kt : variants precedence, fallback and secure notices, a written key source checked on the inventory
 apps/benchmark/modules/config/src/test/kotlin/RuleTest.kt : rule matching tests
 apps/benchmark/modules/config/src/test/kotlin/WarmupJobsTest.kt : warm-up jobs resolved to entries; nothing selected turns it off
 apps/benchmark/modules/config/src/test/resources/algorithm-names-cases.yaml : name cases both readers resolve alike; owned here, perf-repair keeps a copy its tests compare

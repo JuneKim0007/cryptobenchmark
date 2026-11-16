@@ -53,9 +53,10 @@ class EffectiveKeysAgreeTest {
                   AES/GCM/NoPadding:
                     keySizes: [128]
                     inputSizes: [64]
-                    key: {algorithm: AES}
+                    key: {algorithm: AES, provider: same}
                     parameters: {class: javax.crypto.spec.GCMParameterSpec, arguments: [128, fresh(12)]}
                     operations: [ENCRYPT]
+                    variants: [fixed]
                     providerDefaults: [keySize]
                     harness: {iterations: 2}
         """.trimIndent()
@@ -64,6 +65,6 @@ class EffectiveKeysAgreeTest {
         val TOP = setOf("schemaVersion", "generatedFrom", "runId", "run", "policy", "analysis", "bundledProviders", "providers")
         val RUN = setOf("inputSizes", "phases", "metrics", "variants", "processRepetitions", "isolation", "seed",
             "thermalThrottleSleepSeconds", "caseCooldownSeconds", "warmup", "thermalGate", "launchRetries", "passes", "harness")
-        val ENTRY = setOf("keySizes", "inputSizes", "key", "parameters", "operations", "providerDefaults", "harness")
+        val ENTRY = setOf("keySizes", "inputSizes", "key", "parameters", "operations", "variants", "providerDefaults", "harness")
     }
 }

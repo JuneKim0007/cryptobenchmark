@@ -33,7 +33,7 @@ Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 | `run` | `inputSizes` | `[1024]` | non-empty, all `> 0`; bytes per call |
 | | `phases` | `[WARM]` | non-empty, non-blank; value `WARM` checked by preparation |
 | | `metrics` | `[TIME]` | `TIME`, `ALLOCATION`; must hold `TIME`, no repeats (`Metric.read`); `benchmark.json` reports only these, whatever androidx runs ([measure.md](../../benchmark/docs/measure.md#jetpack-conversion)) |
-| | `variants` | `[fixed, notFixed]` | non-empty, distinct values of `fixed`, `notFixed`, else `invalid: run.variants`; preparation makes one case per variant of each item ([operations.md](../../preparation/docs/operations.md#variants)) |
+| | `variants` | `[fixed, notFixed, secure]` | the execution paths every entry inherits ([entry.md](entry.md#variants)) |
 | | `processRepetitions` | `1` | `>= 1`; independent process runs |
 | | `isolation` | `case` | `case` or `run`, else `invalid: run.isolation`; `--device` only: `case` runs each measured case in its own instrumentation process, `run` all of them in one ([run.md](../../../../../docs/run.md#device-run)) |
 | | `seed` | `0` | input seed |
@@ -69,7 +69,7 @@ Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 | key | rule |
 |---|---|
 | `description` | free text |
-| `include` | rules; empty = every primitive the inventory can run |
+| `include` | rules, each with an optional `variants` ([entry.md](entry.md#variants)); empty = every primitive the inventory can run |
 | `exclude` | rules |
 | `overrides` | list of `{match: rule, set: {...}}` |
 
@@ -77,7 +77,9 @@ Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 |---|---|
 | `keySizes`, `inputSizes` | all `> 0`; on an entry whose operations use no key size or input, preparation skips it `unused_setting` |
 | `operations` | non-empty, non-blank |
-| `key`, `parameters` | parameter trees, passed through untouched; on an entry whose operations take no key spec or parameters, preparation skips it `unused_setting` |
+| `variants` | [entry.md](entry.md#variants) |
+| `key` | a parameter tree, plus `algorithm` and `provider` ([entry.md](entry.md#key-source)); on an entry whose operations take no key spec, preparation skips it `unused_setting` |
+| `parameters` | a parameter tree, passed through untouched; on an entry whose operations take no parameters, preparation skips it `unused_setting` |
 | `harness` | settings key table; merges field by field |
 | any other | refused |
 | none set | `empty_override` |
@@ -130,4 +132,4 @@ overrides:
 
 ## Parameter trees (`key`, `parameters`)
 
-Config passes trees through as maps. Preparation binds them: forms in `apps/benchmark/modules/preparation/docs/operations.md#parameter-trees`.
+Config passes trees through as maps, checking only a key's source. Preparation binds them: forms in `apps/benchmark/modules/preparation/docs/operations.md#parameter-trees`.

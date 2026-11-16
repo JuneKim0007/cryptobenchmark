@@ -48,7 +48,7 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 
 ## Variants
 
-`run.variants` ([operations.md](../apps/benchmark/modules/preparation/docs/operations.md#variants)): the device prepares one case per variant of each item; `lib/cryptobench/cryptobench/stages/measurement/session/variant_order.py` orders the benchmark's cases.
+Each entry's `variants` ([operations.md](../apps/benchmark/modules/preparation/docs/operations.md#variants)): the device prepares one case per kept path of each item; `lib/cryptobench/cryptobench/stages/measurement/session/variant_order.py` orders the benchmark's cases.
 
 | rule | value |
 |---|---|

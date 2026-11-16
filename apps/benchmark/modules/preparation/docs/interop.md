@@ -21,7 +21,7 @@ flowchart LR
 | member unavailable | both directions `not_checkable`, `not_registered: ...`; mode `none` |
 | mode `produce_consume` | the type has an artifact-consuming operation (DECRYPT, VERIFY): A produces, B consumes, then B produces, A consumes; a randomized output is crossed, never compared; the rule reads `OperationDefinitions`, no algorithm name |
 | mode `same_output` | otherwise: both outputs for the same key and input compared |
-| key | one key per direction, planned and generated for the producer, shared by both sides |
+| key | one key per direction, planned and generated for the producer, shared by both sides; its generator the producer's provider, else the first provider in precedence order that has one |
 | parameters | each member at its own defaults; only IV and GCM parameters travel with the ciphertext |
 | pair cases | seed 0; input size default 16 |
 | `not_checkable` | `InvalidKeyException`, `InvalidAlgorithmParameterException`, `ClassCastException` (`key_or_parameters_rejected`); producer failure (`producer_failed`); no key (`no_key`, `key_generation_failed`); outputs not byte arrays (`outputs_not_comparable`); any other exception (`error`) |

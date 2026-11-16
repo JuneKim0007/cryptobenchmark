@@ -3,7 +3,9 @@ package io.github.junekim0007.cryptobench.preparation
 import io.github.junekim0007.cryptobench.preparation.global.GlobalReader
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
 import io.github.junekim0007.cryptobench.preparation.inbound.InboundFile
+import io.github.junekim0007.cryptobench.preparation.key.plan.KeySource
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
+import io.github.junekim0007.cryptobench.preparation.measurement.Variant
 import io.github.junekim0007.cryptobench.preparation.request.PrimitiveReader
 import io.github.junekim0007.cryptobench.preparation.request.Selection
 import io.github.junekim0007.cryptobench.preparation.resolve.SelectionExpander
@@ -28,11 +30,22 @@ class PrimitiveReaderTest {
         )
     }
 
+    /** variants and the key source are the entry's own when written; absent, the run's paths and the measured key. */
+    @Test
+    fun anEntryCarriesItsVariantsAndItsKeySource() {
+        val text = EffectiveFixture.TEXT.replace("        operations: [DECRYPT]\n", "        operations: [DECRYPT]\n        variants: [notFixed]\n        key: {algorithm: AES, provider: BC}\n")
+        val aes = PrimitiveReader.read(InboundFile.read("effective.yaml", text)).single { it.algorithm == "AES/CBC/PKCS5PADDING" }
+        assertEquals(listOf(Variant.NOT_FIXED), aes.variants)
+        assertEquals(KeySource("AES", "BC"), aes.keySource)
+        assertEquals(emptyMap<String, Any>(), aes.keyParameters)
+        assertEquals(null, PrimitiveReader.read(inbound).first().variants)
+    }
+
     /** A typo is refused as :config refuses it, instead of the default being measured. */
     @Test
     fun anUnknownEntryKeyIsRefused() {
         val broken = InboundFile.read("effective.yaml", EffectiveFixture.TEXT.replace("        keySizes: [3072]", "        keysizes: [3072]"))
-        assertEquals("unknown_keys: SunJCE.Cipher.RSA [keysizes], known [keySizes, inputSizes, key, parameters, operations, providerDefaults, harness]",
+        assertEquals("unknown_keys: SunJCE.Cipher.RSA [keysizes], known [keySizes, inputSizes, key, parameters, operations, variants, providerDefaults, harness]",
             assertThrows(IllegalArgumentException::class.java) { PrimitiveReader.read(broken) }.message)
     }
 
@@ -80,7 +93,7 @@ class PrimitiveReaderTest {
         val digest = selections.single { it.algorithm == "SHA-256" }
         assertEquals(HarnessSettings(iterations = 5), digest.harness)
         assertEquals(HarnessSettings(), selections.single { it.algorithm == "RSA" }.harness)
-        val cases = SelectionExpander.expand(global, digest, listOf(Operation.DIGEST))
+        val cases = SelectionExpander.expand(global, digest, listOf(Operation.DIGEST), global.variants)
         assertEquals(HarnessSettings(iterations = 5, profiling = "MethodTracing"), cases.first().harness)
     }
 }

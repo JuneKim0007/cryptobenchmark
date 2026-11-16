@@ -44,7 +44,7 @@ one named case (Preparation.prepareOne): KeyPlanner -> KeyMaterialGenerator -> b
 | `inputSizes` | required; non-empty, positive, distinct |
 | `phases` | required; non-empty; `WARM` |
 | `metrics` | required; `TIME`, `ALLOCATION`; must hold `TIME`, no repeats (`Metric.read` in `:settings`) |
-| `variants` | optional, default `[fixed, notFixed]`; distinct values of `fixed`, `notFixed` ([operations.md](operations.md#variants)) |
+| `variants` | optional, default `[fixed, notFixed]`; distinct values of `fixed`, `notFixed`, may be empty; an entry without its own takes it ([operations.md](operations.md#variants)) |
 | `processRepetitions` | required; `>= 1` |
 | `seed` | required |
 | `harness` | optional; settings key table |
@@ -52,12 +52,14 @@ one named case (Preparation.prepareOne): KeyPlanner -> KeyMaterialGenerator -> b
 
 ## Selections
 
-`providers.<provider>.<type>.<name>[@<group>]: {entry}`; entry fields `keySizes`, `inputSizes`, `key`, `parameters`, `operations`, `providerDefaults`, `harness`, all optional.
+`providers.<provider>.<type>.<name>[@<group>]: {entry}`; entry fields `keySizes`, `inputSizes`, `key`, `parameters`, `operations`, `variants`, `providerDefaults`, `harness`, all optional.
 
 | rule | value |
 |---|---|
 | entry key | algorithm before `@`, group after `@` or empty |
 | `inputSizes` empty | `run.inputSizes` |
+| `variants` absent | `run.variants`; values `fixed`, `notFixed`, else `unknown_variant` |
+| `key` | `algorithm` and `provider` split off as the key source ([operations.md](operations.md#inputs-and-keys)), a non-blank string each, else `invalid`; the rest is the spec tree |
 | none selected | `nothing_selected: <file>` |
 | validation | type and algorithm non-blank; group without `@`; `keySizes`, `inputSizes` positive and distinct |
 | duplicates | `duplicate: selections` |
@@ -83,7 +85,7 @@ Type names match case-insensitively.
 |---|---|
 | operations | entry `operations` narrows the type's list |
 | expansion | provider x operation x keySize x inputSize x phase x variant; variant innermost: an item's two variants are adjacent |
-| variant axis | `run.variants` for a type whose catalog row has two; one `fixed` case for a `variants: one` row (key generation) and a type the catalog lacks |
+| variant axis | the entry's asked paths that its setup-catalog row applies: `[fixed, notFixed]` for an operation row, `[fixed, secure]` for a `variants: one` row (key generation) and a type the catalog lacks; some dropped: one `path_not_applicable` notice per entry, printed as a `warning:` line; all dropped: the selection is rejected `path_not_applicable` |
 | keySize axis | only when the operation consumes key size and `keySizes` is set, else one null |
 | inputSize axis | only when the operation consumes input, else one null |
 | harness | `run.harness` merged with the entry's |
@@ -93,6 +95,7 @@ Type names match case-insensitively.
 |---|---|
 | `unsupported_operation: [..] for <type>, one of [..]` | entry operation not in the type |
 | `key_parameters_and_key_sizes: set one; a key spec already fixes the size` | `key` and `keySizes` both set |
+| `unused_setting: [key.algorithm/provider] ...` | a key source on an entry whose operations take no key |
 | `unused_setting: [..] reaches no call of [..]` | `keySizes`, `inputSizes`, `key` or `parameters` that no operation consumes |
 | `bind_failed: <path>: <detail>` | `key` or `parameters` tree fails to bind |
 | Availability reason | provider cannot serve the name |

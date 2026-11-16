@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.config.testset.dto
 
+import io.github.junekim0007.cryptobench.config.entry.KeySource
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
 
 data class Override(
@@ -9,13 +10,15 @@ data class Override(
     val key: Map<String, Any>? = null,
     val parameters: Map<String, Any>? = null,
     val operations: List<String>? = null,
+    val variants: List<String>? = null,
     val harness: HarnessSettings? = null,
 ) {
 
     init {
-        require(keySizes != null || inputSizes != null || key != null || parameters != null || operations != null || harness != null) { "empty_override: $match sets nothing" }
+        require(keySizes != null || inputSizes != null || key != null || parameters != null || operations != null || variants != null || harness != null) { "empty_override: $match sets nothing" }
         require(keySizes.orEmpty().all { it > 0 }) { "invalid: keySizes $keySizes" }
         require(inputSizes.orEmpty().all { it > 0 }) { "invalid: inputSizes $inputSizes" }
         require(operations == null || (operations.isNotEmpty() && operations.none { it.isBlank() })) { "invalid: operations $operations" }
+        require(key == null || KeySource.named(key)) { "invalid: key ${key?.filterKeys { it in KeySource.KEYS }}, a name each" }
     }
 }

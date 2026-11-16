@@ -20,7 +20,7 @@ import io.github.junekim0007.cryptobench.preparation.shared.FailureText
 class InteropOracle(
     private val capability: DeviceCapability,
     private val engineTypes: EngineTypes = EngineTypes.standard(),
-    private val planner: KeyPlanner = KeyPlanner(capability),
+    private val planner: KeyPlanner = KeyPlanner(capability, anyProvider = true),
     private val generator: KeyMaterialGenerator = KeyMaterialGenerator(),
 ) {
 

@@ -64,7 +64,8 @@ An entry is checked as `run.harness` merged with its own harness. When the run s
 |---|---|
 | `keySizes` | override value, else empty |
 | `inputSizes` | override value, else the inventory's observed `inputSizes` |
-| `key`, `parameters`, `operations` | override value |
+| `key`, `parameters`, `operations` | override value; a written key `algorithm` or `provider` checked on the inventory ([entry.md](entry.md#key-source)) |
+| `variants` | override, else include, else `run.variants`, `secure` removed ([entry.md](entry.md#variants)) |
 | `harness` | only the fields its overrides set, after the device check |
 | `providerDefaults.keySize` | no `keySizes` or `key` override and a key size was observed |
 | `providerDefaults.parameters` | no `parameters` override and the provider chose some |
@@ -78,11 +79,11 @@ An entry is checked as `run.harness` merged with its own harness. When the run s
 |---|---|
 | `generatedFrom` | `global`, `testSet` (the `selection.testSet` string as written), `inventory`, `capture`, `trial`, `device` |
 | `runId` | the capture's stamp, `probe_<stamp>.yaml` -> `<stamp>` (e.g. `20261005T103349Z`); absent for a capture named otherwise |
-| `run` | the global `run` section |
+| `run` | the global `run` section; `variants` without `secure` |
 | `policy` | the global `policy` section |
 | `analysis` | the global `analysis` section, defaults filled in |
 | `bundledProviders` | the global `providers.bundled` list as written; absent when empty. `DevicePlan` installs it before preparing |
-| `providers.<p>.<type>.<name>` | `keySizes`, `inputSizes`, `key`, `parameters`, `operations`, `providerDefaults`, `harness`; empty ones omitted |
+| `providers.<p>.<type>.<name>` | `keySizes`, `inputSizes`, `key`, `parameters`, `operations`, `variants`, `providerDefaults`, `harness`; empty ones omitted |
 | `providers.<p>.<type>.<name>@<group>` | the same, for one group |
 
 ## report.yaml
@@ -92,7 +93,7 @@ An entry is checked as `run.harness` merged with its own harness. When the run s
 | key | holds |
 |---|---|
 | `runId` | as in `effective.yaml` |
-| `warnings` | the inventory's `warnings`, `exclude_matches_nothing: <rule>`, `override_matches_nothing: <rule>`, then run-level and entry-level `not_supported:` |
+| `warnings` | the inventory's `warnings`, `variants_fallback:` of global.yaml then of the test set, `exclude_matches_nothing: <rule>`, `override_matches_nothing: <rule>`, run-level and entry-level `not_supported:`, then one `secure_path_unavailable:` |
 | `skipped` | `{stage, provider?, type?, name?, reason}`; preparation writes the same shape with stage `preparation` |
 
 ## Errors and writes

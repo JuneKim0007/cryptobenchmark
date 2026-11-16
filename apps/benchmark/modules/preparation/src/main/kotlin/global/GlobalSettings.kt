@@ -23,7 +23,7 @@ data class GlobalSettings(
         require(inputSizes.size == inputSizes.distinct().size) { "duplicate: inputSizes $inputSizes" }
         require(phases.isNotEmpty()) { "missing_field: phases" }
         require(metrics.isNotEmpty()) { "missing_field: metrics" }
-        require(variants.isNotEmpty() && variants.distinct().size == variants.size) { "invalid: run.variants $variants" }
+        require(variants.distinct().size == variants.size) { "invalid: run.variants $variants" }
         require(processRepetitions >= 1) { "not_positive: processRepetitions $processRepetitions" }
     }
 

@@ -46,11 +46,13 @@ class SetupCatalogTest {
             assertEquals(type, PerCall.INSTANCE_INIT_AND_OPERATION, perCall(type, "A/ECB/B", Variant.NOT_FIXED))
         }
         val both = Variant.entries
-        assertEquals(both, catalog.variantsOf("Cipher", both))
-        assertEquals(listOf(Variant.NOT_FIXED), catalog.variantsOf("Mac", listOf(Variant.NOT_FIXED)))
-        assertEquals(listOf(Variant.FIXED), catalog.variantsOf("KeyGenerator", both))
-        assertEquals(listOf(Variant.FIXED), catalog.variantsOf("KeyPairGenerator", both))
-        assertEquals(listOf(Variant.FIXED), catalog.variantsOf("Unregistered", both))
+        assertEquals(both to emptyList<Variant>(), catalog.paths("Cipher", both))
+        assertEquals(listOf(Variant.NOT_FIXED) to emptyList<Variant>(), catalog.paths("Mac", listOf(Variant.NOT_FIXED)))
+        for (generator in listOf("KeyGenerator", "KeyPairGenerator", "Unregistered")) {
+            assertEquals(listOf(Variant.FIXED) to listOf(Variant.NOT_FIXED), catalog.paths(generator, both))
+            assertEquals(listOf("fixed", "secure"), catalog.applicable(generator))
+        }
+        assertEquals(listOf("fixed", "notFixed"), catalog.applicable("Signature"))
         assertEquals(PerCall.OPERATION, perCall("KeyGenerator", "AES", Variant.NOT_FIXED))
     }
 

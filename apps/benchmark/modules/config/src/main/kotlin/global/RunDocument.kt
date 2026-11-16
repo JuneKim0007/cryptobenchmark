@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.config.global
 
+import io.github.junekim0007.cryptobench.config.entry.Variants
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
 import io.github.junekim0007.cryptobench.config.global.dto.MeasurePass
 import io.github.junekim0007.cryptobench.config.global.dto.RunSettings
@@ -60,7 +61,7 @@ object RunDocument {
             inputSizes = optional(document, INPUT_SIZES, defaults.inputSizes, ::numbers),
             phases = optional(document, PHASES, defaults.phases, ::strings),
             metrics = optional(document, METRICS, defaults.metrics, ::strings),
-            variants = optional(document, VARIANTS, defaults.variants, ::strings),
+            variants = Variants.read(document, VARIANTS, "$path.$VARIANTS")?.values ?: defaults.variants,
             processRepetitions = optionalNumber(document, PROCESS_REPETITIONS)?.toInt() ?: defaults.processRepetitions,
             isolation = optionalString(document, ISOLATION).ifEmpty { defaults.isolation },
             seed = optionalNumber(document, SEED)?.toLong() ?: defaults.seed,
@@ -73,6 +74,8 @@ object RunDocument {
             harness = optionalSection(document, HARNESS)?.let { HarnessSettings.read(it, "$path.$HARNESS") } ?: HarnessSettings(),
         )
     }
+
+    fun notices(document: Map<String, Any>, path: String): List<String> = listOfNotNull(Variants.read(document, VARIANTS, "$path.$VARIANTS")?.notice)
 
     private fun warmup(document: Map<String, Any>, path: String): Warmup {
         expectKeys(document, listOf(ITERATIONS, JOBS), path)
