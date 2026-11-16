@@ -151,6 +151,19 @@ class CaseResolverTest {
             resolution.rejections.map { it.toString() })
     }
 
+    /** Paths inherited from run.variants that a row lacks are dropped without a notice; with none left the entry is still a skip. */
+    @Test
+    fun theRunsPathsARowLacksAreDroppedQuietly() {
+        val runAsks = request(Selection("KeyGenerator", "AES", provider = "AndroidOpenSSL"), Selection("MessageDigest", "SHA-256", provider = "AndroidOpenSSL"))
+        val both = resolver.resolve(runAsks.copy(global = runAsks.global.copy(variants = listOf(Variant.FIXED, Variant.NOT_FIXED))))
+        assertEquals(listOf("KeyGenerator_AES_GENERATE-KEY_AndroidOpenSSL_WARM_fixed",
+            "MessageDigest_SHA-256_DIGEST_AndroidOpenSSL_i1024_WARM_fixed", "MessageDigest_SHA-256_DIGEST_AndroidOpenSSL_i1024_WARM_notFixed"), both.cases.map { it.id })
+        assertEquals(emptyList<String>(), both.notices)
+        val notFixed = resolver.resolve(runAsks.copy(global = runAsks.global.copy(variants = listOf(Variant.NOT_FIXED))))
+        assertEquals(emptyList<String>(), notFixed.notices)
+        assertEquals(listOf("path_not_applicable"), notFixed.rejections.map { it.reason.substringBefore(':') })
+    }
+
     @Test
     fun aKeySourceOnAnEntryThatTakesNoKeyIsUnused() {
         val digest = Selection("MessageDigest", "SHA-256", provider = "AndroidOpenSSL", keySource = KeySource(provider = "BC"))

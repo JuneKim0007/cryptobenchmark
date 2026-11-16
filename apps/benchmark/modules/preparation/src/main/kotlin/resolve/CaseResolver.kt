@@ -37,7 +37,8 @@ class CaseResolver(
             when (val availability = capability.check(selection.provider, selection.type, selection.algorithm)) {
                 Availability.Available -> {
                     cases += SelectionExpander.expand(request.global, selection, operations, variants)
-                    if (dropped.isNotEmpty()) notices += notApplicable
+                    // only a path the entry wrote itself is noted; the run's paths a row lacks are dropped quietly
+                    if (dropped.isNotEmpty() && selection.variants != null) notices += notApplicable
                 }
                 is Availability.Unavailable -> rejections += Rejection(selection, selection.provider, availability.reason)
             }

@@ -11,8 +11,8 @@ Two per-entry settings of a test set, beside the keys of [config.md](config.md#t
 | precedence | `overrides[].set.variants` > the include's `variants` > `run.variants` > `[fixed, notFixed, secure]`; within overrides and within includes the most specific, then the later, wins |
 | invalid | anything but a non-empty list of distinct names (unknown name, scalar, `[]`, a repeat): `[fixed]` and one `variants_fallback` notice in report.yaml |
 | `secure` | not built: dropped from every entry and from `run.variants` in effective.yaml; one `secure_path_unavailable` notice when an entry asks for it; an entry left with no path is skipped `secure_path_unavailable` |
-| effective.yaml | each entry records its resolved list |
-| a type's paths | preparation keeps the asked paths its setup-catalog row applies ([prepare.md](../../preparation/docs/prepare.md#resolution)) |
+| effective.yaml | an entry records its resolved list only when an override or include asked for one; otherwise it has no `variants` and `run.variants` applies |
+| a type's paths | preparation keeps the asked paths its setup-catalog row applies ([prepare.md](../../preparation/docs/prepare.md#resolution)); a dropped path is noted only when the entry asked for it |
 
 ```yaml
 include:

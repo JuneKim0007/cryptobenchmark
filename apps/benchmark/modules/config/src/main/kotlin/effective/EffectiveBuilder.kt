@@ -28,7 +28,7 @@ class EffectiveBuilder {
         val skipped = configSkips(testSet.include, all, selected)
         stopOnSkips(global.policy, skipped)
         val groups = selected.filter { it.entry.runs }.associateWith { located -> groupsOf(testSet, located) }
-        val entries = entries(groups, OverrideResolver(testSet.overrides, testSet.include, global.run.variants), runHarness, facts, inventory)
+        val entries = entries(groups, OverrideResolver(testSet.overrides, testSet.include), global.run.variants, runHarness, facts, inventory)
         stopOnSkips(global.policy, skipped + entries.skips)
         val (warmup, warmupWarnings) = WarmupJobs.resolve(global.run.warmup, entries.providers)
         return EffectiveConfig(
@@ -70,7 +70,7 @@ class EffectiveBuilder {
                 .filter { override -> groups.none { (located, names) -> override.match.matches(located) && names.any { override.match.appliesTo(it) } } }
                 .map { "override_matches_nothing: ${it.match}" }
 
-    private fun entries(groups: Map<Inventory.Located, List<String?>>, resolver: OverrideResolver, runHarness: HarnessSettings,
+    private fun entries(groups: Map<Inventory.Located, List<String?>>, resolver: OverrideResolver, runVariants: List<String>, runHarness: HarnessSettings,
                         facts: Facts, inventory: Inventory): Entries {
         val entries = Entries()
         for ((located, names) in groups) {
@@ -78,9 +78,11 @@ class EffectiveBuilder {
                 val key = entryKey(located.name, group)
                 val path = "${located.provider}.${located.type}.$key.harness"
                 val entry = resolver.resolve(located, group)
-                if (Variants.SECURE in entry.variants) entries.secureAsked++
+                // an entry records only the variants it asked for; without them the run's apply
+                val asked = entry.variants.ifEmpty { runVariants }
+                if (Variants.SECURE in asked) entries.secureAsked++
                 val refusal = KeySource.refusal(entry.key, located, inventory)
-                    ?: "secure_path_unavailable: only ${Variants.SECURE} asked".takeIf { Variants.runnable(entry.variants).isEmpty() }
+                    ?: "secure_path_unavailable: only ${Variants.SECURE} asked".takeIf { Variants.runnable(asked).isEmpty() }
                 if (refusal != null) {
                     entries.skips += Skip(Skip.CONFIG, located.provider, located.type, key, refusal)
                     continue

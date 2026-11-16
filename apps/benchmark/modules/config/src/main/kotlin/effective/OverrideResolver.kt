@@ -7,8 +7,8 @@ import io.github.junekim0007.cryptobench.config.testset.dto.Override
 import io.github.junekim0007.cryptobench.config.testset.dto.Rule
 import io.github.junekim0007.cryptobench.config.inventory.dto.Inventory
 
-/** variants: an override's set, else an include's, else the run's; within each the most specific, then the later, wins. */
-internal class OverrideResolver(private val overrides: List<Override>, private val includes: List<Include> = emptyList(), private val runVariants: List<String> = emptyList()) {
+/** variants: an override's set, else an include's, else none (the run's applies); within each the most specific, then the later, wins. */
+internal class OverrideResolver(private val overrides: List<Override>, private val includes: List<Include> = emptyList()) {
 
     fun resolve(located: Inventory.Located, group: String?): EffectiveEntry {
         val applicable = applicable(overrides, Override::match, located, group)
@@ -18,7 +18,7 @@ internal class OverrideResolver(private val overrides: List<Override>, private v
         val parameters = applicable.lastOrNull { it.parameters != null }?.parameters.orEmpty()
         val operations = applicable.lastOrNull { it.operations != null }?.operations.orEmpty()
         val variants = applicable.lastOrNull { it.variants != null }?.variants
-            ?: applicable(includes, Include::rule, located, group).lastOrNull { it.variants != null }?.variants ?: runVariants
+            ?: applicable(includes, Include::rule, located, group).lastOrNull { it.variants != null }?.variants.orEmpty()
         val harness = applicable.fold(HarnessSettings()) { merged, override -> merged.mergedWith(override.harness) }
         val observed = located.entry
         return EffectiveEntry(

@@ -43,8 +43,7 @@ bundledProviders:
 providers:
   SUN:
     MessageDigest:
-      SHA-256:
-        variants: [fixed, notFixed]
+      SHA-256: {}
   SunJCE:
     Cipher:
       AES/GCM/NoPadding:
@@ -52,7 +51,5 @@ providers:
         parameters:
           class: javax.crypto.spec.GCMParameterSpec
           arguments: [128, fresh(12)]
-        variants: [fixed, notFixed]
     Mac:
-      HmacSHA256:
-        variants: [fixed, notFixed]
+      HmacSHA256: {}

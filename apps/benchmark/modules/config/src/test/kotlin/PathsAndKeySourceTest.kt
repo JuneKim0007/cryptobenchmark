@@ -42,7 +42,7 @@ class PathsAndKeySourceTest {
             - match: {type: MessageDigest}
               set: {variants: [notFixed]}
         """.trimIndent())
-        assertEquals(mapOf("AES/CBC/PKCS5PADDING" to listOf("fixed"), "RSA" to listOf("notFixed"), "SHA-256" to listOf("notFixed")), found)
+        assertEquals(mapOf("AES/CBC/PKCS5PADDING" to listOf("fixed"), "RSA" to emptyList(), "SHA-256" to listOf("notFixed")), found)
     }
 
     @Test
@@ -52,12 +52,12 @@ class PathsAndKeySourceTest {
         assertEquals(listOf("notFixed"), found.getValue("AES/CBC/PKCS5PADDING"))
     }
 
-    /** No run.variants: every path, secure noted once for the run and never written. */
+    /** No run.variants: every path, secure noted once for the run and never written; an entry that asks nothing records nothing. */
     @Test
     fun theDefaultAsksEveryPathAndRunsTheBuiltOnes() {
         val effective = build("", "include:\n- {type: Cipher, name: RSA}\n- {type: MessageDigest}\n")
         assertEquals(listOf("fixed", "notFixed"), effective.run.variants)
-        assertEquals(setOf(listOf("fixed", "notFixed")), effective.providers.values.flatMap { t -> t.values.flatMap { it.values } }.map { it.variants }.toSet())
+        assertEquals(setOf(emptyList<String>()), effective.providers.values.flatMap { t -> t.values.flatMap { it.values } }.map { it.variants }.toSet())
         assertEquals(listOf("secure_path_unavailable: 2 entries ask for secure; the hardware-isolated key path is not built, so no secure case runs"),
             effective.warnings)
     }
