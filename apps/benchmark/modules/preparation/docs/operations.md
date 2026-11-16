@@ -85,11 +85,11 @@ Catalog: `src/main/resources/.../operation/setup-catalog.yaml`, read by `operati
 | VERIFY input | seeded message signed once and verified; carries message and signature |
 | asymmetric cipher | encrypt with the first pair's public key, decrypt with its private key |
 | key | entry `key.algorithm`, else the trial's `keyAlgorithm` and `fixedKeySize` (the size kept when the written name is the measured one): discovery's `KeyNames` is the one naming rule; neither: `no_measured_key: <type>.<alg>` |
-| generator provider | entry `key.provider`: `same` (default) the case's provider, else the named one; no other provider is tried |
+| generator provider | entry `key.provider`: `same` (default) the case's provider; `any` the case's provider, then all providers in precedence order, the first with an available generator; else the named one; no other provider is tried |
 | interop check | the key shared by both members: the producer's provider, then all providers in precedence order ([interop.md](interop.md)) |
 | DEVICE_DECIDES | secret `KeyGenerator` first, then a one-pair `KeyPairGenerator` |
 | PEER_PAIRS | two key pairs |
-| no generator | `no_key_generator: <KeyGenerator\|KeyPairGenerator>.<alg> in <provider>`; `no_key_generator: <alg> in <provider>` for DEVICE_DECIDES |
+| no generator | `no_key_generator: <KeyGenerator\|KeyPairGenerator>.<alg> in <provider>`; `no_key_generator: <alg> in <provider>` for DEVICE_DECIDES; `<provider>` is `any provider` under `any` |
 | recipe keySize | case keySize, else the size parsed from the name |
 | entry `key` | keyed operations: goes to the key generator; GENERATE_KEY(_PAIR): the measured init spec |
 | randomness | unseeded `SecureRandom()` |

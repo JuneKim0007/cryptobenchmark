@@ -63,6 +63,15 @@ class BenchmarkCaseTest {
         assertNotEquals(borrowed, plain.copy(keySource = KeySource(algorithm = "HmacSHA256", provider = "AndroidOpenSSL")).id)
     }
 
+    /** `any` alone names no other key: on one device it is the default key or no case, so the id stays; with an algorithm it joins. */
+    @Test
+    fun anyAloneKeepsTheId() {
+        val plain = BenchmarkCase("Cipher", "RSA/ECB/PKCS1Padding", "SunJCE", Operation.ENCRYPT, keySize = 2048, inputSize = 32)
+        assertEquals(plain.id, plain.copy(keySource = KeySource(provider = KeySource.ANY)).id)
+        assertEquals(plain.copy(keySource = KeySource(algorithm = "RSA")).id, plain.copy(keySource = KeySource(algorithm = "RSA", provider = KeySource.ANY)).id)
+        assertNotEquals(plain.id, plain.copy(keySource = KeySource(algorithm = "RSA")).id)
+    }
+
     @Test
     fun theKeyBlockSplitsIntoItsSourceAndItsSpec() {
         val spec = mapOf("class" to "java.security.spec.ECGenParameterSpec", "arguments" to listOf("secp256r1"))

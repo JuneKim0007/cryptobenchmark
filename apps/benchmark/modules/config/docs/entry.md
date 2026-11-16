@@ -30,15 +30,15 @@ overrides:
 | key | default | rule |
 |---|---|---|
 | `algorithm` | the trial's measured key (`keyAlgorithm`) | a JCA name the key provider registers as a `KeyGenerator` or `KeyPairGenerator` in the inventory (names folded through `algorithms/algorithm-names.yaml`), else skipped `no_key_generator` |
-| `provider` | `same`: the entry's own provider | `same` or an inventory provider name, else skipped `provider_not_installed`; another provider's generator is used only when named here |
+| `provider` | `same`: the entry's own provider | `same`; `any`: the entry's own provider, then every inventory provider in order, the first with the generator (none: skipped `no_key_generator`); or an inventory provider name, else skipped `provider_not_installed`; another provider's generator is used only when named here or under `any` |
 | either | | a non-blank string, else `invalid: key` |
 
-A written source joins the case id's `p` tag ([prepared.md](../../preparation/docs/prepared.md)). A spec class a provider refuses is the trial's and preparation's to report, as for any spec.
+A written `algorithm` or provider name joins the case id's `p` tag; `any` alone does not ([prepared.md](../../preparation/docs/prepared.md)). The provider used is prepared.yaml's `key.provider`. A spec class a provider refuses is the trial's and preparation's to report, as for any spec.
 
 ```yaml
 overrides:
-  - match: {provider: SunJCE, type: Cipher, name: "RSA/*"}
-    set: {key: {provider: SunRsaSign}}
+  - match: {type: Cipher, name: "RSA/*"}
+    set: {key: {provider: any}}
   - match: {type: Signature, name: SHA256withECDSA}
     set: {key: {algorithm: EC, class: java.security.spec.ECGenParameterSpec, arguments: [secp256r1]}}
 ```

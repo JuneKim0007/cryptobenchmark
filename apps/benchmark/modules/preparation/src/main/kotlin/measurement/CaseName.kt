@@ -19,11 +19,12 @@ internal object CaseName {
     ).joinToString("_") { part -> part.replace(UNSAFE, "-") }
 
     private fun parametersTag(case: BenchmarkCase): String? {
-        if (case.keyParameters.isEmpty() && case.parameters.isEmpty() && !case.keySource.written) {
+        val identity = case.keySource.identity()
+        if (case.keyParameters.isEmpty() && case.parameters.isEmpty() && identity.isEmpty()) {
             return null
         }
-        // a written key source joins the tag; without one the tag is the spec trees' alone
-        val source = if (case.keySource.written) "|" + canonical(case.keySource.asMap()) else ""
+        // a key source that names a key joins the tag; without one the tag is the spec trees' alone
+        val source = if (identity.isNotEmpty()) "|" + canonical(identity) else ""
         val checksum = CRC32().apply { update((canonical(case.keyParameters) + "|" + canonical(case.parameters) + source).toByteArray(Charsets.UTF_8)) }
         return "p" + java.lang.Long.toHexString(checksum.value).padStart(8, '0')
     }

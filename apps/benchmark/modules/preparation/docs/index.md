@@ -37,7 +37,7 @@ apps/benchmark/modules/preparation/src/main/kotlin/key/generate/KeyMaterialGener
 apps/benchmark/modules/preparation/src/main/kotlin/key/plan/KeyCandidate.kt : candidate key algorithm and optional size
 apps/benchmark/modules/preparation/src/main/kotlin/key/plan/KeyPlanner.kt : chooses the KeyRecipe for a case from its key source; any provider only for the interop check
 apps/benchmark/modules/preparation/src/main/kotlin/key/plan/KeyRecipe.kt : sealed recipe: None, Secret, Pair, Unavailable
-apps/benchmark/modules/preparation/src/main/kotlin/key/plan/KeySource.kt : an entry key's algorithm and provider (same or a name), split from its spec
+apps/benchmark/modules/preparation/src/main/kotlin/key/plan/KeySource.kt : an entry key's algorithm and provider (same, any or a name), split from its spec; the providers tried, in order
 apps/benchmark/modules/preparation/src/main/kotlin/measurement/BenchmarkCase.kt : one case's axes, validated
 apps/benchmark/modules/preparation/src/main/kotlin/measurement/CaseName.kt : builds the case id
 apps/benchmark/modules/preparation/src/main/kotlin/measurement/Operation.kt : enum of the ten operations

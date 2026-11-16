@@ -26,7 +26,7 @@ class KeyPlanner(
             KeyShape.PAIR -> pair(case, key, count = 1) ?: unavailable(case, PAIR_GENERATOR, key.algorithm)
             KeyShape.PEER_PAIRS -> pair(case, key, count = 2) ?: unavailable(case, PAIR_GENERATOR, key.algorithm)
             KeyShape.DEVICE_DECIDES -> secret(case, key) ?: pair(case, key, count = 1)
-                ?: KeyRecipe.Unavailable("no_key_generator: ${key.algorithm} in ${case.keySource.providerFor(case.provider)}")
+                ?: KeyRecipe.Unavailable("no_key_generator: ${key.algorithm} in ${case.keySource.label(case.provider)}")
         }
     }
 
@@ -38,13 +38,13 @@ class KeyPlanner(
         generatingProvider(case, PAIR_GENERATOR, candidate.algorithm)
             ?.let { KeyRecipe.Pair(candidate.algorithm, case.keySize ?: candidate.keySize, it, count, case.keyParameters) }
 
-    // a benchmark case: the key source's provider only, another provider's generator only when the entry names it
+    // a benchmark case: the key source's providers only, another provider's generator only when the entry names it or `any`
     private fun generatingProvider(case: BenchmarkCase, generatorType: String, algorithm: String): String? =
-        (listOf(case.keySource.providerFor(case.provider)) + if (anyProvider) capability.providers() else emptyList()).distinct()
+        (case.keySource.providers(case.provider, capability.providers()) + if (anyProvider) capability.providers() else emptyList()).distinct()
             .firstOrNull { capability.check(it, generatorType, algorithm) == Availability.Available }
 
     private fun unavailable(case: BenchmarkCase, generatorType: String, algorithm: String): KeyRecipe.Unavailable =
-        KeyRecipe.Unavailable("no_key_generator: $generatorType.$algorithm in ${case.keySource.providerFor(case.provider)}")
+        KeyRecipe.Unavailable("no_key_generator: $generatorType.$algorithm in ${case.keySource.label(case.provider)}")
 
     private companion object {
         const val SECRET_GENERATOR = "KeyGenerator"

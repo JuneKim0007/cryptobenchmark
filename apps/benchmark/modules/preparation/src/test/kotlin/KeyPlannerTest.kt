@@ -64,6 +64,15 @@ class KeyPlannerTest {
         assertEquals(KeyRecipe.Secret("AES", 128, "AndroidOpenSSL"), plan("Cipher", "AES_128/GCM/NoPadding", source = KeySource(algorithm = "aes")))
     }
 
+    /** `any`: the case's own generator first, then every provider in precedence order; the recipe names the one used. */
+    @Test
+    fun anyTakesTheCasesOwnGeneratorThenTheFirstInOrder() {
+        val any = KeySource(provider = KeySource.ANY)
+        assertEquals(KeyRecipe.Pair("RSA", 2048, "BC"), plan("Signature", "SHA256withRSA", provider = "BC", keySize = 2048, source = any))
+        assertEquals(KeyRecipe.Secret("AES", 128, "AndroidOpenSSL"), plan("Cipher", "AES/CBC/PKCS5Padding", provider = "Vault", keySize = 128, source = any))
+        assertEquals(KeyRecipe.Unavailable("no_key_generator: Serpent in any provider"), plan("Cipher", "Serpent/CBC/NoPadding", provider = "Vault", source = any))
+    }
+
     @Test
     fun theInteropCheckTakesAnyProvidersGenerator() {
         val interop = KeyPlanner(device, anyProvider = true)

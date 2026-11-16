@@ -109,6 +109,25 @@ class PathsAndKeySourceTest {
         ), effective.skipped.map { it.reason })
     }
 
+    /** `any`: the entry's own provider, then the inventory's order; refused only when no provider has the generator. */
+    @Test
+    fun anyTakesTheFirstProviderWithTheGenerator() {
+        val effective = build("", """
+            include:
+            - {type: Cipher, name: AES/CBC/PKCS5PADDING}
+            - {type: Cipher, name: RSA}
+            - {type: MessageDigest}
+            overrides:
+            - match: {type: Cipher}
+              set: {key: {provider: any}}
+            - match: {name: SHA-256}
+              set: {key: {algorithm: AES, provider: any}}
+        """.trimIndent())
+        assertEquals(listOf("SUN.MessageDigest.SHA-256", "SunJCE.Cipher.AES/CBC/PKCS5PADDING"),
+            effective.providers.flatMap { (p, t) -> t.flatMap { (type, e) -> e.keys.map { "$p.$type.$it" } } })
+        assertEquals(listOf("no_key_generator: no provider registers KeyGenerator or KeyPairGenerator RSA"), effective.skipped.map { it.reason })
+    }
+
     @Test
     fun aKeySourceNameMustBeAString() {
         val failure = assertThrows(IllegalArgumentException::class.java) {
