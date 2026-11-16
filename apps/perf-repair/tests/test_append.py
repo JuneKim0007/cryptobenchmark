@@ -1,5 +1,4 @@
-"""append_line after a crash cut a line, files.read_jsonl for its three readers, and the sink's own notices."""
-import json
+"""files.read_jsonl for its three readers, and the sink's repair of a cut events line through the perf-repair views."""
 import logging
 
 import pytest
@@ -7,11 +6,9 @@ import pytest
 from cryptobench.shared.paths import RunTree
 from cryptobench.shared.paths import EVENTS
 from perfrepair import failure
-from cryptobench.shared.document.append import append_line
 from perfrepair.files import read_jsonl
 from perfrepair.log import attach
 from cryptobench.shared.log.emit import emit
-from cryptobench.shared.log import sink as sink_module
 from cryptobench.shared.log import attach as log_attach
 from perfrepair.log.read import Follower, read_events
 from perfrepair.validation.events import validate_events
@@ -29,10 +26,9 @@ def logger():
     root.handlers[:], root.level = before, level
 
 
-def test_an_append_after_a_cut_line_writes_a_newline_first_and_reads_back(tmp_path):
+def test_a_cut_line_is_skipped_and_the_lines_after_it_read(tmp_path):
     path = tmp_path / "a.jsonl"
-    path.write_text('{"n": 1}\n' + CUT_LINE)
-    assert append_line(path, json.dumps({"n": 2})) and not append_line(path, json.dumps({"n": 3}))
+    path.write_text('{"n": 1}\n' + CUT_LINE + '\n{"n": 2}\n{"n": 3}\n')
     found = read_jsonl(path)
     assert found.records == [(1, {"n": 1}), (3, {"n": 2}), (4, {"n": 3})] and found.cut == [2]
     assert found.bad == [] and not found.partial
@@ -43,7 +39,6 @@ def test_a_line_that_is_no_cut_prefix_is_bad_not_skipped(tmp_path):
     path.write_text('{"n": 1}\n{"n": 1}}\nnot json\n{"n": 2')
     found = read_jsonl(path)
     assert [n for n, _ in found.bad] == [2, 3] and found.records == [(1, {"n": 1})] and found.partial
-
 
 
 def test_the_sink_repairs_a_cut_events_line_and_says_so(tmp_path, logger):
@@ -59,24 +54,3 @@ def test_the_sink_repairs_a_cut_events_line_and_says_so(tmp_path, logger):
     assert validate_events(events) == [] and any(line.startswith("append_repaired run log: warn: ")
                                                 for line in (RunTree(tmp_path).log.status).read_text().splitlines())
     assert [e.step for e in Follower(events, from_start=True).poll() if e.event == "end"] == ["y", "z"]
-
-
-def test_records_past_the_buffer_are_counted_in_one_log_dropped(tmp_path, logger, monkeypatch):
-    monkeypatch.setattr(sink_module, "BUFFER_LIMIT", 3)
-    attach()
-
-    def body():
-        for n in range(5):
-            emit("x", f"s{n}", "end")
-        attach(tmp_path)
-    failure.reported(body)
-    read = read_events(RunTree(tmp_path).log.events)
-    [dropped] = [e for e in read if e.data.get("code") == "log_dropped"]
-    assert dropped.data["dropped"] == 3 and [e.step for e in read if e.event == "end"] == ["s0", "s1"]
-
-
-def test_an_unexpected_data_shape_keeps_its_event(tmp_path, logger):
-    attach()
-    failure.reported(lambda: (attach(tmp_path), emit("x", "y", "end", data={"files": ["a"], "when": object()}))[1])
-    [end] = [e for e in read_events(RunTree(tmp_path).log.events) if e.event == "end"]
-    assert end.data["files"] == ["a"] and end.data["when"].startswith("<object object")

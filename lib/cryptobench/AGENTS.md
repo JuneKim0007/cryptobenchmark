@@ -67,6 +67,7 @@ cryptobench/shared/log/emit.py : emit(): one event as a log record (logger crypt
 cryptobench/shared/log/event.py : Event: one events.jsonl line (schema 1); event names (a `finding`: a coded fact for the status log), kinds, each field's types
 cryptobench/shared/log/sink.py : EventSink(views): each record under the root logger as an Event line in events.jsonl, then each view's line; records before the folder is known kept in order; append_repaired and log_dropped, its own two notices; a data value JSON cannot write kept as text
 cryptobench/shared/log/stderr.py : the stderr handler: INFO and above, event records left out
+cryptobench/shared/log/tests/ : pytest tests of the event log: append_line, attach, the sink, emit and step
 cryptobench/shared/paths/__init__.py : one interface to every path the Python modules use: `from cryptobench.shared import paths`
 cryptobench/shared/paths/device_dirs.py : DeviceDirs(sdk): folders on a device per API level, POSIX paths
 cryptobench/shared/paths/host.py : the user's and host's locations: home, the user's global.yaml, the Android SDK and its platform-tools
@@ -94,6 +95,7 @@ cryptobench/shared/stats/units.py : DisplayUnits: nanoseconds per call in the ch
 cryptobench/shared/stop/__init__.py : package of the terminator: the code table and terminate()
 cryptobench/shared/stop/codes.py : the code table, loaded from the glossary: every stop, warn and skip code once with its default action, the actions stops.<code> may choose (none: fixed, and why), exit and next step
 cryptobench/shared/stop/terminate.py : terminate(): the action resolved, one finding event with data.code, action and next (the code's, or next_step), then Halt, warn or skip; halt_of(): a fixed stop's Halt handed back
+cryptobench/shared/stop/tests/ : pytest tests of the code table and halt_of
 cryptobench/shared/versions/__init__.py : package of dependency versions
 cryptobench/shared/versions/order.py : a Gradle version: pinned or not; newest of several
 cryptobench/stages/__init__.py : package of the run's stages, one package each, importing none of them

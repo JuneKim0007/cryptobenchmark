@@ -13,7 +13,7 @@
 - android: a change under `apps/benchmark/modules/android/` passes `apps/benchmark/gradlew -p apps/benchmark build :android:compileReleaseAndroidTestKotlin` (needs `ANDROID_HOME`).
 - examples: regenerate committed `example/` files only after a schema change: `apps/benchmark/gradlew -p tools/module-isolation test -Dexamples.update=true`; review the diff before committing.
 - names: a change to `apps/benchmark/modules/files/` or `lib/cryptobench/cryptobench/shared/paths/names.py` passes `python3 tools/module-isolation/names_check.py`.
-- python: a change under `apps/benchmark-runner/`, `apps/cli/`, `lib/cryptobench/` or `tools/` passes `python3 -m pytest apps/benchmark-runner/tests apps/benchmark-runner/energy/tests apps/benchmark-runner/analysis/tests apps/cli/tests tools/tests lib/cryptobench/cryptobench/stages`.
+- python: a change under `apps/benchmark-runner/`, `apps/cli/`, `lib/cryptobench/` or `tools/` passes `python3 -m pytest apps/benchmark-runner/tests apps/benchmark-runner/energy/tests apps/benchmark-runner/analysis/tests apps/cli/tests tools/tests lib/cryptobench/cryptobench`.
 - layering: a change under `lib/cryptobench/` passes `python3 -m pytest tools/tests/test_lib_layers.py`; its `RULES` table says what each package must not import.
 - error codes: a coded message added or changed in Python or a Kotlin main source passes `python3 -m pytest tools/tests/test_error_codes.py`; a new code gets its entry in `lib/cryptobench/cryptobench/shared/errors/codes.yaml`.
 - python: a change to `lib/cryptobench/cryptobench/shared/results/`, `lib/cryptobench/cryptobench/shared/device/identity.py` or `lib/cryptobench/cryptobench/shared/device/capture.py` passes `python3 apps/benchmark-runner/tests/test_manifest.py`.
