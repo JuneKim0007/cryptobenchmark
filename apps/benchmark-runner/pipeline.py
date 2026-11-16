@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Runs the host pipeline in order and reports one readable failure."""
-import argparse, json, os, pathlib, subprocess, sys, traceback
+import argparse, json, os, pathlib, signal, subprocess, sys, traceback
 
 import dependencies  # first: it reports a missing PyYAML, which the imports below need
 from cryptobench.shared.device.adb import Device
@@ -12,7 +12,7 @@ from cryptobench.pipeline.stage import Stage, StageContext
 from cryptobench.stages.configuration.global_file import global_config
 from cryptobench.shared import paths
 from cryptobench.shared.results import layout as results_layout
-from cryptobench.shared.results import run_inputs
+from cryptobench.shared.results import partial, run_inputs
 from cryptobench.shared.results.manifest import manifest
 from cryptobench.stages.verification.scope import code_digest
 from cryptobench.stages.analysis import not_measured
@@ -127,9 +127,12 @@ def checked(context):
 def measured(context):
     options, configuration, device = context.options, context.configuration, context.device
     results, discovery, effective, capture, trial, files = guided(context, published(context))
+    mode = "device" if device else "host"
     if not options.probe and (options.bench or device):
-        benchmarked(options, device, results, discovery, effective, capture, trial, files, context.problems)
-    manifest(results, "device" if device else "host", configuration, files, context.problems)
+        stopped = lambda record, pulled: manifest(results, mode, configuration, files | pulled, context.problems, partial=record)
+        with partial.kept(results, stopped):
+            benchmarked(options, device, results, discovery, effective, capture, trial, files, context.problems)
+    manifest(results, mode, configuration, files, context.problems)
 
 
 def benchmarked(options, device, results, discovery, effective, capture, trial, files, problems):
@@ -146,7 +149,18 @@ ROUTES: tuple[tuple[str | None, Stage], ...] = (
     ("identify", identified), ("harness", harnessed), ("interop", interoperated), ("check", checked), (None, measured))
 
 
+# no SIGHUP on Windows
+STOP_SIGNALS = tuple(getattr(signal, name) for name in ("SIGTERM", "SIGHUP") if hasattr(signal, name))
+
+
+def stop_like_ctrl_c():
+    """kill and a closed terminal stop the run as Ctrl-C does, so the session force-stops the device's test and the manifest says partial."""
+    for stop in STOP_SIGNALS:
+        signal.signal(stop, signal.default_int_handler)
+
+
 def main():
+    stop_like_ctrl_c()
     options = parse_options()
     sys.stdout.reconfigure(line_buffering=True)
     configuration = global_config(options.config)

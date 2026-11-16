@@ -1225,6 +1225,7 @@ codes:
   parameters_not_reported: {kind: outcome}
   parameters_unknown: {kind: outcome}
   parameters_unreadable: {kind: error}
+  partial_manifest_failed: {kind: notice}
   pass_without_metric: {kind: error}
   peer_differs: {kind: outcome}
   peer_error: {kind: outcome}
@@ -1236,6 +1237,7 @@ codes:
   peer_setup_failed: {kind: outcome}
   peer_unavailable: {kind: outcome}
   pinning_unknown: {kind: notice}
+  plan_not_pulled: {kind: notice}
   preparation_failed: {kind: outcome}
   probe_exists: {kind: error}
   probe_failed: {kind: outcome}

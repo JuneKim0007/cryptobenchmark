@@ -1,9 +1,11 @@
 """Stops and reruns into one results root, through pipeline.main on the fake phone: the probe and configure are faked, publish, measure and manifest are real."""
 import argparse, itertools, json
 
+import pytest
 import yaml
 
 import pipeline
+from cryptobench.shared.device.adb import DeviceError
 from cryptobench.shared import paths
 from cryptobench.stages.discovery import discover
 from cryptobench.stages.verification import check
@@ -111,3 +113,39 @@ def test_a_partial_manifest_is_not_a_finished_device(tmp_path):
     written(tmp_path / "stopped/manifest.yaml", yaml.safe_dump({"schemaVersion": 1, "partial": {"reason": "interrupted"}}))
     assert paths.Results(tmp_path).devices() == ["done"]
     assert paths.finished(tmp_path / "done") and not paths.finished(tmp_path / "stopped") and not paths.finished(tmp_path / "none")
+
+
+def stopped_at(phone, monkeypatch, case, error):
+    measured = phone.instrument
+
+    def stops(test_class, *arguments, step="instrument"):
+        if case in arguments:
+            raise error
+        return measured(test_class, *arguments, step=step)
+    monkeypatch.setattr(phone, "instrument", stops)
+
+
+def test_a_stopped_run_writes_a_partial_manifest_and_a_rerun_keeps_it_whole_aside(tmp_path, monkeypatch):
+    rerun = Rerun(tmp_path, monkeypatch, Phone(tmp_path, cases=("a", "b", "c")))
+    stopped_at(rerun.phone, monkeypatch, "b", KeyboardInterrupt())
+    with pytest.raises(KeyboardInterrupt):
+        rerun()
+    stopped = manifest_of(rerun.device)
+    assert stopped["partial"] == {"reason": "interrupted", "caseRuns": 1, "cases": 1, "processes": {".": 1}}
+    assert stopped["files"]["prepared"] == "preparation/prepared.yaml" and rerun.phone.log[-3:] == ["pull prepared.yaml", "pull skipped.yaml", "pull pins"]
+    assert not paths.finished(rerun.device) and paths.Results(rerun.root).devices() == []
+    monkeypatch.undo()
+    rerun = Rerun(tmp_path, monkeypatch, Phone(tmp_path, cases=("a", "b", "c")))
+    rerun()
+    [aside] = rerun.aside()
+    assert manifest_of(aside) == stopped and json.loads((aside / "benchmark/cases/a.json").read_text())["benchmarks"]
+    assert (aside / stopped["files"]["effective"]).is_file() and not (aside / "benchmark/cases/b.json").exists()
+    assert paths.finished(rerun.device) and sorted(p.stem for p in paths.RunTree(rerun.device).benchmark.cases.iterdir()) == ["a", "b", "c"]
+
+
+def test_a_run_that_fails_part_way_names_its_error_in_the_partial_manifest(tmp_path, monkeypatch):
+    rerun = Rerun(tmp_path, monkeypatch, Phone(tmp_path, cases=("a", "b")))
+    stopped_at(rerun.phone, monkeypatch, "b", DeviceError("adb shell: closed by the test"))
+    with pytest.raises(DeviceError):
+        rerun()
+    assert manifest_of(rerun.device)["partial"]["reason"] == "DeviceError: adb shell: closed by the test"

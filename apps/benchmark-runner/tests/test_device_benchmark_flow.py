@@ -106,7 +106,7 @@ def test_a_clock_read_that_fails_before_the_process_closes_the_open_energy_windo
     phone = Phone(tmp_path)
     with pytest.raises(DeviceError, match="device offline"):
         measured(tmp_path, monkeypatch, MEASURED, phone=phone)
-    assert steps(phone)[-2:] == ["window open", "window close"]
+    assert steps(phone)[-5:] == ["window open", "window close", "pull prepared.yaml", "pull skipped.yaml", "pull pins"]
 
 
 def test_a_clock_record_that_fails_after_the_process_still_closes_the_window_and_converts(tmp_path, monkeypatch):

@@ -3,6 +3,7 @@ each process and each case."""
 import dataclasses, pathlib, re
 
 from cryptobench.shared.settings import effective_view
+from cryptobench.shared.device import timeouts
 from cryptobench.shared.errors.line import one_line
 from cryptobench.stages.measurement import case_files
 from cryptobench.stages.measurement.session import calibration, case_isolation, dynamic_temperature, launch
@@ -109,6 +110,9 @@ def one_process(device, plan, process, isolation, hooks, repetitions, problems):
             device.force_stop()
         for hook in reversed(started):
             hook.abandon(process)
+        if plan.timed:
+            salvaged(plan, process)
+        problems += process.failures
         raise
     problems += process.failures
     failed = closed(process, hooks)
@@ -116,6 +120,14 @@ def one_process(device, plan, process, isolation, hooks, repetitions, problems):
     if failed:
         raise failed
     return process
+
+
+def salvaged(plan, process):
+    """A stopped process still brings back what the device prepared and skipped, so its partial run can be read."""
+    try:
+        plan.pull_plan(process)
+    except (DeviceError, timeouts.StepTimeout) as error:
+        warn(f"plan_not_pulled: {one_line(error)}")
 
 
 def closed(process, hooks):
