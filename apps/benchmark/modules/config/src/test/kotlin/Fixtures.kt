@@ -51,7 +51,7 @@ selection:
   testSet: testsets/scope.yaml
   exclude:
   - {type: KeyGenerator}
-run: {inputSizes: [64, 1024], phases: [WARM], metrics: [TIME], processRepetitions: 2, seed: 7}
+run: {inputSizes: [64, 1024], phases: [WARM], metrics: [TIME], variants: [fixed, notFixed], processRepetitions: 2, seed: 7}
 policy: {onFailure: skip}
 """
 

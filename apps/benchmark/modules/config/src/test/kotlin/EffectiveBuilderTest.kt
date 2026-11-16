@@ -9,6 +9,7 @@ import io.github.junekim0007.cryptobench.config.inventory.InventoryBuilder
 import io.github.junekim0007.cryptobench.config.source.CaptureSource
 import io.github.junekim0007.cryptobench.config.source.TrialSource
 import io.github.junekim0007.cryptobench.config.testset.TestSetDocument
+import io.github.junekim0007.cryptobench.config.testset.dto.Include
 import io.github.junekim0007.cryptobench.config.testset.dto.Override
 import io.github.junekim0007.cryptobench.config.testset.dto.Rule
 import io.github.junekim0007.cryptobench.config.testset.dto.TestSet
@@ -98,8 +99,8 @@ class EffectiveBuilderTest {
         val grouped = TestSet(
             description = "one primitive, two groups",
             include = listOf(
-                Rule(type = "Cipher", name = "AES/CBC/PKCS5PADDING", group = "pkcs5"),
-                Rule(type = "Cipher", name = "AES/CBC/PKCS5PADDING", group = "sized"),
+                Include(Rule(type = "Cipher", name = "AES/CBC/PKCS5PADDING", group = "pkcs5")),
+                Include(Rule(type = "Cipher", name = "AES/CBC/PKCS5PADDING", group = "sized")),
             ),
             overrides = listOf(Override(Rule(type = "Cipher", name = "AES/CBC/PKCS5PADDING", group = "sized"), keySizes = listOf(128))),
         )

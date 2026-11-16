@@ -14,8 +14,12 @@ internal class SetupCatalog(document: Map<String, Any>) {
     private val engines: Map<String, Map<String, Any>> = DocumentFields.section(document, "engines")
         .entries.associate { (type, row) -> EngineTypeName.fold(type) to DocumentFields.asSection(row, "engines.$type") }
 
-    fun variantsOf(type: String, selected: List<Variant>): List<Variant> =
-        if (single(type)) listOf(Variant.FIXED) else selected
+    /** The asked paths this type's row applies, then the asked ones it does not. */
+    fun paths(type: String, asked: List<Variant>): Pair<List<Variant>, List<Variant>> =
+        asked.partition { it.label in applicable(type) }
+
+    // a `variants: one` row (key generation) and a type the catalog lacks: fixed and secure; every other row: fixed and notFixed
+    fun applicable(type: String): List<String> = if (single(type)) ONE else OPERATION
 
     // hasIv is asked only for a cipher transformation without a mode
     fun perCall(case: BenchmarkCase, hasIv: () -> Boolean = { false }): PerCall {
@@ -49,6 +53,8 @@ internal class SetupCatalog(document: Map<String, Any>) {
     companion object {
 
         private const val FIXED = "fixed"
+        private val ONE = listOf(Variant.FIXED.label, "secure")
+        private val OPERATION = listOf(Variant.FIXED.label, Variant.NOT_FIXED.label)
         private const val BY_MODE = "byMode"
         private const val BY_SUFFIX = "bySuffix"
         const val RESOURCE = FileNames.SETUP_CATALOG

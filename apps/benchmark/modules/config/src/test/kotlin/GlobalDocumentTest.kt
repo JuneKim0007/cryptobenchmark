@@ -45,7 +45,7 @@ class GlobalDocumentTest {
         val run = run("")
         assertEquals("case", run.isolation)
         assertEquals(null, run.thermalGate)
-        assertEquals(listOf("fixed", "notFixed"), run.variants)
+        assertEquals(listOf("fixed", "notFixed", "secure"), run.variants)
         assertEquals(Warmup(10, emptyList()), run.warmup)
         assertEquals(emptyList<MeasurePass>(), run.passes)
     }
@@ -87,8 +87,6 @@ class GlobalDocumentTest {
             "run: {thermalGate: {temperatureKeptCelsius: 36.0, onDiscardLimit: nope}}\n" to "invalid: run.thermalGate.onDiscardLimit",
             "run: {thermalGate: {temperatureKeptCelsius: 36.0, margin: 3}}\n" to "unknown_keys: run.thermalGate [margin]",
             "run: {isolation: run, thermalGate: {temperatureKeptCelsius: 36.0}}\n" to "invalid: run.thermalGate needs run.isolation",
-            "run: {variants: []}\n" to "invalid: run.variants",
-            "run: {variants: [fixed, fixed]}\n" to "invalid: run.variants",
             "run: {passes: {timing: {samples: 1}, speed: {samples: 1}}}\n" to "invalid: run.passes.speed",
             "run: {passes: {timing: {samples: 0}}}\n" to "not_positive: run.passes.timing.samples",
             "run: {passes: {energy: {samples: 5}}}\n" to "missing_pass: run.passes [energy]",

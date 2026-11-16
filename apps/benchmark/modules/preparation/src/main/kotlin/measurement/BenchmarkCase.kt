@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation.measurement
 
+import io.github.junekim0007.cryptobench.preparation.key.plan.KeySource
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
 import io.github.junekim0007.cryptobench.settings.Metric
 
@@ -14,6 +15,7 @@ data class BenchmarkCase(
     val metrics: Set<Metric> = setOf(Metric.TIME),
     val seed: Long = 0L,
     val keyParameters: Map<String, Any> = emptyMap(),
+    val keySource: KeySource = KeySource(),
     val parameters: Map<String, Any> = emptyMap(),
     val group: String = "",
     val harness: HarnessSettings = HarnessSettings(),

@@ -1,6 +1,7 @@
 package io.github.junekim0007.cryptobench.preparation.resolve
 
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
+import io.github.junekim0007.cryptobench.preparation.operation.KeyShape
 import io.github.junekim0007.cryptobench.preparation.operation.OperationDefinitions
 import io.github.junekim0007.cryptobench.preparation.parameter.bind.BindException
 import io.github.junekim0007.cryptobench.preparation.parameter.bind.ParameterBinder
@@ -21,6 +22,7 @@ internal class SelectionCheck(private val binder: ParameterBinder) {
             "inputSizes".takeIf { selection.inputSizes.isNotEmpty() && definitions.none { definition -> definition.consumesInput } },
             "keySizes".takeIf { selection.keySizes.isNotEmpty() && definitions.none { definition -> definition.consumesKeySize } },
             "key".takeIf { selection.keyParameters.isNotEmpty() && definitions.none { definition -> definition.consumesKeySpec } },
+            "key.algorithm/provider".takeIf { selection.keySource.written && definitions.all { definition -> definition.keyShape == KeyShape.NONE } },
             "parameters".takeIf { selection.parameters.isNotEmpty() && definitions.none { definition -> definition.consumesParameters } },
         )
         if (unused.isNotEmpty()) {

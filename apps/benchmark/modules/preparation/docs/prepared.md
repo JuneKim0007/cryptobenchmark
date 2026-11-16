@@ -24,7 +24,7 @@ What a run's preparation leaves: `skipped.yaml` and `prepared.yaml`, written by 
 | rule | value |
 |---|---|
 | characters | every non `[A-Za-z0-9]` character in each part becomes `-` |
-| `p` tag | 8-hex CRC32 of canonical `keyParameters` and `parameters`; only when either is set |
+| `p` tag | 8-hex CRC32 of canonical `keyParameters` and `parameters`, and the key source when one is written; only when one of them is set |
 | variant | last part, `fixed` or `notFixed`; the item's id is the case id without it |
 | examples | `MessageDigest_SHA-256_DIGEST_SUN_i1024_WARM_fixed`, `Cipher_AES-GCM-NoPadding_ENCRYPT_SunJCE_k128_i1024_WARM_p81667fe4_notFixed` |
 | `BenchmarkCase` defaults | phase WARM, metrics `{TIME}`, seed 0, variant `fixed` |

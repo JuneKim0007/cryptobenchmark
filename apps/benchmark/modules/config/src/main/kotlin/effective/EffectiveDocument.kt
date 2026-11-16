@@ -6,6 +6,7 @@ import io.github.junekim0007.cryptobench.config.entry.EntryKeys.KEY
 import io.github.junekim0007.cryptobench.config.entry.EntryKeys.PARAMETERS
 import io.github.junekim0007.cryptobench.config.entry.EntryKeys.OPERATIONS
 import io.github.junekim0007.cryptobench.config.entry.EntryKeys.HARNESS
+import io.github.junekim0007.cryptobench.config.entry.EntryKeys.VARIANTS
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveConfig
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveEntry
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveSource
@@ -85,6 +86,7 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
         if (entry.key.isNotEmpty()) put(KEY, LinkedHashMap(entry.key))
         if (entry.parameters.isNotEmpty()) put(PARAMETERS, LinkedHashMap(entry.parameters))
         if (entry.operations.isNotEmpty()) put(OPERATIONS, entry.operations)
+        if (entry.variants.isNotEmpty()) put(VARIANTS, entry.variants)
         if (entry.providerDefaults.isNotEmpty()) put(PROVIDER_DEFAULTS, entry.providerDefaults)
         if (!entry.harness.isEmpty) put(HARNESS, HarnessSettings.write(entry.harness))
     }
@@ -96,6 +98,7 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
         parameters = optionalSection(document, PARAMETERS) ?: emptyMap(),
         providerDefaults = optionalStrings(document, PROVIDER_DEFAULTS),
         operations = optionalStrings(document, OPERATIONS),
+        variants = optionalStrings(document, VARIANTS),
         harness = optionalSection(document, HARNESS)?.let { HarnessSettings.read(it, HARNESS) } ?: HarnessSettings(),
     )
 }

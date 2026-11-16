@@ -35,8 +35,9 @@ apps/benchmark/modules/preparation/src/main/kotlin/key/generate/KeyInitializer.k
 apps/benchmark/modules/preparation/src/main/kotlin/key/generate/KeyMaterial.kt : sealed key material: None, Secret, Pairs
 apps/benchmark/modules/preparation/src/main/kotlin/key/generate/KeyMaterialGenerator.kt : builds KeyMaterial from a KeyRecipe
 apps/benchmark/modules/preparation/src/main/kotlin/key/plan/KeyCandidate.kt : candidate key algorithm and optional size
-apps/benchmark/modules/preparation/src/main/kotlin/key/plan/KeyPlanner.kt : chooses the KeyRecipe for a case
+apps/benchmark/modules/preparation/src/main/kotlin/key/plan/KeyPlanner.kt : chooses the KeyRecipe for a case from its key source; any provider only for the interop check
 apps/benchmark/modules/preparation/src/main/kotlin/key/plan/KeyRecipe.kt : sealed recipe: None, Secret, Pair, Unavailable
+apps/benchmark/modules/preparation/src/main/kotlin/key/plan/KeySource.kt : an entry key's algorithm and provider (same or a name), split from its spec
 apps/benchmark/modules/preparation/src/main/kotlin/measurement/BenchmarkCase.kt : one case's axes, validated
 apps/benchmark/modules/preparation/src/main/kotlin/measurement/CaseName.kt : builds the case id
 apps/benchmark/modules/preparation/src/main/kotlin/measurement/Operation.kt : enum of the ten operations
@@ -60,7 +61,7 @@ apps/benchmark/modules/preparation/src/main/kotlin/operation/KeyShape.kt : enum 
 apps/benchmark/modules/preparation/src/main/kotlin/operation/OperationDefinition.kt : interface: what an operation consumes and its call
 apps/benchmark/modules/preparation/src/main/kotlin/operation/OperationDefinitions.kt : Operation to definition map
 apps/benchmark/modules/preparation/src/main/kotlin/operation/PerCall.kt : enum of what one timed call does: operation, initAndOperation, getInstanceInitAndOperation
-apps/benchmark/modules/preparation/src/main/kotlin/operation/SetupCatalog.kt : reads setup-catalog.yaml: a case's variants and its PerCall
+apps/benchmark/modules/preparation/src/main/kotlin/operation/SetupCatalog.kt : reads setup-catalog.yaml: the paths a row applies and a case's PerCall
 apps/benchmark/modules/preparation/src/main/kotlin/operation/SignDefinition.kt : SIGN definition
 apps/benchmark/modules/preparation/src/main/kotlin/operation/TypeDefaultDefinition.kt : TYPE_DEFAULT definition (no-op call)
 apps/benchmark/modules/preparation/src/main/kotlin/operation/VerifyDefinition.kt : VERIFY definition; builds signed-message input

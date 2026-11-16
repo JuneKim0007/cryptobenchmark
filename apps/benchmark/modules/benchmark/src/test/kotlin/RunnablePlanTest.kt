@@ -58,7 +58,7 @@ items:
 """.trimIndent())
     }
 
-    private val plan get() = RunnablePlan(Preparation(device), PlanCheck(HostHarness.METRICS), File(folder.root, "out")) { logged += it }
+    private val plan get() = RunnablePlan(Preparation(device), PlanCheck(HostHarness.METRICS), File(folder.root, "out"), log = { logged += it })
 
     @Before
     fun install() {

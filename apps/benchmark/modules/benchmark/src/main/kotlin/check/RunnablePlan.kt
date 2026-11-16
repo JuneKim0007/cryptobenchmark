@@ -22,6 +22,7 @@ class RunnablePlan(
     private val planCheck: PlanCheck,
     directory: File,
     private val log: (Skip) -> Unit = { System.err.println("skipped: $it") },
+    private val notice: (String) -> Unit = { System.err.println("warning: $it") },
 ) {
 
     private val skipFile = SkipFile(directory)
@@ -41,6 +42,7 @@ class RunnablePlan(
         val checked = planCheck.runnable(listing.cases, listing.global.processRepetitions)
         refused = checked.skipped
         if (written) {
+            listing.notices.forEach(notice)
             skipFile.write(skipped)
             preparedFile.listed(listing, checked.runnable)
         }

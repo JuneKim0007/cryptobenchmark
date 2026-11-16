@@ -20,9 +20,10 @@ object RuleDocument {
         rule.group?.let { put(GROUP, it) }
     }
 
-    fun parse(value: Any, path: String): Rule {
+    // also: keys a caller reads beside the rule from the same mapping
+    fun parse(value: Any, path: String, also: List<String> = emptyList()): Rule {
         val document = asSection(value, path)
-        expectKeys(document, listOf(PROVIDER, TYPE, NAME, GROUP), path)
+        expectKeys(document, listOf(PROVIDER, TYPE, NAME, GROUP) + also, path)
         return withPathInFailure(path) {
             Rule(optionalStringOrNull(document, PROVIDER), optionalStringOrNull(document, TYPE), optionalStringOrNull(document, NAME), optionalStringOrNull(document, GROUP))
         }

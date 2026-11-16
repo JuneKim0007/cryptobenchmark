@@ -1,9 +1,11 @@
 package io.github.junekim0007.cryptobench.preparation
 
+import io.github.junekim0007.cryptobench.preparation.key.plan.KeySource
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.measurement.Variant
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -49,5 +51,24 @@ class BenchmarkCaseTest {
         val case = BenchmarkCase("KeyPairGenerator", "EC", "SunEC", Operation.GENERATE_KEY_PAIR, group = "p256")
         assertEquals("KeyPairGenerator_EC-p256_GENERATE-KEY-PAIR_SunEC_WARM_fixed", case.id)
         assertEquals("KeyPairGenerator_EC_GENERATE-KEY-PAIR_SunEC_WARM_fixed", case.copy(group = "").id)
+    }
+
+    /** A written key source is another key, so another id; none written leaves the id as it was. */
+    @Test
+    fun aWrittenKeySourceChangesTheId() {
+        val plain = BenchmarkCase("Mac", "HmacSHA256", "BC", Operation.COMPUTE_MAC, inputSize = 64)
+        assertEquals("Mac_HmacSHA256_COMPUTE-MAC_BC_i64_WARM_fixed", plain.copy(keySource = KeySource()).id)
+        val borrowed = plain.copy(keySource = KeySource(provider = "AndroidOpenSSL")).id
+        assertTrue(borrowed, borrowed.matches(Regex("Mac_HmacSHA256_COMPUTE-MAC_BC_i64_WARM_p[0-9a-f]{8}_fixed")))
+        assertNotEquals(borrowed, plain.copy(keySource = KeySource(algorithm = "HmacSHA256", provider = "AndroidOpenSSL")).id)
+    }
+
+    @Test
+    fun theKeyBlockSplitsIntoItsSourceAndItsSpec() {
+        val spec = mapOf("class" to "java.security.spec.ECGenParameterSpec", "arguments" to listOf("secp256r1"))
+        assertEquals(KeySource("EC", "BC") to spec, KeySource.split(spec + mapOf("algorithm" to "EC", "provider" to "BC"), "key"))
+        assertEquals(KeySource() to spec, KeySource.split(spec + mapOf("provider" to "same"), "key"))
+        assertEquals("invalid: P.T.A.key {provider=1}, a name each",
+            assertThrows(IllegalArgumentException::class.java) { KeySource.split(mapOf("provider" to 1), "P.T.A.key") }.message)
     }
 }
