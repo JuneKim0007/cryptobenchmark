@@ -14,6 +14,8 @@ REFUSALS = [
     (["--device", "--discovery", "reuse"], "--discovery reuse: a device run probes the device it measures"),
     (["--suppress-errors", "EMULATOR"], "--suppress-errors: only a --device run reaches androidx.benchmark"),
     (["--energy-accept-unresponsive"], "--energy-accept-unresponsive: only a --device run captures energy"),
+    (["--reconnect-wait-minutes", "5"], "--reconnect-wait-minutes, --reconnect-poll-seconds: only a --device run waits for its device"),
+    (["--device", "--reconnect-poll-seconds", "-1"], "--reconnect-wait-minutes, --reconnect-poll-seconds: negative"),
 ]
 
 
@@ -22,7 +24,7 @@ def command(*flags, **env):
     return subprocess.run([sys.executable, str(PIPELINE), *flags], env={**clean, **env}, capture_output=True, text=True, timeout=60)
 
 
-def test_the_refusal_table_has_six_rows_in_this_order():
+def test_the_refusal_table_has_its_rows_in_this_order():
     assert [message for _refused, message in pipeline.REFUSED] == [message for _flags, message in REFUSALS]
 
 

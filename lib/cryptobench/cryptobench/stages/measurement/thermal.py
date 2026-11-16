@@ -2,7 +2,7 @@
 import dataclasses, re
 
 from cryptobench.shared.device import timeouts
-from cryptobench.shared.device.adb import DeviceError
+from cryptobench.shared.device.adb import DeviceError, DeviceLost
 from cryptobench.shared.errors.line import one_line
 
 TEMPERATURE = re.compile(r"Temperature\{mValue=([^,]+), mType=(-?\d+), mName=([^,}]+), mStatus=-?\d+\}")
@@ -81,6 +81,8 @@ def parse(text):
 def read(device):
     try:
         return parse(device.shell("dumpsys thermalservice"))
+    except DeviceLost:
+        raise
     except (DeviceError, timeouts.StepTimeout) as error:
         return Reading(None, None, None, "thermal_unavailable: " + one_line(error, 200))
 
@@ -89,6 +91,8 @@ def poll(device):
     """The skin sensors alone, for a wait that reads the phone every minute."""
     try:
         return parse(device.shell(SKIN_LINES))
+    except DeviceLost:
+        raise
     except (DeviceError, timeouts.StepTimeout) as error:
         return Reading(None, None, None, "thermal_unavailable: " + one_line(error, 200))
 
@@ -112,6 +116,8 @@ def capability(device):
         if device.shell("getprop ro.hardware").strip() in SIMULATED_HARDWARE:
             return Capability(False, "simulated_device")
         reason, reading = judged(device.shell("dumpsys thermalservice"))
+    except DeviceLost:
+        raise
     except (DeviceError, timeouts.StepTimeout):
         return Capability(False, "probe_failed")
     return Capability(reason == "ok", reason, tuple(name for name, kind in (reading.types or {}).items() if kind == SKIN_TYPE))

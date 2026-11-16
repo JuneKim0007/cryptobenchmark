@@ -3,10 +3,11 @@ each process and each case."""
 import dataclasses, pathlib, re
 
 from cryptobench.shared.settings import effective_view
+from cryptobench.shared.device import timeouts
 from cryptobench.shared.errors.line import one_line
 from cryptobench.stages.measurement import case_files
-from cryptobench.stages.measurement.session import calibration, case_isolation, dynamic_temperature, launch
-from cryptobench.shared.device.adb import PASSED, DeviceError
+from cryptobench.stages.measurement.session import calibration, case_isolation, dynamic_temperature, launch, reconnect
+from cryptobench.shared.device.adb import PASSED, DeviceError, DeviceLost
 from cryptobench.shared.device.plan import clear_outputs
 from cryptobench.shared import paths
 from cryptobench.pipeline.warn import warn
@@ -30,6 +31,7 @@ class Plan:
     after_process: object = lambda _process: None
     gate: object = dynamic_temperature.Off()
     retries: int = 0
+    reconnect: object = reconnect.Off()
 
 
 @dataclasses.dataclass
@@ -99,31 +101,49 @@ def one_process(device, plan, process, isolation, hooks, repetitions, problems):
         # a hook that fails here may have opened part of its step, so it is abandoned with those before it
         for hook in hooks:
             started.append(hook)
-            hook.before_process(process)
+            plan.reconnect.retried(lambda hook=hook: hook.before_process(process), f"{type(hook).__name__}.before_process")
         if plan.timed:
             measure(device, plan, process, isolation, hooks)
-            plan.pull_plan(process)
+            plan.reconnect.retried(lambda: plan.pull_plan(process), "the plan pull")
     except BaseException as error:
         # the interrupt kills adb, not the test it started on the device
         if isinstance(error, KeyboardInterrupt):
-            device.force_stop()
+            stopped(device)
         for hook in reversed(started):
             hook.abandon(process)
+        if plan.timed:
+            salvaged(plan, process)
+        problems += process.failures
         raise
     problems += process.failures
-    failed = closed(process, hooks)
+    failed = closed(process, hooks, plan.reconnect)
     plan.after_process(process)
     if failed:
         raise failed
     return process
 
 
-def closed(process, hooks):
+def salvaged(plan, process):
+    """A stopped process still brings back what the device prepared and skipped, so its partial run can be read."""
+    try:
+        plan.pull_plan(process)
+    except (DeviceError, timeouts.StepTimeout, reconnect.DeviceGone) as error:
+        warn(f"plan_not_pulled: {one_line(error)}")
+
+
+def stopped(device):
+    try:
+        device.force_stop()
+    except DeviceLost as lost:
+        warn(f"device_lost: the app could not be force-stopped; {str(lost).split(': ', 1)[-1]}")
+
+
+def closed(process, hooks, waits=reconnect.Off()):
     """Every hook's after_process, so one failing still leaves the others closed and the pulled data converted; the first error, else None."""
     failed = None
     for hook in reversed(hooks):
         try:
-            hook.after_process(process)
+            waits.retried(lambda hook=hook: hook.after_process(process), f"{type(hook).__name__}.after_process")
         except Exception as error:
             if failed:
                 warn(f"hook_failed: {type(hook).__name__}.after_process: {type(error).__name__}: {one_line(error)}")
@@ -133,7 +153,7 @@ def closed(process, hooks):
 
 def measure(device, plan, process, isolation, hooks):
     print(f"measure:   {plan.test_class} on the device" + ("" if device.stream else "; --stream shows each case"))
-    clear_outputs(device, plan.cleared)
+    plan.reconnect.retried(lambda: clear_outputs(device, plan.cleared), "the clearing of the device's outputs")
     for stale in (process.data, *plan.stale):
         stale.unlink(missing_ok=True)
     if isolation == effective_view.CASE_ISOLATION:
@@ -147,9 +167,9 @@ def planned(device, plan):
 
 
 def each_case(device, plan, process, hooks):
-    process.cases = plan.order(process.repetition, planned(device, plan))
+    process.cases = plan.order(process.repetition, plan.reconnect.retried(lambda: planned(device, plan), "the case listing"))
     print(f"measure:   one process per case ({len(process.cases)} cases, isolation: case)")
-    case_files.cleared(process.into)
+    case_files.opened(process.into)
     measured = []
     for number, case in enumerate(process.cases, 1):
         failure = launch.run_of_case(device, plan, process, case, hooks, case_files.path(process.into, case))

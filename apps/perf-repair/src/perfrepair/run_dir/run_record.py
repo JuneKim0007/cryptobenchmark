@@ -14,7 +14,7 @@ from cryptobench.shared.document.json_dump import write_json
 from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.digest.tree import file_digest
 from cryptobench.shared.document.write import write_text
-from .lock import DeviceLock
+from cryptobench.shared.results.lock import DeviceLock
 from cryptobench.shared.document.dump import dump_yaml
 
 OVERWRITE, RESUME, SKIP = "overwrite", "resume", "skip"

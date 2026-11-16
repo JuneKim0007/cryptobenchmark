@@ -12,7 +12,8 @@ from cryptobench.stages.measurement import benchmark  # noqa: E402
 from failure import reported  # noqa: E402
 from fake_phone import Energy, Phone, fake_tools  # noqa: E402
 
-OPTIONS = types.SimpleNamespace(stream=False, suppress_errors="", stacktrace=False, energy_python="python3", energy_accept_unresponsive=False)
+OPTIONS = types.SimpleNamespace(stream=False, suppress_errors="", stacktrace=False, energy_python="python3", energy_accept_unresponsive=False,
+                                reconnect_wait_minutes=None, reconnect_poll_seconds=None)
 
 
 def steps(phone):
@@ -35,13 +36,18 @@ def layout(tmp_path, run):
     return results, effective, capture, trial
 
 
-def measured(tmp_path, monkeypatch, run, phone=None, **phone_options):
+def measured_fakes(monkeypatch, phone):
+    """The host tools, analysis and energy source a measuring run calls, faked around the phone."""
     monkeypatch.setattr(pipeline.dependencies, "require_energy", lambda *_arguments: None)
-    phone = phone or Phone(tmp_path, **phone_options)
     fake_tools(monkeypatch, phone)
     monkeypatch.setattr(pipeline, "analyse", lambda results, files, *_rest: files.update(benchmark=results / "benchmark/benchmark.json"))
     monkeypatch.setattr(benchmark.energy_stage, "source", lambda *_arguments, **_options: Energy(phone))
     monkeypatch.setattr(benchmark.EnergySession, "pull_traces", lambda _self, _traces, fresh=True: phone.log.append("pull traces") or 0)
+
+
+def measured(tmp_path, monkeypatch, run, phone=None, **phone_options):
+    phone = phone or Phone(tmp_path, **phone_options)
+    measured_fakes(monkeypatch, phone)
     results, effective, capture, trial = layout(tmp_path, run)
     files, problems = {"effective": effective}, []
     pipeline.benchmarked(OPTIONS, phone, results, results / "discovery", effective, capture, trial, files, problems)
@@ -101,7 +107,7 @@ def test_a_clock_read_that_fails_before_the_process_closes_the_open_energy_windo
     phone = Phone(tmp_path)
     with pytest.raises(DeviceError, match="device offline"):
         measured(tmp_path, monkeypatch, MEASURED, phone=phone)
-    assert steps(phone)[-2:] == ["window open", "window close"]
+    assert steps(phone)[-5:] == ["window open", "window close", "pull prepared.yaml", "pull skipped.yaml", "pull pins"]
 
 
 def test_a_clock_record_that_fails_after_the_process_still_closes_the_window_and_converts(tmp_path, monkeypatch):

@@ -99,6 +99,15 @@ def test_a_root_given_as_the_device_folder_is_one_coded_line(tmp_path):
         filled(tmp_path, "", tmp_path / "results")
 
 
+def test_a_stopped_benchmark_with_a_partial_manifest_is_neither_a_device_nor_device_results(tmp_path):
+    stopped = device(tmp_path / "results", "a")
+    (stopped / "manifest.yaml").write_text("schemaVersion: 1\npartial: {reason: interrupted}\n")
+    (stopped / "rows.json").write_text("{}")
+    assert Results(tmp_path / "results").devices() == []
+    with pytest.raises(ValueError, match=r"^not_device_results: "):
+        filled(tmp_path, "", stopped)
+
+
 def test_a_temporary_folder_warns_once_and_another_does_not(tmp_path, caplog):
     _warn_if_temp(tmp_path)
     _warn_if_temp(tmp_path)

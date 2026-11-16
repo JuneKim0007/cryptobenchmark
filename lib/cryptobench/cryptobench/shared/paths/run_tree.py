@@ -102,6 +102,7 @@ class Charts(Section):
 class CheckFolder(Section):
     result = property(lambda self: self.root / n.CHECK_RESULT)
     preparation = property(lambda self: Preparation(self.root / n.PREPARATION))
+    configuration = property(lambda self: Configuration(self.root / n.CONFIGURATION))
 
 
 class InteropFolder(Section):
@@ -221,6 +222,7 @@ class RunTree:
     interop = property(lambda self: InteropFolder(self.root / n.INTEROP))
     scoped = property(lambda self: Scoped(self.root / n.SCOPED))
     scoped_plan_failed = property(lambda self: self.root / n.SCOPED_PLAN_FAILED)
+    superseded = property(lambda self: self.root / n.SUPERSEDED)
 
     device = property(lambda self: self.root / n.DEVICE)
     rows = property(lambda self: self.root / n.ROWS)

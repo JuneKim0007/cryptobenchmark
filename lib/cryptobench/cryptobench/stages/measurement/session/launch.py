@@ -1,4 +1,5 @@
 """The only place a timed run of a case starts: each attempt is held for temperature, launched between the hooks, then judged."""
+from cryptobench.shared.device.adb import DeviceLost
 from cryptobench.shared.errors.line import one_line
 from cryptobench.stages.measurement.session import calibration, case_isolation, dynamic_temperature
 from cryptobench.stages.measurement import start_margin as eq
@@ -11,6 +12,8 @@ def hooked_case(process, case, hooks, run_case):
     for hook in hooks:
         try:
             hook.before_case(process, case)
+        except DeviceLost:
+            raise
         except Exception as error:
             failure = hook_failed(case, hook, "before_case", error)
             break
@@ -19,6 +22,8 @@ def hooked_case(process, case, hooks, run_case):
     for hook in reversed(started):
         try:
             hook.after_case(process, case, failure)
+        except DeviceLost:
+            raise
         except Exception as error:
             failure = failure or hook_failed(case, hook, "after_case", error)
     return failure
@@ -29,15 +34,21 @@ def hook_failed(case, hook, step, error):
 
 
 def run_of_case(device, plan, process, case, hooks, pulled):
-    """None, or the case's failure line. Heat discards the run and measures it again; anything else is retried, then the next case goes on."""
+    """None, or the case's failure line. Heat discards the run and measures it again; a lost device is waited for and the same case held and
+    launched again; anything else is retried, then the next case goes on."""
     gate, retries, discards = plan.gate, plan.retries, 0
     while True:
-        if not gate.hold(case):
-            return f"case_failed: {case}: temperature_unreadable"
-        # the gate's start reading goes to the Thermal hook and its end reading comes back for the verdict, so a run is read once at each end
-        process.start_reading, process.end_reading = gate.take_start(), None
-        failure = hooked_case(process, case, hooks, lambda: case_isolation.launch_case(device, plan.test_class, plan.arguments, case, pulled))
-        verdict = gate.verdict(case, process.end_reading) if not failure else eq.IGNORED
+        try:
+            if not gate.hold(case):
+                return f"case_failed: {case}: temperature_unreadable"
+            # the gate's start reading goes to the Thermal hook and its end reading comes back for the verdict, so a run is read once at each end
+            process.start_reading, process.end_reading = gate.take_start(), None
+            failure = hooked_case(process, case, hooks, lambda: case_isolation.launch_case(device, plan.test_class, plan.arguments, case, pulled))
+            verdict = gate.verdict(case, process.end_reading) if not failure else eq.IGNORED
+        except DeviceLost as lost:
+            pulled.unlink(missing_ok=True)
+            plan.reconnect.back(lost, f"the hold and launch of {case}")
+            continue
         if verdict == dynamic_temperature.UNREADABLE:
             pulled.unlink(missing_ok=True)
             return f"case_failed: {case}: temperature_unreadable after the run"

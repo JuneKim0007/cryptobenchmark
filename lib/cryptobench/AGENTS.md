@@ -42,7 +42,7 @@ cryptobench/shared/document/dump.py : dump_yaml, a value as YAML text through on
 cryptobench/shared/document/json_dump.py : json_text, a document as JSON text (indent 1); write_json, that text through write_text
 cryptobench/shared/document/write.py : write_text, a file replaced whole through a temporary of its writer's own (mode as a plain open gives, fsync and folder fsync when durable, exclusive refuses an existing file); Staging, the temporary's name, mode and fsync per writer (STAGED, MANIFEST); write_texts, several files staged then renamed in order
 cryptobench/shared/device/__init__.py : package of the host's device steps, importing no app
-cryptobench/shared/device/adb.py : the adb transport of a --device run: connect, identity by getprop, install, instrument and its OK line and report, push, pull, force-stop
+cryptobench/shared/device/adb.py : the adb transport of a --device run: connect, identity by getprop, install, instrument and its OK line and report, push, pull, force-stop; a lost transport as DeviceLost, adb get-state
 cryptobench/shared/device/capture.py : a capture's runtime block, its schema version checked; the guide's platform name for it
 cryptobench/shared/device/clocks.py : per-core cpufreq over adb; clocks.yaml and cpuLocked
 cryptobench/shared/device/gradle_runner.py : runs one command of apps/benchmark/cli by its main class; filters its failure to the tool's own lines
@@ -75,13 +75,15 @@ cryptobench/shared/paths/imports.py : the apps' source folders on the import pat
 cryptobench/shared/paths/names.py : the file and folder names of a results folder, and CONTRACT: those shared with Kotlin
 cryptobench/shared/paths/packaged.py : packaged(package, name) through importlib and a named constant per data file a package ships
 cryptobench/shared/paths/repo.py : Repo and repo(root): one checkout's named locations
-cryptobench/shared/paths/results.py : Results(root): the device folders of a results root
+cryptobench/shared/paths/results.py : Results(root): the finished device folders of a results root; finished, a manifest without partial:
 cryptobench/shared/paths/roots.py : code_root (this checkout), benchmark_root (the checkout a run measures), each with its environment variable
 cryptobench/shared/paths/run_tree.py : RunTree: every file of one results folder; its sections Configuration, Discovery, Preparation, Measurement, Analysis, Charts, CheckFolder, InteropFolder, Scoped, Logs, Review; AppTree, GroupingTree
 cryptobench/shared/paths/settings.py : against(settings_file, value), the one rule for a path a settings file names; in_temp
 cryptobench/shared/results/__init__.py : package of a run's results folder, importing no app
-cryptobench/shared/results/layout.py : results/<device_id>/: staging, publishing into the device folder, the temporary-folder warning
-cryptobench/shared/results/manifest.py : results/<device_id>/manifest.yaml: files, counts, runtime, providers, input digests, units, the harness operations, energy mark, problems; files added beside a finished run
+cryptobench/shared/results/layout.py : results/<device_id>/: staging, publishing into the device folder after the earlier unit moves to superseded/<stamp>/, the temporary-folder warning
+cryptobench/shared/results/lock.py : DeviceLock: `<folder>/.lock` by fcntl.flock (POSIX), the holder's pid; another process is device_busy, the holding one takes it again; a results root (pipeline.py) or a device folder (perf-repair)
+cryptobench/shared/results/manifest.py : results/<device_id>/manifest.yaml: files, counts, runtime, providers, input digests, units, the harness operations, energy mark, problems, the partial mark of a stopped run; files added beside a finished run
+cryptobench/shared/results/partial.py : a run that stopped: the partial record (reason, case runs per process folder) its manifest is written with, a failed write one warning
 cryptobench/shared/results/run_inputs.py : digests of a run's inputs, providers.bundled and global.yaml with its test set (analysis left out), for the manifest and --identify
 cryptobench/shared/results/select.py : the device folder of a results root a reader names, or the only one there
 cryptobench/shared/settings/__init__.py : package of the run's settings readers the stages share
@@ -116,7 +118,7 @@ cryptobench/stages/discovery/probe.py : DeviceProbe on the device: the plan dire
 cryptobench/stages/discovery/tests/ : pytest tests of the discovery stage
 cryptobench/stages/measurement/__init__.py : package of the measurement stage
 cryptobench/stages/measurement/benchmark.py : the plain run's benchmark: device passes and sessions or host processes, warm-up, dry pass; whether it timed anything, for the analysis; the energy interpreter check passed in
-cryptobench/stages/measurement/case_files.py : process-N/cases/<case>.json: the path of a case's pulled benchmarkData, the folder emptied per process, benchmarkData.json merged from the files
+cryptobench/stages/measurement/case_files.py : process-N/cases/<case>.json: the path of a case's pulled benchmarkData, the folder made per process, benchmarkData.json merged from the files
 cryptobench/stages/measurement/energy/__init__.py : package of the energy steps of a --device run on the host
 cryptobench/stages/measurement/energy/session.py : Perfetto sessions on the device: start, stop, pull
 cryptobench/stages/measurement/energy/sources/ : one adapter per energy.source on the host; how the host runs apps/benchmark-runner/energy
@@ -133,6 +135,7 @@ cryptobench/stages/measurement/session/gate_history.py : what one temperature ga
 cryptobench/stages/measurement/session/launch.py : the only place a timed run of a case starts: hold, launch, verdict, retries
 cryptobench/stages/measurement/session/measure.py : one device measuring session of the benchmark: processes, a process per case or one for all, hooks; a process repetition's folder and line, a case's progress line
 cryptobench/stages/measurement/session/passes.py : run.passes: one device session per metric group, its device arguments and conversion, the merge per metric; MergeRunsKt over process repetitions
+cryptobench/stages/measurement/session/reconnect.py : a lost adb transport mid-run: the bounded wait polling adb get-state, the step or case again, DeviceGone past the bound
 cryptobench/stages/measurement/session/thermal_hook.py : session hook: temperature around every process and case into thermal.json with the gate's history, its lines per pass
 cryptobench/stages/measurement/session/variant_order.py : run.variants on a device: an item's fixed and notFixed cases adjacent, A/B then B/A over repetitions
 cryptobench/stages/measurement/session/warmup.py : run.warmup: a pre-flight run of a few planned cases before the first pass, off at 0 iterations; its output never pulled
@@ -140,7 +143,7 @@ cryptobench/stages/measurement/start_margin.py : the temperature gate's start ma
 cryptobench/stages/measurement/tests/ : pytest tests of the measurement stage
 cryptobench/stages/measurement/thermal.py : device temperatures from dumpsys thermalservice: sensors by HAL name, status, sentinels skipped, unavailable as a reason
 cryptobench/stages/verification/__init__.py : package of the verification stage
-cryptobench/stages/verification/check.py : --check run: every planned case once through the real harness (host CheckKt, device EndToEndCheck under the dry run), check.yaml, its summary and failures
+cryptobench/stages/verification/check.py : --check run: every planned case once through the real harness (host CheckKt, device EndToEndCheck under the dry run), check.yaml, its summary and failures, published beside a finished run or as a new device folder; discovery's steps passed in
 cryptobench/stages/verification/harness.py : --harness run: scope generation, ScopedInterop on the device, interop verdicts into checked/; discovery and the entry point's error reporting passed in
 cryptobench/stages/verification/interop.py : --interop run: the plan's pairs on the host or device, published beside a finished run or as a new device folder; discovery's steps passed in
 cryptobench/stages/verification/interop_oracle.py : oracle steps of a --interop run: plan staging, host InteropKt, device InteropCheck, summary

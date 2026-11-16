@@ -1,4 +1,5 @@
-"""<device>/.lock: one run on a device folder at a time; the process holding it may take it again without blocking."""
+"""<folder>/.lock: one run on a results root or device folder at a time; the process holding it may take it again without blocking.
+fcntl.flock is POSIX only."""
 from __future__ import annotations
 
 import fcntl

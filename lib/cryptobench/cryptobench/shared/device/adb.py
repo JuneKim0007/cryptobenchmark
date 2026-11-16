@@ -18,6 +18,24 @@ class DeviceError(Coded):
     pass
 
 
+class DeviceLost(DeviceError):
+    """The adb transport is gone, whichever call met it; the session waits for the device instead of failing that call's case."""
+
+
+# adb's own words when the transport, not the command, failed
+LOST = re.compile(r"device unauthorized|device offline|device '[^']*' not found|device not found|no devices/emulators found|"
+                  r"error: closed|cannot connect to daemon|daemon not running|failed to start daemon|protocol fault|adb server")
+
+
+def lost(text):
+    found = LOST.search(text or "")
+    return found.group(0) if found else None
+
+
+def lost_line(arguments, reason):
+    return f"device_lost: adb {' '.join(map(str, arguments))[:200]}: {reason}"
+
+
 def instrumentation_report(output):
     stacks = {}
     for line in output.splitlines():
@@ -46,8 +64,13 @@ class Device:
         self.environment = paths.android_env()
         self.adb = paths.platform_tools() / "adb"
 
+    def raw(self, *arguments):
+        return timeouts.run("adb", [str(self.adb), *arguments], capture_output=True, text=True)
+
     def run(self, *arguments, check=True):
-        result = timeouts.run("adb", [str(self.adb), *arguments], capture_output=True, text=True)
+        result = self.raw(*arguments)
+        if result.returncode != 0 and (reason := lost(result.stderr or result.stdout)):
+            raise DeviceLost(lost_line(arguments, reason))
         if check and result.returncode != 0:
             raise DeviceError(f"adb {' '.join(arguments)}: {(result.stderr or result.stdout).strip()}")
         return result
@@ -55,13 +78,26 @@ class Device:
     def shell(self, command):
         return self.run("shell", command).stdout
 
+    def state(self):
+        """adb get-state's answer, '' when there is none; never raises, so a wait can poll it."""
+        try:
+            result = self.raw("get-state")
+        except timeouts.StepTimeout:
+            return ""
+        return result.stdout.strip() if result.returncode == 0 else ""
+
+    def attached(self, step):
+        state = self.state()
+        if state != "device":
+            raise DeviceLost(lost_line(("get-state", "after", step), state or "no answer"))
+
     def connect(self):
         if not self.adb.is_file():
             raise DeviceError(f"missing_file: {self.adb} (set ANDROID_HOME)")
         selection = selection_error(self.run("devices").stdout, os.environ.get("ANDROID_SERIAL"))
         if selection:
             raise DeviceError(selection)
-        state = self.run("get-state", check=False)
+        state = self.raw("get-state")
         if state.stdout.strip() != "device":
             raise DeviceError(f"no_device: adb get-state: {(state.stderr or state.stdout).strip()}")
         sdk = self.shell("getprop ro.build.version.sdk").strip()
@@ -94,7 +130,10 @@ class Device:
         command = [str(self.adb), "shell", "am", "instrument", "-w", "-r", "-e", "class", f"{PACKAGE}.{test_class}",
                    *arguments, f"{PACKAGE}.test/{RUNNER}"]
         if not self.stream:
-            output = timeouts.run(step, command, capture_output=True, text=True).stdout
+            result = timeouts.run(step, command, capture_output=True, text=True)
+            if result.returncode != 0 and (reason := lost(result.stderr)):
+                raise DeviceLost(lost_line(command[1:4], reason))
+            output = result.stdout
         else:
             process, lines, shown = subprocess.Popen(command, stdout=subprocess.PIPE, text=True), [], set()
             with timeouts.watched(step, process, command):
@@ -105,8 +144,11 @@ class Device:
                     lines.append(line)
                 process.wait()
             output = "".join(lines)
-        if self.stacktrace and not PASSED.search(output):
-            print(output)
+        if not PASSED.search(output):
+            # a dropped transport cuts the output short; a failed test leaves the device attached
+            self.attached(f"am instrument {test_class}")
+            if self.stacktrace:
+                print(output)
         return output
 
     def pull(self, remote, local):

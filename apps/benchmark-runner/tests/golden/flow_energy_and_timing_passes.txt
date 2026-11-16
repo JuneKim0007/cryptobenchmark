@@ -1,3 +1,4 @@
+device:    a lost adb transport is waited for up to 60 min, adb get-state every 10 s
 gate:      TEMPERATURE GATE OFF: run.thermalGate not set
 took:      energy pre-flight and settle in <s>s
 warm-up:   off (run.warmup.iterations 0)

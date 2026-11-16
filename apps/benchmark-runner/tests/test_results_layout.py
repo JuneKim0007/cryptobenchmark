@@ -1,3 +1,4 @@
+import datetime
 import os
 import pathlib
 
@@ -35,23 +36,73 @@ def test_a_failed_run_leaves_no_stage(tmp_path):
     assert list(tmp_path.iterdir()) == []
 
 
-def test_overwrite_replaces_discovery_and_drops_the_old_manifest_but_nothing_of_perf_repair(tmp_path):
-    target = tmp_path / "device"
+def measured_unit(target):
     write(target / "discovery/probe_old.yaml")
-    write(target / layout.paths.MANIFEST)
+    write(target / layout.paths.MANIFEST, "old manifest")
+    write(target / "configuration/effective.yaml", "old")
+    write(target / "preparation/prepared.yaml", "old cases")
+    write(target / "benchmark/process-1/cases/a.json", "measured")
     write(target / "grouping/groups.json")
+
+
+def aside_folders(target):
+    return sorted((target / "superseded").iterdir()) if (target / "superseded").is_dir() else []
+
+
+def test_overwrite_moves_the_earlier_unit_aside_whole_and_nothing_of_perf_repair(tmp_path, capsys):
+    target = tmp_path / "device"
+    measured_unit(target)
     layout.publish(stage_with(tmp_path), target, "overwrite")
     assert [p.name for p in (target / "discovery").iterdir()] == ["probe_new.yaml"]
     assert (target / "configuration/effective.yaml").read_text() == "new"
-    assert not (target / layout.paths.MANIFEST).exists() and (target / "grouping/groups.json").is_file()
+    assert not (target / layout.paths.MANIFEST).exists() and not (target / "benchmark").exists() and (target / "grouping/groups.json").is_file()
+    [aside] = aside_folders(target)
+    assert sorted(p.name for p in aside.iterdir()) == ["benchmark", "configuration", "discovery", "manifest.yaml", "preparation"]
+    assert (aside / "benchmark/process-1/cases/a.json").read_text() == "measured" and (aside / "configuration/effective.yaml").read_text() == "old"
+    assert (aside / layout.paths.MANIFEST).read_text() == "old manifest" and (aside / "discovery/probe_old.yaml").is_file()
+    assert f"warning: run_superseded: {target}: manifest.yaml, configuration, preparation, benchmark, discovery moved to {aside}" in capsys.readouterr().out
 
 
 @pytest.mark.parametrize("mode", ["keep", "reuse"])
-def test_keep_and_reuse_add_to_the_discovery_already_there(tmp_path, mode):
+def test_keep_and_reuse_add_to_the_discovery_already_there_and_move_the_rest_aside(tmp_path, mode):
     target = tmp_path / "device"
-    write(target / "discovery/probe_old.yaml")
+    measured_unit(target)
     layout.publish(stage_with(tmp_path), target, mode)
     assert sorted(p.name for p in (target / "discovery").iterdir()) == ["probe_new.yaml", "probe_old.yaml"]
+    [aside] = aside_folders(target)
+    assert sorted(p.name for p in aside.iterdir()) == ["benchmark", "configuration", "manifest.yaml", "preparation"]
+
+
+def test_a_new_folder_moves_nothing_aside(tmp_path):
+    target = tmp_path / "device"
+    layout.publish(stage_with(tmp_path), target, "overwrite")
+    assert sorted(p.name for p in target.iterdir()) == ["configuration", "discovery"]
+
+
+def test_two_move_asides_in_one_second_never_meet(tmp_path, monkeypatch):
+    class Frozen(datetime.datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return datetime.datetime(2026, 11, 17, 12, 0, 0, tzinfo=tz)
+    monkeypatch.setattr(layout.datetime, "datetime", Frozen)
+    target = tmp_path / "device"
+    for run in ("first", "second"):
+        write(target / "benchmark/benchmark.json", run)
+        layout.supersede(target, "overwrite")
+    assert [(p.name, (p / "benchmark/benchmark.json").read_text()) for p in aside_folders(target)] == [
+        ("20261117T120000Z", "first"), ("20261117T120000Z-2", "second")]
+
+
+def test_the_superseded_report_counts_units_and_bytes_and_is_silent_without_the_folder(tmp_path, capsys):
+    target = tmp_path / "device"
+    layout.report_superseded(target)
+    assert capsys.readouterr().out == ""
+    for run in ("first", "second"):
+        write(target / "benchmark/benchmark.json", "x" * 500_000)
+        layout.supersede(target, "overwrite")
+    capsys.readouterr()
+    layout.report_superseded(target)
+    assert capsys.readouterr().out == f"warning: superseded_kept: {target / 'superseded'}: 2 earlier units, 1.0 MB; never pruned, remove by hand\n"
 
 
 def test_interop_beside_a_finished_run_keeps_its_configuration_and_adds_to_its_manifest(tmp_path):
@@ -62,7 +113,7 @@ def test_interop_beside_a_finished_run_keeps_its_configuration_and_adds_to_its_m
     write(stage / "interop/interop.yaml")
     (target / "g.yaml").write_text("schemaVersion: 1\n")
     manifest.manifest(target, "host", target / "g.yaml", {"probe": probe})
-    layout.publish_interop(stage, target)
+    layout.publish_beside(stage, target, "interop")
     manifest.add_to_manifest(target, {"interop": target / "interop/interop.yaml"})
     assert (target / "configuration/effective.yaml").read_text() == "old"
     assert (target / "discovery/probe_new.yaml").is_file()

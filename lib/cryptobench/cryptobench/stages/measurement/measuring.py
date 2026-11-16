@@ -5,7 +5,7 @@ from cryptobench.shared.settings import effective_view
 from cryptobench.shared.device import gradle_runner
 from cryptobench.shared.device.adb import NO_DEFAULT_PROFILER, Device
 from cryptobench.stages.measurement.energy.session import EnergySession
-from cryptobench.stages.measurement.session import clocks_hook, cooldown_hook, dynamic_temperature, thermal_hook
+from cryptobench.stages.measurement.session import clocks_hook, cooldown_hook, dynamic_temperature, reconnect, thermal_hook
 from cryptobench.pipeline.took import elapsed
 from cryptobench.pipeline.warn import warn
 from cryptobench.shared import paths
@@ -28,6 +28,7 @@ class Measuring:
     cooldown: int = 0
     gate: object = None
     retries: int = 0
+    reconnect: object = reconnect.Off()
 
 
 def convert(run, arguments):
@@ -38,7 +39,8 @@ def convert(run, arguments):
 
 
 def gated(run, document):
-    return dataclasses.replace(run, gate=dynamic_temperature.opened(run.device, effective_view.thermal_gate(document), run.problems), retries=effective_view.launch_retries(document))
+    gate = run.reconnect.retried(lambda: dynamic_temperature.opened(run.device, effective_view.thermal_gate(document), run.problems), "the thermal gate's start")
+    return dataclasses.replace(run, gate=gate, retries=effective_view.launch_retries(document))
 
 
 def measure_arguments(suppress, throttle_sleep=None):

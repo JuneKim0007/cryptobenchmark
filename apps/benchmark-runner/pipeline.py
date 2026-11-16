@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Runs the host pipeline in order and reports one readable failure."""
-import argparse, json, os, pathlib, subprocess, sys, traceback
+import argparse, contextlib, json, os, pathlib, signal, subprocess, sys, traceback
 
 import dependencies  # first: it reports a missing PyYAML, which the imports below need
 from cryptobench.shared.device.adb import Device
@@ -12,7 +12,8 @@ from cryptobench.pipeline.stage import Stage, StageContext
 from cryptobench.stages.configuration.global_file import global_config
 from cryptobench.shared import paths
 from cryptobench.shared.results import layout as results_layout
-from cryptobench.shared.results import run_inputs
+from cryptobench.shared.results import partial, run_inputs
+from cryptobench.shared.results.lock import DeviceLock
 from cryptobench.shared.results.manifest import manifest
 from cryptobench.stages.verification.scope import code_digest
 from cryptobench.stages.analysis import not_measured
@@ -44,6 +45,10 @@ def parse_options():
                         help="interpreter with apps/benchmark-runner/energy/requirements.txt installed (default: this one)")
     parser.add_argument("--energy-accept-unresponsive", action="store_true",
                         help="run energy cases even when the rails do not respond to load; for plumbing tests only, the joules are not measurements")
+    parser.add_argument("--reconnect-wait-minutes", type=int, metavar="M",
+                        help="with --device: how long a lost adb transport is waited for before the run stops (default in session/reconnect.py)")
+    parser.add_argument("--reconnect-poll-seconds", type=int, metavar="S",
+                        help="with --device: how often adb get-state is asked while waiting (default in session/reconnect.py)")
     parser.add_argument("--stacktrace", action="store_true", help="print the tool's full output on failure")
     parser.add_argument("--stream", action="store_true", help="show each tool's progress while it runs")
     parser.add_argument("--harness", metavar="HARNESS_YAML",
@@ -67,6 +72,10 @@ REFUSED = (
     (lambda o: o.suppress_errors and not o.device, "--suppress-errors: only a --device run reaches androidx.benchmark"),
     (lambda o: o.energy_accept_unresponsive and not o.device,
      "--energy-accept-unresponsive: only a --device run captures energy"),
+    (lambda o: (o.reconnect_wait_minutes is not None or o.reconnect_poll_seconds is not None) and not o.device,
+     "--reconnect-wait-minutes, --reconnect-poll-seconds: only a --device run waits for its device"),
+    (lambda o: any(v is not None and v < 0 for v in (o.reconnect_wait_minutes, o.reconnect_poll_seconds)),
+     "--reconnect-wait-minutes, --reconnect-poll-seconds: negative"),
 )
 
 
@@ -82,11 +91,13 @@ def results_root(options):
     return pathlib.Path(options.results or paths.repo().default_results).expanduser().resolve()
 
 
+@contextlib.contextmanager
 def published(context):
-    """The results root, after its temporary-folder warning."""
+    """The results root, after its temporary-folder warning, held by this run alone: a second run on it is device_busy."""
     root = results_root(context.options)
     results_layout.warn_if_temp(root)
-    return root
+    with DeviceLock.take(root):
+        yield root
 
 
 def identified(context):
@@ -99,7 +110,8 @@ def harnessed(context):
 
 
 def interoperated(context):
-    return interop_run(context.options, context.configuration, context.device, published(context), context.checked["bundled"], discover_staged, located)
+    with published(context) as root:
+        return interop_run(context.options, context.configuration, context.device, root, context.checked["bundled"], discover_staged, located)
 
 
 def guided(context, root):
@@ -109,19 +121,32 @@ def guided(context, root):
     return results, discovery, effective, capture, trial, files
 
 
+def guided_in(context):
+    """guided's steps inside a stage the caller publishes: discovery there, then guide.yaml beside its effective.yaml."""
+    def discovered(root, stage):
+        _, effective, capture, trial, files = discover_staged(context.options, context.configuration, context.device, root, stage, context.checked["bundled"])
+        files["guide"] = guide.write(effective, capture)
+        return effective, capture, trial, files
+    return discovered
+
+
 def checked(context):
-    root = published(context)
     require_check_run(context.options, context.device)
-    results, _, effective, capture, trial, files = guided(context, root)
-    return check_run(context.options, context.configuration, context.device, results, effective, capture, trial, files)
+    with published(context) as root:
+        return check_run(context.options, context.configuration, context.device, root, guided_in(context), located)
 
 
 def measured(context):
     options, configuration, device = context.options, context.configuration, context.device
-    results, discovery, effective, capture, trial, files = guided(context, published(context))
-    if not options.probe and (options.bench or device):
-        benchmarked(options, device, results, discovery, effective, capture, trial, files, context.problems)
-    manifest(results, "device" if device else "host", configuration, files, context.problems)
+    with published(context) as root:
+        results, discovery, effective, capture, trial, files = guided(context, root)
+        mode = "device" if device else "host"
+        if not options.probe and (options.bench or device):
+            stopped = lambda record, pulled: manifest(results, mode, configuration, files | pulled, context.problems, partial=record)
+            with partial.kept(results, stopped):
+                benchmarked(options, device, results, discovery, effective, capture, trial, files, context.problems)
+        manifest(results, mode, configuration, files, context.problems)
+        results_layout.report_superseded(results)
 
 
 def benchmarked(options, device, results, discovery, effective, capture, trial, files, problems):
@@ -138,7 +163,18 @@ ROUTES: tuple[tuple[str | None, Stage], ...] = (
     ("identify", identified), ("harness", harnessed), ("interop", interoperated), ("check", checked), (None, measured))
 
 
+# no SIGHUP on Windows
+STOP_SIGNALS = tuple(getattr(signal, name) for name in ("SIGTERM", "SIGHUP") if hasattr(signal, name))
+
+
+def stop_like_ctrl_c():
+    """kill and a closed terminal stop the run as Ctrl-C does, so the session force-stops the device's test and the manifest says partial."""
+    for stop in STOP_SIGNALS:
+        signal.signal(stop, signal.default_int_handler)
+
+
 def main():
+    stop_like_ctrl_c()
     options = parse_options()
     sys.stdout.reconfigure(line_buffering=True)
     configuration = global_config(options.config)

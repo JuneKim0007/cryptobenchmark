@@ -12,11 +12,11 @@ from cryptobench.shared.errors.input_error import InputError
 from perfrepair.files import read_json
 from cryptobench.shared.document.json_dump import write_json
 from cryptobench.shared.document.write import TEMP_SUFFIX
-from perfrepair.run_dir.lock import DeviceLock
+from cryptobench.shared.results.lock import DeviceLock
 
 SRC = Path(__file__).parents[1] / "src"
 PATHS = os.pathsep.join([str(SRC), str(Path(__file__).parents[3] / "lib/cryptobench")])
-HOLD = "import sys; from perfrepair.run_dir.lock import DeviceLock; DeviceLock.take(sys.argv[1]); print('held', flush=True); sys.stdin.read()"
+HOLD = "import sys; from cryptobench.shared.results.lock import DeviceLock; DeviceLock.take(sys.argv[1]); print('held', flush=True); sys.stdin.read()"
 
 
 @pytest.fixture
@@ -42,7 +42,7 @@ def test_the_holder_may_take_it_again_and_it_frees_on_the_last_release(tmp_path)
     inner = DeviceLock.take(tmp_path)
     inner.release()
     inner.release()
-    probe = [sys.executable, "-c", "import sys; from perfrepair.run_dir.lock import DeviceLock; DeviceLock.take(sys.argv[1])",
+    probe = [sys.executable, "-c", "import sys; from cryptobench.shared.results.lock import DeviceLock; DeviceLock.take(sys.argv[1])",
              str(tmp_path)]
     env = {**os.environ, "PYTHONPATH": PATHS}
     assert subprocess.run(probe, env=env, capture_output=True).returncode == 1

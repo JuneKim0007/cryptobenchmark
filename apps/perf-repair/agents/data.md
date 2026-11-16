@@ -118,7 +118,6 @@ src/perfrepair/log/summary_text.py : the summary as text lines, `status:` last
 src/perfrepair/log/views.py : the views, each a function of one event: bug.log, status.log; render() recomputes them
 src/perfrepair/log/watch.py : watch(): polls events.jsonl, prints Progress lines, a counter rewritten in place on a terminal; exits after a run_end
 src/perfrepair/run_dir/__init__.py : re-exports layout and read: the `run_dir` namespace every reader uses
-src/perfrepair/run_dir/lock.py : DeviceLock: `<device>/.lock` by fcntl.flock, the holder's pid; another process is device_busy, the holding one takes it again
 src/perfrepair/run_dir/read.py : artifact loaders: rows, measurements, run log, screen.json (load_screen, load_screen_catalog, load_screen_review; `built`, the digests screen.json binds to), load_used (None without used.json), read_scopes, read_sites, read_edits, read_dossiers (schema_version on another version, through read_versioned)
 src/perfrepair/run_dir/run_record.py : RunRecord, the one writer of what a device folder says is done: runs/run_<id>.json (its id, onExisting, the facade's settings tree), each <app>/finished.json (is_done, app_done; cleared on an app's first rerun step with its report), device.yaml read, write and drop, vouch_manifest after a step that only adds files; the folder's lock held from open to close
 src/perfrepair/watch/__init__.py : docstring only

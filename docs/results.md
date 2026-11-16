@@ -7,7 +7,7 @@
 
 ```
 <results root>/<device_id>/
-  discovery/ configuration/ preparation/ benchmark/ analysis/ chart/ interop/ manifest.yaml
+  discovery/ configuration/ preparation/ benchmark/ analysis/ chart/ check/ interop/ manifest.yaml superseded/
   rows.json measurements.json run_log.json primitives.tsv grouping/ summary.json summary.md
   <path_id>/ sites.json app.json ... harness.yaml checked/ report.json report.md
 ```
@@ -18,13 +18,20 @@ perf-repair writes the second and third lines: [artifacts.md](../apps/perf-repai
 |---|---|
 | `--results` | the root, default `<repo>/results` |
 | folder name | `deviceId` of the manifest below, from the probe |
+| `<root>/.lock` | `--interop`, `--check` and every measuring or probing run hold it from the temporary-folder warning to the manifest (`lib/cryptobench/cryptobench/shared/results/lock.py`, `fcntl.flock`, the holder's pid); a second run on the root stops with `device_busy: <root> is in use by another run (pid <n>); ...` before it writes anything |
 | staging | discovery and configure run in `<root>/.staging-*`, then move in; a run that fails there removes it and changes nothing |
-| a finished device | a folder holding `manifest.yaml`; a publish deletes the old manifest first, so a run failing later leaves the folder without one, its partial files kept |
-| `--discovery` | `overwrite` replaces `discovery/`; `keep` and `reuse` add to it |
-| `--interop` | beside a finished run: adds `interopPlan`, `interop` to its manifest, its capture to `discovery/`; `configuration/` and the other keys stay |
-| `--check` | a full discover and configure, then `check/`; the manifest gains `check` |
+| a finished device | a folder whose `manifest.yaml` has no top-level `partial:` (`lib/cryptobench/cryptobench/shared/paths/results.py` `finished`); every reader that lists devices or decides "beside a finished run" asks it |
+| unit | `manifest.yaml`, `configuration/`, `preparation/`, `benchmark/`, `analysis/`, `chart/`, `check/`, `interop/`; `discovery/` too under `--discovery overwrite` |
+| a publish | the unit already in the folder, finished or not, is renamed whole into `superseded/<UTC stamp>[-<n>]/` (manifest first), one line `warning: run_superseded: <folder>: <names> moved to <path>`; then the staged folders move in; nothing is deleted |
+| fewer `processRepetitions` or passes on a rerun | the earlier `process-<n>/` and `<pass>/` folders move aside inside `benchmark/` with the unit; `benchmark/` holds only this run's |
+| `superseded/<stamp>/` | one earlier unit, the device folder's own layout; `-<n>` from 2 on when that second already has one; nothing reads it |
+| `superseded/` disk use | never pruned; removed by hand; a publishing run's last line, when the folder exists, is `warning: superseded_kept: <folder>/superseded: <n> earlier units, <size> MB; never pruned, remove by hand` |
+| a crash during the move-aside | the unit may be split across two `superseded/<stamp>/` folders, or partly still in place for the next publish to move; every file is in one of them |
+| `--discovery` | `overwrite`: the old `discovery/` moves aside with its unit; `keep` and `reuse` add to it, and it stays |
+| `--interop` | beside a finished run: adds `interopPlan`, `interop` to its manifest, its capture to `discovery/`, `interop/` replaced; `configuration/` and the other keys stay; else a publish with its own manifest |
+| `--check` | discover, configure and check inside the stage; beside a finished run: adds `check` to its manifest, its capture to `discovery/`, `check/` replaced, with the check's own `configuration/` (`effective.yaml`, `guide.yaml`, `known-answers.yaml`, ...) under it; the run's `configuration/` and the other keys stay; else a publish whose manifest lists `guide`, `knownAnswers`, `check` |
 | `--harness` | writes `checked/` beside `harness.yaml`, itself laid out as this table's device folder without the device level |
-| a killed process | `.staging-*` stays behind; nothing reads it, delete it |
+| a killed process | `.staging-*` stays behind and nothing reads it; a device folder it was measuring has no manifest, reads as unfinished, and the next publish moves it aside |
 | root under `/tmp`, `/var/tmp`, `/var/folders` or the system temp folder | one line `warning: results_in_temp: ...`; the run goes on |
 
 ## Layout
@@ -46,7 +53,7 @@ Paths relative to the device folder.
 | `benchmark/cases/` | `<id>.json`: one case's pulled `benchmarkData.json`, in each process folder | `--device` with `run.isolation: case` ([device-session.md](device-session.md#one-process-per-case)) |
 | `benchmark/` | `energy.json`, `traces/` (`*.perfetto-trace`, `dry.pftrace`), `energy-dry.yaml`; `manafa/` (`manafa.log`, power profile) with `energy.source: manafa` | energy capture |
 | `scoped/` | `scoped-plan.yaml` with each scope's interop verdict merged in, `scoped-interop.yaml` (the device's verdicts); a failed run keeps only `scoped-plan.failed.yaml` beside `scoped/` | `--harness`, under `checked/`: [scoped.md](../apps/benchmark/modules/android/docs/scoped.md) |
-| `check/` | `check.yaml` (one record per case), `preparation/` (that process's `prepared.yaml`, `skipped.yaml`) | `--check`: [check.md](../apps/benchmark/modules/benchmark/docs/check.md) |
+| `check/` | `check.yaml` (one record per case), `preparation/` (that process's `prepared.yaml`, `skipped.yaml`); `configuration/` (the settings it ran with) when published beside a finished run | `--check`: [check.md](../apps/benchmark/modules/benchmark/docs/check.md) |
 | `interop/` | `interop_plan.yaml` (the plan, copied), `interop.yaml` | `--interop`: [interop.md](../apps/benchmark/modules/preparation/docs/interop.md) |
 | `analysis/` | `summary.md`, `run-counts.md` (per case: runs, iters per run, calls per iter, runs discarded for heat, seconds waited for temperature), `throughput.png`, `latency.png`, `stability.png`, `<metric>-vs-time.png` | with `benchmark.json` |
 | `chart/<run-id>/` | `summary.md`, `chart-data.json`, `manifest.yaml`, IQR bars per chart group | with `benchmark.json`; `analysis.dir` moves it |
@@ -69,11 +76,12 @@ Paths relative to the device folder.
 | `counts` | `prepared` (`prepared.cases`), `skipped` (`skipped.skipped`), `measured` (`benchmark.cases`) |
 | `operations` | per engine type the operations the harness times, from preparation's `engine-operations.yaml`; a type absent falls back to `TYPE_DEFAULT`, which times nothing |
 
-- `files` keys: `probe`, `trial`, `inventory`, `effective`, `report`, `energyCapability`, `energy`, `clocks`, `cpuPins`, `prepared`, `skipped`, `benchmark`, `processes`; `--harness` adds `scopedPlan`, `scopedInterop`; `--interop` adds `interopPlan`, `interop`.
+- `files` keys: `probe`, `trial`, `inventory`, `effective`, `report`, `guide`, `energyCapability`, `energy`, `clocks`, `cpuPins`, `prepared`, `skipped`, `benchmark`, `processes`; `--harness` adds `scopedPlan`, `scopedInterop`; `--interop` adds `interopPlan`, `interop`; `--check` adds `check`, and `knownAnswers` when it publishes its own unit.
 - A key is absent when its stage did not run.
 - `energy`, `clocks`, `cpuPins` are single paths when `processRepetitions` = 1, lists otherwise.
 - `problems`: coded lines of what the run survived, absent when there were none: `energy_failed: <message>` ([energy.md](energy.md#outputs)); `case_failed: <id>: <reason>` for a case whose own process, or a hook around it (`hook_failed: ...`), failed under `run.isolation: case` ([device-session.md](device-session.md#one-process-per-case)); `bench_failed: <message>` when a host `BenchKt` died after writing some rows, which the run keeps; `iterations_not_applied: <id> asked for <n>, timeNs has <m> runs` from `ConvertKt` on a device run; `thermal_gate_timeout: <id>: <pass>: ...` for a case the thermal gate started past its timeout ([device-session.md](device-session.md#thermal-gate)); `not_measured: <id>` for each case of `prepared.yaml` not `dry` that the final `benchmark.json` lacks, whatever lost it (the device run, `ConvertKt`'s `not_in_plan`/`no_metrics`/`not_converted`, `MergeRunsKt`'s `not_merged`, a plan-check refusal in `skipped.yaml`); each is also printed.
 - A run whose energy is estimated has a top-level `energy: {source, kind: estimated}`; any other run has no `energy` key.
+- A measuring run that stopped (an interrupt, a stop signal, an error) has a top-level `partial: {reason, caseRuns, cases, processes}`: `reason` is `interrupted` or `<Type>: <message>`, `processes` maps each folder holding `cases/` (relative to `benchmark/`, `.` for itself) to its case files, `cases` counts distinct ids; `files` lists what the run wrote up to the stop with the pulled `prepared` and `skipped`; a failed write prints `warning: partial_manifest_failed: ...`. A killed run (SIGKILL, host crash) writes no manifest.
 
 ## benchmark.json case fields
 

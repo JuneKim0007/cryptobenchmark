@@ -1,9 +1,12 @@
-"""<results root>/<device_id>/: the probe names the folder, so a run stages its discovery beside it until then."""
-import contextlib, pathlib, shutil, tempfile
+"""<results root>/<device_id>/: the probe names the folder, so a run stages its discovery beside it until then; an earlier unit moves aside whole."""
+import contextlib, datetime, itertools, os, pathlib, shutil, tempfile
 
 from cryptobench.shared import paths
 
 STAGING_PREFIX = ".staging-"
+# one run's unit, manifest first; discovery/ joins it when the next run replaces discovery (overwrite)
+UNIT = (paths.MANIFEST, paths.CONFIGURATION, paths.PREPARATION, paths.BENCHMARK, paths.ANALYSIS, paths.CHART, paths.CHECK, paths.INTEROP)
+STAMP = "%Y%m%dT%H%M%SZ"
 
 
 def warn_if_temp(path):
@@ -50,19 +53,64 @@ def merge_folder(source, target):
     shutil.copytree(source, target, dirs_exist_ok=True)
 
 
+def aside(target):
+    """A new superseded/<UTC second>[-n]/: mkdir refuses an existing name, so two moves in one second never meet."""
+    root = paths.RunTree(target).superseded
+    root.mkdir(exist_ok=True)
+    stamp = datetime.datetime.now(datetime.timezone.utc).strftime(STAMP)
+    for n in itertools.count(1):
+        folder = root / (stamp if n == 1 else f"{stamp}-{n}")
+        try:
+            folder.mkdir()
+            return folder
+        except FileExistsError:
+            continue
+
+
+def supersede(target, discovery_mode):
+    """The unit target holds, finished or not, renamed whole into superseded/<stamp>/; None when it holds none."""
+    names = UNIT + ((paths.DISCOVERY,) if discovery_mode == "overwrite" else ())
+    present = [name for name in names if (target / name).exists()]
+    if not present:
+        return None
+    into = aside(target)
+    for name in present:
+        (target / name).rename(into / name)
+    print(f"warning: run_superseded: {target}: {', '.join(present)} moved to {into}")
+    return into
+
+
+def held_bytes(root):
+    total = 0
+    for folder, _, files in os.walk(root):
+        for name in files:
+            with contextlib.suppress(OSError):
+                total += os.lstat(os.path.join(folder, name)).st_size
+    return total
+
+
+def report_superseded(target):
+    """At a run's end, what superseded/ holds; nothing prunes it."""
+    root = paths.RunTree(target).superseded
+    if not root.is_dir():
+        return
+    units = sum(1 for p in root.iterdir() if p.is_dir())
+    print(f"warning: superseded_kept: {root}: {units} earlier {'unit' if units == 1 else 'units'}, {held_bytes(root) / 1e6:.1f} MB; never pruned, remove by hand")
+
+
 def publish(stage, target, discovery_mode):
-    """Everything staged moves in; the old manifest goes first, because a folder with one is a finished run."""
+    """The earlier unit moves aside, then everything staged moves in; under keep and reuse the staged captures join discovery/."""
     target.mkdir(parents=True, exist_ok=True)
-    paths.RunTree(target).manifest.unlink(missing_ok=True)
+    supersede(target, discovery_mode)
     for folder in stage.iterdir():
-        if folder.name == paths.DISCOVERY and discovery_mode != "overwrite":
-            merge_folder(folder, paths.RunTree(target).discovery.root)
+        if folder.name == paths.DISCOVERY and (target / folder.name).exists():
+            merge_folder(folder, target / folder.name)
         else:
-            replace_folder(folder, target / folder.name)
+            folder.rename(target / folder.name)
 
 
-def publish_interop(stage, target):
-    """Beside a finished run: its capture joins discovery/, and its configuration and manifest stay what they were."""
+def publish_beside(stage, target, name):
+    """Beside a finished run: its capture joins discovery/, the stage's `name` folder replaces the run's, and its configuration and manifest stay."""
     merge_folder(paths.RunTree(stage).discovery.root, paths.RunTree(target).discovery.root)
-    replace_folder(paths.RunTree(stage).interop.root, paths.RunTree(target).interop.root)
+    replace_folder(stage / name, target / name)
 
