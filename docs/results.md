@@ -29,7 +29,7 @@ perf-repair writes the second and third lines: [artifacts.md](../apps/perf-repai
 | `--interop` | beside a finished run: adds `interopPlan`, `interop` to its manifest, its capture to `discovery/`, `interop/` replaced; `configuration/` and the other keys stay; else a publish with its own manifest |
 | `--check` | discover, configure and check inside the stage; beside a finished run: adds `check` to its manifest, its capture to `discovery/`, `check/` replaced; `configuration/` and the other keys stay; else a publish whose manifest lists `guide`, `knownAnswers`, `check` |
 | `--harness` | writes `checked/` beside `harness.yaml`, itself laid out as this table's device folder without the device level |
-| a killed process | `.staging-*` stays behind; nothing reads it, delete it |
+| a killed process | `.staging-*` stays behind and nothing reads it; a device folder it was measuring has no manifest, reads as unfinished, and the next publish moves it aside |
 | root under `/tmp`, `/var/tmp`, `/var/folders` or the system temp folder | one line `warning: results_in_temp: ...`; the run goes on |
 
 ## Layout
@@ -74,7 +74,7 @@ Paths relative to the device folder.
 | `counts` | `prepared` (`prepared.cases`), `skipped` (`skipped.skipped`), `measured` (`benchmark.cases`) |
 | `operations` | per engine type the operations the harness times, from preparation's `engine-operations.yaml`; a type absent falls back to `TYPE_DEFAULT`, which times nothing |
 
-- `files` keys: `probe`, `trial`, `inventory`, `effective`, `report`, `energyCapability`, `energy`, `clocks`, `cpuPins`, `prepared`, `skipped`, `benchmark`, `processes`; `--harness` adds `scopedPlan`, `scopedInterop`; `--interop` adds `interopPlan`, `interop`.
+- `files` keys: `probe`, `trial`, `inventory`, `effective`, `report`, `guide`, `energyCapability`, `energy`, `clocks`, `cpuPins`, `prepared`, `skipped`, `benchmark`, `processes`; `--harness` adds `scopedPlan`, `scopedInterop`; `--interop` adds `interopPlan`, `interop`; `--check` adds `check`, and `knownAnswers` when it publishes its own unit.
 - A key is absent when its stage did not run.
 - `energy`, `clocks`, `cpuPins` are single paths when `processRepetitions` = 1, lists otherwise.
 - `problems`: coded lines of what the run survived, absent when there were none: `energy_failed: <message>` ([energy.md](energy.md#outputs)); `case_failed: <id>: <reason>` for a case whose own process, or a hook around it (`hook_failed: ...`), failed under `run.isolation: case` ([device-session.md](device-session.md#one-process-per-case)); `bench_failed: <message>` when a host `BenchKt` died after writing some rows, which the run keeps; `iterations_not_applied: <id> asked for <n>, timeNs has <m> runs` from `ConvertKt` on a device run; `thermal_gate_timeout: <id>: <pass>: ...` for a case the thermal gate started past its timeout ([device-session.md](device-session.md#thermal-gate)); `not_measured: <id>` for each case of `prepared.yaml` not `dry` that the final `benchmark.json` lacks, whatever lost it (the device run, `ConvertKt`'s `not_in_plan`/`no_metrics`/`not_converted`, `MergeRunsKt`'s `not_merged`, a plan-check refusal in `skipped.yaml`); each is also printed.
