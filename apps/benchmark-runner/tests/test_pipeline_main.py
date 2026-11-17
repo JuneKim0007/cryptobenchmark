@@ -6,7 +6,7 @@ import pytest
 import pipeline
 from cryptobench.shared.errors.failures import CommandError
 
-FLAGS = {"probe": False, "identify": False, "devices": False, "interop": None, "harness": None, "check": False, "bench": False, "device": False,
+FLAGS = {"probe": False, "identify": False, "devices": False, "check_session": None, "interop": None, "harness": None, "check": False, "bench": False, "device": False,
          "config": None, "results": None, "stream": False, "stacktrace": False, "suppress_errors": ""}
 
 

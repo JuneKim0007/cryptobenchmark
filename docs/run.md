@@ -19,7 +19,7 @@ The command for both sides is `apps/cli/facade.py` ([facade.md](facade.md)); thi
 python3 apps/benchmark-runner/pipeline.py [--config PATH] [--results DIR] [--discovery overwrite|keep|reuse]
                             [--bench | --device] [--suppress-errors ERRORS] [--energy-python PYTHON]
                             [--energy-accept-unresponsive] [--reconnect-wait-minutes M] [--reconnect-poll-seconds S]
-                            [--stacktrace] [--stream] [--harness HARNESS_YAML] [--interop PLAN_YAML] [--probe] [--identify] [--devices]
+                            [--stacktrace] [--stream] [--harness HARNESS_YAML] [--interop PLAN_YAML] [--probe] [--identify] [--devices] [--check-session SESSION_YAML]
 ```
 
 | flag | default | effect |
@@ -31,7 +31,7 @@ python3 apps/benchmark-runner/pipeline.py [--config PATH] [--results DIR] [--dis
 | `--device` | off | probe, prepare and measure on the attached device over adb |
 | `--probe` | off | discovery and configure only, with `--device` on the device; the device folder and its manifest, nothing measured |
 | `--identify` | off | one line `identity:  {deviceId, mode, config, inputs, harness}` (JSON), `harness` the digest of the files `lib/cryptobench/cryptobench/stages/verification/scope/code_digest.py` names, and nothing written: `getprop` on a device, `RuntimeFieldsKt` on a host; the id the probe would give |
-| `--devices` | off | lists what adb sees and exits, before any config is read ([devices.md](devices.md)); with `--config` or any mode fails |
+| `--devices`, `--check-session SESSION_YAML` | off | what adb sees ([devices.md](devices.md)); a session's plan and skips ([sessions.md](sessions.md)); each runs alone, before the global.yaml is read, and runs no tool; with `--config` or any mode fails |
 | `--suppress-errors ERRORS` | `CRYPTOBENCH_SUPPRESS_ERRORS`, else `""` | passed as `androidx.benchmark.suppressErrors`, e.g. `EMULATOR,UNLOCKED`; numbers are then not comparable; part of a resumed run's identity ([results.md](results.md#resuming-a-stopped-run)); the variable reaches a run the guide or facade starts |
 | `--energy-python PYTHON` | `sys.executable` | interpreter with `apps/benchmark-runner/energy/requirements.txt` installed; `requirements-manafa.txt` too for `energy.source: manafa` |
 | `--energy-accept-unresponsive` | off | run energy cases on unresponsive rails, see [energy.md](energy.md#pre-flight) |

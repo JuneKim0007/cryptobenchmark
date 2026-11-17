@@ -10,6 +10,7 @@ from failure import fail, reported
 from cryptobench.shared.errors.line import one_line
 from cryptobench.shared.errors.coded import Coded
 from cryptobench.shared.log.warn import warn
+from cryptobench.pipeline.orchestrator import plan as session_plan
 from cryptobench.pipeline.stage import Stage, StageContext
 from cryptobench.stages.configuration.global_file import global_config
 from cryptobench.shared import paths
@@ -42,6 +43,8 @@ def parse_options():
                         help="discovery and configure only, with --device on the device; writes <results>/<device_id>/ and its manifest, measures nothing")
     parser.add_argument("--devices", action="store_true",
                         help="list what adb sees: each device's key, alias, kind, model, API level and connection, or why it is not ready; reads no config")
+    parser.add_argument("--check-session", metavar="SESSION_YAML",
+                        help="resolve a session.yaml against the devices adb lists and print its targets, order groups and skips; runs nothing")
     parser.add_argument("--identify", action="store_true",
                         help="print the device id, the digests of this run's inputs and of the harness code as one 'identity:' line; runs no stage, writes nothing")
     parser.add_argument("--suppress-errors", default=os.environ.get("CRYPTOBENCH_SUPPRESS_ERRORS", ""), metavar="ERRORS",
@@ -86,6 +89,8 @@ REFUSED = (
     (lambda o: o.order_seed is not None, "retired_option: --order-seed; set run.orderSeed in global.yaml, where effective.yaml and the run's identity read it"),
     (lambda o: o.devices and any((o.config, o.bench, o.device, o.probe, o.identify, o.check, o.harness, o.interop)),
      "--devices: lists the attached devices and runs alone"),
+    (lambda o: o.check_session and any((o.devices, o.config, o.bench, o.device, o.probe, o.identify, o.check, o.harness, o.interop)),
+     "--check-session: resolves a session and runs alone"),
 )
 
 
@@ -204,6 +209,8 @@ def main():
     sys.stdout.reconfigure(line_buffering=True)
     if options.devices:
         return list_devices()
+    if options.check_session:
+        return session_plan.check(options.check_session, results_root(options), lambda: global_config(None))
     configuration = global_config(options.config)
     # before any build; --identify runs no stage and starts no Gradle
     checked = None if options.identify else config_check.parsed(configuration)

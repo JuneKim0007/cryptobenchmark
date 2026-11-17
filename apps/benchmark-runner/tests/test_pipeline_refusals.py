@@ -18,6 +18,7 @@ REFUSALS = [
     (["--device", "--reconnect-poll-seconds", "-1"], "--reconnect-wait-minutes, --reconnect-poll-seconds: negative"),
     (["--device", "--order-seed", "7"], "retired_option: --order-seed; set run.orderSeed in global.yaml, where effective.yaml and the run's identity read it"),
     (["--devices", "--bench"], "--devices: lists the attached devices and runs alone"),
+    (["--check-session", "s.yaml", "--device"], "--check-session: resolves a session and runs alone"),
 ]
 
 

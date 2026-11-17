@@ -14,6 +14,8 @@ The Python library of `apps/benchmark-runner` and `apps/perf-repair`: `shared/` 
 ../../algorithms/vectors/ : known answers by family
 cryptobench/__init__.py : package of the Python library the benchmark runner and perf-repair share
 cryptobench/pipeline/__init__.py : package of the run's stage framework, importing no stage
+cryptobench/pipeline/orchestrator/__init__.py : package of the session orchestrator: plan, workers, status lines, summary; imports no stage
+cryptobench/pipeline/orchestrator/plan.py : a session's plan before anything runs: devices listed, targets resolved and grouped, skips and notices; --check-session
 cryptobench/pipeline/stage.py : StageContext (options, configuration, device, the parse-only check's answer, the run's problems list), what each stage reads; Stage, a stage's shape
 cryptobench/pipeline/took.py : the took: line of a timed step
 cryptobench/shared/__init__.py : package of the components the stages share, importing neither the pipeline nor a stage
@@ -91,6 +93,10 @@ cryptobench/shared/results/manifest.py : results/<device_id>/manifest.yaml: file
 cryptobench/shared/results/partial.py : a run that stopped: the partial record (reason, case runs per process folder) its manifest is written with, a failed write one warning
 cryptobench/shared/results/run_inputs.py : digests of a run's inputs, providers.bundled and global.yaml with its test set (analysis left out), for the manifest and --identify
 cryptobench/shared/results/select.py : the device folder of a results root a reader names, or the only one there
+cryptobench/shared/session/__init__.py : package of a session: session.yaml, its targets against the devices adb lists, order groups
+cryptobench/shared/session/document.py : Session; session.yaml read and checked whole, paths resolved against its folder; a file that cannot be read stops
+cryptobench/shared/session/targets.py : TargetSpec, Resolved; resolve: each target found by key, alias or serial, its order, config and suites checked, a coded skip per bad target, the host after the last phone group; groups; nothing_to_measure
+cryptobench/shared/session/tests/ : pytest tests of session.yaml and target resolution, one per fallback row
 cryptobench/shared/settings/__init__.py : package of the run's settings readers the stages share
 cryptobench/shared/settings/bundled.py : providers.bundled of global.yaml: the digest's raw read, build property of the app or host CLI, DeviceProbe argument, effective record and check
 cryptobench/shared/settings/effective_view.py : effective.yaml with the warnings and skips of report.yaml

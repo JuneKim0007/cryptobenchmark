@@ -1106,6 +1106,7 @@ codes:
   harness_build_failed: {kind: error}
   harness_other_device: {kind: error}
   hook_failed: {kind: notice}
+  host_benchmark_not_set: {kind: notice}
   identity_changed: {kind: notice}
   input_preparation_failed: {kind: error}
   instance_refused: {kind: outcome}
@@ -1118,6 +1119,7 @@ codes:
   invalid_group: {kind: error}
   invalid_input_sizes: {kind: error}
   invalid_keys: {kind: error}
+  invalid_order: {kind: error}
   invocation_failed: {kind: outcome}
   iterations_not_applied: {kind: notice}
   iv_repeated: {kind: outcome}
@@ -1130,6 +1132,8 @@ codes:
   key_size_not_in_guide: {kind: error}
   keystore_born_key: {kind: outcome}
   keystore_unsupported: {kind: outcome}
+  parallel_unavailable: {kind: notice}
+  target_conflict: {kind: error}
   unstable_id: {kind: notice}
   library_outside_checkout: {kind: error, default: stop}
   mac_needs_a_secret_key: {kind: error}
