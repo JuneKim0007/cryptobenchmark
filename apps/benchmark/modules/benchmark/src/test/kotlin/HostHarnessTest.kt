@@ -64,4 +64,13 @@ class HostHarnessTest {
         assertEquals(listOf("fixed", "notFixed"), rows.map { it.variant })
         assertEquals(2, rows.map { it.id }.toSet().size)
     }
+
+    @Test
+    fun afterCallRunsAfterEveryCallOutsideTheSampleTime() {
+        var afters = 0
+        val sleeping = digest(HarnessSettings()).copy(afterCall = { afters++; Thread.sleep(1) })
+        val measured = HostHarness(warmupNanos = 5_000_000L, runNanos = 5_000_000L, runs = 3, collectionCount = { 0L }).measure(sleeping)
+        assertTrue("afterCall ran $afters times", afters >= 3 * measured.time.iterations)
+        assertTrue("median ${measured.medianNanos} counts no 1 ms sleep", measured.medianNanos < 500_000.0)
+    }
 }

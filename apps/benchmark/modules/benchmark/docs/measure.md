@@ -41,11 +41,11 @@ Host (`HostHarness`):
 | warm-up | `TimedLoop` for 200 ms (`WARMUP_NANOS`), discarded |
 | inner loop count | 30 ms (`RUN_NANOS`) / warm-up ns per call, min 1 |
 | samples | `harness.iterations`, else 5 (`RUNS`) |
-| one sample | elapsed ns / inner loop count; results passed to `BlackHole` |
+| one sample | elapsed ns / inner loop count; results passed to `BlackHole`; a case's `afterCall` runs after each call outside the elapsed time (`Invocation.step`) |
 | collection | a forced GC and finalization before each sample, timer stopped; none during the warm-up |
 | row | `timeNs`, `gcCleanNs` and `gcCount` per sample; `keyKind` = recipe kind; `variant` = the case's; `parameters` = the prepared case's `resolvedParameters`; median = middle or mean of the two middles |
 
-`TimedLoop` calls `once()` until the time is spent and returns the call count. The host loop locks no clocks and reads no thermal state. `processRepetitions` is one process per repetition, run by the caller: `docs/run.md`.
+`TimedLoop` calls `once()` of `Invocation.step` until the time is spent and returns the call count; a case's `afterCall` runs after each call inside the time. The host loop locks no clocks and reads no thermal state. `processRepetitions` is one process per repetition, run by the caller: `docs/run.md`.
 
 ## CaseSettings
 

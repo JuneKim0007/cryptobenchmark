@@ -134,7 +134,7 @@ A `secure` case (key generation only) makes its key inside the case provider, `k
 | alias | `cryptobench-<crc32 of the case id>`, one per case; every `cryptobench-` alias of the provider's own `KeyStore` service is deleted first (a killed process's) |
 | spec | `KeyGenParameterSpec.Builder(alias, purposes)`: purposes OR'ed from `KeyProperties.PURPOSE_<NAME>` of the guide block, every other list `set<Name>(String...)`, `setKeySize(keySize)`, `setAlgorithmParameterSpec(<bound key spec>)`, else `ECGenParameterSpec(<block curve>)` (without one AndroidKeyStore makes a P-256 key under the Ed25519 and XDH names), `setIsStrongBoxBacked(true)` for `backing: strongbox`; no user authentication, no attestation |
 | init and timed call | the spec is the case's key parameters: one init, then `generateKey()`/`generateKeyPair()` timed (KeyMint generation and the keystore's insert under the alias) |
-| deletion | `PreparedCase.afterCall` deletes the alias after every timed call with the timer paused (`Invocation.afterCall`); the dry run's key is read back, then deleted |
+| deletion | `PreparedCase.afterCall` deletes the alias after every timed call, outside the timed region (`Invocation.step`); the dry run's key is read back, then deleted |
 | read-back | `KeyInfo` through the provider's own `SecretKeyFactory`, or the `KeyFactory` of the key's algorithm, else the first of the provider's `KeyFactory` services that reads it: `keyBits`, `securityLevel` `TEE`, `STRONGBOX`, `SOFTWARE` or `UNKNOWN` (API 31 `getSecurityLevel`; below it `isInsideSecureHardware` false `SOFTWARE`, true `UNKNOWN`); `backing` the requested `tee` or `strongbox`. Both are recorded in `resolvedParameters`, never compared |
 
 | failure, prefixed `<caseId>: ` | cause |

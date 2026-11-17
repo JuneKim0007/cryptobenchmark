@@ -13,7 +13,7 @@
 - A case's `harness.energy.capture` overrides the run's (`apps/benchmark-runner/energy/capture.py`; the runner reads the same rule from `lib/cryptobench/cryptobench/shared/settings/energy_capture.py`).
 - A `dry` case passed to the timed run fails with `not_timed`; `measured` cases run in `CryptoBenchmark`, `dry` cases in `EnergyDryBenchmark`, one test per case.
 - The `energy:<caseId>` marker closes on failure; labels over 127 chars fail with `too_long`.
-- Dry calls are appended to `energy-dry.yaml` as `"<id>": <calls>`.
+- Dry calls are appended to `energy-dry.yaml` as `"<id>": <calls>`. A case's `afterCall` (a `secure` case deleting its key) runs after each call inside either window, so its energy counts in the case's.
 
 ## Config keys
 

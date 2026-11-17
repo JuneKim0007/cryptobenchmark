@@ -81,4 +81,13 @@ class EnergyRunTest {
         var now = 0L
         assertEquals(3L, TimedLoop.run(Invocation({ null }), 10, clock = { now.also { now += 3 } }))
     }
+
+    @Test
+    fun aDryWindowRunsAfterCallAfterEveryCall() {
+        val events = mutableListOf<String>()
+        var now = 0L
+        val invocation = Invocation({ events += "call" }).followedBy { events += "after" }
+        assertEquals(2L, TimedLoop.run(invocation, 5, clock = { now.also { now += 2 } }))
+        assertEquals(listOf("call", "after", "call", "after"), events)
+    }
 }

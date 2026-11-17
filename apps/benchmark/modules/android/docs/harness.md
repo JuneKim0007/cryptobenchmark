@@ -61,7 +61,7 @@ Capture and trial come from the same device; preparation enforces the pair by `c
 JetpackCase.timed: PinnedCase.run { the energy pass: benchmarkRule.measureRepeated (traced); every other pass: `BenchmarkState.keepRunning()` (untraced), each over BlackHole.consume(call() ?: Unit) }
 ```
 
-A case with an `Invocation.afterCall` (a `secure` case deleting its key) runs it after each timed call with the timer paused: `BenchmarkState.pauseTiming()`/`resumeTiming()` around it, `runWithTimingDisabled` on the energy pass. A case without one runs the loop above unchanged.
+Every loop repeats `Invocation.step`: a case with an `Invocation.afterCall` (a `secure` case deleting its key) runs it after each timed call with the timer paused, `BenchmarkState.pauseTiming()`/`resumeTiming()` around it, `runWithTimingDisabled` on the energy pass. A case without one repeats the bare call.
 
 `JetpackConfig` maps `CaseSettings` to `MicrobenchmarkConfig`:
 

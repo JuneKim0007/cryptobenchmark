@@ -6,6 +6,7 @@ import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.measurement.Variant
+import io.github.junekim0007.cryptobench.preparation.operation.Invocation
 import io.github.junekim0007.cryptobench.preparation.operation.PerCall
 import io.github.junekim0007.cryptobench.preparation.operation.Invocations
 import io.github.junekim0007.cryptobench.preparation.operation.OperationDefinitions
@@ -173,5 +174,20 @@ class InvocationTest {
         } finally {
             Security.removeProvider(provider.name)
         }
+    }
+
+    @Test
+    fun withoutAfterCallALoopRepeatsTheBareCall() {
+        val invocation = Invocation({ 1 })
+        assertSame(invocation, invocation.step { error("no afterCall to run") })
+    }
+
+    @Test
+    fun afterCallRunsAfterEachCallInsideTheLoopsUntimedHook() {
+        val events = mutableListOf<String>()
+        val invocation = Invocation({ events += "call"; 1 }).followedBy { events += "after" }
+        val timed = invocation.step { after -> events += "pause"; after(); events += "resume" }
+        repeat(2) { assertEquals(1, timed.perIteration()) }
+        assertEquals(List(2) { listOf("call", "pause", "after", "resume") }.flatten(), events)
     }
 }

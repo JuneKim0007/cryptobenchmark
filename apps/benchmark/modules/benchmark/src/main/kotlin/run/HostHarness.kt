@@ -20,11 +20,14 @@ class HostHarness(
         val iterations = maxOf(1, (runNanos / maxOf(1.0, observedNanos)).toInt())
         val samples = prepared.case.harness.iterations ?: runs
         val cleaning = SampleCleaning(collectionCount)
+        var paused = 0L
+        val timed = invocation.step { after -> val from = System.nanoTime(); after(); paused += System.nanoTime() - from }
         val nanosPerOperation = (1..samples).map {
             cleaning.beforeSample()
+            paused = 0L
             val start = System.nanoTime()
-            repeat(iterations) { BlackHole.consume(invocation.perIteration()) }
-            val elapsed = System.nanoTime() - start
+            repeat(iterations) { BlackHole.consume(timed.perIteration()) }
+            val elapsed = System.nanoTime() - start - paused
             cleaning.afterSample()
             elapsed.toDouble() / iterations
         }
