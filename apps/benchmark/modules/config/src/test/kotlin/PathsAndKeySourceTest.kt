@@ -212,6 +212,19 @@ class PathsAndKeySourceTest {
         assertEquals(listOf("no_key_generator: SunJCE registers no KeyGenerator or KeyPairGenerator 1.2.840.113549.1.1.1"), effective.skipped.map { it.reason })
     }
 
+    /** A captured type without a setup-catalog row is a coded skip, never a case on a guessed path. */
+    @Test
+    fun aTypeWithoutACatalogueRowIsSkipped() {
+        val capture = Fixtures.CAPTURE.replace("{name: SunJCE, version: '25', precedence: 2, services: []}",
+            "{name: SunJCE, version: '25', precedence: 2, services: [{type: KEM, algorithm: DHKEM}]}")
+        val trial = Fixtures.TRIAL + "- provider: SunJCE\n  type: KEM\n  algorithm: DHKEM\n  instantiates: true\n  defaultRun: {works: true}\n"
+        val withKem = InventoryBuilder().build(CaptureSource.parse(codec.load(capture)), TrialSource.parse(codec.load(trial)), InventoryBuilder.Files("probe_x.yaml", "trial_x.yaml"))
+        val effective = EffectiveBuilder().build(GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: t.yaml}\n")),
+            TestSetDocument.parse(codec.load("schemaVersion: 1\ndescription: d\ninclude:\n- {type: KEM}\n- {type: MessageDigest}\n")), withKem, names)
+        assertEquals(setOf("SUN"), effective.providers.keys)
+        assertEquals(listOf("path_not_applicable: SunJCE.KEM.DHKEM applies [], [fixed, notFixed, secure] dropped"), effective.skipped.map { it.reason })
+    }
+
     @Test
     fun aKeySourceNameMustBeAString() {
         val failure = assertThrows(IllegalArgumentException::class.java) {
