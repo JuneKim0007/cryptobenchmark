@@ -3,9 +3,9 @@ package io.github.junekim0007.cryptobench.discovery.trial.requirement
 import io.github.junekim0007.cryptobench.discovery.contract.ParameterReadBack
 import io.github.junekim0007.cryptobench.jca.failure.Attempt
 import io.github.junekim0007.cryptobench.jca.failure.ErrorText
+import io.github.junekim0007.cryptobench.jca.reflect.Reflect
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceRequirement
 import io.github.junekim0007.cryptobench.discovery.trial.call.CipherCall
-import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.security.InvalidKeyException
 import java.security.Key
@@ -187,11 +187,9 @@ internal object CipherFacts : RequirementCall {
             Spi(declared(spi, "engineInit", Int::class.javaPrimitiveType!!, Key::class.java, AlgorithmParameterSpec::class.java, SecureRandom::class.java),
                 declared(spi, "engineDoFinal", ByteArray::class.java, Int::class.javaPrimitiveType!!, Int::class.javaPrimitiveType!!))
         }.getOrElse { return ErrorText.of(it, "not reachable: ") }
-        fun call(method: Method, vararg arguments: Any?): Any? =
-            try { method.invoke(spi, *arguments) } catch (thrown: InvocationTargetException) { throw thrown.targetException }
-        call(reached.init, Cipher.ENCRYPT_MODE, base.key.encrypting, fixed, RANDOM)
-        call(reached.doFinal, base.message, 0, base.message.size)
-        return refusedOrNot { call(reached.init, Cipher.ENCRYPT_MODE, base.key.encrypting, fixed, RANDOM) }
+        Reflect.invoke(reached.init, spi, Cipher.ENCRYPT_MODE, base.key.encrypting, fixed, RANDOM)
+        Reflect.invoke(reached.doFinal, spi, base.message, 0, base.message.size)
+        return refusedOrNot { Reflect.invoke(reached.init, spi, Cipher.ENCRYPT_MODE, base.key.encrypting, fixed, RANDOM) }
     }
 
     private class Spi(val init: Method, val doFinal: Method)

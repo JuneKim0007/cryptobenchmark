@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation.key.secure
 
-import java.lang.reflect.InvocationTargetException
+import io.github.junekim0007.cryptobench.jca.reflect.Reflect
 import java.security.Key
 import java.security.KeyFactory
 import java.security.GeneralSecurityException
@@ -47,7 +47,7 @@ internal object KeyInfoFields {
     private fun level(info: Any, infoClass: Class<*>): String {
         val method = try { infoClass.getMethod("getSecurityLevel") } catch (absent: NoSuchMethodException) { null }
             ?: return if (infoClass.getMethod("isInsideSecureHardware").invoke(info) as Boolean) UNKNOWN else LABELS.getValue("SOFTWARE")
-        val value = try { method.invoke(info) as Int } catch (thrown: InvocationTargetException) { throw thrown.targetException }
+        val value = Reflect.invoke(method, info) as Int
         val name = Class.forName(KeystoreSpec.PROPERTIES).fields.firstOrNull { it.name.startsWith(LEVEL_PREFIX) && it.getInt(null) == value }?.name
         return LABELS[name?.removePrefix(LEVEL_PREFIX)] ?: UNKNOWN
     }

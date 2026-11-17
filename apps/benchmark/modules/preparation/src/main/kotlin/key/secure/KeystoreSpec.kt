@@ -1,7 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation.key.secure
 
-import java.lang.reflect.InvocationTargetException
-import java.lang.reflect.Method
+import io.github.junekim0007.cryptobench.jca.reflect.Reflect
 import java.security.spec.AlgorithmParameterSpec
 import java.security.spec.ECGenParameterSpec
 
@@ -31,12 +30,12 @@ internal object KeystoreSpec {
         val builder = builderClass.getConstructor(String::class.java, Int::class.javaPrimitiveType).newInstance(alias, purposes)
         for (name in authorizations.keys - setOf(PURPOSES, CURVE)) {
             val strings = names(authorizations, name).toTypedArray()
-            call(member(sdkInt) { builderClass.getMethod("set" + name.replaceFirstChar(Char::uppercaseChar), Array<String>::class.java) }, builder, strings)
+            Reflect.invoke(member(sdkInt) { builderClass.getMethod("set" + name.replaceFirstChar(Char::uppercaseChar), Array<String>::class.java) }, builder, strings)
         }
-        keySize?.let { call(member(sdkInt) { builderClass.getMethod("setKeySize", Int::class.javaPrimitiveType) }, builder, it) }
-        (parameterSpec ?: authorizations[CURVE]?.let { ECGenParameterSpec(it.toString()) })?.let { call(member(sdkInt) { builderClass.getMethod("setAlgorithmParameterSpec", AlgorithmParameterSpec::class.java) }, builder, it) }
-        if (backing == STRONGBOX) call(member(sdkInt) { builderClass.getMethod("setIsStrongBoxBacked", Boolean::class.javaPrimitiveType) }, builder, true)
-        return call(builderClass.getMethod("build"), builder) as AlgorithmParameterSpec
+        keySize?.let { Reflect.invoke(member(sdkInt) { builderClass.getMethod("setKeySize", Int::class.javaPrimitiveType) }, builder, it) }
+        (parameterSpec ?: authorizations[CURVE]?.let { ECGenParameterSpec(it.toString()) })?.let { Reflect.invoke(member(sdkInt) { builderClass.getMethod("setAlgorithmParameterSpec", AlgorithmParameterSpec::class.java) }, builder, it) }
+        if (backing == STRONGBOX) Reflect.invoke(member(sdkInt) { builderClass.getMethod("setIsStrongBoxBacked", Boolean::class.javaPrimitiveType) }, builder, true)
+        return Reflect.invoke(builderClass.getMethod("build"), builder) as AlgorithmParameterSpec
     }
 
     private fun names(authorizations: Map<String, Any>, name: String): List<String> =
@@ -50,10 +49,4 @@ internal object KeystoreSpec {
     }
 
     class AbsentMember(reason: String) : UnsupportedOperationException(reason)
-
-    private fun call(method: Method, target: Any, vararg arguments: Any?): Any? = try {
-        method.invoke(target, *arguments)
-    } catch (thrown: InvocationTargetException) {
-        throw thrown.targetException
-    }
 }

@@ -10,7 +10,7 @@ modules:
     uses: {}
   discovery:
     uses:
-      jca: [failure.Attempt, failure.ErrorText]
+      jca: [failure.Attempt, failure.ErrorText, reflect.Reflect]
       files: all
       document: all
   settings:
@@ -22,7 +22,7 @@ modules:
       document: all
   preparation:
     uses:
-      jca: [failure.Attempt, failure.ErrorText]
+      jca: [failure.Attempt, failure.ErrorText, reflect.Reflect]
       settings: [HarnessSettings, Metric]
       files: all
       document: all
