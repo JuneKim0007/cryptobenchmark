@@ -90,3 +90,9 @@ def test_a_failed_chart_script(tmp_path, monkeypatch, capsys):
     assert lines[0] == f"wrote:     {tmp_path / 'benchmark/benchmark.json'}"
     assert lines[1] == "warning: charts_failed: analysis/analyze.py: broken input"
     assert lines[2].startswith("took:      analyse in ") and len(lines) == 3
+
+
+def test_an_order_seed_on_a_host_run(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(benchmark.gradle_runner, "run", dying([{"id": "a"}]))
+    benchmark.host_cases(OPTIONS, {"run": {**DOCUMENT["run"], "orderSeed": 7}}, "c", "t", "e", tmp_path, tmp_path, {}, [], ONE_BLOCK(tmp_path))
+    assert "warning: run.orderSeed: only a --device run launches cases in an order; this run measures in the plan's order\n" in capsys.readouterr().out

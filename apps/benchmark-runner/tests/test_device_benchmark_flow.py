@@ -6,7 +6,7 @@ import yaml
 
 from cryptobench.shared.device.adb import DeviceError  # noqa: E402
 from cryptobench.shared.errors.failures import EnergyError  # noqa: E402
-from cryptobench.stages.measurement.session import clocks_hook, cooldown_hook  # noqa: E402
+from cryptobench.stages.measurement.session import clocks_hook, cooldown_hook, variant_order  # noqa: E402
 import pipeline  # noqa: E402
 from cryptobench.stages.measurement import benchmark  # noqa: E402
 from failure import reported  # noqa: E402
@@ -228,6 +228,18 @@ def test_the_cool_down_sleeps_between_cases_never_before_the_first(tmp_path, mon
     assert slept == [20, 5]
     measured(tmp_path / "off", monkeypatch, {"isolation": "case"})
     assert slept == [20, 5]
+
+
+def test_an_order_seed_launches_each_process_in_its_drawn_order_and_changes_nothing_else(tmp_path, monkeypatch):
+    def run(folder, seed):
+        folder.mkdir()
+        phone, _files, problems, _results = measured(folder, monkeypatch, {"processRepetitions": 2, **({"orderSeed": seed} if seed else {})},
+                                                     cases=tuple("abcdef"))
+        launched = [line.split()[-1] for line in steps(phone) if line.startswith("instrument CryptoBenchmark ")]
+        return launched, [line for line in steps(phone) if not line.startswith("instrument ")], problems
+    plain, seeded = run(tmp_path / "plain", None), run(tmp_path / "seeded", 11)
+    assert seeded[0] == variant_order.shuffled(11)(1, list("abcdef")) + variant_order.shuffled(11)(2, list("abcdef"))
+    assert sorted(plain[0]) == sorted(seeded[0]) and plain[0] != seeded[0] and plain[1:] == seeded[1:]
 
 
 def test_variants_run_interleaved_per_item_each_in_its_own_process(tmp_path, monkeypatch):

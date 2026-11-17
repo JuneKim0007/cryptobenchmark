@@ -1,9 +1,11 @@
 """byte_digest, the sha256 of some bytes; file_digest, of a file's bytes; tree_digest, one digest of files, each a line of its path under root and its byte digest;
-globbed, the files glob patterns match."""
+globbed, the files glob patterns match but OS litter."""
 from __future__ import annotations
 
 import hashlib
 from pathlib import Path
+
+from cryptobench.shared import paths
 
 
 def byte_digest(data: bytes) -> str:
@@ -22,10 +24,10 @@ def tree_digest(root: Path, files) -> str:
 
 
 def globbed(root: Path, patterns) -> tuple[list[Path], list[str]]:
-    """The files each pattern matches under root, sorted per pattern, in pattern order; and the patterns that match none."""
+    """The files each pattern matches under root but OS litter, sorted per pattern, in pattern order; and the patterns that match none."""
     files, empty = [], []
     for pattern in patterns:
-        matched = sorted(path for path in root.glob(pattern) if path.is_file())
+        matched = sorted(path for path in root.glob(pattern) if path.is_file() and not paths.litter(path))
         files += matched
         if not matched:
             empty.append(pattern)

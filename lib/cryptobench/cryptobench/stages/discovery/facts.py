@@ -1,4 +1,5 @@
-"""Device facts for the settings table: what this device can support, gathered once after install and probe; nothing here decides."""
+"""Device facts, gathered once after install and probe: what this device can support, for the settings table, and its build versions, for a
+resumed run's identity; nothing here decides."""
 import zipfile
 
 from cryptobench.pipeline.warn import warn
@@ -6,6 +7,7 @@ from cryptobench.shared.device import capture as captured, clocks
 from cryptobench.shared.device.adb import PACKAGE
 from cryptobench.shared import paths
 from cryptobench.shared.document.dump import dump_yaml
+from cryptobench.stages.discovery import build_versions
 
 NATIVE_LIBRARY = "libaffinity.so"
 APK = paths.repo().apk
@@ -38,6 +40,7 @@ def collect(device, capture):
         "rooted": rooted(device),
         "cpu": {"cores": [{"core": c["index"], "online": c["online"], "maxKhz": c["cpuMaxKhz"]} for c in clocks.read(device)]},
         "pinning": pinning(APK, installed_abi(device)),
+        "build": build_versions.read(device),
     }
 
 

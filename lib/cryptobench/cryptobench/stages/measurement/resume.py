@@ -4,15 +4,17 @@ import itertools, pathlib
 from cryptobench.shared import paths
 from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.results import identity
+from cryptobench.shared.settings import effective_view
 from cryptobench.stages.measurement.session import blocks, variant_order
 from cryptobench.pipeline.warn import warn
 
 
-def run_identity(effective, capture):
-    return identity.of(effective, capture, variant_order.ORDER)
+def run_identity(effective, capture, suppress_errors):
+    order = variant_order.chosen(effective_view.order_seed(read_yaml(effective)))[1]
+    return identity.of(effective, capture, order, suppress_errors)
 
 
-def kept(effective, capture, target):
+def kept(effective, capture, target, suppress_errors):
     """The paths under target a publish leaves in place: per pass the leading blocks whose records verify, their run folders and records, and
     preparation/ beside them."""
     if paths.finished(target):
@@ -20,7 +22,7 @@ def kept(effective, capture, target):
     found = records(target)
     if not found:
         return ()
-    now = run_identity(effective, capture)
+    now = run_identity(effective, capture, suppress_errors)
     earlier = next((record["identity"] for _, _, record in found if isinstance(record, dict) and isinstance(record.get("identity"), dict)), None)
     changed = identity.changed(earlier, now) if earlier is not None else ["schema"]
     if changed:
@@ -109,3 +111,14 @@ def resumed(last):
     then = f"restarting at run {runs + 1}" if runs < total else "every run of it measured"
     print(f"resumed:   {label + ' pass: ' if label else ''}kept block{'s' if blocks_kept > 1 else ''} {span(1, blocks_kept)} "
           f"(run{'s' if runs > 1 else ''} {span(1, runs)}), {then}")
+
+
+def note(target):
+    """The manifest's resumed: per pass the blocks a publish kept and the runIds that measured them; read before this run records any."""
+    kept = {}
+    for _, _, record in records(target):
+        if isinstance(record, dict):
+            kept.setdefault(record.get("pass"), []).append(record)
+    return [{"pass": label, "blocks": span(min(r["block"] for r in done), max(r["block"] for r in done)),
+             "runs": span(min(r["runs"]["first"] for r in done), max(r["runs"]["last"] for r in done)),
+             "runIds": sorted({r.get("runId") for r in done}, key=str)} for label, done in kept.items()]

@@ -9,17 +9,19 @@ from cryptobench.shared.document.dump import dump_yaml
 from cryptobench.shared.document.write import write_text
 from cryptobench.pipeline.warn import warn
 
-SCHEMA = 1
+SCHEMA = 2
 FINISHED, BOOT_CHANGED = "finished", "boot_changed"
 
 
 @dataclasses.dataclass(frozen=True)
 class Blocks:
-    """One pass's runs: folder is the pass's folder, label its name (None for the single pass); boot() reads the device's boot id, None on a host."""
+    """One pass's runs: folder is the pass's folder, label its name (None for the single pass); boot() reads the device's boot id, None on a host;
+    run_id is effective.yaml's runId, which a record names as the run that measured it."""
     folder: pathlib.Path
     size: int
     repetitions: int
     identity: dict
+    run_id: str | None
     label: str | None = None
     boot: object = lambda: None
 
@@ -39,9 +41,10 @@ def recorded(folder):
 
 
 def run_files(run, pass_folder):
-    """{path under the run's folder: sha256} of every file it holds; a pass folder that is its only run's leaves its blocks/ out."""
+    """{path under the run's folder: sha256} of every file it holds but OS litter; a pass folder that is its only run's leaves its blocks/ out."""
     blocks = paths.Measurement(pass_folder).blocks
-    return {path.relative_to(run).as_posix(): file_digest(path) for path in sorted(run.rglob("*")) if path.is_file() and not path.is_relative_to(blocks)}
+    return {path.relative_to(run).as_posix(): file_digest(path) for path in sorted(run.rglob("*"))
+            if path.is_file() and not path.is_relative_to(blocks) and not paths.litter(path)}
 
 
 def measured(blocks, folder, measure, keep, problems):
@@ -75,7 +78,7 @@ def write(blocks, block, span, runs, boot, problems):
         warn(f"boot_changed: {where(blocks.folder, blocks.label, block)}: the device restarted during runs {span[0]}-{span[1]}; a rerun measures them again",
              problems)
     record = {"schemaVersion": SCHEMA, "pass": blocks.label, "block": block, "runs": {"first": span[0], "last": span[1]},
-              "repetitions": blocks.repetitions, "size": blocks.size, "identity": blocks.identity, "bootId": {"start": boot[0], "end": boot[1]},
+              "repetitions": blocks.repetitions, "size": blocks.size, "identity": blocks.identity, "runId": blocks.run_id, "bootId": {"start": boot[0], "end": boot[1]},
               "outcome": outcome, "processes": runs}
     path = paths.Measurement(blocks.folder).block(block)
     path.parent.mkdir(parents=True, exist_ok=True)

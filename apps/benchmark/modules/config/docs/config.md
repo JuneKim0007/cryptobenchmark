@@ -44,6 +44,7 @@ Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 | | `thermalGate` | absent: off | keys in `example/config_global_example.yaml`; needs `isolation: case` |
 | | `launchRetries` | `2` | extra launches of a run that failed for a reason other than heat |
 | | `resumeBlockRuns` | `10` | `>= 1`, else `not_positive`; host only: a rerun of a stopped run with the same identity keeps its finished blocks of this many consecutive runs ([results.md](../../../../../docs/results.md#resuming-a-stopped-run)) |
+| | `orderSeed` | absent: the plan's item order | a whole number; needs `isolation: case` (`invalid`); `--device`: each process shuffles the items with `Random("<seed>:<repetition>")`, an item's variants kept adjacent ([device-session.md](../../../../../docs/device-session.md)); part of a run's identity ([results.md](../../../../../docs/results.md#resuming-a-stopped-run)); the runner refuses `--order-seed` as `retired_option` |
 | | `harness` | empty | key table in `apps/benchmark/modules/settings/docs/settings.md`; energy keys in `docs/energy.md` |
 | `policy` | `onFailure` | `skip` | `stop` or `skip`, case-insensitive; other: `invalid: policy.onFailure` |
 | `analysis` | `charts` | `[iqrBars, throughput, latency, stability]` | names from that list, no duplicates; `[]` draws none; another name fails `invalid: analysis.charts` |

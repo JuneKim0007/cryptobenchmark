@@ -64,6 +64,7 @@ def lines(capsys, prefix):
 
 
 SEVEN = {"processRepetitions": 7, "resumeBlockRuns": 2}
+FACTS = {"schemaVersion": 1, "build": {"securityPatch": "2026-10-05", "apex": {"com.android.conscrypt": 1, "com.android.art": 1}}}
 
 
 def test_a_stop_in_block_3_keeps_blocks_1_and_2_and_the_result_equals_an_uninterrupted_run(tmp_path, monkeypatch, capsys):
@@ -116,22 +117,32 @@ def test_a_block_record_names_its_identity_runs_boot_and_files(tmp_path, monkeyp
     rerun(SEVEN)
     third = record(rerun.device, 3)
     assert {key: third[key] for key in ("schemaVersion", "pass", "block", "runs", "repetitions", "size", "bootId", "outcome")} == {
-        "schemaVersion": 1, "pass": None, "block": 3, "runs": {"first": 5, "last": 6}, "repetitions": 7, "size": 2,
+        "schemaVersion": 2, "pass": None, "block": 3, "runs": {"first": 5, "last": 6}, "repetitions": 7, "size": 2,
         "bootId": {"start": "boot-1", "end": "boot-1"}, "outcome": "finished"}
     assert [run["folder"] for run in third["processes"]] == ["process-5", "process-6"] and third["processes"][0]["problems"] == []
     assert sorted(third["processes"][0]["files"]) == ["benchmark.json", "benchmarkData.json", "cases/a.json", "cases/b.json", "clocks.yaml", "thermal.json"]
-    assert sorted(third["identity"]) == ["code", "device", "order", "run", "schema", "selection"]
-    assert third["identity"]["run"]["resumeBlockRuns"] == 2 and third["identity"]["order"] == variant_order.ORDER
+    assert sorted(third["identity"]) == ["code", "device", "order", "run", "schema", "selection", "suppressErrors"]
+    assert third["identity"]["run"]["resumeBlockRuns"] == 2 and third["identity"]["order"] == variant_order.chosen(None)[1]
+    assert third["identity"]["suppressErrors"] == [] and third["runId"].endswith("Z")
     assert record(rerun.device, 4)["runs"] == {"first": 7, "last": 7}
 
 
 @pytest.mark.parametrize("change, named", [
     (lambda monkeypatch: {"launchRetries": 1}, "run.launchRetries"),
-    (lambda monkeypatch: monkeypatch.setattr(variant_order, "ORDER", {"scheme": "interleaved", "seed": 7}) or {}, "order"),
+    (lambda monkeypatch: {"orderSeed": 7}, "order, run.orderSeed"),
+    (lambda monkeypatch: monkeypatch.setattr(test_rerun_safety, "FLAGS", {**test_rerun_safety.FLAGS, "suppress_errors": "UNLOCKED"}) or {},
+     "suppressErrors"),
+    (lambda monkeypatch: monkeypatch.setattr(test_rerun_safety, "FACTS", {**FACTS, "build": {**FACTS["build"], "securityPatch": "2026-11-05"}}) or {},
+     "device.build.securityPatch"),
+    (lambda monkeypatch: monkeypatch.setattr(test_rerun_safety, "FACTS", {**FACTS, "build": {**FACTS["build"], "apex": {**FACTS["build"]["apex"],
+                                                                                                                  "com.android.art": 2}}}) or {},
+     "device.build.apex.com.android.art"),
+    (lambda monkeypatch: monkeypatch.setattr(test_rerun_safety, "FACTS", {"schemaVersion": 1}) or {}, "device.build"),
     (lambda monkeypatch: monkeypatch.setattr(test_rerun_safety, "PROBE", {**PROBE, "runtime": {**PROBE["runtime"], "release": "17.1"}}) or {},
      "device.release"),
 ])
 def test_a_changed_identity_starts_fresh_and_names_what_changed(tmp_path, monkeypatch, capsys, change, named):
+    monkeypatch.setattr(test_rerun_safety, "FACTS", FACTS)
     rerun = Rerun(tmp_path, monkeypatch)
     stop = stopped(rerun, SEVEN, launch=2 * 5 + 2)
     capsys.readouterr()
@@ -247,3 +258,63 @@ def test_a_new_fingerprint_is_another_device_folder_and_the_stopped_one_stays_as
     assert not lines(capsys, "resumed:") and not lines(capsys, "warning: identity_changed")
     assert sorted(p.relative_to(stopped_folder).as_posix() for p in stopped_folder.rglob("*")) == before
     assert len([p for p in rerun.root.iterdir() if p.is_dir() and not p.name.startswith(".")]) == 2
+
+
+def test_the_same_build_facts_and_suppressed_errors_resume(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(test_rerun_safety, "FACTS", FACTS)
+    monkeypatch.setattr(test_rerun_safety, "FLAGS", {**test_rerun_safety.FLAGS, "suppress_errors": "UNLOCKED,EMULATOR"})
+    rerun = Rerun(tmp_path, monkeypatch)
+    stopped(rerun, SEVEN, launch=2 * 5 + 2)
+    monkeypatch.setattr(test_rerun_safety, "FLAGS", {**test_rerun_safety.FLAGS, "suppress_errors": "EMULATOR, UNLOCKED"})
+    capsys.readouterr()
+    rerun(SEVEN)
+    assert lines(capsys, "resumed:") == ["resumed:   kept blocks 1-2 (runs 1-4), restarting at run 5"]
+    assert record(rerun.device, 1)["identity"]["device"]["build"] == FACTS["build"]
+    assert record(rerun.device, 1)["identity"]["suppressErrors"] == ["EMULATOR", "UNLOCKED"]
+
+
+def test_os_litter_in_a_kept_run_and_beside_its_records_does_not_unverify_it(tmp_path, monkeypatch, capsys):
+    rerun = Rerun(tmp_path, monkeypatch)
+    stopped(rerun, SEVEN, launch=2 * 5 + 2)
+    benchmark = paths.RunTree(rerun.device).benchmark
+    for litter in (benchmark.process(1).root / ".DS_Store", benchmark.process(3).cases / "._a.json", benchmark.blocks / ".DS_Store",
+                   benchmark.root / "Thumbs.db"):
+        litter.write_bytes(b"\0\1")
+    capsys.readouterr()
+    rerun(SEVEN)
+    out = capsys.readouterr().out.splitlines()
+    assert "resumed:   kept blocks 1-2 (runs 1-4), restarting at run 5" in out and not [line for line in out if "block_unverified" in line]
+    assert ".DS_Store" not in record(rerun.device, 1)["processes"][0]["files"]
+
+
+def test_the_manifest_names_the_kept_blocks_and_the_run_that_measured_them(tmp_path, monkeypatch):
+    rerun = Rerun(tmp_path, monkeypatch)
+    stopped(rerun, SEVEN, launch=2 * 5 + 2)
+    earlier = record(rerun.device, 1)["runId"]
+    assert "resumed" not in manifest_of(rerun.device)
+    rerun(SEVEN)
+    assert manifest_of(rerun.device)["resumed"] == [{"pass": None, "blocks": "1-2", "runs": "1-4", "runIds": [earlier]}]
+    assert earlier and record(rerun.device, 3)["runId"] not in (None, earlier)
+
+
+def test_a_second_resume_names_each_run_that_measured_a_kept_block(tmp_path, monkeypatch):
+    rerun = Rerun(tmp_path, monkeypatch)
+    stopped(rerun, SEVEN, launch=2 * 3 + 2)
+    stopped(rerun, SEVEN, launch=2 * 2 + 2)
+    assert manifest_of(rerun.device)["resumed"][0]["blocks"] == "1" and "partial" in manifest_of(rerun.device)
+    rerun(SEVEN)
+    first, second = record(rerun.device, 1)["runId"], record(rerun.device, 2)["runId"]
+    assert first != second and manifest_of(rerun.device)["resumed"] == [{"pass": None, "blocks": "1-2", "runs": "1-4", "runIds": [first, second]}]
+
+
+def test_an_old_format_record_starts_fresh_naming_the_schema(tmp_path, monkeypatch, capsys):
+    rerun = Rerun(tmp_path, monkeypatch)
+    stopped(rerun, SEVEN, launch=2 * 5 + 2)
+    for path in paths.RunTree(rerun.device).benchmark.block_records():
+        old = yaml.safe_load(path.read_text())
+        old["schemaVersion"], old["identity"]["schema"] = 1, 1
+        del old["identity"]["suppressErrors"], old["runId"]
+        path.write_text(yaml.safe_dump(old))
+    capsys.readouterr()
+    rerun(SEVEN)
+    assert lines(capsys, "warning: identity_changed") == ["warning: identity_changed: schema, suppressErrors; starting fresh"]

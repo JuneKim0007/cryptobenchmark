@@ -52,7 +52,7 @@ Each entry's `variants`, else `run.variants` ([operations.md](../apps/benchmark/
 
 | rule | value |
 |---|---|
-| order | items as the plan lists them; an item's `fixed` and `notFixed` cases adjacent, `fixed` first in odd repetitions and `notFixed` first in even ones (A/B, then B/A: A/B/B/A over two) |
+| order | items as the plan lists them; an item's `fixed` and `notFixed` cases adjacent, `fixed` first in odd repetitions and `notFixed` first in even ones (A/B, then B/A: A/B/B/A over two); with `run.orderSeed` the items are shuffled per process with `Random("<orderSeed>:<repetition>")`, the variants kept as above |
 | item | the case id without its last part `_fixed` or `_notFixed` |
 | process | `isolation: case`: each variant in its own process; `isolation: run`: both in one process, in plan order |
 | inputs | message bytes from `run.seed`, equal for both; keys from unseeded `SecureRandom` per process, so they differ under `isolation: case` ([operations.md](../apps/benchmark/modules/preparation/docs/operations.md#variants)); setup, inputs and buffers before the timer |

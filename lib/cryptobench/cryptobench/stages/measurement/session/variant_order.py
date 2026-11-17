@@ -1,7 +1,8 @@
-"""run.variants on a device: an item's fixed and notFixed cases adjacent, fixed first in odd repetitions and last in even ones (A/B/B/A)."""
+"""run.variants on a device: an item's fixed and notFixed cases adjacent, fixed first in odd repetitions and last in even ones (A/B/B/A);
+run.orderSeed shuffles the items per process."""
+import random
+
 VARIANTS = ("fixed", "notFixed")   # preparation's Variant labels, the last part of a case id
-# the order's part of a run's identity (shared/results/identity.py); a seeded order would add its seed
-ORDER = {"scheme": "interleaved"}
 
 
 def item(case):
@@ -10,11 +11,31 @@ def item(case):
     return head if head and last in VARIANTS else case
 
 
-def interleaved(repetition, cases):
+def groups(repetition, cases):
     """Items in the order the plan first names them; within one, the variants in VARIANTS order, reversed in even repetitions."""
     items = {}
     for case in cases:
         items.setdefault(item(case), []).append(case)
     rank = lambda case: VARIANTS.index(case.rpartition("_")[2]) if item(case) != case else -1
     ordered = [sorted(group, key=rank) for group in items.values()]
-    return [case for group in ordered for case in (group if repetition % 2 else group[::-1])]
+    return [group if repetition % 2 else group[::-1] for group in ordered]
+
+
+def interleaved(repetition, cases):
+    return [case for group in groups(repetition, cases) for case in group]
+
+
+def shuffled(seed):
+    """Items in an order drawn from (seed, repetition) alone, so a rerun repeats it; within an item, the variants as interleaved puts them."""
+    def order(repetition, cases):
+        drawn = groups(repetition, cases)
+        random.Random(f"{seed}:{repetition}").shuffle(drawn)
+        return [case for group in drawn for case in group]
+    return order
+
+
+def chosen(seed):
+    """The order a session launches cases in, and its part of a run's identity (shared/results/identity.py)."""
+    if seed is None:
+        return interleaved, {"scheme": "interleaved"}
+    return shuffled(seed), {"scheme": "shuffled", "seed": seed}

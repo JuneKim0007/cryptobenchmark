@@ -7,7 +7,7 @@ from cryptobench.shared.errors.line import one_line
 
 def done(benchmark):
     """{process folder: case files} under benchmark/, the cases measured and the case runs behind them."""
-    folders = {p.parent.relative_to(benchmark).as_posix() or ".": sorted(f.stem for f in p.glob("*.json")) for p in sorted(benchmark.rglob(paths.CASES)) if p.is_dir()}
+    folders = {p.parent.relative_to(benchmark).as_posix() or ".": sorted(f.stem for f in p.glob("*.json") if not paths.litter(f)) for p in sorted(benchmark.rglob(paths.CASES)) if p.is_dir()}
     return {"caseRuns": sum(len(cases) for cases in folders.values()), "cases": len({c for cases in folders.values() for c in cases}),
             "processes": {folder: len(cases) for folder, cases in folders.items()}}
 

@@ -17,6 +17,8 @@ class DeviceDirs:
     TRACES = PurePosixPath("/data/misc/perfetto-traces")
     SCRATCH = PurePosixPath("/data/local/tmp")
     BOOT_ID = PurePosixPath("/proc/sys/kernel/random/boot_id")
+    # apexd's list of the APEX modules on the device, active and preinstalled; Android 11 and later
+    APEX_INFO = PurePosixPath("/apex/apex-info-list.xml")
 
     def __init__(self, sdk: int):
         self.sdk = sdk

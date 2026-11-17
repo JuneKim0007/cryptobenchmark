@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Runs the host pipeline in order and reports one readable failure."""
-import argparse, contextlib, json, os, pathlib, signal, subprocess, sys, traceback
+import argparse, contextlib, functools, json, os, pathlib, signal, subprocess, sys, traceback
 
 import dependencies  # first: it reports a missing PyYAML, which the imports below need
 from cryptobench.shared.device.adb import Device
@@ -42,6 +42,8 @@ def parse_options():
                         help="print the device id, the digests of this run's inputs and of the harness code as one 'identity:' line; runs no stage, writes nothing")
     parser.add_argument("--suppress-errors", default=os.environ.get("CRYPTOBENCH_SUPPRESS_ERRORS", ""), metavar="ERRORS",
                         help="androidx.benchmark errors to suppress on --device, e.g. EMULATOR,UNLOCKED; the numbers are then not comparable")
+    # retired: the seed is run.orderSeed, so it enters effective.yaml and the run's identity
+    parser.add_argument("--order-seed", help=argparse.SUPPRESS)
     parser.add_argument("--energy-python", default=sys.executable, metavar="PYTHON",
                         help="interpreter with apps/benchmark-runner/energy/requirements.txt installed (default: this one)")
     parser.add_argument("--energy-accept-unresponsive", action="store_true",
@@ -77,6 +79,7 @@ REFUSED = (
      "--reconnect-wait-minutes, --reconnect-poll-seconds: only a --device run waits for its device"),
     (lambda o: any(v is not None and v < 0 for v in (o.reconnect_wait_minutes, o.reconnect_poll_seconds)),
      "--reconnect-wait-minutes, --reconnect-poll-seconds: negative"),
+    (lambda o: o.order_seed is not None, "retired_option: --order-seed; set run.orderSeed in global.yaml, where effective.yaml and the run's identity read it"),
 )
 
 
@@ -143,13 +146,14 @@ def measured(context):
     measuring = not options.probe and bool(options.bench or device)
     with published(context) as root:
         # only a measuring run resumes: a probe over a stopped run moves it aside whole
-        results, discovery, effective, capture, trial, files = guided(context, root, resume.kept if measuring else keep_nothing)
-        mode = "device" if device else "host"
+        kept = functools.partial(resume.kept, suppress_errors=options.suppress_errors) if measuring else keep_nothing
+        results, discovery, effective, capture, trial, files = guided(context, root, kept)
+        mode, resumed = "device" if device else "host", resume.note(results) if measuring else []
         if measuring:
-            stopped = lambda record, pulled: manifest(results, mode, configuration, files | pulled, context.problems, partial=record)
+            stopped = lambda record, pulled: manifest(results, mode, configuration, files | pulled, context.problems, partial=record, resumed=resumed)
             with partial.kept(results, stopped):
                 benchmarked(options, device, results, discovery, effective, capture, trial, files, context.problems)
-        manifest(results, mode, configuration, files, context.problems)
+        manifest(results, mode, configuration, files, context.problems, resumed=resumed)
         results_layout.report_superseded(results)
 
 

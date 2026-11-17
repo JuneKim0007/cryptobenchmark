@@ -17,6 +17,8 @@ from test_manifest import PROBE
 FLAGS = {"probe": False, "identify": False, "interop": None, "harness": None, "check": False, "bench": False, "device": True, "config": None,
          "discovery": "overwrite"}
 STAMPS = (f"20261117T1200{n:02d}Z" for n in itertools.count())
+# facts.yaml a device discovery writes beside the capture; None writes none
+FACTS = None
 
 
 class Rerun:
@@ -63,7 +65,9 @@ def probed(stage, run):
     tree = paths.RunTree(stage)
     capture = written(tree.discovery.root / f"probe_{stamp}.yaml", yaml.safe_dump(PROBE))
     written(tree.discovery.trial(stamp), "{}")
-    written(tree.configuration.effective, yaml.safe_dump({"run": run, "providers": {}}, sort_keys=False))
+    if FACTS is not None:
+        written(tree.discovery.facts, yaml.safe_dump(FACTS))
+    written(tree.configuration.effective, yaml.safe_dump({"runId": stamp, "run": run, "providers": {}}, sort_keys=False))
     return discover.located(stage, capture.name)
 
 

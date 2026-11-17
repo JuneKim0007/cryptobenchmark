@@ -7,7 +7,7 @@ import pipeline
 from cryptobench.shared.errors.failures import CommandError
 
 FLAGS = {"probe": False, "identify": False, "interop": None, "harness": None, "check": False, "bench": False, "device": False,
-         "config": None, "results": None, "stream": False, "stacktrace": False}
+         "config": None, "results": None, "stream": False, "stacktrace": False, "suppress_errors": ""}
 
 
 @pytest.fixture

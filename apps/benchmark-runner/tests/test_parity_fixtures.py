@@ -74,6 +74,8 @@ def test_the_facts_writer_writes_the_shared_facts(tmp_path, monkeypatch):
     monkeypatch.setattr(facts, "rooted", lambda _device: False)
     monkeypatch.setattr(facts, "installed_abi", lambda _device: "arm64-v8a")
     monkeypatch.setattr(facts, "pinning", lambda _apk, _abi: True)
+    monkeypatch.setattr(facts.build_versions, "read", lambda _device: {"securityPatch": "2026-10-05",
+                                                                     "apex": {"com.android.conscrypt": 360910000, "com.android.art": 360910000}})
     written = facts.gather(types.SimpleNamespace(), tmp_path, tmp_path / "probe.yaml")
     assert written.read_text() == (PARITY / "facts.yaml").read_text()
 

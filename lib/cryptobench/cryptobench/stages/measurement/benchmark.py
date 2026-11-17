@@ -10,7 +10,7 @@ from cryptobench.shared.errors.line import one_line
 from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared import paths
 from cryptobench.stages.measurement import resume
-from cryptobench.stages.measurement.session import blocks, case_isolation, energy_hook, passes, reconnect, variant_order, warmup
+from cryptobench.stages.measurement.session import blocks, case_isolation, energy_hook, passes, reconnect, warmup
 from cryptobench.stages.measurement.session import measure as measure_session
 from cryptobench.stages.measurement.measuring import (Measuring, convert, energy_preflight, gated, pass_arguments, pull_pins, record, session_arguments,
                                                          singles, thermal_flag, timed_hooks)
@@ -41,7 +41,7 @@ def measure_on_device(run, one, captures, preparation, isolation, repetitions, f
         record(run.files, process.into, captures, device)
 
     arguments = pass_arguments(run, one)
-    plan = measure_session.Plan("CryptoBenchmark", arguments, timed=bool(timed), order=variant_order.interleaved,
+    plan = measure_session.Plan("CryptoBenchmark", arguments, timed=bool(timed), order=run.order,
                                 cleared=(paths.PREPARED, paths.SKIPPED), stale=(paths.Preparation(preparation).prepared, paths.Preparation(preparation).skipped),
                                 pull_plan=lambda process: (pull_plan(device, preparation), pull_pins(device, process.into)), after_process=converted,
                                 gate=gate, retries=run.retries, reconnect=run.reconnect, blocks=measured_blocks, kept=held)
@@ -62,8 +62,8 @@ def measure_cases(options, device, results, discovery, effective, capture, trial
     document = effective_view.read(effective)["document"]
     repetitions, captures = effective_view.process_repetitions(document), energy_stage.captures(effective)
     timed = bool(captures - {"dry"})
-    size, identity = effective_view.resume_block_runs(document), resume.run_identity(effective, capture)
-    in_blocks = lambda folder, label, boot: blocks.Blocks(folder, size, repetitions, identity, label, boot)
+    size, identity = effective_view.resume_block_runs(document), resume.run_identity(effective, capture, options.suppress_errors)
+    in_blocks = lambda folder, label, boot: blocks.Blocks(folder, size, repetitions, identity, document.get("runId"), label, boot)
     if captures - {"none"} and not device:
         raise CommandError("energy: only a --device run captures energy; set harness.energy.capture none for --bench")
     if captures - {"none"}:
@@ -119,6 +119,8 @@ def host_cases(options, document, capture, trial, effective, benchmark, preparat
         warn("run.passes: only a --device run measures in passes; this run measures once per process")
     if effective_view.thermal_gate(document):
         warn("TEMPERATURE SET BUT DEVICE CAN'T POLL: host_runtime; running without it", problems)
+    if effective_view.order_seed(document) is not None:
+        warn("run.orderSeed: only a --device run launches cases in an order; this run measures in the plan's order")
     folder = lambda repetition: measure_session.process_folder(benchmark, repetition, repetitions)
 
     def measured(repetition):
