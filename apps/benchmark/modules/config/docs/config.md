@@ -43,6 +43,7 @@ Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 | | `caseCooldownSeconds` | `0` | `>= 0`, else `negative`; `--device`: host sleep before every measured case but a session's first, between processes with `isolation: run` ([device-session.md](../../../../../docs/device-session.md#cool-down-and-frequency-caps)) |
 | | `thermalGate` | absent: off | keys in `example/config_global_example.yaml`; needs `isolation: case` |
 | | `launchRetries` | `2` | extra launches of a run that failed for a reason other than heat |
+| | `resumeBlockRuns` | `10` | `>= 1`, else `not_positive`; host only: a rerun of a stopped run with the same identity keeps its finished blocks of this many consecutive runs ([results.md](../../../../../docs/results.md#resuming-a-stopped-run)) |
 | | `harness` | empty | key table in `apps/benchmark/modules/settings/docs/settings.md`; energy keys in `docs/energy.md` |
 | `policy` | `onFailure` | `skip` | `stop` or `skip`, case-insensitive; other: `invalid: policy.onFailure` |
 | `analysis` | `charts` | `[iqrBars, throughput, latency, stability]` | names from that list, no duplicates; `[]` draws none; another name fails `invalid: analysis.charts` |

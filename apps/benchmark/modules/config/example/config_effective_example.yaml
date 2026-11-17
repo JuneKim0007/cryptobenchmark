@@ -18,6 +18,7 @@ run:
   seed: 42
   caseCooldownSeconds: 0
   launchRetries: 2
+  resumeBlockRuns: 10
   warmup:
     iterations: 10
     jobs: []

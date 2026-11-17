@@ -28,6 +28,7 @@ run:                                     # optional — every key falls back to 
       cleanRunsToRecover: 10             # optional, default 10: this many clean runs in a row narrow the margin...
       recoveryCelsius: 0.05              # optional, default 0.05: ...by this much, never below initialCelsius
   launchRetries: 2                       # optional, default 2: a run that failed for a reason other than heat is launched this many more times
+  resumeBlockRuns: 10                    # optional, default 10: a rerun of a stopped run keeps its finished blocks of this many consecutive runs
   # harness: {iterations: 50, warmupIterations: null, profiling: none}   # optional — omitted here, the harness's defaults apply
 
 policy:                                  # optional

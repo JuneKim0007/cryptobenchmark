@@ -34,7 +34,8 @@
     "recoveryCelsius": 0.05
    }
   },
-  "launchRetries": 2
+  "launchRetries": 2,
+  "resumeBlockRuns": 10
  },
  "policy": {
   "onFailure": "skip"
