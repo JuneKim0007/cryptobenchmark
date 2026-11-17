@@ -54,8 +54,6 @@ def parse_options():
                         help="print the device id, the digests of this run's inputs and of the harness code as one 'identity:' line; runs no stage, writes nothing")
     parser.add_argument("--suppress-errors", default=os.environ.get("CRYPTOBENCH_SUPPRESS_ERRORS", ""), metavar="ERRORS",
                         help="androidx.benchmark errors to suppress on --device, e.g. EMULATOR,UNLOCKED; the numbers are then not comparable")
-    # retired: the seed is run.orderSeed, so it enters effective.yaml and the run's identity
-    parser.add_argument("--order-seed", help=argparse.SUPPRESS)
     parser.add_argument("--energy-python", default=sys.executable, metavar="PYTHON",
                         help="interpreter with apps/benchmark-runner/energy/requirements.txt installed (default: this one)")
     parser.add_argument("--energy-accept-unresponsive", action="store_true",
@@ -92,7 +90,6 @@ REFUSED = (
     (lambda o: any(v is not None and v < 0 for v in (o.reconnect_wait_minutes, o.reconnect_poll_seconds)),
      "--reconnect-wait-minutes, --reconnect-poll-seconds: negative"),
     (lambda o: o.per_suite and (o.identify or o.harness), "--per-suite: places a run's folder, so it goes with no --identify or --harness"),
-    (lambda o: o.order_seed is not None, "retired_option: --order-seed; set run.orderSeed in global.yaml, where effective.yaml and the run's identity read it"),
     (lambda o: o.devices and any((o.config, o.bench, o.device, o.probe, o.identify, o.check, o.harness, o.interop)),
      "--devices: lists the attached devices and runs alone"),
     (lambda o: o.check_session and any((o.devices, o.config, o.bench, o.device, o.probe, o.identify, o.check, o.harness, o.interop)),
