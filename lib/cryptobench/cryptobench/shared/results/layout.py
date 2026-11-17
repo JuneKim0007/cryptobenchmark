@@ -2,6 +2,7 @@
 import contextlib, datetime, itertools, os, pathlib, shutil, tempfile
 
 from cryptobench.shared import paths
+from cryptobench.shared.log.warn import warn
 
 STAGING_PREFIX = ".staging-"
 # one run's unit, manifest first; discovery/ joins it when the next run replaces discovery (overwrite)
@@ -11,7 +12,7 @@ STAMP = "%Y%m%dT%H%M%SZ"
 
 def warn_if_temp(path):
     if paths.in_temp(path):
-        print(f"warning: results_in_temp: {path} is under a temporary folder the system may wipe; keep results elsewhere")
+        warn(f"results_in_temp: {path} is under a temporary folder the system may wipe; keep results elsewhere")
 
 
 @contextlib.contextmanager
@@ -76,7 +77,7 @@ def supersede(target, discovery_mode, kept=()):
     into = aside(target)
     for name in present:
         moved(target, into, pathlib.PurePosixPath(name), kept)
-    print(f"warning: run_superseded: {target}: {', '.join(present)} moved to {into}")
+    warn(f"run_superseded: {target}: {', '.join(present)} moved to {into}")
     return into
 
 
@@ -107,7 +108,7 @@ def report_superseded(target):
     if not root.is_dir():
         return
     units = sum(1 for p in root.iterdir() if p.is_dir())
-    print(f"warning: superseded_kept: {root}: {units} earlier {'unit' if units == 1 else 'units'}, {held_bytes(root) / 1e6:.1f} MB; never pruned, remove by hand")
+    warn(f"superseded_kept: {root}: {units} earlier {'unit' if units == 1 else 'units'}, {held_bytes(root) / 1e6:.1f} MB; never pruned, remove by hand")
 
 
 def publish(stage, target, discovery_mode, kept=()):

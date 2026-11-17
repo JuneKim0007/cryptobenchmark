@@ -7,7 +7,7 @@ from cryptobench.shared.device.adb import NO_DEFAULT_PROFILER, Device
 from cryptobench.stages.measurement.energy.session import EnergySession
 from cryptobench.stages.measurement.session import clocks_hook, cooldown_hook, dynamic_temperature, reconnect, thermal_hook, variant_order
 from cryptobench.pipeline.took import elapsed
-from cryptobench.pipeline.warn import warn
+from cryptobench.shared.log.warn import warn
 from cryptobench.shared import paths
 from cryptobench.shared.document.document import read_yaml
 

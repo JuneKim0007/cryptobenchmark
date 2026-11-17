@@ -1,7 +1,7 @@
 """The device software a resumed run compares beside the capture's fingerprint: the security patch and the APEX modules the timed calls run on."""
 import re
 
-from cryptobench.pipeline.warn import warn
+from cryptobench.shared.log.warn import warn
 from cryptobench.shared import paths
 
 SECURITY_PATCH = "ro.build.version.security_patch"

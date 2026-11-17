@@ -5,7 +5,7 @@ from cryptobench.shared.settings import bundled, effective_view
 from cryptobench.shared.device import gradle_runner
 from cryptobench.stages.measurement.energy import steps as energy_stage
 from cryptobench.stages.measurement.energy.session import EnergySession
-from cryptobench.pipeline.warn import warn
+from cryptobench.shared.log.warn import warn
 from cryptobench.shared.errors.line import one_line
 from cryptobench.shared.errors.failures import AllSkipped, CommandError
 from cryptobench.shared import paths

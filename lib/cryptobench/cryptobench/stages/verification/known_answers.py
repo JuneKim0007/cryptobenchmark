@@ -1,6 +1,6 @@
 """The known answers a --check run checks against: the guide's vectors filled per provider, plus the vectors global.yaml's selection.knownVectors names, resolved against global.yaml."""
 
-from cryptobench.pipeline.warn import warn
+from cryptobench.shared.log.warn import warn
 from cryptobench.shared import paths
 from cryptobench.shared.catalogue import vectors
 from cryptobench.shared.document.document import read_yaml

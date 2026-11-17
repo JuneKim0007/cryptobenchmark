@@ -11,7 +11,7 @@ from cryptobench.shared.settings import bundled
 from cryptobench.stages.discovery import capture_files, facts
 from cryptobench.stages.discovery.probe import probe
 from cryptobench.pipeline.took import elapsed
-from cryptobench.pipeline.warn import warn
+from cryptobench.shared.log.warn import warn
 from cryptobench.shared.document.document import parse_yaml
 
 

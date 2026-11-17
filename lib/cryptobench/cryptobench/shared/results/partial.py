@@ -3,6 +3,7 @@ import contextlib
 
 from cryptobench.shared import paths
 from cryptobench.shared.errors.line import one_line
+from cryptobench.shared.log.warn import warn
 
 
 def done(benchmark):
@@ -28,5 +29,5 @@ def kept(results, write):
         try:
             write(record, {key: path for key, path in (("prepared", prepared.prepared), ("skipped", prepared.skipped)) if path.is_file()})
         except Exception as failed:
-            print(f"warning: partial_manifest_failed: {type(failed).__name__}: {one_line(failed)}")
+            warn(f"partial_manifest_failed: {type(failed).__name__}: {one_line(failed)}")
         raise

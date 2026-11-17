@@ -6,7 +6,7 @@ from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.results import identity
 from cryptobench.shared.settings import effective_view
 from cryptobench.stages.measurement.session import blocks, variant_order
-from cryptobench.pipeline.warn import warn
+from cryptobench.shared.log.warn import warn
 
 
 def run_identity(effective, capture, suppress_errors):

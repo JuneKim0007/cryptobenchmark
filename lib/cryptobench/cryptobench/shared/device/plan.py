@@ -3,6 +3,7 @@ suppressErrors warning and the energy settle's files."""
 from cryptobench.shared import paths
 from cryptobench.shared.device.adb import PACKAGE, DeviceError
 from cryptobench.shared.document.document import read_yaml
+from cryptobench.shared.log.warn import warn
 
 
 def push_plan(device, *files):
@@ -39,6 +40,6 @@ def push(device, options, plan, energy=None):
     """dex2oat runs in the AOT compile, so the energy settle comes after it, never before; energy.yaml follows the settle."""
     push_plan(device, *plan)
     if options.suppress_errors:
-        print(f"warning: suppressErrors {options.suppress_errors}: these numbers are not comparable to an unsuppressed run")
+        warn(f"suppressErrors {options.suppress_errors}: these numbers are not comparable to an unsuppressed run")
     if energy:
         device.push_files(energy())

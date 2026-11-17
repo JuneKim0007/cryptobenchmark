@@ -2,7 +2,7 @@
 with its security patch and APEX versions, the case order and the suppressed androidx.benchmark errors."""
 from cryptobench.shared import paths
 from cryptobench.shared.device import capture as captured
-from cryptobench.shared.digest.tree import globbed, tree_digest
+from cryptobench.shared.digest.tree import digest_of
 from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared.results.run_inputs import digest
@@ -14,12 +14,9 @@ DETAILED = ("run", "device")
 
 
 def timed_code(repo=None):
-    """The source tree digest of what builds the measuring code; a pattern that matches nothing is refused, as code_digest refuses it."""
+    """The source tree digest of what builds the measuring code; a pattern that matches nothing is refused (digest_of)."""
     repo = repo or paths.repo()
-    files, empty = globbed(repo.gradle_root, repo.timed_code)
-    if empty:
-        raise CommandError(f"missing_file: {empty[0]} matches nothing under {repo.gradle_root}")
-    return tree_digest(repo.gradle_root, files)
+    return digest_of(repo.gradle_root, repo.timed_code, CommandError)
 
 
 def of(effective, capture, order, suppress_errors):

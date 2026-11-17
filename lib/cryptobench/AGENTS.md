@@ -15,7 +15,6 @@ cryptobench/__init__.py : package of the Python library the benchmark runner and
 cryptobench/pipeline/__init__.py : package of the run's stage framework, importing no stage
 cryptobench/pipeline/stage.py : StageContext (options, configuration, device, the parse-only check's answer, the run's problems list), what each stage reads; Stage, a stage's shape
 cryptobench/pipeline/took.py : the took: line of a timed step
-cryptobench/pipeline/warn.py : a stage's warning: line, added to the run's problems when it keeps a list
 cryptobench/shared/__init__.py : package of the components the stages share, importing neither the pipeline nor a stage
 cryptobench/shared/catalogue/__init__.py : package of the implementation guide's readers
 cryptobench/shared/catalogue/algorithms.py : reader of the catalogues, checked whole: entry fields, sources, contracts, type facts, provider overrides; lookup by family and id
@@ -50,7 +49,7 @@ cryptobench/shared/device/identity.py : device id from a capture's runtime block
 cryptobench/shared/device/plan.py : the device plan: pushed and AOT-compiled, prepared and skipped pulled back, the skips recorded so far, per-run outputs cleared; a run's push with the suppressErrors warning, then the energy settle's files
 cryptobench/shared/device/timeouts.py : ceilings of the host's subprocess steps (adb, install, instrument, case, gradle, compile, energy, analysis); expiry is one coded error
 cryptobench/shared/digest/__init__.py : package of the digests over bytes
-cryptobench/shared/digest/tree.py : byte_digest, the sha256 of some bytes; file_digest, of a file's bytes, None when absent; tree_digest, one digest of files in a given order, each its path under a root and its byte digest; globbed, the files glob patterns match but desktop litter and the patterns matching none
+cryptobench/shared/digest/tree.py : byte_digest, the sha256 of some bytes; file_digest, of a file's bytes, None when absent; tree_digest, one digest of files in a given order, each its path under a root and its byte digest; globbed, the files glob patterns match but desktop litter and the patterns matching none; digest_of, their tree digest, a pattern matching none refused with the caller's error
 cryptobench/shared/errors/__init__.py : package of the coded errors, importing nothing from the repo
 cryptobench/shared/errors/coded.py : CODE and code_in, the code word a failure message starts with; code_of, the code a failure carries as `.code`; Coded, the marker of a failure whose message is its coded line (adds no ValueError base)
 cryptobench/shared/errors/failures.py : AgentFailed (a provider's one coded failure line), GateError (the app gate's coded reasons), BenchmarkRunError (a pipeline.py run that failed), each on its own base; EnergyError (an energy source failed); AllSkipped (every case of a process a coded preparation skip, the run's outcome); CommandError (the runner's library code ends the run, its entry point prints the line)
@@ -67,7 +66,8 @@ cryptobench/shared/log/emit.py : emit(): one event as a log record (logger crypt
 cryptobench/shared/log/event.py : Event: one events.jsonl line (schema 1); event names (a `finding`: a coded fact for the status log), kinds, each field's types
 cryptobench/shared/log/sink.py : EventSink(views): each record under the root logger as an Event line in events.jsonl, then each view's line; records before the folder is known kept in order; append_repaired and log_dropped, its own two notices; a data value JSON cannot write kept as text
 cryptobench/shared/log/stderr.py : the stderr handler: INFO and above, event records left out
-cryptobench/shared/log/tests/ : pytest tests of the event log: append_line, attach, the sink, emit and step
+cryptobench/shared/log/tests/ : pytest tests of the event log: append_line, attach, the sink, emit and step, warn
+cryptobench/shared/log/warn.py : warn(): a `warning:` line, added to the run's problems when it keeps a list, and one log event with the line's code
 cryptobench/shared/paths/__init__.py : one interface to every path the Python modules use: `from cryptobench.shared import paths`
 cryptobench/shared/paths/device_dirs.py : DeviceDirs(sdk): folders on a device per API level, POSIX paths
 cryptobench/shared/paths/host.py : the user's and host's locations: home, the user's global.yaml, the Android SDK and its platform-tools

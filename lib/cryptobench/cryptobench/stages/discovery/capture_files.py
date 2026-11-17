@@ -1,7 +1,7 @@
 """The capture, trial and requirements a discovery wrote, known by path and paired by stamp; never the newest in a kept folder."""
 import re
 
-from cryptobench.pipeline.warn import warn
+from cryptobench.shared.log.warn import warn
 from cryptobench.shared import paths
 from cryptobench.shared.errors.failures import CommandError
 

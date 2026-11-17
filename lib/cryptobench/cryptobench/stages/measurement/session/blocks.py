@@ -7,7 +7,7 @@ from cryptobench.shared.digest.tree import file_digest
 from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.document.dump import dump_yaml
 from cryptobench.shared.document.write import write_text
-from cryptobench.pipeline.warn import warn
+from cryptobench.shared.log.warn import warn
 
 SCHEMA = 2
 FINISHED, BOOT_CHANGED = "finished", "boot_changed"

@@ -11,7 +11,7 @@ from cryptobench.stages.measurement.session import blocks, calibration, case_iso
 from cryptobench.shared.device.adb import PASSED, DeviceError, DeviceLost
 from cryptobench.shared.device.plan import clear_outputs
 from cryptobench.shared import paths
-from cryptobench.pipeline.warn import warn
+from cryptobench.shared.log.warn import warn
 
 COUNTED = re.compile(r"^Tests run: (\d+),\s+Failures: (\d+)", re.M)
 

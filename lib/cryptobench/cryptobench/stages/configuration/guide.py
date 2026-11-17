@@ -1,6 +1,6 @@
 """After effective.yaml says what runs: picks exactly those items from the implementation guide, beside it, for preparation."""
 
-from cryptobench.pipeline.warn import warn
+from cryptobench.shared.log.warn import warn
 from cryptobench.shared import paths
 from cryptobench.shared.catalogue.guide_items import guide_items
 from cryptobench.shared.document.document import read_yaml

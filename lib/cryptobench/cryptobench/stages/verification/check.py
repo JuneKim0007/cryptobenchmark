@@ -13,7 +13,7 @@ from cryptobench.stages.verification import known_answers as answers
 from cryptobench.shared import paths
 from cryptobench.shared.catalogue import vectors
 from cryptobench.pipeline.took import elapsed
-from cryptobench.pipeline.warn import warn
+from cryptobench.shared.log.warn import warn
 from cryptobench.shared.settings import bundled
 from cryptobench.shared.document.document import read_yaml
 

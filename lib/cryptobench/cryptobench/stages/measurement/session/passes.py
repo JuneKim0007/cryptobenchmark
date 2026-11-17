@@ -6,7 +6,7 @@ from cryptobench.shared.device import gradle_runner
 from cryptobench.shared.errors.failures import CommandError
 from cryptobench.stages.measurement.session.measure import process_folder
 from cryptobench.shared import paths
-from cryptobench.pipeline.warn import warn
+from cryptobench.shared.log.warn import warn
 
 PASS_ARGUMENT = "cryptobench.pass"        # PassArguments.PASS
 SAMPLES_ARGUMENT = "cryptobench.samples"  # PassArguments.SAMPLES

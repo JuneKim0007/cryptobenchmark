@@ -2,7 +2,7 @@
 import subprocess, sys, time
 
 from cryptobench.pipeline.took import elapsed
-from cryptobench.pipeline.warn import warn
+from cryptobench.shared.log.warn import warn
 from cryptobench.shared import paths
 from cryptobench.shared.device import timeouts
 from cryptobench.shared.errors.line import one_line

@@ -10,7 +10,7 @@ from cryptobench.stages.measurement import thermal
 from cryptobench.shared.device.adb import PASSED, DeviceError, DeviceLost
 from cryptobench.shared.device.plan import clear_outputs
 from cryptobench.shared.errors.line import one_line
-from cryptobench.pipeline.warn import warn
+from cryptobench.shared.log.warn import warn
 
 DEFAULT_CASES = 3
 WARMUP_PASS = "warmup"   # PassArguments: any pass but energy and allocation captures no energy

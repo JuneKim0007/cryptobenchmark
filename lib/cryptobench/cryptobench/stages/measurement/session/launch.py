@@ -3,7 +3,7 @@ from cryptobench.shared.device.adb import DeviceLost
 from cryptobench.shared.errors.line import one_line
 from cryptobench.stages.measurement.session import calibration, case_isolation, dynamic_temperature, skips
 from cryptobench.stages.measurement import start_margin as eq
-from cryptobench.pipeline.warn import warn
+from cryptobench.shared.log.warn import warn
 
 
 def hooked_case(process, case, hooks, run_case):

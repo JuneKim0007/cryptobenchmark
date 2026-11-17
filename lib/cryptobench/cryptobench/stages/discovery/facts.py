@@ -2,7 +2,7 @@
 resumed run's identity; nothing here decides."""
 import zipfile
 
-from cryptobench.pipeline.warn import warn
+from cryptobench.shared.log.warn import warn
 from cryptobench.shared.device import capture as captured, clocks
 from cryptobench.shared.device.adb import PACKAGE
 from cryptobench.shared import paths

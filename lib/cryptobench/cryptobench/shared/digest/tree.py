@@ -1,5 +1,5 @@
 """byte_digest, the sha256 of some bytes; file_digest, of a file's bytes; tree_digest, one digest of files, each a line of its path under root and its byte digest;
-globbed, the files glob patterns match but OS litter."""
+globbed, the files glob patterns match but OS litter; digest_of, the tree digest of what patterns match, a pattern matching nothing refused."""
 from __future__ import annotations
 
 import hashlib
@@ -32,3 +32,11 @@ def globbed(root: Path, patterns) -> tuple[list[Path], list[str]]:
         if not matched:
             empty.append(pattern)
     return files, empty
+
+
+def digest_of(root: Path, patterns, refused) -> str:
+    """A pattern that matches nothing is refused(`missing_file: ...`): after a move the digest would stop seeing those files."""
+    files, empty = globbed(root, patterns)
+    if empty:
+        raise refused(f"missing_file: {empty[0]} matches nothing under {root}")
+    return tree_digest(root, files)
