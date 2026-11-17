@@ -9,8 +9,7 @@ import tempfile
 from dataclasses import dataclass
 
 from cryptobench.shared import paths
-
-RESUME = "resume"
+from perfrepair.run_dir.run_record import RESUME
 
 
 @dataclass(frozen=True)
