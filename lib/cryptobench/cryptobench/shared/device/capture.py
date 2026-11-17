@@ -1,8 +1,9 @@
 """A capture's runtime block, read once for the runner; a capture of another schema version is refused; the guide's name for its platform."""
-from cryptobench.shared.document.document import read_yaml
+from cryptobench.shared.document.document import DocumentKind, read_yaml
 from cryptobench.shared.errors.coded import Coded
 
 SCHEMA = 1   # discovery's CapturedEnvironment.SCHEMA_VERSION
+CAPTURE_DOC = DocumentKind("capture", SCHEMA)
 
 
 class CaptureError(ValueError, Coded):
@@ -11,7 +12,7 @@ class CaptureError(ValueError, Coded):
 
 def runtime(capture):
     """The runtime block of a loaded capture document."""
-    if capture.get("schemaVersion") != SCHEMA:
+    if not CAPTURE_DOC.accepts(capture.get("schemaVersion")):
         raise CaptureError(f"unsupported_capture_schema: {capture.get('schemaVersion')}, this build reads {SCHEMA}")
     return capture.get("runtime") or {}
 

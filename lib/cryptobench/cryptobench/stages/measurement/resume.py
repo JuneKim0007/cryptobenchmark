@@ -83,7 +83,7 @@ def unverified(record, folder, block, now):
     if isinstance(record, str):
         return record
     try:
-        if record.get("schemaVersion") != blocks.SCHEMA:
+        if not blocks.RECORD_DOC.accepts(record.get("schemaVersion")):
             return f"schemaVersion {record.get('schemaVersion')}"
         if record["identity"] != now:
             return "identity differs from this run's"
