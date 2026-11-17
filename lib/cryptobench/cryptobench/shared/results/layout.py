@@ -10,6 +10,11 @@ UNIT = (paths.MANIFEST, paths.CONFIGURATION, paths.PREPARATION, paths.BENCHMARK,
 STAMP = "%Y%m%dT%H%M%SZ"
 
 
+def unit_folder(root, device_id, suite=None):
+    """A run's folder: <root>/<device_id>/, or <root>/<device_id>/<suite>/ for a session's suite."""
+    return root / device_id / suite if suite else root / device_id
+
+
 def warn_if_temp(path):
     if paths.in_temp(path):
         warn(f"results_in_temp: {path} is under a temporary folder the system may wipe; keep results elsewhere")

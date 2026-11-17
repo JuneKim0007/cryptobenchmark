@@ -218,3 +218,8 @@ def test_a_folder_set_aside_by_a_killed_run_comes_back_first(tmp_path):
         with layout.kept_until_replaced(tmp_path / "scoped"):
             raise RuntimeError("halted")
     assert (tmp_path / "scoped" / "benchmark.json").read_text() == "old" and not (tmp_path / "scoped.previous").exists()
+
+
+def test_a_suite_is_its_own_folder_under_the_device_folder(tmp_path):
+    assert layout.unit_folder(tmp_path, "pixel-10-api37-1a2b3c4d") == tmp_path / "pixel-10-api37-1a2b3c4d"
+    assert layout.unit_folder(tmp_path, "pixel-10-api37-1a2b3c4d", "tier1") == tmp_path / "pixel-10-api37-1a2b3c4d/tier1"

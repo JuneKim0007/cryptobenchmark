@@ -45,6 +45,8 @@ def parse_options():
                         help="list what adb sees: each device's key, alias, kind, model, API level and connection, or why it is not ready; reads no config")
     parser.add_argument("--check-session", metavar="SESSION_YAML",
                         help="resolve a session.yaml against the devices adb lists and print its targets, order groups and skips; runs nothing")
+    parser.add_argument("--per-suite", action="store_true",
+                        help="write <results>/<device_id>/<suite>/, suite the file stem of global.yaml's selection.testSet: a session's layout")
     parser.add_argument("--identify", action="store_true",
                         help="print the device id, the digests of this run's inputs and of the harness code as one 'identity:' line; runs no stage, writes nothing")
     parser.add_argument("--suppress-errors", default=os.environ.get("CRYPTOBENCH_SUPPRESS_ERRORS", ""), metavar="ERRORS",
@@ -86,6 +88,7 @@ REFUSED = (
      "--reconnect-wait-minutes, --reconnect-poll-seconds: only a --device run waits for its device"),
     (lambda o: any(v is not None and v < 0 for v in (o.reconnect_wait_minutes, o.reconnect_poll_seconds)),
      "--reconnect-wait-minutes, --reconnect-poll-seconds: negative"),
+    (lambda o: o.per_suite and (o.identify or o.harness), "--per-suite: places a run's folder, so it goes with no --identify or --harness"),
     (lambda o: o.order_seed is not None, "retired_option: --order-seed; set run.orderSeed in global.yaml, where effective.yaml and the run's identity read it"),
     (lambda o: o.devices and any((o.config, o.bench, o.device, o.probe, o.identify, o.check, o.harness, o.interop)),
      "--devices: lists the attached devices and runs alone"),
@@ -137,13 +140,14 @@ def harnessed(context):
 
 def interoperated(context):
     with published(context) as root:
-        return interop_run(context.options, context.configuration, context.device, root, context.checked["bundled"], discover_staged, located)
+        return interop_run(context.options, context.configuration, context.device, root, context.checked["bundled"], discover_staged, located,
+                           context.suite)
 
 
 def guided(context, root, kept):
     """Discovery published under the capture's device id, the earlier unit's kept paths left in place, then guide.yaml beside its effective.yaml."""
     results, (discovery, effective, capture, trial, files) = discover_published(context.options, context.configuration, context.device, root, context.checked["bundled"],
-                                                                                kept)
+                                                                                kept, context.suite)
     files["guide"] = guide.write(effective, capture)
     return results, discovery, effective, capture, trial, files
 
@@ -151,7 +155,8 @@ def guided(context, root, kept):
 def guided_in(context):
     """guided's steps inside a stage the caller publishes: discovery there, then guide.yaml beside its effective.yaml."""
     def discovered(root, stage):
-        _, effective, capture, trial, files = discover_staged(context.options, context.configuration, context.device, root, stage, context.checked["bundled"])
+        _, effective, capture, trial, files = discover_staged(context.options, context.configuration, context.device, root, stage, context.checked["bundled"],
+                                                              context.suite)
         files["guide"] = guide.write(effective, capture)
         return effective, capture, trial, files
     return discovered
@@ -160,7 +165,7 @@ def guided_in(context):
 def checked(context):
     require_check_run(context.options, context.device)
     with published(context) as root:
-        return check_run(context.options, context.configuration, context.device, root, guided_in(context), located)
+        return check_run(context.options, context.configuration, context.device, root, guided_in(context), located, context.suite)
 
 
 def measured(context):
@@ -219,7 +224,8 @@ def main():
     if device:
         device.connect()
     stage = next(stage for option, stage in ROUTES if option is None or getattr(options, option))
-    return stage(StageContext(options, configuration, device, checked))
+    suite = pathlib.Path(checked["testSet"]).stem if options.per_suite and checked else None
+    return stage(StageContext(options, configuration, device, checked, suite))
 
 
 def failure_line(error):

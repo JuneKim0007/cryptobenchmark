@@ -70,17 +70,17 @@ def located(results, capture_name):
     return discovery, effective, capture, trial, files
 
 
-def seed_reuse(options, root, stage):
+def seed_reuse(options, root, stage, suite=None):
     """--discovery reuse names no folder until the JVM's id is known; ProbeKt --reuse still decides whether the capture fits."""
-    existing = paths.Results(root).device(device_id(host_runtime(options))).discovery.root
+    existing = paths.RunTree(results_layout.unit_folder(root, device_id(host_runtime(options)), suite)).discovery.root
     if existing.is_dir():
         results_layout.merge_folder(existing, paths.RunTree(stage).discovery.root)
 
 
-def discover_staged(options, configuration, device, root, stage, shipped):
+def discover_staged(options, configuration, device, root, stage, shipped, suite=None):
     """Everything stays in stage; the caller publishes it."""
     if options.discovery == "reuse":
-        seed_reuse(options, root, stage)
+        seed_reuse(options, root, stage, suite)
     return discover_in_place(options, configuration, device, stage, shipped)
 
 
@@ -88,12 +88,12 @@ def keep_nothing(_effective, _capture, _target):
     return ()
 
 
-def discover_published(options, configuration, device, root, shipped, kept=keep_nothing):
+def discover_published(options, configuration, device, root, shipped, kept=keep_nothing, suite=None):
     """A failed probe or configure leaves nothing; from here on the folder has its real name and no manifest until the run ends. kept(effective,
     capture, folder) names the paths of the earlier unit the publish leaves in place."""
     with results_layout.staged(root) as stage:
-        _, effective, capture, _, _ = discover_staged(options, configuration, device, root, stage, shipped)
-        results = root / capture_id(capture)
+        _, effective, capture, _, _ = discover_staged(options, configuration, device, root, stage, shipped, suite)
+        results = results_layout.unit_folder(root, capture_id(capture), suite)
         results_layout.publish(stage, results, options.discovery, kept(effective, capture, results))
     print(f"results:   {results}")
     return results, located(results, capture.name)

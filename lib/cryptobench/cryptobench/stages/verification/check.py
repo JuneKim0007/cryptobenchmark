@@ -27,7 +27,7 @@ def require_check_run(options, device):
         raise CommandError("--check: the cases are checked on a --bench (host JVM) or a --device run, without --harness or --interop")
 
 
-def check_run(options, configuration, device, root, discovered, located):
+def check_run(options, configuration, device, root, discovered, located, suite=None):
     """discovered(root, stage) is the route's discovery with guide.yaml beside effective.yaml, located discovery's: both run inside this stage's staging."""
     with results_layout.staged(root) as stage:
         effective, capture, trial, _ = discovered(root, stage)
@@ -41,7 +41,7 @@ def check_run(options, configuration, device, root, discovered, located):
             on_host(options, effective, capture, trial, known_answers, into)
         elapsed("end-to-end check", started)
         failed = summary(paths.CheckFolder(into).result)
-        results = root / capture_id(capture)
+        results = results_layout.unit_folder(root, capture_id(capture), suite)
         beside = paths.finished(results)
         if beside:
             paths.RunTree(stage).configuration.root.rename(paths.CheckFolder(into).configuration.root)

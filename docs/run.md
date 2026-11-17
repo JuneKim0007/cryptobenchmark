@@ -19,13 +19,13 @@ The command for both sides is `apps/cli/facade.py` ([facade.md](facade.md)); thi
 python3 apps/benchmark-runner/pipeline.py [--config PATH] [--results DIR] [--discovery overwrite|keep|reuse]
                             [--bench | --device] [--suppress-errors ERRORS] [--energy-python PYTHON]
                             [--energy-accept-unresponsive] [--reconnect-wait-minutes M] [--reconnect-poll-seconds S]
-                            [--stacktrace] [--stream] [--harness HARNESS_YAML] [--interop PLAN_YAML] [--probe] [--identify] [--devices] [--check-session SESSION_YAML]
+                            [--stacktrace] [--stream] [--harness HARNESS_YAML] [--interop PLAN_YAML] [--probe] [--identify] [--devices] [--check-session SESSION_YAML] [--per-suite]
 ```
 
 | flag | default | effect |
 |---|---|---|
 | `--config PATH` | `$CRYPTOBENCH_CONFIG`, then `~/.config/cryptobench/global.yaml`, then `config/global.yaml` | the `global.yaml` to run; one named by the flag or the variable and missing is `missing_file` |
-| `--results DIR` | `<repo>/results` | results root; the run writes `<DIR>/<device_id>/` ([results.md](results.md#device-folder)) |
+| `--results DIR`, `--per-suite` | `<repo>/results`, off | results root; the run writes `<DIR>/<device_id>/`, with `--per-suite` `<DIR>/<device_id>/<suite>/` ([results.md](results.md#device-folder)); `--per-suite` with `--identify` or `--harness` fails |
 | `--discovery` | `overwrite` | `overwrite` starts an empty `discovery/`, the old one moving aside with its unit ([results.md](results.md#device-folder)); `keep` adds a new capture; `reuse` keeps this device's capture, found by asking the JVM for its id first |
 | `--bench` | off | also prepare, measure and analyse on the JVM via the benchmark CLI (`BenchKt`) |
 | `--device` | off | probe, prepare and measure on the attached device over adb |

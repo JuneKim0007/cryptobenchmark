@@ -18,6 +18,7 @@ perf-repair writes the second and third lines: [artifacts.md](../apps/perf-repai
 |---|---|
 | `--results` | the root, default `<repo>/results` |
 | folder name | `deviceId` of the manifest below, from the probe |
+| `--per-suite` | the run's folder is `<root>/<device_id>/<suite>/`, `<suite>` the file stem of `selection.testSet`; laid out as this table's device folder; a session's workers pass it ([sessions.md](sessions.md)) |
 | `<root>/.lock` | `--interop`, `--check` and every measuring or probing run hold it from the temporary-folder warning to the manifest (`lib/cryptobench/cryptobench/shared/results/lock.py`, `fcntl.flock`, the holder's pid); a second run on the root stops with `device_busy: <root> is in use by another run (pid <n>); ...` before it writes anything |
 | staging | discovery and configure run in `<root>/.staging-*`, then move in; a run that fails there removes it and changes nothing |
 | a finished device | a folder whose `manifest.yaml` has no top-level `partial:` (`lib/cryptobench/cryptobench/shared/paths/results.py` `finished`); every reader that lists devices or decides "beside a finished run" asks it |

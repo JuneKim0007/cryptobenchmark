@@ -16,6 +16,7 @@ REFUSALS = [
     (["--energy-accept-unresponsive"], "--energy-accept-unresponsive: only a --device run captures energy"),
     (["--reconnect-wait-minutes", "5"], "--reconnect-wait-minutes, --reconnect-poll-seconds: only a --device run waits for its device"),
     (["--device", "--reconnect-poll-seconds", "-1"], "--reconnect-wait-minutes, --reconnect-poll-seconds: negative"),
+    (["--per-suite", "--identify"], "--per-suite: places a run's folder, so it goes with no --identify or --harness"),
     (["--device", "--order-seed", "7"], "retired_option: --order-seed; set run.orderSeed in global.yaml, where effective.yaml and the run's identity read it"),
     (["--devices", "--bench"], "--devices: lists the attached devices and runs alone"),
     (["--check-session", "s.yaml", "--device"], "--check-session: resolves a session and runs alone"),

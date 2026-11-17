@@ -16,7 +16,7 @@ cryptobench/__init__.py : package of the Python library the benchmark runner and
 cryptobench/pipeline/__init__.py : package of the run's stage framework, importing no stage
 cryptobench/pipeline/orchestrator/__init__.py : package of the session orchestrator: plan, workers, status lines, summary; imports no stage
 cryptobench/pipeline/orchestrator/plan.py : a session's plan before anything runs: devices listed, targets resolved and grouped, skips and notices; --check-session
-cryptobench/pipeline/stage.py : StageContext (options, configuration, device, the parse-only check's answer, the run's problems list), what each stage reads; Stage, a stage's shape
+cryptobench/pipeline/stage.py : StageContext (options, configuration, device, the parse-only check's answer, the --per-suite suite, the run's problems list), what each stage reads; Stage, a stage's shape
 cryptobench/pipeline/took.py : the took: line of a timed step
 cryptobench/shared/__init__.py : package of the components the stages share, importing neither the pipeline nor a stage
 cryptobench/shared/catalogue/__init__.py : package of the implementation guide's readers
@@ -87,7 +87,7 @@ cryptobench/shared/paths/run_tree.py : RunTree: every file of one results folder
 cryptobench/shared/paths/settings.py : against(settings_file, value), the one rule for a path a settings file names; in_temp
 cryptobench/shared/results/__init__.py : package of a run's results folder, importing no app
 cryptobench/shared/results/identity.py : a measuring run's identity (effective run block, selection digest, timed-code digest, capture runtime with facts.yaml's build, order, suppressed errors) and the dotted fields two identities differ in
-cryptobench/shared/results/layout.py : results/<device_id>/: staging, publishing into the device folder after the earlier unit, but for the paths a resumed run keeps, moves to superseded/<stamp>/, the temporary-folder warning
+cryptobench/shared/results/layout.py : results/<device_id>/[<suite>/]: unit_folder, staging, publishing into the device folder after the earlier unit, but for the paths a resumed run keeps, moves to superseded/<stamp>/, the temporary-folder warning
 cryptobench/shared/results/lock.py : DeviceLock: `<folder>/.lock` by fcntl.flock (POSIX), the holder's pid; another process is device_busy, the holding one takes it again; a results root (pipeline.py) or a device folder (perf-repair)
 cryptobench/shared/results/manifest.py : results/<device_id>/manifest.yaml: files, counts, runtime, providers, input digests, units, the harness operations, energy mark, problems, the partial mark of a stopped run; files added beside a finished run
 cryptobench/shared/results/partial.py : a run that stopped: the partial record (reason, case runs per process folder) its manifest is written with, a failed write one warning

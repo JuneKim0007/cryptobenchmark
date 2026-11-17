@@ -14,7 +14,7 @@ from fake_phone import Phone
 import test_device_benchmark_flow as flow
 from test_manifest import PROBE
 
-FLAGS = {"probe": False, "identify": False, "devices": False, "check_session": None, "interop": None, "harness": None, "check": False, "bench": False, "device": True, "config": None,
+FLAGS = {"probe": False, "identify": False, "devices": False, "check_session": None, "per_suite": False, "interop": None, "harness": None, "check": False, "bench": False, "device": True, "config": None,
          "discovery": "overwrite"}
 STAMPS = (f"20261117T1200{n:02d}Z" for n in itertools.count())
 # facts.yaml a device discovery writes beside the capture; None writes none

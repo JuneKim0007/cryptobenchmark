@@ -15,6 +15,8 @@ class StageContext:
     configuration: pathlib.Path
     device: object
     checked: dict | None = None
+    # --per-suite: the test set's file stem, the run's folder under its device folder
+    suite: str | None = None
     problems: list[str] = dataclasses.field(default_factory=list)
 
 

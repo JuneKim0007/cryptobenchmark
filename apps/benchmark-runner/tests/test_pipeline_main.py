@@ -6,7 +6,7 @@ import pytest
 import pipeline
 from cryptobench.shared.errors.failures import CommandError
 
-FLAGS = {"probe": False, "identify": False, "devices": False, "check_session": None, "interop": None, "harness": None, "check": False, "bench": False, "device": False,
+FLAGS = {"probe": False, "identify": False, "devices": False, "check_session": None, "per_suite": False, "interop": None, "harness": None, "check": False, "bench": False, "device": False,
          "config": None, "results": None, "stream": False, "stacktrace": False, "suppress_errors": ""}
 
 
@@ -76,3 +76,17 @@ def test_a_check_without_bench_or_device_is_refused_before_discovery(calls, monk
     monkeypatch.setattr(pipeline, "discover_published", lambda *_arguments: pytest.fail("discovered"))
     with pytest.raises(CommandError, match="^--check: "):
         calls(check=True)
+
+
+def test_per_suite_places_the_run_under_the_test_sets_stem(calls, monkeypatch, tmp_path):
+    seen = {}
+    monkeypatch.setattr(pipeline.config_check, "parsed", lambda _configuration: {"bundled": [], "testSet": str(tmp_path / "sets/tier1.yaml")})
+
+    def published(*arguments):
+        seen["suite"] = arguments[-1]
+        return tmp_path, (None, None, None, None, {})
+    monkeypatch.setattr(pipeline, "discover_published", published)
+    calls(per_suite=True)
+    assert seen == {"suite": "tier1"}
+    calls()
+    assert seen == {"suite": None}

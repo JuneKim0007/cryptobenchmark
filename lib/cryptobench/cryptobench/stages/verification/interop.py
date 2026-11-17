@@ -10,7 +10,7 @@ from cryptobench.pipeline.took import elapsed
 from cryptobench.shared import paths
 
 
-def interop_run(options, configuration, device, root, shipped, discover_staged, located):
+def interop_run(options, configuration, device, root, shipped, discover_staged, located, suite=None):
     """discover_staged and located are discovery's, passed in: the discovery runs inside this stage's staging folder."""
     plan = pathlib.Path(options.interop)
     if not (options.bench or device) or options.harness:
@@ -19,7 +19,7 @@ def interop_run(options, configuration, device, root, shipped, discover_staged, 
         raise CommandError(f"missing_file: {plan} (--interop)")
     mode = "device" if device else "host"
     with results_layout.staged(root) as stage:
-        _, effective, capture, trial, _ = discover_staged(options, configuration, device, root, stage, shipped)
+        _, effective, capture, trial, _ = discover_staged(options, configuration, device, root, stage, shipped, suite)
         staged_plan = interop_oracle.stage_plan(plan, paths.RunTree(stage).interop.root)
         out = paths.InteropFolder(staged_plan.parent).result
         started = time.monotonic()
@@ -29,7 +29,7 @@ def interop_run(options, configuration, device, root, shipped, discover_staged, 
             interop_oracle.on_host(capture, trial, staged_plan, out, options.stacktrace, options.stream)
         elapsed("interop check", started)
         interop_oracle.summary(out)
-        results = root / capture_id(capture)
+        results = results_layout.unit_folder(root, capture_id(capture), suite)
         finished = paths.finished(results)
         if finished:
             results_layout.publish_beside(stage, results, paths.INTEROP)
