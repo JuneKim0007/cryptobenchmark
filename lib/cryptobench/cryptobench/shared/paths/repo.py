@@ -11,6 +11,9 @@ _ENGINE_OPERATIONS = "modules/preparation/src/main/resources/io/github/junekim00
 _KOTLIN_NAME_USERS = ("modules/environment/discovery/src/main/kotlin", "modules/config/src/main/kotlin", "modules/preparation/src/main/kotlin",
                       "modules/benchmark/src/main/kotlin", "modules/android/src/androidTest/kotlin", "cli/src/main/kotlin")
 _APK = "modules/android/build/outputs/apk/release/android-release.apk"
+# what builds the measuring code: the device app and test APK, the host's BenchKt, their dependency versions
+_TIMED_CODE = (*(f"modules/{m}/src/main/**/*" for m in ("jca", "settings", "files", "document", "preparation", "benchmark")),
+               "modules/android/src/**/*", "modules/android/build.gradle", "cli/src/main/**/*", "gradle/libs.versions.toml")
 
 
 @dataclass(frozen=True)
@@ -32,6 +35,7 @@ class Repo:
     kotlin_files_module = property(lambda self: self.gradle_root / "modules/files/src/main/kotlin")
     kotlin_name_users = property(lambda self: tuple(self.gradle_root / s for s in _KOTLIN_NAME_USERS))
     apk = property(lambda self: self.gradle_root / _APK)
+    timed_code = property(lambda self: _TIMED_CODE)
     engine_operations = property(lambda self: self.gradle_root / _ENGINE_OPERATIONS)
     preparation_resources = property(lambda self: self.gradle_root / "modules/preparation/src/main/resources")
     perf_repair = property(lambda self: self.root / "apps/perf-repair")

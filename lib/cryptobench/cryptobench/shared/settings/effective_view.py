@@ -65,3 +65,11 @@ def launch_retries(document):
 
 def process_repetitions(document):
     return required(document, "run.processRepetitions")
+
+
+def resume_block_runs(document):
+    """RunSettings refuses below 1; a hand-edited effective.yaml is refused here the same way."""
+    runs = required(document, "run.resumeBlockRuns")
+    if not isinstance(runs, int) or isinstance(runs, bool) or runs < 1:
+        raise CommandError(f"not_positive: run.resumeBlockRuns {runs}")
+    return runs

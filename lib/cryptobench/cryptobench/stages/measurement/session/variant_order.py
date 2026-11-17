@@ -1,5 +1,7 @@
 """run.variants on a device: an item's fixed and notFixed cases adjacent, fixed first in odd repetitions and last in even ones (A/B/B/A)."""
 VARIANTS = ("fixed", "notFixed")   # preparation's Variant labels, the last part of a case id
+# the order's part of a run's identity (shared/results/identity.py); a seeded order would add its seed
+ORDER = {"scheme": "interleaved"}
 
 
 def item(case):

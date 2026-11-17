@@ -16,6 +16,7 @@ class DeviceDirs:
     # where the shell user's perfetto may write
     TRACES = PurePosixPath("/data/misc/perfetto-traces")
     SCRATCH = PurePosixPath("/data/local/tmp")
+    BOOT_ID = PurePosixPath("/proc/sys/kernel/random/boot_id")
 
     def __init__(self, sdk: int):
         self.sdk = sdk

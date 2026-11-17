@@ -19,9 +19,10 @@ from cryptobench.stages.verification.scope import code_digest
 from cryptobench.stages.analysis import not_measured
 from cryptobench.stages.analysis.scripts import analyse
 from cryptobench.stages.configuration import config_check, guide
+from cryptobench.stages.measurement import resume
 from cryptobench.stages.measurement.benchmark import measure_cases
 from cryptobench.stages.verification.check import check_run, require_check_run
-from cryptobench.stages.discovery.discover import discover_in_place, discover_published, discover_staged, host_runtime, located
+from cryptobench.stages.discovery.discover import discover_in_place, discover_published, discover_staged, host_runtime, keep_nothing, located
 from cryptobench.stages.verification.harness import harness_run, checked_folder
 from cryptobench.stages.verification.interop import interop_run
 
@@ -114,9 +115,10 @@ def interoperated(context):
         return interop_run(context.options, context.configuration, context.device, root, context.checked["bundled"], discover_staged, located)
 
 
-def guided(context, root):
-    """Discovery published under the capture's device id, then guide.yaml beside its effective.yaml."""
-    results, (discovery, effective, capture, trial, files) = discover_published(context.options, context.configuration, context.device, root, context.checked["bundled"])
+def guided(context, root, kept):
+    """Discovery published under the capture's device id, the earlier unit's kept paths left in place, then guide.yaml beside its effective.yaml."""
+    results, (discovery, effective, capture, trial, files) = discover_published(context.options, context.configuration, context.device, root, context.checked["bundled"],
+                                                                                kept)
     files["guide"] = guide.write(effective, capture)
     return results, discovery, effective, capture, trial, files
 
@@ -138,10 +140,12 @@ def checked(context):
 
 def measured(context):
     options, configuration, device = context.options, context.configuration, context.device
+    measuring = not options.probe and bool(options.bench or device)
     with published(context) as root:
-        results, discovery, effective, capture, trial, files = guided(context, root)
+        # only a measuring run resumes: a probe over a stopped run moves it aside whole
+        results, discovery, effective, capture, trial, files = guided(context, root, resume.kept if measuring else keep_nothing)
         mode = "device" if device else "host"
-        if not options.probe and (options.bench or device):
+        if measuring:
             stopped = lambda record, pulled: manifest(results, mode, configuration, files | pulled, context.problems, partial=record)
             with partial.kept(results, stopped):
                 benchmarked(options, device, results, discovery, effective, capture, trial, files, context.problems)

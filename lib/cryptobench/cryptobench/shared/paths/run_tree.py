@@ -66,12 +66,19 @@ class Measurement(Section):
     dry_trace = property(lambda self: self.root / n.TRACES / n.DRY_TRACE)
     manafa = property(lambda self: self.root / n.MANAFA)
     cases = property(lambda self: self.root / n.CASES)
+    blocks = property(lambda self: self.root / n.BLOCKS)
 
     def process(self, repetition: int) -> Measurement:
         return Measurement(self.root / n.PROCESS_FORM.format(repetition))
 
     def case(self, case: str) -> Path:
         return self.cases / f"{case}.json"
+
+    def block(self, block: int) -> Path:
+        return self.blocks / n.BLOCK_FORM.format(block)
+
+    def block_records(self) -> list[Path]:
+        return sorted(self.blocks.glob(n.BLOCK_PATTERN))
 
 
 class Analysis(Section):

@@ -11,6 +11,7 @@ import pipeline  # noqa: E402
 from cryptobench.stages.measurement import benchmark  # noqa: E402
 from failure import reported  # noqa: E402
 from fake_phone import Energy, Phone, fake_tools  # noqa: E402
+from test_manifest import PROBE  # noqa: E402
 
 OPTIONS = types.SimpleNamespace(stream=False, suppress_errors="", stacktrace=False, energy_python="python3", energy_accept_unresponsive=False,
                                 reconnect_wait_minutes=None, reconnect_poll_seconds=None)
@@ -21,7 +22,8 @@ def steps(phone):
 
 
 # The run section as :config writes it; a test overrides what it is about.
-RUN = {"metrics": ["TIME"], "processRepetitions": 1, "isolation": "case", "caseCooldownSeconds": 0, "launchRetries": 0, "warmup": {"iterations": 0, "jobs": []}}
+RUN = {"metrics": ["TIME"], "processRepetitions": 1, "isolation": "case", "caseCooldownSeconds": 0, "launchRetries": 0, "resumeBlockRuns": 10,
+       "warmup": {"iterations": 0, "jobs": []}}
 
 
 def layout(tmp_path, run):
@@ -31,7 +33,7 @@ def layout(tmp_path, run):
     effective = results / "configuration/effective.yaml"
     effective.write_text(yaml.safe_dump({"run": {**RUN, **run}, "providers": {}}, sort_keys=False))
     capture, trial = results / "discovery/probe_1.yaml", results / "discovery/trial_1.yaml"
-    capture.write_text("{}")
+    capture.write_text(yaml.safe_dump(PROBE))
     trial.write_text("{}")
     return results, effective, capture, trial
 

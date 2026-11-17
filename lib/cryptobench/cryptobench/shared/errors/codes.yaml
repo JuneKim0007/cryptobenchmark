@@ -1017,6 +1017,8 @@ codes:
   blank_artifact: {kind: error}
   blank_provider: {kind: error}
   blank_rule_part: {kind: error}
+  block_unverified: {kind: notice}
+  boot_changed: {kind: notice}
   bundled_alias_taken: {kind: error}
   bundled_catalog: {kind: error}
   bundled_class_not_found: {kind: error}
@@ -1089,6 +1091,7 @@ codes:
   harness_build_failed: {kind: error}
   harness_other_device: {kind: error}
   hook_failed: {kind: notice}
+  identity_changed: {kind: notice}
   input_preparation_failed: {kind: error}
   instance_refused: {kind: outcome}
   instantiation_failed: {kind: outcome}
@@ -1251,6 +1254,7 @@ codes:
   refused_plan: {kind: error}
   repeat_differs: {kind: outcome}
   results_in_temp: {kind: notice}
+  resumed: {kind: notice}
   reverse_differs: {kind: outcome}
   reverse_failed: {kind: outcome}
   root_not_found: {kind: error}

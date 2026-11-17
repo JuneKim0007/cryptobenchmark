@@ -23,7 +23,7 @@ class Phone(device_module.Device):
         self.files, self.media, self.data = "/plan", "/media", "/media/data.json"
         self.cases, self.crash, self.hang = list(cases), set(crash), set(hang)
         self.written, self.log, self.ran, self.arguments, self.converted = [], [], [], [], []
-        self.thermal, self.notices = thermal, []
+        self.thermal, self.notices, self.boot = thermal, [], "boot-1"
 
     def run(self, *arguments, check=True):
         if arguments[0] == "pull":
@@ -75,6 +75,8 @@ class Phone(device_module.Device):
         elif command.startswith("rm -f"):
             self.written = []
             self.log.append("clear")
+        elif command == f"cat {device_module.paths.DeviceDirs.BOOT_ID}":
+            return self.boot
         elif command.startswith("am force-stop"):
             self.log.append("force-stop")
         return ""

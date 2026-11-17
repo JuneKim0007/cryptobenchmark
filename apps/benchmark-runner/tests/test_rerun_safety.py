@@ -199,7 +199,7 @@ def test_fewer_passes_on_a_rerun_leave_no_pass_folder_of_the_earlier_run(tmp_pat
     rerun = Rerun(tmp_path, monkeypatch)
     rerun({"metrics": ["TIME", "ALLOCATION"], "passes": {"timing": {"samples": 3}, "allocation": {"samples": 3}}})
     rerun({"metrics": ["TIME"]})
-    assert sorted(p.name for p in paths.RunTree(rerun.device).benchmark.root.iterdir() if p.is_dir()) == ["cases"]
+    assert sorted(p.name for p in paths.RunTree(rerun.device).benchmark.root.iterdir() if p.is_dir()) == ["blocks", "cases"]
     [aside] = rerun.aside()
     assert sorted(p.name for p in (aside / "benchmark").iterdir() if p.is_dir()) == ["allocation", "timing"]
     assert json.loads((aside / "benchmark/benchmark.json").read_text())["cases"]

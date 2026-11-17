@@ -22,7 +22,7 @@ perf-repair writes the second and third lines: [artifacts.md](../apps/perf-repai
 | staging | discovery and configure run in `<root>/.staging-*`, then move in; a run that fails there removes it and changes nothing |
 | a finished device | a folder whose `manifest.yaml` has no top-level `partial:` (`lib/cryptobench/cryptobench/shared/paths/results.py` `finished`); every reader that lists devices or decides "beside a finished run" asks it |
 | unit | `manifest.yaml`, `configuration/`, `preparation/`, `benchmark/`, `analysis/`, `chart/`, `check/`, `interop/`; `discovery/` too under `--discovery overwrite` |
-| a publish | the unit already in the folder, finished or not, is renamed whole into `superseded/<UTC stamp>[-<n>]/` (manifest first), one line `warning: run_superseded: <folder>: <names> moved to <path>`; then the staged folders move in; nothing is deleted |
+| a publish | the unit already in the folder, finished or not, is renamed whole (but for a resumed run's kept blocks, [below](#resuming-a-stopped-run)) into `superseded/<UTC stamp>[-<n>]/` (manifest first), one line `warning: run_superseded: <folder>: <names> moved to <path>`; then the staged folders move in; nothing is deleted |
 | fewer `processRepetitions` or passes on a rerun | the earlier `process-<n>/` and `<pass>/` folders move aside inside `benchmark/` with the unit; `benchmark/` holds only this run's |
 | `superseded/<stamp>/` | one earlier unit, the device folder's own layout; `-<n>` from 2 on when that second already has one; nothing reads it |
 | `superseded/` disk use | never pruned; removed by hand; a publishing run's last line, when the folder exists, is `warning: superseded_kept: <folder>/superseded: <n> earlier units, <size> MB; never pruned, remove by hand` |
@@ -33,6 +33,22 @@ perf-repair writes the second and third lines: [artifacts.md](../apps/perf-repai
 | `--harness` | writes `checked/` beside `harness.yaml`, itself laid out as this table's device folder without the device level |
 | a killed process | `.staging-*` stays behind and nothing reads it; a device folder it was measuring has no manifest, reads as unfinished, and the next publish moves it aside |
 | root under `/tmp`, `/var/tmp`, `/var/folders` or the system temp folder | one line `warning: results_in_temp: ...`; the run goes on |
+
+## Resuming a stopped run
+
+`lib/cryptobench/cryptobench/stages/measurement/resume.py` decides at the publish of a measuring run (`--bench`, `--device`, not `--probe`); `lib/cryptobench/cryptobench/stages/measurement/session/blocks.py` records and skips blocks.
+
+| rule | value |
+|---|---|
+| block | `run.resumeBlockRuns` (k, default 10) consecutive runs of one pass: block b holds runs `(b-1)k+1 .. min(bk, processRepetitions)`; passes are blocked each on its own |
+| finished block | every run of it closed (each case measured or a coded `case_failed`/`bench_failed` line), the boot id equal at its start and end; then `<pass folder>/blocks/block-<b>.yaml` is written (durable, exclusive) |
+| identity | `run`: effective.yaml's `run:` block; `selection`: sha256 of effective.yaml without `run`, `runId`, `generatedFrom`, `analysis`; `code`: tree digest of `Repo.timed_code` under `apps/benchmark` (main sources of jca, settings, files, document, preparation, benchmark; the android module's sources and `build.gradle`; the CLI's main sources; `gradle/libs.versions.toml`); `device`: the capture's `runtime` block; `order`: `variant_order.ORDER`; `lib/cryptobench/cryptobench/shared/results/identity.py` |
+| record | `schemaVersion: 1`, `pass` (null for the single pass), `block`, `runs {first, last}`, `repetitions`, `size`, `identity`, `bootId {start, end}` (`/proc/sys/kernel/random/boot_id`; null on a host), `outcome` (`finished`, or `boot_changed` with `warning: boot_changed: ...` in `problems`), `processes: [{repetition, folder, problems, files {path: sha256}}]` (`problems`: the lines the run added to the manifest's `problems`) |
+| a finished unit | never resumed: a rerun moves it aside whole |
+| an unfinished unit, same identity | per pass the leading blocks whose records verify (schema, identity, outcome `finished`, runs, every file's digest) stay in place with their records and `preparation/`; the rest of the unit moves aside; one line per pass `resumed:   [<pass> pass: ]kept blocks 1-<m> (runs 1-<r>), restarting at run <r+1>` (`every run of it measured` when none is left) |
+| a record that does not verify | `warning: block_unverified: <record>: <reason>; it and every later block of this pass are measured again` |
+| an unfinished unit, other identity | `warning: identity_changed: <fields>; starting fresh` (`run.<key>`, `device.<key>`, `selection`, `code`, `order`), then the whole unit moves aside; a new fingerprint is a new device folder, so nothing is compared |
+| kept runs | not launched again; their `benchmark.json` joins `MergeRunsKt`, their files the manifest's lists and their recorded lines `problems`, so the folders are `process-1..N` as in an uninterrupted run |
 
 ## Layout
 
@@ -50,6 +66,7 @@ Paths relative to the device folder.
 | `benchmark/process-<n>/` | one run's files; with `run.passes`, the n-th process of every pass merged | `processRepetitions` > 1 |
 | `benchmark/<pass>/` | one pass's files, `process-<n>/` under it; `benchmark/benchmark.json` merges them per metric | `run.passes` ([device-session.md](device-session.md#passes)) |
 | `benchmark/` | `benchmarkData.json`, `clocks.yaml`, `thermal.json`, `cpu-pins.yaml` when written | `--device` |
+| `<pass folder>/blocks/` | `block-<b>.yaml`: one finished block's record ([below](#resuming-a-stopped-run)); the pass folder is `benchmark/` or `benchmark/<pass>/` | `--bench`, `--device` |
 | `benchmark/cases/` | `<id>.json`: one case's pulled `benchmarkData.json`, in each process folder | `--device` with `run.isolation: case` ([device-session.md](device-session.md#one-process-per-case)) |
 | `benchmark/` | `energy.json`, `traces/` (`*.perfetto-trace`, `dry.pftrace`), `energy-dry.yaml`; `manafa/` (`manafa.log`, power profile) with `energy.source: manafa` | energy capture |
 | `scoped/` | `scoped-plan.yaml` with each scope's interop verdict merged in, `scoped-interop.yaml` (the device's verdicts); a failed run keeps only `scoped-plan.failed.yaml` beside `scoped/` | `--harness`, under `checked/`: [scoped.md](../apps/benchmark/modules/android/docs/scoped.md) |

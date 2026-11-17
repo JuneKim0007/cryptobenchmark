@@ -9,7 +9,8 @@ from cryptobench.pipeline.warn import warn
 from cryptobench.shared.errors.line import one_line
 from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared import paths
-from cryptobench.stages.measurement.session import case_isolation, energy_hook, passes, reconnect, variant_order, warmup
+from cryptobench.stages.measurement import resume
+from cryptobench.stages.measurement.session import blocks, case_isolation, energy_hook, passes, reconnect, variant_order, warmup
 from cryptobench.stages.measurement.session import measure as measure_session
 from cryptobench.stages.measurement.measuring import (Measuring, convert, energy_preflight, gated, pass_arguments, pull_pins, record, session_arguments,
                                                          singles, thermal_flag, timed_hooks)
@@ -18,7 +19,7 @@ from cryptobench.pipeline.took import elapsed
 from cryptobench.shared.document.document import read_yaml
 
 
-def measure_on_device(run, one, captures, preparation, isolation, repetitions, folder, written):
+def measure_on_device(run, one, captures, preparation, isolation, repetitions, folder, written, measured_blocks):
     device, captures = run.device, one.captures(captures)
     timed = captures - {"dry"}
     gate = run.gate.session(one.label)
@@ -32,6 +33,10 @@ def measure_on_device(run, one, captures, preparation, isolation, repetitions, f
             joules = paths.Measurement(process.into).energy
             joined = f" {joules}" if "measured" in captures and joules.is_file() else ""
             convert(run, f"{process.data} {paths.Preparation(preparation).prepared} {process.into}{joined}{one.convert_flags()}{thermal_flag(process)}")
+        held(process)
+
+    def held(process):
+        if timed:
             written.append(paths.Measurement(process.into).json)
         record(run.files, process.into, captures, device)
 
@@ -39,7 +44,7 @@ def measure_on_device(run, one, captures, preparation, isolation, repetitions, f
     plan = measure_session.Plan("CryptoBenchmark", arguments, timed=bool(timed), order=variant_order.interleaved,
                                 cleared=(paths.PREPARED, paths.SKIPPED), stale=(paths.Preparation(preparation).prepared, paths.Preparation(preparation).skipped),
                                 pull_plan=lambda process: (pull_plan(device, preparation), pull_pins(device, process.into)), after_process=converted,
-                                gate=gate, retries=run.retries, reconnect=run.reconnect)
+                                gate=gate, retries=run.retries, reconnect=run.reconnect, blocks=measured_blocks, kept=held)
     measure_session.run_session(device, plan, repetitions, isolation, hooks, folder, run.problems)
 
 
@@ -57,6 +62,8 @@ def measure_cases(options, device, results, discovery, effective, capture, trial
     document = effective_view.read(effective)["document"]
     repetitions, captures = effective_view.process_repetitions(document), energy_stage.captures(effective)
     timed = bool(captures - {"dry"})
+    size, identity = effective_view.resume_block_runs(document), resume.run_identity(effective, capture)
+    in_blocks = lambda folder, label, boot: blocks.Blocks(folder, size, repetitions, identity, label, boot)
     if captures - {"none"} and not device:
         raise CommandError("energy: only a --device run captures energy; set harness.energy.capture none for --bench")
     if captures - {"none"}:
@@ -67,17 +74,20 @@ def measure_cases(options, device, results, discovery, effective, capture, trial
         print(waits.line())
         run = Measuring(device, EnergySession(device), energy_stage.source(effective, options.energy_python, options.stacktrace), options, discovery,
                         files, problems, effective_view.throttle_sleep(document), effective_view.case_cooldown(document), reconnect=waits)
-        written, processes = device_cases(run, document, [effective, paths.Configuration.holding(effective).guide, capture, trial], captures, benchmark, preparation)
+        written, processes = device_cases(run, document, [effective, paths.Configuration.holding(effective).guide, capture, trial], captures, benchmark, preparation,
+                                          in_blocks)
     else:
-        written, processes = host_cases(options, document, capture, trial, effective, benchmark, preparation, files, problems), repetitions
+        written, processes = host_cases(options, document, capture, trial, effective, benchmark, preparation, files, problems,
+                                        in_blocks(benchmark, None, lambda: None)), repetitions
     print(f"wrote:     {paths.Preparation(preparation).prepared}")
     elapsed("prepare and measure", started)
     collapse(files, preparation, processes)
     return timed, written, repetitions
 
 
-def device_cases(run, document, plan_files, captures, benchmark, preparation):
-    """Every pass of the run on the device; the per-process files for the manifest and how many processes ran."""
+def device_cases(run, document, plan_files, captures, benchmark, preparation, in_blocks):
+    """Every pass of the run on the device; the per-process files for the manifest and how many processes ran. in_blocks(pass folder, pass name,
+    boot) is a pass's blocks.Blocks."""
     chosen, repetitions = passes.read(document, captures), effective_view.process_repetitions(document)
     energy = any(one.captures(captures) - {"none"} for one in chosen)
     run = gated(run, document)
@@ -85,7 +95,9 @@ def device_cases(run, document, plan_files, captures, benchmark, preparation):
     run.reconnect.retried(lambda: push(run.device, run.options, plan_files, energy_step), "the plan push")
     isolation = effective_view.isolation(document)
     run.reconnect.retried(lambda: warm_up(run, document, preparation), "the warm-up")
-    measure_one = lambda one, folder, written: measure_on_device(run, one, captures, preparation, isolation, repetitions, folder, written)
+    boot = lambda: run.reconnect.retried(run.device.boot_id, "the boot id read")
+    measure_one = lambda one, folder, written: measure_on_device(run, one, captures, preparation, isolation, repetitions, folder, written,
+                                                                 in_blocks(one.folder(benchmark), one.name, boot))
     return passes.run_all(chosen, repetitions, benchmark, measure_one, run.options), repetitions * len(chosen)
 
 
@@ -100,21 +112,28 @@ def warm_up(run, document, preparation):
     warmup.run(run.device, "CryptoBenchmark", arguments, planned, cases, document, run.gate.session("warm-up"))
 
 
-def host_cases(options, document, capture, trial, effective, benchmark, preparation, files, problems):
+def host_cases(options, document, capture, trial, effective, benchmark, preparation, files, problems, measured_blocks):
+    """One BenchKt JVM per repetition, in measured_blocks; a block an earlier run recorded is kept, not measured again."""
     repetitions, written = effective_view.process_repetitions(document), []
     if (document.get("run") or {}).get("passes"):
         warn("run.passes: only a --device run measures in passes; this run measures once per process")
     if effective_view.thermal_gate(document):
         warn("TEMPERATURE SET BUT DEVICE CAN'T POLL: host_runtime; running without it", problems)
-    for repetition in range(1, repetitions + 1):
-        into = measure_session.process_folder(benchmark, repetition, repetitions)
+    folder = lambda repetition: measure_session.process_folder(benchmark, repetition, repetitions)
+
+    def measured(repetition):
+        into = folder(repetition)
         measure_session.process_line(repetition, repetitions)
         (paths.Measurement(into).json).unlink(missing_ok=True)
         gradle_runner.run(f"{capture} {trial} {effective} {into} {preparation}", options.stacktrace, options.stream, main_class="BenchKt",
                           properties=bundled.gradle_properties(document.get(bundled.KEY) or []),
                           failed=lambda message: kept(into, message, problems))
+        held(into)
+
+    def held(into):
         written.append(paths.Measurement(into).json)
         record(files, into, {"none"}, None)
+    blocks.measured(measured_blocks, folder, measured, lambda repetition: held(folder(repetition)), problems)
     if repetitions > 1:
         passes.merge_runs(benchmark, written, options)
     return written
