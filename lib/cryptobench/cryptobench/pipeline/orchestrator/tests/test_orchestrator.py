@@ -3,6 +3,7 @@ import pathlib
 import sys
 
 import pytest
+import yaml
 
 from cryptobench.pipeline.orchestrator import run as session_run
 from cryptobench.pipeline.orchestrator.board import StatusBoard
@@ -63,6 +64,8 @@ def test_groups_run_in_order_each_worker_with_its_serial_and_the_host_last(sessi
     generated = (folder / "emulator-cb-api33/tier2.global.yaml").read_text()
     assert f"testSet: {pathlib.Path(folder).parents[2] / 'tier2.yaml'}" in generated and "seed: 1" in generated
     assert rows[0].results.endswith("/dev-56301AAAA00001/tier1")
+    listed = yaml.safe_load((folder / "index.yaml").read_text())
+    assert [(r["target"], r["suite"], r["state"]) for r in listed["runs"]] == [(r.target, r.suite, r.state) for r in rows] and listed["cases"] == []
 
 
 def test_a_failed_or_skipped_target_never_holds_the_next_group(session):

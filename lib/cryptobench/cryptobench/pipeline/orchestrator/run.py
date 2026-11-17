@@ -10,6 +10,7 @@ import time
 from pathlib import Path
 from typing import Callable
 
+from cryptobench.pipeline.orchestrator import index
 from cryptobench.pipeline.orchestrator import plan as session_plan
 from cryptobench.pipeline.orchestrator import suite_config
 from cryptobench.pipeline.orchestrator.board import StatusBoard
@@ -43,8 +44,8 @@ def pipeline_command(target: TargetSpec, config: Path, results: Path, passed: li
 class Session:
     """The session folder's log and the target logs; each line stamped, one coded line per skip or failure."""
 
-    def __init__(self, folder: Path):
-        self.folder = folder
+    def __init__(self, folder: Path, name: str):
+        self.folder, self.name = folder, name
 
     def log(self, line: str, target: str | None = None, suite: str | None = None) -> None:
         stamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -67,7 +68,7 @@ def run_session(session_file: Path, results: Path, config: Callable[[], Path], p
         print(line)
     folder = paths.Results(results).session(session.name)
     with DeviceLock.take(folder):
-        return orchestrated(session, resolved, Session(folder), results, passed, command, board or StatusBoard())
+        return orchestrated(session, resolved, Session(folder, session.name), results, passed, command, board or StatusBoard())
 
 
 def orchestrated(session, resolved, log: Session, results, passed, command, board) -> list[Row]:
@@ -144,3 +145,6 @@ def finish(log: Session, summary: list[Row], board: StatusBoard | None = None) -
     for line in table(summary):
         print(f"  {line}")
     log.log(f"summary: {path}")
+    listed = index.written(log.name, summary, log.folder / paths.INDEX)
+    print(f"index:     {listed}")
+    log.log(f"index: {listed}")

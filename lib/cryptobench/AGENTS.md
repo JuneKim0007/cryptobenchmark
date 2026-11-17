@@ -16,8 +16,9 @@ cryptobench/__init__.py : package of the Python library the benchmark runner and
 cryptobench/pipeline/__init__.py : package of the run's stage framework, importing no stage
 cryptobench/pipeline/orchestrator/__init__.py : package of the session orchestrator: plan, workers, status lines, summary; imports no stage
 cryptobench/pipeline/orchestrator/board.py : StatusBoard: one status line per target, redrawn in place on a terminal, else printed on change
+cryptobench/pipeline/orchestrator/index.py : index.yaml: every case of a session's runs from the files each run wrote: suite, device, target, configured, prepared, skip code, runs measured, from
 cryptobench/pipeline/orchestrator/plan.py : a session's plan before anything runs: devices listed, targets resolved and grouped, skips and notices; --check-session
-cryptobench/pipeline/orchestrator/run.py : --session: the plan, order groups ascending, one worker per target and suite (sequential), each skip or failure in the session log, the target log and the summary; a stop forwarded to the running worker; session_incomplete
+cryptobench/pipeline/orchestrator/run.py : --session: the plan, order groups ascending, one worker per target and suite (sequential), each skip or failure in the session log, the target log and the summary, then index.yaml; a stop forwarded to the running worker; session_incomplete
 cryptobench/pipeline/orchestrator/suite_config.py : one suite's global.yaml in the session folder: the target's config with selection.testSet the suite
 cryptobench/pipeline/orchestrator/summary.py : Row; the summary table (target, suite, state, code, results), written as summary.txt
 cryptobench/pipeline/orchestrator/tests/ : pytest tests of the orchestrator with fake workers: order, serials, skips, failures, stop, status lines

@@ -77,8 +77,29 @@ Prints the device listing, one `order <n>:   <target> (<key>, adb <serial> | hos
 
 | file | holds |
 |---|---|
-| `session.log` | one stamped line per event: `session`, `notice:`, `skipped: <target>: <line>`, `start: <target> <suite>: <argv>`, `finished:`, `failed: <target> <suite>: <worker's error line>`, `stopped:`, `summary:` |
+| `session.log` | one stamped line per event: `session`, `notice:`, `skipped: <target>: <line>`, `start: <target> <suite>: <argv>`, `finished:`, `failed: <target> <suite>: <worker's error line>`, `stopped:`, `summary:`, `index:` |
 | `<target>/<suite>.log` | the worker's stdout and stderr, then the session's line for it; `<target>` with characters other than letters, digits, `.`, `_`, `-` as `-` |
 | `<target>/target.log` | a skipped target's line |
 | `<target>/<suite>.global.yaml` | the suite config |
 | `summary.txt` | `target suite state code results`; state `finished`, `failed`, `skipped`, `stopped` or `not started`; code the first word of the worker's last `error:` line, `subprocess_failed` for an exit without one |
+| `index.yaml` | [index.yaml](#indexyaml) |
+
+## index.yaml
+
+`lib/cryptobench/cryptobench/pipeline/orchestrator/index.py`, written after the summary, also after a stop. Read from each run's own files: `configuration/effective.yaml` and `report.yaml`, `preparation/prepared.yaml` and `skipped.yaml`, `benchmark/benchmark.json`.
+
+| key | holds |
+|---|---|
+| `schemaVersion`, `session` | 1, the session's name |
+| `runs[]` | `target`, `suite`, `state`, `code`, `results`: the summary's rows |
+| `cases[]` | one per case of every run with `results` |
+
+| case key | holds |
+|---|---|
+| `id` | the prepared case id; a preparation skip's id from its `<case id>: <code>: ...` reason (an id ends in its variant); null for a config skip |
+| `entry` | a config skip only: `<provider>.<type>.<name>` |
+| `suite`, `device`, `target` | the suite (the tier), the device folder's name, the session's target |
+| `configured`, `prepared` | in effective.yaml; in prepared.yaml |
+| `skip` | the skip's code, null when prepared |
+| `runs` | the `timeNs` runs benchmark.json holds for the id (the first metric without time), 0 when absent |
+| `from` | the prepared case's `from`; for a preparation skip the effective entry's of that provider, type and name; null for a config skip |
