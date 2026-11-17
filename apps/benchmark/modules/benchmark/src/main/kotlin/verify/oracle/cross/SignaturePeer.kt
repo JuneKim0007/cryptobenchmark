@@ -2,6 +2,7 @@ package io.github.junekim0007.cryptobench.benchmark.verify.oracle.cross
 
 import io.github.junekim0007.cryptobench.benchmark.verify.OutputBytes
 import io.github.junekim0007.cryptobench.benchmark.verify.oracle.CheckedCall
+import io.github.junekim0007.cryptobench.jca.failure.Attempt
 import io.github.junekim0007.cryptobench.preparation.input.OperationInput
 import io.github.junekim0007.cryptobench.preparation.interop.report.Outcome
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
@@ -21,7 +22,7 @@ internal object SignaturePeer : PeerCheck {
             val input = prepared.input as? OperationInput.SignedMessage ?: return Outcome.NotCheckable("no_signed_input")
             input.message to input.signature
         }
-        val reported = runCatching { (call.invocation.engine as? Signature)?.parameters }.getOrNull()
+        val reported = Attempt.of { (call.invocation.engine as? Signature)?.parameters }.getOrNull()
         return PeerRun.of({
             val spec = PeerParameters.spec(PeerParameters.used(prepared, if (prepared.parameters == null) null else reported))
             Signature.getInstance(prepared.case.algorithm, peer).apply {

@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.benchmark.verify.oracle.cross
 
+import io.github.junekim0007.cryptobench.jca.failure.Attempt
 import java.security.Key
 import java.security.KeyFactory
 import java.security.PrivateKey
@@ -30,7 +31,7 @@ internal object PeerKey {
         val provider = Security.getProvider(peer) ?: throw PeerRefusal(REJECTED, "not_installed: $peer")
         val names = listOf(key.algorithm) + provider.services.filter { it.type == "KeyFactory" }.map { it.algorithm }.sorted()
         for (name in names.distinct()) {
-            val rebuilt = runCatching { generate(KeyFactory.getInstance(name, provider), spec) }.getOrNull()
+            val rebuilt = Attempt.of { generate(KeyFactory.getInstance(name, provider), spec) }.getOrNull()
             if (rebuilt != null) return rebuilt
         }
         throw PeerRefusal(REJECTED, "no KeyFactory of $peer rebuilds the ${key.algorithm} ${key.format} encoding")

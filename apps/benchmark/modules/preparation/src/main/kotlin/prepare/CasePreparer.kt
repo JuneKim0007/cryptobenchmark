@@ -51,25 +51,23 @@ internal class CasePreparer(
     // a key born inside its provider: the spec carries the slot's alias; the dry run's key is read back, then the slot emptied
     private fun secure(case: BenchmarkCase, recipe: KeyRecipe, material: KeyMaterial, keyParameters: BoundParameters?): PreparedCase {
         val key = SecureKey(case)
-        val spec = secureStep(key) { BoundParameters.cycling(listOf(key.spec(keyParameters?.next()))) }
+        val spec = step(key::refusal) { BoundParameters.cycling(listOf(key.spec(keyParameters?.next()))) }
         val candidate = PreparedCase(case, recipe, material, null, spec, OperationInput.None, afterCall = key::delete)
-        val invocation = secureStep(key) { Invocations.of(candidate) }
-        val result = secureStep(key) { invocation.once() }
-        try {
+        val invocation = step(key::refusal) { Invocations.of(candidate) }
+        val result = step(key::refusal) { invocation.once() }
+        // the slot is emptied whatever happens; a failed delete is suppressed under the read's failure, never in its place
+        return AutoCloseable { step(key::refusal) { key.delete() } }.use {
             val observed = step("parameters_unreadable: ") { KeyInfoFields.of(result, case.provider) }
             val resolved = step("parameters_unreadable: ") { ResolvedParameters.of(invocation.engine, material, result) }
             val levels = linkedMapOf<String, Any>(KeySource.BACKING to case.keySource.requestedBacking, KeyInfoFields.SECURITY_LEVEL to observed.getValue(KeyInfoFields.SECURITY_LEVEL))
-            return candidate.copy(resolvedParameters = observed.filterKeys { it == KeyInfoFields.KEY_BITS } + resolved + levels, perCall = invocation.perCall)
-        } finally {
-            secureStep(key) { key.delete() }
+            candidate.copy(resolvedParameters = observed.filterKeys { it == KeyInfoFields.KEY_BITS } + resolved + levels, perCall = invocation.perCall)
         }
     }
 
-    private inline fun <T> secureStep(key: SecureKey, block: () -> T): T =
-        Attempt.of(block).getOrElse { failure -> throw PreparationException(key.refusal(failure), failure) }
+    private inline fun <T> step(code: String, block: () -> T): T = step({ FailureText.of(it, code) }, block)
 
-    private inline fun <T> step(code: String, block: () -> T): T =
-        Attempt.of(block).getOrElse { failure -> throw PreparationException(FailureText.of(failure, code), failure) }
+    private inline fun <T> step(reason: (Throwable) -> String, block: () -> T): T =
+        Attempt.of(block).getOrElse { failure -> throw PreparationException(reason(failure), failure) }
 
     private fun bound(tree: Map<String, Any>, path: String) =
         if (tree.isEmpty()) null else binder.bind(tree, path)

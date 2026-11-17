@@ -52,7 +52,7 @@ def _item(view: dict, build: str | None, exact: bool, recipes: dict) -> dict:
         keystore = {k: v for k, v in (view.get(KEYSTORE) or {}).items() if k not in KEYSTORE_LEAVES}
         if keystore:
             return {**item, KEYSTORE: keystore}
-        return {**item, "refused": "key_inside_provider: this provider keeps its own keys; the harness cannot create them yet"}
+        return {**item, "refused": "key_inside_provider: this provider keeps its own keys; its catalogue entry gives no keystore block to make one inside"}
     carried = carried_recipes(view)
     if len(carried) > 1:
         return {**item, "problem": f"guide_recipe_unbuildable: {carried} are several objects for one init"}

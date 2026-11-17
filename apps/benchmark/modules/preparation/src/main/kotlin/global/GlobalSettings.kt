@@ -14,7 +14,7 @@ data class GlobalSettings(
     val seed: Long,
     val onFailure: OnFailure,
     val harness: HarnessSettings = HarnessSettings(),
-    val variants: List<Variant> = Variant.entries,
+    val variants: List<Variant>,
 ) {
 
     init {

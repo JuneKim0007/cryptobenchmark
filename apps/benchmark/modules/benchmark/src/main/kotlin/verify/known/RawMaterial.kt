@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.benchmark.verify.known
 
+import io.github.junekim0007.cryptobench.jca.failure.Attempt
 import io.github.junekim0007.cryptobench.preparation.input.OperationInput
 import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterial
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
@@ -53,7 +54,7 @@ object RawMaterial {
     private fun key(raw: KnownAnswer.RawKey, provider: String): KeyMaterial = when (raw) {
         is KnownAnswer.RawKey.Secret -> KeyMaterial.Secret(SecretKeySpec(raw.bytes, raw.algorithm))
         is KnownAnswer.RawKey.Pair -> {
-            val factory = runCatching { KeyFactory.getInstance(raw.algorithm, provider) }.getOrElse { KeyFactory.getInstance(raw.algorithm) }
+            val factory = Attempt.of { KeyFactory.getInstance(raw.algorithm, provider) }.getOrElse { KeyFactory.getInstance(raw.algorithm) }
             KeyMaterial.Pairs(listOf(KeyPair(factory.generatePublic(X509EncodedKeySpec(raw.publicDer)), factory.generatePrivate(PKCS8EncodedKeySpec(raw.privateDer)))))
         }
     }

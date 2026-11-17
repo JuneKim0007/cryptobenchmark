@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.benchmark.verify.oracle.cross
 
+import io.github.junekim0007.cryptobench.jca.failure.Attempt
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
 import java.security.AlgorithmParameters
 import java.security.spec.AlgorithmParameterSpec
@@ -15,7 +16,7 @@ internal object PeerParameters {
     private val SPECS = listOf(GCMParameterSpec::class.java, OAEPParameterSpec::class.java, PSSParameterSpec::class.java, IvParameterSpec::class.java)
 
     fun portable(reported: AlgorithmParameters): Any =
-        SPECS.firstNotNullOfOrNull { runCatching { reported.getParameterSpec(it) }.getOrNull() } ?: reported
+        SPECS.firstNotNullOfOrNull { Attempt.of { reported.getParameterSpec(it) }.getOrNull() } ?: reported
 
     // null: the call used none. A spec drawn per call that the engine does not report cannot be recovered.
     fun used(prepared: PreparedCase, reported: AlgorithmParameters?): Any? {
@@ -28,7 +29,7 @@ internal object PeerParameters {
     fun spec(used: Any?): AlgorithmParameterSpec? = when (used) {
         null -> null
         is AlgorithmParameterSpec -> used
-        is AlgorithmParameters -> SPECS.firstNotNullOfOrNull { runCatching { used.getParameterSpec(it) }.getOrNull() }
+        is AlgorithmParameters -> SPECS.firstNotNullOfOrNull { Attempt.of { used.getParameterSpec(it) }.getOrNull() }
             ?: throw PeerRefusal("parameters_not_recoverable", "no spec read from ${used.algorithm} parameters")
         else -> throw PeerRefusal("parameters_not_recoverable", "${used.javaClass.simpleName}")
     }

@@ -44,7 +44,7 @@ one named case (Preparation.prepareOne): KeyPlanner -> KeyMaterialGenerator -> b
 | `inputSizes` | required; non-empty, positive, distinct |
 | `phases` | required; non-empty; `WARM` |
 | `metrics` | required; `TIME`, `ALLOCATION`; must hold `TIME`, no repeats (`Metric.read` in `:settings`) |
-| `variants` | optional, default `[fixed, notFixed]`; distinct values of `fixed`, `notFixed`, may be empty; an entry without its own takes it ([operations.md](operations.md#variants)) |
+| `variants` | required, config writes it (its default lives there); distinct values of `fixed`, `notFixed`, `secure`, may be empty; absent: `missing_field`; an entry without its own takes it ([operations.md](operations.md#variants)) |
 | `processRepetitions` | required; `>= 1` |
 | `seed` | required |
 | `harness` | optional; settings key table |

@@ -11,7 +11,6 @@ import io.github.junekim0007.cryptobench.document.DocumentFields.expectKeys
 import io.github.junekim0007.cryptobench.document.DocumentFields.number
 import io.github.junekim0007.cryptobench.document.DocumentFields.numbers
 import io.github.junekim0007.cryptobench.document.DocumentFields.sectionOrEmpty
-import io.github.junekim0007.cryptobench.document.DocumentFields.optionalStrings
 import io.github.junekim0007.cryptobench.document.DocumentFields.string
 import io.github.junekim0007.cryptobench.document.DocumentFields.strings
 
@@ -38,6 +37,6 @@ object GlobalReader {
         seed = number(inbound.run, "seed").toLong(),
         onFailure = choice<OnFailure>("onFailure", string(inbound.policy, "onFailure")),
         harness = HarnessSettings.read(sectionOrEmpty(inbound.run, "harness"), "run.harness"),
-        variants = if ("variants" in inbound.run) optionalStrings(inbound.run, "variants").map(Variant::of) else Variant.entries,
+        variants = strings(inbound.run, "variants").map(Variant::of),
     )
 }

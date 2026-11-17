@@ -32,6 +32,7 @@ run:
   metrics: [TIME]
   processRepetitions: 3
   seed: 0
+  variants: [fixed, notFixed, secure]
 policy: {onFailure: skip}
 providers:
   SUN:

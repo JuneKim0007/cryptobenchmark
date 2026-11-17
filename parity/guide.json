@@ -58,7 +58,7 @@
     "RSA/ECB/PKCS1Padding": {
      "build": "AndroidKeyStoreBCWorkaround @ android-36",
      "exactBuild": false,
-     "refused": "key_inside_provider: this provider keeps its own keys; the harness cannot create them yet"
+     "refused": "key_inside_provider: this provider keeps its own keys; its catalogue entry gives no keystore block to make one inside"
     }
    }
   },
