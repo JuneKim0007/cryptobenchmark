@@ -1,0 +1,68 @@
+schemaVersion: 1
+skipped:
+- {stage: preparation, provider: AndroidKeyStore, type: KeyPairGenerator, name: EC,
+  reason: 'KeyPairGenerator_EC-sbp384_GENERATE-KEY-PAIR_AndroidKeyStore_WARM_p4243a0f7_secure:
+    keystore_unsupported: KeyPairGenerator EC: InvalidAlgorithmParameterException:
+    Unsupported StrongBox EC key size: 384 bits. Supported: 256'}
+- {stage: preparation, provider: AndroidKeyStore, type: KeyPairGenerator, name: EC,
+  reason: 'KeyPairGenerator_EC-sbp384_GENERATE-KEY-PAIR_AndroidKeyStore_WARM_p4243a0f7_secure:
+    keystore_unsupported: KeyPairGenerator EC: InvalidAlgorithmParameterException:
+    Unsupported StrongBox EC key size: 384 bits. Supported: 256'}
+- {stage: preparation, provider: AndroidKeyStore, type: KeyPairGenerator, name: EC,
+  reason: 'KeyPairGenerator_EC-sbp384_GENERATE-KEY-PAIR_AndroidKeyStore_WARM_p4243a0f7_secure:
+    keystore_unsupported: KeyPairGenerator EC: InvalidAlgorithmParameterException:
+    Unsupported StrongBox EC key size: 384 bits. Supported: 256'}
+- {stage: preparation, provider: AndroidKeyStore, type: KeyPairGenerator, name: ED25519,
+  reason: 'KeyPairGenerator_ED25519-sb_GENERATE-KEY-PAIR_AndroidKeyStore_WARM_pcf1382cc_secure:
+    keystore_unsupported: KeyPairGenerator ED25519: InvalidAlgorithmParameterException:
+    Unsupported StrongBox EC: ed25519'}
+- {stage: preparation, provider: AndroidKeyStore, type: KeyPairGenerator, name: ED25519,
+  reason: 'KeyPairGenerator_ED25519-sb_GENERATE-KEY-PAIR_AndroidKeyStore_WARM_pcf1382cc_secure:
+    keystore_unsupported: KeyPairGenerator ED25519: InvalidAlgorithmParameterException:
+    Unsupported StrongBox EC: ed25519'}
+- {stage: preparation, provider: AndroidKeyStore, type: KeyPairGenerator, name: ED25519,
+  reason: 'KeyPairGenerator_ED25519-sb_GENERATE-KEY-PAIR_AndroidKeyStore_WARM_pcf1382cc_secure:
+    keystore_unsupported: KeyPairGenerator ED25519: InvalidAlgorithmParameterException:
+    Unsupported StrongBox EC: ed25519'}
+- {stage: preparation, provider: AndroidKeyStore, type: KeyPairGenerator, name: RSA,
+  reason: 'KeyPairGenerator_RSA-sb_GENERATE-KEY-PAIR_AndroidKeyStore_k3072_WARM_pcf1382cc_secure:
+    keystore_unsupported: KeyPairGenerator RSA/3072: KeyStoreException: Unsupported
+    key size (internal Keystore code: -6 message: system/security/keystore2/src/security_level.rs:807
+    Caused by: 0: system/s'}
+- {stage: preparation, provider: AndroidKeyStore, type: KeyPairGenerator, name: RSA,
+  reason: 'KeyPairGenerator_RSA-sb_GENERATE-KEY-PAIR_AndroidKeyStore_k3072_WARM_pcf1382cc_secure:
+    keystore_unsupported: KeyPairGenerator RSA/3072: KeyStoreException: Unsupported
+    key size (internal Keystore code: -6 message: system/security/keystore2/src/security_level.rs:807
+    Caused by: 0: system/s'}
+- {stage: preparation, provider: AndroidKeyStore, type: KeyPairGenerator, name: RSA,
+  reason: 'KeyPairGenerator_RSA-sb_GENERATE-KEY-PAIR_AndroidKeyStore_k3072_WARM_pcf1382cc_secure:
+    keystore_unsupported: KeyPairGenerator RSA/3072: KeyStoreException: Unsupported
+    key size (internal Keystore code: -6 message: system/security/keystore2/src/security_level.rs:807
+    Caused by: 0: system/s'}
+- {stage: preparation, provider: AndroidKeyStore, type: KeyPairGenerator, name: RSA,
+  reason: 'KeyPairGenerator_RSA-sb_GENERATE-KEY-PAIR_AndroidKeyStore_k4096_WARM_pcf1382cc_secure:
+    keystore_unsupported: KeyPairGenerator RSA/4096: KeyStoreException: Unsupported
+    key size (internal Keystore code: -6 message: system/security/keystore2/src/security_level.rs:807
+    Caused by: 0: system/s'}
+- {stage: preparation, provider: AndroidKeyStore, type: KeyPairGenerator, name: RSA,
+  reason: 'KeyPairGenerator_RSA-sb_GENERATE-KEY-PAIR_AndroidKeyStore_k4096_WARM_pcf1382cc_secure:
+    keystore_unsupported: KeyPairGenerator RSA/4096: KeyStoreException: Unsupported
+    key size (internal Keystore code: -6 message: system/security/keystore2/src/security_level.rs:807
+    Caused by: 0: system/s'}
+- {stage: preparation, provider: AndroidKeyStore, type: KeyPairGenerator, name: RSA,
+  reason: 'KeyPairGenerator_RSA-sb_GENERATE-KEY-PAIR_AndroidKeyStore_k4096_WARM_pcf1382cc_secure:
+    keystore_unsupported: KeyPairGenerator RSA/4096: KeyStoreException: Unsupported
+    key size (internal Keystore code: -6 message: system/security/keystore2/src/security_level.rs:807
+    Caused by: 0: system/s'}
+- {stage: preparation, provider: AndroidKeyStore, type: KeyPairGenerator, name: XDH,
+  reason: 'KeyPairGenerator_XDH-sb_GENERATE-KEY-PAIR_AndroidKeyStore_WARM_pcf1382cc_secure:
+    keystore_unsupported: KeyPairGenerator XDH: InvalidAlgorithmParameterException:
+    Unsupported StrongBox EC: x25519'}
+- {stage: preparation, provider: AndroidKeyStore, type: KeyPairGenerator, name: XDH,
+  reason: 'KeyPairGenerator_XDH-sb_GENERATE-KEY-PAIR_AndroidKeyStore_WARM_pcf1382cc_secure:
+    keystore_unsupported: KeyPairGenerator XDH: InvalidAlgorithmParameterException:
+    Unsupported StrongBox EC: x25519'}
+- {stage: preparation, provider: AndroidKeyStore, type: KeyPairGenerator, name: XDH,
+  reason: 'KeyPairGenerator_XDH-sb_GENERATE-KEY-PAIR_AndroidKeyStore_WARM_pcf1382cc_secure:
+    keystore_unsupported: KeyPairGenerator XDH: InvalidAlgorithmParameterException:
+    Unsupported StrongBox EC: x25519'}

@@ -1,7 +1,8 @@
-"""The device plan: pushed and AOT-compiled, prepared and skipped pulled back, the per-run outputs cleared; a run's push with the
+"""The device plan: pushed and AOT-compiled, prepared and skipped pulled back, the skips recorded so far, the per-run outputs cleared; a run's push with the
 suppressErrors warning and the energy settle's files."""
 from cryptobench.shared import paths
 from cryptobench.shared.device.adb import PACKAGE, DeviceError
+from cryptobench.shared.document.document import read_yaml
 
 
 def push_plan(device, *files):
@@ -18,6 +19,14 @@ def pull_plan(device, preparation):
     preparation.mkdir(parents=True, exist_ok=True)
     device.pull(f"{device.files}/{paths.PREPARED}", paths.Preparation(preparation).prepared)
     device.pull(f"{device.files}/{paths.SKIPPED}", paths.Preparation(preparation).skipped)
+
+
+
+def recorded_skips(device, local):
+    """The device's skipped.yaml pulled to local, as its document; empty when it cannot be pulled."""
+    local.parent.mkdir(parents=True, exist_ok=True)
+    pulled = device.run("pull", f"{device.files}/{paths.SKIPPED}", str(local), check=False)
+    return read_yaml(local) if pulled.returncode == 0 and local.is_file() else {}
 
 
 def clear_outputs(device, plan_files=()):

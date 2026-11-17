@@ -4,7 +4,8 @@ import time
 from cryptobench.shared.settings import effective_view
 from cryptobench.shared.device import timeouts
 from cryptobench.stages.measurement.session import case_isolation
-from cryptobench.stages.measurement.session import dynamic_temperature, passes
+from cryptobench.stages.measurement.session import dynamic_temperature, passes, skips
+from cryptobench.stages.measurement.session.measure import COUNTED
 from cryptobench.stages.measurement import thermal
 from cryptobench.shared.device.adb import PASSED, DeviceError, DeviceLost
 from cryptobench.shared.device.plan import clear_outputs
@@ -39,18 +40,29 @@ def off(document):
     return False
 
 
-def run(device, test_class, arguments, planned, cases, document, gate=dynamic_temperature.Off()):
-    """One process over the chosen cases; a failure warns and the session goes on. Returns the cases it ran."""
+def run(device, test_class, arguments, planned, cases, document, gate=dynamic_temperature.Off(), skipped=lambda: {}):
+    """One process over the chosen cases; a failure warns and the session goes on. skipped(): the device's final skips by case id
+    (skips.py); a chosen case among them is left out and the choice made again. Returns the cases it warmed."""
     if off(document):
         return []
     iterations, jobs = settings(document)
-    selected = chosen(planned, cases, jobs)
-    if not selected:
-        warn("WARM-UP SKIPPED: run.warmup.jobs select no planned case; measuring without a warm-up")
-        return []
+    left_out = {case: code for case, code in skipped().items() if case in planned}
+    while True:
+        selected = chosen([case for case in planned if case not in left_out], cases, jobs)
+        if not selected:
+            warn("WARM-UP SKIPPED: run.warmup.jobs select no planned case" + (" that prepares" if left_out else "") + "; measuring without a warm-up")
+            return []
+        warmed = once(device, test_class, arguments, selected, iterations, gate, left_out, skipped)
+        if warmed is not None:
+            return warmed
+
+
+def once(device, test_class, arguments, selected, iterations, gate, left_out, skipped):
+    """The warmed cases; [] after a failure; None when every chosen case was a final skip, now in left_out."""
     gate.hold("warm-up")
     before, started = thermal.read(device), time.monotonic()
     named = ("-e", case_isolation.CASE_ARGUMENT, ",".join(selected), "-e", passes.PASS_ARGUMENT, WARMUP_PASS, "-e", passes.SAMPLES_ARGUMENT, str(iterations))
+    output = ""
     try:
         output = device.instrument(test_class, *arguments, *named, step="case")
         failed = None if PASSED.search(output) else device.report(output)
@@ -59,12 +71,20 @@ def run(device, test_class, arguments, planned, cases, document, gate=dynamic_te
     except (DeviceError, timeouts.StepTimeout) as error:
         device.force_stop()
         failed = str(error)
+    found = {case: code for case, code in skipped().items() if case in selected} if failed else {}
     clear_outputs(device)
     after = thermal.read(device)
-    if failed:
+    for case, code in found.items():
+        print(f"warm-up:   {skips.line(case, code)}")
+    left_out.update(found)
+    counted = COUNTED.search(output)
+    if failed and not (found and counted and int(counted.group(2)) == len(found)):
         warn("WARM-UP FAILED, measuring anyway: " + one_line(failed, 300))
         return []
+    warmed = [case for case in selected if case not in found]
+    if not warmed:
+        return None
     heat = (f"hottest {before.hottest:.1f} C before, {after.hottest:.1f} C after" if before.hottest is not None and after.hottest is not None
             else "temperature unavailable")
-    print(f"warm-up:   {len(selected)} cases x {iterations} samples in {time.monotonic() - started:.0f}s, a pre-flight check, not measured; {heat}")
-    return selected
+    print(f"warm-up:   {len(warmed)} cases x {iterations} samples in {time.monotonic() - started:.0f}s, a pre-flight check, not measured; {heat}")
+    return warmed

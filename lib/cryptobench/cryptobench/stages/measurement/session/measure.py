@@ -4,9 +4,10 @@ import dataclasses, pathlib, re
 
 from cryptobench.shared.settings import effective_view
 from cryptobench.shared.device import timeouts
+from cryptobench.shared.errors.failures import AllSkipped
 from cryptobench.shared.errors.line import one_line
 from cryptobench.stages.measurement import case_files
-from cryptobench.stages.measurement.session import blocks, calibration, case_isolation, dynamic_temperature, launch, reconnect
+from cryptobench.stages.measurement.session import blocks, calibration, case_isolation, dynamic_temperature, launch, reconnect, skips
 from cryptobench.shared.device.adb import PASSED, DeviceError, DeviceLost
 from cryptobench.shared.device.plan import clear_outputs
 from cryptobench.shared import paths
@@ -35,6 +36,8 @@ class Plan:
     # the pass's blocks.Blocks; None measures every repetition and records nothing
     blocks: object = None
     kept: object = lambda _process: None
+    # a failed case's final skip code from the device's skipped.yaml (skips.py); None: an ordinary failure
+    refused: object = lambda _case: None
 
 
 @dataclasses.dataclass
@@ -184,7 +187,7 @@ def each_case(device, plan, process, hooks):
     measured = []
     for number, case in enumerate(process.cases, 1):
         failure = launch.run_of_case(device, plan, process, case, hooks, case_files.path(process.into, case))
-        print(f"case:      {number} of {len(process.cases)} {case} {'failed' if failure else 'ok'}")
+        print(f"case:      {number} of {len(process.cases)} {case} {verdict(failure)}")
         if failure:
             print(failure)
             process.failures.append(failure)
@@ -192,8 +195,16 @@ def each_case(device, plan, process, hooks):
             measured.append(case)
             # rewritten after every case, so an error that ends the session keeps every case measured before it
             case_files.merge(process.into, measured, process.data)
+    if not measured and skips.every_case(process.failures):
+        raise AllSkipped(f"{skips.ALL_CASES_SKIPPED}: every case of {plan.test_class} is a coded preparation skip: {len(process.failures)} cases, "
+                         f"listed in {paths.SKIPPED}")
     if not measured:
         raise DeviceError(f"{plan.test_class} failed on the device for every case:\n" + "\n".join(process.failures or ["no case planned"]))
+
+
+
+def verdict(failure):
+    return "ok" if not failure else "skipped" if skips.every_case([failure]) else "failed"
 
 
 def all_cases(device, plan, process):

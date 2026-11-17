@@ -1008,6 +1008,7 @@ codes:
   agreement_needs_key_pairs: {kind: error}
   agrees_differently: {kind: outcome}
   algorithm_not_literal: {kind: outcome}
+  all_cases_skipped: {kind: outcome}
   allocation_runs_changed: {kind: notice}
   ambiguous_call: {kind: outcome}
   ambiguous_init: {kind: outcome}
@@ -1033,6 +1034,7 @@ codes:
   call_failed: {kind: outcome}
   call_moved: {kind: outcome}
   case_failed: {kind: error}
+  case_skipped: {kind: outcome}
   charts_failed: {kind: notice}
   # E11: Kotlin: one case's check threw, so the case is skipped (RunnablePlan.kt); runner: checked cases failed, exit 1 (cryptobench/stages/verification/check.py)
   check_failed: {kind: outcome}

@@ -30,5 +30,9 @@ class EnergyError(Coded):
     """Raised by the energy sources, reported by the runner."""
 
 
+class AllSkipped(Coded):
+    """Every case of a process was a coded preparation skip: the run's outcome, exit 0, never a device failure."""
+
+
 class CommandError(Coded):
     """Raised by the runner's library code, reported by its entry point as one `error:` line and exit 1, never a traceback."""

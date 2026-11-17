@@ -102,6 +102,8 @@ Why: the phone's power controller lowers the CPU limit once skin reaches its own
 | stop | still too hot after `pollTerminateMinutes`: the benchmark stops with `temperature_gate_timeout` |
 | limit | `discardLimit` discards of one run: `onDiscardLimit` |
 | unreadable | a reading is retried `readRetries` times; still unreadable: logged, that run is dropped, the next case goes on; a failed reading is never a pass |
+| refused | a failed launch whose case the device recorded in `skipped.yaml` with a code `codes.yaml` holds as an `outcome` or an `error` (`keystore_unsupported`, `strongbox_unavailable`, `api_too_low`, `not_supported`, ...): `case_skipped: <id>: <code>` in `problems`, not launched again in that process; a record without such a code, or none, is an other failure |
+| all skipped | a process whose every case is `case_skipped`: `all_cases_skipped: ...`, the run stops measuring, its manifest keeps `prepared.yaml` and `skipped.yaml` and no `benchmark.json`, exit 0 |
 | other failures | crash, timeout, no data, collapsed calibration: `launchRetries` more launches, then the next case |
 | order | hold, then the case hooks, launch, hooks, verdict (`lib/cryptobench/cryptobench/stages/measurement/session/launch.py`) |
 
@@ -112,7 +114,7 @@ Why: the phone's power controller lowers the CPU limit once skin reaches its own
 | rule | value |
 |---|---|
 | what it is | a pre-flight check that the app, the providers and the timed loop run on this device; not temperature stabilisation, and no number of it is kept |
-| cases | `jobs`: test-set rules, resolved by config to the entries they select; `[]` the plan's first 3 |
+| cases | `jobs`: test-set rules, resolved by config to the entries they select; `[]` the plan's first 3; a case `skipped.yaml` holds as a final skip is left out, and a warm-up whose only failures are such skips prints `warm-up:   case_skipped: <id>: <code>` per case and counts the rest, or chooses again when none is left |
 | samples | `iterations` (10) per case, as `-e cryptobench.pass warmup`: no energy capture |
 | output | deleted on the device right after; never pulled, never converted, never in `benchmark.json` |
 | printed | `warm-up:   <n> cases x <i> samples in <s>s, a pre-flight check, not measured; hottest <c> C before, <c> C after` |
@@ -135,7 +137,7 @@ Why: the phone's power controller lowers the CPU limit once skin reaches its own
 
 - Why: a provider that leaks native memory across calls can abort its process (seen: a bundled provider's HMAC throwing `std::bad_alloc` after many `doFinal` calls on one reused `Mac`). In one process that ends every case after it; with a process per case the OS reclaims the memory when the case's process exits, and only that case is lost.
 - Cost: each case pays an instrumentation start, about 1–2 s against about 60 s of measuring, and the device lists the plan again in every process without calling a provider, then prepares only its own case.
-- A case whose process fails (`Process crashed.`, a failed test, no `benchmarkData.json`) or passes the `case` ceiling ([Timeouts](run.md#timeouts); the app is force-stopped before the next case) prints `case_failed: <id>: <reason>`, goes to `manifest.yaml` `problems`, and the run goes on; every case failing raises.
+- A case whose process fails (`Process crashed.`, a failed test, no `benchmarkData.json`) or passes the `case` ceiling ([Timeouts](run.md#timeouts); the app is force-stopped before the next case) prints `case_failed: <id>: <reason>`, goes to `manifest.yaml` `problems`, and the run goes on; every case failing raises, unless every one is `case_skipped` ([Thermal gate](#thermal-gate) table, `all skipped`).
 - `isolation: run`: `CryptoBenchmark` partial failures become warnings; all failed raises.
 - Energy: the rails pre-flight runs once per run, after the plan push and AOT compile, never per process; `measured` keeps one Jetpack trace per case either way; `EnergyDryBenchmark`, `ScopedInterop`, `InteropCheck` and `DeviceProbe` stay one process each.
 

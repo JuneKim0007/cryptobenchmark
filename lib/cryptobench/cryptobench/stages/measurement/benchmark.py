@@ -7,14 +7,14 @@ from cryptobench.stages.measurement.energy import steps as energy_stage
 from cryptobench.stages.measurement.energy.session import EnergySession
 from cryptobench.pipeline.warn import warn
 from cryptobench.shared.errors.line import one_line
-from cryptobench.shared.errors.failures import CommandError
+from cryptobench.shared.errors.failures import AllSkipped, CommandError
 from cryptobench.shared import paths
 from cryptobench.stages.measurement import resume
-from cryptobench.stages.measurement.session import blocks, case_isolation, energy_hook, passes, reconnect, warmup
+from cryptobench.stages.measurement.session import blocks, case_isolation, energy_hook, passes, reconnect, skips, warmup
 from cryptobench.stages.measurement.session import measure as measure_session
 from cryptobench.stages.measurement.measuring import (Measuring, convert, energy_preflight, gated, pass_arguments, pull_pins, record, session_arguments,
                                                          singles, thermal_flag, timed_hooks)
-from cryptobench.shared.device.plan import pull_plan, push
+from cryptobench.shared.device.plan import pull_plan, push, recorded_skips
 from cryptobench.pipeline.took import elapsed
 from cryptobench.shared.document.document import read_yaml
 
@@ -44,8 +44,15 @@ def measure_on_device(run, one, captures, preparation, isolation, repetitions, f
     plan = measure_session.Plan("CryptoBenchmark", arguments, timed=bool(timed), order=run.order,
                                 cleared=(paths.PREPARED, paths.SKIPPED), stale=(paths.Preparation(preparation).prepared, paths.Preparation(preparation).skipped),
                                 pull_plan=lambda process: (pull_plan(device, preparation), pull_pins(device, process.into)), after_process=converted,
-                                gate=gate, retries=run.retries, reconnect=run.reconnect, blocks=measured_blocks, kept=held)
+                                gate=gate, retries=run.retries, reconnect=run.reconnect, blocks=measured_blocks, kept=held,
+                                refused=lambda case: device_skips(device, preparation).get(case))
     measure_session.run_session(device, plan, repetitions, isolation, hooks, folder, run.problems)
+
+
+
+def device_skips(device, preparation):
+    """The final skips the device recorded so far, by case id."""
+    return skips.recorded(recorded_skips(device, paths.Preparation(preparation).skipped))
 
 
 def dry_pass(session, into, preparation, problems, guarded):
@@ -74,8 +81,15 @@ def measure_cases(options, device, results, discovery, effective, capture, trial
         print(waits.line())
         run = Measuring(device, EnergySession(device), energy_stage.source(effective, options.energy_python, options.stacktrace), options, discovery,
                         files, problems, effective_view.throttle_sleep(document), effective_view.case_cooldown(document), reconnect=waits)
-        written, processes = device_cases(run, document, [effective, paths.Configuration.holding(effective).guide, capture, trial], captures, benchmark, preparation,
-                                          in_blocks)
+        try:
+            written, processes = device_cases(run, document, [effective, paths.Configuration.holding(effective).guide, capture, trial], captures, benchmark,
+                                              preparation, in_blocks)
+        except AllSkipped as outcome:
+            # nothing to measure is the run's outcome: the manifest keeps the plan files and the reason, no benchmark.json, exit 0
+            print(outcome)
+            problems.append(str(outcome))
+            files.update(prepared=paths.Preparation(preparation).prepared, skipped=paths.Preparation(preparation).skipped)
+            return False, [], repetitions
     else:
         written, processes = host_cases(options, document, capture, trial, effective, benchmark, preparation, files, problems,
                                         in_blocks(benchmark, None, lambda: None)), repetitions
@@ -109,7 +123,8 @@ def warm_up(run, document, preparation):
     planned = case_isolation.listed(run.device.instrument("CryptoBenchmark", *arguments, "-e", "log", "true"))
     pull_plan(run.device, preparation)
     cases = read_yaml(paths.Preparation(preparation).prepared).get("cases") or []
-    warmup.run(run.device, "CryptoBenchmark", arguments, planned, cases, document, run.gate.session("warm-up"))
+    warmup.run(run.device, "CryptoBenchmark", arguments, planned, cases, document, run.gate.session("warm-up"),
+               lambda: run.reconnect.retried(lambda: device_skips(run.device, preparation), "the skip record read"))
 
 
 def host_cases(options, document, capture, trial, effective, benchmark, preparation, files, problems, measured_blocks):

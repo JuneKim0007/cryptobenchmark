@@ -47,7 +47,7 @@ KNOWN = [
     "cryptobench.shared.settings.bundled.BundledError", "cryptobench.stages.configuration.config_check.ConfigCheckError", "cryptobench.stages.verification.scope.results.ScopeResultError", "cryptobench.stages.verification.scope.code_digest.CodeDigestError",
     "cryptobench.shared.device.timeouts.StepTimeout", "cryptobench.stages.measurement.session.dynamic_temperature.Terminated", "cryptobench.shared.errors.input_error.InputError",
     "cryptobench.stages.measurement.session.reconnect.DeviceGone",
-    "cryptobench.shared.errors.failures.CommandError"]
+    "cryptobench.shared.errors.failures.AllSkipped", "cryptobench.shared.errors.failures.CommandError"]
 
 
 def _class(name):

@@ -47,13 +47,13 @@ cryptobench/shared/device/capture.py : a capture's runtime block, its schema ver
 cryptobench/shared/device/clocks.py : per-core cpufreq over adb; clocks.yaml and cpuLocked
 cryptobench/shared/device/gradle_runner.py : runs one command of apps/benchmark/cli by its main class; filters its failure to the tool's own lines
 cryptobench/shared/device/identity.py : device id from a capture's runtime block
-cryptobench/shared/device/plan.py : the device plan: pushed and AOT-compiled, prepared and skipped pulled back, per-run outputs cleared; a run's push with the suppressErrors warning, then the energy settle's files
+cryptobench/shared/device/plan.py : the device plan: pushed and AOT-compiled, prepared and skipped pulled back, the skips recorded so far, per-run outputs cleared; a run's push with the suppressErrors warning, then the energy settle's files
 cryptobench/shared/device/timeouts.py : ceilings of the host's subprocess steps (adb, install, instrument, case, gradle, compile, energy, analysis); expiry is one coded error
 cryptobench/shared/digest/__init__.py : package of the digests over bytes
 cryptobench/shared/digest/tree.py : byte_digest, the sha256 of some bytes; file_digest, of a file's bytes, None when absent; tree_digest, one digest of files in a given order, each its path under a root and its byte digest; globbed, the files glob patterns match but desktop litter and the patterns matching none
 cryptobench/shared/errors/__init__.py : package of the coded errors, importing nothing from the repo
 cryptobench/shared/errors/coded.py : CODE and code_in, the code word a failure message starts with; code_of, the code a failure carries as `.code`; Coded, the marker of a failure whose message is its coded line (adds no ValueError base)
-cryptobench/shared/errors/failures.py : AgentFailed (a provider's one coded failure line), GateError (the app gate's coded reasons), BenchmarkRunError (a pipeline.py run that failed), each on its own base; EnergyError (an energy source failed); CommandError (the runner's library code ends the run, its entry point prints the line)
+cryptobench/shared/errors/failures.py : AgentFailed (a provider's one coded failure line), GateError (the app gate's coded reasons), BenchmarkRunError (a pipeline.py run that failed), each on its own base; EnergyError (an energy source failed); AllSkipped (every case of a process a coded preparation skip, the run's outcome); CommandError (the runner's library code ends the run, its entry point prints the line)
 cryptobench/shared/errors/codes.yaml : the glossary: every code once with its kind, its default action where a reader resolves it, an alias setting's values, perf-repair's stops.<code> entry
 cryptobench/shared/errors/glossary.py : codes.yaml read through importlib.resources; Code: one code's default action, the actions stops.<code> may choose (none: fixed, and why), exit and next step; the action stop
 cryptobench/shared/errors/halt.py : Halt, the exception terminate raises after its event
@@ -140,9 +140,10 @@ cryptobench/stages/measurement/session/launch.py : the only place a timed run of
 cryptobench/stages/measurement/session/measure.py : one device measuring session of the benchmark: processes, a process per case or one for all, hooks; a process repetition's folder and line, a case's progress line
 cryptobench/stages/measurement/session/passes.py : run.passes: one device session per metric group, its device arguments and conversion, the merge per metric; MergeRunsKt over process repetitions
 cryptobench/stages/measurement/session/reconnect.py : a lost adb transport mid-run: the bounded wait polling adb get-state, the step or case again, DeviceGone past the bound
+cryptobench/stages/measurement/session/skips.py : a skipped.yaml record whose code codes.yaml holds as an outcome or an error: a final skip, its case_skipped line
 cryptobench/stages/measurement/session/thermal_hook.py : session hook: temperature around every process and case into thermal.json with the gate's history, its lines per pass
 cryptobench/stages/measurement/session/variant_order.py : run.variants on a device: an item's fixed and notFixed cases adjacent, A/B then B/A over repetitions; run.orderSeed's per-process shuffle; the order's identity stanza
-cryptobench/stages/measurement/session/warmup.py : run.warmup: a pre-flight run of a few planned cases before the first pass, off at 0 iterations; its output never pulled
+cryptobench/stages/measurement/session/warmup.py : run.warmup: a pre-flight run of a few planned cases before the first pass, final skips left out and chosen again, off at 0 iterations; its output never pulled
 cryptobench/stages/measurement/start_margin.py : the temperature gate's start margin: hot, clean and ignored outcomes, the start limit and how the margin moves; no I/O
 cryptobench/stages/measurement/tests/ : pytest tests of the measurement stage
 cryptobench/stages/measurement/thermal.py : device temperatures from dumpsys thermalservice: sensors by HAL name, status, sentinels skipped, unavailable as a reason

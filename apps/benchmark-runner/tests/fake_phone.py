@@ -1,6 +1,8 @@
 """The phone over adb, faked: an instrumentation per process, one log line per device step, and the host tools' files."""
 import contextlib, json, pathlib, types
 
+import yaml
+
 from cryptobench.stages.measurement.session import case_isolation  # noqa: E402
 from cryptobench.shared.device import adb as device_module  # noqa: E402
 from cryptobench.shared.device import gradle_runner  # noqa: E402
@@ -9,6 +11,7 @@ from cryptobench.shared.device import timeouts  # noqa: E402
 OK = types.SimpleNamespace(returncode=0, stdout="", stderr="")
 MISSING = types.SimpleNamespace(returncode=1, stdout="", stderr="not found")
 CRASHED = "INSTRUMENTATION_RESULT: shortMsg=Process crashed.\nINSTRUMENTATION_CODE: 0\n"
+NOT_PREPARED = "INSTRUMENTATION_STATUS: stack=java.lang.IllegalStateException: not_prepared: {0}\nTests run: {1},  Failures: {2}\n"
 
 
 def jetpack_case(case, sleep=0):
@@ -18,10 +21,12 @@ def jetpack_case(case, sleep=0):
 
 class Phone(device_module.Device):
 
-    def __init__(self, folder, cases=("a", "b"), crash=(), hang=(), thermal=None):
+    def __init__(self, folder, cases=("a", "b"), crash=(), hang=(), thermal=None, refuse=None):
         super().__init__(pathlib.Path(folder), False, False)
         self.files, self.media, self.data = "/plan", "/media", "/media/data.json"
         self.cases, self.crash, self.hang = list(cases), set(crash), set(hang)
+        # case id -> the skipped.yaml record DevicePlan writes when its preparation refuses the case
+        self.refuse, self.skips = dict(refuse or {}), []
         self.written, self.log, self.ran, self.arguments, self.converted = [], [], [], [], []
         self.thermal, self.notices, self.boot = thermal, [], "boot-1"
 
@@ -39,6 +44,9 @@ class Phone(device_module.Device):
             self.log.append("pull data")
             pathlib.Path(local).write_text(json.dumps({"context": {"build": {"model": "fake"}}, "benchmarks": [jetpack_case(c) for c in self.written]}))
             return OK
+        if remote.endswith("skipped.yaml") and self.skips:
+            self.skipped_file(local)
+            return OK
         if remote.endswith(device_module.paths.CPU_PINS):
             self.log.append("pull pins")
             return MISSING
@@ -53,11 +61,14 @@ class Phone(device_module.Device):
         if remote.endswith("prepared.yaml"):
             pathlib.Path(local).write_text("cases:\n" + "".join(f"- {{id: {c}, type: T, algorithm: {c}, provider: P}}\n" for c in self.cases))
         elif remote.endswith("skipped.yaml"):
-            pathlib.Path(local).write_text("skipped: []\n")
+            self.skipped_file(local)
         elif remote.endswith(device_module.paths.SCOPED_INTEROP):
             pathlib.Path(local).write_text("{}\n")
         elif remote == self.data:
             self.pulled(remote, local, True)
+
+    def skipped_file(self, local):
+        pathlib.Path(local).write_text(yaml.safe_dump({"skipped": self.skips}) if self.skips else "skipped: []\n")
 
     def shell(self, command):
         if command.startswith("for c in /sys"):
@@ -74,6 +85,8 @@ class Phone(device_module.Device):
             self.written = []
         elif command.startswith("rm -f"):
             self.written = []
+            if "skipped.yaml" in command:
+                self.skips = []
             self.log.append("clear")
         elif command == f"cat {device_module.paths.DeviceDirs.BOOT_ID}":
             return self.boot
@@ -94,6 +107,11 @@ class Phone(device_module.Device):
         self.ran.append((test_class, named))
         if named in self.crash:
             return CRASHED
+        refused = [c for c in wanted if c in self.refuse]
+        if refused:
+            self.skips += [self.refuse[c] for c in refused]
+            self.written = [c for c in wanted if c not in self.refuse]
+            return NOT_PREPARED.format(refused[0], len(wanted), len(refused))
         if named in self.hang:
             raise timeouts.expired(step, ["adb", "shell", "am", "instrument"])
         self.written = wanted

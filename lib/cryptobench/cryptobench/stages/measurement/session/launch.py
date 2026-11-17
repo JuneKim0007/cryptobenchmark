@@ -1,7 +1,7 @@
 """The only place a timed run of a case starts: each attempt is held for temperature, launched between the hooks, then judged."""
 from cryptobench.shared.device.adb import DeviceLost
 from cryptobench.shared.errors.line import one_line
-from cryptobench.stages.measurement.session import calibration, case_isolation, dynamic_temperature
+from cryptobench.stages.measurement.session import calibration, case_isolation, dynamic_temperature, skips
 from cryptobench.stages.measurement import start_margin as eq
 from cryptobench.pipeline.warn import warn
 
@@ -35,7 +35,8 @@ def hook_failed(case, hook, step, error):
 
 def run_of_case(device, plan, process, case, hooks, pulled):
     """None, or the case's failure line. Heat discards the run and measures it again; a lost device is waited for and the same case held and
-    launched again; anything else is retried, then the next case goes on."""
+    launched again; a case the device's preparation skipped with a final code is case_skipped, never launched again; anything else is
+    retried, then the next case goes on."""
     gate, retries, discards = plan.gate, plan.retries, 0
     while True:
         try:
@@ -64,6 +65,9 @@ def run_of_case(device, plan, process, case, hooks, pulled):
                 print(line)
             return None
         reason = failure or f"case_failed: {case}: {short[0]}"
+        code = failure and plan.reconnect.retried(lambda: plan.refused(case), "the skip record read")
+        if code:
+            return skips.line(case, code)
         if retries == 0:
             return reason
         retries -= 1

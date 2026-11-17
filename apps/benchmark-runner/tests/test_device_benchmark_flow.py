@@ -1,5 +1,5 @@
 """The device benchmark on a fake phone: processes, passes, energy windows and failures, as one shared session runs them."""
-import json, types
+import json, pathlib, types
 
 import pytest
 import yaml
@@ -9,6 +9,7 @@ from cryptobench.shared.errors.failures import EnergyError  # noqa: E402
 from cryptobench.stages.measurement.session import clocks_hook, cooldown_hook, variant_order  # noqa: E402
 import pipeline  # noqa: E402
 from cryptobench.stages.measurement import benchmark  # noqa: E402
+from cryptobench.stages.measurement.session import skips  # noqa: E402
 from failure import reported  # noqa: E402
 from fake_phone import Energy, Phone, fake_tools  # noqa: E402
 from test_manifest import PROBE  # noqa: E402
@@ -128,6 +129,43 @@ def test_a_crash_and_a_hang_cost_only_their_cases(tmp_path, monkeypatch):
                                                  crash=("crash",), hang=("hang",))
     assert [line.split(":")[1].strip() for line in problems if line.startswith("case_failed")] == ["crash", "hang"]
     assert "force-stop" in steps(phone) and "not_measured: crash" in problems
+
+
+# a Pixel 10's StrongBox refusals as its skipped.yaml recorded them, each case three times (one launch and launchRetries 2)
+STRONGBOX = yaml.safe_load((pathlib.Path(__file__).parent / "fixtures/skipped_strongbox.yaml").read_text())["skipped"]
+REFUSED = {skips.split(record["reason"])[0]: record for record in STRONGBOX}
+
+
+def test_every_strongbox_refusal_on_record_is_a_final_keystore_unsupported_skip():
+    assert skips.recorded({"skipped": STRONGBOX}) == {case: "keystore_unsupported" for case in REFUSED} and len(REFUSED) == 5
+    assert skips.coded({"reason": "x: hook_failed_somewhere"}) is None and skips.coded({"reason": "provider_not_installed: Foo"}) is None
+    assert skips.coded({"reason": "x: bench_failed: a notice is no skip"}) is None
+
+
+def test_a_coded_preparation_skip_is_final_and_a_crash_keeps_its_retries(tmp_path, monkeypatch):
+    refused = next(iter(REFUSED))
+    phone, _files, problems, _results = measured(tmp_path, monkeypatch, {"isolation": "case", "launchRetries": 2},
+                                                 cases=("a", "crash", refused, "b"), crash=("crash",), refuse=REFUSED)
+    launched = [s for s in steps(phone) if s.startswith("instrument ")]
+    assert launched.count(f"instrument CryptoBenchmark {refused}") == 1 and launched.count("instrument CryptoBenchmark crash") == 3
+    assert f"case_skipped: {refused}: keystore_unsupported" in problems and not any(line.startswith(f"case_failed: {refused}") for line in problems)
+
+
+def test_a_process_whose_every_case_is_a_coded_skip_is_an_outcome_not_a_device_error(tmp_path, monkeypatch):
+    phone, files, problems, _results = measured(tmp_path, monkeypatch, {"isolation": "case", "launchRetries": 2}, cases=tuple(REFUSED), refuse=REFUSED)
+    assert [s for s in steps(phone) if s.startswith("instrument ")] == [f"instrument CryptoBenchmark {case}" for case in REFUSED]
+    assert problems[:-1] == [f"case_skipped: {case}: keystore_unsupported" for case in REFUSED]
+    assert problems[-1].startswith("all_cases_skipped: every case of CryptoBenchmark is a coded preparation skip: 5 cases")
+    assert files["skipped"].is_file() and "benchmark" not in files
+
+
+def test_the_warm_up_leaves_out_a_coded_skip_and_warms_the_next_cases(tmp_path, monkeypatch):
+    first = list(REFUSED)[:3]
+    phone, _files, problems, _results = measured(tmp_path, monkeypatch, {"isolation": "case", "warmup": {"iterations": 5, "jobs": []}},
+                                                 cases=(*first, "a", "b"), refuse=REFUSED)
+    warmed = [args[args.index("case") + 1] for args in phone.arguments if "warmup" in args]
+    assert warmed == [",".join(first), "a,b"]
+    assert [line for line in problems if not line.startswith("not_measured: ")] == [f"case_skipped: {case}: keystore_unsupported" for case in first]
 
 
 def test_every_case_failing_stops_the_run(tmp_path, monkeypatch):
