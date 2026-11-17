@@ -42,7 +42,7 @@ cryptobench/shared/document/dump.py : dump_yaml, a value as YAML text through on
 cryptobench/shared/document/json_dump.py : json_text, a document as JSON text (indent 1); write_json, that text through write_text
 cryptobench/shared/document/write.py : write_text, a file replaced whole through a temporary of its writer's own (mode as a plain open gives, fsync and folder fsync when durable, exclusive refuses an existing file); Staging, the temporary's name, mode and fsync per writer (STAGED, MANIFEST); write_texts, several files staged then renamed in order
 cryptobench/shared/device/__init__.py : package of the host's device steps, importing no app
-cryptobench/shared/device/adb.py : the adb transport of a --device run: connect, identity by getprop, install, instrument and its OK line and report, push, pull, force-stop; a lost transport as DeviceLost, adb get-state
+cryptobench/shared/device/adb.py : the adb transport of a --device run: connect, identity by getprop, the boot id, install, instrument and its OK line and report, push, pull, force-stop; a lost transport as DeviceLost, adb get-state
 cryptobench/shared/device/capture.py : a capture's runtime block, its schema version checked; the guide's platform name for it
 cryptobench/shared/device/clocks.py : per-core cpufreq over adb; clocks.yaml and cpuLocked
 cryptobench/shared/device/gradle_runner.py : runs one command of apps/benchmark/cli by its main class; filters its failure to the tool's own lines
@@ -50,7 +50,7 @@ cryptobench/shared/device/identity.py : device id from a capture's runtime block
 cryptobench/shared/device/plan.py : the device plan: pushed and AOT-compiled, prepared and skipped pulled back, per-run outputs cleared; a run's push with the suppressErrors warning, then the energy settle's files
 cryptobench/shared/device/timeouts.py : ceilings of the host's subprocess steps (adb, install, instrument, case, gradle, compile, energy, analysis); expiry is one coded error
 cryptobench/shared/digest/__init__.py : package of the digests over bytes
-cryptobench/shared/digest/tree.py : byte_digest, the sha256 of some bytes; file_digest, of a file's bytes, None when absent; tree_digest, one digest of files in a given order, each its path under a root and its byte digest
+cryptobench/shared/digest/tree.py : byte_digest, the sha256 of some bytes; file_digest, of a file's bytes, None when absent; tree_digest, one digest of files in a given order, each its path under a root and its byte digest; globbed, the files glob patterns match but desktop litter and the patterns matching none
 cryptobench/shared/errors/__init__.py : package of the coded errors, importing nothing from the repo
 cryptobench/shared/errors/coded.py : CODE and code_in, the code word a failure message starts with; code_of, the code a failure carries as `.code`; Coded, the marker of a failure whose message is its coded line (adds no ValueError base)
 cryptobench/shared/errors/failures.py : AgentFailed (a provider's one coded failure line), GateError (the app gate's coded reasons), BenchmarkRunError (a pipeline.py run that failed), each on its own base; EnergyError (an energy source failed); CommandError (the runner's library code ends the run, its entry point prints the line)
@@ -72,7 +72,7 @@ cryptobench/shared/paths/__init__.py : one interface to every path the Python mo
 cryptobench/shared/paths/device_dirs.py : DeviceDirs(sdk): folders on a device per API level, POSIX paths
 cryptobench/shared/paths/host.py : the user's and host's locations: home, the user's global.yaml, the Android SDK and its platform-tools
 cryptobench/shared/paths/imports.py : the apps' source folders on the import path, for the facade's process and its children; in shared/paths because tools/paths_check.py allows sys.path and PYTHONPATH edits nowhere else
-cryptobench/shared/paths/names.py : the file and folder names of a results folder, and CONTRACT: those shared with Kotlin
+cryptobench/shared/paths/names.py : the file and folder names of a results folder, litter (desktop files no listing of a run counts), and CONTRACT: those shared with Kotlin
 cryptobench/shared/paths/packaged.py : packaged(package, name) through importlib and a named constant per data file a package ships
 cryptobench/shared/paths/repo.py : Repo and repo(root): one checkout's named locations
 cryptobench/shared/paths/results.py : Results(root): the finished device folders of a results root; finished, a manifest without partial:
@@ -80,7 +80,8 @@ cryptobench/shared/paths/roots.py : code_root (this checkout), benchmark_root (t
 cryptobench/shared/paths/run_tree.py : RunTree: every file of one results folder; its sections Configuration, Discovery, Preparation, Measurement, Analysis, Charts, CheckFolder, InteropFolder, Scoped, Logs, Review; AppTree, GroupingTree
 cryptobench/shared/paths/settings.py : against(settings_file, value), the one rule for a path a settings file names; in_temp
 cryptobench/shared/results/__init__.py : package of a run's results folder, importing no app
-cryptobench/shared/results/layout.py : results/<device_id>/: staging, publishing into the device folder after the earlier unit moves to superseded/<stamp>/, the temporary-folder warning
+cryptobench/shared/results/identity.py : a measuring run's identity (effective run block, selection digest, timed-code digest, capture runtime with facts.yaml's build, order, suppressed errors) and the dotted fields two identities differ in
+cryptobench/shared/results/layout.py : results/<device_id>/: staging, publishing into the device folder after the earlier unit, but for the paths a resumed run keeps, moves to superseded/<stamp>/, the temporary-folder warning
 cryptobench/shared/results/lock.py : DeviceLock: `<folder>/.lock` by fcntl.flock (POSIX), the holder's pid; another process is device_busy, the holding one takes it again; a results root (pipeline.py) or a device folder (perf-repair)
 cryptobench/shared/results/manifest.py : results/<device_id>/manifest.yaml: files, counts, runtime, providers, input digests, units, the harness operations, energy mark, problems, the partial mark of a stopped run; files added beside a finished run
 cryptobench/shared/results/partial.py : a run that stopped: the partial record (reason, case runs per process folder) its manifest is written with, a failed write one warning
@@ -113,6 +114,7 @@ cryptobench/stages/configuration/tests/ : pytest tests of the configuration stag
 cryptobench/stages/discovery/__init__.py : package of the discovery stage
 cryptobench/stages/discovery/capture_files.py : the capture, trial and requirements a discovery wrote, by path and paired by stamp; never the newest in a kept folder; the reuse that probed again
 cryptobench/stages/discovery/discover.py : discover and configure: probe or host discovery, ConfigureKt, effective.yaml summary; three end states: in place, staged (the caller publishes), published under the capture's device id
+cryptobench/stages/discovery/build_versions.py : a device's security patch and Conscrypt and ART APEX versions, for facts.yaml's build section
 cryptobench/stages/discovery/facts.py : device facts into discovery/facts.yaml
 cryptobench/stages/discovery/probe.py : DeviceProbe on the device: the plan directory emptied, the probe run, its capture and trial pulled into discovery/
 cryptobench/stages/discovery/tests/ : pytest tests of the discovery stage
@@ -124,7 +126,9 @@ cryptobench/stages/measurement/energy/session.py : Perfetto sessions on the devi
 cryptobench/stages/measurement/energy/sources/ : one adapter per energy.source on the host; how the host runs apps/benchmark-runner/energy
 cryptobench/stages/measurement/energy/steps.py : energy steps of a --device run: capture selection, the run's energy source
 cryptobench/stages/measurement/measuring.py : what a run's device sessions share: the Measuring context, the thermal gate's start, the androidx arguments of a session and a pass, timed hooks, ConvertKt, per-process files and core pins
+cryptobench/stages/measurement/resume.py : at a measuring run's publish: the blocks of a stopped run with the same identity that stay in place, verified; the resumed, identity_changed and block_unverified lines; the manifest's resumed: note
 cryptobench/stages/measurement/session/__init__.py : package of one device measuring session: processes, cases, passes, order, warm-up, hooks
+cryptobench/stages/measurement/session/blocks.py : run.resumeBlockRuns: a pass's runs in blocks, a recorded block kept, any other measured then recorded; the block record (identity, runId, runs, boot id, files)
 cryptobench/stages/measurement/session/calibration.py : whether androidx's warm-up left usable samples: collapsed calls per sample, a warm-up near its time limit
 cryptobench/stages/measurement/session/case_isolation.py : run.isolation case: one case's instrumentation process and its pull, the device's case listing
 cryptobench/stages/measurement/session/clocks_hook.py : session hook: the clock state around every process and case into clocks.yaml
@@ -137,7 +141,7 @@ cryptobench/stages/measurement/session/measure.py : one device measuring session
 cryptobench/stages/measurement/session/passes.py : run.passes: one device session per metric group, its device arguments and conversion, the merge per metric; MergeRunsKt over process repetitions
 cryptobench/stages/measurement/session/reconnect.py : a lost adb transport mid-run: the bounded wait polling adb get-state, the step or case again, DeviceGone past the bound
 cryptobench/stages/measurement/session/thermal_hook.py : session hook: temperature around every process and case into thermal.json with the gate's history, its lines per pass
-cryptobench/stages/measurement/session/variant_order.py : run.variants on a device: an item's fixed and notFixed cases adjacent, A/B then B/A over repetitions
+cryptobench/stages/measurement/session/variant_order.py : run.variants on a device: an item's fixed and notFixed cases adjacent, A/B then B/A over repetitions; run.orderSeed's per-process shuffle; the order's identity stanza
 cryptobench/stages/measurement/session/warmup.py : run.warmup: a pre-flight run of a few planned cases before the first pass, off at 0 iterations; its output never pulled
 cryptobench/stages/measurement/start_margin.py : the temperature gate's start margin: hot, clean and ignored outcomes, the start limit and how the margin moves; no I/O
 cryptobench/stages/measurement/tests/ : pytest tests of the measurement stage

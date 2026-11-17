@@ -45,8 +45,9 @@ def survived(problems):
     return {"problems": list(problems)} if problems else {}
 
 
-def manifest(results, mode, configuration, files, problems=(), partial=None):
-    """partial: the record of a run that stopped, which marks the manifest unfinished (paths.finished)."""
+def manifest(results, mode, configuration, files, problems=(), partial=None, resumed=()):
+    """partial: the record of a run that stopped, which marks the manifest unfinished (paths.finished); resumed: per pass the blocks an earlier
+    run measured and this one kept."""
     def load(key):
         text = files[key].read_text()
         return json.loads(text) if files[key].suffix == ".json" else parse_yaml(text, str(files[key]))
@@ -68,7 +69,7 @@ def manifest(results, mode, configuration, files, problems=(), partial=None):
         "counts": {count: len((measured if key == "benchmark" else load(key)).get(field) or [])
                    for count, (key, field) in counted.items() if key in files},
         "operations": operations(),
-    } | units(files) | estimated_mark(files.get("energy")) | survived(problems) | ({"partial": partial} if partial else {})
+    } | units(files) | estimated_mark(files.get("energy")) | survived(problems) | ({"resumed": list(resumed)} if resumed else {}) | ({"partial": partial} if partial else {})
     path = paths.RunTree(results).manifest
     write_text(path, dump_yaml(document), staging=MANIFEST)
     print(f"wrote:     {path}")

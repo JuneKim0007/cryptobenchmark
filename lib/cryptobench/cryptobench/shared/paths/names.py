@@ -15,6 +15,9 @@ PREPARED, SKIPPED = "prepared.yaml", "skipped.yaml"
 BENCHMARK_JSON, BENCHMARK_DATA, CLOCKS, THERMAL, CPU_PINS = "benchmark.json", "benchmarkData.json", "clocks.yaml", "thermal.json", "cpu-pins.yaml"
 ENERGY_JSON, TRACES, DRY_TRACE, ENERGY_DRY, MANAFA = "energy.json", "traces", "dry.pftrace", "energy-dry.yaml", "manafa"
 CASES, PROCESS_FORM = "cases", "process-{}"
+BLOCKS, BLOCK_FORM, BLOCK_PATTERN = "blocks", "block-{}.yaml", "block-*.yaml"
+# files a desktop drops into folders it shows (Finder, Explorer); never a run's, so no listing of a run counts them
+OS_LITTER, APPLE_DOUBLE = frozenset({".DS_Store", "Thumbs.db", "desktop.ini"}), "._"
 CHECK_RESULT = "check.yaml"
 INTEROP_PLAN, INTEROP_RESULT = "interop_plan.yaml", "interop.yaml"
 SCOPED_PLAN_NAME, SCOPED_INTEROP, SCOPED_PLAN_FAILED = "scoped-plan.yaml", "scoped-interop.yaml", "scoped-plan.failed.yaml"
@@ -35,6 +38,11 @@ LOG, EVENTS, STATUS_LOG, BUG_LOG = "log", "log/events.jsonl", "log/status.log", 
 PRIMITIVES_MISSING, BENCHMARK_COVERAGE = "log/details/primitives_missing.yaml", "log/details/benchmark_coverage.yaml"
 PIPELINE_LOGS, AI_LOGS = "log/pipeline", "log/ai"
 SCOPED_PLAN = f"{SCOPED}/{SCOPED_PLAN_NAME}"
+
+
+def litter(path) -> bool:
+    return path.name in OS_LITTER or path.name.startswith(APPLE_DOUBLE)
+
 
 # (file name, the Kotlin constant that holds it); names_check.py compares it with the :files module, paths_check.py bans these as literals
 CONTRACT = {

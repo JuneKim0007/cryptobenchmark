@@ -84,12 +84,17 @@ def discover_staged(options, configuration, device, root, stage, shipped):
     return discover_in_place(options, configuration, device, stage, shipped)
 
 
-def discover_published(options, configuration, device, root, shipped):
-    """A failed probe or configure leaves nothing; from here on the folder has its real name and no manifest until the run ends."""
+def keep_nothing(_effective, _capture, _target):
+    return ()
+
+
+def discover_published(options, configuration, device, root, shipped, kept=keep_nothing):
+    """A failed probe or configure leaves nothing; from here on the folder has its real name and no manifest until the run ends. kept(effective,
+    capture, folder) names the paths of the earlier unit the publish leaves in place."""
     with results_layout.staged(root) as stage:
-        capture = discover_staged(options, configuration, device, root, stage, shipped)[2]
+        _, effective, capture, _, _ = discover_staged(options, configuration, device, root, stage, shipped)
         results = root / capture_id(capture)
-        results_layout.publish(stage, results, options.discovery)
+        results_layout.publish(stage, results, options.discovery, kept(effective, capture, results))
     print(f"results:   {results}")
     return results, located(results, capture.name)
 

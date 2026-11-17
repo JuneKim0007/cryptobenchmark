@@ -112,6 +112,10 @@ class Device:
                 "model": self.shell("getprop ro.product.model").strip(),
                 "fingerprint": self.shell("getprop ro.build.fingerprint").strip()}
 
+    def boot_id(self):
+        """The kernel's id of this boot: a restart gives a new one."""
+        return self.shell(f"cat {paths.DeviceDirs.BOOT_ID}").strip()
+
     def install(self, properties=()):
         command = [str(self.root / "gradlew"), "-p", str(self.root), *properties, ":android:installRelease", ":android:installReleaseAndroidTest"]
         if self.stream:

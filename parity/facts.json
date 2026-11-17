@@ -23,5 +23,12 @@
    }
   ]
  },
- "pinning": true
+ "pinning": true,
+ "build": {
+  "securityPatch": "2026-10-05",
+  "apex": {
+   "com.android.conscrypt": 360910000,
+   "com.android.art": 360910000
+  }
+ }
 }

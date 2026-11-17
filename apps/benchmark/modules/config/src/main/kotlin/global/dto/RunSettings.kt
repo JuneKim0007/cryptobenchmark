@@ -25,6 +25,10 @@ data class RunSettings(
     val thermalGate: ThermalGate? = null,
     // a run of a case that failed for a reason other than heat is launched this many more times, then the next case goes on
     val launchRetries: Int = LAUNCH_RETRIES,
+    // host only: a rerun of a stopped run keeps its finished blocks of this many consecutive runs
+    val resumeBlockRuns: Int = RESUME_BLOCK_RUNS,
+    // null: items in the plan's order; else each device process shuffles them from (orderSeed, repetition)
+    val orderSeed: Long? = null,
     val harness: HarnessSettings = HarnessSettings(),
 ) {
 
@@ -44,13 +48,16 @@ data class RunSettings(
         require(thermalThrottleSleepSeconds == null || thermalThrottleSleepSeconds >= 0) { "negative: thermalThrottleSleepSeconds $thermalThrottleSleepSeconds" }
         require(caseCooldownSeconds >= 0) { "negative: caseCooldownSeconds $caseCooldownSeconds" }
         require(launchRetries >= 0) { "negative: launchRetries $launchRetries" }
+        require(resumeBlockRuns >= 1) { "not_positive: resumeBlockRuns $resumeBlockRuns" }
         require(thermalGate == null || isolation == CASE) { "invalid: run.thermalGate needs run.isolation $CASE, a whole-session process has no single run to discard" }
+        require(orderSeed == null || isolation == CASE) { "invalid: run.orderSeed needs run.isolation $CASE, a whole-session process runs its cases in the device's order" }
         require(isolation in ISOLATIONS) { "invalid: run.isolation $isolation, expected one of $ISOLATIONS" }
     }
 
     companion object {
         const val CASE = "case"
         const val LAUNCH_RETRIES = 2
+        const val RESUME_BLOCK_RUNS = 10
         val ISOLATIONS = listOf(CASE, "run")
     }
 }

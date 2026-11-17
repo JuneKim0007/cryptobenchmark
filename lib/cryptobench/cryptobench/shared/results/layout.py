@@ -67,17 +67,29 @@ def aside(target):
             continue
 
 
-def supersede(target, discovery_mode):
-    """The unit target holds, finished or not, renamed whole into superseded/<stamp>/; None when it holds none."""
+def supersede(target, discovery_mode, kept=()):
+    """The unit target holds, finished or not, renamed into superseded/<stamp>/ but for the kept paths under it; None when it holds none."""
     names = UNIT + ((paths.DISCOVERY,) if discovery_mode == "overwrite" else ())
     present = [name for name in names if (target / name).exists()]
     if not present:
         return None
     into = aside(target)
     for name in present:
-        (target / name).rename(into / name)
+        moved(target, into, pathlib.PurePosixPath(name), kept)
     print(f"warning: run_superseded: {target}: {', '.join(present)} moved to {into}")
     return into
+
+
+def moved(target, into, relative, kept):
+    """relative moves whole unless a kept path is it or lies under it; then everything beside the kept paths moves, by rename only."""
+    if relative in kept:
+        return
+    if not any(path.is_relative_to(relative) for path in kept):
+        (into / relative).parent.mkdir(parents=True, exist_ok=True)
+        (target / relative).rename(into / relative)
+        return
+    for child in sorted((target / relative).iterdir()):
+        moved(target, into, relative / child.name, kept)
 
 
 def held_bytes(root):
@@ -98,10 +110,10 @@ def report_superseded(target):
     print(f"warning: superseded_kept: {root}: {units} earlier {'unit' if units == 1 else 'units'}, {held_bytes(root) / 1e6:.1f} MB; never pruned, remove by hand")
 
 
-def publish(stage, target, discovery_mode):
-    """The earlier unit moves aside, then everything staged moves in; under keep and reuse the staged captures join discovery/."""
+def publish(stage, target, discovery_mode, kept=()):
+    """The earlier unit moves aside but for its kept paths, then everything staged moves in; under keep and reuse the staged captures join discovery/."""
     target.mkdir(parents=True, exist_ok=True)
-    supersede(target, discovery_mode)
+    supersede(target, discovery_mode, kept)
     for folder in stage.iterdir():
         if folder.name == paths.DISCOVERY and (target / folder.name).exists():
             merge_folder(folder, target / folder.name)

@@ -65,3 +65,19 @@ def launch_retries(document):
 
 def process_repetitions(document):
     return required(document, "run.processRepetitions")
+
+
+def resume_block_runs(document):
+    """RunSettings refuses below 1; a hand-edited effective.yaml is refused here the same way."""
+    runs = required(document, "run.resumeBlockRuns")
+    if not isinstance(runs, int) or isinstance(runs, bool) or runs < 1:
+        raise CommandError(f"not_positive: run.resumeBlockRuns {runs}")
+    return runs
+
+
+def order_seed(document):
+    """run.orderSeed, None when absent; RunSettings refuses it under isolation run, a hand-edited value that is not whole is refused here."""
+    seed = (document.get("run") or {}).get("orderSeed")
+    if seed is not None and (not isinstance(seed, int) or isinstance(seed, bool)):
+        raise CommandError(f"invalid: run.orderSeed {seed!r}, expected a whole number")
+    return seed

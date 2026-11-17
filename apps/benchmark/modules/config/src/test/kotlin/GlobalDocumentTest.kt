@@ -48,6 +48,8 @@ class GlobalDocumentTest {
         assertEquals(listOf("fixed", "notFixed", "secure"), run.variants)
         assertEquals(Warmup(10, emptyList()), run.warmup)
         assertEquals(emptyList<MeasurePass>(), run.passes)
+        assertEquals(10, run.resumeBlockRuns)
+        assertEquals(null, run.orderSeed)
     }
 
     @Test
@@ -59,11 +61,21 @@ class GlobalDocumentTest {
               variants: [notFixed]
               thermalThrottleSleepSeconds: 30
               caseCooldownSeconds: 20
+              resumeBlockRuns: 1
               warmup: {iterations: 0, jobs: [{type: MessageDigest, name: SHA-256}]}
               passes: {timing: {samples: 3}, allocation: {samples: 2}}
         """.trimIndent() + "\n")
         assertEquals(listOf(MeasurePass("timing", 3), MeasurePass("allocation", 2)), written.passes)
+        assertEquals(1, written.resumeBlockRuns)
         assertEquals(written, GlobalDocument.parse(codec.load(YamlCodec.DOCUMENT.dump(GlobalDocument.of(global("").copy(run = written))))).run)
+    }
+
+    @Test
+    fun anOrderSeedIsWrittenOnlyWhenSet() {
+        val written = run("run: {orderSeed: 20261115}\n")
+        assertEquals(20261115L, written.orderSeed)
+        assertEquals(written, GlobalDocument.parse(codec.load(YamlCodec.DOCUMENT.dump(GlobalDocument.of(global("").copy(run = written))))).run)
+        assertEquals(false, "orderSeed" in YamlCodec.DOCUMENT.dump(GlobalDocument.of(global(""))))
     }
 
     @Test
@@ -80,6 +92,7 @@ class GlobalDocumentTest {
             "run: {isolation: process}\n" to "invalid: run.isolation",
             "run: {thermalThrottleSleepSeconds: -1}\n" to "negative: thermalThrottleSleepSeconds",
             "run: {caseCooldownSeconds: -1}\n" to "negative: caseCooldownSeconds",
+            "run: {resumeBlockRuns: 0}\n" to "not_positive: resumeBlockRuns 0",
             "run: {warmup: {iterations: -1}}\n" to "negative: run.warmup.iterations",
             "run: {thermalGate: {}}\n" to "missing_field: run.thermalGate.temperatureKeptCelsius",
             "run: {thermalGate: {temperatureKeptCelsius: 36.0, cooldownMinutes: 1.5}}\n" to "not_whole: run.thermalGate.cooldownMinutes",
@@ -87,6 +100,7 @@ class GlobalDocumentTest {
             "run: {thermalGate: {temperatureKeptCelsius: 36.0, onDiscardLimit: nope}}\n" to "invalid: run.thermalGate.onDiscardLimit",
             "run: {thermalGate: {temperatureKeptCelsius: 36.0, margin: 3}}\n" to "unknown_keys: run.thermalGate [margin]",
             "run: {isolation: run, thermalGate: {temperatureKeptCelsius: 36.0}}\n" to "invalid: run.thermalGate needs run.isolation",
+            "run: {isolation: run, orderSeed: 7}\n" to "invalid: run.orderSeed needs run.isolation",
             "run: {passes: {timing: {samples: 1}, speed: {samples: 1}}}\n" to "invalid: run.passes.speed",
             "run: {passes: {timing: {samples: 0}}}\n" to "not_positive: run.passes.timing.samples",
             "run: {passes: {energy: {samples: 5}}}\n" to "missing_pass: run.passes [energy]",

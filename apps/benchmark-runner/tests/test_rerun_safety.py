@@ -17,6 +17,8 @@ from test_manifest import PROBE
 FLAGS = {"probe": False, "identify": False, "interop": None, "harness": None, "check": False, "bench": False, "device": True, "config": None,
          "discovery": "overwrite"}
 STAMPS = (f"20261117T1200{n:02d}Z" for n in itertools.count())
+# facts.yaml a device discovery writes beside the capture; None writes none
+FACTS = None
 
 
 class Rerun:
@@ -63,7 +65,9 @@ def probed(stage, run):
     tree = paths.RunTree(stage)
     capture = written(tree.discovery.root / f"probe_{stamp}.yaml", yaml.safe_dump(PROBE))
     written(tree.discovery.trial(stamp), "{}")
-    written(tree.configuration.effective, yaml.safe_dump({"run": run, "providers": {}}, sort_keys=False))
+    if FACTS is not None:
+        written(tree.discovery.facts, yaml.safe_dump(FACTS))
+    written(tree.configuration.effective, yaml.safe_dump({"runId": stamp, "run": run, "providers": {}}, sort_keys=False))
     return discover.located(stage, capture.name)
 
 
@@ -199,7 +203,7 @@ def test_fewer_passes_on_a_rerun_leave_no_pass_folder_of_the_earlier_run(tmp_pat
     rerun = Rerun(tmp_path, monkeypatch)
     rerun({"metrics": ["TIME", "ALLOCATION"], "passes": {"timing": {"samples": 3}, "allocation": {"samples": 3}}})
     rerun({"metrics": ["TIME"]})
-    assert sorted(p.name for p in paths.RunTree(rerun.device).benchmark.root.iterdir() if p.is_dir()) == ["cases"]
+    assert sorted(p.name for p in paths.RunTree(rerun.device).benchmark.root.iterdir() if p.is_dir()) == ["blocks", "cases"]
     [aside] = rerun.aside()
     assert sorted(p.name for p in (aside / "benchmark").iterdir() if p.is_dir()) == ["allocation", "timing"]
     assert json.loads((aside / "benchmark/benchmark.json").read_text())["cases"]

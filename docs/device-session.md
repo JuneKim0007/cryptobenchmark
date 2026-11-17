@@ -8,7 +8,7 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 
 | step | what runs |
 |---|---|
-| session | `processRepetitions` processes (folders `process-<n>/` when above 1), merged by `MergeRunsKt`; a case whose processes hold unequal run counts of a metric is not merged (`not_merged: <id>: unequal_samples: ...`), and a runtime value another process reports differently is one `runtime_differs: <key>: ...` line, the first kept |
+| session | `processRepetitions` processes (folders `process-<n>/` when above 1) in blocks of `run.resumeBlockRuns`, each finished block recorded and a recorded one kept by a resumed run ([results.md](results.md#resuming-a-stopped-run)), merged by `MergeRunsKt`; a case whose processes hold unequal run counts of a metric is not merged (`not_merged: <id>: unequal_samples: ...`), and a runtime value another process reports differently is one `runtime_differs: <key>: ...` line, the first kept |
 | process | clear the device's outputs; one `am instrument` per case (`isolation: case`) or one for all (`run`); pull `benchmarkData.json`, the plan files, `cpu-pins.yaml`; convert with `ConvertKt` |
 | hooks | around the session, each process and each case: the cool-down (`lib/cryptobench/cryptobench/stages/measurement/session/cooldown_hook.py`), the clock state (`lib/cryptobench/cryptobench/stages/measurement/session/clocks_hook.py`), the energy window (`lib/cryptobench/cryptobench/stages/measurement/session/energy_hook.py`), the temperature with the thermal gate's history (`lib/cryptobench/cryptobench/stages/measurement/session/thermal_hook.py`, `lib/cryptobench/cryptobench/stages/measurement/session/gate_history.py`, [Thermal gate](#thermal-gate)); the gate itself is held only by the launch loop |
 | a case hook fails | an `Exception` in a hook's `before_case` or `after_case` costs that case only: `case_failed: <id>: hook_failed: <Hook>.<step>: <Type>: <message>` in `problems`, the case left out of the process's data; a failed `before_case` starts no instrumentation, the hooks that started it still run `after_case` |
@@ -52,7 +52,7 @@ Each entry's `variants`, else `run.variants` ([operations.md](../apps/benchmark/
 
 | rule | value |
 |---|---|
-| order | items as the plan lists them; an item's `fixed` and `notFixed` cases adjacent, `fixed` first in odd repetitions and `notFixed` first in even ones (A/B, then B/A: A/B/B/A over two) |
+| order | items as the plan lists them; an item's `fixed` and `notFixed` cases adjacent, `fixed` first in odd repetitions and `notFixed` first in even ones (A/B, then B/A: A/B/B/A over two); with `run.orderSeed` the items are shuffled per process with `Random("<orderSeed>:<repetition>")`, the variants kept as above |
 | item | the case id without its last part `_fixed`, `_notFixed` or `_secure`; a `secure` case is an item of its own (another provider) |
 | process | `isolation: case`: each variant in its own process; `isolation: run`: both in one process, in plan order |
 | inputs | message bytes from `run.seed`, equal for both; keys from unseeded `SecureRandom` per process, so they differ under `isolation: case` ([operations.md](../apps/benchmark/modules/preparation/docs/operations.md#variants)); setup, inputs and buffers before the timer |
