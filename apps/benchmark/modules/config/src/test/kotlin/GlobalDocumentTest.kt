@@ -103,12 +103,18 @@ class GlobalDocumentTest {
             "run: {isolation: run, orderSeed: 7}\n" to "invalid: run.orderSeed needs run.isolation",
             "run: {passes: {timing: {samples: 1}, speed: {samples: 1}}}\n" to "invalid: run.passes.speed",
             "run: {passes: {timing: {samples: 0}}}\n" to "not_positive: run.passes.timing.samples",
-            "run: {passes: {energy: {samples: 5}}}\n" to "missing_pass: run.passes [energy]",
+            "run: {metrics: [TIME, ALLOCATION], passes: {energy: {samples: 5}, allocation: {samples: 5}}}\n" to "missing_pass: run.passes [energy, allocation]",
             "run: {passes: {timing: {samples: 1}, allocation: {samples: 1}}}\n" to "pass_without_metric: run.passes.allocation",
         ).forEach { (text, code) ->
             val message = assertThrows(text, IllegalArgumentException::class.java) { run(text) }.message!!
             assertTrue(message, message.startsWith(code))
         }
+    }
+
+    /** A single pass is its own merge base, so an energy-only run needs no timing pass. */
+    @Test
+    fun aSinglePassNeedsNoTimingPass() {
+        assertEquals(listOf("energy"), run("run: {passes: {energy: {samples: 5}}}\n").passes.map { it.name })
     }
 
     /** No charts line means every chart; naming some turns the rest off; an empty list writes the summary only. */

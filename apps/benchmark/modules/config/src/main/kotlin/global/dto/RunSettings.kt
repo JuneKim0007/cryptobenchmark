@@ -39,8 +39,8 @@ data class RunSettings(
         require(Variants.valid(variants)) { "invalid: run.variants $variants, expected distinct values of ${Variants.NAMES}" }
         require(processRepetitions >= 1) { "not_positive: processRepetitions $processRepetitions" }
         require(passes.map { it.name }.toSet().size == passes.size) { "duplicate: run.passes ${passes.map { it.name }}" }
-        require(passes.isEmpty() || passes.any { it.name == MeasurePass.TIMING }) {
-            "missing_pass: run.passes ${passes.map { it.name }}, timing is the pass every other merges into"
+        require(passes.size <= 1 || passes.any { it.name == MeasurePass.TIMING }) {
+            "missing_pass: run.passes ${passes.map { it.name }}, with several passes timing is the one the others merge into"
         }
         require(passes.none { it.name == MeasurePass.ALLOCATION } || "ALLOCATION" in metrics) {
             "pass_without_metric: run.passes.allocation measures ALLOCATION, which run.metrics $metrics does not report"

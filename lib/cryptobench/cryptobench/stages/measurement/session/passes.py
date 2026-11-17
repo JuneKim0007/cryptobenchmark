@@ -95,7 +95,7 @@ def merge_runs(into, written, options):
 
 def merged(results, root, repetitions, options):
     """root/benchmark.json from every pass, and with repetitions root/process-<n>/ from each pass's n-th process."""
-    base = next(one for one in results if one.name == TIMING)
+    base = next((one for one in results if one.name == TIMING), next(iter(results)))
     owned = [(OWNED[one.name], results[one]) for one in results if one.name in OWNED]
 
     def merge(out, base_file, others):
