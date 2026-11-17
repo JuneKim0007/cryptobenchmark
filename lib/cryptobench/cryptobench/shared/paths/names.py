@@ -5,6 +5,7 @@ MANIFEST, DEVICE = "manifest.yaml", "device.yaml"
 CONFIGURATION, DISCOVERY, PREPARATION, BENCHMARK, ANALYSIS, CHART, CHECK, INTEROP, SCOPED = (
     "configuration", "discovery", "preparation", "benchmark", "analysis", "chart", "check", "interop", "scoped")
 SUPERSEDED = "superseded"
+SESSIONS, SESSION_LOG, SESSION_SUMMARY, INDEX = "sessions", "session.log", "summary.txt", "index.yaml"
 EFFECTIVE, INVENTORY, CONFIG_REPORT, GUIDE, KNOWN_ANSWERS = "effective.yaml", "inventory.yaml", "report.yaml", "guide.yaml", "known-answers.yaml"
 CAPTURE_PREFIX, TRIAL_PREFIX, REQUIREMENTS_PREFIX = "probe", "trial", "requirements"
 CAPTURE_PATTERN, TRIAL_FORM, REQUIREMENTS_FORM = f"{CAPTURE_PREFIX}_*.yaml", f"{TRIAL_PREFIX}_{{}}.yaml", f"{REQUIREMENTS_PREFIX}_{{}}.yaml"

@@ -1045,6 +1045,7 @@ codes:
   case_skipped: {kind: outcome}
   charts_failed: {kind: notice}
   # E11: Kotlin: one case's check threw, so the case is skipped (RunnablePlan.kt); runner: checked cases failed, exit 1 (cryptobench/stages/verification/check.py)
+  android_serial_ignored: {kind: notice}
   check_failed: {kind: outcome}
   check_ok: {kind: outcome}
   cipher_needs_a_key: {kind: error}
@@ -1133,6 +1134,7 @@ codes:
   keystore_born_key: {kind: outcome}
   keystore_unsupported: {kind: outcome}
   parallel_unavailable: {kind: notice}
+  session_incomplete: {kind: error}
   target_conflict: {kind: error}
   unstable_id: {kind: notice}
   library_outside_checkout: {kind: error, default: stop}

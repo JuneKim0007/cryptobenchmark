@@ -15,7 +15,13 @@ The Python library of `apps/benchmark-runner` and `apps/perf-repair`: `shared/` 
 cryptobench/__init__.py : package of the Python library the benchmark runner and perf-repair share
 cryptobench/pipeline/__init__.py : package of the run's stage framework, importing no stage
 cryptobench/pipeline/orchestrator/__init__.py : package of the session orchestrator: plan, workers, status lines, summary; imports no stage
+cryptobench/pipeline/orchestrator/board.py : StatusBoard: one status line per target, redrawn in place on a terminal, else printed on change
 cryptobench/pipeline/orchestrator/plan.py : a session's plan before anything runs: devices listed, targets resolved and grouped, skips and notices; --check-session
+cryptobench/pipeline/orchestrator/run.py : --session: the plan, order groups ascending, one worker per target and suite (sequential), each skip or failure in the session log, the target log and the summary; a stop forwarded to the running worker; session_incomplete
+cryptobench/pipeline/orchestrator/suite_config.py : one suite's global.yaml in the session folder: the target's config with selection.testSet the suite
+cryptobench/pipeline/orchestrator/summary.py : Row; the summary table (target, suite, state, code, results), written as summary.txt
+cryptobench/pipeline/orchestrator/tests/ : pytest tests of the orchestrator with fake workers: order, serials, skips, failures, stop, status lines
+cryptobench/pipeline/orchestrator/worker.py : Worker: one pipeline.py child in its own process group, its transcript in the target log, ANDROID_SERIAL its target's; SIGTERM to the group on stop; Outcome from its last error: and results: lines
 cryptobench/pipeline/stage.py : StageContext (options, configuration, device, the parse-only check's answer, the --per-suite suite, the run's problems list), what each stage reads; Stage, a stage's shape
 cryptobench/pipeline/took.py : the took: line of a timed step
 cryptobench/shared/__init__.py : package of the components the stages share, importing neither the pipeline nor a stage
@@ -81,7 +87,7 @@ cryptobench/shared/paths/imports.py : the apps' source folders on the import pat
 cryptobench/shared/paths/names.py : the file and folder names of a results folder, litter (desktop files no listing of a run counts), and CONTRACT: those shared with Kotlin
 cryptobench/shared/paths/packaged.py : packaged(package, name) through importlib and a named constant per data file a package ships
 cryptobench/shared/paths/repo.py : Repo and repo(root): one checkout's named locations
-cryptobench/shared/paths/results.py : Results(root): the finished device folders of a results root; finished, a manifest without partial:
+cryptobench/shared/paths/results.py : Results(root): the finished device folders of a results root, a session's folder; finished, a manifest without partial:
 cryptobench/shared/paths/roots.py : code_root (this checkout), benchmark_root (the checkout a run measures), each with its environment variable
 cryptobench/shared/paths/run_tree.py : RunTree: every file of one results folder; its sections Configuration, Discovery, Preparation, Measurement, Analysis, Charts, CheckFolder, InteropFolder, Scoped, Logs, Review; AppTree, GroupingTree
 cryptobench/shared/paths/settings.py : against(settings_file, value), the one rule for a path a settings file names; in_temp

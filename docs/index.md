@@ -11,7 +11,7 @@ docs/facade.md : apps/cli/facade.py: the settings index, the direction rule, the
 docs/index.md : this map
 docs/results.md : results/<device_id>/ layout, manifest.yaml, clocks.yaml and facts.yaml fields
 docs/run.md : prerequisites, apps/benchmark-runner/pipeline.py flags, demo.sh, device run
-docs/sessions.md : session.yaml, target resolution and its codes, --check-session
+docs/sessions.md : session.yaml, target resolution and its codes, --check-session, --session: workers, status lines, the session folder and summary
 docs/shared-functions.md : generated: benchmark runner, cli, tools and lib functions other modules import: module, signature, rule, callers
 docs/tools.md : tools/ builds: commands, arguments, outputs
 ```

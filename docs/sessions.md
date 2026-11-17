@@ -55,3 +55,30 @@ No target left: `nothing_to_measure: no device target is ready or resolved[; hos
 ## --check-session
 
 Prints the device listing, one `order <n>:   <target> (<key>, adb <serial> | host): <suites> -> <results>/<device_id>/<suite>/` line per target in ascending order, the notices as `warning:` lines and each skip as `skipped:   <target>: <line>`. Runs no tool and writes nothing.
+
+## --session
+
+`pipeline.py --session SESSION_YAML [--results DIR] [--stacktrace] [--energy-python PYTHON] [--suppress-errors ERRORS]`; `lib/cryptobench/cryptobench/pipeline/orchestrator/run.py`. Prints the listing and the plan, then runs every target's suites.
+
+| rule | value |
+|---|---|
+| groups | ascending `order`; a group starts when the previous one ended, failed and skipped targets included |
+| within a group | one target after another, its suites in the listed order (`parallel_unavailable`) |
+| worker | `pipeline.py --config <suite config> --results <DIR> --per-suite --device` on a device, `--bench` on the host, plus `--stacktrace` and `--energy-python` when given; its own process group; stdin closed |
+| `ANDROID_SERIAL` | the target's transport serial on a device worker; an inherited value is ignored with `warning: android_serial_ignored: ...`; `--suppress-errors` (or `CRYPTOBENCH_SUPPRESS_ERRORS`) reaches device workers as that variable; a host worker gets neither it nor `CRYPTOBENCH_SUPPRESS_ERRORS` |
+| suite config | the target's config with `selection.testSet` set to the suite's absolute path, written to the session folder |
+| a run | one suite on one target, at `<DIR>/<device_id>/<suite>/` ([results.md](results.md#device-folder)); a failed run ends only itself |
+| status | one line per target, `target:    <target>: <suite>: <worker's last line>`; redrawn in place on a terminal, else printed when it changes |
+| Ctrl-C, SIGTERM, SIGHUP | SIGTERM to the running worker's group, which writes its partial manifest; its group is killed after 120 s or a second Ctrl-C; the summary marks it `stopped` and the rest `not started`; the session then stops as on Ctrl-C |
+| end | the summary is printed and written; any row not `finished` is `session_incomplete: <n> of <m> rows did not finish; see <summary>`, exit 1 |
+| `<DIR>/sessions/<name>/.lock` | one session of a name at a time: `device_busy` |
+
+`<DIR>/sessions/<name>/` holds no measurements:
+
+| file | holds |
+|---|---|
+| `session.log` | one stamped line per event: `session`, `notice:`, `skipped: <target>: <line>`, `start: <target> <suite>: <argv>`, `finished:`, `failed: <target> <suite>: <worker's error line>`, `stopped:`, `summary:` |
+| `<target>/<suite>.log` | the worker's stdout and stderr, then the session's line for it; `<target>` with characters other than letters, digits, `.`, `_`, `-` as `-` |
+| `<target>/target.log` | a skipped target's line |
+| `<target>/<suite>.global.yaml` | the suite config |
+| `summary.txt` | `target suite state code results`; state `finished`, `failed`, `skipped`, `stopped` or `not started`; code the first word of the worker's last `error:` line, `subprocess_failed` for an exit without one |

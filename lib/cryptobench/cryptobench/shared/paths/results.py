@@ -4,6 +4,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from .names import SESSIONS
 from .run_tree import RunTree
 
 PARTIAL = re.compile(r"^partial:", re.M)
@@ -22,6 +23,10 @@ class Results:
 
     def device(self, device_id: str) -> RunTree:
         return RunTree(self.root / device_id)
+
+    def session(self, name: str) -> Path:
+        """A session's own folder: its log, summary, index and generated configs; never measurements."""
+        return self.root / SESSIONS / name
 
     def devices(self) -> list[str]:
         """The finished devices."""

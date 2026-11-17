@@ -11,6 +11,7 @@ from cryptobench.shared.errors.line import one_line
 from cryptobench.shared.errors.coded import Coded
 from cryptobench.shared.log.warn import warn
 from cryptobench.pipeline.orchestrator import plan as session_plan
+from cryptobench.pipeline.orchestrator import run as session_run
 from cryptobench.pipeline.stage import Stage, StageContext
 from cryptobench.stages.configuration.global_file import global_config
 from cryptobench.shared import paths
@@ -43,6 +44,8 @@ def parse_options():
                         help="discovery and configure only, with --device on the device; writes <results>/<device_id>/ and its manifest, measures nothing")
     parser.add_argument("--devices", action="store_true",
                         help="list what adb sees: each device's key, alias, kind, model, API level and connection, or why it is not ready; reads no config")
+    parser.add_argument("--session", metavar="SESSION_YAML",
+                        help="run a session.yaml: each target's suites as pipeline.py workers, order groups in ascending order, a summary table")
     parser.add_argument("--check-session", metavar="SESSION_YAML",
                         help="resolve a session.yaml against the devices adb lists and print its targets, order groups and skips; runs nothing")
     parser.add_argument("--per-suite", action="store_true",
@@ -81,7 +84,7 @@ REFUSED = (
     (lambda o: o.harness and not o.device, "--harness: scopes are checked only on a --device run"),
     (lambda o: o.check and (o.probe or o.identify or o.harness or o.interop), "--check: runs alone with --bench or --device, without --probe, --identify, --harness or --interop"),
     (lambda o: o.device and o.discovery == "reuse", "--discovery reuse: a device run probes the device it measures"),
-    (lambda o: o.suppress_errors and not o.device, "--suppress-errors: only a --device run reaches androidx.benchmark"),
+    (lambda o: o.suppress_errors and not (o.device or o.session), "--suppress-errors: only a --device run reaches androidx.benchmark"),
     (lambda o: o.energy_accept_unresponsive and not o.device,
      "--energy-accept-unresponsive: only a --device run captures energy"),
     (lambda o: (o.reconnect_wait_minutes is not None or o.reconnect_poll_seconds is not None) and not o.device,
@@ -94,6 +97,8 @@ REFUSED = (
      "--devices: lists the attached devices and runs alone"),
     (lambda o: o.check_session and any((o.devices, o.config, o.bench, o.device, o.probe, o.identify, o.check, o.harness, o.interop)),
      "--check-session: resolves a session and runs alone"),
+    (lambda o: o.session and any((o.check_session, o.devices, o.config, o.bench, o.device, o.probe, o.identify, o.check, o.harness, o.interop, o.per_suite)),
+     "--session: picks each worker's mode and config itself, so it goes with no mode, --config or --per-suite"),
 )
 
 
@@ -106,6 +111,11 @@ def list_devices():
         print(line)
     if not rows:
         warn("no_device: adb lists no device; attach one or start an emulator")
+
+
+def worker_options(options):
+    """What a session passes on to every worker; device-only options reach device workers through their environment."""
+    return (["--stacktrace"] if options.stacktrace else []) + (["--energy-python", options.energy_python] if options.energy_python != sys.executable else [])
 
 
 def identify(options, configuration, device):
@@ -214,6 +224,10 @@ def main():
     sys.stdout.reconfigure(line_buffering=True)
     if options.devices:
         return list_devices()
+    if options.session:
+        # device workers inherit it, host workers never get it (worker.environment)
+        os.environ["CRYPTOBENCH_SUPPRESS_ERRORS"] = options.suppress_errors
+        return session_run.run_session(pathlib.Path(options.session), results_root(options), lambda: global_config(None), worker_options(options))
     if options.check_session:
         return session_plan.check(options.check_session, results_root(options), lambda: global_config(None))
     configuration = global_config(options.config)

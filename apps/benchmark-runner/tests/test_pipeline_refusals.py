@@ -20,6 +20,7 @@ REFUSALS = [
     (["--device", "--order-seed", "7"], "retired_option: --order-seed; set run.orderSeed in global.yaml, where effective.yaml and the run's identity read it"),
     (["--devices", "--bench"], "--devices: lists the attached devices and runs alone"),
     (["--check-session", "s.yaml", "--device"], "--check-session: resolves a session and runs alone"),
+    (["--session", "s.yaml", "--bench"], "--session: picks each worker's mode and config itself, so it goes with no mode, --config or --per-suite"),
 ]
 
 
