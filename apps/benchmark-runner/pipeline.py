@@ -55,7 +55,7 @@ def parse_options():
     parser.add_argument("--suppress-errors", default=os.environ.get("CRYPTOBENCH_SUPPRESS_ERRORS", ""), metavar="ERRORS",
                         help="androidx.benchmark errors to suppress on --device, e.g. EMULATOR,UNLOCKED; the numbers are then not comparable")
     parser.add_argument("--energy-python", default=sys.executable, metavar="PYTHON",
-                        help="interpreter with apps/benchmark-runner/energy/requirements.txt installed (default: this one)")
+                        help="interpreter with apps/benchmark-runner/energy/requirements.txt installed (default: this one, else the energy source's venv, installed on first use under the user cache)")
     parser.add_argument("--energy-accept-unresponsive", action="store_true",
                         help="run energy cases even when the rails do not respond to load; for plumbing tests only, the joules are not measurements")
     parser.add_argument("--reconnect-wait-minutes", type=int, metavar="M",

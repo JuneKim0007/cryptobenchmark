@@ -38,7 +38,16 @@ def require(module, python=sys.executable):
 
 
 def require_energy(source_name, python=sys.executable):
-    require(ENERGY[source_name], python)
+    """The interpreter with the source's packages: the given one, or with the default one the source's own installed venv."""
+    if _found(ENERGY[source_name], python):
+        return python
+    if python != sys.executable:
+        raise CommandError(f"missing_dependency: {ENERGY[source_name]} in --energy-python {python}")
+    from cryptobench.stages.measurement.energy import install
+    try:
+        return install.installed(source_name)
+    except install.InstallFailed as error:
+        raise CommandError(str(error)) from None
 
 
 # CommandError needs cryptobench, so the import-time check stops the way an entry point does
@@ -88,7 +97,7 @@ def check(options, configuration):
     if not options.harness and captured != "dry":
         require(ANALYSIS)
     if options.device and captured in ENERGY_CAPTURES:
-        require_energy(source(run), options.energy_python)
+        options.energy_python = require_energy(source(run), options.energy_python)
 
 
 def main():

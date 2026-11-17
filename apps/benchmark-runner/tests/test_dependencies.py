@@ -10,6 +10,7 @@ import pytest
 import yaml
 
 import dependencies
+from cryptobench.stages.measurement.energy import install
 from failure import reported
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
@@ -103,14 +104,30 @@ def test_a_run_with_no_analysis_does_not_need_matplotlib(config, hidden, asked):
     dependencies.check(options(**asked), config({}))
 
 
-def test_perfetto_is_needed_only_when_a_device_run_captures_energy(config, hidden, capsys):
+@pytest.fixture
+def installs(monkeypatch):
+    """The sources whose venv a check asked for; each answers /cache/<source>/bin/python."""
+    asked = []
+    monkeypatch.setattr(install, "installed", lambda name: asked.append(name) or f"/cache/{name}/bin/python")
+    return asked
+
+
+def test_perfetto_is_needed_only_when_a_device_run_captures_energy(config, hidden, installs):
     hidden.add("perfetto")
     dependencies.check(options(device=True), config({}))
     captured = config({"harness": {"energy": {"capture": "measured"}}})
     dependencies.check(options(bench=True), captured)
+    assert installs == []
+    dependencies.check(options(device=True), captured)
+    assert installs == ["rails"]
+
+
+def test_an_explicit_energy_python_without_the_module_is_never_replaced(config, hidden, installs, capsys):
+    hidden.add("perfetto")
     with pytest.raises(SystemExit), reported():
-        dependencies.check(options(device=True), captured)
-    assert "missing_dependency: perfetto;" in capsys.readouterr().err
+        dependencies.check(options(device=True, energy_python="/opt/other/python"), config({"harness": {"energy": {"capture": "measured"}}}))
+    assert "missing_dependency: perfetto in --energy-python /opt/other/python" in capsys.readouterr().err
+    assert installs == []
 
 
 def test_the_manafa_source_needs_manafa_not_perfetto(config, hidden):
@@ -132,17 +149,35 @@ def test_the_command_exits_with_the_line_before_a_second_passes(tmp_path):
     assert "missing_dependency: yaml" in done.stderr
 
 
-@pytest.mark.parametrize("missing, asked, run", [
-    ("matplotlib", {"bench": True}, {}),
-    ("perfetto", {"device": True}, {"harness": {"energy": {"capture": "measured"}}}),
-    ("manafa", {"device": True}, {"harness": {"energy": {"capture": "measured", "source": "manafa"}}}),
-])
-def test_a_missing_module_is_exactly_one_stderr_line_perf_repair_reads(config, hidden, capsys, missing, asked, run):
-    hidden.add(missing)
+def test_a_missing_module_is_exactly_one_stderr_line_perf_repair_reads(config, hidden, capsys):
+    hidden.add("matplotlib")
     with pytest.raises(SystemExit) as stopped, reported():
-        dependencies.check(options(**asked), config(run))
+        dependencies.check(options(bench=True), config({}))
     assert stopped.value.code == 1
-    assert capsys.readouterr() == ("", f"error: missing_dependency: {missing}; pip install -r requirements.txt\n")
+    assert capsys.readouterr() == ("", "error: missing_dependency: matplotlib; pip install -r requirements.txt\n")
+
+
+ENERGY_RUNS = [("rails", "perfetto", {"harness": {"energy": {"capture": "measured"}}}),
+               ("manafa", "manafa", {"harness": {"energy": {"capture": "measured", "source": "manafa"}}})]
+
+
+@pytest.mark.parametrize("source, missing, run", ENERGY_RUNS)
+def test_a_missing_energy_module_is_installed_into_the_sources_venv_and_the_run_uses_it(config, hidden, installs, source, missing, run):
+    hidden.add(missing)
+    asked = options(device=True)
+    dependencies.check(asked, config(run))
+    assert (installs, asked.energy_python) == ([source], f"/cache/{source}/bin/python")
+
+
+@pytest.mark.parametrize("source, missing, run", ENERGY_RUNS)
+def test_a_failed_energy_install_is_exactly_one_stderr_line(config, hidden, monkeypatch, capsys, source, missing, run):
+    def failing(name):
+        raise install.InstallFailed(f"energy_install_failed: {name}: no network")
+    hidden.add(missing)
+    monkeypatch.setattr(install, "installed", failing)
+    with pytest.raises(SystemExit), reported():
+        dependencies.check(options(device=True), config(run))
+    assert capsys.readouterr() == ("", f"error: energy_install_failed: {source}: no network\n")
 
 
 def test_the_command_without_pyyaml_prints_exactly_its_line():

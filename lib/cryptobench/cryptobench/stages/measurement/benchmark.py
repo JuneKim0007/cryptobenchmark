@@ -63,7 +63,7 @@ def dry_pass(session, into, preparation, problems, guarded):
 
 
 def measure_cases(options, device, results, discovery, effective, capture, trial, files, problems, require_energy):
-    """require_energy is the entry point's check of the energy interpreter, passed in."""
+    """require_energy is the entry point's check of the energy interpreter, passed in; it returns the interpreter the run uses."""
     benchmark, preparation = paths.RunTree(results).benchmark.root, paths.RunTree(results).preparation.root
     started = time.monotonic()
     document = effective_view.read(effective)["document"]
@@ -75,7 +75,7 @@ def measure_cases(options, device, results, discovery, effective, capture, trial
         raise CommandError("energy: only a --device run captures energy; set harness.energy.capture none for --bench")
     if captures - {"none"}:
         # the effective config holds the captures a test set turned on, which the first check could not see
-        require_energy(energy_stage.source_name(effective), options.energy_python)
+        options.energy_python = require_energy(energy_stage.source_name(effective), options.energy_python)
     if device:
         waits = reconnect.Reconnect.of(device, options)
         print(waits.line())

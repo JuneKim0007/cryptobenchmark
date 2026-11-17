@@ -20,6 +20,11 @@ def user_devices() -> Path:
     return home() / ".config/cryptobench/devices.yaml"
 
 
+def user_cache() -> Path:
+    """$XDG_CACHE_HOME/cryptobench, else ~/.cache/cryptobench."""
+    return Path(os.environ.get("XDG_CACHE_HOME") or home() / ".cache") / "cryptobench"
+
+
 def android_home() -> Path:
     return Path(os.environ.get("ANDROID_HOME") or home() / "Library/Android/sdk")
 

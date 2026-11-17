@@ -147,4 +147,4 @@ lib/cryptobench/cryptobench/stages/measurement/energy/steps.py : capture selecti
 | `energy.py` | `--capability F -o OUT [--prepared --benchmark-data --traces] [--dry-trace --dry-calls]` |
 | `manafa_session.py` | `[--check <seconds> --capability <energy.yaml>]`; without them, stdin `stop`, then a JSON list of `energy.py`'s arguments |
 
-- Missing `perfetto` fails with an error naming `pip install -r apps/benchmark-runner/energy/requirements.txt` and `--energy-python`.
+- Without `--energy-python`, a run whose interpreter lacks the source's module (`perfetto`, `manafa`) installs `energy/requirements.txt` (+ `requirements-manafa.txt` for manafa) on first use into `$XDG_CACHE_HOME/cryptobench/energy/<source>-<digest>/` (default `~/.cache`) and runs the source there; a changed requirements file is a new folder; a failed install is `energy_install_failed: <source>: <pip's last line>` and leaves nothing; an explicit `--energy-python` without the module is `missing_dependency: <module> in --energy-python <python>`.

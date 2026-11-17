@@ -1087,6 +1087,7 @@ codes:
   empty_window: {kind: outcome}
   energy_capability_unknown: {kind: error}
   energy_failed: {kind: notice}
+  energy_install_failed: {kind: error}
   energy_kinds_differ: {kind: error}
   energy_not_joined: {kind: notice}
   energy_sources_differ: {kind: error}
