@@ -2,7 +2,7 @@ package io.github.junekim0007.cryptobench.config.entry
 
 import io.github.junekim0007.cryptobench.files.VariantLabels
 
-/** The execution paths a run or an entry asks for: the names, the default, the fallback of an invalid value, and which entries run them. */
+/** The execution paths a run or an entry asks for: the names, the fallback of an invalid value, and the ones a type runs. */
 object Variants {
 
     const val FIXED = VariantLabels.FIXED
@@ -24,12 +24,9 @@ object Variants {
 
     fun valid(values: List<String>): Boolean = values.all { it in NAMES } && values.distinct().size == values.size
 
-    // the hardware-isolated key path is built for key generation only: an operation entry drops secure
-    fun runnable(values: List<String>, generator: Boolean): List<String> = if (generator) values else values - SECURE
+    /** The asked paths the type's catalogue row applies. */
+    fun runnable(asked: List<String>, type: String): List<String> = asked.filter { it in EnginePaths.catalog.applicable(type) }
 
-    fun secureNotice(askedBy: Int): String =
-        "secure_path_unavailable: $askedBy entries ask for $SECURE; the hardware-isolated key path runs key generation only, so no $SECURE case runs for them"
-
-    fun notFixedNotice(skipped: Int): String =
-        "path_not_applicable: key generation takes $FIXED and $SECURE; $NOT_FIXED skipped for $skipped entries"
+    fun secureUnavailable(subject: String): String =
+        "secure_path_unavailable: $SECURE asked by $subject; the hardware-isolated key path runs ${EnginePaths.catalog.taking(SECURE).joinToString()} only"
 }

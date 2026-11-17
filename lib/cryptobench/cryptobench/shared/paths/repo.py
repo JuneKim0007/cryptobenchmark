@@ -5,15 +5,16 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from . import roots
-from .names import CONFIG_FOLDER, ENGINE_OPERATIONS, GLOBAL
+from .names import CONFIG_FOLDER, ENGINE_OPERATIONS, GLOBAL, SETUP_CATALOG
 
 _ENGINE_OPERATIONS = "modules/preparation/src/main/resources/io/github/junekim0007/cryptobench/preparation/engine/" + ENGINE_OPERATIONS
 _KOTLIN_NAME_USERS = ("modules/environment/discovery/src/main/kotlin", "modules/config/src/main/kotlin", "modules/preparation/src/main/kotlin",
                       "modules/benchmark/src/main/kotlin", "modules/android/src/androidTest/kotlin", "cli/src/main/kotlin")
 _APK = "modules/android/build/outputs/apk/release/android-release.apk"
-# what builds the measuring code: the device app and test APK, the host's BenchKt, their dependency versions
-_TIMED_CODE = (*(f"modules/{m}/src/main/**/*" for m in ("jca", "settings", "files", "document", "preparation", "benchmark")),
-               "modules/android/src/**/*", "modules/android/build.gradle", "cli/src/main/**/*", "gradle/libs.versions.toml")
+# what builds the measuring code: the device app and test APK, the host's BenchKt, their dependency versions, the setup catalogue they read
+_TIMED_CODE = (*(f"apps/benchmark/modules/{m}/src/main/**/*" for m in ("jca", "settings", "files", "document", "preparation", "benchmark")),
+               "apps/benchmark/modules/android/src/**/*", "apps/benchmark/modules/android/build.gradle", "apps/benchmark/cli/src/main/**/*",
+               "apps/benchmark/gradle/libs.versions.toml", f"{roots.ALGORITHMS}/{SETUP_CATALOG}")
 
 
 @dataclass(frozen=True)
@@ -38,6 +39,7 @@ class Repo:
     timed_code = property(lambda self: _TIMED_CODE)
     engine_operations = property(lambda self: self.gradle_root / _ENGINE_OPERATIONS)
     preparation_resources = property(lambda self: self.gradle_root / "modules/preparation/src/main/resources")
+    setup_catalog = property(lambda self: self.algorithms / SETUP_CATALOG)
     perf_repair = property(lambda self: self.root / "apps/perf-repair")
     perf_repair_source = property(lambda self: self.perf_repair / "src")
     perfrepair_settings = property(lambda self: self.perf_repair / "perfrepair.yaml")

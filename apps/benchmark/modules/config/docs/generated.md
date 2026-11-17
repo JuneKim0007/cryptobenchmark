@@ -94,7 +94,7 @@ An entry is checked as `run.harness` merged with its own harness. When the run s
 | key | holds |
 |---|---|
 | `runId` | as in `effective.yaml` |
-| `warnings` | the inventory's `warnings`, `variants_fallback:` of global.yaml then of the test set, `exclude_matches_nothing: <rule>`, `override_matches_nothing: <rule>`, run-level and entry-level `not_supported:`, then one `path_not_applicable:` (generator entries asking `notFixed`) and one `secure_path_unavailable:` (operation entries asking `secure`) |
+| `warnings` | the inventory's `warnings`, `variants_fallback:` of global.yaml then of the test set, `exclude_matches_nothing: <rule>`, `override_matches_nothing: <rule>`, run-level and entry-level `not_supported:`, then one `path_not_applicable:` per type and dropped path and one `secure_path_unavailable:` (entries asking `secure` of a type whose row lacks it) |
 | `skipped` | `{stage, provider?, type?, name?, reason}`; preparation writes the same shape with stage `preparation` |
 
 ## Errors and writes

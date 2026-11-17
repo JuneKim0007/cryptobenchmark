@@ -16,7 +16,7 @@ DETAILED = ("run", "device")
 def timed_code(repo=None):
     """The source tree digest of what builds the measuring code; a pattern that matches nothing is refused (digest_of)."""
     repo = repo or paths.repo()
-    return digest_of(repo.gradle_root, repo.timed_code, CommandError)
+    return digest_of(repo.root, repo.timed_code, CommandError)
 
 
 def of(effective, capture, order, suppress_errors):

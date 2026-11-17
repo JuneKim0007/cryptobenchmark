@@ -10,6 +10,7 @@ The Python library of `apps/benchmark-runner` and `apps/perf-repair`: `shared/` 
 ../../algorithms/groups.yaml : data: per family its exemplars and the listed algorithm ids, from whose catalogue contracts the contract rows come; a person adds ids from group-candidates.yaml
 ../../algorithms/interchange.yaml : data: per engine type the components that split a group, the rules that read them from a canonical name, what a missing key contract means, and which contract each component states
 ../../algorithms/provider-builds.yaml : data: every provider build the catalogues' measured facts ran on, keyed <name> @ <build>, with what each says of itself; a behaviour true of a provider and the ids it reaches
+../../algorithms/setup-catalog.yaml : data: per JCA engine type the paths it applies, the key it generates, what a fixed call still does per call; read by config and preparation
 ../../algorithms/vectors/ : known answers by family
 cryptobench/__init__.py : package of the Python library the benchmark runner and perf-repair share
 cryptobench/pipeline/__init__.py : package of the run's stage framework, importing no stage

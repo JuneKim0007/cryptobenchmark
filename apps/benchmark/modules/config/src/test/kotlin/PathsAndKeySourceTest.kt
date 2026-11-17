@@ -2,6 +2,7 @@ package io.github.junekim0007.cryptobench.config
 
 import io.github.junekim0007.cryptobench.config.effective.EffectiveBuilder
 import io.github.junekim0007.cryptobench.config.effective.EffectiveDocument
+import io.github.junekim0007.cryptobench.config.entry.EnginePaths
 import io.github.junekim0007.cryptobench.config.global.GlobalDocument
 import io.github.junekim0007.cryptobench.config.inventory.InventoryBuilder
 import io.github.junekim0007.cryptobench.config.inventory.InventoryDocument
@@ -58,7 +59,7 @@ class PathsAndKeySourceTest {
         val effective = build("", "include:\n- {type: Cipher, name: RSA}\n- {type: MessageDigest}\n")
         assertEquals(listOf("fixed", "notFixed", "secure"), effective.run.variants)
         assertEquals(setOf(emptyList<String>()), effective.providers.values.flatMap { t -> t.values.flatMap { it.values } }.map { it.variants }.toSet())
-        assertEquals(listOf("secure_path_unavailable: 2 entries ask for secure; the hardware-isolated key path runs key generation only, so no secure case runs for them"),
+        assertEquals(listOf("secure_path_unavailable: secure asked by 2 entries; the hardware-isolated key path runs KeyGenerator, KeyPairGenerator only"),
             effective.warnings)
     }
 
@@ -67,7 +68,7 @@ class PathsAndKeySourceTest {
     fun keyGenerationKeepsSecureAndNotesNotFixedOnce() {
         val effective = build("run: {variants: [fixed, notFixed, secure]}\n", "include:\n- {type: KeyGenerator}\n")
         assertEquals(mapOf("AES" to emptyList(), "SunTlsPrf" to listOf("secure")), variants("run: {variants: [fixed, notFixed, secure]}\n", "include:\n- {type: KeyGenerator}\n"))
-        assertEquals(listOf("path_not_applicable: key generation takes fixed and secure; notFixed skipped for 2 entries"), effective.warnings)
+        assertEquals(listOf("path_not_applicable: KeyGenerator (2 entries) applies [fixed, secure], [notFixed] dropped"), effective.warnings)
         assertEquals(emptyList<String>(), effective.skipped.map { it.reason })
     }
 
@@ -76,6 +77,28 @@ class PathsAndKeySourceTest {
         val effective = build("run: {variants: [fixed]}\n", "include:\n- {type: KeyGenerator}\n- {type: KeyGenerator, name: SunTlsPrf, group: hw, variants: [secure]}\n")
         assertEquals(setOf("AES", "SunTlsPrf@hw"), effective.providers.getValue("SunJCE").getValue("KeyGenerator").keys)
         assertEquals(listOf("not_runnable: IllegalStateException: TlsPrfGenerator must be initialized"), effective.skipped.map { it.reason })
+    }
+
+    /** A written path the type's row does not apply leaves the entry; none left is a path_not_applicable skip, never a case. */
+    @Test
+    fun aWrittenPathTheRowDoesNotApplyIsDropped() {
+        val effective = build("", "include:\n- {type: KeyGenerator, name: AES, variants: [fixed, notFixed]}\n- {type: KeyGenerator, name: AES, group: n, variants: [notFixed]}\n")
+        assertEquals(listOf("fixed"), effective.providers.getValue("SunJCE").getValue("KeyGenerator").getValue("AES").variants)
+        assertEquals(listOf("path_not_applicable: SunJCE.KeyGenerator.AES@n applies [fixed, secure], [notFixed] dropped"), effective.skipped.map { it.reason })
+        assertEquals(listOf("path_not_applicable: KeyGenerator (1 entry) applies [fixed, secure], [notFixed] dropped"), effective.warnings)
+    }
+
+    @Test
+    fun aTypeTheCatalogueLacksAppliesNoPath() {
+        val paths = EnginePaths(codec.load("schemaVersion: 1\nengines:\n  Mac: {fixed: operation}\n  KeyGenerator: {variants: [fixed, secure], generates: secretKey}\n"))
+        assertEquals(emptyList<String>(), paths.applicable("KEM"))
+        assertEquals(listOf("fixed", "notFixed"), paths.applicable("mac"))
+        assertEquals(listOf("KeyGenerator"), paths.generators)
+        assertEquals(listOf("KeyGenerator"), paths.taking("secure"))
+        val refused = assertThrows(IllegalArgumentException::class.java) {
+            EnginePaths(codec.load("schemaVersion: 1\nengines:\n  Mac: {variants: [fixed, fixed]}\n")).applicable("Mac")
+        }
+        assertEquals("invalid: /setup-catalog.yaml engines.Mac.variants [fixed, fixed], distinct names of [fixed, notFixed, secure]", refused.message)
     }
 
     @Test
@@ -89,7 +112,8 @@ class PathsAndKeySourceTest {
     @Test
     fun onlySecureAskedIsASkipNotACase() {
         val effective = build("", "include:\n- {type: Cipher, name: RSA, variants: [secure]}\n- {type: MessageDigest}\n")
-        assertEquals(listOf("secure_path_unavailable: only secure asked"), effective.skipped.map { it.reason })
+        assertEquals(listOf("secure_path_unavailable: secure asked by SunJCE.Cipher.RSA alone; the hardware-isolated key path runs KeyGenerator, KeyPairGenerator only"),
+            effective.skipped.map { it.reason })
         assertEquals(setOf("SUN"), effective.providers.keys)
     }
 

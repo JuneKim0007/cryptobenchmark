@@ -11,7 +11,7 @@ from facade import tree as settings_tree
 from facade.index import Index, SettingsIndexError, read_index
 from facade.tree import CATALOG, CRYPTO, LLM, OVERRIDDEN, PACKAGED, ROOT_SIDE, Node
 
-CRYPTO_CATALOGS = paths.repo().preparation_resources
+CRYPTO_CATALOGS = (*sorted(paths.repo().preparation_resources.rglob("*.yaml")), paths.repo().setup_catalog)
 SCREENING_KEY = "device.screening.catalog"
 
 
@@ -69,7 +69,7 @@ def _llm(index, root, checked):
 def _catalogs(read, checked):
     overrides = [p for p in read.pointers if p.kind == OVERRIDDEN] if read else []
     replaced = {SCREENING} if any(p.key == SCREENING_KEY for p in overrides) else set()
-    packaged = [*packaged_catalogs(), *sorted(CRYPTO_CATALOGS.rglob("*.yaml"))]
+    packaged = [*packaged_catalogs(), *CRYPTO_CATALOGS]
     checked.nodes += [Node(str(p.name), p, CATALOG, CATALOG, None, PACKAGED) for p in packaged if p not in replaced]
     for pointer in overrides:
         files = [pointer.path] if pointer.path.is_file() else sorted(p for p in pointer.path.rglob("*") if p.is_file())

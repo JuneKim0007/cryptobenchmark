@@ -30,9 +30,10 @@ apps/benchmark/modules/config/src/main/kotlin/effective/dto/EffectiveEntry.kt : 
 apps/benchmark/modules/config/src/main/kotlin/effective/dto/EffectiveSource.kt : generatedFrom of effective.yaml
 apps/benchmark/modules/config/src/main/kotlin/effective/dto/Report.kt : run id, warnings and skips of one effective build
 apps/benchmark/modules/config/src/main/kotlin/effective/dto/Skip.kt : skip record {stage, provider?, type?, name?, reason}
+apps/benchmark/modules/config/src/main/kotlin/entry/EnginePaths.kt : setup-catalog.yaml's rows as config reads them: the paths a type applies, the generator types
 apps/benchmark/modules/config/src/main/kotlin/entry/EntryKeys.kt : per-primitive key names shared by test-set overrides and effective entries
-apps/benchmark/modules/config/src/main/kotlin/entry/KeySource.kt : a key's written algorithm and provider checked against the inventory's generators, its backing against tee and strongbox; the generator types
-apps/benchmark/modules/config/src/main/kotlin/entry/Variants.kt : variants names, the [fixed] fallback and its notice, secure kept for key generation only, the run-level notFixed and secure notices
+apps/benchmark/modules/config/src/main/kotlin/entry/KeySource.kt : a key's written algorithm and provider checked against the inventory's generators, its backing against tee and strongbox
+apps/benchmark/modules/config/src/main/kotlin/entry/Variants.kt : variants names, the [fixed] fallback and its notice, the asked paths a type runs, the secure_path_unavailable text
 apps/benchmark/modules/config/src/main/kotlin/global/AnalysisDocument.kt : analysis section reader and writer
 apps/benchmark/modules/config/src/main/kotlin/global/GlobalDocument.kt : global.yaml schema
 apps/benchmark/modules/config/src/main/kotlin/global/PolicyDocument.kt : policy section reader and writer

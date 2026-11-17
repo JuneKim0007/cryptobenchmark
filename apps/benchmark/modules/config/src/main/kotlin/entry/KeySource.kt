@@ -14,7 +14,6 @@ object KeySource {
     val KEYS = listOf(ALGORITHM, PROVIDER, BACKING)
     // where a secure key is born: tee unless strongbox is written
     val BACKINGS = listOf("tee", "strongbox")
-    val GENERATORS = listOf("KeyGenerator", "KeyPairGenerator")
 
     fun named(key: Map<String, Any>): Boolean = KEYS.mapNotNull { key[it] }.all { it is String && it.isNotBlank() }
 
@@ -31,7 +30,7 @@ object KeySource {
         }
         val algorithm = key[ALGORITHM] as String? ?: located.entry.keyAlgorithm.ifEmpty { return "no_measured_key: ${located.type}.${located.name}" }
         return if (candidates.any { generates(inventory, it, algorithm) }) null
-            else "no_key_generator: ${if (written == ANY) "no provider registers" else "${candidates.single()} registers no"} ${GENERATORS.joinToString(" or ")} $algorithm"
+            else "no_key_generator: ${if (written == ANY) "no provider registers" else "${candidates.single()} registers no"} ${EnginePaths.catalog.generators.joinToString(" or ")} $algorithm"
     }
 
     /** The key block with a named provider in the inventory's spelling, the one preparation compares exactly; anything else as written. */
@@ -45,7 +44,7 @@ object KeySource {
     // a registered name through the catalogue's spellings, or an alias the capture lists for it (an OID among them)
     private fun generates(inventory: Inventory, provider: String, algorithm: String): Boolean {
         val types = inventory.providers[provider].orEmpty()
-        return GENERATORS.any { type ->
+        return EnginePaths.catalog.generators.any { type ->
             types[type].orEmpty().any { (name, entry) ->
                 AlgorithmNames.catalog.matches(type, algorithm, name) || entry.aliases.any { AlgorithmNames.fold(it) == AlgorithmNames.fold(algorithm) }
             }

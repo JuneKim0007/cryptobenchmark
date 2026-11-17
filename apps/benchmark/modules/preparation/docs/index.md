@@ -64,7 +64,7 @@ apps/benchmark/modules/preparation/src/main/kotlin/operation/KeyShape.kt : enum 
 apps/benchmark/modules/preparation/src/main/kotlin/operation/OperationDefinition.kt : interface: what an operation consumes and its call
 apps/benchmark/modules/preparation/src/main/kotlin/operation/OperationDefinitions.kt : Operation to definition map
 apps/benchmark/modules/preparation/src/main/kotlin/operation/PerCall.kt : enum of what one timed call does: operation, initAndOperation, getInstanceInitAndOperation
-apps/benchmark/modules/preparation/src/main/kotlin/operation/SetupCatalog.kt : reads setup-catalog.yaml: the paths a row applies and a case's PerCall
+apps/benchmark/modules/preparation/src/main/kotlin/operation/SetupCatalog.kt : reads algorithms/setup-catalog.yaml: the paths a row applies and a case's PerCall
 apps/benchmark/modules/preparation/src/main/kotlin/operation/SignDefinition.kt : SIGN definition
 apps/benchmark/modules/preparation/src/main/kotlin/operation/TypeDefaultDefinition.kt : TYPE_DEFAULT definition (no-op call)
 apps/benchmark/modules/preparation/src/main/kotlin/operation/VerifyDefinition.kt : VERIFY definition; builds signed-message input
@@ -102,7 +102,6 @@ apps/benchmark/modules/preparation/src/main/kotlin/resolve/SelectionExpander.kt 
 apps/benchmark/modules/preparation/src/main/kotlin/shared/DocumentFile.kt : YAML file read (schemaVersion check) and write
 apps/benchmark/modules/preparation/src/main/kotlin/shared/FailureText.kt : a failure as one record line: scrubbed and capped, object identity hashes dropped
 apps/benchmark/modules/preparation/src/main/resources/io/github/junekim0007/cryptobench/preparation/engine/engine-operations.yaml : per engine type the operations the harness times, and the fallback; lib/cryptobench/cryptobench/shared/results/manifest.py copies the types into each run's manifest.yaml `operations`
-apps/benchmark/modules/preparation/src/main/resources/io/github/junekim0007/cryptobench/preparation/operation/setup-catalog.yaml : per engine type, cipher mode or Mac name suffix, what a fixed call still does; JCA contract per row
 apps/benchmark/modules/preparation/src/test/kotlin/BenchmarkCaseTest.kt : case id and case validation tests
 apps/benchmark/modules/preparation/src/test/kotlin/BenchmarkRequestTest.kt : request shape-error tests
 apps/benchmark/modules/preparation/src/test/kotlin/BoundParametersTest.kt : cycling fixed specs in turn

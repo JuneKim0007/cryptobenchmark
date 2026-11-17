@@ -4,6 +4,7 @@ import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveConfig
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveEntry
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveSource
 import io.github.junekim0007.cryptobench.config.effective.dto.Skip
+import io.github.junekim0007.cryptobench.config.entry.EnginePaths
 import io.github.junekim0007.cryptobench.config.entry.KeySource
 import io.github.junekim0007.cryptobench.config.entry.Variants
 import io.github.junekim0007.cryptobench.config.global.dto.GlobalConfig
@@ -12,6 +13,7 @@ import io.github.junekim0007.cryptobench.config.testset.dto.Override
 import io.github.junekim0007.cryptobench.config.testset.dto.Rule
 import io.github.junekim0007.cryptobench.config.testset.dto.TestSet
 import io.github.junekim0007.cryptobench.config.inventory.dto.Inventory
+import io.github.junekim0007.cryptobench.files.VariantLabels
 import io.github.junekim0007.cryptobench.settings.Facts
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
 import io.github.junekim0007.cryptobench.settings.Unsupported
@@ -39,8 +41,9 @@ class EffectiveBuilder {
             skipped = skipped + entries.skips,
             warnings = inventory.warnings + global.notices + testSet.notices + warnings(excludes, included, testSet.overrides, groups) +
                 runUnsupported.map { it.toString() } + entries.warnings + warmupWarnings +
-                listOfNotNull(entries.notFixedSkipped.takeIf { it > 0 }?.let(Variants::notFixedNotice),
-                    entries.secureAsked.takeIf { it > 0 }?.let(Variants::secureNotice)),
+                entries.dropped.map { (typePath, count) -> VariantLabels.notApplicable("${typePath.first} ($count ${if (count == 1) "entry" else "entries"})",
+                    EnginePaths.catalog.applicable(typePath.first), listOf(typePath.second)) } +
+                listOfNotNull(entries.secureAsked.takeIf { it > 0 }?.let { Variants.secureUnavailable("$it entries") }),
             analysis = global.analysis,
             bundledProviders = global.providers.bundled,
         )
@@ -63,7 +66,7 @@ class EffectiveBuilder {
     private fun runnableGroups(testSet: TestSet, located: Inventory.Located, resolver: OverrideResolver, runVariants: List<String>): List<String?> {
         val names = groupsOf(testSet, located)
         if (located.entry.runs) return names
-        if (located.type !in KeySource.GENERATORS) return emptyList()
+        if (Variants.SECURE !in EnginePaths.catalog.applicable(located.type)) return emptyList()
         return names.filter { Variants.SECURE in resolver.resolve(located, it).variants.ifEmpty { runVariants } }
     }
 
@@ -90,15 +93,16 @@ class EffectiveBuilder {
                 val entry = resolver.resolve(located, group)
                 // an entry records only the variants it asked for; without them the run's apply
                 val asked = entry.variants.ifEmpty { runVariants }
-                val generator = located.type in KeySource.GENERATORS
-                if (Variants.SECURE in asked && !generator) entries.secureAsked++
-                if (Variants.NOT_FIXED in asked && generator) entries.notFixedSkipped++
-                val variants = if (located.entry.runs) Variants.runnable(entry.variants, generator) else listOf(Variants.SECURE)
-                val refusal = KeySource.refusal(entry.key, located, inventory)
-                    ?: "secure_path_unavailable: only ${Variants.SECURE} asked".takeIf { Variants.runnable(asked, generator).isEmpty() }
+                val runnable = Variants.runnable(asked, located.type)
+                val variants = if (located.entry.runs) Variants.runnable(entry.variants, located.type) else listOf(Variants.SECURE)
+                val refusal = KeySource.refusal(entry.key, located, inventory) ?: runnable.takeIf { it.isEmpty() }?.let { notRunnable(located, key, asked) }
                 if (refusal != null) {
                     entries.skips += Skip(Skip.CONFIG, located.provider, located.type, key, refusal)
                     continue
+                }
+                for (dropped in asked - runnable.toSet()) {
+                    if (dropped == Variants.SECURE) entries.secureAsked++
+                    else entries.dropped.merge(located.type to dropped, 1, Int::plus)
                 }
                 val unsupported = HARNESS.unsupported(runHarness.mergedWith(entry.harness), facts, path)
                 unsupported.firstOrNull { it.required }?.let {
@@ -117,8 +121,16 @@ class EffectiveBuilder {
         val providers = LinkedHashMap<String, LinkedHashMap<String, LinkedHashMap<String, EffectiveEntry>>>()
         val skips = mutableListOf<Skip>()
         val warnings = mutableListOf<String>()
+        val dropped = LinkedHashMap<Pair<String, String>, Int>()
         var secureAsked = 0
-        var notFixedSkipped = 0
+    }
+
+    private fun notRunnable(located: Inventory.Located, key: String, asked: List<String>): String {
+        val subject = "${located.provider}.${located.type}.$key"
+        val applies = EnginePaths.catalog.applicable(located.type)
+        val dropped = asked - applies.toSet()
+        return if (dropped == listOf(Variants.SECURE) && applies.isNotEmpty()) Variants.secureUnavailable("$subject alone")
+            else VariantLabels.notApplicable(subject, applies, dropped)
     }
 
     /** One device entry is measured once per group the test set names, and once as itself when no include names a group. */

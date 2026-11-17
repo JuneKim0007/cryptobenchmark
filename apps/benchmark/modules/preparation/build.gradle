@@ -27,3 +27,5 @@ tasks.withType(Test).configureEach {
         systemProperty 'examples.update', update
     }
 }
+
+apply from: '../../gradle/guide-resources.gradle'

@@ -1,5 +1,7 @@
-// Puts the implementation guide's names file on the classpath of the build that applies this; the one place that knows where it is.
+// Puts the implementation guide's catalogues on the classpath of the build that applies this; the one place that knows where they are.
 def guide = new File(buildscript.sourceFile.parentFile.parentFile.parentFile.parentFile, 'algorithms')
 tasks.matching { it.name == 'processResources' }.configureEach {
-    from(guide) { include 'algorithm-names.yaml' }
+    from(guide) { include 'algorithm-names.yaml', 'setup-catalog.yaml' }
+    // preparation's operation/SetupCatalog (timed, frozen) reads its catalogue beside its class
+    from(guide) { include 'setup-catalog.yaml'; into 'io/github/junekim0007/cryptobench/preparation/operation' }
 }

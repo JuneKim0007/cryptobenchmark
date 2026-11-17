@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation.resolve
 
+import io.github.junekim0007.cryptobench.files.VariantLabels
 import io.github.junekim0007.cryptobench.preparation.engine.EngineTypes
 import io.github.junekim0007.cryptobench.preparation.key.secure.KeystoreSpec
 import io.github.junekim0007.cryptobench.preparation.measurement.Variant
@@ -31,7 +32,7 @@ class CaseResolver(
             }
             val asked = selection.variants ?: request.global.variants
             val (applicable, dropped) = SetupCatalog.standard.paths(selection.type, asked)
-            val secureRefusal = secureRefusal(selection).takeIf { Variant.SECURE in applicable }
+            val secureRefusal = secureRefusal(selection, applicable).takeIf { Variant.SECURE in applicable }
             val variants = if (secureRefusal == null) applicable else applicable - Variant.SECURE
             // a refused secure path the entry wrote is one line; the run's drops quietly unless nothing is left
             if (secureRefusal != null && (selection.variants?.contains(Variant.SECURE) == true || variants.isEmpty())) {
@@ -39,7 +40,7 @@ class CaseResolver(
             }
             if (variants.isEmpty()) {
                 if (secureRefusal == null) rejections += Rejection(selection, null,
-                    "path_not_applicable: ${selection.provider}.${selection.type}.${selection.algorithm} applies ${SetupCatalog.standard.applicable(selection.type)}, ${dropped.map { it.label }} dropped")
+                    VariantLabels.notApplicable(subject(selection), SetupCatalog.standard.applicable(selection.type), dropped.map { it.label }))
                 continue
             }
             if (selection.keySource.backing != null && Variant.SECURE !in variants) {
@@ -60,7 +61,9 @@ class CaseResolver(
     }
 
     // this runtime lacks the keystore classes, or the guide gives the provider no keystore block (it keeps no key inside)
-    private fun secureRefusal(selection: Selection): String? = KeystoreSpec.missing()
-        ?: "path_not_applicable: ${selection.provider}.${selection.type}.${selection.algorithm} keeps no key inside; ${Variant.SECURE.label} needs a guide keystore block"
+    private fun secureRefusal(selection: Selection, applicable: List<Variant>): String? = KeystoreSpec.missing()
+        ?: VariantLabels.notApplicable("${subject(selection)} without a guide keystore block", (applicable - Variant.SECURE).map { it.label }, listOf(Variant.SECURE.label))
             .takeIf { selection.keystore.isEmpty() }
+
+    private fun subject(selection: Selection) = "${selection.provider}.${selection.type}.${selection.algorithm}"
 }

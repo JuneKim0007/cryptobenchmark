@@ -85,7 +85,7 @@ config/global.yaml + config/testsets/*.yaml
 | `architecture` | tests only: the module subprojects' compiled classes against `tools/module-isolation/layers.yaml` | archunit 1.5.1, snakeyaml 2.3, junit 4.13.2 (test) |
 
 - `:settings` and `:android` are not subprojects.
-- `config` resources: `algorithms/algorithm-names.yaml`, on the classpath of every build that compiles `apps/benchmark/modules/config` (root, isolation, cli); perf-repair packages a copy its tests compare with it.
+- guide resources (`apps/benchmark/gradle/guide-resources.gradle`): `algorithms/algorithm-names.yaml` and `algorithms/setup-catalog.yaml` at the classpath root, and `setup-catalog.yaml` beside preparation's `operation/SetupCatalog`, in every build that compiles config or preparation (root, isolation, cli); perf-repair packages a copy of the names file its tests compare with it.
 - Tests run with `workingDir` = the module directory.
 - `-Dexamples.update` is forwarded to tests.
 - CI: `.github/workflows/modules.yml` runs `../../apps/benchmark/gradlew -p . :<m>:test` per subproject on Java 17.
