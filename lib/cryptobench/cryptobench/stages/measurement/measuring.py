@@ -53,7 +53,7 @@ def measure_arguments(suppress, throttle_sleep=None):
 def pull_pins(device, into):
     """The per-case core pins a timed process writes beside its results."""
     paths.Measurement(into).cpu_pins.unlink(missing_ok=True)
-    device.run("pull", f"{device.files}/{paths.CPU_PINS}", str(paths.Measurement(into).cpu_pins), check=False)
+    device.pull_optional(f"{device.files}/{paths.CPU_PINS}", paths.Measurement(into).cpu_pins)
 
 
 def session_arguments(run):

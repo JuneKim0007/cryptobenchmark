@@ -1,5 +1,6 @@
 """The device half of pipeline.py --device: adb, the APK install, an instrumentation run and its report."""
 import os, re, subprocess
+from pathlib import Path
 
 from cryptobench.shared.device import timeouts
 from cryptobench.shared import paths
@@ -165,6 +166,10 @@ class Device:
             if "Permission denied" in reason:
                 reason += "; shell reaches the app's files only in a directory the app created"
             raise DeviceError(f"adb pull {remote}: {reason}")
+
+    def pull_optional(self, remote, local):
+        """True when remote came down to local; an absent remote is no error."""
+        return self.run("pull", remote, str(local), check=False).returncode == 0 and Path(local).is_file()
 
     def push_files(self, *files):
         self.run("push", *map(str, files), f"{self.files}/")

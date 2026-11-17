@@ -26,8 +26,7 @@ def pull_plan(device, preparation):
 def recorded_skips(device, local):
     """The device's skipped.yaml pulled to local, as its document; empty when it cannot be pulled."""
     local.parent.mkdir(parents=True, exist_ok=True)
-    pulled = device.run("pull", f"{device.files}/{paths.SKIPPED}", str(local), check=False)
-    return read_yaml(local) if pulled.returncode == 0 and local.is_file() else {}
+    return read_yaml(local) if device.pull_optional(f"{device.files}/{paths.SKIPPED}", local) else {}
 
 
 def clear_outputs(device, plan_files=()):

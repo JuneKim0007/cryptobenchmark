@@ -28,7 +28,7 @@ def launch_case(device, test_class, arguments, case, pulled):
         return f"case_failed: {case}: {error}"
     if not ONE_PASSED.search(output):
         return f"case_failed: {case}: {one_line(device.report(output) or 'no output')}"
-    if device.run("pull", device.data, str(pulled), check=False).returncode != 0 or not pulled.is_file():
+    if not device.pull_optional(device.data, pulled):
         return f"case_failed: {case}: no benchmarkData.json after a passing run"
     named = _result_name(pulled)
     if SUPPRESSED_PREFIX.sub("", named) != f"measure[{case}]":
