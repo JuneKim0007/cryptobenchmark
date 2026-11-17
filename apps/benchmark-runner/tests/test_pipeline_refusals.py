@@ -12,6 +12,8 @@ REFUSALS = [
     (["--harness", "harness.yaml"], "--harness: scopes are checked only on a --device run"),
     (["--check", "--probe"], "--check: runs alone with --bench or --device, without --probe, --identify, --harness or --interop"),
     (["--device", "--discovery", "reuse"], "--discovery reuse: a device run probes the device it measures"),
+    (["--device", "--discovery", "verify"], "--discovery verify: a --device run with --probe-store DIR checks the stored probe of this build"),
+    (["--probe-store", "store"], "--probe-store: read only by --discovery verify"),
     (["--suppress-errors", "EMULATOR"], "--suppress-errors: only a --device run reaches androidx.benchmark"),
     (["--energy-accept-unresponsive"], "--energy-accept-unresponsive: only a --device run captures energy"),
     (["--reconnect-wait-minutes", "5"], "--reconnect-wait-minutes, --reconnect-poll-seconds: only a --device run waits for its device"),

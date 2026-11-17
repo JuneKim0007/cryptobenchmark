@@ -35,8 +35,10 @@ def parse_options():
     parser = argparse.ArgumentParser(description="run the host pipeline")
     parser.add_argument("--config", help="path to global.yaml")
     parser.add_argument("--results", help="results root; the run writes <results>/<device_id>/ (default: <repo>/results)")
-    parser.add_argument("--discovery", choices=["overwrite", "keep", "reuse"], default="overwrite",
-                        help="overwrite: clear the discovery directory first; keep: add a new capture; reuse: keep the existing capture for this device")
+    parser.add_argument("--discovery", choices=["overwrite", "keep", "reuse", "verify"], default="overwrite",
+                        help="overwrite: clear the discovery directory first; keep: add a new capture; reuse: keep the existing capture for this device; "
+                             "verify (--device): the stored capture of this build from --probe-store, else a probe that is then stored")
+    parser.add_argument("--probe-store", metavar="DIR", help="with --discovery verify: one capture+trial per build key, shared across runs")
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--bench", action="store_true", help="also prepare, measure and analyse (the benchmark CLI on the JVM, then the analysis scripts)")
     mode.add_argument("--device", action="store_true", help="probe, prepare and measure on the attached device (adb, ANDROID_HOME)")
@@ -82,6 +84,9 @@ REFUSED = (
     (lambda o: o.harness and not o.device, "--harness: scopes are checked only on a --device run"),
     (lambda o: o.check and (o.probe or o.identify or o.harness or o.interop), "--check: runs alone with --bench or --device, without --probe, --identify, --harness or --interop"),
     (lambda o: o.device and o.discovery == "reuse", "--discovery reuse: a device run probes the device it measures"),
+    (lambda o: o.discovery == "verify" and not (o.device and o.probe_store),
+     "--discovery verify: a --device run with --probe-store DIR checks the stored probe of this build"),
+    (lambda o: o.probe_store and o.discovery != "verify", "--probe-store: read only by --discovery verify"),
     (lambda o: o.suppress_errors and not (o.device or o.session), "--suppress-errors: only a --device run reaches androidx.benchmark"),
     (lambda o: o.energy_accept_unresponsive and not o.device,
      "--energy-accept-unresponsive: only a --device run captures energy"),

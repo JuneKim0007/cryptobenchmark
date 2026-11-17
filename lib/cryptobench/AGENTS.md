@@ -134,6 +134,7 @@ cryptobench/stages/discovery/discover.py : discover and configure: probe or host
 cryptobench/stages/discovery/build_versions.py : a device's security patch and Conscrypt and ART APEX versions, for facts.yaml's build section
 cryptobench/stages/discovery/facts.py : device facts into discovery/facts.yaml
 cryptobench/stages/discovery/probe.py : DeviceProbe on the device: the plan directory emptied, the probe run, its capture and trial pulled into discovery/
+cryptobench/stages/discovery/probe_store.py : --discovery verify: the build key, the stored capture+trial it names reused unchanged, else the probe's stored; why each path
 cryptobench/stages/discovery/tests/ : pytest tests of the discovery stage
 cryptobench/stages/measurement/__init__.py : package of the measurement stage
 cryptobench/stages/measurement/benchmark.py : the plain run's benchmark: device passes and sessions or host processes, warm-up, dry pass; whether it timed anything, for the analysis; the energy interpreter check passed in

@@ -3,7 +3,7 @@ import contextlib, subprocess, threading
 
 from cryptobench.shared.errors.coded import Coded
 
-# Seconds. A ceiling only catches a hang, so each is several times the longest real step (docs/run.md#timeouts).
+# Seconds. A ceiling only catches a hang, so each is several times the longest real step (docs/timeouts.md).
 SECONDS = {
     "adb": 10 * 60,
     "install": 60 * 60,

@@ -10,8 +10,9 @@ docs/energy.md : energy capture modes, config keys, sources, rail pre-flight, ap
 docs/facade.md : apps/cli/facade.py: the settings index, the direction rule, the check, the phases
 docs/index.md : this map
 docs/results.md : results/<device_id>/ layout, manifest.yaml, clocks.yaml and facts.yaml fields
-docs/run.md : prerequisites, apps/benchmark-runner/pipeline.py flags, demo.sh, device run
+docs/run.md : prerequisites, apps/benchmark-runner/pipeline.py flags, probe store, demo.sh, device run
 docs/sessions.md : session.yaml, target resolution and its codes, --check-session, --session: workers, status lines, the session folder, summary and index.yaml
 docs/shared-functions.md : generated: benchmark runner, cli, tools and lib functions other modules import: module, signature, rule, callers
+docs/timeouts.md : the ceiling of each host subprocess step and why its value
 docs/tools.md : tools/ builds: commands, arguments, outputs
 ```

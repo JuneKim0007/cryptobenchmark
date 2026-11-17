@@ -16,7 +16,7 @@
 
 The command for both sides is `apps/cli/facade.py` ([facade.md](facade.md)); this one is the benchmark's own.
 ```
-python3 apps/benchmark-runner/pipeline.py [--config PATH] [--results DIR] [--discovery overwrite|keep|reuse]
+python3 apps/benchmark-runner/pipeline.py [--config PATH] [--results DIR] [--discovery overwrite|keep|reuse|verify] [--probe-store DIR]
                             [--bench | --device] [--suppress-errors ERRORS] [--energy-python PYTHON]
                             [--energy-accept-unresponsive] [--reconnect-wait-minutes M] [--reconnect-poll-seconds S]
                             [--stacktrace] [--stream] [--harness HARNESS_YAML] [--interop PLAN_YAML] [--probe] [--identify] [--devices] [--check-session SESSION_YAML] [--session SESSION_YAML] [--per-suite]
@@ -26,7 +26,8 @@ python3 apps/benchmark-runner/pipeline.py [--config PATH] [--results DIR] [--dis
 |---|---|---|
 | `--config PATH` | `$CRYPTOBENCH_CONFIG`, then `~/.config/cryptobench/global.yaml`, then `config/global.yaml` | the `global.yaml` to run; one named by the flag or the variable and missing is `missing_file` |
 | `--results DIR`, `--per-suite` | `<repo>/results`, off | results root; the run writes `<DIR>/<device_id>/`, with `--per-suite` `<DIR>/<device_id>/<suite>/` ([results.md](results.md#device-folder)); `--per-suite` with `--identify` or `--harness` fails |
-| `--discovery` | `overwrite` | `overwrite` starts an empty `discovery/`, the old one moving aside with its unit ([results.md](results.md#device-folder)); `keep` adds a new capture; `reuse` keeps this device's capture, found by asking the JVM for its id first |
+| `--discovery` | `overwrite` | `overwrite` starts an empty `discovery/`, the old one moving aside with its unit ([results.md](results.md#device-folder)); `keep` adds a new capture; `reuse` keeps this device's capture, found by asking the JVM for its id first; `verify` as `overwrite` but reusing a stored probe ([Probe store](#probe-store)) |
+| `--probe-store DIR` | off | `--discovery verify` only: one capture+trial per build key, shared by every run that names it |
 | `--bench` | off | also prepare, measure and analyse on the JVM via the benchmark CLI (`BenchKt`) |
 | `--device` | off | probe, prepare and measure on the attached device over adb |
 | `--probe` | off | discovery and configure only, with `--device` on the device; the device folder and its manifest, nothing measured |
@@ -43,7 +44,7 @@ python3 apps/benchmark-runner/pipeline.py [--config PATH] [--results DIR] [--dis
 | rule | result |
 |---|---|
 | `--bench` with `--device` | rejected (mutually exclusive) |
-| `--device` with `--discovery reuse` | fails |
+| `--device` with `--discovery reuse`; `--discovery verify` without `--device` and `--probe-store`; `--probe-store` without `verify` | fails |
 | `--suppress-errors` without `--device` or `--session`, `--energy-accept-unresponsive` without `--device` | fails |
 | energy capture other than `none` without `--device` | fails |
 | `--harness` without `--device`, or with `--results` | fails: `checked/` goes beside `harness.yaml` |
@@ -56,25 +57,19 @@ python3 apps/benchmark-runner/pipeline.py [--config PATH] [--results DIR] [--dis
 - Host discovery runs `ProbeKt`; `--discovery reuse` runs `RuntimeFieldsKt` first, then adds `--reuse`; with no kept capture that fits the JVM's runtime it probes again and prints `warning: discovery_reprobed: ...`.
 - Device discovery runs `ConfigureKt` with `--facts`. The run's capture is the one its discovery wrote: on a host the file `ProbeKt` printed, on a device the one capture the probe added to `discovery/`; its trial and requirements are the files with the same stamp. With `--discovery keep` older captures stay beside it and are never picked by their stamp, which comes from the host on a device run; `deviceClockMillis` keeps the device clock beside it.
 - `run.processRepetitions` ([config.md](../apps/benchmark/modules/config/docs/config.md)) above 1: runs merged with `MergeRunsKt`.
-- Tool commands: [tools.md](tools.md). Output: [results.md](results.md).
+- Tool commands: [tools.md](tools.md). Output: [results.md](results.md). Every host subprocess runs under a ceiling: [timeouts.md](timeouts.md).
 
-## Timeouts
+### Probe store
 
-Every host subprocess runs under a ceiling from `lib/cryptobench/cryptobench/shared/device/timeouts.py`; past it the process is killed and the run stops with `error: timeout: <step> ran past <s> s: <command>`. A ceiling only catches a hang: each is several times the longest real step, and none is a setting.
+`--discovery verify` (`lib/cryptobench/cryptobench/stages/discovery/probe_store.py`), after the install:
 
-| step | ceiling | covers | why this value |
-|---|---|---|---|
-| `adb` | 10 min | one adb command: shell, push, pull, AOT compile, Perfetto pre-flight | a pull of every case's Perfetto trace is the longest; `cmd package compile` takes under a minute |
-| `install` | 60 min | root Gradle `installRelease` and `installReleaseAndroidTest` | a cold build with dependency download takes minutes |
-| `case` | 60 min | one case's `am instrument` under `isolation: case` | one case measures for about a minute |
-| `instrument` | 12 h | one `am instrument`: `CryptoBenchmark` with every case (`isolation: run`), `DeviceProbe`, `EnergyDryBenchmark`, `InteropCheck` | a device benchmark of the full test set at 400 samples with thermal sleeps takes hours |
-| `gradle` | 4 h | a `tools/` Gradle run: probe, configure, host measure, convert, merge | the host measure of the full test set is the longest |
-| `compile` | 30 min | `--harness` scope compile | one compile of the android test sources |
-| `energy` | 2 h | `apps/benchmark-runner/energy` (`energy.py`, `preflight.py`), manafa's pre-flight and answer | the trace processor loads one trace per case |
-| `analysis` | 30 min | `analyze.py`, `charts.py` | seconds in practice |
-
-- An energy step past its ceiling is `energy_failed: timeout: ...` and the run goes on ([energy.md](energy.md#outputs)).
-- Analysis runs `analyze.py`, then `charts.py` ([tools.md](tools.md#chartspy)); a failure is `warning: charts_failed: <reason>`, the benchmark and manifest stay and the run succeeds.
+| step | rule |
+|---|---|
+| key | `ro.build.fingerprint`, the security patch and the apex versionCodes facts.yaml records; sha256 of each installed APK file of the app and the test package, read on the device (`pm path`, `sha256sum`), which carry the code and the bundled jars; `providers.bundled`; named by the first 16 hex of its sha256 |
+| match | `<DIR>/<key>/` holds one capture with its trial and requirements: they are copied unchanged into `discovery/`, the device's `probe_*`, `trial_*` and `requirements_*` are deleted so the plan push leaves the reused pair the newest by name, and no probe runs |
+| no match | the probe runs as under `overwrite`, and its capture, trial and requirements are stored under the key (`warning: probe_store_failed: ...` when they cannot be) |
+| fallback | an unreadable or empty key part, or no plan directory on the device: the probe runs; nothing is stored when the key is incomplete |
+| printed | `discovery: verify: reused <capture>: key <k> matches ...`, or `discovery: verify: full probe: <why>`, naming the key parts that differ from the newest stored entry |
 
 ## apps/benchmark-runner/explain.py
 

@@ -73,9 +73,13 @@ def aside(target):
             continue
 
 
+# --discovery modes that clear discovery/ and probe or verify again
+REPLACING = ("overwrite", "verify")
+
+
 def supersede(target, discovery_mode, kept=()):
     """The unit target holds, finished or not, renamed into superseded/<stamp>/ but for the kept paths under it; None when it holds none."""
-    names = UNIT + ((paths.DISCOVERY,) if discovery_mode == "overwrite" else ())
+    names = UNIT + ((paths.DISCOVERY,) if discovery_mode in REPLACING else ())
     present = [name for name in names if (target / name).exists()]
     if not present:
         return None

@@ -1271,6 +1271,7 @@ codes:
   preparation_failed: {kind: outcome}
   probe_exists: {kind: error}
   probe_failed: {kind: outcome}
+  probe_store_failed: {kind: notice}
   produce_consume: {kind: outcome}
   producer_failed: {kind: outcome}
   provider_not_installed: {kind: error}
