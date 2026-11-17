@@ -7,6 +7,7 @@ import io.github.junekim0007.cryptobench.document.DocumentFields.number
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalStrings
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSections
 import io.github.junekim0007.cryptobench.document.DocumentFields.sections
+import io.github.junekim0007.cryptobench.document.DocumentFields.sectionOrEmpty
 import io.github.junekim0007.cryptobench.document.DocumentFields.string
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFile
 import java.io.File
@@ -38,5 +39,6 @@ object CaptureFile {
                 },
             )
         },
+        sdkInt = (sectionOrEmpty(document, "runtime")["sdkInt"] as? Number)?.toInt()?.takeIf { it > 0 },
     )
 }

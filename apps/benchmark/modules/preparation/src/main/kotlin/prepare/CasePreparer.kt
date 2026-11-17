@@ -27,6 +27,7 @@ internal class CasePreparer(
     private val planner: KeyPlanner,
     private val generator: KeyMaterialGenerator,
     private val binder: ParameterBinder,
+    private val sdkInt: Int? = null,
 ) {
 
     private val keys = HashMap<KeyRecipe, Result<KeyMaterial>>()
@@ -50,7 +51,7 @@ internal class CasePreparer(
 
     // a key born inside its provider: the spec carries the slot's alias; the dry run's key is read back, then the slot emptied
     private fun secure(case: BenchmarkCase, recipe: KeyRecipe, material: KeyMaterial, keyParameters: BoundParameters?): PreparedCase {
-        val key = SecureKey(case)
+        val key = SecureKey(case, sdkInt)
         val spec = step(key::refusal) { BoundParameters.cycling(listOf(key.spec(keyParameters?.next()))) }
         val candidate = PreparedCase(case, recipe, material, null, spec, OperationInput.None, afterCall = key::delete)
         val invocation = step(key::refusal) { Invocations.of(candidate) }

@@ -16,7 +16,7 @@ apps/benchmark/modules/preparation/example/preparation_skipped_example.yaml : ex
 apps/benchmark/modules/preparation/example/preparation_trial_example.yaml : example discovery trial input
 apps/benchmark/modules/preparation/src/main/kotlin/Preparation.kt : entry point; prepare(effectiveFile) runs every stage and applies onFailure
 apps/benchmark/modules/preparation/src/main/kotlin/adapter/DiscoveryCapability.kt : DeviceCapability over a capture and trial pair
-apps/benchmark/modules/preparation/src/main/kotlin/device/CaptureFile.kt : reads capture YAML (schema capture v1) into CapturedDevice
+apps/benchmark/modules/preparation/src/main/kotlin/device/CaptureFile.kt : reads capture YAML (schema capture v1) into CapturedDevice, with runtime.sdkInt (none on a JVM)
 apps/benchmark/modules/preparation/src/main/kotlin/device/ServiceName.kt : uppercase-folded (type, algorithm) lookup key
 apps/benchmark/modules/preparation/src/main/kotlin/device/TrialFile.kt : reads trial YAML (schema trial v3) into TrialledDevice
 apps/benchmark/modules/preparation/src/main/kotlin/device/dto/ : capture and trial DTOs as preparation reads them
@@ -80,7 +80,7 @@ apps/benchmark/modules/preparation/src/main/kotlin/parameter/resolve/PerInitValu
 apps/benchmark/modules/preparation/src/main/kotlin/parameter/resolve/ResolvedParameters.kt : what the provider used after one call; key names
 apps/benchmark/modules/preparation/src/main/kotlin/parameter/resolve/SpecFields.kt : fields of reported parameters, by spec class
 apps/benchmark/modules/preparation/src/main/kotlin/port/Availability.kt : Available or Unavailable(reason, registered)
-apps/benchmark/modules/preparation/src/main/kotlin/port/DeviceCapability.kt : device port: providers, check, measuredKeyAlgorithm
+apps/benchmark/modules/preparation/src/main/kotlin/port/DeviceCapability.kt : device port: providers, check, measuredKeyAlgorithm, the captured API level
 apps/benchmark/modules/preparation/src/main/kotlin/prepare/CasePreparer.kt : one case: key, bind, input, one call, parameter read-back, a secure case's keystore spec, KeyInfo and delete; a failed step throws PreparationException with its code
 apps/benchmark/modules/preparation/src/main/kotlin/prepare/ChartGroup.kt : which cases a chart may compare, from the service type, then the key kind
 apps/benchmark/modules/preparation/src/main/kotlin/prepare/Listing.kt : the cases and rejected selections of an effective file, with its run settings; no provider called

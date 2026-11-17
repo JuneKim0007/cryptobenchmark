@@ -11,7 +11,7 @@ import java.util.zip.CRC32
  * A secure case's key slot inside its provider: one alias per case, emptied after every call so each generation writes a free slot.
  * The provider's own KeyStore service holds the slot; aliases a killed process left behind are swept before the first spec.
  */
-internal class SecureKey(private val case: BenchmarkCase) {
+internal class SecureKey(private val case: BenchmarkCase, private val sdkInt: Int? = null) {
 
     val alias: String = PREFIX + java.lang.Long.toHexString(CRC32().apply { update(case.id.toByteArray(Charsets.UTF_8)) }.value)
 
@@ -24,7 +24,7 @@ internal class SecureKey(private val case: BenchmarkCase) {
     fun spec(parameterSpec: AlgorithmParameterSpec?): AlgorithmParameterSpec {
         KeystoreSpec.missing()?.let { throw KeystoreSpec.AbsentMember(it) }
         store.aliases().toList().filter { it.startsWith(PREFIX) }.forEach(store::deleteEntry)
-        return KeystoreSpec.build(alias, case.keystore, case.keySize, parameterSpec, case.keySource.requestedBacking)
+        return KeystoreSpec.build(alias, case.keystore, case.keySize, parameterSpec, case.keySource.requestedBacking, sdkInt)
     }
 
     fun delete() {

@@ -140,7 +140,7 @@ A `secure` case (key generation only) makes its key inside the case provider, `k
 | failure, prefixed `<caseId>: ` | cause |
 |---|---|
 | `not_supported: secure needs android.security.keystore ...` | a JVM |
-| `api_too_low: <member> is absent on API <n>` | a builder method or `KeyProperties` field this API lacks (`setIsStrongBoxBacked` below 28, `PURPOSE_AGREE_KEY` below 31) |
+| `api_too_low: <member> is absent on API <n>` | `<n>` the capture's `runtime.sdkInt`; a builder method or `KeyProperties` field this API lacks (`setIsStrongBoxBacked` below 28, `PURPOSE_AGREE_KEY` below 31) |
 | `strongbox_unavailable: <provider> strongbox: <error>` | a `StrongBoxUnavailableException` in the failure's causes |
 | `keystore_unsupported: <type> <algorithm>[/<keySize>]: <root error>` | the keystore refused the spec, the init or the generation |
 

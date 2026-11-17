@@ -24,36 +24,29 @@ internal object KeystoreSpec {
     }
 
     // purposes OR'ed from KeyProperties.PURPOSE_<NAME>; curve the ECGenParameterSpec when the entry gives no key spec; every other list set<Name>(String...)
-    fun build(alias: String, authorizations: Map<String, Any>, keySize: Int?, parameterSpec: AlgorithmParameterSpec?, backing: String): AlgorithmParameterSpec {
+    fun build(alias: String, authorizations: Map<String, Any>, keySize: Int?, parameterSpec: AlgorithmParameterSpec?, backing: String, sdkInt: Int? = null): AlgorithmParameterSpec {
         val builderClass = Class.forName(BUILDER)
         val properties = Class.forName(PROPERTIES)
-        val purposes = names(authorizations, PURPOSES).fold(0) { bits, name -> bits or member { properties.getField("PURPOSE_$name") }.getInt(null) }
+        val purposes = names(authorizations, PURPOSES).fold(0) { bits, name -> bits or member(sdkInt) { properties.getField("PURPOSE_$name") }.getInt(null) }
         val builder = builderClass.getConstructor(String::class.java, Int::class.javaPrimitiveType).newInstance(alias, purposes)
         for (name in authorizations.keys - setOf(PURPOSES, CURVE)) {
             val strings = names(authorizations, name).toTypedArray()
-            call(member { builderClass.getMethod("set" + name.replaceFirstChar(Char::uppercaseChar), Array<String>::class.java) }, builder, strings)
+            call(member(sdkInt) { builderClass.getMethod("set" + name.replaceFirstChar(Char::uppercaseChar), Array<String>::class.java) }, builder, strings)
         }
-        keySize?.let { call(member { builderClass.getMethod("setKeySize", Int::class.javaPrimitiveType) }, builder, it) }
-        (parameterSpec ?: authorizations[CURVE]?.let { ECGenParameterSpec(it.toString()) })?.let { call(member { builderClass.getMethod("setAlgorithmParameterSpec", AlgorithmParameterSpec::class.java) }, builder, it) }
-        if (backing == STRONGBOX) call(member { builderClass.getMethod("setIsStrongBoxBacked", Boolean::class.javaPrimitiveType) }, builder, true)
+        keySize?.let { call(member(sdkInt) { builderClass.getMethod("setKeySize", Int::class.javaPrimitiveType) }, builder, it) }
+        (parameterSpec ?: authorizations[CURVE]?.let { ECGenParameterSpec(it.toString()) })?.let { call(member(sdkInt) { builderClass.getMethod("setAlgorithmParameterSpec", AlgorithmParameterSpec::class.java) }, builder, it) }
+        if (backing == STRONGBOX) call(member(sdkInt) { builderClass.getMethod("setIsStrongBoxBacked", Boolean::class.javaPrimitiveType) }, builder, true)
         return call(builderClass.getMethod("build"), builder) as AlgorithmParameterSpec
     }
 
     private fun names(authorizations: Map<String, Any>, name: String): List<String> =
         (authorizations[name] as? List<*>)?.map { it.toString() } ?: throw IllegalArgumentException("invalid: guide keystore.$name ${authorizations[name]}, a list of names")
 
-    // a member this API level lacks is api_too_low, never a stack trace
-    private fun <T> member(find: () -> T): T = try {
+    // a member this API level (the capture's) lacks is api_too_low, never a stack trace
+    private fun <T> member(sdkInt: Int?, find: () -> T): T = try {
         find()
     } catch (absent: ReflectiveOperationException) {
-        throw AbsentMember("api_too_low: ${absent.message} is absent on API ${sdk()}")
-    }
-
-    // read by reflection, as discovery reads android.os.Build; null on a JVM
-    private fun sdk(): Int? = try {
-        Class.forName("android.os.Build\$VERSION").getField("SDK_INT").getInt(null)
-    } catch (absent: ReflectiveOperationException) {
-        null
+        throw AbsentMember("api_too_low: ${absent.message} is absent on API $sdkInt")
     }
 
     class AbsentMember(reason: String) : UnsupportedOperationException(reason)

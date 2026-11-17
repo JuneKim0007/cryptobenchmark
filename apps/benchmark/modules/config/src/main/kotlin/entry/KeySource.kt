@@ -34,6 +34,14 @@ object KeySource {
             else "no_key_generator: ${if (written == ANY) "no provider registers" else "${candidates.single()} registers no"} ${GENERATORS.joinToString(" or ")} $algorithm"
     }
 
+    /** The key block with a named provider in the inventory's spelling, the one preparation compares exactly; anything else as written. */
+    fun spelled(key: Map<String, Any>, inventory: Inventory): Map<String, Any> {
+        val written = key[PROVIDER] as? String ?: return key
+        if (written == SAME || written == ANY) return key
+        val installed = inventory.providers.keys.firstOrNull { AlgorithmNames.fold(it) == AlgorithmNames.fold(written) } ?: return key
+        return key + (PROVIDER to installed)
+    }
+
     // a registered name through the catalogue's spellings, or an alias the capture lists for it (an OID among them)
     private fun generates(inventory: Inventory, provider: String, algorithm: String): Boolean {
         val types = inventory.providers[provider].orEmpty()

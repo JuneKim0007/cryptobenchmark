@@ -22,6 +22,8 @@ class DiscoveryCapability(capture: CapturedDevice, trial: TrialledDevice) : Devi
         }
     }
 
+    override val sdkInt: Int? = capture.sdkInt
+
     private val installed: List<String> = capture.providers.sortedBy { it.precedence }.map { it.name }
 
     private val servicesByProvider: Map<String, Map<ServiceName, CapturedService>> =

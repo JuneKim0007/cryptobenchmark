@@ -24,7 +24,7 @@ class Preparation(capability: DeviceCapability) {
     // One binder for the run: the selection check, key specs and case parameters bind through it.
     private val binder = ParameterBinder()
     private val resolver = CaseResolver(capability, binder)
-    private val preparer = CasePreparer(KeyPlanner(capability), KeyMaterialGenerator(binder = binder), binder)
+    private val preparer = CasePreparer(KeyPlanner(capability), KeyMaterialGenerator(binder = binder), binder, capability.sdkInt)
 
     fun list(effectiveFile: File): Listing {
         val inbound = InboundFile.read(effectiveFile)

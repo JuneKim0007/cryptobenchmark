@@ -134,6 +134,23 @@ class PathsAndKeySourceTest {
         ), effective.skipped.map { it.reason })
     }
 
+    /** A named key.provider in another case reaches effective.yaml in the inventory's spelling; same and any stay as written. */
+    @Test
+    fun aNamedKeyProviderIsWrittenInTheInventorysSpelling() {
+        val effective = build("", """
+            include:
+            - {type: Cipher, name: AES/CBC/PKCS5PADDING}
+            - {type: MessageDigest}
+            overrides:
+            - match: {name: AES/CBC/PKCS5PADDING}
+              set: {key: {provider: sunjce}}
+            - match: {name: SHA-256}
+              set: {key: {algorithm: AES, provider: any}}
+        """.trimIndent())
+        assertEquals("SunJCE", effective.providers.getValue("SunJCE").getValue("Cipher").getValue("AES/CBC/PKCS5PADDING").key["provider"])
+        assertEquals("any", effective.providers.getValue("SUN").getValue("MessageDigest").getValue("SHA-256").key["provider"])
+    }
+
     /** `any`: the entry's own provider, then the inventory's order; refused only when no provider has the generator. */
     @Test
     fun anyTakesTheFirstProviderWithTheGenerator() {

@@ -9,4 +9,7 @@ interface DeviceCapability {
     fun check(provider: String, type: String, algorithm: String): Availability
 
     fun measuredKey(provider: String, type: String, algorithm: String): KeyCandidate? = null
+
+    // the captured Android API level; null on a JVM
+    val sdkInt: Int? get() = null
 }

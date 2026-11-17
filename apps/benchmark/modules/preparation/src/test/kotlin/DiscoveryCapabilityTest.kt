@@ -56,6 +56,14 @@ class DiscoveryCapabilityTest {
         assertEquals(listOf("SUN", "SunJCE"), capability.providers())
     }
 
+    /** The API level a secure case's api_too_low names is the capture's: an Android capture's sdkInt, none on a JVM's 0. */
+    @Test
+    fun theApiLevelIsTheCapturesAndNoneOnAJvm() {
+        assertEquals(36, CaptureFile.read("probe.yaml", "schemaVersion: 1\ncapturedAtMillis: 1\nruntime: {sdkInt: 36}\nproviders: []\n").sdkInt)
+        assertEquals(null, CaptureFile.read("probe.yaml", "schemaVersion: 1\ncapturedAtMillis: 1\nruntime: {sdkInt: 0}\nproviders: []\n").sdkInt)
+        assertEquals(CaptureFile.read(captureFile).sdkInt, capability.sdkInt)
+    }
+
     /** A trial describes one capture; pairing it with another would answer for a different device state. */
     @Test
     fun refusesATrialOfAnotherCapture() {

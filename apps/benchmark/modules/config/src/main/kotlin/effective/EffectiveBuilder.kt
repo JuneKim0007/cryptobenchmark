@@ -107,7 +107,7 @@ class EffectiveBuilder {
                 }
                 entries.warnings += unsupported.map { fallback(it, path, runHarness) }
                 entries.providers.getOrPut(located.provider) { LinkedHashMap() }
-                    .getOrPut(located.type) { LinkedHashMap() }[key] = entry.copy(variants = variants, harness = HARNESS.honoured(entry.harness, unsupported, facts, path))
+                    .getOrPut(located.type) { LinkedHashMap() }[key] = entry.copy(variants = variants, key = KeySource.spelled(entry.key, inventory), harness = HARNESS.honoured(entry.harness, unsupported, facts, path))
             }
         }
         return entries

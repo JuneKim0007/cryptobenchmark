@@ -32,7 +32,7 @@ overrides:
 | key | default | rule |
 |---|---|---|
 | `algorithm` | the trial's measured key (`keyAlgorithm`) | a JCA name the key provider registers as a `KeyGenerator` or `KeyPairGenerator` in the inventory (names folded through `algorithms/algorithm-names.yaml`), or one of that generator's inventory `aliases` (an OID too), else skipped `no_key_generator` |
-| `provider` | `same`: the entry's own provider | `same`; `any`: the entry's own provider, then every inventory provider in order, the first with the generator (none: skipped `no_key_generator`); or an inventory provider name, else skipped `provider_not_installed`; another provider's generator is used only when named here or under `any` |
+| `provider` | `same`: the entry's own provider | `same`; `any`: the entry's own provider, then every inventory provider in order, the first with the generator (none: skipped `no_key_generator`); or an inventory provider name in any letter case, written to `effective.yaml` in the inventory's spelling, else skipped `provider_not_installed`; another provider's generator is used only when named here or under `any` |
 | `backing` | `tee` | where a `secure` key is born: `tee` or `strongbox`, else skipped `invalid: key.backing`; reaches only the entry's `secure` cases, and an entry with none is rejected `unused_setting` |
 | each | | a non-blank string, else `invalid: key` |
 
