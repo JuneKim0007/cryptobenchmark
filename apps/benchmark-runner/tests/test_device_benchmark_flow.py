@@ -9,6 +9,7 @@ from cryptobench.shared.errors.failures import EnergyError  # noqa: E402
 from cryptobench.stages.measurement.session import clocks_hook, cooldown_hook, variant_order  # noqa: E402
 import pipeline  # noqa: E402
 from cryptobench.stages.measurement import benchmark  # noqa: E402
+from cryptobench.stages.discovery import discover  # noqa: E402
 from cryptobench.stages.measurement.session import skips  # noqa: E402
 from failure import reported  # noqa: E402
 from fake_phone import Energy, Phone, fake_tools  # noqa: E402
@@ -53,7 +54,7 @@ def measured(tmp_path, monkeypatch, run, phone=None, **phone_options):
     measured_fakes(monkeypatch, phone)
     results, effective, capture, trial = layout(tmp_path, run)
     files, problems = {"effective": effective}, []
-    pipeline.benchmarked(OPTIONS, phone, results, results / "discovery", effective, capture, trial, files, problems)
+    pipeline.benchmarked(OPTIONS, phone, results, discover.Discovered(results / "discovery", effective, capture, trial, files), problems)
     return phone, files, problems, results
 
 

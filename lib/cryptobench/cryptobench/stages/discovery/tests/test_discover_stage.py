@@ -33,7 +33,8 @@ def tree(root):
 def test_discover_published_publishes_under_the_device_id(tmp_path, monkeypatch, capsys):
     fake_probe(monkeypatch)
     root = tmp_path / "results"
-    results, (discovery, effective, capture, trial, files) = discover.discover_published(OPTIONS, tmp_path / "global.yaml", None, root, [])
+    results, found = discover.discover_published(OPTIONS, tmp_path / "global.yaml", None, root, [])
+    discovery, effective, capture, trial, files = found.discovery, found.effective, found.capture, found.trial, found.files
     assert results == root / device_id(RUNTIME) and [p.name for p in root.iterdir()] == [device_id(RUNTIME)]
     assert tree(results) == ["configuration/effective.yaml", "configuration/inventory.yaml",
                              f"discovery/probe_{STAMP}.yaml", f"discovery/trial_{STAMP}.yaml"]
@@ -53,7 +54,8 @@ def test_discover_published_publishes_under_the_device_id(tmp_path, monkeypatch,
 def test_discover_staged_leaves_everything_in_the_stage(tmp_path, monkeypatch):
     fake_probe(monkeypatch)
     stage = tmp_path / "stage"
-    discovery, effective, capture, _trial, files = discover.discover_staged(OPTIONS, tmp_path / "global.yaml", None, tmp_path / "root", stage, [])
+    found = discover.discover_staged(OPTIONS, tmp_path / "global.yaml", None, tmp_path / "root", stage, [])
+    discovery, effective, capture, files = found.discovery, found.effective, found.capture, found.files
     assert not (tmp_path / "root").exists() and "guide" not in files
     assert tree(stage) == ["configuration/effective.yaml", "configuration/inventory.yaml",
                            f"discovery/probe_{STAMP}.yaml", f"discovery/trial_{STAMP}.yaml"]

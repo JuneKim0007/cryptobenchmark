@@ -62,9 +62,10 @@ def dry_pass(session, into, preparation, problems, guarded):
     energy_stage.guarded(problems, step) if guarded else step()
 
 
-def measure_cases(options, device, results, discovery, effective, capture, trial, files, problems, require_energy):
-    """require_energy is the entry point's check of the energy interpreter, passed in; it returns the interpreter the run uses."""
+def measure_cases(options, device, results, found, problems, require_energy):
+    """found is discovery's Discovered; require_energy is the entry point's check of the energy interpreter, passed in; it returns the interpreter the run uses."""
     benchmark, preparation = paths.RunTree(results).benchmark.root, paths.RunTree(results).preparation.root
+    discovery, effective, capture, trial, files = found.discovery, found.effective, found.capture, found.trial, found.files
     started = time.monotonic()
     document = effective_view.read(effective)["document"]
     repetitions, captures = effective_view.process_repetitions(document), energy_stage.captures(effective)

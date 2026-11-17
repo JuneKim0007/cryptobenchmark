@@ -1,5 +1,6 @@
 """Discover and configure: the probe, ConfigureKt or ProbeKt, effective.yaml, and the device folder the capture names."""
 import pathlib, shutil, time
+from dataclasses import dataclass
 
 from cryptobench.shared.settings import effective_view
 from cryptobench.shared.device import gradle_runner
@@ -70,6 +71,16 @@ def store(options):
     return pathlib.Path(options.probe_store).expanduser().resolve()
 
 
+@dataclass(frozen=True)
+class Discovered:
+    """A run's discovery folder, its effective.yaml, capture and trial, and the manifest's files of them (callers add to files)."""
+    discovery: pathlib.Path
+    effective: pathlib.Path
+    capture: pathlib.Path
+    trial: pathlib.Path | None
+    files: dict
+
+
 def located(results, capture_name):
     """By the name discover_in_place() returned: after a publish into a kept discovery/ the folder holds older captures too."""
     discovery, configured = paths.RunTree(results).discovery.root, paths.RunTree(results).configuration.root
@@ -77,7 +88,7 @@ def located(results, capture_name):
     effective = paths.Configuration(configured).effective
     files = {key: path for key, path in (("probe", capture), ("trial", trial), ("requirements", capture_files.requirements(capture)), ("inventory", paths.Configuration(configured).inventory),
                                          ("effective", effective), ("report", paths.Configuration(configured).report)) if path and path.is_file()}
-    return discovery, effective, capture, trial, files
+    return Discovered(discovery, effective, capture, trial, files)
 
 
 def seed_reuse(options, root, stage, suite=None):
@@ -102,11 +113,11 @@ def discover_published(options, configuration, device, root, shipped, kept=keep_
     """A failed probe or configure leaves nothing; from here on the folder has its real name and no manifest until the run ends. kept(effective,
     capture, folder) names the paths of the earlier unit the publish leaves in place."""
     with results_layout.staged(root) as stage:
-        _, effective, capture, _, _ = discover_staged(options, configuration, device, root, stage, shipped, suite)
-        results = results_layout.unit_folder(root, capture_id(capture), suite)
-        results_layout.publish(stage, results, options.discovery, kept(effective, capture, results))
+        found = discover_staged(options, configuration, device, root, stage, shipped, suite)
+        results = results_layout.unit_folder(root, capture_id(found.capture), suite)
+        results_layout.publish(stage, results, options.discovery, kept(found.effective, found.capture, results))
     print(f"results:   {results}")
-    return results, located(results, capture.name)
+    return results, located(results, found.capture.name)
 
 
 def host_runtime(options):

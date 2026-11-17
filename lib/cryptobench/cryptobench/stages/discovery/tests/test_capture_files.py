@@ -44,7 +44,8 @@ def test_the_host_capture_is_the_one_probekt_printed(tmp_path):
 def test_after_a_publish_into_a_kept_discovery_the_run_reads_its_own_capture(tmp_path):
     write(tmp_path / "discovery", "20270101T000000Z")
     write(tmp_path / "discovery", "20260301T000000Z")
-    _, _, capture, trial, files = discover.located(tmp_path, "probe_20260301T000000Z.yaml")
+    found = discover.located(tmp_path, "probe_20260301T000000Z.yaml")
+    capture, trial, files = found.capture, found.trial, found.files
     assert (capture.name, trial.name) == ("probe_20260301T000000Z.yaml", "trial_20260301T000000Z.yaml")
     assert files["probe"] == capture
 

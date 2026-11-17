@@ -19,7 +19,8 @@ def interop_run(options, configuration, device, root, shipped, discover_staged, 
         raise CommandError(f"missing_file: {plan} (--interop)")
     mode = "device" if device else "host"
     with results_layout.staged(root) as stage:
-        _, effective, capture, trial, _ = discover_staged(options, configuration, device, root, stage, shipped, suite)
+        found = discover_staged(options, configuration, device, root, stage, shipped, suite)
+        effective, capture, trial = found.effective, found.capture, found.trial
         staged_plan = interop_oracle.stage_plan(plan, paths.RunTree(stage).interop.root)
         out = paths.InteropFolder(staged_plan.parent).result
         started = time.monotonic()
@@ -41,5 +42,5 @@ def interop_run(options, configuration, device, root, shipped, discover_staged, 
     if finished:
         add_to_manifest(results, added)
     else:
-        manifest(results, mode, configuration, located(results, capture.name)[-1] | added)
+        manifest(results, mode, configuration, located(results, capture.name).files | added)
     results_layout.report_superseded(results)

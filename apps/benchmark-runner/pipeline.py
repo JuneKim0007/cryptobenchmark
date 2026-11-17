@@ -158,19 +158,17 @@ def interoperated(context):
 
 def guided(context, root, kept):
     """Discovery published under the capture's device id, the earlier unit's kept paths left in place, then guide.yaml beside its effective.yaml."""
-    results, (discovery, effective, capture, trial, files) = discover_published(context.options, context.configuration, context.device, root, context.checked["bundled"],
-                                                                                kept, context.suite)
-    files["guide"] = guide.write(effective, capture)
-    return results, discovery, effective, capture, trial, files
+    results, found = discover_published(context.options, context.configuration, context.device, root, context.checked["bundled"], kept, context.suite)
+    found.files["guide"] = guide.write(found.effective, found.capture)
+    return results, found
 
 
 def guided_in(context):
     """guided's steps inside a stage the caller publishes: discovery there, then guide.yaml beside its effective.yaml."""
     def discovered(root, stage):
-        _, effective, capture, trial, files = discover_staged(context.options, context.configuration, context.device, root, stage, context.checked["bundled"],
-                                                              context.suite)
-        files["guide"] = guide.write(effective, capture)
-        return effective, capture, trial, files
+        found = discover_staged(context.options, context.configuration, context.device, root, stage, context.checked["bundled"], context.suite)
+        found.files["guide"] = guide.write(found.effective, found.capture)
+        return found.effective, found.capture, found.trial, found.files
     return discovered
 
 
@@ -186,23 +184,24 @@ def measured(context):
     with published(context) as root:
         # only a measuring run resumes: a probe over a stopped run moves it aside whole
         kept = functools.partial(resume.kept, suppress_errors=options.suppress_errors) if measuring else keep_nothing
-        results, discovery, effective, capture, trial, files = guided(context, root, kept)
+        results, found = guided(context, root, kept)
+        files = found.files
         mode, resumed = "device" if device else "host", resume.note(results) if measuring else []
         if measuring:
             stopped = lambda record, pulled: manifest(results, mode, configuration, files | pulled, context.problems, partial=record, resumed=resumed)
             with partial.kept(results, stopped):
-                benchmarked(options, device, results, discovery, effective, capture, trial, files, context.problems)
+                benchmarked(options, device, results, found, context.problems)
         manifest(results, mode, configuration, files, context.problems, resumed=resumed)
         results_layout.report_superseded(results)
 
 
-def benchmarked(options, device, results, discovery, effective, capture, trial, files, problems):
+def benchmarked(options, device, results, found, problems):
     """Measurement, then the analysis of what it timed."""
-    timed, written, repetitions = measure_cases(options, device, results, discovery, effective, capture, trial, files, problems, dependencies.require_energy)
+    timed, written, repetitions = measure_cases(options, device, results, found, problems, dependencies.require_energy)
     if timed:
         benchmark, preparation = paths.RunTree(results).benchmark.root, paths.RunTree(results).preparation.root
         not_measured.report(paths.Preparation(preparation).prepared, paths.Measurement(benchmark).json, problems)
-        analyse(results, files, effective, preparation, benchmark, written, repetitions)
+        analyse(results, found.files, found.effective, preparation, benchmark, written, repetitions)
 
 
 # the first row whose option is set runs; None marks the plain run, the last row

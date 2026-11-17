@@ -4,6 +4,7 @@ import argparse
 import pytest
 
 import pipeline
+from cryptobench.stages.discovery import discover
 from cryptobench.shared.errors.failures import CommandError
 
 FLAGS = {"probe": False, "identify": False, "devices": False, "check_session": None, "session": None, "per_suite": False, "interop": None, "harness": None, "check": False, "bench": False, "device": False,
@@ -37,7 +38,7 @@ def calls(monkeypatch, tmp_path):
     monkeypatch.setattr(pipeline, "measure_cases", recorder("measure_cases", (False, [], 1)))
     monkeypatch.setattr(pipeline, "checked_folder", recorder("checked_folder"))
     monkeypatch.setattr(pipeline.results_layout, "warn_if_temp", recorder("warn_if_temp"))
-    monkeypatch.setattr(pipeline, "discover_published", recorder("discover_published", (tmp_path, (None, None, None, None, {}))))
+    monkeypatch.setattr(pipeline, "discover_published", recorder("discover_published", (tmp_path, discover.Discovered(None, None, None, None, {}))))
     monkeypatch.setattr(pipeline.guide, "write", recorder("guide"))
 
     def run(**flags):
@@ -84,7 +85,7 @@ def test_per_suite_places_the_run_under_the_test_sets_stem(calls, monkeypatch, t
 
     def published(*arguments):
         seen["suite"] = arguments[-1]
-        return tmp_path, (None, None, None, None, {})
+        return tmp_path, discover.Discovered(None, None, None, None, {})
     monkeypatch.setattr(pipeline, "discover_published", published)
     calls(per_suite=True)
     assert seen == {"suite": "tier1"}
