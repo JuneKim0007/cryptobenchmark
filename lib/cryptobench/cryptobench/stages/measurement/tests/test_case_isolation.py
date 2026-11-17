@@ -1,12 +1,13 @@
 """isolation: case over a fake instrumentation: one case aborts its process, the others still produce results."""
 import json
+import pathlib
 
 import pytest
 
 from cryptobench.stages.measurement import case_files  # noqa: E402
 from cryptobench.stages.measurement.session import case_isolation  # noqa: E402
 from cryptobench.stages.measurement.session import measure as measure_session  # noqa: E402
-from fake_phone import Phone  # noqa: E402
+from fake_phone import OK, Phone, jetpack_case  # noqa: E402
 
 
 def session(phone, tmp_path, isolation, problems=None):
@@ -67,3 +68,36 @@ def test_an_error_that_ends_the_session_keeps_every_case_measured_before_it(tmp_
         session(phone, tmp_path, "case")
     data = tmp_path / "benchmark/benchmarkData.json"
     assert [b["name"] for b in json.loads(data.read_text())["benchmarks"]] == ["measure[a]", "measure[b]"]
+
+
+class Stale(Phone):
+    """The pulled file of `stale` names the cases `written`: an earlier result the device kept, or none."""
+
+    def __init__(self, folder, stale, written, **options):
+        super().__init__(folder, **options)
+        self.stale, self.stale_written, self.serving = stale, written, False
+
+    def instrument(self, test_class, *arguments, step="instrument"):
+        self.serving = self.stale in arguments
+        return super().instrument(test_class, *arguments, step=step)
+
+    def pulled(self, remote, local, check):
+        if remote == self.data and self.serving:
+            pathlib.Path(local).write_text(json.dumps({"context": {}, "benchmarks": [jetpack_case(c) for c in self.stale_written]}))
+            return OK
+        return super().pulled(remote, local, check)
+
+
+@pytest.mark.parametrize("name", ["measure[b]", "EMULATOR_measure[b]", "DEBUGGABLE_EMULATOR_measure[b]"])
+def test_the_error_ids_androidx_prefixes_still_name_the_case(name):
+    assert case_isolation.SUPPRESSED_PREFIX.sub("", name) == "measure[b]"
+    assert case_isolation.SUPPRESSED_PREFIX.sub("", "EMULATOR_measure[a]") != "measure[b]"
+
+
+@pytest.mark.parametrize("written, named", [(["a"], "measure[a]"), ([], "no benchmark")], ids=["another case", "no benchmark"])
+def test_a_pulled_result_that_names_another_case_is_refused_and_never_stored(tmp_path, written, named):
+    phone, problems = Stale(tmp_path, "b", written, cases=("a", "b", "c")), []
+    process, = session(phone, tmp_path, "case", problems)
+    assert [b["name"] for b in json.loads(process.data.read_text())["benchmarks"]] == ["measure[a]", "measure[c]"]
+    assert problems == [f"case_failed: b: result_mismatch: the pulled benchmarkData.json names {named}, not measure[b]; not stored"]
+    assert sorted(p.name for p in (process.into / "cases").iterdir()) == ["a.json", "c.json"]

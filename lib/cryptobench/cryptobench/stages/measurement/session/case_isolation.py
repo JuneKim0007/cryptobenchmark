@@ -1,4 +1,5 @@
 """isolation: case: one instrumentation process per case, so a case that kills its process loses only itself."""
+import json
 import re
 
 from cryptobench.shared.device import timeouts
@@ -7,6 +8,8 @@ from cryptobench.shared.device.adb import ONE_PASSED
 
 CASE_ARGUMENT = "case"   # CaseFilter.ARGUMENT
 LISTED = re.compile(r"^INSTRUMENTATION_STATUS: test=measure\[(.+)\]\s*$", re.M)
+# androidx prefixes a result with the error ids it suppressed: EMULATOR_measure[...], DEBUGGABLE_EMULATOR_measure[...]
+SUPPRESSED_PREFIX = re.compile(r"^(?:[A-Z][A-Z0-9-]*_)+(?=measure\[)")
 
 
 def listed(output):
@@ -27,4 +30,17 @@ def launch_case(device, test_class, arguments, case, pulled):
         return f"case_failed: {case}: {one_line(device.report(output) or 'no output')}"
     if device.run("pull", device.data, str(pulled), check=False).returncode != 0 or not pulled.is_file():
         return f"case_failed: {case}: no benchmarkData.json after a passing run"
+    named = _result_name(pulled)
+    if SUPPRESSED_PREFIX.sub("", named) != f"measure[{case}]":
+        pulled.unlink()
+        return f"case_failed: {case}: result_mismatch: the pulled benchmarkData.json names {named}, not measure[{case}]; not stored"
     return None
+
+
+def _result_name(pulled):
+    """benchmarks[0].name of a pulled benchmarkData.json, or why there is none."""
+    try:
+        benchmarks = json.loads(pulled.read_text()).get("benchmarks") or []
+        return benchmarks[0]["name"] if benchmarks else "no benchmark"
+    except (ValueError, AttributeError, KeyError, TypeError) as error:
+        return f"nothing readable ({type(error).__name__})"
