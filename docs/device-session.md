@@ -53,7 +53,7 @@ Each entry's `variants`, else `run.variants` ([operations.md](../apps/benchmark/
 | rule | value |
 |---|---|
 | order | items as the plan lists them; an item's `fixed` and `notFixed` cases adjacent, `fixed` first in odd repetitions and `notFixed` first in even ones (A/B, then B/A: A/B/B/A over two) |
-| item | the case id without its last part `_fixed` or `_notFixed` |
+| item | the case id without its last part `_fixed`, `_notFixed` or `_secure`; a `secure` case is an item of its own (another provider) |
 | process | `isolation: case`: each variant in its own process; `isolation: run`: both in one process, in plan order |
 | inputs | message bytes from `run.seed`, equal for both; keys from unseeded `SecureRandom` per process, so they differ under `isolation: case` ([operations.md](../apps/benchmark/modules/preparation/docs/operations.md#variants)); setup, inputs and buffers before the timer |
 | cost | about 2x the device cases of an item that has two variants; key generation has one |

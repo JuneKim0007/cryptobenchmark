@@ -38,6 +38,9 @@ class DiscoveryCapabilityTest {
     @Test
     fun declaredButRefusedIsNotAvailable() {
         assertTrue(reason("SunJCE", "Cipher", "AES/CTR/PKCS5Padding").startsWith("transformation_fails: NoSuchPaddingException"))
+        // registered: the service exists, only its default-run trial failed (a key born inside its provider may still be made)
+        assertTrue((capability.check("SunJCE", "Cipher", "AES/CTR/PKCS5Padding") as Availability.Unavailable).registered)
+        assertEquals(false, (capability.check("SunJCE", "Cipher", "Serpent") as Availability.Unavailable).registered)
     }
 
     @Test

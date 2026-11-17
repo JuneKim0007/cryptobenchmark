@@ -16,6 +16,8 @@ data class PreparedCase(
     val input: OperationInput,
     val resolvedParameters: Map<String, Any> = emptyMap(),
     val perCall: PerCall? = null,
+    // untimed after every timed call: a secure case empties its key slot
+    val afterCall: (() -> Unit)? = null,
 ) {
 
     val chartGroup: ChartGroup get() = ChartGroup.of(case.type, recipe)

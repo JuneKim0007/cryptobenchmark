@@ -27,7 +27,10 @@ SOURCE_KINDS = (MEASURED, SOURCED, INFERRED)
 DETERMINISTIC_VALUES = ("always", "fixedParameters", "never")
 ALWAYS = "always"
 ENTRY_FIELDS = {"required", "optional", "conditions", "lifecycle", "operations", "sourcedOnly", "providers"}
-OPTIONAL_FIELDS = {"key", "contract", "knownVectors"}
+OPTIONAL_FIELDS = {"key", "contract", "knownVectors", "keystore"}
+KEYSTORE = "keystore"
+KEYSTORE_LEAVES = ("source", "url")
+KEYSTORE_CURVE = "curve"
 CONTRACT_SIDES = ("input", "output")
 CLOSED_BOOLEANS = ("passwordBased", "wrap", "prehashed")
 CONTRACT_KEY = "key"
@@ -208,7 +211,7 @@ def _not_positive(value) -> bool:
 
 def _leaf_problems(entry: Entry, common: Common) -> list[str]:
     raw, found = entry.raw, []
-    leaves = [*([raw["key"]] if "key" in raw else []), *raw["required"], *raw["optional"], *raw["conditions"].values(),
+    leaves = [*([raw["key"]] if "key" in raw else []), *([raw[KEYSTORE]] if KEYSTORE in raw else []), *raw["required"], *raw["optional"], *raw["conditions"].values(),
               *(leaf for _, leaf in lifecycle_leaves(raw)), raw["operations"], *raw["sourcedOnly"]]
     for leaf in leaves:
         found += _source_problems(leaf)
@@ -252,6 +255,10 @@ def _shape_problems(raw) -> list[str]:
     kinds = {"required": list, "optional": list, "sourcedOnly": list, "conditions": dict, "lifecycle": dict, "operations": dict,
              "providers": dict}
     found = [f"{k} is not a {t.__name__}" for k, t in kinds.items() if not isinstance(raw[k], t)]
+    keystore = raw.get(KEYSTORE, {})
+    found += [f"{KEYSTORE} is not a mapping of name lists and a curve name"] * (not isinstance(keystore, dict) or not all(
+        isinstance(v, str) if k == KEYSTORE_CURVE else isinstance(v, list) and v and all(isinstance(x, str) for x in v)
+        for k, v in keystore.items() if k not in KEYSTORE_LEAVES))
     found += [f"{k} holds a non-mapping" for k in ("required", "optional", "sourcedOnly")
               if isinstance(raw[k], list) and not all(isinstance(x, dict) for x in raw[k])]
     return found + [f"{k} holds a non-mapping" for k in ("conditions", "lifecycle")

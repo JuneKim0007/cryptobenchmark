@@ -58,8 +58,9 @@ one named case (Preparation.prepareOne): KeyPlanner -> KeyMaterialGenerator -> b
 |---|---|
 | entry key | algorithm before `@`, group after `@` or empty |
 | `inputSizes` empty | `run.inputSizes` |
-| `variants` absent | `run.variants`; values `fixed`, `notFixed`, else `unknown_variant` |
-| `key` | `algorithm` and `provider` split off as the key source ([operations.md](operations.md#inputs-and-keys)), a non-blank string each, else `invalid`; the rest is the spec tree |
+| `variants` absent | `run.variants`; values `fixed`, `notFixed`, `secure`, else `unknown_variant` |
+| `key` | `algorithm`, `provider` and `backing` split off as the key source ([operations.md](operations.md#inputs-and-keys)), a non-blank string each, else `invalid`; `backing` `tee` or `strongbox`, else `invalid`; the rest is the spec tree |
+| guide `keystore` | the guide item's keystore authorizations, carried by the selection to its `secure` cases only |
 | none selected | `nothing_selected: <file>` |
 | validation | type and algorithm non-blank; group without `@`; `keySizes`, `inputSizes` positive and distinct |
 | duplicates | `duplicate: selections` |
@@ -85,7 +86,10 @@ Type names match case-insensitively.
 |---|---|
 | operations | entry `operations` narrows the type's list |
 | expansion | provider x operation x keySize x inputSize x phase x variant; variant innermost: an item's two variants are adjacent |
-| variant axis | the entry's asked paths that its setup-catalog row applies: a row's `variants` list (`[fixed, secure]` for key generation), `[fixed, notFixed]` for a row without one, `[fixed, secure]` for a type the catalog lacks; a row's list of anything but distinct `fixed`, `notFixed`, `secure`: `invalid`; some dropped: one `path_not_applicable` notice per entry whose own `variants` asked for them, printed as a `warning:` line (paths from `run.variants` drop without one); all dropped: the selection is rejected `path_not_applicable` |
+| variant axis | the entry's asked paths that its setup-catalog row applies: a row's `variants` list (`[fixed, secure]` for key generation), `[fixed, notFixed]` for a row without one, `[fixed, secure]` for a type the catalog lacks; a row's list of anything but distinct `fixed`, `notFixed`, `secure`: `invalid`; some dropped: dropped without a line (config notes `notFixed` on key generation once for the run); all dropped: the selection is rejected `path_not_applicable` |
+| `secure` | kept only on a runtime with `android.security.keystore` and a selection with a guide `keystore` block; else removed, with one rejection when the entry's own `variants` asked for it or nothing is left: `not_supported: secure needs android.security.keystore ...` (a JVM), else `path_not_applicable: <provider>.<type>.<name> keeps no key inside ...` |
+| `key.backing` without a `secure` case | rejected `unused_setting: key.backing reaches no secure case` |
+| backing on the case | only a `secure` case carries the key source's backing and the keystore block; `strongbox` joins the `p` tag, `tee` (the default) does not; a `secure` id ends `_secure` |
 | keySize axis | only when the operation consumes key size and `keySizes` is set, else one null |
 | inputSize axis | only when the operation consumes input, else one null |
 | harness | `run.harness` merged with the entry's |
@@ -109,6 +113,7 @@ Type names match case-insensitively.
 | lookup | registered algorithm or alias, case-insensitive |
 | name with `/` | when not registered, checked as a transformation of the base Cipher service in the trial |
 | reasons | `provider_not_installed`, `not_registered`, `not_tried`, `instantiation_fails: <error>`, `transformation_fails: <error>` |
+| registered | the two `_fails` reasons mark the service registered: a selection's `secure` cases still run (a key born inside the provider fails the default-run trial); its other paths are rejected with the reason |
 | `measuredKey` | the trial's `keyAlgorithm` and `fixedKeySize` for the service or transformation |
 
 ## Failures
@@ -119,5 +124,24 @@ Type names match case-insensitively.
 | `key_generation_failed: <Exception>: <msg>` | key |
 | `input_preparation_failed: <Exception>: <msg>` | input |
 | `dry_run_failed: <Exception>: <msg>` | `once()` |
+
+## Secure path
+
+A `secure` case (key generation only) makes its key inside the case provider, `key/secure/`: Android's classes reached by reflection, never on a module's compile classpath.
+
+| step | rule |
+|---|---|
+| alias | `cryptobench-<crc32 of the case id>`, one per case; every `cryptobench-` alias of the provider's own `KeyStore` service is deleted first (a killed process's) |
+| spec | `KeyGenParameterSpec.Builder(alias, purposes)`: purposes OR'ed from `KeyProperties.PURPOSE_<NAME>` of the guide block, every other list `set<Name>(String...)`, `setKeySize(keySize)`, `setAlgorithmParameterSpec(<bound key spec>)`, else `ECGenParameterSpec(<block curve>)` (without one AndroidKeyStore makes a P-256 key under the Ed25519 and XDH names), `setIsStrongBoxBacked(true)` for `backing: strongbox`; no user authentication, no attestation |
+| init and timed call | the spec is the case's key parameters: one init, then `generateKey()`/`generateKeyPair()` timed (KeyMint generation and the keystore's insert under the alias) |
+| deletion | `PreparedCase.afterCall` deletes the alias after every timed call with the timer paused (`Invocation.afterCall`); the dry run's key is read back, then deleted |
+| read-back | `KeyInfo` through the provider's own `SecretKeyFactory`, or the `KeyFactory` of the key's algorithm, else the first of the provider's `KeyFactory` services that reads it: `keyBits`, `securityLevel` `TEE`, `STRONGBOX`, `SOFTWARE` or `UNKNOWN` (API 31 `getSecurityLevel`; below it `isInsideSecureHardware` false `SOFTWARE`, true `UNKNOWN`); `backing` the requested `tee` or `strongbox`. Both are recorded in `resolvedParameters`, never compared |
+
+| failure, prefixed `<caseId>: ` | cause |
+|---|---|
+| `not_supported: secure needs android.security.keystore ...` | a JVM |
+| `api_too_low: <member> is absent on API <n>` | a builder method or `KeyProperties` field this API lacks (`setIsStrongBoxBacked` below 28, `PURPOSE_AGREE_KEY` below 31) |
+| `strongbox_unavailable: <provider> strongbox: <error>` | a `StrongBoxUnavailableException` in the failure's causes |
+| `keystore_unsupported: <type> <algorithm>[/<keySize>]: <root error>` | the keystore refused the spec, the init or the generation |
 
 `<Exception>: <msg>` comes from `FailureText`: key encodings removed, at most 200 characters, identity hashes dropped. Resolve rejections become skips with stage `preparation`. Outcome under `policy.onFailure`: [prepared.md](prepared.md#onfailure).

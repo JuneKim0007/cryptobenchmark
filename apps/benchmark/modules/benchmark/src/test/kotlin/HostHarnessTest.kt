@@ -60,7 +60,7 @@ class HostHarnessTest {
     @Test
     fun theHostMeasuresBothVariantsAsTwoRows() {
         val fixed = digest(HarnessSettings())
-        val rows = Variant.entries.map { variant -> quick.measure(fixed.copy(case = fixed.case.copy(variant = variant))).row() }
+        val rows = listOf(Variant.FIXED, Variant.NOT_FIXED).map { variant -> quick.measure(fixed.copy(case = fixed.case.copy(variant = variant))).row() }
         assertEquals(listOf("fixed", "notFixed"), rows.map { it.variant })
         assertEquals(2, rows.map { it.id }.toSet().size)
     }

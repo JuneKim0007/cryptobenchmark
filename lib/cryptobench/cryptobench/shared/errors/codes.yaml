@@ -1011,6 +1011,7 @@ codes:
   allocation_runs_changed: {kind: notice}
   ambiguous_call: {kind: outcome}
   ambiguous_init: {kind: outcome}
+  api_too_low: {kind: outcome}
   bench_failed: {kind: notice}
   bind_failed: {kind: error}
   blank_alias: {kind: error}
@@ -1105,11 +1106,13 @@ codes:
   iv_repeated: {kind: outcome}
   key_generation_failed: {kind: error}
   key_inside_provider: {kind: outcome}
+  key_not_extractable: {kind: outcome}
   key_or_parameters_rejected: {kind: outcome}
   key_parameters_and_key_sizes: {kind: error}
   key_refused: {kind: outcome}
   key_size_not_in_guide: {kind: error}
   keystore_born_key: {kind: outcome}
+  keystore_unsupported: {kind: outcome}
   library_outside_checkout: {kind: error, default: stop}
   mac_needs_a_secret_key: {kind: error}
   manafa_cannot_start: {kind: error}
@@ -1266,6 +1269,7 @@ codes:
   signature_needs_a_key_pair: {kind: error}
   single_process: {kind: outcome}
   stopped_on_failure: {kind: error}
+  strongbox_unavailable: {kind: outcome}
   subprocess_failed: {kind: error}
   superseded_kept: {kind: notice}
   sustained_performance_off: {kind: outcome}

@@ -37,9 +37,12 @@ apps/benchmark/modules/preparation/src/main/kotlin/key/generate/KeyMaterialGener
 apps/benchmark/modules/preparation/src/main/kotlin/key/plan/KeyCandidate.kt : candidate key algorithm and optional size
 apps/benchmark/modules/preparation/src/main/kotlin/key/plan/KeyPlanner.kt : chooses the KeyRecipe for a case from its key source; every provider only under key.provider any and for the interop check
 apps/benchmark/modules/preparation/src/main/kotlin/key/plan/KeyRecipe.kt : sealed recipe: None, Secret, Pair, Unavailable
+apps/benchmark/modules/preparation/src/main/kotlin/key/secure/KeyInfoFields.kt : a keystore key's KeyInfo read by reflection: securityLevel and keyBits
+apps/benchmark/modules/preparation/src/main/kotlin/key/secure/KeystoreSpec.kt : a KeyGenParameterSpec built by reflection from the guide's keystore block; the runtime check
+apps/benchmark/modules/preparation/src/main/kotlin/key/secure/SecureKey.kt : a secure case's alias in its provider's KeyStore: sweep, spec, delete, coded refusal
 apps/benchmark/modules/preparation/src/main/kotlin/measurement/BenchmarkCase.kt : one case's axes, validated
 apps/benchmark/modules/preparation/src/main/kotlin/measurement/CaseName.kt : builds the case id
-apps/benchmark/modules/preparation/src/main/kotlin/measurement/KeySource.kt : an entry key's algorithm and provider (same, any or a name), split from its spec; the providers tried, in order
+apps/benchmark/modules/preparation/src/main/kotlin/measurement/KeySource.kt : an entry key's algorithm, provider (same, any or a name) and backing, split from its spec; the providers tried, in order
 apps/benchmark/modules/preparation/src/main/kotlin/measurement/Operation.kt : enum of the ten operations
 apps/benchmark/modules/preparation/src/main/kotlin/measurement/Phase.kt : enum WARM
 apps/benchmark/modules/preparation/src/main/kotlin/measurement/Variant.kt : enum fixed, notFixed
@@ -55,8 +58,8 @@ apps/benchmark/modules/preparation/src/main/kotlin/operation/EngineCall.kt : one
 apps/benchmark/modules/preparation/src/main/kotlin/operation/EngineInit.kt : an engine's init told its call index, the index unboxed
 apps/benchmark/modules/preparation/src/main/kotlin/operation/GenerateKeyDefinition.kt : GENERATE_KEY definition
 apps/benchmark/modules/preparation/src/main/kotlin/operation/GenerateKeyPairDefinition.kt : GENERATE_KEY_PAIR definition
-apps/benchmark/modules/preparation/src/main/kotlin/operation/Invocation.kt : the timed call (perIteration), once(), again() (the last call replayed with its parameters), the engine it calls and its CallTrace
-apps/benchmark/modules/preparation/src/main/kotlin/operation/Invocations.kt : of(prepared) to the case's Invocation
+apps/benchmark/modules/preparation/src/main/kotlin/operation/Invocation.kt : the timed call (perIteration), once(), again() (the last call replayed with its parameters), the engine it calls, its CallTrace and the untimed afterCall
+apps/benchmark/modules/preparation/src/main/kotlin/operation/Invocations.kt : of(prepared) to the case's Invocation, followed by the prepared case's afterCall
 apps/benchmark/modules/preparation/src/main/kotlin/operation/KeyShape.kt : enum NONE, SECRET, PAIR, PEER_PAIRS, DEVICE_DECIDES
 apps/benchmark/modules/preparation/src/main/kotlin/operation/OperationDefinition.kt : interface: what an operation consumes and its call
 apps/benchmark/modules/preparation/src/main/kotlin/operation/OperationDefinitions.kt : Operation to definition map
@@ -76,13 +79,13 @@ apps/benchmark/modules/preparation/src/main/kotlin/parameter/resolve/KeyFields.k
 apps/benchmark/modules/preparation/src/main/kotlin/parameter/resolve/PerInitValue.kt : whether an IvParameterSpec value is an IV or a constant the provider fills in
 apps/benchmark/modules/preparation/src/main/kotlin/parameter/resolve/ResolvedParameters.kt : what the provider used after one call; key names
 apps/benchmark/modules/preparation/src/main/kotlin/parameter/resolve/SpecFields.kt : fields of reported parameters, by spec class
-apps/benchmark/modules/preparation/src/main/kotlin/port/Availability.kt : Available or Unavailable(reason)
+apps/benchmark/modules/preparation/src/main/kotlin/port/Availability.kt : Available or Unavailable(reason, registered)
 apps/benchmark/modules/preparation/src/main/kotlin/port/DeviceCapability.kt : device port: providers, check, measuredKeyAlgorithm
-apps/benchmark/modules/preparation/src/main/kotlin/prepare/CasePreparer.kt : one case: key, bind, input, one call, parameter read-back; a failed step throws PreparationException with its code
+apps/benchmark/modules/preparation/src/main/kotlin/prepare/CasePreparer.kt : one case: key, bind, input, one call, parameter read-back, a secure case's keystore spec, KeyInfo and delete; a failed step throws PreparationException with its code
 apps/benchmark/modules/preparation/src/main/kotlin/prepare/ChartGroup.kt : which cases a chart may compare, from the service type, then the key kind
 apps/benchmark/modules/preparation/src/main/kotlin/prepare/Listing.kt : the cases and rejected selections of an effective file, with its run settings; no provider called
 apps/benchmark/modules/preparation/src/main/kotlin/prepare/PreparationException.kt : one step of a case's preparation failed: its code and the scrubbed failure
-apps/benchmark/modules/preparation/src/main/kotlin/prepare/PreparedCase.kt : a built case: case, recipe, key, parameters, keyParameters, input, resolvedParameters; its chart group
+apps/benchmark/modules/preparation/src/main/kotlin/prepare/PreparedCase.kt : a built case: case, recipe, key, parameters, keyParameters, input, resolvedParameters, afterCall; its chart group
 apps/benchmark/modules/preparation/src/main/kotlin/prepare/StoppedOnFailureException.kt : thrown under onFailure stop
 apps/benchmark/modules/preparation/src/main/kotlin/record/PreparedDocument.kt : prepared.yaml document shape
 apps/benchmark/modules/preparation/src/main/kotlin/record/PreparedFile.kt : prepared.yaml: the listed cases, then each one's prepared entry, or removed when it failed
@@ -128,5 +131,6 @@ apps/benchmark/modules/preparation/src/test/kotlin/PreparedCaseTest.kt : prepare
 apps/benchmark/modules/preparation/src/test/kotlin/PreparedFileTest.kt : prepared.yaml content tests
 apps/benchmark/modules/preparation/src/test/kotlin/PrimitiveReaderTest.kt : providers-section read tests
 apps/benchmark/modules/preparation/src/test/kotlin/ResolvedParametersTest.kt : read-back tests per parameter kind: GCM, CBC, key wrap, OAEP, PSS, EC curve, key size
+apps/benchmark/modules/preparation/src/test/kotlin/SecurePathTest.kt : secure path on a JVM: not_supported, quiet run drop, backing rules, ids, refusal codes
 apps/benchmark/modules/preparation/src/test/kotlin/SetupCatalogTest.kt : catalog rows per engine type and mode, variants per type, a generator row that would redo init refused
 ```

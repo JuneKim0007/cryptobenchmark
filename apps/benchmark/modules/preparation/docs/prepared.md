@@ -69,7 +69,8 @@ Read by `parameter/resolve/ResolvedParameters` from the engine (`Invocation.engi
 | `tagBits` | `GCMParameterSpec.tLen` |
 | `digest`, `mgf1` | `OAEPParameterSpec` or `PSSParameterSpec`; `mgf1` only with `MGF1ParameterSpec` |
 | `labelBytes` | `OAEPParameterSpec` `PSource.PSpecified` length; 0 for the empty default label |
-| `keyBits` | the result key of a generate case, else the case key: secret encoded length, RSA modulus, EC field size, DSA or DH `p`; absent for a key without encoding (hardware) or another key type |
+| `keyBits` | the result key of a generate case, else the case key: secret encoded length, RSA modulus, EC field size, DSA or DH `p`; for a `secure` case `KeyInfo.getKeySize()` when the key has no encoding; absent for another key without encoding or key type |
+| `backing`, `securityLevel` | a `secure` case: the requested backing and the level `KeyInfo` reports ([prepare.md](prepare.md#secure-path)) |
 | `curve` | EC key: `ECGenParameterSpec` name from `AlgorithmParameters` of the key's algorithm (a name or an OID, by provider); else `field<bits>-<8 hex>` over p or m, a, b, G, n, h |
 
 | case | outcome |

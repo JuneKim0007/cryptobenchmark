@@ -23,3 +23,15 @@ def test_a_fallback_is_one_line_per_provider():
     item = {"build": "P @ android-36", "exactBuild": False}
     lines = guide.fallbacks({"items": {"P": {"Cipher": {"A": item, "B": item}}, "Q": {"Mac": {"M": {"build": "Q @ android-37", "exactBuild": True}}}}})
     assert lines == ["guide_build_fallback: P has no row of its own for this build; using P @ android-36"]
+
+
+def test_a_key_inside_its_provider_is_made_from_the_catalogues_keystore_block_else_refused():
+    from cryptobench.shared.catalogue.guide_items import guide_items
+    effective = {"providers": {"AndroidKeyStore": {"KeyGenerator": {"AES": {}, "HmacSHA256": {}}, "KeyPairGenerator": {"EC@sb": {}}},
+                               "BC": {"KeyGenerator": {"AES": {}}}}}
+    items = guide_items(effective, "android-36")["items"]
+    assert items["AndroidKeyStore"]["KeyGenerator"]["AES"]["keystore"] == {
+        "purposes": ["ENCRYPT", "DECRYPT"], "blockModes": ["GCM", "CBC", "CTR"], "encryptionPaddings": ["NoPadding", "PKCS7Padding"]}
+    assert items["AndroidKeyStore"]["KeyPairGenerator"]["EC"]["keystore"] == {"purposes": ["SIGN", "VERIFY"], "digests": ["SHA-256"]}
+    assert items["AndroidKeyStore"]["KeyGenerator"]["HmacSHA256"]["refused"].startswith("key_inside_provider:")
+    assert "keystore" not in items["BC"]["KeyGenerator"]["AES"]

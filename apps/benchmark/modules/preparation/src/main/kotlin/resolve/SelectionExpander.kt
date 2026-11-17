@@ -30,9 +30,11 @@ internal object SelectionExpander {
                             seed = global.seed,
                             harness = global.harness.mergedWith(selection.harness),
                             keyParameters = selection.keyParameters,
-                            keySource = selection.keySource,
+                            // the backing reaches only the secure case: a fixed case of the entry keeps its id
+                            keySource = if (variant == Variant.SECURE) selection.keySource else selection.keySource.copy(backing = null),
                             parameters = selection.parameters,
                             variant = variant,
+                            keystore = if (variant == Variant.SECURE) selection.keystore else emptyMap(),
                         )
                     }
                 }

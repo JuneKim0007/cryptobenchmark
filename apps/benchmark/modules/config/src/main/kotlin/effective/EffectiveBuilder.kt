@@ -8,7 +8,6 @@ import io.github.junekim0007.cryptobench.config.entry.KeySource
 import io.github.junekim0007.cryptobench.config.entry.Variants
 import io.github.junekim0007.cryptobench.config.global.dto.GlobalConfig
 import io.github.junekim0007.cryptobench.config.global.dto.Policy
-import io.github.junekim0007.cryptobench.config.testset.dto.Include
 import io.github.junekim0007.cryptobench.config.testset.dto.Override
 import io.github.junekim0007.cryptobench.config.testset.dto.Rule
 import io.github.junekim0007.cryptobench.config.testset.dto.TestSet
@@ -25,21 +24,23 @@ class EffectiveBuilder {
         val included = if (testSet.include.isEmpty()) all else all.filter { located -> testSet.include.any { it.rule.matches(located) } }
         val excludes = testSet.exclude + global.selection.exclude
         val selected = included.filter { located -> excludes.none { it.matches(located) } }
-        val skipped = configSkips(testSet.include, all, selected)
+        val resolver = OverrideResolver(testSet.overrides, testSet.include)
+        val groups = selected.associateWith { located -> runnableGroups(testSet, located, resolver, global.run.variants) }.filterValues { it.isNotEmpty() }
+        val skipped = configSkips(testSet, all, selected, groups)
         stopOnSkips(global.policy, skipped)
-        val groups = selected.filter { it.entry.runs }.associateWith { located -> groupsOf(testSet, located) }
-        val entries = entries(groups, OverrideResolver(testSet.overrides, testSet.include), global.run.variants, runHarness, facts, inventory)
+        val entries = entries(groups, resolver, global.run.variants, runHarness, facts, inventory)
         stopOnSkips(global.policy, skipped + entries.skips)
         val (warmup, warmupWarnings) = WarmupJobs.resolve(global.run.warmup, entries.providers)
         return EffectiveConfig(
             generatedFrom = EffectiveSource(files.global, files.testSet, files.inventory, inventory.generatedFrom),
-            run = global.run.copy(variants = Variants.runnable(global.run.variants), harness = runHarness, warmup = warmup),
+            run = global.run.copy(harness = runHarness, warmup = warmup),
             policy = global.policy,
             providers = entries.providers,
             skipped = skipped + entries.skips,
             warnings = inventory.warnings + global.notices + testSet.notices + warnings(excludes, included, testSet.overrides, groups) +
                 runUnsupported.map { it.toString() } + entries.warnings + warmupWarnings +
-                listOfNotNull(entries.secureAsked.takeIf { it > 0 }?.let(Variants::secureNotice)),
+                listOfNotNull(entries.notFixedSkipped.takeIf { it > 0 }?.let(Variants::notFixedNotice),
+                    entries.secureAsked.takeIf { it > 0 }?.let(Variants::secureNotice)),
             analysis = global.analysis,
             bundledProviders = global.providers.bundled,
         )
@@ -51,11 +52,20 @@ class EffectiveBuilder {
         return runHarness to runUnsupported
     }
 
-    private fun configSkips(include: List<Include>, all: List<Inventory.Located>, selected: List<Inventory.Located>): List<Skip> =
-        include.map { it.rule }
+    private fun configSkips(testSet: TestSet, all: List<Inventory.Located>, selected: List<Inventory.Located>,
+                            groups: Map<Inventory.Located, List<String?>>): List<Skip> =
+        testSet.include.map { it.rule }
             .filter { rule -> all.none { rule.matches(it) } }
             .map { rule -> Skip(Skip.CONFIG, rule.provider, rule.type, rule.name, "no_match: nothing on this device matches the include") } +
-            selected.filter { !it.entry.runs }.map { Skip(Skip.CONFIG, it.provider, it.type, it.name, "not_runnable: ${it.entry.reason}") }
+            selected.filter { !it.entry.runs && groups[it]?.size != groupsOf(testSet, it).size }.map { Skip(Skip.CONFIG, it.provider, it.type, it.name, "not_runnable: ${it.entry.reason}") }
+
+    // a generator the default-run trial cannot call (its key is born inside the provider) runs only in the groups that ask secure
+    private fun runnableGroups(testSet: TestSet, located: Inventory.Located, resolver: OverrideResolver, runVariants: List<String>): List<String?> {
+        val names = groupsOf(testSet, located)
+        if (located.entry.runs) return names
+        if (located.type !in KeySource.GENERATORS) return emptyList()
+        return names.filter { Variants.SECURE in resolver.resolve(located, it).variants.ifEmpty { runVariants } }
+    }
 
     private fun stopOnSkips(policy: Policy, skips: List<Skip>) {
         if (skips.isNotEmpty() && policy.onFailure == Policy.OnFailure.STOP) {
@@ -80,9 +90,12 @@ class EffectiveBuilder {
                 val entry = resolver.resolve(located, group)
                 // an entry records only the variants it asked for; without them the run's apply
                 val asked = entry.variants.ifEmpty { runVariants }
-                if (Variants.SECURE in asked) entries.secureAsked++
+                val generator = located.type in KeySource.GENERATORS
+                if (Variants.SECURE in asked && !generator) entries.secureAsked++
+                if (Variants.NOT_FIXED in asked && generator) entries.notFixedSkipped++
+                val variants = if (located.entry.runs) Variants.runnable(entry.variants, generator) else listOf(Variants.SECURE)
                 val refusal = KeySource.refusal(entry.key, located, inventory)
-                    ?: "secure_path_unavailable: only ${Variants.SECURE} asked".takeIf { Variants.runnable(asked).isEmpty() }
+                    ?: "secure_path_unavailable: only ${Variants.SECURE} asked".takeIf { Variants.runnable(asked, generator).isEmpty() }
                 if (refusal != null) {
                     entries.skips += Skip(Skip.CONFIG, located.provider, located.type, key, refusal)
                     continue
@@ -94,7 +107,7 @@ class EffectiveBuilder {
                 }
                 entries.warnings += unsupported.map { fallback(it, path, runHarness) }
                 entries.providers.getOrPut(located.provider) { LinkedHashMap() }
-                    .getOrPut(located.type) { LinkedHashMap() }[key] = entry.copy(variants = Variants.runnable(entry.variants), harness = HARNESS.honoured(entry.harness, unsupported, facts, path))
+                    .getOrPut(located.type) { LinkedHashMap() }[key] = entry.copy(variants = variants, harness = HARNESS.honoured(entry.harness, unsupported, facts, path))
             }
         }
         return entries
@@ -105,6 +118,7 @@ class EffectiveBuilder {
         val skips = mutableListOf<Skip>()
         val warnings = mutableListOf<String>()
         var secureAsked = 0
+        var notFixedSkipped = 0
     }
 
     /** One device entry is measured once per group the test set names, and once as itself when no include names a group. */

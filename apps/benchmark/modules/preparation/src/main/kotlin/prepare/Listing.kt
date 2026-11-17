@@ -11,5 +11,4 @@ class Listing(
     val global: GlobalSettings,
     val effectiveFileName: String,
     val runId: String?,
-    val notices: List<String> = emptyList(),
 )

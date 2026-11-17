@@ -34,7 +34,7 @@ class Preparation(capability: DeviceCapability) {
         val skipped = (refused + resolution.rejections).map { rejection ->
             Skip(Skip.PREPARATION, rejection.provider, rejection.selection.type, rejection.selection.algorithm, rejection.reason)
         }
-        return Listing(resolution.cases, skipped, global, inbound.fileName, inbound.runId, resolution.notices)
+        return Listing(resolution.cases, skipped, global, inbound.fileName, inbound.runId)
     }
 
     fun prepareOne(case: BenchmarkCase): PreparedCase = preparer.prepare(case)

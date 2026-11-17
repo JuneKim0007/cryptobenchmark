@@ -10,6 +10,7 @@ import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
 import io.github.junekim0007.cryptobench.preparation.request.BenchmarkRequest
 import io.github.junekim0007.cryptobench.preparation.request.Selection
 import io.github.junekim0007.cryptobench.preparation.resolve.CaseResolver
+import io.github.junekim0007.cryptobench.preparation.resolve.Rejection
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -130,7 +131,7 @@ class CaseResolverTest {
         assertEquals(listOf("unsupported_operation"), resolver.resolve(request(wrong)).rejections.map { it.reason.substringBefore(':') })
     }
 
-    /** An entry's own variants beat the run's; the row's paths decide which run, a dropped one is one notice. */
+    /** An entry's own variants beat the run's; the row's paths decide which run; config notes the dropped notFixed once for the run. */
     @Test
     fun theEntrysVariantsMeetTheRowsPaths() {
         val both = listOf(Variant.FIXED, Variant.NOT_FIXED)
@@ -146,21 +147,19 @@ class CaseResolverTest {
             "MessageDigest_SHA-256_DIGEST_BC_i1024_WARM_fixed",
             "KeyGenerator_AES_GENERATE-KEY_AndroidOpenSSL_WARM_fixed",
         ), resolution.cases.map { it.id })
-        assertEquals(listOf("path_not_applicable: AndroidOpenSSL.KeyGenerator.AES applies [fixed, secure], [notFixed] dropped"), resolution.notices)
         assertEquals(listOf("KeyGenerator/AES@*: path_not_applicable: AndroidOpenSSL.KeyGenerator.AES applies [fixed, secure], [notFixed] dropped"),
             resolution.rejections.map { it.toString() })
     }
 
-    /** Paths inherited from run.variants that a row lacks are dropped without a notice; with none left the entry is still a skip. */
+    /** Paths inherited from run.variants that a row lacks are dropped quietly; with none left the entry is still a skip. */
     @Test
     fun theRunsPathsARowLacksAreDroppedQuietly() {
         val runAsks = request(Selection("KeyGenerator", "AES", provider = "AndroidOpenSSL"), Selection("MessageDigest", "SHA-256", provider = "AndroidOpenSSL"))
         val both = resolver.resolve(runAsks.copy(global = runAsks.global.copy(variants = listOf(Variant.FIXED, Variant.NOT_FIXED))))
         assertEquals(listOf("KeyGenerator_AES_GENERATE-KEY_AndroidOpenSSL_WARM_fixed",
             "MessageDigest_SHA-256_DIGEST_AndroidOpenSSL_i1024_WARM_fixed", "MessageDigest_SHA-256_DIGEST_AndroidOpenSSL_i1024_WARM_notFixed"), both.cases.map { it.id })
-        assertEquals(emptyList<String>(), both.notices)
+        assertEquals(emptyList<Rejection>(), both.rejections)
         val notFixed = resolver.resolve(runAsks.copy(global = runAsks.global.copy(variants = listOf(Variant.NOT_FIXED))))
-        assertEquals(emptyList<String>(), notFixed.notices)
         assertEquals(listOf("path_not_applicable"), notFixed.rejections.map { it.reason.substringBefore(':') })
     }
 

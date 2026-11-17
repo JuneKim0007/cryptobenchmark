@@ -58,9 +58,8 @@ internal class SetupCatalog(document: Map<String, Any>) {
 
         private const val FIXED = "fixed"
         private const val VARIANTS = "variants"
-        private const val SECURE = "secure"
-        private val PATHS = Variant.entries.map { it.label } + SECURE
-        private val GENERATION = listOf(Variant.FIXED.label, SECURE)
+        private val PATHS = Variant.entries.map { it.label }
+        private val GENERATION = listOf(Variant.FIXED.label, Variant.SECURE.label)
         private val OPERATION = listOf(Variant.FIXED.label, Variant.NOT_FIXED.label)
         private const val BY_MODE = "byMode"
         private const val BY_SUFFIX = "bySuffix"

@@ -246,6 +246,22 @@ algorithm:
     means: The known answers --check runs this algorithm against, by id of algorithms/vectors. Absent is not listed; {} is none, on purpose.
     unused: Read by catalogue/vectors.py, not by the entry facts this glossary walks.
     ids: {means: Vector ids., format: text, unused: Read by catalogue/vectors.py, with knownVectors.}
+  keystore:
+    means: 'The authorizations a key born inside a keystore provider (AndroidKeyStore) is made with, so the key is usable: KeyGenParameterSpec.Builder''s purposes, then set<Name>(String...) per other list. Read by catalogue/guide_items.py into guide.yaml for the secure path.'
+    unused: A section; its fields are the terms an entry uses.
+    purposes:
+      means: KeyProperties.PURPOSE_<NAME> values OR'ed into the builder's purposes.
+      values:
+        ENCRYPT: Encrypt with the key.
+        DECRYPT: Decrypt with the key.
+        SIGN: Sign with the key.
+        VERIFY: Verify with the key.
+        AGREE_KEY: Key agreement with the key (API 31).
+    blockModes: {means: KeyProperties.BLOCK_MODE_* names the key may be used with., format: text}
+    encryptionPaddings: {means: KeyProperties.ENCRYPTION_PADDING_* names the key may be used with., format: text}
+    signaturePaddings: {means: KeyProperties.SIGNATURE_PADDING_* names the key may be used with., format: text}
+    digests: {means: KeyProperties.DIGEST_* names the key may be used with., format: text}
+    curve: {means: 'The curve given as setAlgorithmParameterSpec(ECGenParameterSpec(curve)) when the entry gives no key spec: without it AndroidKeyStore makes its default EC key (P-256) under any generator name.', format: text}
   sourcedOnly:
     fact:
       means: A fact only a standard can give; a run cannot prove it.

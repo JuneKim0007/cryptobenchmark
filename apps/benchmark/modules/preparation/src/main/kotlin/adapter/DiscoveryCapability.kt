@@ -51,7 +51,7 @@ class DiscoveryCapability(capture: CapturedDevice, trial: TrialledDevice) : Devi
         return when (found.instantiates) {
             null -> Availability.Unavailable("not_tried")
             true -> Availability.Available
-            false -> Availability.Unavailable(found.failure + ": " + found.error)
+            false -> Availability.Unavailable(found.failure + ": " + found.error, registered = true)
         }
     }
 

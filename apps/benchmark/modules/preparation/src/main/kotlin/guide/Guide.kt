@@ -36,7 +36,8 @@ class Guide(private val items: Map<String, Map<String, Any>>) {
             if (unsupported.isNotEmpty()) refused += Rejection(selection, selection.provider, "key_size_not_in_guide: $unsupported, the guide lists $accepted")
             val keySizes = selection.keySizes - unsupported.toSet()
             if (selection.keySizes.isNotEmpty() && keySizes.isEmpty()) continue
-            ready += selection.copy(keySizes = keySizes, parameters = selection.parameters.ifEmpty { DocumentFields.sectionOrEmpty(guided, "parameters") })
+            ready += selection.copy(keySizes = keySizes, parameters = selection.parameters.ifEmpty { DocumentFields.sectionOrEmpty(guided, "parameters") },
+                keystore = DocumentFields.sectionOrEmpty(guided, "keystore"))
         }
         return ready to refused
     }

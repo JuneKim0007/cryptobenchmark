@@ -56,10 +56,34 @@ class PathsAndKeySourceTest {
     @Test
     fun theDefaultAsksEveryPathAndRunsTheBuiltOnes() {
         val effective = build("", "include:\n- {type: Cipher, name: RSA}\n- {type: MessageDigest}\n")
-        assertEquals(listOf("fixed", "notFixed"), effective.run.variants)
+        assertEquals(listOf("fixed", "notFixed", "secure"), effective.run.variants)
         assertEquals(setOf(emptyList<String>()), effective.providers.values.flatMap { t -> t.values.flatMap { it.values } }.map { it.variants }.toSet())
-        assertEquals(listOf("secure_path_unavailable: 2 entries ask for secure; the hardware-isolated key path is not built, so no secure case runs"),
+        assertEquals(listOf("secure_path_unavailable: 2 entries ask for secure; the hardware-isolated key path runs key generation only, so no secure case runs for them"),
             effective.warnings)
+    }
+
+    /** Key generation keeps secure; a generator the trial cannot call runs secure alone; notFixed is noted once for the run. */
+    @Test
+    fun keyGenerationKeepsSecureAndNotesNotFixedOnce() {
+        val effective = build("run: {variants: [fixed, notFixed, secure]}\n", "include:\n- {type: KeyGenerator}\n")
+        assertEquals(mapOf("AES" to emptyList(), "SunTlsPrf" to listOf("secure")), variants("run: {variants: [fixed, notFixed, secure]}\n", "include:\n- {type: KeyGenerator}\n"))
+        assertEquals(listOf("path_not_applicable: key generation takes fixed and secure; notFixed skipped for 2 entries"), effective.warnings)
+        assertEquals(emptyList<String>(), effective.skipped.map { it.reason })
+    }
+
+    @Test
+    fun aGeneratorTheTrialCannotCallIsNotRunnableWithoutSecure() {
+        val effective = build("run: {variants: [fixed]}\n", "include:\n- {type: KeyGenerator}\n- {type: KeyGenerator, name: SunTlsPrf, group: hw, variants: [secure]}\n")
+        assertEquals(setOf("AES", "SunTlsPrf@hw"), effective.providers.getValue("SunJCE").getValue("KeyGenerator").keys)
+        assertEquals(listOf("not_runnable: IllegalStateException: TlsPrfGenerator must be initialized"), effective.skipped.map { it.reason })
+    }
+
+    @Test
+    fun aBackingIsTeeOrStrongbox() {
+        val effective = build("", "include:\n- {type: KeyGenerator, name: SunTlsPrf, variants: [secure]}\n- {type: KeyGenerator, name: AES}\n" +
+            "overrides:\n- match: {name: SunTlsPrf}\n  set: {key: {backing: strongbox}}\n- match: {name: AES}\n  set: {key: {backing: glass}}\n")
+        assertEquals(mapOf("backing" to "strongbox"), effective.providers.getValue("SunJCE").getValue("KeyGenerator").getValue("SunTlsPrf").key)
+        assertEquals(listOf("invalid: key.backing glass, one of [tee, strongbox]"), effective.skipped.map { it.reason })
     }
 
     @Test

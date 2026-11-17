@@ -2,7 +2,8 @@ package io.github.junekim0007.cryptobench.preparation.measurement
 
 enum class Variant(val label: String) {
     FIXED("fixed"),
-    NOT_FIXED("notFixed");
+    NOT_FIXED("notFixed"),
+    SECURE("secure");
 
     companion object {
 

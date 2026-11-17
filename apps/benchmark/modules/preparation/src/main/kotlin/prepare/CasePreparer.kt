@@ -4,7 +4,13 @@ import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterial
 import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterialGenerator
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyPlanner
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
+import io.github.junekim0007.cryptobench.preparation.input.OperationInput
+import io.github.junekim0007.cryptobench.preparation.key.secure.KeyInfoFields
+import io.github.junekim0007.cryptobench.preparation.key.secure.SecureKey
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
+import io.github.junekim0007.cryptobench.preparation.measurement.KeySource
+import io.github.junekim0007.cryptobench.preparation.measurement.Variant
+import io.github.junekim0007.cryptobench.preparation.parameter.bind.BoundParameters
 import io.github.junekim0007.cryptobench.preparation.operation.Invocations
 import io.github.junekim0007.cryptobench.preparation.operation.OperationDefinitions
 import io.github.junekim0007.cryptobench.preparation.parameter.bind.ParameterBinder
@@ -32,6 +38,7 @@ internal class CasePreparer(
         val definition = OperationDefinitions.of(case.operation)
         val parameters = bound(case.parameters, "parameters")
         val keyParameters = if (recipe is KeyRecipe.None) bound(case.keyParameters, "key") else null
+        if (case.variant == Variant.SECURE) return secure(case, recipe, material, keyParameters)
         val input = step("input_preparation_failed: ") { definition.input(case, material, parameters) }
         val candidate = PreparedCase(case, recipe, material, parameters, keyParameters, input)
         val invocation = step("dry_run_failed: ") { Invocations.of(candidate) }
@@ -40,6 +47,26 @@ internal class CasePreparer(
         val resolved = step("parameters_unreadable: ") { ResolvedParameters.of(invocation.engine, material, result) }
         return candidate.copy(resolvedParameters = resolved, perCall = invocation.perCall)
     }
+
+    // a key born inside its provider: the spec carries the slot's alias; the dry run's key is read back, then the slot emptied
+    private fun secure(case: BenchmarkCase, recipe: KeyRecipe, material: KeyMaterial, keyParameters: BoundParameters?): PreparedCase {
+        val key = SecureKey(case)
+        val spec = secureStep(key) { BoundParameters.cycling(listOf(key.spec(keyParameters?.next()))) }
+        val candidate = PreparedCase(case, recipe, material, null, spec, OperationInput.None, afterCall = key::delete)
+        val invocation = secureStep(key) { Invocations.of(candidate) }
+        val result = secureStep(key) { invocation.once() }
+        try {
+            val observed = step("parameters_unreadable: ") { KeyInfoFields.of(result, case.provider) }
+            val resolved = step("parameters_unreadable: ") { ResolvedParameters.of(invocation.engine, material, result) }
+            val levels = linkedMapOf<String, Any>(KeySource.BACKING to case.keySource.requestedBacking, KeyInfoFields.SECURITY_LEVEL to observed.getValue(KeyInfoFields.SECURITY_LEVEL))
+            return candidate.copy(resolvedParameters = observed.filterKeys { it == KeyInfoFields.KEY_BITS } + resolved + levels, perCall = invocation.perCall)
+        } finally {
+            secureStep(key) { key.delete() }
+        }
+    }
+
+    private inline fun <T> secureStep(key: SecureKey, block: () -> T): T =
+        Attempt.of(block).getOrElse { failure -> throw PreparationException(key.refusal(failure), failure) }
 
     private inline fun <T> step(code: String, block: () -> T): T =
         Attempt.of(block).getOrElse { failure -> throw PreparationException(FailureText.of(failure, code), failure) }

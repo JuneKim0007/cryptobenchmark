@@ -1,4 +1,4 @@
 schemaVersion: 1
 warnings: ['secure_path_unavailable: 3 entries ask for secure; the hardware-isolated
-    key path is not built, so no secure case runs']
+    key path runs key generation only, so no secure case runs for them']
 skipped: []

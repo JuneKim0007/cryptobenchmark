@@ -1,5 +1,5 @@
 """run.variants on a device: an item's fixed and notFixed cases adjacent, fixed first in odd repetitions and last in even ones (A/B/B/A)."""
-VARIANTS = ("fixed", "notFixed")   # preparation's Variant labels, the last part of a case id
+VARIANTS = ("fixed", "notFixed", "secure")   # preparation's Variant labels, the last part of a case id
 
 
 def item(case):

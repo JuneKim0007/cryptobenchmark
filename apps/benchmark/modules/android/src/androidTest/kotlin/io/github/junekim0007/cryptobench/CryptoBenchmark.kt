@@ -14,7 +14,7 @@ class CryptoBenchmark(caseId: String, private val case: BenchmarkCase) : Jetpack
     @Test
     fun measure() = timed {
         val prepared = DevicePlan.prepared(case) ?: error("not_prepared: ${DevicePlan.skipOf(case)}")
-        Invocations.of(prepared).perIteration
+        Invocations.of(prepared)
     }
 
     companion object {

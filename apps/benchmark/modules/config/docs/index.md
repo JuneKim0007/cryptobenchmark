@@ -31,8 +31,8 @@ apps/benchmark/modules/config/src/main/kotlin/effective/dto/EffectiveSource.kt :
 apps/benchmark/modules/config/src/main/kotlin/effective/dto/Report.kt : run id, warnings and skips of one effective build
 apps/benchmark/modules/config/src/main/kotlin/effective/dto/Skip.kt : skip record {stage, provider?, type?, name?, reason}
 apps/benchmark/modules/config/src/main/kotlin/entry/EntryKeys.kt : per-primitive key names shared by test-set overrides and effective entries
-apps/benchmark/modules/config/src/main/kotlin/entry/KeySource.kt : a key's written algorithm and provider checked against the inventory's generators
-apps/benchmark/modules/config/src/main/kotlin/entry/Variants.kt : variants names, the [fixed] fallback and its notice, secure dropped with one notice
+apps/benchmark/modules/config/src/main/kotlin/entry/KeySource.kt : a key's written algorithm and provider checked against the inventory's generators, its backing against tee and strongbox; the generator types
+apps/benchmark/modules/config/src/main/kotlin/entry/Variants.kt : variants names, the [fixed] fallback and its notice, secure kept for key generation only, the run-level notFixed and secure notices
 apps/benchmark/modules/config/src/main/kotlin/global/AnalysisDocument.kt : analysis section reader and writer
 apps/benchmark/modules/config/src/main/kotlin/global/GlobalDocument.kt : global.yaml schema
 apps/benchmark/modules/config/src/main/kotlin/global/PolicyDocument.kt : policy section reader and writer
@@ -88,7 +88,7 @@ apps/benchmark/modules/config/src/test/kotlin/InventoryBuilderTest.kt : inventor
 apps/benchmark/modules/config/src/test/kotlin/MalformedDocumentsTest.kt : malformed documents refused by name
 apps/benchmark/modules/config/src/test/kotlin/OverrideResolverTest.kt : override precedence tests
 apps/benchmark/modules/config/src/test/kotlin/ParityFixturesTest.kt : parity/ global, effective, facts, algorithm-names and scalars read to their .json values; the duplicate-key refusal and exponent read
-apps/benchmark/modules/config/src/test/kotlin/PathsAndKeySourceTest.kt : variants precedence, fallback and secure notices, a written key source checked on the inventory
+apps/benchmark/modules/config/src/test/kotlin/PathsAndKeySourceTest.kt : variants precedence, fallback, notFixed and secure notices, a trial-failed generator on the secure path, a written key source and backing checked
 apps/benchmark/modules/config/src/test/kotlin/RuleTest.kt : rule matching tests
 apps/benchmark/modules/config/src/test/kotlin/WarmupJobsTest.kt : warm-up jobs resolved to entries; nothing selected turns it off
 apps/benchmark/modules/config/src/test/resources/algorithm-names-cases.yaml : name cases both readers resolve alike; owned here, perf-repair keeps a copy its tests compare

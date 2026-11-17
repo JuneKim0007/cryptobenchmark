@@ -4,7 +4,8 @@ sealed class Availability {
 
     object Available : Availability()
 
-    data class Unavailable(val reason: String) : Availability() {
+    // registered: the provider has the service, only its default-run trial failed
+    data class Unavailable(val reason: String, val registered: Boolean = false) : Availability() {
         init {
             require(reason.isNotBlank()) { "missing_field: reason" }
         }

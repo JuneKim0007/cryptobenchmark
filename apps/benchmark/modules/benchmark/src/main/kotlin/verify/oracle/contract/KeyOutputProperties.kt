@@ -17,11 +17,13 @@ internal class KeyOutputProperties(private val pair: Boolean) : Properties {
         val bits = ResolvedParameters.of(null, KeyMaterial.None, output)[ResolvedParameters.KEY_BITS] as? Int
         val asked = call.prepared.case.keySize
         val again = runCatching { call.invocation.once() }.getOrNull()
-        val encoded = { key: Any? -> (if (key is KeyPair) key.private else key as? SecretKey)?.encoded }
+        // a key born inside its provider has no private encoding: a pair is told apart by its public key, a secret key not at all
+        val encoded = { key: Any? -> if (key is KeyPair) key.private.encoded ?: key.public.encoded else (key as? SecretKey)?.encoded }
         return linkedMapOf(
             "kind" to Outcome.Pass,
             "size" to if (asked == null || bits == null) Outcome.NotCheckable("no_size_asked_or_read") else holds(bits == asked) { "size: $bits bits, the case asked $asked" },
-            "fresh" to holds(encoded(again) != null && !encoded(again).contentEquals(encoded(output))) { "fresh: a second call returned the same key" },
+            "fresh" to if (encoded(output) == null) Outcome.NotCheckable("key_not_extractable: the key stays inside its provider")
+                else holds(encoded(again) != null && !encoded(again).contentEquals(encoded(output))) { "fresh: a second call returned the same key" },
         )
     }
 }

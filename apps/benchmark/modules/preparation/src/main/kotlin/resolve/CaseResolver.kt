@@ -1,6 +1,9 @@
 package io.github.junekim0007.cryptobench.preparation.resolve
 
 import io.github.junekim0007.cryptobench.preparation.engine.EngineTypes
+import io.github.junekim0007.cryptobench.preparation.key.secure.KeystoreSpec
+import io.github.junekim0007.cryptobench.preparation.measurement.Variant
+import io.github.junekim0007.cryptobench.preparation.request.Selection
 import io.github.junekim0007.cryptobench.preparation.operation.SetupCatalog
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.parameter.bind.ParameterBinder
@@ -19,7 +22,6 @@ class CaseResolver(
     fun resolve(request: BenchmarkRequest): Resolution {
         val cases = mutableListOf<BenchmarkCase>()
         val rejections = mutableListOf<Rejection>()
-        val notices = mutableListOf<String>()
         for (selection in request.selections) {
             val operations = engineTypes.operationsOf(selection.type)
             val problem = selectionCheck.problem(selection, operations)
@@ -28,21 +30,37 @@ class CaseResolver(
                 continue
             }
             val asked = selection.variants ?: request.global.variants
-            val (variants, dropped) = SetupCatalog.standard.paths(selection.type, asked)
-            val notApplicable = "path_not_applicable: ${selection.provider}.${selection.type}.${selection.algorithm} applies ${SetupCatalog.standard.applicable(selection.type)}, ${dropped.map { it.label }} dropped"
+            val (applicable, dropped) = SetupCatalog.standard.paths(selection.type, asked)
+            val secureRefusal = secureRefusal(selection).takeIf { Variant.SECURE in applicable }
+            val variants = if (secureRefusal == null) applicable else applicable - Variant.SECURE
+            // a refused secure path the entry wrote is one line; the run's drops quietly unless nothing is left
+            if (secureRefusal != null && (selection.variants?.contains(Variant.SECURE) == true || variants.isEmpty())) {
+                rejections += Rejection(selection, selection.provider, secureRefusal)
+            }
             if (variants.isEmpty()) {
-                rejections += Rejection(selection, null, notApplicable)
+                if (secureRefusal == null) rejections += Rejection(selection, null,
+                    "path_not_applicable: ${selection.provider}.${selection.type}.${selection.algorithm} applies ${SetupCatalog.standard.applicable(selection.type)}, ${dropped.map { it.label }} dropped")
                 continue
             }
-            when (val availability = capability.check(selection.provider, selection.type, selection.algorithm)) {
-                Availability.Available -> {
-                    cases += SelectionExpander.expand(request.global, selection, operations, variants)
-                    // only a path the entry wrote itself is noted; the run's paths a row lacks are dropped quietly
-                    if (dropped.isNotEmpty() && selection.variants != null) notices += notApplicable
-                }
-                is Availability.Unavailable -> rejections += Rejection(selection, selection.provider, availability.reason)
+            if (selection.keySource.backing != null && Variant.SECURE !in variants) {
+                rejections += Rejection(selection, null, "unused_setting: key.backing reaches no ${Variant.SECURE.label} case")
+                continue
             }
+            val availability = capability.check(selection.provider, selection.type, selection.algorithm)
+            // a registered generator whose default-run trial failed is measured only where its key is born inside it
+            val runnable = when {
+                availability == Availability.Available -> variants
+                availability is Availability.Unavailable && availability.registered -> variants.filter { it == Variant.SECURE }
+                else -> emptyList()
+            }
+            if (runnable.size < variants.size) rejections += Rejection(selection, selection.provider, (availability as Availability.Unavailable).reason)
+            if (runnable.isNotEmpty()) cases += SelectionExpander.expand(request.global, selection, operations, runnable)
         }
-        return Resolution(cases, rejections, notices)
+        return Resolution(cases, rejections)
     }
+
+    // this runtime lacks the keystore classes, or the guide gives the provider no keystore block (it keeps no key inside)
+    private fun secureRefusal(selection: Selection): String? = KeystoreSpec.missing()
+        ?: "path_not_applicable: ${selection.provider}.${selection.type}.${selection.algorithm} keeps no key inside; ${Variant.SECURE.label} needs a guide keystore block"
+            .takeIf { selection.keystore.isEmpty() }
 }

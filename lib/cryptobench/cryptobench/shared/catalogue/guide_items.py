@@ -1,7 +1,7 @@
 """What the guide says for exactly the items of one effective.yaml, at the builds this device runs: preparation's guide.yaml."""
 from __future__ import annotations
 
-from .algorithms import KEY_PROVIDER, algorithms, algorithm_id
+from .algorithms import KEY_PROVIDER, KEYSTORE, KEYSTORE_LEAVES, algorithms, algorithm_id
 from .names import Names, fold
 from .provider_builds import provider_builds
 from .recipes import load as load_recipes
@@ -49,6 +49,9 @@ def _item(view: dict, build: str | None, exact: bool, recipes: dict) -> dict:
     rows = {r["name"]: r for r in view["required"]}
     item: dict = {"build": build, "exactBuild": exact}
     if (view.get("key") or {}).get("origin") == KEY_PROVIDER:
+        keystore = {k: v for k, v in (view.get(KEYSTORE) or {}).items() if k not in KEYSTORE_LEAVES}
+        if keystore:
+            return {**item, KEYSTORE: keystore}
         return {**item, "refused": "key_inside_provider: this provider keeps its own keys; the harness cannot create them yet"}
     carried = carried_recipes(view)
     if len(carried) > 1:

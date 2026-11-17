@@ -150,7 +150,7 @@ def _fields(path: str, row: dict) -> list[tuple[str, object]]:
 
 def entry_terms(raw: dict) -> list[tuple[str, object]]:
     """Every (path, value) of one catalogue entry."""
-    found: list[tuple[str, object]] = _fields("algorithm.key", raw.get("key") or {})
+    found: list[tuple[str, object]] = _fields("algorithm.key", raw.get("key") or {}) + _fields("algorithm.keystore", raw.get("keystore") or {})
     for section in ("required", "optional"):
         for row in raw.get(section) or []:
             found += _fields(f"{ALGORITHM}.{section}", row)

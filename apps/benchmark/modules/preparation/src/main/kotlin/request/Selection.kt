@@ -19,6 +19,8 @@ data class Selection(
     val harness: HarnessSettings = HarnessSettings(),
     // null: the run's
     val variants: List<Variant>? = null,
+    // the guide's keystore authorizations; empty: the provider keeps no key inside
+    val keystore: Map<String, Any> = emptyMap(),
 ) {
 
     init {

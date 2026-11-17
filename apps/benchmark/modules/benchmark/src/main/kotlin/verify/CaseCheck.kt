@@ -16,6 +16,7 @@ import io.github.junekim0007.cryptobench.benchmark.verify.record.CaseRecord
 import io.github.junekim0007.cryptobench.jca.failure.Attempt
 import io.github.junekim0007.cryptobench.preparation.interop.report.Outcome
 import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterial
+import io.github.junekim0007.cryptobench.preparation.operation.Invocation
 import io.github.junekim0007.cryptobench.preparation.operation.Invocations
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
@@ -28,6 +29,11 @@ class CaseCheck(private val oracles: List<Oracle>, private val call: OneCall) {
     fun check(prepared: PreparedCase): CaseRecord {
         val invocation = Attempt.of { Invocations.of(prepared) }
             .getOrElse { failure -> return CaseRecord.of(prepared, emptyMap(), emptyMap(), "invocation_failed: ${FailureText.of(failure)}", null) }
+        // a secure case's key slot is emptied once its calls and oracles are done
+        return try { checked(prepared, invocation) } finally { invocation.afterCall?.let { Attempt.of(it) } }
+    }
+
+    private fun checked(prepared: PreparedCase, invocation: Invocation): CaseRecord {
         val observed = ObservedCall.start(prepared, invocation)
         val hook = OutputHook()
         val thrown = Attempt.of { call.call(invocation, hook) }.exceptionOrNull()
