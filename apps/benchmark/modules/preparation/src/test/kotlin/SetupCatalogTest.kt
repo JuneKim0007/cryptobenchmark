@@ -77,4 +77,16 @@ class SetupCatalogTest {
             assertTrue(refused.message!!, refused.message!!.startsWith("invalid: setup-catalog.yaml engines.Mac.variants"))
         }
     }
+
+    /** The generator of each key kind is the one row naming it; none or two is refused, never guessed. */
+    @Test
+    fun eachKeyKindHasExactlyOneGeneratorRow() {
+        assertEquals("KeyGenerator", catalog.generator(SetupCatalog.SECRET_KEY))
+        assertEquals("KeyPairGenerator", catalog.generator(SetupCatalog.KEY_PAIR))
+        fun rows(vararg types: String) = SetupCatalog(mapOf("schemaVersion" to 1, "engines" to types.associateWith { mapOf("generates" to "keyPair") }))
+        for (bad in listOf(rows(), rows("A", "B"))) {
+            val refused = assertThrows(IllegalArgumentException::class.java) { bad.generator(SetupCatalog.KEY_PAIR) }
+            assertTrue(refused.message!!, refused.message!!.startsWith("invalid: setup-catalog.yaml engines name"))
+        }
+    }
 }

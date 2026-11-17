@@ -11,8 +11,18 @@ import java.util.Locale
 /** setup-catalog.yaml: per engine type, cipher mode or name suffix, what a fixed call still does; notFixed always makes the instance per call. */
 internal class SetupCatalog(document: Map<String, Any>) {
 
-    private val engines: Map<String, Map<String, Any>> = DocumentFields.section(document, "engines")
-        .entries.associate { (type, row) -> EngineTypeName.fold(type) to DocumentFields.asSection(row, "engines.$type") }
+    private val rows: Map<String, Map<String, Any>> = DocumentFields.section(document, "engines")
+        .entries.associate { (type, row) -> type to DocumentFields.asSection(row, "engines.$type") }
+
+    private val engines: Map<String, Map<String, Any>> = rows.mapKeys { EngineTypeName.fold(it.key) }
+
+    private val generators: Map<String, List<String>> = rows.entries
+        .mapNotNull { (type, row) -> row[GENERATES]?.let { it.toString() to type } }
+        .groupBy({ it.first }, { it.second })
+
+    /** The engine type whose row generates [kind] (SECRET_KEY, KEY_PAIR). */
+    fun generator(kind: String): String = generators[kind]?.singleOrNull()
+        ?: throw IllegalArgumentException("invalid: $RESOURCE engines name ${generators[kind] ?: "no type"} with $GENERATES: $kind, exactly one wanted")
 
     /** The asked paths this type's row applies, then the asked ones it does not. */
     fun paths(type: String, asked: List<Variant>): Pair<List<Variant>, List<Variant>> =
@@ -58,6 +68,9 @@ internal class SetupCatalog(document: Map<String, Any>) {
 
         private const val FIXED = "fixed"
         private const val VARIANTS = "variants"
+        private const val GENERATES = "generates"
+        const val SECRET_KEY = "secretKey"
+        const val KEY_PAIR = "keyPair"
         private val PATHS = Variant.entries.map { it.label }
         private val GENERATION = listOf(Variant.FIXED.label, Variant.SECURE.label)
         private val OPERATION = listOf(Variant.FIXED.label, Variant.NOT_FIXED.label)

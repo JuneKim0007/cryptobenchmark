@@ -64,7 +64,7 @@ apps/benchmark/modules/preparation/src/main/kotlin/operation/KeyShape.kt : enum 
 apps/benchmark/modules/preparation/src/main/kotlin/operation/OperationDefinition.kt : interface: what an operation consumes and its call
 apps/benchmark/modules/preparation/src/main/kotlin/operation/OperationDefinitions.kt : Operation to definition map
 apps/benchmark/modules/preparation/src/main/kotlin/operation/PerCall.kt : enum of what one timed call does: operation, initAndOperation, getInstanceInitAndOperation
-apps/benchmark/modules/preparation/src/main/kotlin/operation/SetupCatalog.kt : reads algorithms/setup-catalog.yaml: the paths a row applies and a case's PerCall
+apps/benchmark/modules/preparation/src/main/kotlin/operation/SetupCatalog.kt : reads algorithms/setup-catalog.yaml: the paths a row applies, a case's PerCall and the type generating each key kind (KeyPlanner's generators)
 apps/benchmark/modules/preparation/src/main/kotlin/operation/SignDefinition.kt : SIGN definition
 apps/benchmark/modules/preparation/src/main/kotlin/operation/TypeDefaultDefinition.kt : TYPE_DEFAULT definition (no-op call)
 apps/benchmark/modules/preparation/src/main/kotlin/operation/VerifyDefinition.kt : VERIFY definition; builds signed-message input
@@ -131,5 +131,5 @@ apps/benchmark/modules/preparation/src/test/kotlin/PreparedFileTest.kt : prepare
 apps/benchmark/modules/preparation/src/test/kotlin/PrimitiveReaderTest.kt : providers-section read tests
 apps/benchmark/modules/preparation/src/test/kotlin/ResolvedParametersTest.kt : read-back tests per parameter kind: GCM, CBC, key wrap, OAEP, PSS, EC curve, key size
 apps/benchmark/modules/preparation/src/test/kotlin/SecurePathTest.kt : secure path on a JVM: not_supported, quiet run drop, backing rules, ids, refusal codes
-apps/benchmark/modules/preparation/src/test/kotlin/SetupCatalogTest.kt : catalog rows per engine type and mode, variants per type, a generator row that would redo init refused
+apps/benchmark/modules/preparation/src/test/kotlin/SetupCatalogTest.kt : catalog rows per engine type and mode, variants per type, a generator row that would redo init refused, one generator row per key kind
 ```
