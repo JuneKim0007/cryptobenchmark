@@ -1064,7 +1064,11 @@ codes:
   device_id_empty_slug: {kind: error}
   device_id_fields_missing: {kind: error}
   device_lost: {kind: error}
+  device_no_permissions: {kind: error}
   device_not_attached: {kind: error}
+  device_not_booted: {kind: error}
+  device_offline: {kind: error}
+  device_unauthorized: {kind: error}
   different_case: {kind: error}
   different_parameters: {kind: error}
   different_variant: {kind: error}
@@ -1126,6 +1130,7 @@ codes:
   key_size_not_in_guide: {kind: error}
   keystore_born_key: {kind: outcome}
   keystore_unsupported: {kind: outcome}
+  unstable_id: {kind: notice}
   library_outside_checkout: {kind: error, default: stop}
   mac_needs_a_secret_key: {kind: error}
   manafa_cannot_start: {kind: error}

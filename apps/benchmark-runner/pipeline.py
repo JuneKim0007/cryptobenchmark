@@ -3,11 +3,13 @@
 import argparse, contextlib, functools, json, os, pathlib, signal, subprocess, sys, traceback
 
 import dependencies  # first: it reports a missing PyYAML, which the imports below need
+from cryptobench.shared.device import aliases, probe
 from cryptobench.shared.device.adb import Device
 from cryptobench.shared.device.identity import device_id
 from failure import fail, reported
 from cryptobench.shared.errors.line import one_line
 from cryptobench.shared.errors.coded import Coded
+from cryptobench.shared.log.warn import warn
 from cryptobench.pipeline.stage import Stage, StageContext
 from cryptobench.stages.configuration.global_file import global_config
 from cryptobench.shared import paths
@@ -38,6 +40,8 @@ def parse_options():
     mode.add_argument("--device", action="store_true", help="probe, prepare and measure on the attached device (adb, ANDROID_HOME)")
     parser.add_argument("--probe", action="store_true",
                         help="discovery and configure only, with --device on the device; writes <results>/<device_id>/ and its manifest, measures nothing")
+    parser.add_argument("--devices", action="store_true",
+                        help="list what adb sees: each device's key, alias, kind, model, API level and connection, or why it is not ready; reads no config")
     parser.add_argument("--identify", action="store_true",
                         help="print the device id, the digests of this run's inputs and of the harness code as one 'identity:' line; runs no stage, writes nothing")
     parser.add_argument("--suppress-errors", default=os.environ.get("CRYPTOBENCH_SUPPRESS_ERRORS", ""), metavar="ERRORS",
@@ -80,7 +84,20 @@ REFUSED = (
     (lambda o: any(v is not None and v < 0 for v in (o.reconnect_wait_minutes, o.reconnect_poll_seconds)),
      "--reconnect-wait-minutes, --reconnect-poll-seconds: negative"),
     (lambda o: o.order_seed is not None, "retired_option: --order-seed; set run.orderSeed in global.yaml, where effective.yaml and the run's identity read it"),
+    (lambda o: o.devices and any((o.config, o.bench, o.device, o.probe, o.identify, o.check, o.harness, o.interop)),
+     "--devices: lists the attached devices and runs alone"),
 )
+
+
+def list_devices():
+    """Before any config: adb's transports classified, with the user's aliases."""
+    adb = Device(paths.repo().gradle_root, False, False)
+    adb.require_adb()
+    rows = probe.enumerate_devices(adb.raw)
+    for line in probe.listing(rows, aliases.read(paths.user_devices())):
+        print(line)
+    if not rows:
+        warn("no_device: adb lists no device; attach one or start an emulator")
 
 
 def identify(options, configuration, device):
@@ -185,6 +202,8 @@ def main():
     stop_like_ctrl_c()
     options = parse_options()
     sys.stdout.reconfigure(line_buffering=True)
+    if options.devices:
+        return list_devices()
     configuration = global_config(options.config)
     # before any build; --identify runs no stage and starts no Gradle
     checked = None if options.identify else config_check.parsed(configuration)

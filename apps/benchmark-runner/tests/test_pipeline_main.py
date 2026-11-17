@@ -6,7 +6,7 @@ import pytest
 import pipeline
 from cryptobench.shared.errors.failures import CommandError
 
-FLAGS = {"probe": False, "identify": False, "interop": None, "harness": None, "check": False, "bench": False, "device": False,
+FLAGS = {"probe": False, "identify": False, "devices": False, "interop": None, "harness": None, "check": False, "bench": False, "device": False,
          "config": None, "results": None, "stream": False, "stacktrace": False, "suppress_errors": ""}
 
 
@@ -32,7 +32,7 @@ def calls(monkeypatch, tmp_path):
     monkeypatch.setattr(pipeline.dependencies, "check", recorder("dependencies"))
     monkeypatch.setattr(pipeline, "Device", Device)
     monkeypatch.setattr(pipeline.paths, "repo", lambda: pipeline.paths.Repo(tmp_path))
-    for name in ("identify", "harness_run", "interop_run", "check_run", "manifest"):
+    for name in ("list_devices", "identify", "harness_run", "interop_run", "check_run", "manifest"):
         monkeypatch.setattr(pipeline, name, recorder(name))
     monkeypatch.setattr(pipeline, "measure_cases", recorder("measure_cases", (False, [], 1)))
     monkeypatch.setattr(pipeline, "checked_folder", recorder("checked_folder"))
@@ -62,7 +62,8 @@ START = ["global_config", "config_check", "dependencies"]
     ({"harness": "harness.yaml", "device": True}, START + ["Device", "connect", "checked_folder", "harness_run"]),
     ({"identify": True}, ["global_config", "dependencies", "identify"]),
     ({"identify": True, "device": True}, ["global_config", "dependencies", "Device", "connect", "identify"]),
-], ids=["plain", "probe", "probe device", "bench", "device", "check", "interop", "harness", "identify", "identify device"])
+    ({"devices": True}, ["list_devices"]),
+], ids=["plain", "probe", "probe device", "bench", "device", "check", "interop", "harness", "identify", "identify device", "devices"])
 def test_the_stages_of_each_run_kind_in_order(calls, flags, order):
     assert calls(**flags) == order
 

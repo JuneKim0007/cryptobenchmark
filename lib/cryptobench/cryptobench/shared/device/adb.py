@@ -91,9 +91,12 @@ class Device:
         if state != "device":
             raise DeviceLost(lost_line(("get-state", "after", step), state or "no answer"))
 
-    def connect(self):
+    def require_adb(self):
         if not self.adb.is_file():
             raise DeviceError(f"missing_file: {self.adb} (set ANDROID_HOME)")
+
+    def connect(self):
+        self.require_adb()
         selection = selection_error(self.run("devices").stdout, os.environ.get("ANDROID_SERIAL"))
         if selection:
             raise DeviceError(selection)

@@ -15,6 +15,11 @@ def user_global() -> Path:
     return home() / ".config/cryptobench" / GLOBAL
 
 
+def user_devices() -> Path:
+    """The user's device aliases; a fixed place, so an absent file is no aliases."""
+    return home() / ".config/cryptobench/devices.yaml"
+
+
 def android_home() -> Path:
     return Path(os.environ.get("ANDROID_HOME") or home() / "Library/Android/sdk")
 

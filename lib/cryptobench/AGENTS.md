@@ -42,12 +42,15 @@ cryptobench/shared/document/dump.py : dump_yaml, a value as YAML text through on
 cryptobench/shared/document/json_dump.py : json_text, a document as JSON text (indent 1); write_json, that text through write_text
 cryptobench/shared/document/write.py : write_text, a file replaced whole through a temporary of its writer's own (mode as a plain open gives, fsync and folder fsync when durable, exclusive refuses an existing file); Staging, the temporary's name, mode and fsync per writer (STAGED, MANIFEST); write_texts, several files staged then renamed in order
 cryptobench/shared/device/__init__.py : package of the host's device steps, importing no app
-cryptobench/shared/device/adb.py : the adb transport of a --device run: connect, identity by getprop, the boot id, install, instrument and its OK line and report, push, pull, force-stop; a lost transport as DeviceLost, adb get-state
+cryptobench/shared/device/adb.py : the adb transport of a --device run: require_adb, connect, identity by getprop, the boot id, install, instrument and its OK line and report, push, pull, force-stop; a lost transport as DeviceLost, adb get-state
+cryptobench/shared/device/aliases.py : the user's devices.yaml: alias to device key, one alias per key; no file is no aliases
 cryptobench/shared/device/capture.py : a capture's runtime block, its schema version checked; the guide's platform name for it
 cryptobench/shared/device/clocks.py : per-core cpufreq over adb; clocks.yaml and cpuLocked
 cryptobench/shared/device/gradle_runner.py : runs one command of apps/benchmark/cli by its main class; filters its failure to the tool's own lines
 cryptobench/shared/device/identity.py : device id from a capture's runtime block
 cryptobench/shared/device/plan.py : the device plan: pushed and AOT-compiled, prepared and skipped pulled back, the skips recorded so far, per-run outputs cleared; a run's push with the suppressErrors warning, then the energy settle's files
+cryptobench/shared/device/probe.py : DeviceRow; adb transports classified ready or not with a coded fix, keyed by ro.serialno or emulator:<avd>, unstable_id otherwise; the --devices listing
+cryptobench/shared/device/tests/ : pytest tests of the device listing and the alias file, from hand-written adb and getprop text
 cryptobench/shared/device/timeouts.py : ceilings of the host's subprocess steps (adb, install, instrument, case, gradle, compile, energy, analysis); expiry is one coded error
 cryptobench/shared/digest/__init__.py : package of the digests over bytes
 cryptobench/shared/digest/tree.py : byte_digest, the sha256 of some bytes; file_digest, of a file's bytes, None when absent; tree_digest, one digest of files in a given order, each its path under a root and its byte digest; globbed, the files glob patterns match but desktop litter and the patterns matching none; digest_of, their tree digest, a pattern matching none refused with the caller's error
@@ -71,7 +74,7 @@ cryptobench/shared/log/tests/ : pytest tests of the event log: append_line, atta
 cryptobench/shared/log/warn.py : warn(): a `warning:` line, added to the run's problems when it keeps a list, and one log event with the line's code
 cryptobench/shared/paths/__init__.py : one interface to every path the Python modules use: `from cryptobench.shared import paths`
 cryptobench/shared/paths/device_dirs.py : DeviceDirs(sdk): folders on a device per API level, POSIX paths
-cryptobench/shared/paths/host.py : the user's and host's locations: home, the user's global.yaml, the Android SDK and its platform-tools
+cryptobench/shared/paths/host.py : the user's and host's locations: home, the user's global.yaml and devices.yaml, the Android SDK and its platform-tools
 cryptobench/shared/paths/imports.py : the apps' source folders on the import path, for the facade's process and its children; in shared/paths because tools/paths_check.py allows sys.path and PYTHONPATH edits nowhere else
 cryptobench/shared/paths/names.py : the file and folder names of a results folder, litter (desktop files no listing of a run counts), and CONTRACT: those shared with Kotlin
 cryptobench/shared/paths/packaged.py : packaged(package, name) through importlib and a named constant per data file a package ships

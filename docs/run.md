@@ -19,7 +19,7 @@ The command for both sides is `apps/cli/facade.py` ([facade.md](facade.md)); thi
 python3 apps/benchmark-runner/pipeline.py [--config PATH] [--results DIR] [--discovery overwrite|keep|reuse]
                             [--bench | --device] [--suppress-errors ERRORS] [--energy-python PYTHON]
                             [--energy-accept-unresponsive] [--reconnect-wait-minutes M] [--reconnect-poll-seconds S]
-                            [--stacktrace] [--stream] [--harness HARNESS_YAML] [--interop PLAN_YAML] [--probe] [--identify]
+                            [--stacktrace] [--stream] [--harness HARNESS_YAML] [--interop PLAN_YAML] [--probe] [--identify] [--devices]
 ```
 
 | flag | default | effect |
@@ -31,12 +31,12 @@ python3 apps/benchmark-runner/pipeline.py [--config PATH] [--results DIR] [--dis
 | `--device` | off | probe, prepare and measure on the attached device over adb |
 | `--probe` | off | discovery and configure only, with `--device` on the device; the device folder and its manifest, nothing measured |
 | `--identify` | off | one line `identity:  {deviceId, mode, config, inputs, harness}` (JSON), `harness` the digest of the files `lib/cryptobench/cryptobench/stages/verification/scope/code_digest.py` names, and nothing written: `getprop` on a device, `RuntimeFieldsKt` on a host; the id the probe would give |
+| `--devices` | off | lists what adb sees and exits, before any config is read ([devices.md](devices.md)); with `--config` or any mode fails |
 | `--suppress-errors ERRORS` | `CRYPTOBENCH_SUPPRESS_ERRORS`, else `""` | passed as `androidx.benchmark.suppressErrors`, e.g. `EMULATOR,UNLOCKED`; numbers are then not comparable; part of a resumed run's identity ([results.md](results.md#resuming-a-stopped-run)); the variable reaches a run the guide or facade starts |
 | `--energy-python PYTHON` | `sys.executable` | interpreter with `apps/benchmark-runner/energy/requirements.txt` installed; `requirements-manafa.txt` too for `energy.source: manafa` |
 | `--energy-accept-unresponsive` | off | run energy cases on unresponsive rails, see [energy.md](energy.md#pre-flight) |
 | `--reconnect-wait-minutes M`, `--reconnect-poll-seconds S` | 60, 10 (`lib/cryptobench/cryptobench/stages/measurement/session/reconnect.py`) | `--device`: how long a lost adb transport is waited for before the run stops, and how often `adb get-state` is asked meanwhile ([device-session.md](device-session.md#lost-device)); without `--device` or negative fails |
-| `--stacktrace` | off | print the tool's full output on failure |
-| `--stream` | off | show each tool's progress |
+| `--stacktrace`, `--stream` | off | print the tool's full output on failure; show each tool's progress |
 | `--harness HARNESS_YAML` | off | with `--device`: generate, compile, install and interop-check perf-repair's scopes, original against patched, instead of the plan's cases; nothing is timed, see [scoped.md](../apps/benchmark/modules/android/docs/scoped.md) |
 | `--interop PLAN_YAML` | off | with `--bench` or `--device`: discover, then check perf-repair's `interop_plan.yaml` pairs instead of measuring, see [interop.md](../apps/benchmark/modules/preparation/docs/interop.md) |
 
