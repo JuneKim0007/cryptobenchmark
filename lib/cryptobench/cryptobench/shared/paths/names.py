@@ -24,6 +24,9 @@ SCOPED_PLAN_NAME, SCOPED_INTEROP, SCOPED_PLAN_FAILED = "scoped-plan.yaml", "scop
 RUN_COUNTS_MD = "run-counts.md"
 SUMMARY_MD, THROUGHPUT_CHART, LATENCY_CHART, STABILITY_CHART = "summary.md", "throughput.png", "latency.png", "stability.png"
 CHART_DATA = "chart-data.json"
+# the execution paths a case runs, the last part of its id (preparation's Variant)
+VARIANT_FIXED, VARIANT_NOT_FIXED, VARIANT_SECURE = "fixed", "notFixed", "secure"
+VARIANTS = (VARIANT_FIXED, VARIANT_NOT_FIXED, VARIANT_SECURE)
 
 ROWS, MEASUREMENTS, RUN_LOG, SITES, PRIMITIVES = "rows.json", "measurements.json", "run_log.json", "sites.json", "primitives.tsv"
 USED, USED_CONFIG, USED_TEST_SET = "used.json", "used-global.yaml", "used-testset.yaml"
@@ -58,4 +61,5 @@ CONTRACT_PARTS = {
     GLOBAL: "FileNames.GLOBAL", CONFIG_FOLDER: "Folders.CONFIG", CONFIGURATION: "Folders.CONFIGURATION", PREPARATION: "Folders.PREPARATION",
     PLAN_DIRECTORY: "Folders.DEVICE_PLAN", SCOPE_KEYS: "Folders.SCOPE_KEYS",
     CAPTURE_PREFIX: "StampedName.PROBE", TRIAL_PREFIX: "StampedName.TRIAL", REQUIREMENTS_PREFIX: "StampedName.REQUIREMENTS",
+    VARIANT_FIXED: "VariantLabels.FIXED", VARIANT_NOT_FIXED: "VariantLabels.NOT_FIXED", VARIANT_SECURE: "VariantLabels.SECURE",
 }

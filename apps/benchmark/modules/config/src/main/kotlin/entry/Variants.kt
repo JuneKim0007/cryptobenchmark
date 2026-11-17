@@ -1,11 +1,13 @@
 package io.github.junekim0007.cryptobench.config.entry
 
+import io.github.junekim0007.cryptobench.files.VariantLabels
+
 /** The execution paths a run or an entry asks for: the names, the default, the fallback of an invalid value, and which entries run them. */
 object Variants {
 
-    const val FIXED = "fixed"
-    const val NOT_FIXED = "notFixed"
-    const val SECURE = "secure"
+    const val FIXED = VariantLabels.FIXED
+    const val NOT_FIXED = VariantLabels.NOT_FIXED
+    const val SECURE = VariantLabels.SECURE
     val NAMES = listOf(FIXED, NOT_FIXED, SECURE)
     val FALLBACK = listOf(FIXED)
 

@@ -27,6 +27,7 @@ Exit: what `failure.py` returns for the code; argparse refusals exit 2 before an
 | `energy_unreadable` | `warn` | `warn`, `stop` | 1 | check the energy.json files the manifest lists |
 | `thermal_throttled_at_end` | `warn` | `warn`, `stop` | 1 | the case ended throttled; let the phone cool, or read its numbers with care |
 | `no_required_metric` | `skip` | `skip`, `stop` | 1 | the case has no required metric runs; check the benchmark transcript |
+| `variant_unrepaired` | `skip` | `skip`, `stop` | 1 | the case measures a path no call site pattern maps to; its numbers stay in benchmark.json, perf-repair leaves it out |
 | `invariant_undecided` | `warn` | `warn`, `stop` | 1 | the source does not decide a rule; run python3 -m perfrepair.validation.invariants on the device folder and check each undecided finding by hand |
 | `run_metrics_overridden` | `warn` | fixed: a notice; nothing to choose | 1 | remove run.metrics from the run config; apps.perfMode decides what is measured |
 | `missing_dependency` | `stop` | fixed: the input is unusable | 1 | pip install -r requirements.txt |

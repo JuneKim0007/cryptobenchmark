@@ -66,6 +66,14 @@ codes:
       exit: 1
       next: "the case has no required metric runs; check the benchmark transcript"
       why: ""
+  variant_unrepaired:
+    kind: error
+    default: skip
+    stops:
+      settable: [skip, stop]
+      exit: 1
+      next: "the case measures a path no call site pattern maps to; its numbers stay in benchmark.json, perf-repair leaves it out"
+      why: ""
   invariant_undecided:
     kind: error
     default: warn

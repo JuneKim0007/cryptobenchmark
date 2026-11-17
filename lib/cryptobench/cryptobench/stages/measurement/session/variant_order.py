@@ -2,7 +2,7 @@
 run.orderSeed shuffles the items per process."""
 import random
 
-VARIANTS = ("fixed", "notFixed", "secure")   # preparation's Variant labels, the last part of a case id
+from cryptobench.shared.paths import VARIANTS
 
 
 def item(case):

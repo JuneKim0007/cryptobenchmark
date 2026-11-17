@@ -162,6 +162,30 @@ def test_stops_no_required_metric_stop_refuses_before_writing(tmp_path):
     assert code == 1 and not (device / "rows.json").exists()
 
 
+def _with_secure(tmp_path, settings=""):
+    device = with_results(tmp_path / "d")
+    path = device / "benchmark" / "benchmark.json"
+    doc = json.loads(path.read_text())
+    doc["cases"][0]["variant"] = "secure"
+    path.write_text(json.dumps(doc))
+    (tmp_path / "perfrepair.yaml").write_text(settings)
+    return device, main(["--device-results", str(device), "--perfrepair-config", str(tmp_path / "perfrepair.yaml")])
+
+
+def test_a_secure_row_is_left_out_as_variant_unrepaired_and_named(tmp_path):
+    device, code = _with_secure(tmp_path)
+    log = json.loads((device / "run_log.json").read_text())["entries"]
+    assert code == 0 and [e["rowIds"] for e in log if (e["reason"] or "").startswith("variant_unrepaired:")] == [["g_fast"]]
+    assert all(r["rowId"] != "g_fast" for r in json.loads((device / "rows.json").read_text())["rows"])
+    assert "g_fast" not in json.loads((device / "measurements.json").read_text())["measurements"]
+    assert "variant_unrepaired" in (device / "log" / "status.log").read_text()
+
+
+def test_stops_variant_unrepaired_stop_refuses_before_writing(tmp_path):
+    device, code = _with_secure(tmp_path, "stops: {variant_unrepaired: stop}\n")
+    assert code == 1 and not (device / "rows.json").exists()
+
+
 def test_case_id_is_split_out_of_a_reason():
     assert split_case_id("Cipher_X_k192_p81667fe4: dry_run_failed: Bad: 24 bytes") == (
         "Cipher_X_k192_p81667fe4", "dry_run_failed: Bad: 24 bytes")

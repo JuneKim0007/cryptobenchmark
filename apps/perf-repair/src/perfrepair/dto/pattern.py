@@ -1,7 +1,7 @@
 """The two divergence categories: a scope's pattern, the benchmark variant that measures it, and each rule's words."""
 from __future__ import annotations
 
-FIXED, NOT_FIXED = "fixed", "notFixed"
+from cryptobench.shared.paths import VARIANT_FIXED as FIXED, VARIANT_NOT_FIXED as NOT_FIXED
 PATTERNS = (FIXED, NOT_FIXED)
 VARIANTS = PATTERNS
 CREATED_PER_CALL, HELD_IN_FIELD, UNKNOWN_DEFAULT = "created_per_call", "held_in_field", "unknown_default"
