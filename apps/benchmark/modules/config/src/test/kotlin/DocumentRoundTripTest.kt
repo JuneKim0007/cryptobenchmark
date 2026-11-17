@@ -38,6 +38,16 @@ class DocumentRoundTripTest {
         assertTrue(text, !text.contains("&id") && !text.contains("*id"))
     }
 
+    /** An effective.yaml written before entries carried from: is refused by its version, never read without it. */
+    @Test
+    fun anOlderEffectiveFileIsRefusedByItsVersion() {
+        val written = files.at(File(directory, "effective.yaml"), EffectiveDocument).write(effective)
+        assertTrue(written.readText().startsWith("schemaVersion: 2\n"))
+        written.writeText(written.readText().replaceFirst("schemaVersion: 2", "schemaVersion: 1"))
+        val refused = assertThrows(IllegalArgumentException::class.java) { files.at(written, EffectiveDocument).read() }.message!!
+        assertEquals("unsupported_schema_version: effective.yaml: 1, this build reads 2", refused)
+    }
+
     @Test
     fun theFileLayerStampsAndChecksTheVersion() {
         val written = files.at(File(directory, "inventory.yaml"), InventoryDocument).write(inventory)

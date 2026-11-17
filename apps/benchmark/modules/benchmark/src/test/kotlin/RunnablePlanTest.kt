@@ -35,7 +35,7 @@ class RunnablePlanTest {
 
     private fun effective(onFailure: String = "skip", extra: String = "") = File(folder.root, "effective.yaml").apply {
         writeText("""
-schemaVersion: 1
+schemaVersion: 2
 generatedFrom: {global: g, testSet: t, inventory: i, capture: c, trial: t, device: {}}
 run: {inputSizes: [64], phases: [WARM], metrics: [TIME], processRepetitions: 1, seed: 0, variants: [fixed]}
 policy: {onFailure: $onFailure}

@@ -14,7 +14,7 @@ import io.github.junekim0007.cryptobench.document.DocumentFields.optionalStrings
 
 object PrimitiveReader {
 
-    private val ENTRY_KEYS = listOf("keySizes", "inputSizes", "key", "parameters", "operations", "variants", "providerDefaults", "harness")
+    private val ENTRY_KEYS = listOf("keySizes", "inputSizes", "key", "parameters", "operations", "variants", "providerDefaults", "harness", "from")
 
     fun read(inbound: InboundDocument): List<Selection> {
         val selections = inbound.providers.flatMap { (provider, types) ->
@@ -42,6 +42,7 @@ object PrimitiveReader {
             operations = optionalStrings(entry, "operations").mapTo(LinkedHashSet()) { choice<Operation>("operation", it) },
             harness = HarnessSettings.read(sectionOrEmpty(entry, "harness"), "$provider.$type.$key.harness"),
             variants = if ("variants" in entry) optionalStrings(entry, "variants").map(Variant::of) else null,
+            from = sectionOrEmpty(entry, "from"),
         )
     }
 }

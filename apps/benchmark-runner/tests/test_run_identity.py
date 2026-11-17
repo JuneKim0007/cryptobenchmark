@@ -34,3 +34,15 @@ def test_a_nested_change_is_named_by_its_dotted_path():
              "order": {"scheme": "shuffled", "seed": 7}, "suppressErrors": ["UNLOCKED"]}
     assert identity.changed(before, after) == ["device.build.apex.com.android.art", "order", "suppressErrors"]
     assert identity.changed(before, {**before, "device": {"model": "m"}}) == ["device.build"]
+
+
+def test_which_include_picked_an_entry_is_not_part_of_the_selection(tmp_path, monkeypatch):
+    monkeypatch.setattr(identity, "timed_code", lambda: "c")
+    effective = tmp_path / "effective.yaml"
+
+    def selection(entry):
+        effective.write_text(yaml.safe_dump({"run": {}, "providers": {"SUN": {"MessageDigest": {"SHA-256": entry}}}}))
+        return identity.of(effective, discovery(tmp_path), {}, "")["selection"]
+
+    picked = lambda index: {"keySizes": [1], "from": {"testSet": "tier1.yaml", "includes": [{"index": index, "name": "SHA-256"}]}}
+    assert selection(picked(0)) == selection(picked(3)) == selection({"keySizes": [1]}) != selection({"keySizes": [2]})

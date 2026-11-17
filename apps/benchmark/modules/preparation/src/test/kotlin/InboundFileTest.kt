@@ -16,7 +16,7 @@ class InboundFileTest {
     @Test
     fun aBadFileIsRefusedByName() {
         assertEquals("missing_field: policy", rejection(EffectiveFixture.TEXT.replace("policy: {onFailure: skip}\n", "")))
-        assertEquals("unsupported_config_schema: effective.yaml: 2, this build reads 1", rejection(EffectiveFixture.TEXT.replace("schemaVersion: 1", "schemaVersion: 2")))
+        assertEquals("unsupported_config_schema: effective.yaml: 1, this build reads 2", rejection(EffectiveFixture.TEXT.replace("schemaVersion: 2", "schemaVersion: 1")))
         assertTrue(rejection(EffectiveFixture.TEXT.replace("  seed: 0\n", "  seed: 0\n  seed: 1\n")).contains("duplicate key"))
         assertTrue(rejection("\tbroken: [\n").startsWith("unreadable_yaml: effective.yaml:"))
         assertTrue(rejection(EffectiveFixture.TEXT.replace("policy: {", "polcy: {}\npolicy: {")).startsWith("unknown_keys: effective.yaml [polcy],"))

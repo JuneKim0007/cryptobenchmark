@@ -7,7 +7,7 @@ import java.io.File
 
 object InboundFile {
 
-    const val SUPPORTED_SCHEMA_VERSION = 1
+    const val SUPPORTED_SCHEMA_VERSION = 2
 
     private const val SCHEMA_NAME = "config"
 

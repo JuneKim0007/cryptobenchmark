@@ -18,7 +18,7 @@ object EffectiveFixture {
         variants = listOf(Variant.FIXED),
     )
 
-    const val TEXT = """schemaVersion: 1
+    const val TEXT = """schemaVersion: 2
 generatedFrom:
   global: global.yaml
   testSet: testsets/scope.yaml

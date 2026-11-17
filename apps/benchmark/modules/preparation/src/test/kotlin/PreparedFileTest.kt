@@ -5,6 +5,7 @@ import io.github.junekim0007.cryptobench.preparation.record.PreparedFile
 import io.github.junekim0007.cryptobench.document.YamlCodec
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -70,6 +71,34 @@ class PreparedFileTest {
         val digest = { document: Map<String, Any> -> cases(document).single { it["algorithm"] == "SHA-256" && it["variant"] == "fixed" } }
         assertNotEquals(digest(prepare())["fingerprint"], digest(prepare(fewer))["fingerprint"])
         assertEquals(mapOf("iterations" to 5), digest(prepare(fewer))["harness"])
+    }
+
+    /** from: is where the entry came from, not what was prepared: it rides beside the case, outside its id and fingerprint. */
+    @Test
+    fun fromIsCarriedOutsideTheIdAndFingerprint() {
+        val text = File(example, "preparation_effective_example.yaml").readText()
+        val moved = text.replace("- {index: 2, type: Cipher, name: AES/GCM/NoPadding}", "- {index: 5, type: Cipher, name: AES/*}")
+        val bare = text.replace(Regex("        from:\n(          .*\n)+"), "")
+        val gcm = { document: Map<String, Any> -> cases(document).filter { it["algorithm"] == "AES/GCM/NoPadding" } }
+        val written = gcm(prepare())
+        assertTrue(written.isNotEmpty())
+        assertEquals(mapOf("testSet" to "config_testset_example.yaml", "includes" to listOf(mapOf("index" to 2, "type" to "Cipher", "name" to "AES/GCM/NoPadding"))),
+            written.first()["from"])
+        for (other in listOf(gcm(prepare(moved)), gcm(prepare(bare)))) {
+            assertEquals(written.map { it["id"] }, other.map { it["id"] })
+            assertEquals(written.map { it["fingerprint"] }, other.map { it["fingerprint"] })
+        }
+        assertTrue(gcm(prepare(bare)).none { "from" in it })
+    }
+
+    /** A prepared.yaml from an older build is refused by its version before a case entry is edited. */
+    @Test
+    fun anOlderPreparedFileIsRefusedByItsVersion() {
+        val directory = output.newFolder()
+        val record = PreparedFile(directory)
+        record.file.writeText("schemaVersion: 2\ncases: []\n")
+        val refused = assertThrows(IllegalArgumentException::class.java) { record.failed("x") }.message
+        assertEquals("unsupported_prepared_schema: prepared.yaml: 2, this build reads 3", refused)
     }
 
     /** The run id travels from the effective file, so a prepared file can be matched to the capture it came from. */

@@ -11,4 +11,5 @@ data class EffectiveEntry(
     val variants: List<String> = emptyList(),
     val providerDefaults: List<String> = emptyList(),
     val harness: HarnessSettings = HarnessSettings(),
+    val from: EntryOrigin? = null,
 )

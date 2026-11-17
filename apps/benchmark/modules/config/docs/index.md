@@ -28,6 +28,7 @@ apps/benchmark/modules/config/src/main/kotlin/effective/WarmupJobs.kt : run.warm
 apps/benchmark/modules/config/src/main/kotlin/effective/dto/EffectiveConfig.kt : effective model; rejects an empty selection; run id from the capture name
 apps/benchmark/modules/config/src/main/kotlin/effective/dto/EffectiveEntry.kt : one selected primitive's settings
 apps/benchmark/modules/config/src/main/kotlin/effective/dto/EffectiveSource.kt : generatedFrom of effective.yaml
+apps/benchmark/modules/config/src/main/kotlin/effective/dto/EntryOrigin.kt : the test-set file and includes that selected an effective entry
 apps/benchmark/modules/config/src/main/kotlin/effective/dto/Report.kt : run id, warnings and skips of one effective build
 apps/benchmark/modules/config/src/main/kotlin/effective/dto/Skip.kt : skip record {stage, provider?, type?, name?, reason}
 apps/benchmark/modules/config/src/main/kotlin/entry/EnginePaths.kt : setup-catalog.yaml's rows as config reads them: the paths a type applies, the generator types

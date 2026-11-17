@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 generatedFrom: {effective: effective.yaml}
 run:
   seed: 42

@@ -11,6 +11,7 @@ SCHEMA = 2
 # a new probe restamps runId and generatedFrom; analysis only shows results
 UNSTAMPED = ("runId", "generatedFrom", "analysis")
 DETAILED = ("run", "device")
+ORIGIN = "from"
 
 
 def timed_code(repo=None):
@@ -24,8 +25,16 @@ def of(effective, capture, order, suppress_errors):
     suppressErrors: --suppress-errors as a set."""
     document = read_yaml(effective)
     rest = {key: value for key, value in document.items() if key not in (*UNSTAMPED, "run")}
+    if isinstance(rest.get("providers"), dict):
+        rest["providers"] = without_origin(rest["providers"])
     return {"schema": SCHEMA, "run": document.get("run") or {}, "selection": digest(rest), "code": timed_code(), "device": device(capture),
             "order": order, "suppressErrors": sorted({name.strip() for name in suppress_errors.split(",") if name.strip()})}
+
+
+def without_origin(providers):
+    """An entry's from: says which include picked it, not what is measured; reordering a suite's includes is the same run."""
+    return {provider: {kind: {key: {field: value for field, value in entry.items() if field != ORIGIN} if isinstance(entry, dict) else entry
+                              for key, entry in entries.items()} for kind, entries in types.items()} for provider, types in providers.items()}
 
 
 def device(capture):

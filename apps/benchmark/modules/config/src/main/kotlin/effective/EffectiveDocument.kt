@@ -10,6 +10,8 @@ import io.github.junekim0007.cryptobench.config.entry.EntryKeys.VARIANTS
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveConfig
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveEntry
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveSource
+import io.github.junekim0007.cryptobench.config.effective.dto.EntryOrigin
+import io.github.junekim0007.cryptobench.config.testset.RuleDocument
 import io.github.junekim0007.cryptobench.config.global.AnalysisDocument
 import io.github.junekim0007.cryptobench.config.global.PolicyDocument
 import io.github.junekim0007.cryptobench.config.global.ProvidersDocument
@@ -17,6 +19,7 @@ import io.github.junekim0007.cryptobench.config.inventory.InventorySourceDocumen
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
 import io.github.junekim0007.cryptobench.config.global.RunDocument
 import io.github.junekim0007.cryptobench.config.global.dto.AnalysisSettings
+import io.github.junekim0007.cryptobench.document.DocumentFields.number
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalNumbers
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSection
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSections
@@ -28,7 +31,7 @@ import io.github.junekim0007.cryptobench.config.yaml.ProviderTree
 
 object EffectiveDocument : DocumentHandler<EffectiveConfig> {
 
-    override val schemaVersion: Int = 1
+    override val schemaVersion: Int = 2
 
     private const val GENERATED_FROM = "generatedFrom"
     private const val RUN = "run"
@@ -41,6 +44,9 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
     private const val BUNDLED_PROVIDERS = "bundledProviders"
 
     private const val PROVIDER_DEFAULTS = "providerDefaults"
+    private const val FROM = "from"
+    private const val INCLUDES = "includes"
+    private const val INDEX = "index"
 
     private const val GLOBAL = "global"
     private const val TEST_SET = "testSet"
@@ -89,7 +95,18 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
         if (entry.variants.isNotEmpty()) put(VARIANTS, entry.variants)
         if (entry.providerDefaults.isNotEmpty()) put(PROVIDER_DEFAULTS, entry.providerDefaults)
         if (!entry.harness.isEmpty) put(HARNESS, HarnessSettings.write(entry.harness))
+        entry.from?.let { from -> put(FROM, LinkedHashMap<String, Any>().apply {
+            put(TEST_SET, from.testSet)
+            if (from.includes.isNotEmpty()) put(INCLUDES, from.includes.map { (index, rule) -> linkedMapOf<String, Any>(INDEX to index) + RuleDocument.of(rule) })
+        }) }
     }
+
+    private fun originOf(document: Map<String, Any>): EntryOrigin = EntryOrigin(
+        testSet = string(document, TEST_SET),
+        includes = optionalSections(document, INCLUDES).withIndex().associate { (at, include) ->
+            number(include, INDEX).toInt() to RuleDocument.parse(include, "$FROM.$INCLUDES[$at]", listOf(INDEX))
+        },
+    )
 
     private fun entryOf(document: Map<String, Any>): EffectiveEntry = EffectiveEntry(
         keySizes = optionalNumbers(document, KEY_SIZES),
@@ -100,5 +117,6 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
         operations = optionalStrings(document, OPERATIONS),
         variants = optionalStrings(document, VARIANTS),
         harness = optionalSection(document, HARNESS)?.let { HarnessSettings.read(it, HARNESS) } ?: HarnessSettings(),
+        from = optionalSection(document, FROM)?.let(::originOf),
     )
 }

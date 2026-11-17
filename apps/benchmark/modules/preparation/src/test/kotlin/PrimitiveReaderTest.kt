@@ -45,7 +45,7 @@ class PrimitiveReaderTest {
     @Test
     fun anUnknownEntryKeyIsRefused() {
         val broken = InboundFile.read("effective.yaml", EffectiveFixture.TEXT.replace("        keySizes: [3072]", "        keysizes: [3072]"))
-        assertEquals("unknown_keys: SunJCE.Cipher.RSA [keysizes], known [keySizes, inputSizes, key, parameters, operations, variants, providerDefaults, harness]",
+        assertEquals("unknown_keys: SunJCE.Cipher.RSA [keysizes], known [keySizes, inputSizes, key, parameters, operations, variants, providerDefaults, harness, from]",
             assertThrows(IllegalArgumentException::class.java) { PrimitiveReader.read(broken) }.message)
     }
 

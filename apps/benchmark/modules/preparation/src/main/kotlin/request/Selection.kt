@@ -21,6 +21,8 @@ data class Selection(
     val variants: List<Variant>? = null,
     // the guide's keystore authorizations; empty: the provider keeps no key inside
     val keystore: Map<String, Any> = emptyMap(),
+    // effective.yaml's from: as written, carried to prepared.yaml
+    val from: Map<String, Any> = emptyMap(),
 ) {
 
     init {

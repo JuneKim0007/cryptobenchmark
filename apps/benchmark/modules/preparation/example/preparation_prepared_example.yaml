@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 generatedFrom: {effective: preparation_effective_example.yaml}
 run: {seed: 42, processRepetitions: 1}
 cases:
@@ -55,6 +55,10 @@ cases:
   fingerprint: 2747403b
   perCall: initAndOperation
   resolvedParameters: {mode: GCM, padding: NoPadding, ivBytes: 12, tagBits: 128, keyBits: 128}
+  from:
+    testSet: config_testset_example.yaml
+    includes:
+    - {index: 2, type: Cipher, name: AES/GCM/NoPadding}
 - id: Cipher_AES-GCM-NoPadding_ENCRYPT_SunJCE_k128_i1024_WARM_p81667fe4_notFixed
   type: Cipher
   algorithm: AES/GCM/NoPadding
@@ -76,6 +80,10 @@ cases:
   fingerprint: e0fec794
   perCall: getInstanceInitAndOperation
   resolvedParameters: {mode: GCM, padding: NoPadding, ivBytes: 12, tagBits: 128, keyBits: 128}
+  from:
+    testSet: config_testset_example.yaml
+    includes:
+    - {index: 2, type: Cipher, name: AES/GCM/NoPadding}
 - id: Cipher_AES-GCM-NoPadding_ENCRYPT_SunJCE_k256_i1024_WARM_p81667fe4_fixed
   type: Cipher
   algorithm: AES/GCM/NoPadding
@@ -97,6 +105,10 @@ cases:
   fingerprint: 9044d92a
   perCall: initAndOperation
   resolvedParameters: {mode: GCM, padding: NoPadding, ivBytes: 12, tagBits: 128, keyBits: 256}
+  from:
+    testSet: config_testset_example.yaml
+    includes:
+    - {index: 2, type: Cipher, name: AES/GCM/NoPadding}
 - id: Cipher_AES-GCM-NoPadding_ENCRYPT_SunJCE_k256_i1024_WARM_p81667fe4_notFixed
   type: Cipher
   algorithm: AES/GCM/NoPadding
@@ -118,6 +130,10 @@ cases:
   fingerprint: 24c4fef8
   perCall: getInstanceInitAndOperation
   resolvedParameters: {mode: GCM, padding: NoPadding, ivBytes: 12, tagBits: 128, keyBits: 256}
+  from:
+    testSet: config_testset_example.yaml
+    includes:
+    - {index: 2, type: Cipher, name: AES/GCM/NoPadding}
 - id: Cipher_AES-GCM-NoPadding_DECRYPT_SunJCE_k128_i1024_WARM_p81667fe4_fixed
   type: Cipher
   algorithm: AES/GCM/NoPadding
@@ -139,6 +155,10 @@ cases:
   fingerprint: 06b8ad56
   perCall: initAndOperation
   resolvedParameters: {mode: GCM, padding: NoPadding, ivBytes: 12, tagBits: 128, keyBits: 128}
+  from:
+    testSet: config_testset_example.yaml
+    includes:
+    - {index: 2, type: Cipher, name: AES/GCM/NoPadding}
 - id: Cipher_AES-GCM-NoPadding_DECRYPT_SunJCE_k128_i1024_WARM_p81667fe4_notFixed
   type: Cipher
   algorithm: AES/GCM/NoPadding
@@ -160,6 +180,10 @@ cases:
   fingerprint: '04853e65'
   perCall: getInstanceInitAndOperation
   resolvedParameters: {mode: GCM, padding: NoPadding, ivBytes: 12, tagBits: 128, keyBits: 128}
+  from:
+    testSet: config_testset_example.yaml
+    includes:
+    - {index: 2, type: Cipher, name: AES/GCM/NoPadding}
 - id: Cipher_AES-GCM-NoPadding_DECRYPT_SunJCE_k256_i1024_WARM_p81667fe4_fixed
   type: Cipher
   algorithm: AES/GCM/NoPadding
@@ -181,6 +205,10 @@ cases:
   fingerprint: 5cdde99f
   perCall: initAndOperation
   resolvedParameters: {mode: GCM, padding: NoPadding, ivBytes: 12, tagBits: 128, keyBits: 256}
+  from:
+    testSet: config_testset_example.yaml
+    includes:
+    - {index: 2, type: Cipher, name: AES/GCM/NoPadding}
 - id: Cipher_AES-GCM-NoPadding_DECRYPT_SunJCE_k256_i1024_WARM_p81667fe4_notFixed
   type: Cipher
   algorithm: AES/GCM/NoPadding
@@ -202,6 +230,10 @@ cases:
   fingerprint: 62ef0f12
   perCall: getInstanceInitAndOperation
   resolvedParameters: {mode: GCM, padding: NoPadding, ivBytes: 12, tagBits: 128, keyBits: 256}
+  from:
+    testSet: config_testset_example.yaml
+    includes:
+    - {index: 2, type: Cipher, name: AES/GCM/NoPadding}
 - id: Mac_HmacSHA256_COMPUTE-MAC_SunJCE_i1024_WARM_fixed
   type: Mac
   algorithm: HmacSHA256

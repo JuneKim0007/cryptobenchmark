@@ -12,7 +12,7 @@ import io.github.junekim0007.cryptobench.document.YamlCodec
 
 internal object PreparedDocument {
 
-    const val SCHEMA_VERSION = 2
+    const val SCHEMA_VERSION = 3
     const val RESOLVED_PARAMETERS = "resolvedParameters"
 
     // A listed case stands for itself until its process replaces it with the prepared entry or removes it.
@@ -23,7 +23,7 @@ internal object PreparedDocument {
             "seed" to listing.global.seed,
             "processRepetitions" to listing.global.processRepetitions,
         ).apply { harnessOf(listing.global.harness)?.let { put("harness", it) } },
-        "cases" to cases.map(::listed),
+        "cases" to cases.map { listed(it) + from(it) },
     )
 
     fun listed(case: BenchmarkCase): Map<String, Any> = LinkedHashMap<String, Any>().apply {
@@ -47,8 +47,12 @@ internal object PreparedDocument {
             put("fingerprint", Fingerprint.of(YamlCodec.DOCUMENT.dump(described)))
             prepared.perCall?.let { put("perCall", it.label) }
             put(RESOLVED_PARAMETERS, LinkedHashMap(prepared.resolvedParameters))
+            putAll(from(prepared.case))
         }
     }
+
+    // outside the fingerprint: where the entry came from is not what was prepared
+    private fun from(case: BenchmarkCase): Map<String, Any> = if (case.from.isEmpty()) emptyMap() else mapOf("from" to LinkedHashMap(case.from))
 
     // The listed fields with the chart group before the sizes, then what preparation made: the fingerprint's input, in today's order.
     private fun described(prepared: PreparedCase): Map<String, Any> {

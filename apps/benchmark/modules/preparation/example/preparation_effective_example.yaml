@@ -1,4 +1,4 @@
-schemaVersion: 1
+schemaVersion: 2
 generatedFrom:
   global: config_global_example.yaml
   testSet: config_testset_example.yaml
@@ -27,6 +27,10 @@ providers:
         parameters:
           class: javax.crypto.spec.GCMParameterSpec
           arguments: [128, fresh(12)]
+        from:
+          testSet: config_testset_example.yaml
+          includes:
+          - {index: 2, type: Cipher, name: AES/GCM/NoPadding}
     Mac:
       HmacSHA256: {}
 warnings: []

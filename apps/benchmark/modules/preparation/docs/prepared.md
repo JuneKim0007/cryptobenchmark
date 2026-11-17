@@ -31,7 +31,7 @@ What a run's preparation leaves: `skipped.yaml` and `prepared.yaml`, written by 
 
 ## prepared.yaml
 
-`schemaVersion: 2`; written from the listing with each runnable case's listed fields, then each case's entry replaced by its prepared one, or removed when it could not be prepared. A process given cases by name edits only those entries; an entry still in its listed form is a case whose process ended before preparing it. Nothing reads it back to rebuild a case; the benchmark reads it to join Jetpack results by case id.
+`schemaVersion: 3`; written from the listing with each runnable case's listed fields, then each case's entry replaced by its prepared one, or removed when it could not be prepared. A process given cases by name edits only those entries; an entry still in its listed form is a case whose process ended before preparing it. Nothing reads it back to rebuild a case; the benchmark reads it to join Jetpack results by case id.
 
 | key | holds |
 |---|---|
@@ -54,9 +54,10 @@ What a run's preparation leaves: `skipped.yaml` and `prepared.yaml`, written by 
 | `keyParameters`, `parameters` | spec trees that reached the generator and the call; when set |
 | `specPerIteration` | `true` when the bound parameters vary |
 | `input` | `kind` (`none`, `message`, `ciphertext`, `signedMessage`) and `bytes`; ciphertext adds `plaintextBytes` and `spec` (`carried`, `provider`, `none`) |
-| `fingerprint` | first 8 hex of SHA-256 over the YAML dump of the case block without `fingerprint`, `perCall` and `resolvedParameters` |
+| `fingerprint` | first 8 hex of SHA-256 over the YAML dump of the case block without `fingerprint`, `perCall`, `resolvedParameters` and `from` |
 | `perCall` | what one timed call does: `operation`, `initAndOperation` or `getInstanceInitAndOperation` ([operations.md](operations.md#variants)) |
 | `resolvedParameters` | what the provider used, read back after the case's one call; always present, `{}` when nothing applies |
+| `from` | the entry's `from` in effective.yaml as written, on listed and prepared entries; absent when the entry has none; outside `id` and `fingerprint` |
 
 ## resolvedParameters
 

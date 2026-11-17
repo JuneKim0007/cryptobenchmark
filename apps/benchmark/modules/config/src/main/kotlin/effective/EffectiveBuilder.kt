@@ -3,6 +3,7 @@ package io.github.junekim0007.cryptobench.config.effective
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveConfig
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveEntry
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveSource
+import io.github.junekim0007.cryptobench.config.effective.dto.EntryOrigin
 import io.github.junekim0007.cryptobench.config.effective.dto.Skip
 import io.github.junekim0007.cryptobench.config.entry.EnginePaths
 import io.github.junekim0007.cryptobench.config.entry.KeySource
@@ -30,7 +31,7 @@ class EffectiveBuilder {
         val groups = selected.associateWith { located -> runnableGroups(testSet, located, resolver, global.run.variants) }.filterValues { it.isNotEmpty() }
         val skipped = configSkips(testSet, all, selected, groups)
         stopOnSkips(global.policy, skipped)
-        val entries = entries(groups, resolver, global.run.variants, runHarness, facts, inventory)
+        val entries = entries(groups, resolver, global.run.variants, runHarness, facts, inventory) { located, group -> origin(testSet, files.testSet, located, group) }
         stopOnSkips(global.policy, skipped + entries.skips)
         val (warmup, warmupWarnings) = WarmupJobs.resolve(global.run.warmup, entries.providers)
         return EffectiveConfig(
@@ -84,7 +85,7 @@ class EffectiveBuilder {
                 .map { "override_matches_nothing: ${it.match}" }
 
     private fun entries(groups: Map<Inventory.Located, List<String?>>, resolver: OverrideResolver, runVariants: List<String>, runHarness: HarnessSettings,
-                        facts: Facts, inventory: Inventory): Entries {
+                        facts: Facts, inventory: Inventory, origin: (Inventory.Located, String?) -> EntryOrigin): Entries {
         val entries = Entries()
         for ((located, names) in groups) {
             for (group in names) {
@@ -111,7 +112,8 @@ class EffectiveBuilder {
                 }
                 entries.warnings += unsupported.map { fallback(it, path, runHarness) }
                 entries.providers.getOrPut(located.provider) { LinkedHashMap() }
-                    .getOrPut(located.type) { LinkedHashMap() }[key] = entry.copy(variants = variants, key = KeySource.spelled(entry.key, inventory), harness = HARNESS.honoured(entry.harness, unsupported, facts, path))
+                    .getOrPut(located.type) { LinkedHashMap() }[key] = entry.copy(variants = variants, key = KeySource.spelled(entry.key, inventory), harness = HARNESS.honoured(entry.harness, unsupported, facts, path),
+                        from = origin(located, group))
             }
         }
         return entries
@@ -140,6 +142,10 @@ class EffectiveBuilder {
         }
         return testSet.include.map { it.rule }.filter { it.matches(located) }.map { it.group }.distinct()
     }
+
+    // selection is a union: every include that gives this entry its group selected it; none wins
+    private fun origin(testSet: TestSet, file: String, located: Inventory.Located, group: String?): EntryOrigin = EntryOrigin(file,
+        testSet.include.withIndex().filter { (_, include) -> include.rule.matches(located) && include.rule.group == group }.associate { (index, include) -> index to include.rule })
 
     private fun entryKey(name: String, group: String?): String = if (group == null) name else "$name@$group"
 

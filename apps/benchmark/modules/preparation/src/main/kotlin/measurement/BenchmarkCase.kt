@@ -20,6 +20,7 @@ data class BenchmarkCase(
     val harness: HarnessSettings = HarnessSettings(),
     val variant: Variant = Variant.FIXED,
     val keystore: Map<String, Any> = emptyMap(),
+    val from: Map<String, Any> = emptyMap(),
 ) {
 
     init {

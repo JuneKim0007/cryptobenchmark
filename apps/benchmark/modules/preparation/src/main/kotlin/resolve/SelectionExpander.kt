@@ -35,6 +35,7 @@ internal object SelectionExpander {
                             parameters = selection.parameters,
                             variant = variant,
                             keystore = if (variant == Variant.SECURE) selection.keystore else emptyMap(),
+                            from = selection.from,
                         )
                     }
                 }

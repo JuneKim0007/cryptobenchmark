@@ -12,7 +12,7 @@ class EffectiveKeysAgreeTest {
     @Test
     fun everyKeyConfigWritesIsOnePreparationKnows() {
         val codec = YamlCodec.DOCUMENT
-        val written = codec.dump(linkedMapOf<String, Any>("schemaVersion" to 1) + EffectiveDocument.of(EffectiveDocument.parse(codec.load(EVERY_KEY))))
+        val written = codec.dump(linkedMapOf<String, Any>("schemaVersion" to EffectiveDocument.schemaVersion) + EffectiveDocument.of(EffectiveDocument.parse(codec.load(EVERY_KEY))))
         val inbound = InboundFile.read("effective.yaml", written)
         GlobalReader.read(inbound)
         PrimitiveReader.read(inbound)
@@ -60,12 +60,13 @@ class EffectiveKeysAgreeTest {
                     variants: [fixed]
                     providerDefaults: [keySize]
                     harness: {iterations: 2}
+                    from: {testSet: t.yaml, includes: [{index: 0, type: Cipher, name: AES/GCM/NoPadding}]}
         """.trimIndent()
 
         // What config writes; warnings and skipped go to report.yaml.
         val TOP = setOf("schemaVersion", "generatedFrom", "runId", "run", "policy", "analysis", "bundledProviders", "providers")
         val RUN = setOf("inputSizes", "phases", "metrics", "variants", "processRepetitions", "isolation", "seed",
             "thermalThrottleSleepSeconds", "caseCooldownSeconds", "warmup", "thermalGate", "launchRetries", "resumeBlockRuns", "orderSeed", "passes", "harness")
-        val ENTRY = setOf("keySizes", "inputSizes", "key", "parameters", "operations", "variants", "providerDefaults", "harness")
+        val ENTRY = setOf("keySizes", "inputSizes", "key", "parameters", "operations", "variants", "providerDefaults", "harness", "from")
     }
 }

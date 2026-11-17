@@ -33,7 +33,7 @@ internal class PreparationFixture {
 
     fun effective(onFailure: String) = File(directory, "effective.yaml").apply {
         writeText("""
-schemaVersion: 1
+schemaVersion: 2
 generatedFrom: {global: g, testSet: t, inventory: i, capture: c, trial: t, device: {}}
 run: {inputSizes: [64, 1024], phases: [WARM], metrics: [TIME], processRepetitions: 3, seed: 0, variants: [fixed, notFixed, secure]}
 policy: {onFailure: $onFailure}
