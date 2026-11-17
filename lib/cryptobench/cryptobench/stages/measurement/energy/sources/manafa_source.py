@@ -17,6 +17,8 @@ def _last_line(text):
 
 
 class ManafaSource:
+    MODULE = "manafa"
+    REQUIREMENTS = ("requirements.txt", "requirements-manafa.txt")
 
     def __init__(self, host):
         self.host = host

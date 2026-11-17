@@ -5,9 +5,8 @@ import subprocess
 import sys
 
 from cryptobench.shared import paths
+from cryptobench.stages.measurement.energy.sources import SOURCES
 
-# requirements.txt holds the trace reader every source parses windows with
-REQUIREMENTS = {"rails": ("requirements.txt",), "manafa": ("requirements.txt", "requirements-manafa.txt")}
 COMPLETE = ".complete"
 
 
@@ -20,7 +19,7 @@ def cache_root():
 
 
 def files(source_name):
-    return [paths.repo().energy / name for name in REQUIREMENTS[source_name]]
+    return [paths.repo().energy / name for name in SOURCES[source_name].REQUIREMENTS]
 
 
 def venv(source_name):

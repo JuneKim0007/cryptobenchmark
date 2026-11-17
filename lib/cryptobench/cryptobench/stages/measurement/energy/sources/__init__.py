@@ -1,4 +1,5 @@
-"""energy.source names and their adapters; each has preflight, window and joules."""
+"""energy.source names and their adapters; each has preflight, window and joules, the module it imports and its requirements files
+(requirements.txt holds the trace reader every source parses windows with)."""
 from .manafa_source import ManafaSource
 from .rails_source import RailsSource
 

@@ -13,7 +13,6 @@ from failure import fail, reported
 
 BASE = ("yaml", "cryptobench")
 ANALYSIS = "matplotlib"
-ENERGY = {"rails": "perfetto", "manafa": "manafa"}
 ENERGY_CAPTURES = ("measured", "dry")
 
 
@@ -39,11 +38,12 @@ def require(module, python=sys.executable):
 
 def require_energy(source_name, python=sys.executable):
     """The interpreter with the source's packages: the given one, or with the default one the source's own installed venv."""
-    if _found(ENERGY[source_name], python):
+    from cryptobench.stages.measurement.energy import install
+    module = install.SOURCES[source_name].MODULE
+    if _found(module, python):
         return python
     if python != sys.executable:
-        raise CommandError(f"missing_dependency: {ENERGY[source_name]} in --energy-python {python}")
-    from cryptobench.stages.measurement.energy import install
+        raise CommandError(f"missing_dependency: {module} in --energy-python {python}")
     try:
         return install.installed(source_name)
     except install.InstallFailed as error:
