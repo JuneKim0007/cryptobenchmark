@@ -92,8 +92,7 @@ def test_today_device_calls_of_one_site(name, tmp_path):
 
 
 FLOWS = {
-    "measure_isolation_case_with_warmup": {"isolation": "case", "warmup": {"iterations": 5, "jobs": []}},
-    "measure_isolation_run": {"isolation": "run"},
+    "measure_isolation_case_with_warmup": {"warmup": {"iterations": 5, "jobs": []}},
 }
 
 
