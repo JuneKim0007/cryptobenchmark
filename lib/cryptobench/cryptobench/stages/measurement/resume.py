@@ -9,13 +9,13 @@ from cryptobench.stages.measurement.session import blocks, variant_order
 from cryptobench.shared.log.warn import warn
 
 
-def record(effective, capture, suppress_errors):
+def record(effective, capture, options):
     """The run's record (shared/results/run_record.py) with the order its seed chooses."""
     order = variant_order.chosen(effective_view.order_seed(read_yaml(effective)))[1]
-    return run_record.of(effective, capture, order, suppress_errors)
+    return run_record.of(effective, capture, order, options)
 
 
-def kept(effective, capture, target, suppress_errors):
+def kept(effective, capture, target, options):
     """The paths under target a publish leaves in place: per pass the leading blocks whose records verify, their run folders and records, and
     preparation/ beside them."""
     if paths.finished(target):
@@ -23,7 +23,7 @@ def kept(effective, capture, target, suppress_errors):
     found = records(target)
     if not found:
         return ()
-    now = record(effective, capture, suppress_errors)
+    now = record(effective, capture, options)
     earlier = next((record["identity"] for _, _, record in found if isinstance(record, dict) and isinstance(record.get("identity"), dict)), None)
     changed = run_record.changed(earlier, now) if earlier is not None else ["schema"]
     if changed:

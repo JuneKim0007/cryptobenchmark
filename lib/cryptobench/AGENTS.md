@@ -98,7 +98,7 @@ cryptobench/shared/results/layout.py : results/<device_id>/[<suite>/]: unit_fold
 cryptobench/shared/results/lock.py : DeviceLock: `<folder>/.lock` by fcntl.flock (POSIX), the holder's pid; another process is device_busy, the holding one takes it again; a results root (pipeline.py) or a device folder (perf-repair)
 cryptobench/shared/results/manifest.py : results/<device_id>/manifest.yaml: MANIFEST_DOC and MODES, files, counts, runtime, providers, input digests, units, the harness operations, energy mark, problems, the partial mark of a stopped run; files added beside a finished run; write(), the one manifest writer
 cryptobench/shared/results/partial.py : a run that stopped: the partial record (reason, case runs per process folder) its manifest is written with, a failed write one warning
-cryptobench/shared/results/run_record.py : a measuring run's record: its identity with the checkout's commit and clean, held by every block record and the manifest's run:; changed without the checkout
+cryptobench/shared/results/run_record.py : a measuring run's record: its identity, energyAcceptUnresponsive and the checkout's commit and clean, held by every block record and the manifest's run:; RUN_KEYS and FLAGS, the DATA / NOT_DATA table, and the refusal of an unresolved DATA value; changed without the checkout
 cryptobench/shared/results/run_inputs.py : digests of a run's inputs, providers.bundled and global.yaml with its test set (analysis left out), for the manifest and --identify
 cryptobench/shared/results/select.py : the device folder of a results root a reader names, or the only one there
 cryptobench/shared/session/__init__.py : package of a session: session.yaml, its targets against the devices adb lists, order groups

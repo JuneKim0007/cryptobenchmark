@@ -32,6 +32,15 @@ from cryptobench.stages.verification.interop import interop_run
 
 
 def parse_options():
+    options = parser().parse_args()
+    for refused, message in REFUSED:
+        if refused(options):
+            fail(message)
+    return options
+
+
+def parser():
+    """Every flag; shared/results/run_record.py FLAGS classifies each one (tests/test_run_contract.py)."""
     parser = argparse.ArgumentParser(description="run the host pipeline")
     parser.add_argument("--config", help="path to global.yaml")
     parser.add_argument("--results", help="results root; the run writes <results>/<device_id>/ (default: <repo>/results)")
@@ -71,11 +80,7 @@ def parse_options():
     parser.add_argument("--interop", metavar="PLAN_YAML", help="with --bench or --device: check perf-repair's interop_plan.yaml pairs instead of measuring")
     parser.add_argument("--check", action="store_true",
                         help="with --bench or --device: call every planned case once, untimed, in one process, and check its output; writes check/check.yaml")
-    options = parser.parse_args()
-    for refused, message in REFUSED:
-        if refused(options):
-            fail(message)
-    return options
+    return parser
 
 
 REFUSED = (
@@ -183,11 +188,11 @@ def measured(context):
     measuring = not options.probe and bool(options.bench or device)
     with published(context) as root:
         # only a measuring run resumes: a probe over a stopped run moves it aside whole
-        kept = functools.partial(resume.kept, suppress_errors=options.suppress_errors) if measuring else keep_nothing
+        kept = functools.partial(resume.kept, options=options) if measuring else keep_nothing
         results, found = guided(context, root, kept)
         files = found.files
         mode, resumed = "device" if device else "host", resume.note(results) if measuring else []
-        run = resume.record(found.effective, found.capture, options.suppress_errors)
+        run = resume.record(found.effective, found.capture, options)
         if measuring:
             stopped = lambda record, pulled: manifest(results, mode, configuration, files | pulled, context.problems, partial=record, resumed=resumed, run=run)
             with partial.kept(results, stopped):

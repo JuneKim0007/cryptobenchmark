@@ -24,8 +24,8 @@ def steps(phone):
 
 
 # The run section as :config writes it; a test overrides what it is about. Seed 4792 draws the listed order for these fixtures' few cases.
-RUN = {"metrics": ["TIME"], "processRepetitions": 1, "caseCooldownSeconds": 0, "launchRetries": 0, "resumeBlockRuns": 10, "orderSeed": 4792,
-       "warmup": {"iterations": 0, "jobs": [], "cases": 3}}
+RUN = {"inputSizes": [1024], "phases": ["WARM"], "metrics": ["TIME"], "variants": ["fixed", "notFixed", "secure"], "processRepetitions": 1, "seed": 0,
+       "caseCooldownSeconds": 0, "launchRetries": 0, "resumeBlockRuns": 10, "orderSeed": 4792, "warmup": {"iterations": 0, "jobs": [], "cases": 3}}
 
 
 def layout(tmp_path, run):

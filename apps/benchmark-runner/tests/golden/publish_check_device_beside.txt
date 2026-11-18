@@ -34,9 +34,18 @@ inputs:
 run:
   schema: 3
   run:
+    inputSizes:
+    - 1024
+    phases:
+    - WARM
     metrics:
     - TIME
+    variants:
+    - fixed
+    - notFixed
+    - secure
     processRepetitions: 1
+    seed: 0
     caseCooldownSeconds: 0
     launchRetries: 0
     resumeBlockRuns: 10
@@ -55,6 +64,7 @@ run:
     scheme: shuffled
     seed: 4792
   suppressErrors: []
+  energyAcceptUnresponsive: false
   commit: <commit>
   clean: <clean>
 runtime:
