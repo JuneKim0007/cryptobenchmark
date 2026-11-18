@@ -50,7 +50,8 @@ def scoped_interop(device, into):
 
 def check_scopes(options, configuration, device, results, scoped, plan, shipped, discover):
     """The interop check in one process; the files for the manifest. discover is discovery written in place into results."""
-    _discovery, effective, capture, trial, files = discover(options, configuration, device, results, shipped)
+    found = discover(options, configuration, device, results, shipped)
+    effective, capture, trial, files = found.effective, found.capture, found.trial, found.files
     require_harness_device(pathlib.Path(options.harness).resolve(), capture)
     push(device, options, [effective, capture, trial])
     started = time.monotonic()

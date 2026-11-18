@@ -168,7 +168,7 @@ def guided_in(context):
     def discovered(root, stage):
         found = discover_staged(context.options, context.configuration, context.device, root, stage, context.checked["bundled"], context.suite)
         found.files["guide"] = guide.write(found.effective, found.capture)
-        return found.effective, found.capture, found.trial, found.files
+        return found
     return discovered
 
 

@@ -30,7 +30,8 @@ def require_check_run(options, device):
 def check_run(options, configuration, device, root, discovered, located, suite=None):
     """discovered(root, stage) is the route's discovery with guide.yaml beside effective.yaml, located discovery's: both run inside this stage's staging."""
     with results_layout.staged(root) as stage:
-        effective, capture, trial, _ = discovered(root, stage)
+        found = discovered(root, stage)
+        effective, capture, trial = found.effective, found.capture, found.trial
         into = paths.RunTree(stage).check.root
         into.mkdir(parents=True)
         known_answers = answers.write_known_answers(effective, capture, configuration)

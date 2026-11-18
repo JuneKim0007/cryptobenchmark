@@ -5,6 +5,7 @@ import pytest
 import yaml
 
 from cryptobench.stages.verification import harness  # noqa: E402
+from cryptobench.stages.discovery.discover import Discovered  # noqa: E402
 from fake_phone import Phone  # noqa: E402
 from failure import reported  # noqa: E402
 
@@ -21,7 +22,7 @@ def test_a_harness_run_writes_the_verdicts_into_the_plan_and_times_nothing(tmp_p
     plan = scoped / "scoped-plan.yaml"
     plan.write_text(yaml.safe_dump({"scopes": [{"id": "a", "status": "compiled", "interop": {"check": "same_output"}}]}))
     capture = tmp_path / "capture"
-    discovered = lambda *_arguments: (tmp_path, tmp_path / "effective", capture, tmp_path / "trial", {})
+    discovered = lambda *_arguments: Discovered(tmp_path, tmp_path / "effective", capture, tmp_path / "trial", {})
     monkeypatch.setattr(harness, "require_harness_device", lambda *_arguments: None)
     pushed = []
     monkeypatch.setattr(harness, "push", lambda _device, _options, files: pushed.extend(files))
