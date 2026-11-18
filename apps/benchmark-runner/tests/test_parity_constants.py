@@ -108,7 +108,9 @@ def test_package_and_device_folders():
 
 def test_labels_both_sides_write():
     assert trace.MARKER_PREFIX == const("benchmark/src/main/kotlin/run/decorate/EnergyWindow.kt", "PREFIX")
-    assert variant_order.VARIANTS == tuple(re.findall(r'\b[A-Z_]+\("(\w+)"\)', (KM / "preparation/src/main/kotlin/measurement/Variant.kt").read_text()))
+    # the enum's order names VariantLabels' constants, which hold the labels
+    order = re.findall(r'\b[A-Z_]+\(VariantLabels\.(\w+)\)', (KM / "preparation/src/main/kotlin/measurement/Variant.kt").read_text())
+    assert order and variant_order.VARIANTS == tuple(const("files/src/main/kotlin/VariantLabels.kt", name) for name in order)
     group = kotlin("preparation/src/main/kotlin/prepare/ChartGroup.kt", r'UNIDENTIFIED\((\d+), "([^"]+)"\)')
     assert chart_input.UNIDENTIFIED == (int(group[0]), group[1])
 
