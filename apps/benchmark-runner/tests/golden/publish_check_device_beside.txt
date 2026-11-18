@@ -40,6 +40,7 @@ run:
     caseCooldownSeconds: 0
     launchRetries: 0
     resumeBlockRuns: 10
+    orderSeed: 4792
     warmup:
       iterations: 0
       jobs: []
@@ -50,7 +51,8 @@ run:
     model: probed
     sdkInt: 36
   order:
-    scheme: interleaved
+    scheme: shuffled
+    seed: 4792
   suppressErrors: []
   commit: <commit>
   clean: <clean>

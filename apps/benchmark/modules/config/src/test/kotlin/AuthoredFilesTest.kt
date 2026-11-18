@@ -15,7 +15,7 @@ class AuthoredFilesTest {
 
     private fun global(text: String): File {
         File(folder.root, "set.yaml").writeText("schemaVersion: 1\ndescription: d\ninclude:\n  - {provider: '*'}\n")
-        return folder.newFile("global.yaml").apply { writeText("schemaVersion: 1\nselection: {testSet: set.yaml}\n$text") }
+        return folder.newFile("global.yaml").apply { writeText(Fixtures.seeded("schemaVersion: 1\nselection: {testSet: set.yaml}\n$text")) }
     }
 
     private fun refused(text: String): String =
@@ -36,7 +36,7 @@ class AuthoredFilesTest {
 
     @Test
     fun `a missing test set is missing_file`() {
-        val file = folder.newFile("other.yaml").apply { writeText("schemaVersion: 1\nselection: {testSet: nope.yaml}\n") }
+        val file = folder.newFile("other.yaml").apply { writeText(Fixtures.seeded("schemaVersion: 1\nselection: {testSet: nope.yaml}\n")) }
         val message = assertThrows(IllegalArgumentException::class.java) { AuthoredFiles().read(file) }.message!!
         assertTrue(message, message.startsWith("missing_file"))
     }

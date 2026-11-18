@@ -14,6 +14,11 @@ CRASHED = "INSTRUMENTATION_RESULT: shortMsg=Process crashed.\nINSTRUMENTATION_CO
 NOT_PREPARED = "INSTRUMENTATION_STATUS: stack=java.lang.IllegalStateException: not_prepared: {0}\nTests run: {1},  Failures: {2}\n"
 
 
+def listed(_repetition, cases):
+    """A test plan's launch order: the cases as the device lists them."""
+    return list(cases)
+
+
 def jetpack_case(case, sleep=0):
     return {"name": f"measure[{case}]", "repeatIterations": 10, "warmupIterations": 100, "thermalThrottleSleepSeconds": sleep, "totalRunTimeNs": 10**9,
             "metrics": {"timeNs": {"minimum": 1e7, "maximum": 1e7, "median": 1e7, "coefficientOfVariation": 0.0, "runs": [1e7]}}}

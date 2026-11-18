@@ -70,8 +70,8 @@ def resume_block_runs(document):
 
 
 def order_seed(document):
-    """run.orderSeed, None when absent; a hand-edited value that is not whole is refused here."""
-    seed = (document.get("run") or {}).get("orderSeed")
-    if seed is not None and (not isinstance(seed, int) or isinstance(seed, bool)):
+    """run.orderSeed, which :config requires of every run; a hand-edited value that is not whole is refused here."""
+    seed = required(document, "run.orderSeed")
+    if not isinstance(seed, int) or isinstance(seed, bool):
         raise CommandError(f"invalid: run.orderSeed {seed!r}, expected a whole number")
     return seed

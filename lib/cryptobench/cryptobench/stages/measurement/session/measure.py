@@ -15,15 +15,12 @@ from cryptobench.shared.log.warn import warn
 COUNTED = re.compile(r"^Tests run: (\d+),\s+Failures: (\d+)", re.M)
 
 
-def in_plan_order(_repetition, cases):
-    return list(cases)
-
-
 @dataclasses.dataclass(frozen=True)
 class Plan:
     test_class: str
     arguments: tuple
-    order: object = in_plan_order
+    # (repetition, listed cases) -> the launch order (variant_order.chosen)
+    order: object
     timed: bool = True
     cleared: tuple = ()
     stale: tuple = ()

@@ -23,8 +23,8 @@ def steps(phone):
     return [line for line in phone.log if line != "thermal"]
 
 
-# The run section as :config writes it; a test overrides what it is about.
-RUN = {"metrics": ["TIME"], "processRepetitions": 1, "caseCooldownSeconds": 0, "launchRetries": 0, "resumeBlockRuns": 10,
+# The run section as :config writes it; a test overrides what it is about. Seed 4792 draws the listed order for these fixtures' few cases.
+RUN = {"metrics": ["TIME"], "processRepetitions": 1, "caseCooldownSeconds": 0, "launchRetries": 0, "resumeBlockRuns": 10, "orderSeed": 4792,
        "warmup": {"iterations": 0, "jobs": []}}
 
 
@@ -149,8 +149,9 @@ def test_a_coded_preparation_skip_is_final_and_a_crash_keeps_its_retries(tmp_pat
 
 def test_a_process_whose_every_case_is_a_coded_skip_is_an_outcome_not_a_device_error(tmp_path, monkeypatch):
     phone, files, problems, _results = measured(tmp_path, monkeypatch, {"launchRetries": 2}, cases=tuple(REFUSED), refuse=REFUSED)
-    assert [s for s in steps(phone) if s.startswith("instrument ")] == [f"instrument CryptoBenchmark {case}" for case in REFUSED]
-    assert problems[:-1] == [f"case_skipped: {case}: keystore_unsupported" for case in REFUSED]
+    launched = variant_order.shuffled(RUN["orderSeed"])(1, list(REFUSED))
+    assert [s for s in steps(phone) if s.startswith("instrument ")] == [f"instrument CryptoBenchmark {case}" for case in launched]
+    assert problems[:-1] == [f"case_skipped: {case}: keystore_unsupported" for case in launched]
     assert problems[-1].startswith("all_cases_skipped: every case of CryptoBenchmark is a coded preparation skip: 5 cases")
     assert files["skipped"].is_file() and "benchmark" not in files
 
@@ -161,7 +162,8 @@ def test_the_warm_up_leaves_out_a_coded_skip_and_warms_the_next_cases(tmp_path, 
                                                  cases=(*first, "a", "b"), refuse=REFUSED)
     warmed = [args[args.index("case") + 1] for args in phone.arguments if "warmup" in args]
     assert warmed == [",".join(first), "a,b"]
-    assert [line for line in problems if not line.startswith("not_measured: ")] == [f"case_skipped: {case}: keystore_unsupported" for case in first]
+    launched = [case for case in variant_order.shuffled(RUN["orderSeed"])(1, [*first, "a", "b"]) if case in first]
+    assert [line for line in problems if not line.startswith("not_measured: ")] == [f"case_skipped: {case}: keystore_unsupported" for case in launched]
 
 
 def test_every_case_failing_stops_the_run(tmp_path, monkeypatch):

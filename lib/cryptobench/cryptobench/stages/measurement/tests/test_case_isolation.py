@@ -8,11 +8,11 @@ from cryptobench.stages.measurement import case_files  # noqa: E402
 from cryptobench.stages.measurement.session import case_isolation  # noqa: E402
 from cryptobench.stages.measurement.session import measure as measure_session  # noqa: E402
 from cryptobench.stages.measurement.session import variant_order  # noqa: E402
-from fake_phone import OK, Phone, jetpack_case  # noqa: E402
+from fake_phone import jetpack_case, listed, OK, Phone  # noqa: E402
 
 
 def session(phone, tmp_path, problems=None):
-    plan = measure_session.Plan("CryptoBenchmark", ("-e", "x", "y"))
+    plan = measure_session.Plan("CryptoBenchmark", ("-e", "x", "y"), listed)
     return measure_session.run_session(phone, plan, 1, [], lambda _repetition: tmp_path / "benchmark",
                                        [] if problems is None else problems)
 

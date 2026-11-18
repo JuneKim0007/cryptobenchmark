@@ -7,14 +7,18 @@ PLANNED = ["Mac_H_i64_WARM_notFixed", "Gen_K_k128_WARM_fixed", "Cipher_C_k128_i6
            "Cipher_C_k128_i64_WARM_p1a2b3c4d_notFixed", "Scope_before"]
 
 
+def interleaved(repetition, cases):
+    return [case for group in variant_order.groups(repetition, cases) for case in group]
+
+
 def test_each_item_runs_fixed_then_not_fixed_then_the_reverse_across_repetitions():
     first = ["Mac_H_i64_WARM_fixed", "Mac_H_i64_WARM_notFixed", "Gen_K_k128_WARM_fixed",
              "Cipher_C_k128_i64_WARM_p1a2b3c4d_fixed", "Cipher_C_k128_i64_WARM_p1a2b3c4d_notFixed", "Scope_before"]
-    assert variant_order.interleaved(1, PLANNED) == first
-    second = variant_order.interleaved(2, PLANNED)
+    assert interleaved(1, PLANNED) == first
+    second = interleaved(2, PLANNED)
     assert second[:2] == ["Mac_H_i64_WARM_notFixed", "Mac_H_i64_WARM_fixed"]
     assert second[3:5] == ["Cipher_C_k128_i64_WARM_p1a2b3c4d_notFixed", "Cipher_C_k128_i64_WARM_p1a2b3c4d_fixed"]
-    assert variant_order.interleaved(3, PLANNED) == first
+    assert interleaved(3, PLANNED) == first
     assert sorted(second) == sorted(PLANNED)
 
 
@@ -24,7 +28,7 @@ ITEMS = [f"Digest_D{i}_i64_WARM_fixed" for i in range(12)] + PLANNED
 def test_a_seeded_order_is_a_permutation_drawn_from_seed_and_repetition_alone():
     order = variant_order.shuffled(7)
     first = order(1, ITEMS)
-    assert sorted(first) == sorted(ITEMS) and first != variant_order.interleaved(1, ITEMS)
+    assert sorted(first) == sorted(ITEMS) and first != interleaved(1, ITEMS)
     assert order(1, ITEMS) == first == variant_order.shuffled(7)(1, ITEMS)
     assert order(2, ITEMS) != first and variant_order.shuffled(8)(1, ITEMS) != first
 
@@ -44,6 +48,6 @@ def test_the_draw_is_the_documented_one_so_a_reader_can_repeat_it():
 
 
 def test_the_chosen_order_and_its_identity_stanza_come_from_the_seed():
-    plain, seeded = variant_order.chosen(None), variant_order.chosen(7)
-    assert plain == (variant_order.interleaved, {"scheme": "interleaved"}) and seeded[1] == {"scheme": "shuffled", "seed": 7}
+    seeded = variant_order.chosen(7)
+    assert seeded[1] == {"scheme": "shuffled", "seed": 7}
     assert seeded[0](1, ITEMS) == variant_order.shuffled(7)(1, ITEMS)

@@ -126,7 +126,7 @@ def test_a_block_record_names_its_identity_runs_boot_and_files(tmp_path, monkeyp
                                                          "thermal.json"]
     assert sorted(third["identity"]) == ["clean", "code", "commit", "device", "order", "run", "schema", "selection", "suppressErrors"]
     assert sorted(third["identity"]["code"]) == ["runner", "timed"] and len(third["identity"]["commit"]) == 40
-    assert third["identity"]["run"]["resumeBlockRuns"] == 2 and third["identity"]["order"] == variant_order.chosen(None)[1]
+    assert third["identity"]["run"]["resumeBlockRuns"] == 2 and third["identity"]["order"] == variant_order.chosen(4792)[1]
     assert third["identity"]["suppressErrors"] == [] and third["runId"].endswith("Z")
     assert record(rerun.device, 4)["runs"] == {"first": 7, "last": 7}
 

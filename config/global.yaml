@@ -4,9 +4,10 @@ schemaVersion: 1                 # required
 selection:                       # required
   testSet: testsets/default_predefined.yaml   # required — relative to this file
 
-run:                             # optional
+run:                             # required: orderSeed
   inputSizes: [64, 1024, 16384]  # optional, default [1024] — bytes per call
   seed: 0                        # optional, default 0 — seeds the input bytes
+  orderSeed: 20261115             # required — each device process shuffles the case order from (orderSeed, repetition)
   harness:
     iterations: 100              # optional — measurement samples per case
 

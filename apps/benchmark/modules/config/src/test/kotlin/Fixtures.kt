@@ -3,6 +3,15 @@ package io.github.junekim0007.cryptobench.config
 /** Environment's files as text, in the shape environment writes them; kept here so config builds and tests alone. */
 object Fixtures {
 
+    /** A global.yaml text with run.orderSeed, which every run names, added to its run section. */
+    fun seeded(text: String): String = when {
+        "orderSeed" in text -> text
+        "run: {}" in text -> text.replace("run: {}", "run: {orderSeed: 1}")
+        "run: {" in text -> text.replace("run: {", "run: {orderSeed: 1, ")
+        Regex("(?m)^run:\\s*$").containsMatchIn(text) -> text.replaceFirst(Regex("(?m)^run:\\s*\n"), "run:\n  orderSeed: 1\n")
+        else -> text + "run: {orderSeed: 1}\n"
+    }
+
     const val CAPTURE = """
 schemaVersion: 1
 capturedAtMillis: 1700000000000
@@ -51,7 +60,7 @@ selection:
   testSet: testsets/default_predefined.yaml
   exclude:
   - {type: KeyGenerator}
-run: {inputSizes: [64, 1024], phases: [WARM], metrics: [TIME], variants: [fixed, notFixed], processRepetitions: 2, seed: 7}
+run: {inputSizes: [64, 1024], phases: [WARM], metrics: [TIME], variants: [fixed, notFixed], processRepetitions: 2, seed: 7, orderSeed: 20261115}
 policy: {onFailure: skip}
 """
 

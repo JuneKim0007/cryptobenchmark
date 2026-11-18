@@ -10,7 +10,7 @@ from cryptobench.shared.errors.line import one_line
 from cryptobench.shared.errors.failures import AllSkipped, CommandError
 from cryptobench.shared import paths
 from cryptobench.stages.measurement import resume
-from cryptobench.stages.measurement.session import blocks, case_isolation, energy_hook, passes, reconnect, skips, warmup
+from cryptobench.stages.measurement.session import blocks, case_isolation, energy_hook, passes, reconnect, skips, variant_order, warmup
 from cryptobench.stages.measurement.session import measure as measure_session
 from cryptobench.stages.measurement.measuring import (Measuring, convert, energy_preflight, gated, pass_arguments, pull_pins, record, session_arguments,
                                                          singles, thermal_flag, timed_hooks)
@@ -82,7 +82,8 @@ def measure_cases(options, device, results, found, problems, require_energy, rec
         waits = reconnect.Reconnect.of(device, options)
         print(waits.line())
         run = Measuring(device, EnergySession(device), energy_stage.source(effective, options.energy_python, options.stacktrace), options, discovery,
-                        files, problems, effective_view.throttle_sleep(document), effective_view.case_cooldown(document), reconnect=waits)
+                        files, problems, variant_order.chosen(effective_view.order_seed(document))[0], effective_view.throttle_sleep(document),
+                        effective_view.case_cooldown(document), reconnect=waits)
         try:
             written, processes = device_cases(run, document, [effective, paths.Configuration.holding(effective).guide, capture, trial], captures, benchmark,
                                               preparation, in_blocks)
@@ -135,8 +136,8 @@ def host_cases(options, document, capture, trial, effective, benchmark, preparat
         warn("run.passes: only a --device run measures in passes; this run measures once per process")
     if effective_view.thermal_gate(document):
         warn("TEMPERATURE SET BUT DEVICE CAN'T POLL: host_runtime; running without it", problems)
-    if effective_view.order_seed(document) is not None:
-        warn("run.orderSeed: only a --device run launches cases in an order; this run measures in the plan's order")
+    effective_view.order_seed(document)
+    warn("run.orderSeed: only a --device run launches cases in an order; this run measures in the plan's order")
     folder = lambda repetition: measure_session.process_folder(benchmark, repetition, repetitions)
 
     def measured(repetition):

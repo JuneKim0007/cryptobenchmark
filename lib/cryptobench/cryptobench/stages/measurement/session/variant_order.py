@@ -21,10 +21,6 @@ def groups(repetition, cases):
     return [group if repetition % 2 else group[::-1] for group in ordered]
 
 
-def interleaved(repetition, cases):
-    return [case for group in groups(repetition, cases) for case in group]
-
-
 def shuffled(seed):
     """Items in an order drawn from (seed, repetition) alone, so a rerun repeats it; within an item, the variants as interleaved puts them."""
     def order(repetition, cases):
@@ -36,6 +32,4 @@ def shuffled(seed):
 
 def chosen(seed):
     """The order a session launches cases in, and its part of a run's identity (shared/results/identity.py)."""
-    if seed is None:
-        return interleaved, {"scheme": "interleaved"}
     return shuffled(seed), {"scheme": "shuffled", "seed": seed}

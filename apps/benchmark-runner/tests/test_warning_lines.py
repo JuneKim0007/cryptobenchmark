@@ -65,6 +65,7 @@ def test_a_host_run_with_passes_and_a_gate_and_a_bench_that_died(tmp_path, monke
     assert capsys.readouterr().out.splitlines() == [
         "warning: run.passes: only a --device run measures in passes; this run measures once per process",
         "warning: TEMPERATURE SET BUT DEVICE CAN'T POLL: host_runtime; running without it",
+        "warning: run.orderSeed: only a --device run launches cases in an order; this run measures in the plan's order",
         "warning: bench_failed: error: Execution failed for task ':run'",
     ]
     assert problems == ["TEMPERATURE SET BUT DEVICE CAN'T POLL: host_runtime; running without it",
@@ -92,7 +93,7 @@ def test_a_failed_chart_script(tmp_path, monkeypatch, capsys):
     assert lines[2].startswith("took:      analyse in ") and len(lines) == 3
 
 
-def test_an_order_seed_on_a_host_run(tmp_path, monkeypatch, capsys):
+def test_every_host_run_says_it_ignores_its_order_seed(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(benchmark.gradle_runner, "run", dying([{"id": "a"}]))
     benchmark.host_cases(OPTIONS, {"run": {**DOCUMENT["run"], "orderSeed": 7}}, "c", "t", "e", tmp_path, tmp_path, {}, [], ONE_BLOCK(tmp_path))
     assert "warning: run.orderSeed: only a --device run launches cases in an order; this run measures in the plan's order\n" in capsys.readouterr().out

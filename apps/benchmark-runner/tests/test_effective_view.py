@@ -4,6 +4,7 @@ import pathlib
 import tempfile
 import unittest
 
+from cryptobench.shared.errors.failures import CommandError  # noqa: E402
 from cryptobench.shared.settings import effective_view  # noqa: E402
 from cryptobench.stages.measurement.session import passes, warmup  # noqa: E402
 from failure import reported  # noqa: E402
@@ -51,8 +52,9 @@ class EffectiveView(unittest.TestCase):
                 effective_view.resume_block_runs({"run": {"resumeBlockRuns": runs}})
             self.assertEqual(f"error: not_positive: run.resumeBlockRuns {runs}\n", stderr.getvalue())
 
-    def test_an_order_seed_is_optional_and_a_hand_edited_one_not_whole_is_refused(self):
-        self.assertIsNone(effective_view.order_seed({"run": {}}))
+    def test_an_order_seed_is_required_and_a_hand_edited_one_not_whole_is_refused(self):
+        with self.assertRaisesRegex(CommandError, "^missing_field: run.orderSeed in effective.yaml$"):
+            effective_view.order_seed({"run": {}})
         self.assertEqual(-3, effective_view.order_seed({"run": {"orderSeed": -3}}))
         for seed in (1.5, "7", True):
             stderr = io.StringIO()

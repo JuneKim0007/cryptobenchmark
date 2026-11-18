@@ -1,13 +1,14 @@
 schemaVersion: 1                 # required
 selection:                       # required
   testSet: testsets/quick.yaml   # required
-run:                             # optional
+run:                             # required: orderSeed
   variants: [fixed, notFixed]     # optional, default [fixed, notFixed, secure]; secure runs key generation only
   inputSizes: [64, 1024, 16384]  # optional, default [1024]
   phases: [WARM]                 # optional, default [WARM]
   metrics: [TIME]                # optional, default [TIME]
   processRepetitions: 1          # optional, default 1
   seed: 42                       # optional, default 0
+  orderSeed: 20261115             # required — each device process shuffles the case order from (orderSeed, repetition)
   harness: {iterations: 5, profiling: none}   # optional — 5 samples: a fast check, not paper numbers
 policy:                          # optional
   onFailure: skip                # optional, default skip

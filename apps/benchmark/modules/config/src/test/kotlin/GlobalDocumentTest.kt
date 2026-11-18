@@ -24,7 +24,7 @@ class GlobalDocumentTest {
 
     private val head = "schemaVersion: 1\nselection: {testSet: testsets/default_predefined.yaml}\n"
 
-    private fun global(text: String) = GlobalDocument.parse(codec.load(head + text))
+    private fun global(text: String) = GlobalDocument.parse(codec.load(Fixtures.seeded(head + text)))
 
     private fun run(text: String) = global(text).run
 
@@ -48,7 +48,6 @@ class GlobalDocumentTest {
         assertEquals(Warmup(10, emptyList()), run.warmup)
         assertEquals(emptyList<MeasurePass>(), run.passes)
         assertEquals(10, run.resumeBlockRuns)
-        assertEquals(null, run.orderSeed)
     }
 
     @Test
@@ -69,11 +68,19 @@ class GlobalDocumentTest {
     }
 
     @Test
-    fun anOrderSeedIsWrittenOnlyWhenSet() {
+    fun anOrderSeedIsReadAndWritten() {
         val written = run("run: {orderSeed: 20261115}\n")
         assertEquals(20261115L, written.orderSeed)
         assertEquals(written, GlobalDocument.parse(codec.load(YamlCodec.DOCUMENT.dump(GlobalDocument.of(global("").copy(run = written))))).run)
-        assertEquals(false, "orderSeed" in YamlCodec.DOCUMENT.dump(GlobalDocument.of(global(""))))
+    }
+
+    /** Every run, host included, names its order (decision 39.8). */
+    @Test
+    fun anAbsentOrderSeedIsRefused() {
+        listOf(head, head + "run: {processRepetitions: 3}\n").forEach { text ->
+            val message = assertThrows(text, IllegalArgumentException::class.java) { GlobalDocument.parse(codec.load(text)) }.message!!
+            assertEquals("missing_field: run.orderSeed", message)
+        }
     }
 
     @Test
