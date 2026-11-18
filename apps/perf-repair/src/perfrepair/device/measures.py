@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from cryptobench.shared.paths import RunTree
-from cryptobench.shared.settings import energy_capture
+from cryptobench.shared.settings import defaults, energy_capture
 from cryptobench.shared.log.event import LOG
 from ..dto.metrics import ENERGY, METRICS, Metric
 from ..dto.perf_mode import PerfMode
@@ -15,7 +15,7 @@ from cryptobench.shared.log.emit import emit
 from cryptobench.shared.stop.terminate import terminate
 from .selection import generated, relocated
 
-DEFAULT_METRICS = ("TIME",)
+DEFAULT_METRICS = tuple(defaults.at("run.metrics"))
 ALLOCATION_RUN = "ALLOCATION"
 ALLOCATION_PASS = "allocation"
 # capture values that measure energy; a test set may still turn it on per case, so its absence only warns

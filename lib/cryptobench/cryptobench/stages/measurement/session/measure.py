@@ -36,6 +36,8 @@ class Plan:
     kept: object = lambda _process: None
     # a failed case's final skip code from the device's skipped.yaml (skips.py); None: an ordinary failure
     refused: object = lambda _case: None
+    # the pass's window.MinWindow; None keeps the configured samples
+    sizing: object = None
 
 
 @dataclasses.dataclass
@@ -46,6 +48,8 @@ class Process:
     failures: list = dataclasses.field(default_factory=list)
     start_reading: object = None
     end_reading: object = None
+    # what plan.sizing recorded per case: energy-samples.yaml
+    samples: dict = dataclasses.field(default_factory=dict)
 
     @property
     def data(self):

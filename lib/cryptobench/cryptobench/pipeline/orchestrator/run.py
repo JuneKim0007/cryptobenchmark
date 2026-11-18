@@ -109,7 +109,7 @@ def notice(log: Session, line: str) -> None:
 
 def ran(target: TargetSpec, suite: Path, log: Session, results: Path, passed, command, board) -> Row:
     """One suite on one target; its config generated, its worker started, watched and its outcome logged."""
-    config = suite_config.written(target.config, suite, log.config(target.name, suite.stem))
+    config = suite_config.written(target.config, target.overlays, suite, log.config(target.name, suite.stem))
     worker = Worker(command(target, config, results, passed), target.transport, log.target_log(target.name, suite.stem))
     label = f"{target.name} {suite.stem}"
     log.log(f"start: {label}: {' '.join(worker.command)}", target.name, suite.stem)

@@ -4,9 +4,11 @@ import unittest
 
 import explain  # noqa: E402
 
-GLOBAL = "schemaVersion: 1\nselection: {testSet: t.yaml}\nrun:\n  seed: 7\n  harness: {iterations: 50}\n"
 EFFECTIVE = """schemaVersion: 1
-generatedFrom: {global: g.yaml, testSet: t.yaml}
+generatedFrom:
+  global: g.yaml
+  testSet: t.yaml
+  settings: {run.seed: layer 1 global.yaml, run.harness.iterations: layer 2 overlay.yaml, run.inputSizes: default}
 runId: 20261005T103349Z
 run:
   inputSizes: [1024]
@@ -27,25 +29,24 @@ class Explain(unittest.TestCase):
 
     def setUp(self):
         self.dir = pathlib.Path(tempfile.mkdtemp())
-        (self.dir / "global.yaml").write_text(GLOBAL)
         (self.dir / "effective.yaml").write_text(EFFECTIVE)
 
     def rows(self):
-        rows, entries, testset, run_id = explain.explain(self.dir / "global.yaml", self.dir / "effective.yaml")
+        rows, entries, testset, run_id = explain.explain(self.dir / "effective.yaml")
         return {dotted: (value, source) for dotted, value, source in rows}, entries, testset, run_id
 
-    def test_a_key_the_file_spells_out_is_that_files_and_the_rest_are_defaults(self):
+    def test_each_key_shows_the_layer_generated_from_names_and_the_rest_are_defaults(self):
         rows, entries, testset, run_id = self.rows()
-        self.assertEqual((7, "global.yaml"), rows["run.seed"])
-        self.assertEqual((50, "global.yaml"), rows["run.harness.iterations"])
+        self.assertEqual((7, "layer 1 global.yaml"), rows["run.seed"])
+        self.assertEqual((50, "layer 2 overlay.yaml"), rows["run.harness.iterations"])
         self.assertEqual(([1024], "default"), rows["run.inputSizes"])
         self.assertEqual(("skip", "default"), rows["policy.onFailure"])
         self.assertEqual((1, "t.yaml", "20261005T103349Z"), (entries, testset, run_id))
 
-    def test_an_authored_default_is_still_reported_as_authored(self):
-        (self.dir / "global.yaml").write_text(GLOBAL + "policy: {onFailure: skip}\n")
-        self.assertEqual(("skip", "global.yaml"), self.rows()[0]["policy.onFailure"])
-
+    def test_an_effective_file_without_provenance_is_refused(self):
+        (self.dir / "effective.yaml").write_text(EFFECTIVE.replace("  settings:", "  other:"))
+        with self.assertRaisesRegex(Exception, "missing_field: generatedFrom.settings"):
+            self.rows()
 
 if __name__ == "__main__":
     unittest.main()

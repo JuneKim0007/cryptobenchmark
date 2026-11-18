@@ -30,6 +30,8 @@ class EffectiveKeysAgreeTest {
               capture: probe_20261108T000000Z.yaml
               trial: t.yaml
               device: {model: m, manufacturer: m, hardware: h, sdkInt: 0, release: r, javaVersion: '17', defaultKeySizeProperty: '', fingerprint: f, javaVendor: v, javaRuntimeVersion: '17', osName: o, osArch: a}
+              layers: [{path: g.yaml, sha256: '00'}]
+              settings: {run.seed: layer 1 g.yaml}
             run:
               inputSizes: [64]
               phases: [WARM]

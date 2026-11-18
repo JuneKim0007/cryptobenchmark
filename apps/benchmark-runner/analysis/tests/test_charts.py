@@ -6,6 +6,7 @@ import unittest
 import yaml
 
 import chart_input  # noqa: E402
+from cryptobench.shared.settings import defaults
 import charts  # noqa: E402
 from cryptobench.shared.stats.descriptive import summarize
 from cryptobench.shared.stats.units import DisplayUnits, number
@@ -108,10 +109,10 @@ class Charts(unittest.TestCase):
     def test_the_python_defaults_match_the_ones_the_config_module_writes(self):
         example = pathlib.Path(__file__).resolve().parents[4] / "apps/benchmark/modules/config/example/config_effective_example.yaml"
         analysis = yaml.safe_load(example.read_text())["analysis"]
-        self.assertEqual(chart_input.DEFAULTS["charts"], analysis["charts"])
-        self.assertEqual(chart_input.DEFAULTS["headline"], analysis["statistic"]["headline"])
-        self.assertEqual(chart_input.DEFAULTS["meanUpToCovPercent"], analysis["statistic"]["meanUpToCovPercent"])
-        self.assertEqual(chart_input.DEFAULTS["units"], analysis["units"])
+        self.assertEqual(defaults.at("analysis.charts"), analysis["charts"])
+        self.assertEqual(defaults.at("analysis.statistic.headline"), analysis["statistic"]["headline"])
+        self.assertEqual(defaults.at("analysis.statistic.meanUpToCovPercent"), analysis["statistic"]["meanUpToCovPercent"])
+        self.assertEqual(defaults.at("analysis.units"), analysis["units"])
 
 
 class AuditAgainstJetpack(unittest.TestCase):

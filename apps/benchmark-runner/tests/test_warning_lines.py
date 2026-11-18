@@ -97,3 +97,12 @@ def test_every_host_run_says_it_ignores_its_order_seed(tmp_path, monkeypatch, ca
     monkeypatch.setattr(benchmark.gradle_runner, "run", dying([{"id": "a"}]))
     benchmark.host_cases(OPTIONS, {"run": {**DOCUMENT["run"], "orderSeed": 7}}, "c", "t", "e", tmp_path, tmp_path, {}, [], ONE_BLOCK(tmp_path))
     assert "warning: run.orderSeed: only a --device run launches cases in an order; this run measures in the plan's order\n" in capsys.readouterr().out
+
+
+def test_a_host_run_names_each_ignored_key_it_sets_once(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(benchmark.gradle_runner, "run", dying([{"id": "a"}]))
+    document = {"run": {**DOCUMENT["run"], "orderSeed": 7, "launchRetries": 5, "caseCooldownSeconds": 0, "harness": {"cpu": {"pin": "big"}}}}
+    benchmark.host_cases(OPTIONS, document, "c", "t", "e", tmp_path, tmp_path, {}, [], ONE_BLOCK(tmp_path))
+    assert [line for line in capsys.readouterr().out.splitlines() if "ignored_on_host" in line] == [
+        "warning: ignored_on_host: run.launchRetries is set; only a --device run reads it",
+        "warning: ignored_on_host: run.harness.cpu is set; only a --device run reads it"]

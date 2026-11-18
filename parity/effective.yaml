@@ -8,6 +8,9 @@ generatedFrom:
   device: {model: '', manufacturer: '', hardware: '', sdkInt: 0, release: '', javaVersion: 17.0.11,
     defaultKeySizeProperty: '', fingerprint: '', javaVendor: Eclipse Adoptium, javaRuntimeVersion: 17.0.11+9,
     osName: Linux, osArch: x86_64}
+  layers:
+  - {path: config_global_example.yaml, sha256: 2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae}
+  settings: {run.seed: layer 1 config_global_example.yaml, run.launchRetries: default}
 run:
   inputSizes: [1024]
   phases: [WARM]

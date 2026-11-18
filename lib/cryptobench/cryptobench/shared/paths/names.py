@@ -15,6 +15,7 @@ FACTS, ENERGY_CAPABILITY, ENERGY_PREFLIGHT = "facts.yaml", "energy.yaml", "energ
 PREPARED, SKIPPED = "prepared.yaml", "skipped.yaml"
 BENCHMARK_JSON, BENCHMARK_DATA, CLOCKS, THERMAL, CPU_PINS = "benchmark.json", "benchmarkData.json", "clocks.yaml", "thermal.json", "cpu-pins.yaml"
 ENERGY_JSON, TRACES, DRY_TRACE, ENERGY_DRY, MANAFA = "energy.json", "traces", "dry.pftrace", "energy-dry.yaml", "manafa"
+ENERGY_SAMPLES = "energy-samples.yaml"
 CASES, PROCESS_FORM, ORDER = "cases", "process-{}", "order.txt"
 BLOCKS, BLOCK_FORM, BLOCK_PATTERN = "blocks", "block-{}.yaml", "block-*.yaml"
 # files a desktop drops into folders it shows (Finder, Explorer); never a run's, so no listing of a run counts them

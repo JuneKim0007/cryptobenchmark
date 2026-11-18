@@ -26,6 +26,9 @@ Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 
 `schemaVersion: 1`. Sections `selection` and `run` (required: `run.orderSeed`), `policy`, `analysis`, `providers`; any other top key fails `unknown_section`; an unknown key fails `unknown_keys`.
 
+
+A composition of layers: [layers.md](layers.md).
+
 | section | key | default | rule |
 |---|---|---|---|
 | `selection` | `testSet` | required | non-blank; relative to global.yaml's directory unless absolute |
@@ -36,7 +39,7 @@ Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 | | `variants` | `[fixed, notFixed, secure]` | the execution paths every entry inherits ([entry.md](entry.md#variants)) |
 | | `processRepetitions` | `1` | `>= 1`; independent process runs |
 | | `seed` | `0` | input seed |
-| | `passes` | `{}` | map of `timing`, `energy`, `allocation` to `{samples: n}`, `n >= 1`, in run order; `timing` required with two or more passes (`missing_pass`); a single pass is its own base; `allocation` needs `ALLOCATION` in `metrics` (`pass_without_metric`); another name `invalid`; [device-session.md](../../../../../docs/device-session.md#passes) |
+| | `passes` | `{}` | map of `timing`, `energy`, `allocation` to `{samples: n}`, `n >= 1`, in run order; `energy` also `minWindowSeconds` (default `5`, always written, `>= 1` else `not_positive`; on another pass `not_supported`); `timing` required with two or more passes (`missing_pass`); a single pass is its own base; `allocation` needs `ALLOCATION` in `metrics` (`pass_without_metric`); another name `invalid`; [device-session.md](../../../../../docs/device-session.md#passes) |
 | | `thermalThrottleSleepSeconds` | unset | `>= 0`, else `negative`; `--device`: passed as `-e androidx.benchmark.thermalThrottle.sleepDurationSeconds`; unset keeps Jetpack's default |
 | | `warmup` | `{iterations: 10, jobs: [], cases: 3}` | `iterations >= 0`, else `negative`, 0 off; `jobs` test-set rules, resolved to the entries they select; `[]` the plan's first `cases` cases (`>= 1`, else `not_positive`); `--device` only ([device-session.md](../../../../../docs/device-session.md#warm-up)) |
 | | `caseCooldownSeconds` | `0` | `>= 0`, else `negative`; `--device`: host sleep before every measured case but a session's first ([device-session.md](../../../../../docs/device-session.md#cool-down-and-frequency-caps)) |
@@ -56,6 +59,8 @@ Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 | | `bundled[].artifact` | required | `group:name:version`, no comma or whitespace; else `invalid_artifact` |
 | | `bundled[].create` | required | `fully.qualified.Class` (public no-argument constructor) or `fully.qualified.Class#staticFactory`; else `invalid_create` |
 | | `bundled[].alias` | unset | non-blank, no whitespace; the name the provider is registered under; required on the device when its own name is already installed |
+
+Defaults are `parity/defaults.yaml`, which `DefaultsDocument` writes and the Python readers read. A `--bench` run ignores `passes`, `thermalThrottleSleepSeconds`, `warmup`, `caseCooldownSeconds`, `thermalGate`, `launchRetries`, `orderSeed` and `harness.warmupIterations`, `profiling`, `cpu`: each set to other than its default is one `ignored_on_host: <key> is set` warning, or its own line for `passes`, `thermalGate` and `orderSeed` (the `host` column of `lib/cryptobench/cryptobench/shared/settings/effective_view.py` KEYS).
 
 `onFailure` governs selected primitives that cannot run. A broken authored file (parse, `schemaVersion`, unknown section or key) always stops.
 

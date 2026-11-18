@@ -6,6 +6,7 @@ from cryptobench.shared.device.capture import runtime as capture_runtime
 from cryptobench.shared.device.identity import device_id
 from cryptobench.shared import paths
 from cryptobench.shared.results import run_inputs
+from cryptobench.shared.settings.effective_view import AnalysisView, found
 from cryptobench.shared.document.document import DocumentKind, parse_yaml, read_yaml
 from cryptobench.shared.document.dump import dump_yaml
 from cryptobench.shared.document.write import MANIFEST, write_text
@@ -26,9 +27,8 @@ def runtime(measured, captured, files):
 
 def units(files):
     """analysis.units as :config wrote it into effective.yaml: the display units every view of this run reads."""
-    effective = read_yaml(files["effective"]) if "effective" in files else None
-    found = ((effective or {}).get("analysis") or {}).get("units")
-    return {"units": found} if found else {}
+    effective = read_yaml(files["effective"]) if "effective" in files else {}
+    return {"units": AnalysisView(effective).units} if found(effective, "analysis.units") else {}
 
 
 def estimated_mark(energy_files):

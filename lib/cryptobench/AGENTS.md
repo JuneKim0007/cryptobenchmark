@@ -19,7 +19,7 @@ cryptobench/pipeline/orchestrator/board.py : StatusBoard: one status line per ta
 cryptobench/pipeline/orchestrator/index.py : index.yaml: every case of a session's runs from the files each run wrote: suite, device, target, configured, prepared, skip code, runs measured, from
 cryptobench/pipeline/orchestrator/plan.py : a session's plan before anything runs: devices listed, targets resolved and grouped, skips and notices; --check-session
 cryptobench/pipeline/orchestrator/run.py : --session: the plan, order groups ascending, one worker per target and suite (sequential), each skip or failure in the session log, the target log and the summary, then index.yaml; a stop forwarded to the running worker; session_incomplete
-cryptobench/pipeline/orchestrator/suite_config.py : one suite's global.yaml in the session folder: the target's config with selection.testSet the suite
+cryptobench/pipeline/orchestrator/suite_config.py : one suite's composition in the session folder: the target's config and overlays as layers, selection.testSet the suite
 cryptobench/pipeline/orchestrator/summary.py : Row; the summary table (target, suite, state, code, results), written as summary.txt
 cryptobench/pipeline/orchestrator/tests/ : pytest tests of the orchestrator with fake workers: order, serials, skips, failures, stop, status lines
 cryptobench/pipeline/orchestrator/worker.py : Worker: one pipeline.py child in its own process group, its transcript in the target log, ANDROID_SERIAL its target's; a stop goes through shared/stop/child.py with the pipeline grace; Outcome from its last error: and results: lines
@@ -107,11 +107,12 @@ cryptobench/shared/results/run_inputs.py : digests of a run's inputs, providers.
 cryptobench/shared/results/select.py : the device folder of a results root a reader names, or the only one there
 cryptobench/shared/session/__init__.py : package of a session: session.yaml, its targets against the devices adb lists, order groups
 cryptobench/shared/session/document.py : Session; session.yaml read and checked whole, paths resolved against its folder; a file that cannot be read stops
-cryptobench/shared/session/targets.py : TargetSpec, Resolved; resolve: each target found by key, alias or serial, its order, config and suites checked, a coded skip per bad target, the host after the last phone group; groups; nothing_to_measure
+cryptobench/shared/session/targets.py : TargetSpec, Resolved; resolve: each target found by key, alias or serial, its order, config, overlays and suites checked, a coded skip per bad target, the host after the last phone group; groups; nothing_to_measure
 cryptobench/shared/session/tests/ : pytest tests of session.yaml and target resolution, one per fallback row
 cryptobench/shared/settings/__init__.py : package of the run's settings readers the stages share
 cryptobench/shared/settings/bundled.py : providers.bundled of global.yaml: the digest's raw read, build property of the app or host CLI, DeviceProbe argument, effective record and check
-cryptobench/shared/settings/effective_view.py : effective.yaml with the warnings and skips of report.yaml
+cryptobench/shared/settings/defaults.py : parity/defaults.yaml read by dotted path: the value :config writes for a key a config leaves out
+cryptobench/shared/settings/effective_view.py : the KEY table of effective.yaml (path, read rule, honoured on --bench); RunView, GateView, AnalysisView, EnergyView; the keys a host run ignores; effective.yaml with the warnings and skips of report.yaml
 cryptobench/shared/settings/energy_capture.py : a node's energy capture and source against the default; a copy of the energy scripts' capture.py, kept equal by a test
 cryptobench/shared/stats/__init__.py : package of the benchmark's calculations, with no I/O: descriptive statistics, the run count's equations, display units
 cryptobench/shared/stats/descriptive.py : one definition of each per-case statistic: mean, sample SD, CoV, interpolated quantiles, IQR, QCD; which one leads
@@ -163,10 +164,11 @@ cryptobench/stages/measurement/session/energy_hook.py : session hook: the energy
 cryptobench/stages/measurement/session/gate_history.py : what one temperature gate session did: per-case waits and discards for thermal.json, its per-pass line
 cryptobench/stages/measurement/session/launch.py : the only place a timed run of a case starts: hold, launch, verdict, retries
 cryptobench/stages/measurement/session/measure.py : one device measuring session of the benchmark: processes, a process per case, hooks; a process repetition's folder and line, a case's progress line
-cryptobench/stages/measurement/session/passes.py : run.passes: one device session per metric group, its device arguments and conversion, the merge per metric; MergeRunsKt over process repetitions
+cryptobench/stages/measurement/session/passes.py : run.passes: PASS_ROWS (metrics, keeps capture, cleaned, owned key, sizing) and pass_views from RunView; one device session per metric group, its device arguments and conversion, the merge per metric; MergeRunsKt over process repetitions
 cryptobench/stages/measurement/session/skips.py : a skipped.yaml record whose code codes.yaml holds as an outcome or an error: a final skip, its case_skipped line
 cryptobench/stages/measurement/session/thermal_hook.py : session hook: temperature around every process and case into thermal.json with the gate's history, its lines per pass
 cryptobench/stages/measurement/session/variant_order.py : run.variants on a device: an item's fixed and notFixed cases adjacent, A/B then B/A over repetitions; run.orderSeed's per-process shuffle; the order's identity stanza
+cryptobench/stages/measurement/session/window.py : run.passes.energy.minWindowSeconds: a case's window from its pulled file, one relaunch at 1.5 x the minimum, short_window, energy-samples.yaml
 cryptobench/stages/measurement/session/warmup.py : run.warmup: a pre-flight run of a few planned cases before the first pass, final skips left out and chosen again, off at 0 iterations; its output never pulled
 cryptobench/stages/measurement/start_margin.py : the temperature gate's start margin: hot, clean and ignored outcomes, the start limit and how the margin moves; no I/O
 cryptobench/stages/measurement/tests/ : pytest tests of the measurement stage

@@ -80,7 +80,7 @@ config/ : authored run configuration: global settings and test sets
 docs/ : cross-module fact docs
 docs/contributing/ : directive guides
 lib/cryptobench/ : the Python library the runner and perf-repair share: shared components, the stage framework, the run's stages; map in its AGENTS.md
-parity/ : fixtures both languages' tests read: YAML documents with the .json value each must read to, thermal.json as the runner writes it, a duplicate-key file
+parity/ : fixtures both languages' tests read: YAML documents with the .json value each must read to, thermal.json as the runner writes it, a duplicate-key file; defaults.yaml, :config's defaults Python reads at run time
 pytest.ini : the Python apps' source folders, and the test folders other tests import, on the test path for pytest from the repository root
 requirements.txt : every host Python dependency
 settings.example.yaml : template for `settings.yaml`, the facade's root index

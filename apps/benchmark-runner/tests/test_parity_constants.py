@@ -9,6 +9,7 @@ import unittest.mock
 import yaml
 
 from cryptobench.shared.settings import bundled
+from cryptobench.shared.settings.effective_view import RunView
 from analysis import chart_input
 from cryptobench.stages.measurement.session import case_isolation, passes, thermal_hook, variant_order
 from cryptobench.stages.verification.scope import wrapper
@@ -70,8 +71,9 @@ def test_pass_arguments_and_pass_names():
 
 
 def test_the_metrics_each_pass_measures():
-    document = {"run": {"metrics": ["TIME", "ALLOCATION"], "passes": {"timing": {"samples": 3}, "energy": {"samples": 2}, "allocation": {"samples": 4}}}}
-    python = {p.name: p.metrics for p in passes.read(document, {"measured"})}
+    document = {"run": {"metrics": ["TIME", "ALLOCATION"], "passes": {"timing": {"samples": 3}, "energy": {"samples": 2, "minWindowSeconds": 5},
+                                                                         "allocation": {"samples": 4}}}}
+    python = {p.name: p.metrics for p in passes.pass_views(RunView(document), {"measured"})}
     branches = kotlin(AT / "PassArguments.kt", r"metrics\s*=\s*when\s*\(named\)\s*\{(.*?)\n\s*\}", re.S)
     found = re.findall(r"^\s*(\S[^\n]*?)\s*->(.*?)(?=^[^\n]*->|\Z)", branches, re.M | re.S)
     rules = {key: re.sub(r"\s+", "", value).rstrip(",") for key, value in found}

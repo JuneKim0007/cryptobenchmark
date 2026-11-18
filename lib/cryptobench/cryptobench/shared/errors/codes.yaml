@@ -1110,6 +1110,7 @@ codes:
   hook_failed: {kind: notice}
   host_benchmark_not_set: {kind: notice}
   identity_changed: {kind: notice}
+  ignored_on_host: {kind: notice}
   input_preparation_failed: {kind: error}
   instance_refused: {kind: outcome}
   instantiation_failed: {kind: outcome}
@@ -1158,6 +1159,7 @@ codes:
   mixed_types: {kind: error}
   names_catalog_missing: {kind: error}
   negative: {kind: error}
+  nested_layers: {kind: error}
   no_batterystats: {kind: outcome}
   no_bytes: {kind: outcome}
   no_call: {kind: outcome}
@@ -1291,6 +1293,7 @@ codes:
   scopes_conflict: {kind: error}
   secure_path_unavailable: {kind: notice}
   setup_refused: {kind: outcome}
+  short_window: {kind: notice}
   several_devices: {kind: error}
   signature_changed: {kind: outcome}
   signature_needs_a_key_pair: {kind: error}

@@ -62,6 +62,7 @@ class Measurement(Section):
     cpu_pins = property(lambda self: self.root / n.CPU_PINS)
     energy = property(lambda self: self.root / n.ENERGY_JSON)
     energy_dry = property(lambda self: self.root / n.ENERGY_DRY)
+    energy_samples = property(lambda self: self.root / n.ENERGY_SAMPLES)
     traces = property(lambda self: self.root / n.TRACES)
     dry_trace = property(lambda self: self.root / n.TRACES / n.DRY_TRACE)
     manafa = property(lambda self: self.root / n.MANAFA)

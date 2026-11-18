@@ -7,6 +7,7 @@ import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveConfig
 import io.github.junekim0007.cryptobench.config.effective.dto.Report
 import io.github.junekim0007.cryptobench.config.inventory.InventoryBuilder
 import io.github.junekim0007.cryptobench.config.inventory.InventoryDocument
+import io.github.junekim0007.cryptobench.config.layers.Provenance
 import io.github.junekim0007.cryptobench.config.source.CaptureSource
 import io.github.junekim0007.cryptobench.config.source.TrialSource
 import io.github.junekim0007.cryptobench.document.YamlCodec
@@ -41,10 +42,12 @@ class Configuration(
     fun effective(globalFile: File, inventoryFile: File = this.inventoryFile, factsFile: File? = null): File {
         Files.deleteIfExists(effectiveFile.toPath())
         Files.deleteIfExists(reportFile.toPath())
-        val (global, testSet) = AuthoredFiles(files).read(globalFile)
+        val (global, testSet, _, stack) = AuthoredFiles(files).read(globalFile)
         val inventory = files.at(inventoryFile, InventoryDocument).read()
         val facts = factsFile?.let(::readFacts) ?: Facts.UNKNOWN
-        val effective = effectiveBuilder.build(global, testSet, inventory, EffectiveBuilder.Files(globalFile.name, global.selection.testSet, inventoryFile.name), facts)
+        val built = effectiveBuilder.build(global, testSet, inventory, EffectiveBuilder.Files(globalFile.name, global.selection.testSet, inventoryFile.name), facts)
+        val effective = built.copy(generatedFrom = built.generatedFrom.copy(layers = stack.layers,
+            settings = Provenance.settings(EffectiveDocument.settingsOf(built), stack)))
         files.at(reportFile, ReportDocument).write(Report(effective.runId, effective.warnings, effective.skipped))
         return files.at(effectiveFile, EffectiveDocument).write(effective)
     }
