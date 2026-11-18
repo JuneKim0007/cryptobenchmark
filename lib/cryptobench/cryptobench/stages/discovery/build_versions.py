@@ -10,6 +10,9 @@ APEX_MODULES = ("com.android.conscrypt", "com.android.art")
 APEX_FROM_SDK = 29
 TAG = re.compile(r"<apex-info\b([^>]*)>")
 ATTRIBUTE = re.compile(r'(\w+)="([^"]*)"')
+# Android 10 has APEX modules but no apex-info-list.xml; package manager lists the active ones
+PM_APEX = "pm list packages --apex-only --show-versioncode"
+PM_LINE = re.compile(r"^package:(\S+)\s+versionCode:(\d+)\s*$", re.MULTILINE)
 
 
 def read(device, sdk):
@@ -26,13 +29,16 @@ def security_patch(device):
 
 
 def apex(device, sdk):
-    """{module: active versionCode, None when the device has no such module, as every module below SDK 29}; None when the list is unreadable."""
+    """{module: active versionCode, None when the device has no such module, as every module below SDK 29}; None when neither source names one."""
     if sdk < APEX_FROM_SDK:
         return dict.fromkeys(APEX_MODULES)
     result = device.run("shell", f"cat {paths.DeviceDirs.APEX_INFO}", check=False)
     active = active_modules(result.stdout if result.returncode == 0 else "")
     if not active:
-        warn(f"facts_unknown: build.apex: {paths.DeviceDirs.APEX_INFO} names no active module; facts.yaml records null")
+        listed = device.run("shell", PM_APEX, check=False)
+        active = {name: int(code) for name, code in PM_LINE.findall(listed.stdout if listed.returncode == 0 else "")}
+    if not active:
+        warn(f"facts_unknown: build.apex: neither {paths.DeviceDirs.APEX_INFO} nor '{PM_APEX}' names an active module; facts.yaml records null")
         return None
     return {module: active.get(module) for module in APEX_MODULES}
 

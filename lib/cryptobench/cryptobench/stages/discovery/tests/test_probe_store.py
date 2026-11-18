@@ -17,8 +17,9 @@ class Device:
     """install, the probe (a new stamp each time), the build reads and the plan directory, logged."""
     files = "/sdcard/plan"
 
-    def __init__(self, apex=APEX, plan_directory=True, installed="/data/app/~~a1==/pkg-b2==", fingerprint="f/p:17/X/1", sdk=36):
+    def __init__(self, apex=APEX, plan_directory=True, installed="/data/app/~~a1==/pkg-b2==", fingerprint="f/p:17/X/1", sdk=36, packages=""):
         self.apex, self.plan_directory, self.installed, self.fingerprint, self.sdk = apex, plan_directory, installed, fingerprint, sdk
+        self.packages = packages
         self.log, self.stamps = [], (f"20260101T00000{n}Z" for n in itertools.count())
 
     def install(self, _properties):
@@ -44,6 +45,8 @@ class Device:
             out = "2026-11-05\n"
         elif command == f"cat {build_versions.paths.DeviceDirs.APEX_INFO}":
             out = self.apex
+        elif command == build_versions.PM_APEX:
+            out = self.packages
         elif command.startswith("ls -d "):
             return types.SimpleNamespace(returncode=0 if self.plan_directory else 1, stdout="", stderr="")
         else:
@@ -161,6 +164,15 @@ def test_below_sdk_29_the_key_is_complete_so_the_second_run_reuses(run, capsys):
     again = Device(apex="", sdk=26)
     run(again)
     assert again.log == ["install", "forget captures"] and "incomplete" not in capsys.readouterr().out
+
+
+def test_on_android_10_the_package_manager_completes_the_key_so_the_second_run_reuses(run, capsys):
+    packages = "package:com.android.conscrypt versionCode:291900000\npackage:com.android.runtime.release versionCode:290000000\n"
+    run(Device(apex="", sdk=29, packages=packages))
+    again = Device(apex="", sdk=29, packages=packages)
+    run(again)
+    out = capsys.readouterr().out
+    assert again.log == ["install", "forget captures"] and "incomplete" not in out and "facts_unknown: build.apex" not in out
 
 
 def test_an_unreadable_apex_list_is_read_and_warned_once_per_run(run, capsys):
