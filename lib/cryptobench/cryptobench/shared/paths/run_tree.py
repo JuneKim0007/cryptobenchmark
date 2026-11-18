@@ -66,6 +66,7 @@ class Measurement(Section):
     dry_trace = property(lambda self: self.root / n.TRACES / n.DRY_TRACE)
     manafa = property(lambda self: self.root / n.MANAFA)
     cases = property(lambda self: self.root / n.CASES)
+    order = property(lambda self: self.root / n.ORDER)
     blocks = property(lambda self: self.root / n.BLOCKS)
 
     def process(self, repetition: int) -> Measurement:

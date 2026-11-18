@@ -129,6 +129,7 @@ Why: the phone's power controller lowers the CPU limit once skin reaches its own
 |---|---|
 | `measure:   one process per case (<n> cases)` | `-e log true` lists the planned timed cases without running them, then one `am instrument -e case <id>` per case; each process writes its own `benchmarkData.json`, pulled after it to `cases/<id>.json` in the process folder and kept; the process's `benchmarkData.json` is merged from those files again after each case that passed (the first case's `context`, every case's `benchmarks`, in run order) |
 
+- Order: `order:     <process folder>/order.txt`, the cases in the order this process launches them, one id per line, written before the first launch.
 - Progress: after each case `case:      <n> of <m> <id> ok` or `... failed`.
 - `cases/`: empty when a process starts, since the run's publish moved an earlier unit aside ([results.md](results.md#device-folder)); a stopped run keeps the files of the cases it finished, and `benchmarkData.json` holds them all.
 - Device time: a process per case costs about 1 to 2 s of instrumentation start plus the plan's preparation on the device, per case and per pass.

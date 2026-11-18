@@ -1,4 +1,5 @@
-"""Each case's pulled benchmarkData kept at process-N/cases/<case>.json; the process's benchmarkData.json merged from those files."""
+"""Each case's pulled benchmarkData kept at process-N/cases/<case>.json; the process's benchmarkData.json merged from those files; order.txt, the
+process's launch order."""
 import json
 
 from cryptobench.shared import paths
@@ -12,6 +13,11 @@ def path(into, case):
 def opened(into):
     """The process's cases/; an earlier run's moved aside with its unit when this run published (layout.supersede)."""
     paths.Measurement(into).cases.mkdir(parents=True, exist_ok=True)
+
+
+def ordered(into, cases):
+    """The order this process launched its cases in, one id per line."""
+    paths.Measurement(into).order.write_text("".join(f"{case}\n" for case in cases))
 
 
 def merge(into, cases, data):

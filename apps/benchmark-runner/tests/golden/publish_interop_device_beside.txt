@@ -6,6 +6,7 @@ tree:
   probed-api36-4c538a37/benchmark/cases/a.json
   probed-api36-4c538a37/benchmark/cases/b.json
   probed-api36-4c538a37/benchmark/clocks.yaml
+  probed-api36-4c538a37/benchmark/order.txt
   probed-api36-4c538a37/benchmark/thermal.json
   probed-api36-4c538a37/configuration/effective.yaml
   probed-api36-4c538a37/configuration/guide.yaml

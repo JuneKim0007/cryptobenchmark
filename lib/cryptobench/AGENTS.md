@@ -139,7 +139,7 @@ cryptobench/stages/discovery/probe_store.py : --discovery verify: the build key,
 cryptobench/stages/discovery/tests/ : pytest tests of the discovery stage
 cryptobench/stages/measurement/__init__.py : package of the measurement stage
 cryptobench/stages/measurement/benchmark.py : the plain run's benchmark: device passes and sessions or host processes, warm-up, dry pass; whether it timed anything, for the analysis; the energy interpreter check passed in
-cryptobench/stages/measurement/case_files.py : process-N/cases/<case>.json: the path of a case's pulled benchmarkData, the folder made per process, benchmarkData.json merged from the files
+cryptobench/stages/measurement/case_files.py : process-N/cases/<case>.json: the path of a case's pulled benchmarkData, the folder made per process, benchmarkData.json merged from the files; process-N/order.txt, the launch order
 cryptobench/stages/measurement/energy/__init__.py : package of the energy steps of a --device run on the host
 cryptobench/stages/measurement/energy/install.py : an energy source's packages installed on first use into a venv per source and requirements digest under the user cache
 cryptobench/stages/measurement/energy/session.py : Perfetto sessions on the device: start, stop, pull

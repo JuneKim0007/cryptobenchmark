@@ -7,6 +7,7 @@ import pytest
 from cryptobench.stages.measurement import case_files  # noqa: E402
 from cryptobench.stages.measurement.session import case_isolation  # noqa: E402
 from cryptobench.stages.measurement.session import measure as measure_session  # noqa: E402
+from cryptobench.stages.measurement.session import variant_order  # noqa: E402
 from fake_phone import OK, Phone, jetpack_case  # noqa: E402
 
 
@@ -61,6 +62,20 @@ def test_an_error_that_ends_the_session_keeps_every_case_measured_before_it(tmp_
         session(phone, tmp_path)
     data = tmp_path / "benchmark/benchmarkData.json"
     assert [b["name"] for b in json.loads(data.read_text())["benchmarks"]] == ["measure[a]", "measure[b]"]
+
+
+def test_a_seeded_order_is_the_order_the_cases_launch_in_and_is_written_beside_them(tmp_path):
+    cases = tuple("abcdefgh")
+    phone = Phone(tmp_path, cases=cases)
+    plan = measure_session.Plan("CryptoBenchmark", ("-e", "x", "y"), order=variant_order.shuffled(5))
+    processes = measure_session.run_session(phone, plan, 2, [], lambda r: tmp_path / f"process-{r}", [])
+    launched = [named for _test, named in phone.ran if named]
+    assert launched == [case for process in processes for case in process.cases]
+    for process in processes:
+        assert process.cases == variant_order.shuffled(5)(process.repetition, list(cases))
+        assert (process.into / "order.txt").read_text().split() == process.cases
+        assert [b["name"] for b in json.loads(process.data.read_text())["benchmarks"]] == [f"measure[{c}]" for c in process.cases]
+    assert processes[0].cases != processes[1].cases
 
 
 class Stale(Phone):

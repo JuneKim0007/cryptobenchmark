@@ -3,6 +3,7 @@ gate:      TEMPERATURE GATE SET: kept 36.0 C on skin; a run starts at or below 3
 warm-up:   off (run.warmup.iterations 0)
 measure:   CryptoBenchmark on the device; --stream shows each case
 measure:   one process per case (2 cases)
+order:     <tmp>/results/benchmark/order.txt
 case:      1 of 2 a ok
 case:      2 of 2 b ok
 clocks:    0 of 2 cases started or ended with a core capped below its maximum

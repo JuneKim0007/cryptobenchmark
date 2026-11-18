@@ -122,7 +122,8 @@ def test_a_block_record_names_its_identity_runs_boot_and_files(tmp_path, monkeyp
         "schemaVersion": 2, "pass": None, "block": 3, "runs": {"first": 5, "last": 6}, "repetitions": 7, "size": 2,
         "bootId": {"start": "boot-1", "end": "boot-1"}, "outcome": "finished"}
     assert [run["folder"] for run in third["processes"]] == ["process-5", "process-6"] and third["processes"][0]["problems"] == []
-    assert sorted(third["processes"][0]["files"]) == ["benchmark.json", "benchmarkData.json", "cases/a.json", "cases/b.json", "clocks.yaml", "thermal.json"]
+    assert sorted(third["processes"][0]["files"]) == ["benchmark.json", "benchmarkData.json", "cases/a.json", "cases/b.json", "clocks.yaml", "order.txt",
+                                                         "thermal.json"]
     assert sorted(third["identity"]) == ["clean", "code", "commit", "device", "order", "run", "schema", "selection", "suppressErrors"]
     assert sorted(third["identity"]["code"]) == ["runner", "timed"] and len(third["identity"]["commit"]) == 40
     assert third["identity"]["run"]["resumeBlockRuns"] == 2 and third["identity"]["order"] == variant_order.chosen(None)[1]
