@@ -1159,6 +1159,7 @@ codes:
   mixed_types: {kind: error}
   names_catalog_missing: {kind: error}
   negative: {kind: error}
+  nested_layers: {kind: error}
   no_batterystats: {kind: outcome}
   no_bytes: {kind: outcome}
   no_call: {kind: outcome}

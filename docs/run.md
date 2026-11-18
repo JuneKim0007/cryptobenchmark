@@ -76,10 +76,10 @@ python3 apps/benchmark-runner/pipeline.py [--config PATH] [--results DIR] [--dis
 ## apps/benchmark-runner/explain.py
 
 ```
-python3 apps/benchmark-runner/explain.py [--config PATH] [--results DIR] [--device-id ID]
+python3 apps/benchmark-runner/explain.py [--results DIR] [--device-id ID]
 ```
 
-- Prints the run id, each `run`, `policy` and `analysis` key of `<results>/<device_id>/configuration/effective.yaml` with its value and source: the global file when written there, else `default`.
+- Prints the run id, each `run`, `policy` and `analysis` key of `<results>/<device_id>/configuration/effective.yaml` with its value and source from `generatedFrom.settings`: `layer N <file>`, or `default`.
 - Ends with the entry count and the test set.
 - A root with several device folders needs `--device-id`, else `several_device_results`.
 

@@ -8,6 +8,7 @@ apps/benchmark/modules/config/docs/config.md : authored files: global.yaml, test
 apps/benchmark/modules/config/docs/entry.md : an entry's variants and key source: values, precedence, notices, checks
 apps/benchmark/modules/config/docs/generated.md : inventory.yaml, effective.yaml and report.yaml: build order, skips, warnings, errors
 apps/benchmark/modules/config/docs/index.md : this map
+apps/benchmark/modules/config/docs/layers.md : compositions: layers, merge rules, refusals, provenance
 apps/benchmark/modules/config/example/config_capture_example.yaml : example input capture
 apps/benchmark/modules/config/example/config_effective_example.yaml : expected effective output
 apps/benchmark/modules/config/example/config_global_example.yaml : example input global settings
@@ -15,7 +16,7 @@ apps/benchmark/modules/config/example/config_inventory_example.yaml : expected i
 apps/benchmark/modules/config/example/config_report_example.yaml : expected report output
 apps/benchmark/modules/config/example/config_testset_example.yaml : example input test set
 apps/benchmark/modules/config/example/config_trial_example.yaml : example input trial
-apps/benchmark/modules/config/src/main/kotlin/AuthoredFiles.kt : a global.yaml and its test set through their parsers; nothing else read or written
+apps/benchmark/modules/config/src/main/kotlin/AuthoredFiles.kt : a global.yaml or composition, merged, and its test set through their parsers; nothing else read or written
 apps/benchmark/modules/config/src/main/kotlin/Configuration.kt : facade: inventory, effective with its report, readEffective
 apps/benchmark/modules/config/src/main/kotlin/effective/EffectiveBuilder.kt : global x test set x inventory x facts to EffectiveConfig
 apps/benchmark/modules/config/src/main/kotlin/effective/EffectiveDocument.kt : effective.yaml schema
@@ -27,7 +28,7 @@ apps/benchmark/modules/config/src/main/kotlin/effective/StoppedOnFailureExceptio
 apps/benchmark/modules/config/src/main/kotlin/effective/WarmupJobs.kt : run.warmup.jobs resolved to the effective entries they select
 apps/benchmark/modules/config/src/main/kotlin/effective/dto/EffectiveConfig.kt : effective model; rejects an empty selection; run id from the capture name
 apps/benchmark/modules/config/src/main/kotlin/effective/dto/EffectiveEntry.kt : one selected primitive's settings
-apps/benchmark/modules/config/src/main/kotlin/effective/dto/EffectiveSource.kt : generatedFrom of effective.yaml
+apps/benchmark/modules/config/src/main/kotlin/effective/dto/EffectiveSource.kt : generatedFrom of effective.yaml, with the layers and each setting's source
 apps/benchmark/modules/config/src/main/kotlin/effective/dto/EntryOrigin.kt : the test-set file and includes that selected an effective entry
 apps/benchmark/modules/config/src/main/kotlin/effective/dto/Report.kt : run id, warnings and skips of one effective build
 apps/benchmark/modules/config/src/main/kotlin/effective/dto/Skip.kt : skip record {stage, provider?, type?, name?, reason}
@@ -58,6 +59,8 @@ apps/benchmark/modules/config/src/main/kotlin/inventory/InventorySourceDocument.
 apps/benchmark/modules/config/src/main/kotlin/inventory/dto/Inventory.kt : inventory model with its build warnings; rejects two spellings of one canonical name
 apps/benchmark/modules/config/src/main/kotlin/inventory/dto/InventoryEntry.kt : one observed primitive
 apps/benchmark/modules/config/src/main/kotlin/inventory/dto/InventorySource.kt : inventory provenance
+apps/benchmark/modules/config/src/main/kotlin/layers/LayerStack.kt : a composition's layers merged by MERGE_RULES with each leaf's layer; a plain file is a stack of one; nested layers refused
+apps/benchmark/modules/config/src/main/kotlin/layers/Provenance.kt : generatedFrom.settings from the written sections and the stack; a parse failure named with its layer
 apps/benchmark/modules/config/src/main/kotlin/names/AlgorithmNames.kt : algorithm-names.yaml reader: canonical name and key size, rule name match, identifier fold
 apps/benchmark/modules/config/src/main/kotlin/names/dto/Canonical.kt : canonical name, key-size constraint, catalogued or not
 apps/benchmark/modules/config/src/main/kotlin/source/CaptureSource.kt : reads a discovery capture file as CaptureView
@@ -89,6 +92,7 @@ apps/benchmark/modules/config/src/test/kotlin/ExampleFilesTest.kt : example inpu
 apps/benchmark/modules/config/src/test/kotlin/Fixtures.kt : shared test fixtures
 apps/benchmark/modules/config/src/test/kotlin/GlobalDocumentTest.kt : global.yaml analysis section tests
 apps/benchmark/modules/config/src/test/kotlin/InventoryBuilderTest.kt : inventory tests
+apps/benchmark/modules/config/src/test/kotlin/LayerStackTest.kt : merge rules, layer refusals, a composition of the example writes the plain effective apart from generatedFrom
 apps/benchmark/modules/config/src/test/kotlin/MalformedDocumentsTest.kt : malformed documents refused by name
 apps/benchmark/modules/config/src/test/kotlin/OverrideResolverTest.kt : override precedence tests
 apps/benchmark/modules/config/src/test/kotlin/ParityFixturesTest.kt : parity/ global, effective, facts, algorithm-names and scalars read to their .json values; the duplicate-key refusal and exponent read

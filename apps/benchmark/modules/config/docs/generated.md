@@ -78,7 +78,7 @@ An entry is checked as `run.harness` merged with its own harness. When the run s
 
 | key | holds |
 |---|---|
-| `generatedFrom` | `global`, `testSet` (the `selection.testSet` string as written), `inventory`, `capture`, `trial`, `device` |
+| `generatedFrom` | `global`, `testSet` (the `selection.testSet` string as written), `inventory`, `capture`, `trial`, `device`; `layers`: `[{path, sha256}]` of each authored layer, lowest first; `settings`: each written `run`, `policy`, `analysis` value and each authored `selection` and `providers` value, by dotted path, to `layer N <file>` or `default`; required, a file without them is refused |
 | `runId` | the capture's stamp, `probe_<stamp>.yaml` -> `<stamp>` (e.g. `20261005T103349Z`); absent for a capture named otherwise |
 | `run` | the global `run` section |
 | `policy` | the global `policy` section |

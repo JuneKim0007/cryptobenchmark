@@ -26,6 +26,9 @@ Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 
 `schemaVersion: 1`. Sections `selection` and `run` (required: `run.orderSeed`), `policy`, `analysis`, `providers`; any other top key fails `unknown_section`; an unknown key fails `unknown_keys`.
 
+
+A composition of layers: [layers.md](layers.md).
+
 | section | key | default | rule |
 |---|---|---|---|
 | `selection` | `testSet` | required | non-blank; relative to global.yaml's directory unless absolute |

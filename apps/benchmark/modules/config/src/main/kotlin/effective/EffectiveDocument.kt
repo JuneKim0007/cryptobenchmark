@@ -25,6 +25,8 @@ import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSection
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSections
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalStrings
 import io.github.junekim0007.cryptobench.document.DocumentFields.section
+import io.github.junekim0007.cryptobench.document.DocumentFields.sections
+import io.github.junekim0007.cryptobench.config.layers.LayerStack
 import io.github.junekim0007.cryptobench.document.DocumentFields.string
 import io.github.junekim0007.cryptobench.config.yaml.DocumentHandler
 import io.github.junekim0007.cryptobench.config.yaml.ProviderTree
@@ -48,6 +50,11 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
     private const val INCLUDES = "includes"
     private const val INDEX = "index"
 
+    private const val LAYERS = "layers"
+    private const val SETTINGS = "settings"
+    private const val PATH = "path"
+    private const val SHA256 = "sha256"
+
     private const val GLOBAL = "global"
     private const val TEST_SET = "testSet"
     private const val INVENTORY = "inventory"
@@ -58,6 +65,8 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
             put(TEST_SET, value.generatedFrom.testSet)
             put(INVENTORY, value.generatedFrom.inventory)
             putAll(InventorySourceDocument.of(value.generatedFrom.environment))
+            put(LAYERS, value.generatedFrom.layers.map { linkedMapOf(PATH to it.path, SHA256 to it.sha256) })
+            put(SETTINGS, LinkedHashMap(value.generatedFrom.settings))
         })
         value.runId?.let { put(RUN_ID, it) }
         put(RUN, RunDocument.of(value.run))
@@ -75,6 +84,8 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
                 testSet = string(source, TEST_SET),
                 inventory = string(source, INVENTORY),
                 environment = InventorySourceDocument.parse(source),
+                layers = sections(source, LAYERS).map { LayerStack.Layer(string(it, PATH), string(it, SHA256)) },
+                settings = section(source, SETTINGS).mapValues { (key, value) -> value as? String ?: throw IllegalArgumentException("wrong_type: $GENERATED_FROM.$SETTINGS.$key") },
             ),
             run = RunDocument.parse(section(document, RUN), RUN),
             policy = PolicyDocument.parse(section(document, POLICY), POLICY),
@@ -85,6 +96,10 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
             bundledProviders = ProvidersDocument.parseBundled(optionalSections(document, BUNDLED_PROVIDERS), BUNDLED_PROVIDERS),
         )
     }
+
+    /** The run, policy and analysis sections as of() writes them: what generatedFrom.settings names a source for. */
+    fun settingsOf(value: EffectiveConfig): Map<String, Any> =
+        linkedMapOf(RUN to RunDocument.of(value.run), POLICY to PolicyDocument.of(value.policy), ANALYSIS to AnalysisDocument.of(value.analysis))
 
     private fun entry(entry: EffectiveEntry): Map<String, Any> = LinkedHashMap<String, Any>().apply {
         if (entry.keySizes.isNotEmpty()) put(KEY_SIZES, entry.keySizes)
