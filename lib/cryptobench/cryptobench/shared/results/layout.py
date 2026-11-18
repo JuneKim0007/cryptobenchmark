@@ -76,6 +76,7 @@ def stamped(root):
             continue
 
 
+DISCOVERY_MODES = ("overwrite", "keep", "reuse", "verify")
 # --discovery modes that clear discovery/ and probe or verify again
 REPLACING = ("overwrite", "verify")
 

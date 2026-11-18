@@ -124,3 +124,26 @@ def test_a_stop_reaches_the_running_worker_and_the_rest_never_start(session, mon
 def test_the_board_prints_a_line_when_a_targets_status_changes(session):
     _, board = session("devices: {select: listed}\ndefaults: {config: global.yaml, suites: [tier1.yaml]}\ntargets: {56301AAAA00001: {}}\n")
     assert board.splitlines()[-1] == "target:    56301AAAA00001: tier1: finished"
+
+
+def test_every_worker_command_carries_the_session_discovery_keys(session):
+    with pytest.raises(CommandError, match="^session_incomplete: 1 of 5 rows"):
+        session("discovery: verify\nprobeStore: store\ndevices: {emulators: true}\nhost: {benchmark: true}\n"
+                "defaults: {config: global.yaml, suites: [tier1.yaml, tier2.yaml]}\n")
+    store = pathlib.Path(session.folder).parents[2] / "store"
+    started = logged(session.folder, "start:")
+    assert len(started) == 4 and all(line.endswith(f"--discovery verify --probe-store {store}") for line in started)
+    assert logged(session.folder, "skipped:") == ["skipped: host: discovery_not_applicable: host: discovery verify: verify checks a device's stored probe"]
+
+
+def test_a_mode_every_kind_takes_reaches_the_host_worker_too(session):
+    session("discovery: keep\nhost: {benchmark: true}\ndevices: {select: listed}\ndefaults: {config: global.yaml, suites: [tier1.yaml]}\n"
+            "targets: {56301AAAA00001: {}}\n")
+    started = logged(session.folder, "start:")
+    assert [line.split(": ")[1] for line in started] == ["56301AAAA00001 tier1", "host tier1"]
+    assert all(line.endswith("--per-suite --device --discovery keep") or line.endswith("--per-suite --bench --discovery keep") for line in started)
+
+
+def test_unwritten_discovery_keys_leave_the_worker_default(session):
+    session("devices: {select: listed}\ndefaults: {config: global.yaml, suites: [tier1.yaml]}\ntargets: {56301AAAA00001: {}}\n")
+    assert "--discovery" not in logged(session.folder, "start:")[0]

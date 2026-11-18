@@ -7,11 +7,12 @@ from pathlib import Path
 
 from cryptobench.shared.document.document import AT_PATH, DocumentKind
 from cryptobench.shared.errors.input_error import InputError
+from cryptobench.shared.results.layout import DISCOVERY_MODES
 
 SESSION_DOC = DocumentKind("session", 1, AT_PATH)
 HOST = "host"
 SELECT = ("all", "listed")
-TOP = ("schemaVersion", "name", "devices", "host", "defaults", "targets")
+TOP = ("schemaVersion", "name", "devices", "host", "defaults", "targets", "discovery", "probeStore")
 SECTIONS = {"devices": ("emulators", "select"), "host": ("benchmark",), "defaults": ("config", "suites", "order")}
 TARGET = ("config", "suites", "order")
 NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
@@ -27,6 +28,9 @@ class Session:
     # config, suites, order as written; paths resolved against the session file's folder
     defaults: dict
     targets: dict[str, dict]
+    # forwarded to every worker as --discovery and --probe-store; None: not written, the worker's own default
+    discovery: str | None = None
+    probe_store: Path | None = None
 
 
 def refused(path, code, detail):
@@ -66,6 +70,20 @@ def flag(path, where, value, default):
     return value
 
 
+def discovery_keys(path, doc, folder):
+    """discovery and probeStore as pipeline.py takes them: verify reads probeStore, and probeStore is read only by verify."""
+    mode, store = doc.get("discovery"), doc.get("probeStore")
+    if mode is not None and mode not in DISCOVERY_MODES:
+        raise refused(path, "wrong_type", f"discovery is {mode!r}; expected one of {', '.join(DISCOVERY_MODES)}")
+    if store is not None and (not isinstance(store, str) or not store.strip()):
+        raise refused(path, "wrong_type", f"probeStore is {store!r}; expected a folder path")
+    if mode == "verify" and store is None:
+        raise refused(path, "missing_field", "probeStore; discovery verify checks the stored probe of this build")
+    if store is not None and mode != "verify":
+        raise refused(path, "wrong_type", f"probeStore is set with discovery {mode!r}; it is read only by discovery verify")
+    return mode, None if store is None else (folder / store).resolve()
+
+
 def parse(path: Path) -> Session:
     path = Path(path)
     if not path.is_file():
@@ -82,7 +100,9 @@ def parse(path: Path) -> Session:
     targets = doc.get("targets") or {}
     if not isinstance(targets, dict):
         raise refused(path, "not_a_mapping", f"targets is a {type(targets).__name__}")
+    discovery, probe_store = discovery_keys(path, doc, folder)
     return Session(path=path.resolve(), name=name, emulators=flag(path, "devices.emulators", devices.get("emulators"), False), select=select,
                    host_benchmark=flag(path, "host.benchmark", host.get("benchmark"), False),
                    defaults=entry(path, "defaults", doc.get("defaults"), folder),
-                   targets={str(t): entry(path, f"targets.{t}", v, folder) for t, v in targets.items()})
+                   targets={str(t): entry(path, f"targets.{t}", v, folder) for t, v in targets.items()},
+                   discovery=discovery, probe_store=probe_store)

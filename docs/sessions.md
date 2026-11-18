@@ -7,6 +7,8 @@
 ```yaml
 schemaVersion: 1
 name: tiers                  # default: the file's stem
+discovery: verify            # default: not passed, each worker's own --discovery default
+probeStore: store            # with discovery: verify only
 devices:
   emulators: false           # default false: emulators join select: all only when true
   select: all                # all | listed
@@ -29,10 +31,11 @@ targets:                     # keys: a device key, an alias, a transport serial,
 | `order` | integer >= 0; one group per value, groups in ascending order |
 | host order | `targets.host.order` when set, else one past the highest device order (0 with no device) |
 | `config`, `suites` | the target's own, else `defaults` |
+| `discovery`, `probeStore` | session-wide; every worker gets `--discovery <mode>` and `--probe-store <folder>`; `discovery` one of `overwrite`, `keep`, `reuse`, `verify`; `verify` needs `probeStore` and `probeStore` needs `verify` |
 
 ## Resolution
 
-`lib/cryptobench/cryptobench/shared/session/targets.py`. A session file that cannot be read stops: `missing_file`, `invalid_yaml`, `unknown_keys`, `not_a_mapping`, `wrong_type`, another `schemaVersion`. Every other problem skips one target:
+`lib/cryptobench/cryptobench/shared/session/targets.py`. A session file that cannot be read stops: `missing_file`, `invalid_yaml`, `unknown_keys`, `not_a_mapping`, `wrong_type`, `missing_field` (`discovery: verify` without `probeStore`), another `schemaVersion`. Every other problem skips one target:
 
 | problem | line |
 |---|---|
@@ -44,6 +47,7 @@ targets:                     # keys: a device key, an alias, a transport serial,
 | two suites with one file stem | `target_conflict: <target>: suites ... share the name <stem>` |
 | two target keys for one device | `target_conflict: <a> and <b> name one device, <key>`, both skipped |
 | `targets.host` with `host.benchmark` false | `host_benchmark_not_set: host.benchmark is false` |
+| `discovery: verify` on the host, `discovery: reuse` on a device | `discovery_not_applicable: <target>: discovery <mode>: ...` |
 
 | notice | when |
 |---|---|
@@ -64,7 +68,7 @@ Prints the device listing, one `order <n>:   <target> (<key>, adb <serial> | hos
 |---|---|
 | groups | ascending `order`; a group starts when the previous one ended, failed and skipped targets included |
 | within a group | one target after another, its suites in the listed order (`parallel_unavailable`) |
-| worker | `pipeline.py --config <suite config> --results <DIR> --per-suite --device` on a device, `--bench` on the host, plus `--stacktrace` and `--energy-python` when given; its own process group; stdin closed |
+| worker | `pipeline.py --config <suite config> --results <DIR> --per-suite --device` on a device, `--bench` on the host, plus `--stacktrace` and `--energy-python` when given, then `--discovery` and `--probe-store` when the session file sets them; its own process group; stdin closed; `--session` with `--discovery` or `--probe-store` fails |
 | `ANDROID_SERIAL` | the target's transport serial on a device worker; an inherited value is ignored with `warning: android_serial_ignored: ...`; `--suppress-errors` (or `CRYPTOBENCH_SUPPRESS_ERRORS`) reaches device workers as that variable; a host worker gets neither it nor `CRYPTOBENCH_SUPPRESS_ERRORS` |
 | suite config | the target's config with `selection.testSet` set to the suite's absolute path, written to the session folder |
 | a run | one suite on one target, at `<DIR>/<device_id>/<suite>/` ([results.md](results.md#device-folder)); a failed run ends only itself |

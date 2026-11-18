@@ -11,6 +11,7 @@ REFUSALS = [
     (["--probe", "--bench"], "--probe, --identify: no measuring, so neither goes with --bench, --harness or --interop"),
     (["--harness", "harness.yaml"], "--harness: scopes are checked only on a --device run"),
     (["--check", "--probe"], "--check: runs alone with --bench or --device, without --probe, --identify, --harness or --interop"),
+    (["--session", "s.yaml", "--probe-store", "store"], "--session: discovery and probeStore are session.yaml keys, so it goes with no --discovery or --probe-store"),
     (["--device", "--discovery", "reuse"], "--discovery reuse: a device run probes the device it measures"),
     (["--device", "--discovery", "verify"], "--discovery verify: a --device run with --probe-store DIR checks the stored probe of this build"),
     (["--probe-store", "store"], "--probe-store: read only by --discovery verify"),

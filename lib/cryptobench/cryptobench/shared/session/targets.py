@@ -71,6 +71,16 @@ def files_of(name: str, entry: dict, defaults: dict, config: Callable[[], Path])
     return chosen, tuple(suites)
 
 
+# the session's discovery modes a worker of that kind refuses, as pipeline.py's refusals say
+NOT_APPLICABLE = {("device", "reuse"): "a device run probes the device it measures",
+                  ("host", "verify"): "verify checks a device's stored probe"}
+
+
+def discovery_of(name: str, kind: str, mode: str | None) -> str | None:
+    why = NOT_APPLICABLE.get((kind, mode))
+    return why and f"discovery_not_applicable: {name}: discovery {mode}: {why}"
+
+
 def resolve(session: Session, rows: list[DeviceRow], aliases: dict[str, str], config: Callable[[], Path]) -> Resolved:
     """config() is the run's own global.yaml chain, asked only when neither the target nor defaults name one."""
     skipped, notices, devices = [], [], {}
@@ -97,7 +107,7 @@ def resolve(session: Session, rows: list[DeviceRow], aliases: dict[str, str], co
             continue
         name, entry, row = named[0]
         order, files = order_of(name, entry, session.defaults, None), files_of(name, entry, session.defaults, config)
-        problem = next((value for value in (order, files) if isinstance(value, str)), None)
+        problem = discovery_of(name, "device", session.discovery) or next((value for value in (order, files) if isinstance(value, str)), None)
         if problem:
             skipped.append((name, problem))
             continue
@@ -110,7 +120,7 @@ def resolve(session: Session, rows: list[DeviceRow], aliases: dict[str, str], co
         entry = session.targets.get(HOST, {})
         after_phones = max((t.order for t in targets), default=-1) + 1
         order, files = order_of(HOST, entry, session.defaults, None if "order" in entry else after_phones), files_of(HOST, entry, session.defaults, config)
-        problem = next((value for value in (order, files) if isinstance(value, str)), None)
+        problem = discovery_of(HOST, "host", session.discovery) or next((value for value in (order, files) if isinstance(value, str)), None)
         if problem:
             skipped.append((HOST, problem))
         else:

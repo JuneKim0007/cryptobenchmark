@@ -45,7 +45,7 @@ python3 apps/benchmark-runner/pipeline.py [--config PATH] [--results DIR] [--dis
 | rule | result |
 |---|---|
 | `--bench` with `--device` | rejected (mutually exclusive) |
-| `--device` with `--discovery reuse`; `--discovery verify` without `--device` and `--probe-store`; `--probe-store` without `verify` | fails |
+| `--device` with `--discovery reuse`; `--discovery verify` without `--device` and `--probe-store`; `--probe-store` without `verify`; `--session` with `--discovery` or `--probe-store` (session keys, [sessions.md](sessions.md)) | fails |
 | `--suppress-errors` without `--device` or `--session`, `--energy-accept-unresponsive` without `--device` | fails |
 | energy capture other than `none` without `--device` | fails |
 | `--harness` without `--device`, or with `--results` | fails: `checked/` goes beside `harness.yaml` |

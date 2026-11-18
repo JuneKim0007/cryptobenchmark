@@ -18,7 +18,7 @@ cryptobench/pipeline/orchestrator/__init__.py : package of the session orchestra
 cryptobench/pipeline/orchestrator/board.py : StatusBoard: one status line per target, redrawn in place on a terminal, else printed on change
 cryptobench/pipeline/orchestrator/index.py : index.yaml: every case of a session's runs from the files each run wrote: suite, device, target, configured, prepared, skip code, runs measured, from
 cryptobench/pipeline/orchestrator/plan.py : a session's plan before anything runs: devices listed, targets resolved and grouped, skips and notices; --check-session
-cryptobench/pipeline/orchestrator/run.py : --session: the plan, order groups ascending, one worker per target and suite (sequential), each skip or failure in the session log, the target log and the summary, then index.yaml; a stop forwarded to the running worker; session_incomplete
+cryptobench/pipeline/orchestrator/run.py : --session: the plan, order groups ascending, one worker per target and suite (sequential) with the session's discovery keys, each skip or failure in the session log, the target log and the summary, then index.yaml; a stop forwarded to the running worker; session_incomplete
 cryptobench/pipeline/orchestrator/suite_config.py : one suite's global.yaml in the session folder: the target's config with selection.testSet the suite
 cryptobench/pipeline/orchestrator/summary.py : Row; the summary table (target, suite, state, code, results), written as summary.txt
 cryptobench/pipeline/orchestrator/tests/ : pytest tests of the orchestrator with fake workers: order, serials, skips, failures, stop, status lines
@@ -97,7 +97,7 @@ cryptobench/shared/paths/run_tree.py : RunTree: every file of one results folder
 cryptobench/shared/paths/settings.py : against(settings_file, value), the one rule for a path a settings file names; in_temp
 cryptobench/shared/results/__init__.py : package of a run's results folder, importing no app
 cryptobench/shared/results/identity.py : a measuring run's identity (effective run block, selection digest, timed and runner code digests, capture runtime with facts.yaml's build, order, suppressed errors) and the dotted fields two identities differ in
-cryptobench/shared/results/layout.py : results/<device_id>/[<suite>/]: unit_folder, staging, publishing into the device folder after the earlier unit, but for the paths a resumed run keeps, moves to superseded/<stamp>/, the temporary-folder warning
+cryptobench/shared/results/layout.py : the --discovery modes; results/<device_id>/[<suite>/]: unit_folder, staging, publishing into the device folder after the earlier unit, but for the paths a resumed run keeps, moves to superseded/<stamp>/, the temporary-folder warning
 cryptobench/shared/results/lock.py : DeviceLock: `<folder>/.lock`, or a phone's lock file by take_key, by fcntl.flock (POSIX), the holder's pid; another process is device_busy, the holding one takes it again; a results root or a phone (pipeline.py) or a device folder (perf-repair)
 cryptobench/shared/results/manifest.py : results/<device_id>/manifest.yaml: MANIFEST_DOC and MODES, files, counts, runtime, providers, input digests, units, the harness operations, energy mark, problems, the partial mark of a stopped run; files added beside a finished run; write(), the one manifest writer
 cryptobench/shared/results/publish_unit.py : publish_unit(): a verification stage's staged folder published beside a finished run (its configuration under the stage's folder) or as a new device folder, the results: line, the manifest, the superseded report; Route, a stage's folder name and manifest files
@@ -106,8 +106,8 @@ cryptobench/shared/results/run_record.py : a measuring run's record: its identit
 cryptobench/shared/results/run_inputs.py : digests of a run's inputs, providers.bundled and global.yaml with its test set (analysis left out), for the manifest and --identify
 cryptobench/shared/results/select.py : the device folder of a results root a reader names, or the only one there
 cryptobench/shared/session/__init__.py : package of a session: session.yaml, its targets against the devices adb lists, order groups
-cryptobench/shared/session/document.py : Session; session.yaml read and checked whole, paths resolved against its folder; a file that cannot be read stops
-cryptobench/shared/session/targets.py : TargetSpec, Resolved; resolve: each target found by key, alias or serial, its order, config and suites checked, a coded skip per bad target, the host after the last phone group; groups; nothing_to_measure
+cryptobench/shared/session/document.py : Session; session.yaml read and checked whole, paths resolved against its folder, discovery and probeStore checked as pipeline.py takes them; a file that cannot be read stops
+cryptobench/shared/session/targets.py : TargetSpec, Resolved; resolve: each target found by key, alias or serial, its order, config, suites and the session's discovery mode checked, a coded skip per bad target, the host after the last phone group; groups; nothing_to_measure
 cryptobench/shared/session/tests/ : pytest tests of session.yaml and target resolution, one per fallback row
 cryptobench/shared/settings/__init__.py : package of the run's settings readers the stages share
 cryptobench/shared/settings/bundled.py : providers.bundled of global.yaml: the digest's raw read, build property of the app or host CLI, DeviceProbe argument, effective record and check

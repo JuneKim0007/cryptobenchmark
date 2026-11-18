@@ -39,6 +39,7 @@ def parse_options():
     for refused, message in REFUSED:
         if refused(options):
             fail(message)
+    options.discovery = options.discovery or "overwrite"
     return options
 
 
@@ -47,8 +48,8 @@ def parser():
     parser = argparse.ArgumentParser(description="run the host pipeline")
     parser.add_argument("--config", help="path to global.yaml")
     parser.add_argument("--results", help="results root; the run writes <results>/<device_id>/ (default: <repo>/results)")
-    parser.add_argument("--discovery", choices=["overwrite", "keep", "reuse", "verify"], default="overwrite",
-                        help="overwrite: clear the discovery directory first; keep: add a new capture; reuse: keep the existing capture for this device; "
+    parser.add_argument("--discovery", choices=results_layout.DISCOVERY_MODES,
+                        help="overwrite (default): clear the discovery directory first; keep: add a new capture; reuse: keep the existing capture for this device; "
                              "verify (--device): the stored capture of this build from --probe-store, else a probe that is then stored")
     parser.add_argument("--probe-store", metavar="DIR", help="with --discovery verify: one capture+trial per build key, shared across runs")
     mode = parser.add_mutually_exclusive_group()
@@ -93,6 +94,8 @@ REFUSED = (
      "--probe, --identify: no measuring, so neither goes with --bench, --harness or --interop"),
     (lambda o: o.harness and not o.device, "--harness: scopes are checked only on a --device run"),
     (lambda o: o.check and (o.probe or o.identify or o.harness or o.interop), "--check: runs alone with --bench or --device, without --probe, --identify, --harness or --interop"),
+    (lambda o: o.session and (o.discovery or o.probe_store),
+     "--session: discovery and probeStore are session.yaml keys, so it goes with no --discovery or --probe-store"),
     (lambda o: o.device and o.discovery == "reuse", "--discovery reuse: a device run probes the device it measures"),
     (lambda o: o.discovery == "verify" and not (o.device and o.probe_store),
      "--discovery verify: a --device run with --probe-store DIR checks the stored probe of this build"),

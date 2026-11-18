@@ -40,6 +40,12 @@ def pipeline_command(target: TargetSpec, config: Path, results: Path, passed: li
     return [sys.executable, str(paths.repo().root / paths.PIPELINE), "--config", str(config), "--results", str(results), "--per-suite", mode, *passed]
 
 
+def session_options(session) -> list[str]:
+    """The session keys every worker gets; an unwritten key leaves the worker's own default."""
+    return (["--discovery", session.discovery] if session.discovery else []) + \
+        (["--probe-store", str(session.probe_store)] if session.probe_store else [])
+
+
 class Session:
     """The session folder's log and the target logs; each line stamped, one coded line per skip or failure."""
 
@@ -66,6 +72,7 @@ def run_session(session_file: Path, results: Path, config: Callable[[], Path], p
     for line in probe.listing(rows, known) + session_plan.lines(session, resolved, results):
         print(line)
     folder = paths.Results(results).session(session.name)
+    passed = passed + session_options(session)
     with DeviceLock.take(folder):
         return orchestrated(session, resolved, Session(folder, session.name), results, passed, command, board or StatusBoard())
 

@@ -127,3 +127,33 @@ def test_a_missing_session_file_stops(tmp_path):
 
 def test_the_name_defaults_to_the_file_stem(folder):
     assert session(folder, "").name == "session" and session(folder, "name: tiers\n").name == "tiers"
+
+
+def test_discovery_keys_are_read_with_the_store_beside_the_session(folder):
+    parsed = session(folder, "discovery: verify\nprobeStore: store\n")
+    assert (parsed.discovery, parsed.probe_store) == ("verify", folder / "store")
+    assert (session(folder, "name: x\n").discovery, session(folder, "name: x\n").probe_store) == (None, None)
+
+
+@pytest.mark.parametrize("text, line", [
+    ("discovery: fresh\n", "wrong_type: .*: discovery is 'fresh'; expected one of overwrite, keep, reuse, verify"),
+    ("discovery: verify\n", "missing_field: .*: probeStore; discovery verify checks the stored probe of this build"),
+    ("discovery: keep\nprobeStore: store\n", "wrong_type: .*: probeStore is set with discovery 'keep'; it is read only by discovery verify"),
+    ("probeStore: store\n", "wrong_type: .*: probeStore is set with discovery None; it is read only by discovery verify"),
+    ("discovery: verify\nprobeStore: [a]\n", "wrong_type: .*: probeStore is \\['a'\\]; expected a folder path"),
+])
+def test_a_discovery_key_pipeline_py_would_refuse_stops_the_session(folder, text, line):
+    with pytest.raises(InputError, match=f"^{line}$"):
+        session(folder, text)
+
+
+@pytest.mark.parametrize("mode, skipped", [
+    ("verify", [("host", "discovery_not_applicable: host: discovery verify: verify checks a device's stored probe")]),
+    ("reuse", [("56301AAAA00001", "discovery_not_applicable: 56301AAAA00001: discovery reuse: a device run probes the device it measures")]),
+])
+def test_a_target_whose_worker_refuses_the_discovery_mode_is_skipped(folder, mode, skipped):
+    store = "probeStore: store\n" if mode == "verify" else ""
+    result = resolved(folder, f"discovery: {mode}\n{store}devices: {{select: listed}}\nhost: {{benchmark: true}}\n"
+                              "defaults: {suites: [tier1.yaml]}\ntargets: {56301AAAA00001: {}}\n")
+    assert result.skipped == skipped
+    assert [t.name for t in result.targets] == [n for n in ("56301AAAA00001", "host") if n not in dict(skipped)]
