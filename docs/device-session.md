@@ -54,7 +54,7 @@ Each entry's `variants`, else `run.variants` ([operations.md](../apps/benchmark/
 
 | rule | value |
 |---|---|
-| order | items as the plan lists them; an item's `fixed` and `notFixed` cases adjacent, `fixed` first in odd repetitions and `notFixed` first in even ones (A/B, then B/A: A/B/B/A over two); with `run.orderSeed` the items are shuffled per process with `Random("<orderSeed>:<repetition>")`, the variants kept as above |
+| order | the items shuffled per process with `Random("<orderSeed>:<repetition>")` (`run.orderSeed`, required); an item's `fixed` and `notFixed` cases adjacent, `fixed` first in odd repetitions and `notFixed` first in even ones (A/B, then B/A: A/B/B/A over two); a host run measures in the plan's order and warns `run.orderSeed: only a --device run launches cases in an order; ...` |
 | item | the case id without its last part `_fixed`, `_notFixed` or `_secure`; a `secure` case is an item of its own (another provider) |
 | process | each variant in its own process |
 | inputs | message bytes from `run.seed`, equal for both; keys from unseeded `SecureRandom` per process, so they differ ([operations.md](../apps/benchmark/modules/preparation/docs/operations.md#variants)); setup, inputs and buffers before the timer |
@@ -101,10 +101,11 @@ Why: the phone's power controller lowers the CPU limit once skin reaches its own
 | hold | before every launch of a run, the warm-up and the energy dry pass: above the limit, wait `cooldownMinutes`, then read every `pollMinutes` |
 | end | a run ending at or above `temperatureKeptCelsius` is discarded and measured again; the margin widens by `backoffFactor`, up to `maximumCelsius`; `cleanRunsToRecover` clean runs narrow it by `recoveryCelsius`, never below `initialCelsius` |
 | stop | still too hot after `pollTerminateMinutes`: the benchmark stops with `temperature_gate_timeout` |
-| limit | `discardLimit` discards of one run: `onDiscardLimit` |
+| limit | `discardLimit` discards of one run: `onDiscardLimit`, `nextCase` (the case fails, the next goes on) or `stop` (the benchmark stops); the vocabulary is `codes.yaml` `temperature_discard_limit` `values`, which :config's `ThermalGate.ON_DISCARD_LIMIT` matches (`test_thermal_gate.py`) |
+| read | every gate key through `effective_view.required` when the gate opens: an absent one is `missing_field: run.thermalGate.<key> in effective.yaml`, an unknown `onDiscardLimit` `invalid: run.thermalGate.onDiscardLimit ...`, both before the first case |
 | unreadable | a reading is retried `readRetries` times; still unreadable: logged, that run is dropped, the next case goes on; a failed reading is never a pass |
 | refused | a failed launch whose case the device recorded in `skipped.yaml` with a code `codes.yaml` holds as an `outcome` or an `error` (`keystore_unsupported`, `strongbox_unavailable`, `api_too_low`, `not_supported`, ...): `case_skipped: <id>: <code>` in `problems`, not launched again in that process; a record without such a code, or none, is an other failure |
-| all skipped | a process whose every case is `case_skipped`: `all_cases_skipped: ...`, the run stops measuring, its manifest keeps `prepared.yaml` and `skipped.yaml` and no `benchmark.json`, exit 0 |
+| all skipped | a process whose every case is `case_skipped`: `all_cases_skipped: ...`, the run stops measuring, its manifest keeps `prepared.yaml` and `skipped.yaml` and no `benchmark.json`, exit 0; a session's row for it is `all_skipped` ([sessions.md](sessions.md)) |
 | other failures | crash, timeout, no data, collapsed calibration: `launchRetries` more launches, then the next case |
 | order | hold, then the case hooks, launch, hooks, verdict (`lib/cryptobench/cryptobench/stages/measurement/session/launch.py`) |
 
@@ -115,7 +116,7 @@ Why: the phone's power controller lowers the CPU limit once skin reaches its own
 | rule | value |
 |---|---|
 | what it is | a pre-flight check that the app, the providers and the timed loop run on this device; not temperature stabilisation, and no number of it is kept |
-| cases | `jobs`: test-set rules, resolved by config to the entries they select; `[]` the plan's first 3; a case `skipped.yaml` holds as a final skip is left out, and a warm-up whose only failures are such skips prints `warm-up:   case_skipped: <id>: <code>` per case and counts the rest, or chooses again when none is left |
+| cases | `jobs`: test-set rules, resolved by config to the entries they select; `[]` the plan's first `run.warmup.cases` (3); a case `skipped.yaml` holds as a final skip is left out, and a warm-up whose only failures are such skips prints `warm-up:   case_skipped: <id>: <code>` per case and counts the rest, or chooses again when none is left |
 | samples | `iterations` (10) per case, as `-e cryptobench.pass warmup`: no energy capture |
 | output | deleted on the device right after; never pulled, never converted, never in `benchmark.json` |
 | printed | `warm-up:   <n> cases x <i> samples in <s>s, a pre-flight check, not measured; hottest <c> C before, <c> C after` |
@@ -131,6 +132,7 @@ Why: the phone's power controller lowers the CPU limit once skin reaches its own
 |---|---|
 | `measure:   one process per case (<n> cases)` | `-e log true` lists the planned timed cases without running them, then one `am instrument -e case <id>` per case; each process writes its own `benchmarkData.json`, pulled after it to `cases/<id>.json` in the process folder and kept; the process's `benchmarkData.json` is merged from those files again after each case that passed (the first case's `context`, every case's `benchmarks`, in run order) |
 
+- Order: `order:     <process folder>/order.txt`, the cases in the order this process launches them, one id per line, written before the first launch.
 - Progress: after each case `case:      <n> of <m> <id> ok` or `... failed`.
 - `cases/`: empty when a process starts, since the run's publish moved an earlier unit aside ([results.md](results.md#device-folder)); a stopped run keeps the files of the cases it finished, and `benchmarkData.json` holds them all.
 - Device time: a process per case costs about 1 to 2 s of instrumentation start plus the plan's preparation on the device, per case and per pass.

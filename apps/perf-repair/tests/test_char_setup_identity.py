@@ -1,11 +1,10 @@
-"""Characterization (Py-P5): which manifest and run-folder fields the delta merge's setup fingerprint compares and which it ignores today, and that
-the device stage reuses a stored benchmark whatever code digest --identify reports."""
+"""Py-P5: which manifest and run-folder fields the delta merge's setup fingerprint compares and which it leaves to the run record (manifest run:,
+run_changes), and that a changed code digest from --identify reruns the benchmark stage."""
 import pytest
 import yaml
 
 from cryptobench.shared.paths import RunTree
 from cryptobench.shared.document.document import read_yaml
-from perfrepair.device import stage as device_stage
 from perfrepair.device.setup_fingerprint import differing, fingerprint, provider_setup
 from test_benchmark_gate import device  # noqa: F401
 from test_device_stage import ALL_RAN, setup  # noqa: F401
@@ -27,7 +26,7 @@ FIELDS = [
     ("mode", lambda f: edited(f, lambda m: m.update(mode="host")), ["mode"]),
     ("runtime.sdkInt", lambda f: edited(f, lambda m: m["runtime"].update(sdkInt=35)), ["runtime.sdkInt"]),
     ("runtime.javaRuntimeVersion", lambda f: edited(f, lambda m: m["runtime"].update(javaRuntimeVersion="x")), ["runtime.javaRuntimeVersion"]),
-    ("run.orderSeed", lambda f: edited(f, effective=lambda e: e["run"].update(orderSeed=3)), ["run.orderSeed"]),
+    ("effective run block left to the run record", lambda f: edited(f, effective=lambda e: e["run"].update(orderSeed=3)), []),
     ("runtime.model ignored", lambda f: edited(f, lambda m: m["runtime"].update(model="other")), []),
     ("runtime.cpuLocked ignored", lambda f: edited(f, lambda m: m["runtime"].update(cpuLocked=True)), []),
     ("inputs ignored", lambda f: edited(f, lambda m: m.update(inputs={"bundled": "b", "config": "c"})), []),
@@ -44,9 +43,9 @@ def test_today_setup_fingerprint_compares_these_fields_and_ignores_the_rest(devi
     assert [line.split(":")[0] for line in differing(stored, fingerprint(device))] == named
 
 
-def test_today_setup_fingerprint_has_no_code_digest_build_facts_or_suppress_errors(device):  # noqa: F811
+def test_setup_fingerprint_leaves_code_build_facts_suppress_errors_and_the_run_block_to_the_run_record(device):  # noqa: F811
     keys = set(fingerprint(device))
-    assert not [k for k in keys if any(word in k.lower() for word in ("code", "harnessdigest", "suppress", "facts", "patch", "apex"))]
+    assert not [k for k in keys if k.startswith("run.") or any(word in k.lower() for word in ("code", "suppress", "facts", "patch", "apex"))]
     assert {"deviceId", "mode", "bundled", "processes", "energy"} <= keys
 
 
@@ -54,10 +53,9 @@ def test_today_provider_setup_drops_run_prepared_processes_and_energy(device):  
     assert not [k for k in provider_setup(device) if k.startswith(("run.", "prepared.")) or k in ("processes", "energy")]
 
 
-def test_today_a_changed_code_digest_reuses_every_stage(setup, monkeypatch):  # noqa: F811
+def test_a_changed_code_digest_reruns_the_benchmark_and_what_reads_it(setup, monkeypatch):  # noqa: F811
     root, config = setup
-    real = device_stage.identify
-    monkeypatch.setattr(device_stage, "identify", lambda *a, **k: {**real(*a, **k), "code": "first", "harness": "first"})
     assert stage(root, config).ran == ALL_RAN
-    monkeypatch.setattr(device_stage, "identify", lambda *a, **k: {**real(*a, **k), "code": "second", "harness": "second"})
     assert stage(root, config).ran == []
+    monkeypatch.setenv("FAKE_CODE", "second")
+    assert stage(root, config).ran == ["benchmark", "inbound", "screen", "primitives"]

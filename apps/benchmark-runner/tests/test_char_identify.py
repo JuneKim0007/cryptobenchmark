@@ -1,5 +1,5 @@
-"""Characterization (Py-P5): the one --identify line against golden/identify_device.txt (UPDATE_GOLDEN=1 rewrites it); the harness digest is
-normalised, everything else is pinned, so a key added or dropped shows."""
+"""Py-P5: the one --identify line against golden/identify_device.txt (UPDATE_GOLDEN=1 rewrites it); the harness and code digests are normalised,
+everything else is pinned, so a key added or dropped shows."""
 import json, os, pathlib, types
 
 import pipeline
@@ -13,12 +13,13 @@ class Identified:
         return {"sdkInt": 36, "model": "Pixel 10", "fingerprint": "google/pixel/x:17/A/1:user/release-keys"}
 
 
-def test_today_identify_line_has_no_code_order_or_suppress_errors(tmp_path, monkeypatch, capsys):
+def test_identify_line_names_the_code_and_no_order_or_suppress_errors(tmp_path, monkeypatch, capsys):
     digests(tmp_path)
     monkeypatch.setattr(pipeline.code_digest, "digest", lambda: "<harness digest>")
+    monkeypatch.setattr(pipeline.run_identity, "code", lambda: {"timed": "<timed digest>", "runner": "<runner digest>"})
     pipeline.identify(types.SimpleNamespace(), tmp_path / "global.yaml", Identified())
     line = capsys.readouterr().out.replace(str(tmp_path), "<tmp>")
     if os.environ.get("UPDATE_GOLDEN"):
         GOLDEN.write_text(line)
     assert line == GOLDEN.read_text()
-    assert sorted(json.loads(line.split(" ", 1)[1])) == ["config", "deviceId", "harness", "inputs", "mode"]
+    assert sorted(json.loads(line.split(" ", 1)[1])) == ["code", "config", "deviceId", "harness", "inputs", "mode"]

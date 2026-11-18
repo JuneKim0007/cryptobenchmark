@@ -29,7 +29,7 @@ def session(tmp_path, monkeypatch):
     monkeypatch.setattr(session_run.session_plan.Device, "require_adb", lambda self: None)
     monkeypatch.setattr(session_run.session_plan.paths, "user_devices", lambda: tmp_path / "devices.yaml")
     monkeypatch.delenv("ANDROID_SERIAL", raising=False)
-    for name in ("global.yaml", "tier1.yaml", "tier2.yaml", "fails.yaml", "sleeps.yaml"):
+    for name in ("global.yaml", "tier1.yaml", "tier2.yaml", "fails.yaml", "sleeps.yaml", "skipped.yaml"):
         (tmp_path / name).write_text("schemaVersion: 1\nselection: {testSet: x.yaml}\nrun: {seed: 1}\n")
 
     def run(text):
@@ -81,6 +81,14 @@ def test_a_failed_or_skipped_target_never_holds_the_next_group(session):
     assert logged(folder, "failed:") == ["failed: 56301AAAA00001 fails: device_lost: adb shell: error: closed"]
     assert lines(folder / "R58N00000001/target.log")[-1].endswith("session: skipped: R58N00000001: device_unauthorized: R58N00000001 is unauthorized; unlock it")
     assert lines(folder / "56301AAAA00001/fails.log")[-1].endswith("session: failed: 56301AAAA00001 fails: device_lost: adb shell: error: closed")
+
+
+def test_a_run_whose_every_case_is_a_coded_skip_is_an_all_skipped_row_and_the_session_completes(session):
+    rows, _ = session("devices: {select: listed}\ndefaults: {config: global.yaml, suites: [skipped.yaml, tier1.yaml]}\ntargets: {56301AAAA00001: {}}\n")
+    assert [(r.suite, r.state, r.code) for r in rows] == [("skipped", "all_skipped", "all_cases_skipped"), ("tier1", "finished", None)]
+    summary = lines(session.folder / "summary.txt")
+    assert summary[1].split()[:4] == ["56301AAAA00001", "skipped", "all_skipped", "all_cases_skipped"]
+    assert logged(session.folder, "all_skipped:")[0].startswith("all_skipped: 56301AAAA00001 skipped: all_cases_skipped: every case of CryptoBenchmark")
 
 
 def test_nothing_to_measure_still_writes_the_summary(session):

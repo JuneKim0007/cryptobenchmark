@@ -4,6 +4,7 @@ took:      energy pre-flight and settle in <s>s
 warm-up:   off (run.warmup.iterations 0)
 measure:   CryptoBenchmark on the device; --stream shows each case
 measure:   one process per case (2 cases)
+order:     <tmp>/results/benchmark/energy/order.txt
 traces:    a: 0 pulled, 1 expected
 case:      1 of 2 a ok
 traces:    b: 0 pulled, 2 expected
@@ -14,6 +15,7 @@ thermal:   energy pass: temperature unavailable: thermal_unavailable: adb shell 
 pass:      energy pass: 1 process, <m s> on the device
 measure:   CryptoBenchmark on the device; --stream shows each case
 measure:   one process per case (2 cases)
+order:     <tmp>/results/benchmark/timing/order.txt
 case:      1 of 2 a ok
 case:      2 of 2 b ok
 clocks:    0 of 2 cases started or ended with a core capped below its maximum

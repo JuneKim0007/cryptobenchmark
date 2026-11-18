@@ -49,7 +49,7 @@ def test_a_fresh_root_runs_every_stage_once_and_records_it(setup):
     assert done.ran == ALL_RAN and len(runs(root)) == 1
     record, problem = rd.load_device_record(done.folder)
     assert problem is None and record.deviceId == done.folder.name == "fake-api36-00000000"
-    assert set(record.inputs) == {"bundled", "config", "names", "screening"} and record.runtime == {"model": "test"}
+    assert set(record.inputs) == {"bundled", "code", "config", "names", "screening"} and record.runtime == {"model": "test"}
 
 
 def test_nothing_changed_reuses_everything_with_no_device_run(setup):

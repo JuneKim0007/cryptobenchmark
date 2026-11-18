@@ -74,7 +74,7 @@ Catalog: `algorithms/setup-catalog.yaml`, read by `operation/SetupCatalog` (the 
 | `perCall` labels | `operation`, `initAndOperation`, `getInstanceInitAndOperation`; in `prepared.yaml` per case |
 | DECRYPT `initAndOperation` | init with the ciphertext's IV; decrypting may repeat one |
 | allocation | each variant is its own case with its own `allocationCount` |
-| order on a device | interleaved per item, each in its own process: [device-session.md](../../../../../docs/device-session.md#variants) |
+| order on a device | items shuffled by `run.orderSeed`, variants interleaved per item, each in its own process: [device-session.md](../../../../../docs/device-session.md#variants) |
 
 ## Inputs and keys
 

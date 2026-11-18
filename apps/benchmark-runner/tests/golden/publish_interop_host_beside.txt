@@ -18,6 +18,42 @@ deviceId: probed-api36-4c538a37
 inputs:
   bundled: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
   config: 49301b9953f2c669f76d2f2de50ddb3052ef6bc20725bf15c8b2d61ee550e579
+run:
+  schema: 3
+  run:
+    inputSizes:
+    - 1024
+    phases:
+    - WARM
+    metrics:
+    - TIME
+    variants:
+    - fixed
+    - notFixed
+    - secure
+    processRepetitions: 1
+    seed: 0
+    caseCooldownSeconds: 0
+    launchRetries: 0
+    resumeBlockRuns: 10
+    orderSeed: 4792
+    warmup:
+      iterations: 0
+      jobs: []
+      cases: 3
+  selection: c2b27b9384e2c84c4f23e12d1afd3bc7feab488e0ce441bdc5e5ff01a221fe85
+  code: <code digests>
+  device:
+    fingerprint: a/b/c:16/X/1:user/release-keys
+    model: probed
+    sdkInt: 36
+  order:
+    scheme: shuffled
+    seed: 4792
+  suppressErrors: []
+  energyAcceptUnresponsive: false
+  commit: <commit>
+  clean: <clean>
 runtime:
   fingerprint: a/b/c:16/X/1:user/release-keys
   model: probed

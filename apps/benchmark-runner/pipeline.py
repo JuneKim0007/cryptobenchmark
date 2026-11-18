@@ -17,7 +17,7 @@ from cryptobench.pipeline.stage import Stage, StageContext
 from cryptobench.stages.configuration.global_file import global_config
 from cryptobench.shared import paths
 from cryptobench.shared.results import layout as results_layout
-from cryptobench.shared.results import partial, run_inputs
+from cryptobench.shared.results import identity as run_identity, partial, run_inputs
 from cryptobench.shared.results.lock import DeviceLock
 from cryptobench.shared.results.manifest import manifest
 from cryptobench.stages.verification.scope import code_digest
@@ -33,6 +33,15 @@ from cryptobench.stages.verification.interop import interop_run
 
 
 def parse_options():
+    options = parser().parse_args()
+    for refused, message in REFUSED:
+        if refused(options):
+            fail(message)
+    return options
+
+
+def parser():
+    """Every flag; shared/results/run_record.py FLAGS classifies each one (tests/test_run_contract.py)."""
     parser = argparse.ArgumentParser(description="run the host pipeline")
     parser.add_argument("--config", help="path to global.yaml")
     parser.add_argument("--results", help="results root; the run writes <results>/<device_id>/ (default: <repo>/results)")
@@ -72,11 +81,7 @@ def parse_options():
     parser.add_argument("--interop", metavar="PLAN_YAML", help="with --bench or --device: check perf-repair's interop_plan.yaml pairs instead of measuring")
     parser.add_argument("--check", action="store_true",
                         help="with --bench or --device: call every planned case once, untimed, in one process, and check its output; writes check/check.yaml")
-    options = parser.parse_args()
-    for refused, message in REFUSED:
-        if refused(options):
-            fail(message)
-    return options
+    return parser
 
 
 REFUSED = (
@@ -125,7 +130,7 @@ def identify(options, configuration, device):
     """The device id before any probe: getprop on a device, the JVM's fields on a host; the probe's capture gives the same."""
     runtime = device.identity() if device else host_runtime(options)
     identity = {"deviceId": device_id(runtime), "mode": "device" if device else "host", "config": str(configuration),
-                "inputs": run_inputs.digests(configuration), "harness": code_digest.digest()}
+                "inputs": run_inputs.digests(configuration), "harness": code_digest.digest(), "code": run_identity.code()}
     say(IDENTITY, json.dumps(identity, sort_keys=True))
 
 
@@ -184,21 +189,22 @@ def measured(context):
     measuring = not options.probe and bool(options.bench or device)
     with published(context) as root:
         # only a measuring run resumes: a probe over a stopped run moves it aside whole
-        kept = functools.partial(resume.kept, suppress_errors=options.suppress_errors) if measuring else keep_nothing
+        kept = functools.partial(resume.kept, options=options) if measuring else keep_nothing
         results, found = guided(context, root, kept)
         files = found.files
         mode, resumed = "device" if device else "host", resume.note(results) if measuring else []
+        run = resume.record(found.effective, found.capture, options)
         if measuring:
-            stopped = lambda record, pulled: manifest(results, mode, configuration, files | pulled, context.problems, partial=record, resumed=resumed)
+            stopped = lambda record, pulled: manifest(results, mode, configuration, files | pulled, context.problems, partial=record, resumed=resumed, run=run)
             with partial.kept(results, stopped):
-                benchmarked(options, device, results, found, context.problems)
-        manifest(results, mode, configuration, files, context.problems, resumed=resumed)
+                benchmarked(options, device, results, found, context.problems, run)
+        manifest(results, mode, configuration, files, context.problems, resumed=resumed, run=run)
         results_layout.report_superseded(results)
 
 
-def benchmarked(options, device, results, found, problems):
+def benchmarked(options, device, results, found, problems, run):
     """Measurement, then the analysis of what it timed."""
-    timed, written, repetitions = measure_cases(options, device, results, found, problems, dependencies.require_energy)
+    timed, written, repetitions = measure_cases(options, device, results, found, problems, dependencies.require_energy, run)
     if timed:
         benchmark, preparation = paths.RunTree(results).benchmark.root, paths.RunTree(results).preparation.root
         not_measured.report(paths.Preparation(preparation).prepared, paths.Measurement(benchmark).json, problems)

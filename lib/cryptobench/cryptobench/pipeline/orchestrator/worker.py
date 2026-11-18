@@ -8,16 +8,24 @@ import signal
 import subprocess
 from pathlib import Path
 
+from cryptobench.shared import paths
+from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.errors.coded import code_in
+from cryptobench.shared.errors.failures import ALL_CASES_SKIPPED
 from cryptobench.shared.log.stdout import ERROR, RESULTS, last
 
 SERIAL = "ANDROID_SERIAL"
 
 
+FINISHED, ALL_SKIPPED = "finished", "all_skipped"
+# a row whose worker ran to its end
+COMPLETE = (FINISHED, ALL_SKIPPED)
+
+
 @dataclasses.dataclass(frozen=True)
 class Outcome:
     state: str
-    # the worker's last coded line, None when it finished
+    # the worker's last coded line, None when it finished; all_skipped: the manifest's all_cases_skipped line
     line: str | None
     results: str | None
 
@@ -78,6 +86,17 @@ class Worker:
         lines = self.transcript()
         error = last(ERROR, lines)
         code = self.process.returncode
-        state = "stopped" if self.stopped else "finished" if code == 0 else "failed"
+        state = "stopped" if self.stopped else FINISHED if code == 0 else "failed"
         line = error if error is not None else None if code == 0 else f"subprocess_failed: pipeline.py exited {code}"
-        return Outcome(state, line if state != "finished" else None, last(RESULTS, lines))
+        results = last(RESULTS, lines)
+        skipped = all_skipped(results) if state == FINISHED and results else None
+        if skipped:
+            return Outcome(ALL_SKIPPED, skipped, results)
+        return Outcome(state, line if state != FINISHED else None, results)
+
+
+def all_skipped(results: str) -> str | None:
+    """The all_cases_skipped line of the run's manifest: every case a coded preparation skip, nothing measured."""
+    manifest = paths.RunTree(Path(results)).manifest
+    problems = (read_yaml(manifest).get("problems") or []) if manifest.is_file() else []
+    return next((line for line in problems if line.startswith(f"{ALL_CASES_SKIPPED}:")), None)

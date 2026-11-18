@@ -3,6 +3,7 @@ gate:      TEMPERATURE GATE SET: kept 36.0 C on skin; a run starts at or below 3
 warm-up:   off (run.warmup.iterations 0)
 measure:   CryptoBenchmark on the device; --stream shows each case
 measure:   one process per case (2 cases)
+order:     <tmp>/results/benchmark/order.txt
 gate:      a: discarded, ended at 36.1 C, at or above 36.0 C; start margin now 0.50 C; measuring again
 gate:      a: 36.1 C, start limit 35.50 C => waiting 3 minutes to cool down, then polling every 1 min
 gate:      a: passed at 27.1 C after 180 s

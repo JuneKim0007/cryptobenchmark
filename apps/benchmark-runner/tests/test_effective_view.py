@@ -4,6 +4,7 @@ import pathlib
 import tempfile
 import unittest
 
+from cryptobench.shared.errors.failures import CommandError  # noqa: E402
 from cryptobench.shared.settings import effective_view  # noqa: E402
 from cryptobench.stages.measurement.session import passes, warmup  # noqa: E402
 from failure import reported  # noqa: E402
@@ -33,8 +34,9 @@ class EffectiveView(unittest.TestCase):
             "run.processRepetitions": lambda: effective_view.process_repetitions({}),
             "run.resumeBlockRuns": lambda: effective_view.resume_block_runs({"run": {}}),
             "run.caseCooldownSeconds": lambda: effective_view.case_cooldown({"run": {}}),
-            "run.warmup.iterations": lambda: warmup.settings({"run": {"warmup": {"jobs": []}}}),
-            "run.warmup.jobs": lambda: warmup.settings({"run": {"warmup": {"iterations": 1}}}),
+            "run.warmup.iterations": lambda: warmup.settings({"run": {"warmup": {"jobs": [], "cases": 3}}}),
+            "run.warmup.jobs": lambda: warmup.settings({"run": {"warmup": {"iterations": 1, "cases": 3}}}),
+            "run.warmup.cases": lambda: warmup.settings({"run": {"warmup": {"iterations": 1, "jobs": []}}}),
             "run.metrics": lambda: passes.read({"run": {}}, {"none"}),
         }
         for path, read in reads.items():
@@ -51,8 +53,9 @@ class EffectiveView(unittest.TestCase):
                 effective_view.resume_block_runs({"run": {"resumeBlockRuns": runs}})
             self.assertEqual(f"error: not_positive: run.resumeBlockRuns {runs}\n", stderr.getvalue())
 
-    def test_an_order_seed_is_optional_and_a_hand_edited_one_not_whole_is_refused(self):
-        self.assertIsNone(effective_view.order_seed({"run": {}}))
+    def test_an_order_seed_is_required_and_a_hand_edited_one_not_whole_is_refused(self):
+        with self.assertRaisesRegex(CommandError, "^missing_field: run.orderSeed in effective.yaml$"):
+            effective_view.order_seed({"run": {}})
         self.assertEqual(-3, effective_view.order_seed({"run": {"orderSeed": -3}}))
         for seed in (1.5, "7", True):
             stderr = io.StringIO()
@@ -61,7 +64,7 @@ class EffectiveView(unittest.TestCase):
             self.assertEqual(f"error: invalid: run.orderSeed {seed!r}, expected a whole number\n", stderr.getvalue())
 
     def test_an_empty_warmup_job_list_is_read_as_written(self):
-        self.assertEqual((0, []), warmup.settings({"run": {"warmup": {"iterations": 0, "jobs": []}}}))
+        self.assertEqual((0, [], 3), warmup.settings({"run": {"warmup": {"iterations": 0, "jobs": [], "cases": 3}}}))
 
 
 if __name__ == "__main__":

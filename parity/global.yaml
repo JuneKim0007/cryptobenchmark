@@ -5,12 +5,13 @@ selection:                               # required
   testSet: config_testset_example.yaml   # required — relative to this file
   exclude: []                            # optional, default [] — e.g. {provider: SunJCE} to drop one provider
 
-run:                                     # optional — every key falls back to its default
+run:                                     # required: orderSeed; every other key falls back to its default
   inputSizes: [1024]                     # optional, default [1024] — bytes per call
   phases: [WARM]                         # optional, default [WARM] — WARM
   metrics: [TIME]                        # optional, default [TIME] — TIME | ALLOCATION
   processRepetitions: 1                  # optional, default 1
   seed: 42                               # optional, default 0
+  orderSeed: 20261115                   # required — each device process shuffles the case order from (orderSeed, repetition)
   thermalGate:                           # optional, absent = off; --device only
     temperatureKeptCelsius: 36.0         # required: phone skin temperature no run may reach; a run ending at or above it is discarded
     cooldownMinutes: 3                   # optional, default 3: wait this long, without reading the phone, when it is too hot

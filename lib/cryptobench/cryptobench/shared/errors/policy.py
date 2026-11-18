@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Callable, Optional
 
+from .failures import CommandError
 from .glossary import Code, codes
 
 Reader = Callable[[Code], Optional[str]]
@@ -26,7 +27,9 @@ def action(code: Code) -> str:
     return code.action if code.fixed or chosen is None else chosen
 
 
-def resolve(code: str, value: object) -> str:
-    """The action an alias setting's value names for code; a value its `values` do not map takes the code's default."""
-    entry = codes()[code]
-    return entry.get("values", {}).get(value, entry["default"]) if isinstance(value, str) else entry["default"]
+def resolve(code: str, value: object, where: str) -> str:
+    """The action an alias setting's value names for code, its glossary `values` the one vocabulary; any other value is refused."""
+    values = codes()[code].get("values", {})
+    if not isinstance(value, str) or value not in values:
+        raise CommandError(f"invalid: {where} {value!r}, expected one of {list(values)}")
+    return values[value]

@@ -9,7 +9,7 @@ import org.junit.Test
 class RunRulesTest {
 
     private fun configure(run: String): String = verdict {
-        GlobalDocument.parse(YamlCodec.DOCUMENT.load("schemaVersion: 1\nselection: {testSet: t.yaml}\nrun: {$run}\n"))
+        GlobalDocument.parse(YamlCodec.DOCUMENT.load("schemaVersion: 1\nselection: {testSet: t.yaml}\nrun: {$run, orderSeed: 1}\n"))
     }
 
     private fun prepare(run: String): String = verdict {

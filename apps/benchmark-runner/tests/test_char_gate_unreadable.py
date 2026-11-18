@@ -26,7 +26,7 @@ def blind_for(monkeypatch, heat, label):
 def test_an_unreadable_temperature_before_the_warm_up_skips_it(tmp_path, monkeypatch):
     heat = Heat(monkeypatch)
     held = blind_for(monkeypatch, heat, "warm-up")
-    phone, _files, problems, _results = measured(tmp_path, monkeypatch, CASE | {"warmup": {"iterations": 5, "jobs": []}})
+    phone, _files, problems, _results = measured(tmp_path, monkeypatch, CASE | {"warmup": {"iterations": 5, "jobs": [], "cases": 3}})
     assert held == [False]
     assert not [a for a in phone.arguments if warmup.WARMUP_PASS in a]
     assert problems[0] == "temperature_unreadable: warm-up: thermal_unavailable: fake"

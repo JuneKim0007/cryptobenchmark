@@ -26,7 +26,7 @@ class PathsAndKeySourceTest {
     private val names = EffectiveBuilder.Files("global.yaml", "t.yaml", "inventory.yaml")
 
     private fun build(run: String, testSet: String) = EffectiveBuilder().build(
-        GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: t.yaml}\n$run")),
+        GlobalDocument.parse(codec.load(Fixtures.seeded("schemaVersion: 1\nselection: {testSet: t.yaml}\n$run"))),
         TestSetDocument.parse(codec.load("schemaVersion: 1\ndescription: d\n$testSet")), inventory, names)
 
     private fun variants(run: String, testSet: String) =
@@ -204,7 +204,7 @@ class PathsAndKeySourceTest {
         assertEquals(listOf("2.16.840.1.101.3.4.1"), aliased.providers.getValue("SunJCE").getValue("KeyGenerator").getValue("AES").aliases)
         assertEquals(aliased, InventoryDocument.parse(codec.load(codec.dump(InventoryDocument.of(aliased)))))
         val effective = EffectiveBuilder().build(
-            GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: t.yaml}\n")),
+            GlobalDocument.parse(codec.load(Fixtures.seeded("schemaVersion: 1\nselection: {testSet: t.yaml}\n"))),
             TestSetDocument.parse(codec.load("schemaVersion: 1\ndescription: d\ninclude:\n- {type: Cipher}\noverrides:\n" +
                 "- match: {name: AES/CBC/PKCS5PADDING}\n  set: {key: {algorithm: 2.16.840.1.101.3.4.1}}\n" +
                 "- match: {name: RSA}\n  set: {key: {algorithm: 1.2.840.113549.1.1.1}}\n")), aliased, names)
@@ -219,7 +219,7 @@ class PathsAndKeySourceTest {
             "{name: SunJCE, version: '25', precedence: 2, services: [{type: KEM, algorithm: DHKEM}]}")
         val trial = Fixtures.TRIAL + "- provider: SunJCE\n  type: KEM\n  algorithm: DHKEM\n  instantiates: true\n  defaultRun: {works: true}\n"
         val withKem = InventoryBuilder().build(CaptureSource.parse(codec.load(capture)), TrialSource.parse(codec.load(trial)), InventoryBuilder.Files("probe_x.yaml", "trial_x.yaml"))
-        val effective = EffectiveBuilder().build(GlobalDocument.parse(codec.load("schemaVersion: 1\nselection: {testSet: t.yaml}\n")),
+        val effective = EffectiveBuilder().build(GlobalDocument.parse(codec.load(Fixtures.seeded("schemaVersion: 1\nselection: {testSet: t.yaml}\n"))),
             TestSetDocument.parse(codec.load("schemaVersion: 1\ndescription: d\ninclude:\n- {type: KEM}\n- {type: MessageDigest}\n")), withKem, names)
         assertEquals(setOf("SUN"), effective.providers.keys)
         assertEquals(listOf("path_not_applicable: SunJCE.KEM.DHKEM applies [], [fixed, notFixed, secure] dropped"), effective.skipped.map { it.reason })

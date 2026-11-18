@@ -23,9 +23,9 @@ def steps(phone):
     return [line for line in phone.log if line != "thermal"]
 
 
-# The run section as :config writes it; a test overrides what it is about.
-RUN = {"metrics": ["TIME"], "processRepetitions": 1, "caseCooldownSeconds": 0, "launchRetries": 0, "resumeBlockRuns": 10,
-       "warmup": {"iterations": 0, "jobs": []}}
+# The run section as :config writes it; a test overrides what it is about. Seed 4792 draws the listed order for these fixtures' few cases.
+RUN = {"inputSizes": [1024], "phases": ["WARM"], "metrics": ["TIME"], "variants": ["fixed", "notFixed", "secure"], "processRepetitions": 1, "seed": 0,
+       "caseCooldownSeconds": 0, "launchRetries": 0, "resumeBlockRuns": 10, "orderSeed": 4792, "warmup": {"iterations": 0, "jobs": [], "cases": 3}}
 
 
 def layout(tmp_path, run):
@@ -54,7 +54,8 @@ def measured(tmp_path, monkeypatch, run, phone=None, **phone_options):
     measured_fakes(monkeypatch, phone)
     results, effective, capture, trial = layout(tmp_path, run)
     files, problems = {"effective": effective}, []
-    pipeline.benchmarked(OPTIONS, phone, results, discover.Discovered(results / "discovery", effective, capture, trial, files), problems)
+    pipeline.benchmarked(OPTIONS, phone, results, discover.Discovered(results / "discovery", effective, capture, trial, files), problems,
+                         {"identity": "of this run"})
     return phone, files, problems, results
 
 
@@ -148,19 +149,21 @@ def test_a_coded_preparation_skip_is_final_and_a_crash_keeps_its_retries(tmp_pat
 
 def test_a_process_whose_every_case_is_a_coded_skip_is_an_outcome_not_a_device_error(tmp_path, monkeypatch):
     phone, files, problems, _results = measured(tmp_path, monkeypatch, {"launchRetries": 2}, cases=tuple(REFUSED), refuse=REFUSED)
-    assert [s for s in steps(phone) if s.startswith("instrument ")] == [f"instrument CryptoBenchmark {case}" for case in REFUSED]
-    assert problems[:-1] == [f"case_skipped: {case}: keystore_unsupported" for case in REFUSED]
+    launched = variant_order.shuffled(RUN["orderSeed"])(1, list(REFUSED))
+    assert [s for s in steps(phone) if s.startswith("instrument ")] == [f"instrument CryptoBenchmark {case}" for case in launched]
+    assert problems[:-1] == [f"case_skipped: {case}: keystore_unsupported" for case in launched]
     assert problems[-1].startswith("all_cases_skipped: every case of CryptoBenchmark is a coded preparation skip: 5 cases")
     assert files["skipped"].is_file() and "benchmark" not in files
 
 
 def test_the_warm_up_leaves_out_a_coded_skip_and_warms_the_next_cases(tmp_path, monkeypatch):
     first = list(REFUSED)[:3]
-    phone, _files, problems, _results = measured(tmp_path, monkeypatch, {"warmup": {"iterations": 5, "jobs": []}},
+    phone, _files, problems, _results = measured(tmp_path, monkeypatch, {"warmup": {"iterations": 5, "jobs": [], "cases": 3}},
                                                  cases=(*first, "a", "b"), refuse=REFUSED)
     warmed = [args[args.index("case") + 1] for args in phone.arguments if "warmup" in args]
     assert warmed == [",".join(first), "a,b"]
-    assert [line for line in problems if not line.startswith("not_measured: ")] == [f"case_skipped: {case}: keystore_unsupported" for case in first]
+    launched = [case for case in variant_order.shuffled(RUN["orderSeed"])(1, [*first, "a", "b"]) if case in first]
+    assert [line for line in problems if not line.startswith("not_measured: ")] == [f"case_skipped: {case}: keystore_unsupported" for case in launched]
 
 
 def test_every_case_failing_stops_the_run(tmp_path, monkeypatch):
@@ -228,7 +231,7 @@ def test_temperature_unavailable_is_null_with_a_reason_and_no_case_fails(tmp_pat
 
 
 def test_the_warm_up_runs_once_before_the_first_pass_and_never_reaches_the_results(tmp_path, monkeypatch):
-    run = {"warmup": {"iterations": 10, "jobs": [{"provider": "P", "type": "T", "name": "b"}]},
+    run = {"warmup": {"iterations": 10, "jobs": [{"provider": "P", "type": "T", "name": "b"}], "cases": 3},
            "passes": {"timing": {"samples": 3}}}
     phone, _files, problems, results = measured(tmp_path, monkeypatch, run, cases=("a", "b"))
     log = steps(phone)
@@ -241,7 +244,7 @@ def test_the_warm_up_runs_once_before_the_first_pass_and_never_reaches_the_resul
 
 
 def test_a_failed_warm_up_costs_the_run_nothing(tmp_path, monkeypatch):
-    phone, _files, problems, results = measured(tmp_path, monkeypatch, {"warmup": {"iterations": 5, "jobs": []}},
+    phone, _files, problems, results = measured(tmp_path, monkeypatch, {"warmup": {"iterations": 5, "jobs": [], "cases": 3}},
                                                 cases=("a", "b"), crash=("a,b",))
     assert problems == []
     assert len(json.loads((results / "benchmark/benchmark.json").read_text())["cases"]) == 2

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import shutil
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 from cryptobench.shared.paths import RunTree
@@ -37,9 +37,10 @@ from .setup_fingerprint import (
     case_setups,
     differing,
     fingerprint,
+    run_changes,
     without_narrowed,
 )
-from cryptobench.shared.document.dump import dump_yaml
+from cryptobench.shared.results.manifest import write as write_manifest
 
 RESULTS = "results"
 DRIFT_METRIC = "timeNs"
@@ -88,7 +89,7 @@ def _drift(stored: dict, now: dict, anchors: set[str]) -> tuple[tuple[str, ...],
 
 def _whole_run_cases(folder: Path, measured: int) -> int:
     """The cases the whole benchmark's took: line timed: the measured count without what deltas added."""
-    return measured - sum(len(d.get("cases") or ()) for d in read_yaml(RunTree(folder).manifest).get("deltas") or ())
+    return measured - sum(len(d.get("cases") or ()) for d in read_manifest(RunTree(folder).manifest)[0].deltas)
 
 
 def _case_mismatch(stored: Path, staged: Path, shared: set[str]) -> list[str]:
@@ -134,7 +135,7 @@ def run_delta(folder: Path, gaps: tuple[Gap, ...], anchors: frozenset[str], sess
     # a setup that differs is refused before the session, not after hours of it
     run_pipeline(config, root, "device" if on_device else "configure", benchmark=benchmark, echo=echo, device=folder,
                  extra=("--probe",))
-    early = tuple(before_measuring(*alike(fingerprint(folder), fingerprint(staged))))
+    early = tuple(before_measuring(*alike(fingerprint(folder), fingerprint(staged))) + run_changes(folder, staged, run is not None))
     if early:
         return Delta(session, mismatch=early, lines=[line])
     run_pipeline(config, root, stage, benchmark=benchmark, echo=echo, device=folder,
@@ -143,7 +144,8 @@ def run_delta(folder: Path, gaps: tuple[Gap, ...], anchors: frozenset[str], sess
     staged_doc = read_json(staged / read_manifest(RunTree(staged).manifest)[0].files["benchmark"])
     staged_cases = {c["id"] for c in staged_doc.get("cases") or []}
     shared = stored_cases & staged_cases
-    mismatch = tuple(differing(*alike(fingerprint(folder), fingerprint(staged))) + _case_mismatch(folder, staged, shared))
+    mismatch = tuple(differing(*alike(fingerprint(folder), fingerprint(staged))) + run_changes(folder, staged, run is not None)
+                     + _case_mismatch(folder, staged, shared))
     if mismatch:
         return Delta(session, anchors=tuple(sorted(shared)), mismatch=mismatch, lines=[line])
     drift, compared = _drift(rd.load_measurements(folder).byRow, _measurements(staged), shared)
@@ -161,6 +163,5 @@ def rerun_whole(folder: Path, gaps: tuple[Gap, ...], session: str, on_device: bo
     manifest, _ = read_manifest(RunTree(folder).manifest)
     config = write_rerun_config(Path(manifest.config), folder, {g.item for g in gaps})
     run_pipeline(config, folder.parent, "device" if on_device else "bench", benchmark=benchmark, echo=echo, device=folder)
-    measured = read_yaml(RunTree(folder).manifest)
-    write_text_making_parents(RunTree(folder).manifest, dump_yaml({**measured, "retried": _retried(gaps), "deltas": [
-        {"session": session, "cases": [], "rerun": True}]}))
+    measured = read_manifest(RunTree(folder).manifest)[0]
+    write_manifest(folder, replace(measured, retried=tuple(_retried(gaps)), deltas=({"session": session, "cases": [], "rerun": True},)).to_json())

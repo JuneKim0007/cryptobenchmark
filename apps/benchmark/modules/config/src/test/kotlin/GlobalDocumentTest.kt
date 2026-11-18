@@ -24,7 +24,7 @@ class GlobalDocumentTest {
 
     private val head = "schemaVersion: 1\nselection: {testSet: testsets/default_predefined.yaml}\n"
 
-    private fun global(text: String) = GlobalDocument.parse(codec.load(head + text))
+    private fun global(text: String) = GlobalDocument.parse(codec.load(Fixtures.seeded(head + text)))
 
     private fun run(text: String) = global(text).run
 
@@ -48,7 +48,6 @@ class GlobalDocumentTest {
         assertEquals(Warmup(10, emptyList()), run.warmup)
         assertEquals(emptyList<MeasurePass>(), run.passes)
         assertEquals(10, run.resumeBlockRuns)
-        assertEquals(null, run.orderSeed)
     }
 
     @Test
@@ -60,20 +59,29 @@ class GlobalDocumentTest {
               thermalThrottleSleepSeconds: 30
               caseCooldownSeconds: 20
               resumeBlockRuns: 1
-              warmup: {iterations: 0, jobs: [{type: MessageDigest, name: SHA-256}]}
+              warmup: {iterations: 0, jobs: [{type: MessageDigest, name: SHA-256}], cases: 2}
               passes: {timing: {samples: 3}, allocation: {samples: 2}}
         """.trimIndent() + "\n")
         assertEquals(listOf(MeasurePass("timing", 3), MeasurePass("allocation", 2)), written.passes)
         assertEquals(1, written.resumeBlockRuns)
+        assertEquals(2, written.warmup.cases)
         assertEquals(written, GlobalDocument.parse(codec.load(YamlCodec.DOCUMENT.dump(GlobalDocument.of(global("").copy(run = written))))).run)
     }
 
     @Test
-    fun anOrderSeedIsWrittenOnlyWhenSet() {
+    fun anOrderSeedIsReadAndWritten() {
         val written = run("run: {orderSeed: 20261115}\n")
         assertEquals(20261115L, written.orderSeed)
         assertEquals(written, GlobalDocument.parse(codec.load(YamlCodec.DOCUMENT.dump(GlobalDocument.of(global("").copy(run = written))))).run)
-        assertEquals(false, "orderSeed" in YamlCodec.DOCUMENT.dump(GlobalDocument.of(global(""))))
+    }
+
+    /** Every run, host included, names its order (decision 39.8). */
+    @Test
+    fun anAbsentOrderSeedIsRefused() {
+        listOf(head, head + "run: {processRepetitions: 3}\n").forEach { text ->
+            val message = assertThrows(text, IllegalArgumentException::class.java) { GlobalDocument.parse(codec.load(text)) }.message!!
+            assertEquals("missing_field: run.orderSeed", message)
+        }
     }
 
     @Test
@@ -92,6 +100,7 @@ class GlobalDocumentTest {
             "run: {caseCooldownSeconds: -1}\n" to "negative: caseCooldownSeconds",
             "run: {resumeBlockRuns: 0}\n" to "not_positive: resumeBlockRuns 0",
             "run: {warmup: {iterations: -1}}\n" to "negative: run.warmup.iterations",
+            "run: {warmup: {cases: 0}}\n" to "not_positive: run.warmup.cases 0",
             "run: {thermalGate: {}}\n" to "missing_field: run.thermalGate.temperatureKeptCelsius",
             "run: {thermalGate: {temperatureKeptCelsius: 36.0, cooldownMinutes: 1.5}}\n" to "not_whole: run.thermalGate.cooldownMinutes",
             "run: {thermalGate: {temperatureKeptCelsius: 36.0, pollMinutes: 0}}\n" to "not_positive: run.thermalGate.pollMinutes",

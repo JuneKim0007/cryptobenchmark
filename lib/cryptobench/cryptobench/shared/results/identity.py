@@ -1,5 +1,5 @@
-"""What makes two measuring runs the same run: the effective settings and selection without their stamps, the timed code, the device build
-with its security patch and APEX versions, the case order and the suppressed androidx.benchmark errors."""
+"""What makes two measuring runs the same run: the effective settings and selection without their stamps, the timed and the runner code, the
+device build with its security patch and APEX versions, the case order and the suppressed androidx.benchmark errors."""
 from cryptobench.shared import paths
 from cryptobench.shared.device import capture as captured
 from cryptobench.shared.digest.tree import digest_of
@@ -7,10 +7,10 @@ from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared.results.run_inputs import digest
 
-SCHEMA = 2
+SCHEMA = 3
 # a new probe restamps runId and generatedFrom; analysis only shows results
 UNSTAMPED = ("runId", "generatedFrom", "analysis")
-DETAILED = ("run", "device")
+DETAILED = ("run", "code", "device")
 ORIGIN = "from"
 
 
@@ -20,6 +20,12 @@ def timed_code(repo=None):
     return digest_of(repo.root, repo.timed_code, CommandError)
 
 
+def code(repo=None):
+    """timed: the measuring code's digest; runner: the digest of the host code around it."""
+    repo = repo or paths.repo()
+    return {"timed": timed_code(repo), "runner": digest_of(repo.root, repo.runner_code, CommandError)}
+
+
 def of(effective, capture, order, suppress_errors):
     """run: the effective run block as written; selection: the digest of the rest; device: the capture's runtime block and the build facts;
     suppressErrors: --suppress-errors as a set."""
@@ -27,7 +33,7 @@ def of(effective, capture, order, suppress_errors):
     rest = {key: value for key, value in document.items() if key not in (*UNSTAMPED, "run")}
     if isinstance(rest.get("providers"), dict):
         rest["providers"] = without_origin(rest["providers"])
-    return {"schema": SCHEMA, "run": document.get("run") or {}, "selection": digest(rest), "code": timed_code(), "device": device(capture),
+    return {"schema": SCHEMA, "run": document.get("run") or {}, "selection": digest(rest), "code": code(), "device": device(capture),
             "order": order, "suppressErrors": sorted({name.strip() for name in suppress_errors.split(",") if name.strip()})}
 
 

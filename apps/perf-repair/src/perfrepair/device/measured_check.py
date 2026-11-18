@@ -69,7 +69,7 @@ class _Run:
         self.refused_item = {qualified(e.type, e.algorithm, e.provider): e.reason or e.status for e in log
                              if e.status in REFUSING and e.type and e.algorithm and e.provider}
         # a case a delta already measured again: the run that lost it twice ended, and no later run spends another delta
-        self.retried = set(read_yaml(RunTree(device).manifest).get("retried") or ())
+        self.retried = set(manifest.retried)
         self.planned: dict[str, list[dict]] = {}
         for c in cases:
             self.planned.setdefault(qualified(c["type"], c["algorithm"], c["provider"]), []).append(c)

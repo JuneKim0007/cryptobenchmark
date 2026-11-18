@@ -1,8 +1,8 @@
-"""Characterization (Py-P8): the runner's manifest() read by perf-repair's BenchmarkManifest: the fields it keeps and the ones it drops; the delta
-merge rewrites the raw manifest dict, so what the reader drops survives a merge."""
+"""Py-P8: the runner's manifest() read by perf-repair's BenchmarkManifest gives back every field as written; the delta merge writes through it."""
 import json
 from pathlib import Path
 
+import pytest
 import yaml
 
 from cryptobench.shared.document.document import read_yaml
@@ -30,20 +30,27 @@ def runner_manifest(folder):
     return read_yaml(folder / "manifest.yaml")
 
 
-def test_today_the_reader_drops_problems_resumed_partial_and_energy(tmp_path):
+def test_the_reader_gives_back_the_written_manifest(tmp_path):
     doc = runner_manifest(tmp_path)
-    read = BenchmarkManifest.from_json(doc).to_json()
-    assert sorted(set(doc) - set(read)) == ["energy", "partial", "problems", "resumed"]
-    assert all(read[k] == doc[k] for k in ("mode", "config", "deviceId", "runtime", "providers", "files", "counts", "inputs", "operations"))
-    assert doc["units"] == {"latency": "us"} and read["units"] == {"latency": "us", "throughput": "MB/s"}
+    read = BenchmarkManifest.from_json(doc)
+    assert list(read.to_json().items()) == list(doc.items())
+    assert read.problems == ("energy_failed: x",) and read.partial == {"reason": "interrupted"} and read.energy["kind"] == "estimated"
+    assert read.display_units.throughput == "MB/s"
 
 
-def test_today_the_reader_drops_what_the_delta_merge_adds(tmp_path):
+def test_the_reader_keeps_what_the_delta_merge_adds(tmp_path):
     doc = runner_manifest(tmp_path) | {"deltas": [{"session": "s"}], "retried": ["a"]}
-    assert not {"deltas", "retried"} & set(BenchmarkManifest.from_json(doc).to_json())
+    assert BenchmarkManifest.from_json(doc).to_json() == doc
 
 
-def test_today_a_delta_merge_rewrites_the_raw_manifest_keeping_what_the_reader_drops(tmp_path):
+def test_an_unknown_mode_or_schema_is_refused(tmp_path):
+    doc = runner_manifest(tmp_path)
+    for bad in ({"mode": "phone"}, {"schemaVersion": 0}):
+        with pytest.raises(Exception):
+            BenchmarkManifest.from_json(doc | bad)
+
+
+def test_a_delta_merge_keeps_every_field_and_writes_through_the_runner(tmp_path):
     stored, staged = tmp_path / "stored", tmp_path / "staged"
     before = runner_manifest(stored)
     runner_manifest(staged)
@@ -54,3 +61,4 @@ def test_today_a_delta_merge_rewrites_the_raw_manifest_keeping_what_the_reader_d
     assert {k: after[k] for k in ("problems", "partial", "energy", "resumed", "units", "operations")} == \
            {k: before[k] for k in ("problems", "partial", "energy", "resumed", "units", "operations")}
     assert after["files"]["benchmark"] == str(Path("benchmark/merged-s2/benchmark.json")) and after["counts"]["measured"] == 2
+    assert (stored / "manifest.yaml").stat().st_mode & 0o777 == 0o600

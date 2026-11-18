@@ -94,7 +94,7 @@ def probe_device(root: Path, catalog: Catalog, config: Path | None = None, on_de
 
 def _made(r: Run, identity: dict, refresh: bool, detect: Callable[[Path], list[str]] | None) -> DeviceStage:
     folder, echo, on_device = r.folder, r.echo, r.on_device
-    current = {**identity["inputs"], "names": file_digest(CATALOG), "screening": r.catalog.sha256}
+    current = {**identity["inputs"], "code": identity["code"], "names": file_digest(CATALOG), "screening": r.catalog.sha256}
     before = seen(folder)
     done = scoped_pass(r, before, current, refresh, detect) if detect else whole_pass(r, before, current, refresh)
     drop_record(folder, done.todo)

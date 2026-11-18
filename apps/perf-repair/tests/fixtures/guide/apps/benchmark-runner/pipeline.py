@@ -13,7 +13,7 @@ options = parser.parse_args()
 if options.identify:
     print("identity:  " + json.dumps({"deviceId": "fake-api36-00000000", "mode": "device" if options.device else "host",
                                       "config": options.config, "inputs": {},
-                                      "harness": os.environ.get("FAKE_HARNESS", "fake-harness")}))
+                                      "harness": os.environ.get("FAKE_HARNESS", "fake-harness"), "code": {"timed": "t", "runner": "r"}}))
     sys.exit(0)
 harness = yaml.safe_load(pathlib.Path(options.harness).read_text())
 if os.environ.get("FAKE_EXIT") or os.environ.get("FAKE_FAIL_APP") == harness["app"]:

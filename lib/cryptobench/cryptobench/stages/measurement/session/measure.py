@@ -3,11 +3,11 @@ each process and each case."""
 import dataclasses, pathlib, re
 
 from cryptobench.shared.device import timeouts
-from cryptobench.shared.errors.failures import AllSkipped
+from cryptobench.shared.errors.failures import ALL_CASES_SKIPPED, AllSkipped
 from cryptobench.shared.errors.line import one_line
 from cryptobench.stages.measurement import case_files
 from cryptobench.shared.device import instrumentation, reconnect
-from cryptobench.stages.measurement.session import blocks, case_isolation, dynamic_temperature, launch, skips
+from cryptobench.stages.measurement.session import blocks, case_isolation, launch, skips
 from cryptobench.shared.device.adb import DeviceError, DeviceLost
 from cryptobench.shared.device.plan import clear_outputs
 from cryptobench.shared import paths
@@ -16,23 +16,21 @@ from cryptobench.shared.log.warn import warn
 COUNTED = re.compile(r"^Tests run: (\d+),\s+Failures: (\d+)", re.M)
 
 
-def in_plan_order(_repetition, cases):
-    return list(cases)
-
-
 @dataclasses.dataclass(frozen=True)
 class Plan:
     test_class: str
     arguments: tuple
-    order: object = in_plan_order
+    # (repetition, listed cases) -> the launch order (variant_order.chosen)
+    order: object
+    # the pass's dynamic_temperature gate, run.launchRetries, the run's reconnect.Reconnect
+    gate: object
+    retries: int
+    reconnect: object
     timed: bool = True
     cleared: tuple = ()
     stale: tuple = ()
     pull_plan: object = lambda _process: None
     after_process: object = lambda _process: None
-    gate: object = dynamic_temperature.Off()
-    retries: int = 0
-    reconnect: object = reconnect.Off()
     # the pass's blocks.Blocks; None measures every repetition and records nothing
     blocks: object = None
     kept: object = lambda _process: None
@@ -151,7 +149,7 @@ def stopped(device):
         warn(f"device_lost: the app could not be force-stopped; {str(lost).split(': ', 1)[-1]}")
 
 
-def closed(process, hooks, waits=reconnect.Off()):
+def closed(process, hooks, waits):
     """Every hook's after_process, so one failing still leaves the others closed and the pulled data converted; the first error, else None."""
     failed = None
     for hook in reversed(hooks):
@@ -180,6 +178,8 @@ def each_case(device, plan, process, hooks):
     process.cases = plan.order(process.repetition, plan.reconnect.retried(lambda: planned(device, plan), "the case listing"))
     print(f"measure:   one process per case ({len(process.cases)} cases)")
     case_files.opened(process.into)
+    case_files.ordered(process.into, process.cases)
+    print(f"order:     {paths.Measurement(process.into).order}")
     measured = []
     for number, case in enumerate(process.cases, 1):
         failure = launch.run_of_case(device, plan, process, case, hooks, case_files.path(process.into, case))
@@ -192,7 +192,7 @@ def each_case(device, plan, process, hooks):
             # rewritten after every case, so an error that ends the session keeps every case measured before it
             case_files.merge(process.into, measured, process.data)
     if not measured and skips.every_case(process.failures):
-        raise AllSkipped(f"{skips.ALL_CASES_SKIPPED}: every case of {plan.test_class} is a coded preparation skip: {len(process.failures)} cases, "
+        raise AllSkipped(f"{ALL_CASES_SKIPPED}: every case of {plan.test_class} is a coded preparation skip: {len(process.failures)} cases, "
                          f"listed in {paths.SKIPPED}")
     if not measured:
         raise DeviceError(f"{plan.test_class} failed on the device for every case:\n" + "\n".join(process.failures or ["no case planned"]))

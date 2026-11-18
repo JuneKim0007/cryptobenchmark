@@ -16,6 +16,7 @@
   ],
   "processRepetitions": 1,
   "seed": 42,
+  "orderSeed": 20261115,
   "thermalGate": {
    "temperatureKeptCelsius": 36.0,
    "cooldownMinutes": 3,

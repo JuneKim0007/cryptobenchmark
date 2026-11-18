@@ -1,8 +1,11 @@
 """run.thermalGate on a fake phone: a fake temperature that each launch raises and each second of waiting lowers."""
-import json, types
+import json, re, types
 
 import pytest
 
+from cryptobench.shared import paths  # noqa: E402
+from cryptobench.shared.errors.failures import CommandError  # noqa: E402
+from cryptobench.shared.errors.glossary import codes  # noqa: E402
 from cryptobench.stages.measurement import benchmark  # noqa: E402
 from cryptobench.stages.measurement import thermal  # noqa: E402
 from cryptobench.shared.device.adb import DeviceError  # noqa: E402
@@ -165,7 +168,7 @@ def test_a_simulated_device_cannot_poll():
 
 def test_a_reading_from_an_earlier_hold_is_never_a_later_runs_start(monkeypatch):
     heat = Heat(monkeypatch)
-    session = dynamic_temperature.Gate(None, dynamic_temperature.Settings.of(GATE), ("skin",), []).session("timing")
+    session = dynamic_temperature.Gate(None, dynamic_temperature.Settings.of({"run": {"thermalGate": GATE}}), ("skin",), []).session("timing")
     assert session.hold("warm-up")
     heat.celsius = 45.0
     assert session.hold("first case")
@@ -174,14 +177,14 @@ def test_a_reading_from_an_earlier_hold_is_never_a_later_runs_start(monkeypatch)
 
 def test_the_wait_line_names_the_configured_polling_interval(monkeypatch, capsys):
     heat = Heat(monkeypatch, start=45.0)
-    session = dynamic_temperature.Gate(None, dynamic_temperature.Settings.of({**GATE, "pollMinutes": 2}), ("skin",), []).session("timing")
+    session = dynamic_temperature.Gate(None, dynamic_temperature.Settings.of({"run": {"thermalGate": {**GATE, "pollMinutes": 2}}}), ("skin",), []).session("timing")
     assert session.hold("case") and heat.slept[0] == 180
     assert "then polling every 2 min" in capsys.readouterr().out
 
 
 def test_each_process_reports_only_its_own_waits_and_discards(monkeypatch):
     heat = Heat(monkeypatch)
-    session = dynamic_temperature.Gate(None, dynamic_temperature.Settings.of(GATE), ("skin",), []).session("timing")
+    session = dynamic_temperature.Gate(None, dynamic_temperature.Settings.of({"run": {"thermalGate": GATE}}), ("skin",), []).session("timing")
     assert session.hold("c")
     heat.celsius = 40.0
     assert session.verdict("c") == "hot"
@@ -197,3 +200,21 @@ def test_a_gated_run_reads_the_temperature_once_at_each_end(tmp_path, monkeypatc
     heat = Heat(monkeypatch)
     measured(tmp_path, monkeypatch, CASE)
     assert heat.reads == 6  # the process's start, each case's hold and end, the process's end
+
+
+@pytest.mark.parametrize("gate, line", [
+    ({**GATE, "onDiscardLimit": "skip"}, "invalid: run.thermalGate.onDiscardLimit 'skip', expected one of ['nextCase', 'stop']"),
+    ({k: v for k, v in GATE.items() if k != "readRetries"}, "missing_field: run.thermalGate.readRetries in effective.yaml"),
+    ({**GATE, "startMargin": {k: v for k, v in MARGIN.items() if k != "dynamic"}}, "missing_field: run.thermalGate.startMargin.dynamic in effective.yaml"),
+], ids=["unknown onDiscardLimit", "missing key", "missing margin key"])
+def test_a_gate_with_an_unknown_value_or_a_missing_key_is_refused_by_its_code(gate, line):
+    with pytest.raises(CommandError) as refused:
+        dynamic_temperature.Settings.of({"run": {"thermalGate": gate}})
+    assert str(refused.value) == line
+
+
+def test_the_discard_limit_vocabulary_is_the_one_config_validates():
+    kotlin = (paths.repo().gradle_root / "modules/config/src/main/kotlin/global/dto/ThermalGate.kt").read_text()
+    named = re.search(r"val ON_DISCARD_LIMIT = listOf\((.*)\)", kotlin).group(1)
+    listed = [{"NEXT_CASE": "nextCase"}.get(word.strip(), word.strip().strip('"')) for word in named.split(",")]
+    assert listed == list(codes()["temperature_discard_limit"]["values"])

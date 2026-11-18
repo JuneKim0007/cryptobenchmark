@@ -3,7 +3,8 @@ import contextlib, json, pathlib, types
 
 import yaml
 
-from cryptobench.stages.measurement.session import case_isolation  # noqa: E402
+from cryptobench.stages.measurement.session import case_isolation, dynamic_temperature  # noqa: E402
+from cryptobench.shared.device import reconnect  # noqa: E402
 from cryptobench.shared.device import adb as device_module  # noqa: E402
 from cryptobench.shared.device import gradle_runner  # noqa: E402
 from cryptobench.shared.device import timeouts  # noqa: E402
@@ -12,6 +13,15 @@ OK = types.SimpleNamespace(returncode=0, stdout="", stderr="")
 MISSING = types.SimpleNamespace(returncode=1, stdout="", stderr="not found")
 CRASHED = "INSTRUMENTATION_RESULT: shortMsg=Process crashed.\nINSTRUMENTATION_CODE: 0\n"
 NOT_PREPARED = "INSTRUMENTATION_STATUS: stack=java.lang.IllegalStateException: not_prepared: {0}\nTests run: {1},  Failures: {2}\n"
+
+
+def listed(_repetition, cases):
+    """A test plan's launch order: the cases as the device lists them."""
+    return list(cases)
+
+
+# a test plan's gate, retries and reconnect: no gate, no retry, no wait
+UNGATED = {"gate": dynamic_temperature.Off(), "retries": 0, "reconnect": reconnect.Off()}
 
 
 def jetpack_case(case, sleep=0):

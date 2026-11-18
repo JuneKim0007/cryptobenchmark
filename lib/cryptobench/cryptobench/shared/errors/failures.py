@@ -30,8 +30,12 @@ class EnergyError(Coded):
     """Raised by the energy sources, reported by the runner."""
 
 
+ALL_CASES_SKIPPED = "all_cases_skipped"
+
+
 class AllSkipped(Coded):
-    """Every case of a process was a coded preparation skip: the run's outcome, exit 0, never a device failure."""
+    """Every case of a process was a coded preparation skip: the run's outcome, exit 0, never a device failure; its line, starting
+    ALL_CASES_SKIPPED, joins the manifest's problems."""
 
 
 class CommandError(Coded):

@@ -15,7 +15,7 @@ from perfrepair.device.delta_merge import merge_delta
 from perfrepair.device.gate import GatePolicy, benchmark_gate
 from perfrepair.device.inbound import write_inbound
 from perfrepair.device.measured_check import measured_check
-from perfrepair.device.setup_fingerprint import case_setups, differing, fingerprint
+from perfrepair.device.setup_fingerprint import case_setups, differing, fingerprint, run_changes
 from perfrepair.dto.benchmark_coverage import (
     LOST,
     MEASURED,
@@ -137,12 +137,6 @@ def test_a_type_with_no_harness_operation_is_coded_from_the_harness_list(device)
     ("runtime.compilationMode", lambda m, e: m["runtime"].update(compilationMode="quicken")),
     ("processes", lambda m, e: m["files"].update(processes=["benchmark/benchmark.json"])),
     ("energy", lambda m, e: m.update(energy={"source": "manafa", "kind": "estimated"})),
-    ("run.harness.energy.capture", lambda m, e: e["run"].update(harness={"energy": {"capture": "measured"}})),
-    ("run.seed", lambda m, e: e["run"].update(seed=9)),
-    ("run.inputSizes", lambda m, e: e["run"].update(inputSizes=[1])),
-    ("run.harness.iterations", lambda m, e: e["run"].update(harness={"iterations": 2})),
-    ("run.passes.timing.samples", lambda m, e: e["run"].update(passes={"timing": {"samples": 3}})),
-    ("run.thermalGate.temperatureKeptCelsius", lambda m, e: e["run"].update(thermalGate={"temperatureKeptCelsius": 9})),
 ])
 def test_a_setup_field_that_differs_is_named(device, field, edit):
     stored = fingerprint(device)
@@ -151,6 +145,55 @@ def test_a_setup_field_that_differs_is_named(device, field, edit):
     (RunTree(device).manifest).write_text(yaml.safe_dump(manifest))
     (device / "configuration/effective.yaml").write_text(yaml.safe_dump(effective))
     assert any(line.startswith(f"{field}:") for line in differing(stored, fingerprint(device)))
+
+
+RECORD_FIELDS = [
+    ("run.harness.energy.capture", lambda r: r["run"].update(harness={"energy": {"capture": "measured"}})),
+    ("run.seed", lambda r: r["run"].update(seed=9)),
+    ("run.passes.timing.samples", lambda r: r["run"].update(passes={"timing": {"samples": 3}})),
+    ("run.thermalGate.temperatureKeptCelsius", lambda r: r["run"].update(thermalGate={"temperatureKeptCelsius": 9})),
+    ("code.runner", lambda r: r["code"].update(runner="edited")),
+    ("code.timed", lambda r: r["code"].update(timed="edited")),
+    ("suppressErrors", lambda r: r.update(suppressErrors=["EMULATOR"])),
+    ("device.build.securityPatch", lambda r: r.update(device={"build": {"securityPatch": "2099-01-01"}})),
+]
+
+
+@pytest.mark.parametrize("field, edit", RECORD_FIELDS, ids=[f[0] for f in RECORD_FIELDS])
+def test_a_run_record_field_that_differs_is_named(device, tmp_path, field, edit):
+    staged = staged_copy(device, tmp_path)
+    manifest = read_yaml(RunTree(staged).manifest)
+    edit(manifest["run"])
+    RunTree(staged).manifest.write_text(yaml.safe_dump(manifest))
+    assert [line.split(":")[0] for line in run_changes(device, staged, False)] == [field]
+
+
+@pytest.mark.parametrize("edit", [lambda r: r.update(selection="other"), lambda r: r.update(order={"scheme": "shuffled", "seed": 1}),
+                                  lambda r: r.update(commit="other", clean=False)], ids=["selection", "order", "checkout"])
+def test_a_delta_may_differ_in_selection_order_and_checkout(device, tmp_path, edit):
+    staged = staged_copy(device, tmp_path)
+    manifest = read_yaml(RunTree(staged).manifest)
+    edit(manifest["run"])
+    RunTree(staged).manifest.write_text(yaml.safe_dump(manifest))
+    assert run_changes(device, staged, False) == []
+
+
+def test_a_narrowed_delta_may_cut_the_stored_passes_and_variants(device, tmp_path):
+    for folder, passes, variants in ((device, {"timing": {"samples": 1}, "energy": {"samples": 1}}, ["fixed", "notFixed"]),
+                                    (staged_copy(device, tmp_path), {"timing": {"samples": 1}}, ["fixed"])):
+        manifest = read_yaml(RunTree(folder).manifest)
+        manifest["run"]["run"] = {"passes": passes, "variants": variants}
+        RunTree(folder).manifest.write_text(yaml.safe_dump(manifest))
+    assert run_changes(device, folder, True) == [] and [line.split(":")[0] for line in run_changes(device, folder, False)] == [
+        "run.passes.energy.samples", "run.variants"]
+
+
+def test_a_stored_benchmark_without_a_run_record_is_a_mismatch(device, tmp_path):
+    staged = staged_copy(device, tmp_path)
+    manifest = read_yaml(RunTree(device).manifest)
+    del manifest["run"]
+    RunTree(device).manifest.write_text(yaml.safe_dump(manifest))
+    assert run_changes(device, staged, False)[0].startswith("run: no run record stored")
 
 
 def test_a_new_bundled_provider_differs(device):
@@ -312,13 +355,10 @@ def test_a_merge_refuses_an_id_the_benchmark_holds(device, tmp_path):
 
 def test_an_interrupted_merge_leaves_the_stored_benchmark_whole(device, tmp_path, monkeypatch):
     before = {name: (device / name).read_bytes() for name in (MANIFEST, "benchmark/benchmark.json", "preparation/prepared.yaml")}
-    real = delta_merge.write_text_making_parents
 
-    def dies_at_the_switch(path, text):
-        if Path(path).name == MANIFEST:
-            raise KeyboardInterrupt
-        return real(path, text)
-    monkeypatch.setattr(delta_merge, "write_text_making_parents", dies_at_the_switch)
+    def dies_at_the_switch(results, document):
+        raise KeyboardInterrupt
+    monkeypatch.setattr(delta_merge, "write_manifest", dies_at_the_switch)
     with pytest.raises(KeyboardInterrupt):
         merge_delta(device, staged_copy(device, tmp_path), {"added"}, "s", "checked")
     assert {name: (device / name).read_bytes() for name in before} == before

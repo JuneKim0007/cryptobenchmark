@@ -1,10 +1,11 @@
 schemaVersion: 1                 # required
 selection:                       # required
   testSet: testsets/known-answers.yaml   # required
-run:                             # optional
+run:                             # required: orderSeed
   variants: [fixed, notFixed]     # optional, default [fixed, notFixed, secure]; secure runs key generation only
   inputSizes: [64]               # optional, default [1024]; block-aligned, and the check calls each case once
   seed: 42                       # optional, default 0
+  orderSeed: 20261115             # required — each device process shuffles the case order from (orderSeed, repetition)
 providers:                       # optional: a second provider for every case's cross-provider check
   bundled:
     - {artifact: 'org.bouncycastle:bcprov-jdk18on:1.79', create: org.bouncycastle.jce.provider.BouncyCastleProvider, alias: BundledBC}

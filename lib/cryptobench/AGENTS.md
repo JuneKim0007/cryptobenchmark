@@ -96,12 +96,13 @@ cryptobench/shared/paths/roots.py : code_root (this checkout), benchmark_root (t
 cryptobench/shared/paths/run_tree.py : RunTree: every file of one results folder; its sections Configuration, Discovery, Preparation, Measurement, Analysis, Charts, CheckFolder, InteropFolder, Scoped, Logs, Review; AppTree, GroupingTree
 cryptobench/shared/paths/settings.py : against(settings_file, value), the one rule for a path a settings file names; in_temp
 cryptobench/shared/results/__init__.py : package of a run's results folder, importing no app
-cryptobench/shared/results/identity.py : a measuring run's identity (effective run block, selection digest, timed-code digest, capture runtime with facts.yaml's build, order, suppressed errors) and the dotted fields two identities differ in
+cryptobench/shared/results/identity.py : a measuring run's identity (effective run block, selection digest, timed and runner code digests, capture runtime with facts.yaml's build, order, suppressed errors) and the dotted fields two identities differ in
 cryptobench/shared/results/layout.py : results/<device_id>/[<suite>/]: unit_folder, staging, publishing into the device folder after the earlier unit, but for the paths a resumed run keeps, moves to superseded/<stamp>/, the temporary-folder warning
 cryptobench/shared/results/lock.py : DeviceLock: `<folder>/.lock` by fcntl.flock (POSIX), the holder's pid; another process is device_busy, the holding one takes it again; a results root (pipeline.py) or a device folder (perf-repair)
-cryptobench/shared/results/manifest.py : results/<device_id>/manifest.yaml: files, counts, runtime, providers, input digests, units, the harness operations, energy mark, problems, the partial mark of a stopped run; files added beside a finished run
+cryptobench/shared/results/manifest.py : results/<device_id>/manifest.yaml: MANIFEST_DOC and MODES, files, counts, runtime, providers, input digests, units, the harness operations, energy mark, problems, the partial mark of a stopped run; files added beside a finished run; write(), the one manifest writer
 cryptobench/shared/results/publish_unit.py : publish_unit(): a verification stage's staged folder published beside a finished run (its configuration under the stage's folder) or as a new device folder, the results: line, the manifest, the superseded report; Route, a stage's folder name and manifest files
 cryptobench/shared/results/partial.py : a run that stopped: the partial record (reason, case runs per process folder) its manifest is written with, a failed write one warning
+cryptobench/shared/results/run_record.py : a measuring run's record: its identity, energyAcceptUnresponsive and the checkout's commit and clean, held by every block record and the manifest's run:; RUN_KEYS and FLAGS, the DATA / NOT_DATA table, and the refusal of an unresolved DATA value; changed without the checkout
 cryptobench/shared/results/run_inputs.py : digests of a run's inputs, providers.bundled and global.yaml with its test set (analysis left out), for the manifest and --identify
 cryptobench/shared/results/select.py : the device folder of a results root a reader names, or the only one there
 cryptobench/shared/session/__init__.py : package of a session: session.yaml, its targets against the devices adb lists, order groups
@@ -142,14 +143,14 @@ cryptobench/stages/discovery/probe_store.py : --discovery verify: the build key,
 cryptobench/stages/discovery/tests/ : pytest tests of the discovery stage
 cryptobench/stages/measurement/__init__.py : package of the measurement stage
 cryptobench/stages/measurement/benchmark.py : the plain run's benchmark: device passes and sessions or host processes, warm-up, dry pass; whether it timed anything, for the analysis; the energy interpreter check passed in
-cryptobench/stages/measurement/case_files.py : process-N/cases/<case>.json: the path of a case's pulled benchmarkData, the folder made per process, benchmarkData.json merged from the files
+cryptobench/stages/measurement/case_files.py : process-N/cases/<case>.json: the path of a case's pulled benchmarkData, the folder made per process, benchmarkData.json merged from the files; process-N/order.txt, the launch order
 cryptobench/stages/measurement/energy/__init__.py : package of the energy steps of a --device run on the host
 cryptobench/stages/measurement/energy/install.py : an energy source's packages installed on first use into a venv per source and requirements digest under the user cache
 cryptobench/stages/measurement/energy/session.py : Perfetto sessions on the device: start, stop, pull
 cryptobench/stages/measurement/energy/sources/ : one adapter per energy.source on the host; how the host runs apps/benchmark-runner/energy
 cryptobench/stages/measurement/energy/steps.py : energy steps of a --device run: capture selection, the run's energy source
 cryptobench/stages/measurement/measuring.py : what a run's device sessions share: the Measuring context, the thermal gate's start, the androidx arguments of a session and a pass, timed hooks, ConvertKt, per-process files and core pins
-cryptobench/stages/measurement/resume.py : at a measuring run's publish: the blocks of a stopped run with the same identity that stay in place, verified; the resumed, identity_changed and block_unverified lines; the manifest's resumed: note
+cryptobench/stages/measurement/resume.py : the run's record; at a measuring run's publish: the blocks of a stopped run with the same identity that stay in place, verified; the resumed, identity_changed and block_unverified lines; the manifest's resumed: note
 cryptobench/stages/measurement/session/__init__.py : package of one device measuring session: processes, cases, passes, order, warm-up, hooks
 cryptobench/stages/measurement/session/blocks.py : run.resumeBlockRuns: a pass's runs in blocks, a recorded block kept, any other measured then recorded; the block record (identity, runId, runs, boot id, files)
 cryptobench/stages/measurement/session/calibration.py : whether androidx's warm-up left usable samples: collapsed calls per sample, a warm-up near its time limit

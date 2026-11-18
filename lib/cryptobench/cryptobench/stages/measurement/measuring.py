@@ -1,12 +1,11 @@
 """What every device session of a run shares: its context, hooks, conversion and the files it records."""
 import dataclasses, pathlib, time
 
-from cryptobench.shared.settings import effective_view
 from cryptobench.shared.device import gradle_runner
 from cryptobench.shared.device.adb import NO_DEFAULT_PROFILER, Device
 from cryptobench.stages.measurement.energy.session import EnergySession
 from cryptobench.shared.device import reconnect
-from cryptobench.stages.measurement.session import clocks_hook, cooldown_hook, dynamic_temperature, thermal_hook, variant_order
+from cryptobench.stages.measurement.session import clocks_hook, cooldown_hook, dynamic_temperature, thermal_hook
 from cryptobench.pipeline.took import elapsed
 from cryptobench.shared.log.warn import warn
 from cryptobench.shared import paths
@@ -25,12 +24,15 @@ class Measuring:
     discovery: pathlib.Path
     files: dict
     problems: list
-    throttle_sleep: int | None = None
-    cooldown: int = 0
-    gate: object = None
-    retries: int = 0
-    reconnect: object = reconnect.Off()
-    order: object = variant_order.interleaved
+    # variant_order.chosen's order for run.orderSeed
+    order: object
+    # None keeps Jetpack's own sleep (effective_view.throttle_sleep)
+    throttle_sleep: int | None
+    cooldown: int
+    # dynamic_temperature.opened's gate, run.launchRetries, reconnect.Reconnect
+    gate: object
+    retries: int
+    reconnect: object
 
 
 def convert(run, arguments):
@@ -40,10 +42,8 @@ def convert(run, arguments):
     run.problems.extend(line for line in notices if line.startswith("iterations_not_applied:"))
 
 
-def gated(run, document):
-    gate = run.reconnect.retried(lambda: dynamic_temperature.opened(run.device, effective_view.thermal_gate(document), run.problems), "the thermal gate's start")
-    return dataclasses.replace(run, gate=gate, retries=effective_view.launch_retries(document),
-                               order=variant_order.chosen(effective_view.order_seed(document))[0])
+def gate_opened(device, document, problems, waits):
+    return waits.retried(lambda: dynamic_temperature.opened(device, document, problems), "the thermal gate's start")
 
 
 def measure_arguments(suppress, throttle_sleep=None):

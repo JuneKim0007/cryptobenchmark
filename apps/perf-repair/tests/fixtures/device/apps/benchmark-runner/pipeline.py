@@ -32,10 +32,11 @@ def digest(value):
 document = yaml.safe_load(pathlib.Path(options.config).read_text()) or {}
 shipped = (document.get("providers") or {}).pop("bundled", None) or []
 inputs = {"bundled": digest(shipped), "config": digest(document)}
+code = {"timed": os.environ.get("FAKE_CODE", "fake-timed"), "runner": "fake-runner"}
 if options.identify:
     print("identity:  " + json.dumps({"deviceId": DEVICE_ID, "mode": "device" if options.device else "host",
                                       "config": options.config, "inputs": inputs,
-                                      "harness": os.environ.get("FAKE_HARNESS", "fake-harness")}))
+                                      "harness": os.environ.get("FAKE_HARNESS", "fake-harness"), "code": code}))
     sys.exit(0)
 
 root = pathlib.Path(options.results)
@@ -165,7 +166,8 @@ probe_path.write_text(yaml.safe_dump(probe, sort_keys=False))
 trial_path.write_text(yaml.safe_dump(trial, sort_keys=False))
 if os.environ.get("FAKE_VARIANTS"):
     manifest["retried"] = [f"{c}_{v}" for c in manifest.get("retried") or [] for v in ("fixed", "notFixed")]
-manifest.update(deviceId=DEVICE_ID, mode="device" if options.device else "host", config=options.config, inputs=inputs)
+manifest.update(deviceId=DEVICE_ID, mode="device" if options.device else "host", config=options.config, inputs=inputs,
+                run={"code": code, "run": document.get("run") or {}, "selection": digest(document.get("selection")), "suppressErrors": []})
 if os.environ.get("FAKE_FINGERPRINT"):
     manifest["runtime"] = {**manifest["runtime"], "fingerprint": os.environ["FAKE_FINGERPRINT"]}
 if options.probe:

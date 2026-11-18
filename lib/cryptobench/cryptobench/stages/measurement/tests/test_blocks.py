@@ -1,5 +1,5 @@
 """Block ranges, identity differences and the partial move-aside a resumed publish makes."""
-import pathlib
+import pathlib, types
 
 from cryptobench.shared.results import identity, layout
 from cryptobench.stages.measurement.session import blocks
@@ -20,6 +20,17 @@ def test_a_changed_identity_names_run_and_device_keys_by_their_dotted_name():
 
 def test_the_timed_code_digest_covers_every_pattern():
     assert len(identity.timed_code()) == 64
+
+
+def test_a_runner_edit_changes_only_code_runner_and_bytecode_is_not_code(tmp_path):
+    repo = types.SimpleNamespace(root=tmp_path, timed_code=("timed/*",), runner_code=("runner/**/*.py",))
+    written(tmp_path / "timed/Bench.kt"), written(tmp_path / "runner/session/launch.py")
+    before = identity.code(repo)
+    written(tmp_path / "runner/session/__pycache__/launch.cpython-314.pyc", "compiled")
+    assert identity.code(repo) == before
+    written(tmp_path / "runner/session/launch.py", "edited")
+    after = identity.code(repo)
+    assert identity.changed({"code": before}, {"code": after}) == ["code.runner"]
 
 
 def written(path, text="x"):

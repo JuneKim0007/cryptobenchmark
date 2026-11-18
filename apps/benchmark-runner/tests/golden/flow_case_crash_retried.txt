@@ -3,6 +3,7 @@ gate:      TEMPERATURE GATE OFF: run.thermalGate not set
 warm-up:   off (run.warmup.iterations 0)
 measure:   CryptoBenchmark on the device; --stream shows each case
 measure:   one process per case (3 cases)
+order:     <tmp>/results/benchmark/order.txt
 case:      1 of 3 a ok
 warning: case_failed: crash: INSTRUMENTATION_RESULT: shortMsg=Process crashed.; measuring the case again, 0 retries left
 case:      2 of 3 crash failed

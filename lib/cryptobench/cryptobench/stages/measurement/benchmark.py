@@ -10,11 +10,10 @@ from cryptobench.shared.log.stdout import WROTE, say
 from cryptobench.shared.errors.line import one_line
 from cryptobench.shared.errors.failures import AllSkipped, CommandError
 from cryptobench.shared import paths
-from cryptobench.stages.measurement import resume
 from cryptobench.shared.device import instrumentation, reconnect
-from cryptobench.stages.measurement.session import blocks, case_isolation, energy_hook, passes, skips, warmup
+from cryptobench.stages.measurement.session import blocks, case_isolation, energy_hook, passes, skips, variant_order, warmup
 from cryptobench.stages.measurement.session import measure as measure_session
-from cryptobench.stages.measurement.measuring import (Measuring, convert, energy_preflight, gated, pass_arguments, pull_pins, record, session_arguments,
+from cryptobench.stages.measurement.measuring import (Measuring, convert, energy_preflight, gate_opened, pass_arguments, pull_pins, record, session_arguments,
                                                          singles, thermal_flag, timed_hooks)
 from cryptobench.shared.device.plan import pull_plan, push, recorded_skips
 from cryptobench.pipeline.took import elapsed
@@ -43,10 +42,10 @@ def measure_on_device(run, one, captures, preparation, repetitions, folder, writ
         record(run.files, process.into, captures, device)
 
     arguments = pass_arguments(run, one)
-    plan = measure_session.Plan("CryptoBenchmark", arguments, timed=bool(timed), order=run.order,
+    plan = measure_session.Plan("CryptoBenchmark", arguments, run.order, gate, run.retries, run.reconnect, timed=bool(timed),
                                 cleared=(paths.PREPARED, paths.SKIPPED), stale=(paths.Preparation(preparation).prepared, paths.Preparation(preparation).skipped),
                                 pull_plan=lambda process: (pull_plan(device, preparation), pull_pins(device, process.into)), after_process=converted,
-                                gate=gate, retries=run.retries, reconnect=run.reconnect, blocks=measured_blocks, kept=held,
+                                blocks=measured_blocks, kept=held,
                                 refused=lambda case: device_skips(device, preparation).get(case))
     measure_session.run_session(device, plan, repetitions, hooks, folder, run.problems)
 
@@ -64,16 +63,17 @@ def dry_pass(session, into, preparation, problems, guarded):
     energy_stage.guarded(problems, step) if guarded else step()
 
 
-def measure_cases(options, device, results, found, problems, require_energy):
-    """found is discovery's Discovered; require_energy is the entry point's check of the energy interpreter, passed in; it returns the interpreter the run uses."""
+def measure_cases(options, device, results, found, problems, require_energy, record):
+    """found is discovery's Discovered; require_energy is the entry point's check of the energy interpreter, passed in; it returns the interpreter the run uses;
+    record: the run's record, every block's identity."""
     benchmark, preparation = paths.RunTree(results).benchmark.root, paths.RunTree(results).preparation.root
     discovery, effective, capture, trial, files = found.discovery, found.effective, found.capture, found.trial, found.files
     started = time.monotonic()
     document = effective_view.read(effective)["document"]
     repetitions, captures = effective_view.process_repetitions(document), energy_stage.captures(effective)
     timed = bool(captures - {"dry"})
-    size, identity = effective_view.resume_block_runs(document), resume.run_identity(effective, capture, options.suppress_errors)
-    in_blocks = lambda folder, label, boot: blocks.Blocks(folder, size, repetitions, identity, document.get("runId"), label, boot)
+    size = effective_view.resume_block_runs(document)
+    in_blocks = lambda folder, label, boot: blocks.Blocks(folder, size, repetitions, record, document.get("runId"), label, boot)
     if captures - {"none"} and not device:
         raise CommandError("energy: only a --device run captures energy; set harness.energy.capture none for --bench")
     if captures - {"none"}:
@@ -82,8 +82,10 @@ def measure_cases(options, device, results, found, problems, require_energy):
     if device:
         waits = reconnect.Reconnect.of(device, options)
         print(waits.line())
-        run = Measuring(device, EnergySession(device, waits), energy_stage.source(effective, options.energy_python, options.stacktrace), options, discovery,
-                        files, problems, effective_view.throttle_sleep(document), effective_view.case_cooldown(document), reconnect=waits)
+        source = energy_stage.source(effective, options.energy_python, options.stacktrace)
+        run = Measuring(device, EnergySession(device, waits), source, options, discovery, files, problems, variant_order.chosen(effective_view.order_seed(document))[0],
+                        effective_view.throttle_sleep(document), effective_view.case_cooldown(document), gate_opened(device, document, problems, waits),
+                        effective_view.launch_retries(document), waits)
         try:
             written, processes = device_cases(run, document, [effective, paths.Configuration.holding(effective).guide, capture, trial], captures, benchmark,
                                               preparation, in_blocks)
@@ -107,7 +109,6 @@ def device_cases(run, document, plan_files, captures, benchmark, preparation, in
     boot) is a pass's blocks.Blocks."""
     chosen, repetitions = passes.read(document, captures), effective_view.process_repetitions(document)
     energy = any(one.captures(captures) - {"none"} for one in chosen)
-    run = gated(run, document)
     energy_step = (lambda: energy_preflight(run.options, run.source, run.session, run.discovery, run.files)) if energy else None
     run.reconnect.retried(lambda: push(run.device, run.options, plan_files, energy_step), "the plan push")
     run.reconnect.retried(lambda: warm_up(run, document, preparation), "the warm-up")
@@ -136,8 +137,8 @@ def host_cases(options, document, capture, trial, effective, benchmark, preparat
         warn("run.passes: only a --device run measures in passes; this run measures once per process")
     if effective_view.thermal_gate(document):
         warn("TEMPERATURE SET BUT DEVICE CAN'T POLL: host_runtime; running without it", problems)
-    if effective_view.order_seed(document) is not None:
-        warn("run.orderSeed: only a --device run launches cases in an order; this run measures in the plan's order")
+    effective_view.order_seed(document)
+    warn("run.orderSeed: only a --device run launches cases in an order; this run measures in the plan's order")
     folder = lambda repetition: measure_session.process_folder(benchmark, repetition, repetitions)
 
     def measured(repetition):
