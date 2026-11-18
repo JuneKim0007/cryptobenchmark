@@ -38,7 +38,7 @@ class EffectiveView(unittest.TestCase):
             "run.warmup.iterations": lambda: warmup.settings({"run": {"warmup": {"jobs": [], "cases": 3}}}),
             "run.warmup.jobs": lambda: warmup.settings({"run": {"warmup": {"iterations": 1, "cases": 3}}}),
             "run.warmup.cases": lambda: warmup.settings({"run": {"warmup": {"iterations": 1, "jobs": []}}}),
-            "run.metrics": lambda: passes.read(RunView({"run": {}}), {"none"}),
+            "run.metrics": lambda: passes.pass_views(RunView({"run": {}}), {"none"}),
         }
         for path, read in reads.items():
             stderr = io.StringIO()

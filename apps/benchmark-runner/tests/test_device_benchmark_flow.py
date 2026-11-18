@@ -77,7 +77,7 @@ def test_repetitions_each_write_their_folder_and_merge(tmp_path, monkeypatch):
     assert (results / "benchmark/process-1/benchmark.json").is_file() and (results / "benchmark/process-2/benchmark.json").is_file()
 
 
-MEASURED = {"harness": {"energy": {"capture": "measured"}}, "passes": {"energy": {"samples": 3}, "timing": {"samples": 3}}}
+MEASURED = {"harness": {"energy": {"capture": "measured"}}, "passes": {"energy": {"samples": 3, "minWindowSeconds": 5}, "timing": {"samples": 3}}}
 
 
 def test_measured_capture_runs_inside_the_window_with_a_preflight_first(tmp_path, monkeypatch):
@@ -173,7 +173,7 @@ def test_every_case_failing_stops_the_run(tmp_path, monkeypatch):
 
 def test_each_pass_is_its_own_session_and_every_metric_comes_from_its_pass(tmp_path, monkeypatch):
     run = {"metrics": ["TIME", "ALLOCATION"], "harness": {"energy": {"capture": "measured"}},
-           "passes": {"timing": {"samples": 300}, "energy": {"samples": 100}, "allocation": {"samples": 100}}}
+           "passes": {"timing": {"samples": 300}, "energy": {"samples": 100, "minWindowSeconds": 5}, "allocation": {"samples": 100}}}
     phone, files, _problems, results = measured(tmp_path, monkeypatch, run)
     named = [args[args.index("cryptobench.pass") + 1] + ":" + args[args.index("cryptobench.samples") + 1] for args in phone.arguments]
     assert named == ["timing:300", "timing:300", "energy:100", "energy:100", "allocation:100", "allocation:100"]

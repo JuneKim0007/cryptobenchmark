@@ -163,7 +163,7 @@ cryptobench/stages/measurement/session/energy_hook.py : session hook: the energy
 cryptobench/stages/measurement/session/gate_history.py : what one temperature gate session did: per-case waits and discards for thermal.json, its per-pass line
 cryptobench/stages/measurement/session/launch.py : the only place a timed run of a case starts: hold, launch, verdict, retries
 cryptobench/stages/measurement/session/measure.py : one device measuring session of the benchmark: processes, a process per case, hooks; a process repetition's folder and line, a case's progress line
-cryptobench/stages/measurement/session/passes.py : run.passes: one device session per metric group, its device arguments and conversion, the merge per metric; MergeRunsKt over process repetitions
+cryptobench/stages/measurement/session/passes.py : run.passes: PASS_ROWS (metrics, keeps capture, cleaned, owned key, sizing) and pass_views from RunView; one device session per metric group, its device arguments and conversion, the merge per metric; MergeRunsKt over process repetitions
 cryptobench/stages/measurement/session/skips.py : a skipped.yaml record whose code codes.yaml holds as an outcome or an error: a final skip, its case_skipped line
 cryptobench/stages/measurement/session/thermal_hook.py : session hook: temperature around every process and case into thermal.json with the gate's history, its lines per pass
 cryptobench/stages/measurement/session/variant_order.py : run.variants on a device: an item's fixed and notFixed cases adjacent, A/B then B/A over repetitions; run.orderSeed's per-process shuffle; the order's identity stanza

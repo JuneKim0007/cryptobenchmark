@@ -76,7 +76,7 @@
 | `entry_count(document)` | `lib/cryptobench/cryptobench/shared/settings/effective_view.py` | `sum((len(names) for types in (document.get('providers') or {}).values() for names in types.values()))` | cryptobench.stages.discovery.discover, explain |
 | `found(document, path)` | `lib/cryptobench/cryptobench/shared/settings/effective_view.py` | The value at a dotted path, or None. | chart_input, cryptobench.shared.results.manifest |
 | `read(effective_file)` | `lib/cryptobench/cryptobench/shared/settings/effective_view.py` | - | cryptobench.stages.discovery.discover, cryptobench.stages.measurement.benchmark |
-| `required(document, path)` | `lib/cryptobench/cryptobench/shared/settings/effective_view.py` | The value at a dotted path :config always writes; its absence is the coded missing_field, never a KeyError. | cryptobench.shared.results.run_record, explain |
+| `required(document, path)` | `lib/cryptobench/cryptobench/shared/settings/effective_view.py` | The value at a dotted path :config always writes; its absence is the coded missing_field, never a KeyError. | cryptobench.shared.results.run_record, cryptobench.stages.measurement.session.passes, explain |
 | `capture(node, default)` | `lib/cryptobench/cryptobench/shared/settings/energy_capture.py` | `_energy(node).get('capture', default)` | cryptobench.shared.settings.effective_view, cryptobench.stages.analysis.not_measured, dependencies |
 | `source(node, default)` | `lib/cryptobench/cryptobench/shared/settings/energy_capture.py` | `_energy(node).get('source', default)` | cryptobench.shared.settings.effective_view, dependencies |
 | `summarize(runs)` | `lib/cryptobench/cryptobench/shared/stats/descriptive.py` | - | analyze, chart_model |

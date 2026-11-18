@@ -111,7 +111,7 @@ def measure_cases(options, device, results, found, problems, require_energy, rec
 def device_cases(run, document, plan_files, captures, benchmark, preparation, in_blocks):
     """Every pass of the run on the device; the per-process files for the manifest and how many processes ran. in_blocks(pass folder, pass name,
     boot) is a pass's blocks.Blocks."""
-    chosen, repetitions = passes.read(RunView(document), captures), RunView(document).process_repetitions
+    chosen, repetitions = passes.pass_views(RunView(document), captures), RunView(document).process_repetitions
     energy = any(one.captures(captures) - {"none"} for one in chosen)
     energy_step = (lambda: energy_preflight(run.options, run.source, run.session, run.discovery, run.files)) if energy else None
     run.reconnect.retried(lambda: push(run.device, run.options, plan_files, energy_step), "the plan push")
