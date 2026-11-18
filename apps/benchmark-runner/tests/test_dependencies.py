@@ -206,10 +206,11 @@ def test_cryptobench_from_another_place_is_refused_and_this_checkouts_runs_as_be
     refused = "error: library_outside_checkout: cryptobench loads from {}, not from this checkout's {}; set PYTHONPATH to that folder or pip install -e it\n"
     done = command(script, *flags, library=elsewhere)
     assert (done.returncode, done.stdout, done.stderr) == (1, "", refused.format((elsewhere / "cryptobench").resolve(), library.resolve()))
-    done = command(script, *flags, library=older)
-    assert (done.returncode, done.stdout, done.stderr) == (1, "", refused.format((older / "cryptobench").resolve(), "library (lib/cryptobench)"))
-    done = command(script, *flags, library=ROOT / "lib")
-    assert (done.returncode, done.stdout, done.stderr) == (1, "", refused.format((ROOT / "lib/cryptobench").resolve(), "library (lib/cryptobench)"))
+    # with this checkout pip install -e'd, its finder supplies cryptobench.shared, so the line names the library's path instead
+    for loaded in (older, ROOT / "lib"):
+        done = command(script, *flags, library=loaded)
+        assert (done.returncode, done.stdout) == (1, "") and done.stderr in {
+            refused.format((loaded / "cryptobench").resolve(), label) for label in ("library (lib/cryptobench)", library.resolve())}
     done = command(script, *flags, library=library)
     assert (done.returncode, done.stdout, done.stderr) == unchanged
     variant = pathlib.Path(str(ROOT).swapcase())
