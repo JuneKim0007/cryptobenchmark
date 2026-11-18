@@ -9,7 +9,7 @@
 
 - `config/testsets/predefined.yaml` names AndroidOpenSSL, BundledConscrypt, BundledBC, AndroidKeyStore and platform `BC` in its tier and rest rows; its provider-less type rules select every other provider's primitives.
 - `exclude` is empty in `config/global.yaml` and `predefined.yaml`.
-- The APK bundles no crypto provider library; `:android` depends only on androidx benchmark and test libraries.
+- The APK bundles the `providers.bundled` artifacts of the run's `global.yaml`; `config/global.yaml` bundles Conscrypt 2.9.0 as `BundledConscrypt` and BouncyCastle 1.87 as `BundledBC`.
 
 | provider | observed on device |
 |---|---|

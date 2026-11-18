@@ -6,7 +6,7 @@ Authored settings: `config/global*.yaml` and `config/testsets/*.yaml`, committed
 
 | file | selection.testSet | run | notes |
 |---|---|---|---|
-| `config/global.yaml` | `testsets/predefined.yaml` | inputSizes `[64, 1024, 16384]`, seed 0 | harness `iterations: 100`; every other key takes its default |
+| `config/global.yaml` | `testsets/predefined.yaml` | inputSizes `[64, 1024, 16384]`, seed 0, variants default | harness `iterations: 100`; `providers.bundled` Conscrypt 2.9.0 as `BundledConscrypt`, BouncyCastle 1.87 as `BundledBC`; every other key takes its default |
 | `config/global-quick.yaml` | `testsets/quick.yaml` | inputSizes `[64, 1024, 16384]`, seed 42 | harness `{iterations: 5, profiling: none}`; analysis charts `[iqrBars, stability]` |
 | `config/global-demo.yaml` | `testsets/smoke.yaml` | inputSizes `[1024]`, seed 42 | no harness |
 | `config/global-check.yaml` | `testsets/known-answers.yaml` | inputSizes `[64]`, seed 42 | `providers.bundled` BouncyCastle as `BundledBC`, a second provider for the cross-provider check |
