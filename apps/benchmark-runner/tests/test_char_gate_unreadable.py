@@ -1,5 +1,5 @@
-"""Characterization (Py-P4): the thermal gate's hold returns False on an unreadable temperature; the case launch skips the case, the warm-up and the
-energy dry pass run anyway."""
+"""Py-P4 (decision 39.4): the thermal gate's hold returns False on an unreadable temperature; the case launch skips the case, the warm-up and the
+energy dry pass are skipped."""
 from cryptobench.stages.measurement import benchmark
 from cryptobench.stages.measurement.session import dynamic_temperature, warmup
 from test_device_benchmark_flow import measured
@@ -23,21 +23,21 @@ def blind_for(monkeypatch, heat, label):
     return held
 
 
-def test_today_an_unreadable_temperature_before_the_warm_up_still_runs_it(tmp_path, monkeypatch):
+def test_an_unreadable_temperature_before_the_warm_up_skips_it(tmp_path, monkeypatch):
     heat = Heat(monkeypatch)
     held = blind_for(monkeypatch, heat, "warm-up")
     phone, _files, problems, _results = measured(tmp_path, monkeypatch, CASE | {"warmup": {"iterations": 5, "jobs": []}})
     assert held == [False]
-    assert [a for a in phone.arguments if warmup.WARMUP_PASS in a]
-    assert problems[0].startswith("temperature_unreadable: warm-up: thermal_unavailable: fake; moving to the next case")
+    assert not [a for a in phone.arguments if warmup.WARMUP_PASS in a]
+    assert problems[0] == "temperature_unreadable: warm-up: thermal_unavailable: fake"
     assert [s for s in phone.log if s.startswith("instrument ")][-2:] == ["instrument CryptoBenchmark a", "instrument CryptoBenchmark b"]
 
 
-def test_today_an_unreadable_temperature_before_the_energy_dry_pass_still_runs_it(tmp_path, monkeypatch):
+def test_an_unreadable_temperature_before_the_energy_dry_pass_skips_it(tmp_path, monkeypatch):
     heat = Heat(monkeypatch)
     held = blind_for(monkeypatch, heat, "energy dry pass")
     ran = []
     monkeypatch.setattr(benchmark.EnergySession, "dry_pass", lambda *_arguments, **_options: ran.append("dry pass"))
     _phone, _files, problems, _results = measured(tmp_path, monkeypatch, CASE | {"harness": {"energy": {"capture": "dry"}}})
-    assert held == [False] and ran == ["dry pass"]
-    assert problems[0].startswith("temperature_unreadable: energy dry pass: thermal_unavailable: fake; moving to the next case")
+    assert held == [False] and ran == []
+    assert problems[0] == "temperature_unreadable: energy dry pass: thermal_unavailable: fake"
