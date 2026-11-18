@@ -44,8 +44,8 @@
 | step | value |
 |---|---|
 | windows | idle, then busy (one spin loop per core) |
-| window length | 3 s each |
-| source | Perfetto `android.power`, rails polled every 100 ms |
+| window length | 3 s each (`PREFLIGHT_SECONDS` in `lib/cryptobench/cryptobench/stages/measurement/energy/sources/rails_source.py`, and in `manafa_source.py` beside it) |
+| source | Perfetto `android.power`, rails polled every 100 ms, 4096 KB buffer (`RAILS_CONFIG`) |
 | settle | 15 s sleep before the first case, after the plan push and the AOT compile (dex2oat), so the compile heat is not in it |
 | output | `discovery/energy.yaml`, traces in `discovery/energy-preflight/` |
 | delivery | `energy.yaml` is pushed with the plan |
@@ -54,7 +54,7 @@
 |---|---|
 | `schemaVersion` | 1 |
 | `railsPresent` | both windows have rails |
-| `railsResponsive` | present, idle > 0, busy ≥ 1.10 × idle |
+| `railsResponsive` | present, idle > 0, busy ≥ 1.10 × idle (`RESPONSIVE` in `apps/benchmark-runner/energy/preflight.py`) |
 | `idleMicrojoules`, `busyMicrojoules` | window totals |
 | `windowSeconds` | pre-flight window length |
 | `acceptUnresponsive` | `--energy-accept-unresponsive` |
@@ -92,14 +92,14 @@
 | `joulesPerOperation` | net / operations |
 | `windowSeconds`, `polls`, `shortWindow`, `rails`, `capture`, `clockOffsetNs` | window facts |
 | `heatSleepAfterKeptRuns` | `measured`: Jetpack slept for heat after the kept runs began; it keeps such runs once its sleeps are spent, so they may be hot; printed `flagged:` |
-| `traceBytes`, `traceLarge` | `measured`: the trace's size; large above 32 MiB, where rail samples can be lost; printed `flagged:` |
+| `traceBytes`, `traceLarge` | `measured`: the trace's size; large above 32 MiB (`LARGE_TRACE_BYTES` in `apps/benchmark-runner/energy/energy.py`), where rail samples can be lost; printed `flagged:` |
 | `valid`, `invalid` | judgement and reasons |
 
 | invalid reason | condition |
 |---|---|
 | `rails_unresponsive` | rails not responsive |
 | `window_uncovered` | the timed phase reaches past the first or last rail sample; the case has no number, the run goes on |
-| `short_window` | < 20 polls |
+| `short_window` | < 20 polls (`MIN_POLLS` in `apps/benchmark-runner/energy/energy.py`) |
 | `net_not_positive` | `netJoules` ≤ 0 |
 | `no_operations` | `operations` is 0 or absent |
 | `no_joules_per_operation` | `joulesPerOperation` is null and no other reason applies, so a valid case always has a number |
