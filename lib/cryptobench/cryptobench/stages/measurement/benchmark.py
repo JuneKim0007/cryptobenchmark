@@ -25,7 +25,7 @@ def measure_on_device(run, one, captures, preparation, isolation, repetitions, f
     gate = run.gate.session(one.label)
     hooks = timed_hooks(run, one, isolation, gate) if timed else []
     if captures - {"none"}:
-        dry = lambda into, guarded: (gate.hold("energy dry pass"), dry_pass(run.session, into, preparation, run.problems, guarded))[1]
+        dry = lambda into, guarded: gate.hold("energy dry pass") and dry_pass(run.session, into, preparation, run.problems, guarded)
         hooks.insert(0, energy_hook.EnergyCapture(run.source, run.session, captures, run.discovery, preparation, run.problems, dry, bool(timed)))
 
     def converted(process):

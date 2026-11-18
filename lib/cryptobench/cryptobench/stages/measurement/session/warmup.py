@@ -59,7 +59,9 @@ def run(device, test_class, arguments, planned, cases, document, gate=dynamic_te
 
 def once(device, test_class, arguments, selected, iterations, gate, left_out, skipped):
     """The warmed cases; [] after a failure; None when every chosen case was a final skip, now in left_out."""
-    gate.hold("warm-up")
+    if not gate.hold("warm-up"):
+        warn("WARM-UP SKIPPED: temperature_unreadable; measuring without a warm-up")
+        return []
     before, started = thermal.read(device), time.monotonic()
     named = ("-e", case_isolation.CASE_ARGUMENT, ",".join(selected), "-e", passes.PASS_ARGUMENT, WARMUP_PASS, "-e", passes.SAMPLES_ARGUMENT, str(iterations))
     output = ""
