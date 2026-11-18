@@ -1,0 +1,1 @@
+identity:  {"config": "<tmp>/global.yaml", "deviceId": "pixel-10-api36-4b9cb871", "harness": "<harness digest>", "inputs": {"bundled": "85e9f752cc0902c9a08ad2a9569087258492d125ada6a198feaa4dda75832249", "config": "853d6854752ed57cb56db296bf6b60611c69047614c30f78998e2ff8bb3a5485"}, "mode": "device"}
