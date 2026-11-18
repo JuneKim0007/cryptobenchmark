@@ -1,4 +1,5 @@
-"""<folder>/.lock: one run on a results root or device folder at a time; the process holding it may take it again without blocking.
+"""<folder>/.lock, or a phone's lock file: one run on a results root, device folder or phone at a time; the process holding it may take it
+again without blocking.
 fcntl.flock is POSIX only."""
 from __future__ import annotations
 
@@ -20,20 +21,25 @@ class DeviceLock:
 
     @classmethod
     def take(cls, folder: Path) -> DeviceLock:
-        """device_busy when another process holds it; the descriptor is not inherited by children (O_CLOEXEC)."""
         folder = Path(folder)
         folder.mkdir(parents=True, exist_ok=True)
-        key = folder.resolve()
+        return cls.take_key(RunTree(folder.resolve()).lock, str(folder))
+
+    @classmethod
+    def take_key(cls, lock: Path, what: str) -> DeviceLock:
+        """device_busy when another process holds it; the descriptor is not inherited by children (O_CLOEXEC)."""
+        lock.parent.mkdir(parents=True, exist_ok=True)
+        key = lock.resolve()
         if key in _HELD:
             _HELD[key][1] += 1
             return cls(key)
-        fd = os.open(RunTree(key).lock, os.O_RDWR | os.O_CREAT, 0o644)
+        fd = os.open(key, os.O_RDWR | os.O_CREAT, 0o644)
         try:
             fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError:
             owner = os.read(fd, 32).decode(errors="replace").strip() or "unknown"
             os.close(fd)
-            raise InputError(f"device_busy: {folder} is in use by another run (pid {owner}); wait for it to end") from None
+            raise InputError(f"device_busy: {what} is in use by another run (pid {owner}); wait for it to end") from None
         os.ftruncate(fd, 0)
         os.write(fd, str(os.getpid()).encode())
         _HELD[key] = [fd, 1]

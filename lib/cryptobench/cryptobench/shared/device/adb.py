@@ -110,6 +110,11 @@ class Device:
         dirs = paths.DeviceDirs(int(sdk))
         self.files, self.media, self.data = str(dirs.plan), str(dirs.output), str(dirs.benchmark_data)
 
+    def serial(self):
+        """ANDROID_SERIAL, else adb get-serialno; '' when adb knows none."""
+        answer = os.environ.get("ANDROID_SERIAL") or self.run("get-serialno").stdout.strip()
+        return "" if answer == "unknown" else answer
+
     def identity(self):
         """The runtime fields device_id reads, by getprop: Build.MODEL and Build.FINGERPRINT read these properties."""
         return {"sdkInt": int(self.shell("getprop ro.build.version.sdk").strip()),

@@ -1,5 +1,5 @@
 """The phone over adb, faked: an instrumentation per process, one log line per device step, and the host tools' files."""
-import contextlib, json, pathlib, types
+import contextlib, json, os, pathlib, types
 
 import yaml
 
@@ -39,6 +39,9 @@ class Phone(device_module.Device):
         self.refuse, self.skips = dict(refuse or {}), []
         self.written, self.log, self.ran, self.arguments, self.converted = [], [], [], [], []
         self.thermal, self.notices, self.boot = thermal, [], "boot-1"
+
+    def serial(self):
+        return os.environ.get("ANDROID_SERIAL") or "FAKE00000001"
 
     def run(self, *arguments, check=True):
         if arguments[0] == "pull":

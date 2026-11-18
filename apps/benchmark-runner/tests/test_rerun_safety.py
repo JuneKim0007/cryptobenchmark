@@ -16,7 +16,7 @@ from test_manifest import PROBE
 
 FLAGS = {"probe": False, "identify": False, "devices": False, "check_session": None, "session": None, "per_suite": False, "interop": None, "harness": None, "check": False, "bench": False, "device": True, "config": None,
          "discovery": "overwrite"}
-STAMPS = (f"20261117T1200{n:02d}Z" for n in itertools.count())
+STAMPS = (f"20261117T{n // 3600 % 24:02d}{n // 60 % 60:02d}{n % 60:02d}Z" for n in itertools.count())
 # facts.yaml a device discovery writes beside the capture; None writes none
 FACTS = None
 
@@ -151,6 +151,8 @@ def test_a_stopped_run_writes_a_partial_manifest_and_a_rerun_keeps_it_whole_asid
     assert stopped["files"]["prepared"] == "preparation/prepared.yaml" and rerun.phone.log[-3:] == ["pull prepared.yaml", "pull skipped.yaml", "pull pins"]
     assert not paths.finished(rerun.device) and paths.Results(rerun.root).devices() == []
     monkeypatch.undo()
+    # undo also dropped conftest.py's isolated cache
+    monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path / "cache"))
     rerun = Rerun(tmp_path, monkeypatch, Phone(tmp_path, cases=("a", "b", "c")))
     rerun()
     [aside] = rerun.aside()

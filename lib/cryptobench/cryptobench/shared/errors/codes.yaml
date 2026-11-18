@@ -248,7 +248,7 @@ codes:
     stops:
       settable: []
       exit: 1
-      next: "wait for the other run on the device folder to end"
+      next: "wait for the other run on the device folder or phone to end"
       why: "continuing would mix runs or devices"
   missing_results:
     kind: error

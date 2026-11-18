@@ -28,10 +28,15 @@ def calls(monkeypatch, tmp_path):
         def connect(self):
             seen.append("connect")
 
+        def serial(self):
+            seen.append("serial")
+            return "56301AAAA00001"
+
     monkeypatch.setattr(pipeline, "global_config", recorder("global_config", tmp_path / "global.yaml"))
     monkeypatch.setattr(pipeline.config_check, "parsed", recorder("config_check", {"bundled": []}))
     monkeypatch.setattr(pipeline.dependencies, "check", recorder("dependencies"))
     monkeypatch.setattr(pipeline, "Device", Device)
+    monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path / "cache"))
     monkeypatch.setattr(pipeline.paths, "repo", lambda: pipeline.paths.Repo(tmp_path))
     for name in ("list_devices", "identify", "harness_run", "interop_run", "check_run", "manifest"):
         monkeypatch.setattr(pipeline, name, recorder(name))
@@ -56,16 +61,18 @@ START = ["global_config", "config_check", "dependencies"]
 @pytest.mark.parametrize("flags, order", [
     ({}, START + ["warn_if_temp", "discover_published", "guide", "run_record", "manifest"]),
     ({"probe": True}, START + ["warn_if_temp", "discover_published", "guide", "run_record", "manifest"]),
-    ({"probe": True, "device": True}, START + ["Device", "connect", "warn_if_temp", "discover_published", "guide", "run_record", "manifest"]),
+    ({"probe": True, "device": True}, START + ["Device", "connect", "serial", "warn_if_temp", "discover_published", "guide", "run_record", "manifest"]),
     ({"bench": True}, START + ["warn_if_temp", "discover_published", "guide", "run_record", "measure_cases", "manifest"]),
-    ({"device": True}, START + ["Device", "connect", "warn_if_temp", "discover_published", "guide", "run_record", "measure_cases", "manifest"]),
+    ({"device": True}, START + ["Device", "connect", "serial", "warn_if_temp", "discover_published", "guide", "run_record", "measure_cases", "manifest"]),
     ({"check": True, "bench": True}, START + ["warn_if_temp", "check_run"]),
     ({"interop": "plan.yaml", "bench": True}, START + ["warn_if_temp", "interop_run"]),
-    ({"harness": "harness.yaml", "device": True}, START + ["Device", "connect", "checked_folder", "harness_run"]),
+    ({"check": True, "device": True}, START + ["Device", "connect", "serial", "warn_if_temp", "check_run"]),
+    ({"interop": "plan.yaml", "device": True}, START + ["Device", "connect", "serial", "warn_if_temp", "interop_run"]),
+    ({"harness": "harness.yaml", "device": True}, START + ["Device", "connect", "serial", "checked_folder", "harness_run"]),
     ({"identify": True}, ["global_config", "dependencies", "identify"]),
     ({"identify": True, "device": True}, ["global_config", "dependencies", "Device", "connect", "identify"]),
     ({"devices": True}, ["list_devices"]),
-], ids=["plain", "probe", "probe device", "bench", "device", "check", "interop", "harness", "identify", "identify device", "devices"])
+], ids=["plain", "probe", "probe device", "bench", "device", "check", "interop", "check device", "interop device", "harness", "identify", "identify device", "devices"])
 def test_the_stages_of_each_run_kind_in_order(calls, flags, order):
     assert calls(**flags) == order
 

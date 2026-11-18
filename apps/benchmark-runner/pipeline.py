@@ -212,9 +212,22 @@ def benchmarked(options, device, results, found, problems, run):
         analyse(results, found.files, found.effective, preparation, benchmark, written, repetitions)
 
 
-# the first row whose option is set runs; None marks the plain run, the last row
-ROUTES: tuple[tuple[str | None, Stage], ...] = (
-    ("identify", identified), ("harness", harnessed), ("interop", interoperated), ("check", checked), (None, measured))
+# the first row whose option is set runs; None marks the plain run, the last row; holds_device: a --device run takes the phone's lock
+ROUTES: tuple[tuple[str | None, Stage, bool], ...] = (
+    ("identify", identified, False), ("harness", harnessed, True), ("interop", interoperated, True), ("check", checked, True),
+    (None, measured, True))
+
+
+@contextlib.contextmanager
+def phone_held(device):
+    """One run per phone, whatever its results root; a blank serial names no phone, so that run is not locked."""
+    serial = device.serial()
+    if not serial:
+        warn("unstable_id: adb reports no serial for this device; a second run on it is not refused")
+        yield
+        return
+    with DeviceLock.take_key(paths.phone_lock(serial), f"phone {serial}"):
+        yield
 
 
 def main():
@@ -236,9 +249,10 @@ def main():
     device = Device(paths.repo().gradle_root, options.stream, options.stacktrace) if options.device else None
     if device:
         device.connect()
-    stage = next(stage for option, stage in ROUTES if option is None or getattr(options, option))
+    stage, holds_device = next((stage, holds) for option, stage, holds in ROUTES if option is None or getattr(options, option))
     suite = pathlib.Path(checked["testSet"]).stem if options.per_suite and checked else None
-    return stage(StageContext(options, configuration, device, checked, suite))
+    with phone_held(device) if device and holds_device else contextlib.nullcontext():
+        return stage(StageContext(options, configuration, device, checked, suite))
 
 
 def failure_line(error):

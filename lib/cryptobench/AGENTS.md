@@ -86,7 +86,7 @@ cryptobench/shared/log/tests/ : pytest tests of the event log: append_line, atta
 cryptobench/shared/log/warn.py : warn(): a `warning:` line, added to the run's problems when it keeps a list, and one log event with the line's code
 cryptobench/shared/paths/__init__.py : one interface to every path the Python modules use: `from cryptobench.shared import paths`
 cryptobench/shared/paths/device_dirs.py : DeviceDirs(sdk): folders on a device per API level, POSIX paths
-cryptobench/shared/paths/host.py : the user's and host's locations: home, the user's global.yaml and devices.yaml, the Android SDK and its platform-tools
+cryptobench/shared/paths/host.py : the user's and host's locations: home, the user's global.yaml and devices.yaml, the Android SDK and its platform-tools, the per-phone lock under the user cache
 cryptobench/shared/paths/imports.py : the apps' source folders on the import path, for the facade's process and its children; in shared/paths because tools/paths_check.py allows sys.path and PYTHONPATH edits nowhere else
 cryptobench/shared/paths/names.py : the file and folder names of a results folder, litter (desktop files no listing of a run counts), and CONTRACT: those shared with Kotlin
 cryptobench/shared/paths/packaged.py : packaged(package, name) through importlib and a named constant per data file a package ships
@@ -98,7 +98,7 @@ cryptobench/shared/paths/settings.py : against(settings_file, value), the one ru
 cryptobench/shared/results/__init__.py : package of a run's results folder, importing no app
 cryptobench/shared/results/identity.py : a measuring run's identity (effective run block, selection digest, timed and runner code digests, capture runtime with facts.yaml's build, order, suppressed errors) and the dotted fields two identities differ in
 cryptobench/shared/results/layout.py : results/<device_id>/[<suite>/]: unit_folder, staging, publishing into the device folder after the earlier unit, but for the paths a resumed run keeps, moves to superseded/<stamp>/, the temporary-folder warning
-cryptobench/shared/results/lock.py : DeviceLock: `<folder>/.lock` by fcntl.flock (POSIX), the holder's pid; another process is device_busy, the holding one takes it again; a results root (pipeline.py) or a device folder (perf-repair)
+cryptobench/shared/results/lock.py : DeviceLock: `<folder>/.lock`, or a phone's lock file by take_key, by fcntl.flock (POSIX), the holder's pid; another process is device_busy, the holding one takes it again; a results root or a phone (pipeline.py) or a device folder (perf-repair)
 cryptobench/shared/results/manifest.py : results/<device_id>/manifest.yaml: MANIFEST_DOC and MODES, files, counts, runtime, providers, input digests, units, the harness operations, energy mark, problems, the partial mark of a stopped run; files added beside a finished run; write(), the one manifest writer
 cryptobench/shared/results/publish_unit.py : publish_unit(): a verification stage's staged folder published beside a finished run (its configuration under the stage's folder) or as a new device folder, the results: line, the manifest, the superseded report; Route, a stage's folder name and manifest files
 cryptobench/shared/results/partial.py : a run that stopped: the partial record (reason, case runs per process folder) its manifest is written with, a failed write one warning

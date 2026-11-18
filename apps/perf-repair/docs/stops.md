@@ -49,7 +49,7 @@ Exit: what `failure.py` returns for the code; argparse refusals exit 2 before an
 | `not_device_results` | `stop` | fixed: continuing would mix runs or devices | 1 | pass a device folder cryptobenchmark wrote |
 | `scoped_plan_mismatch` | `stop` | fixed: continuing would mix runs or devices | 1 | rerun the app's device step |
 | `schema_version` | `stop` | fixed: continuing would mix runs or devices | 1 | rerun the step that writes the file |
-| `device_busy` | `stop` | fixed: continuing would mix runs or devices | 1 | wait for the other run on the device folder to end |
+| `device_busy` | `stop` | fixed: continuing would mix runs or devices | 1 | wait for the other run on the device folder or phone to end |
 | `missing_results` | `stop` | fixed: nothing is left to run | 1 | pass a device folder cryptobenchmark wrote |
 | `several_project_roots` | `stop` | fixed: nothing is left to run | 1 | pass one of the project roots as --app |
 | `no_options` | `stop` | fixed: nothing is left to run | 1 | see each scope's reason in dossiers.json noOptions |

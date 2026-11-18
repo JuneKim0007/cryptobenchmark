@@ -25,6 +25,11 @@ def user_cache() -> Path:
     return Path(os.environ.get("XDG_CACHE_HOME") or home() / ".cache") / "cryptobench"
 
 
+def phone_lock(serial: str) -> Path:
+    """The lock one run on this phone holds, whatever its results root."""
+    return user_cache() / "locks" / serial
+
+
 def android_home() -> Path:
     return Path(os.environ.get("ANDROID_HOME") or home() / "Library/Android/sdk")
 
