@@ -104,3 +104,39 @@ def test_a_launch_collapsed_three_times_fails_the_case_and_every_attempt_is_kept
 def test_a_good_launch_runs_once(monkeypatch, tmp_path):
     outcome, count, process, unit = launches(monkeypatch, tmp_path, [70_000])
     assert (outcome, count, process.relaunched) == (None, 1, []) and not (unit / "rejected").exists()
+
+
+def run_folder(tmp_path, order, files, problems=(), record=None):
+    into = tmp_path / "benchmark"
+    (into / "cases").mkdir(parents=True)
+    (into / "order.txt").write_text("".join(f"{case}\n" for case in order))
+    for case in files:
+        data(into / "cases" / f"{case}.json", name=f"measure[{case}]")
+    return rules.RunFolder(tmp_path, into, into, 1, tuple(problems), record)
+
+
+def test_check_run_names_a_missing_case_but_not_one_the_run_gave_up_on_and_notes_an_extra_file(tmp_path):
+    run = run_folder(tmp_path, ["a", "b", "c"], ["a", "x"], ["case_failed: b: Process crashed."])
+    found = [(f.code, f.case, f.severity, f.run) for f in rules.check_run(run, SINGLE)]
+    assert found == [("case_missing", "c", "fail", "process-1"), ("case_extra", "x", "note", "process-1")]
+    assert rules.redone(rules.check_run(run, SINGLE)) == ["c"]
+
+
+def test_files_match_record_names_the_case_whose_file_changed_and_a_run_file(tmp_path):
+    from cryptobench.stages.measurement.session import blocks
+    run = run_folder(tmp_path, ["a", "b"], ["a", "b"])
+    recorded = blocks.run_files(run.folder, run.folder)
+    (run.folder / "cases/b.json").write_text((run.folder / "cases/b.json").read_text() + " ")
+    (run.folder / "order.txt").write_text("a\nb\n\n")
+    found = rules.check_run(rules.RunFolder(tmp_path, run.folder, run.folder, 1, (), recorded), SINGLE)
+    assert [(f.code, f.case, f.detail) for f in found] == [("files_differ", "b", "cases/b.json: its digest differs"),
+                                                           ("files_differ", None, "order.txt: its digest differs")]
+
+
+def test_a_relaunch_counts_the_samples_it_asked_for(tmp_path):
+    run = run_folder(tmp_path, ["a"], [])
+    data(run.folder / "cases/a.json", runs=75)
+    energy = expectation.Expectation("energy", 3, 5)
+    assert [f.code for f in rules.check_run(run, energy)] == ["sample_count"]
+    sized = rules.RunFolder(tmp_path, run.folder, run.folder, 1, sized={"a": {"samples": 3, "relaunched": {"samples": 75}}})
+    assert rules.check_run(sized, energy) == []

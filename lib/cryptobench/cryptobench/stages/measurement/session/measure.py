@@ -8,6 +8,7 @@ from cryptobench.shared.errors.line import one_line
 from cryptobench.stages.measurement import case_files
 from cryptobench.shared.device import instrumentation, reconnect
 from cryptobench.stages.measurement.session import blocks, case_isolation, launch, skips
+from cryptobench.stages.measurement.validation import rejected, rules
 from cryptobench.shared.device.adb import DeviceError, DeviceLost
 from cryptobench.shared.device.plan import clear_outputs
 from cryptobench.shared import paths
@@ -127,6 +128,7 @@ def one_process(device, plan, process, hooks, repetitions, problems):
         if plan.timed:
             measure(device, plan, process, hooks)
             plan.reconnect.retried(lambda: plan.pull_plan(process), "the plan pull")
+            completed(device, plan, process, hooks)
     except BaseException as error:
         # the interrupt kills adb, not the test it started on the device
         if isinstance(error, KeyboardInterrupt):
@@ -207,6 +209,25 @@ def each_case(device, plan, process, hooks):
                          f"listed in {paths.SKIPPED}")
     if not measured:
         raise DeviceError(f"{plan.test_class} failed on the device for every case:\n" + "\n".join(process.failures or ["no case planned"]))
+
+
+def completed(device, plan, process, hooks):
+    """check_run at the process's end, its plan pulled: a case without a file, or whose file now fails a rule, moves to rejected/ and is
+    launched once more in this process, before the next one starts."""
+    run = rules.RunFolder(plan.unit, process.into, process.into, process.repetition, tuple(process.failures), sized=process.samples)
+    findings = rules.check_run(run, plan.expectation)
+    for case in rules.redone(findings):
+        failed = [finding for finding in rules.failed(findings) if finding.case == case]
+        attempt = 1 + sum(1 for entry in process.relaunched if entry["case"] == case)
+        rejected.moved(plan.unit, run.result(case), attempt, failed)
+        process.relaunched.append({"case": case, "attempt": attempt, "code": failed[0].code})
+        failure = launch.run_of_case(device, plan, process, case, hooks, case_files.path(process.into, case))
+        print(f"case:      {case} launched again ({failed[0].code}) {verdict(failure)}")
+        if failure:
+            print(failure)
+            process.failures.append(failure)
+    if rules.redone(findings):
+        case_files.merge(process.into, [case for case in process.cases if case_files.path(process.into, case).is_file()], process.data)
 
 
 def verdict(failure):

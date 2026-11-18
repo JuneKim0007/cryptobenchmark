@@ -106,3 +106,19 @@ def test_a_pulled_result_that_names_another_case_is_refused_and_never_stored(tmp
     assert sorted(p.name for p in (process.into / "cases").iterdir()) == ["a.json", "c.json"]
     [rejected] = (tmp_path / "rejected").iterdir()
     assert sorted(p.name for p in (rejected / "process-1").iterdir()) == ["b.json", "why.yaml"]
+
+
+def test_a_case_that_fails_a_rule_once_its_plan_is_pulled_is_rejected_and_launched_again_in_the_process(tmp_path):
+    phone, problems = Phone(tmp_path, cases=("a", "b")), []
+    prepared = tmp_path / "preparation/prepared.yaml"
+
+    def pulled_plan(_process):
+        prepared.parent.mkdir(exist_ok=True)
+        prepared.write_text("cases:\n- {id: a, harness: {iterations: 2}}\n- {id: b}\n")
+    plan = measure_session.Plan("CryptoBenchmark", (), listed, **UNGATED, unit=tmp_path, expectation=Expectation(None, None), pull_plan=pulled_plan)
+    process, = measure_session.run_session(phone, plan, 1, [], lambda _r: tmp_path / "benchmark", problems)
+    assert [named for _test, named in phone.ran] == ["a", "b", "a"]
+    assert problems == ["case_failed: a: sample_count: 1 samples, 2 expected"]
+    assert process.relaunched == [{"case": "a", "attempt": 1, "code": "sample_count"}]
+    assert [b["name"] for b in json.loads(process.data.read_text())["benchmarks"]] == ["measure[b]"]
+    assert len(list((tmp_path / "rejected").iterdir())) == 2

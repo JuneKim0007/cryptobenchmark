@@ -345,3 +345,11 @@ def test_a_block_record_lists_each_launch_again_with_the_code_that_caused_it(tmp
     rerun = Rerun(tmp_path, monkeypatch, Phone(tmp_path, crash={"b"}))
     rerun({"launchRetries": 1})
     assert record(rerun.device, 1)["processes"][0]["relaunched"] == [{"case": "b", "attempt": 1, "code": "case_failed"}]
+
+
+def test_block_end_records_each_runs_findings_and_validation_yaml_holds_the_last_check_of_every_run(tmp_path, monkeypatch):
+    rerun = Rerun(tmp_path, monkeypatch)
+    rerun({"processRepetitions": 3, "resumeBlockRuns": 2})
+    assert [run["findings"] for run in record(rerun.device, 1)["processes"]] == [[], []]
+    validation = yaml.safe_load(paths.RunTree(rerun.device).validation.read_text())
+    assert validation == {"schemaVersion": 1, "runs": {f"process-{n}": {"checkedBy": "block_end", "fails": 0, "findings": []} for n in (1, 2, 3)}}

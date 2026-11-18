@@ -1041,7 +1041,9 @@ codes:
   bundled_not_installed: {kind: error}
   call_failed: {kind: outcome}
   call_moved: {kind: outcome}
+  case_extra: {kind: notice}
   case_failed: {kind: error}
+  case_missing: {kind: notice}
   case_skipped: {kind: outcome}
   charts_failed: {kind: notice}
   # E11: Kotlin: one case's check threw, so the case is skipped (RunnablePlan.kt); runner: checked cases failed, exit 1 (cryptobench/stages/verification/check.py)
@@ -1095,6 +1097,7 @@ codes:
   extension_function: {kind: outcome}
   facts_unknown: {kind: error}
   file_missing: {kind: outcome}
+  files_differ: {kind: notice}
   first_call_refused: {kind: outcome}
   function_span: {kind: outcome}
   generation_refused: {kind: outcome}

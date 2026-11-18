@@ -14,7 +14,7 @@ from cryptobench.shared import paths
 from cryptobench.shared.device import instrumentation, reconnect
 from cryptobench.stages.measurement.session import blocks, case_isolation, energy_hook, passes, skips, variant_order, warmup, window
 from cryptobench.stages.measurement.session import measure as measure_session
-from cryptobench.stages.measurement.validation import expectation
+from cryptobench.stages.measurement.validation import expectation, report
 from cryptobench.stages.measurement.measuring import (Measuring, convert, energy_preflight, gate_opened, pass_arguments, pull_pins, record, session_arguments,
                                                          singles, thermal_flag, timed_hooks)
 from cryptobench.shared.device.plan import pull_plan, push, recorded_skips
@@ -83,7 +83,8 @@ def measure_cases(options, device, results, found, problems, require_energy, rec
     repetitions, captures = view.process_repetitions, energy.captures
     timed = bool(captures - {"dry"})
     size = view.resume_block_runs
-    in_blocks = lambda folder, label, boot: blocks.Blocks(folder, size, repetitions, record, document.get("runId"), label, boot)
+    in_blocks = lambda folder, label, boot: blocks.Blocks(folder, size, repetitions, record, document.get("runId"),
+                                                          report.checker(results, folder, expectation.of(record["run"], label)), label, boot)
     if captures - {"none"} and not device:
         raise CommandError("energy: only a --device run captures energy; set harness.energy.capture none for --bench")
     if captures - {"none"}:

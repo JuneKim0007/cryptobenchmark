@@ -141,7 +141,7 @@ def test_a_host_run_says_it_cannot_poll_once(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(benchmark.gradle_runner, "run", lambda *_a, **_k: [])
     monkeypatch.setattr(benchmark, "record", lambda *_a, **_k: None)
     benchmark.host_cases(types.SimpleNamespace(stacktrace=False, stream=False), document, "c", "t", "e", tmp_path / "b", tmp_path / "p", {}, problems,
-                         blocks.Blocks(tmp_path / "b", 10, 1, {}, None))
+                         blocks.Blocks(tmp_path / "b", 10, 1, {}, None, lambda _entry: []))
     assert capsys.readouterr().out.count("TEMPERATURE SET BUT DEVICE CAN'T POLL: host_runtime") == 1
 
 

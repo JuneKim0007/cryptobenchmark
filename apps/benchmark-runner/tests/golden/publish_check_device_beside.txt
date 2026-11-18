@@ -23,6 +23,7 @@ tree:
   probed-api36-4c538a37/manifest.yaml
   probed-api36-4c538a37/preparation/prepared.yaml
   probed-api36-4c538a37/preparation/skipped.yaml
+  probed-api36-4c538a37/validation.yaml
 manifest:
 schemaVersion: 1
 mode: device

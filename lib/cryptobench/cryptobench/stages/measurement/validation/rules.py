@@ -2,8 +2,15 @@
 loop, the block end, the restart and the audit each decide what to do with them."""
 import dataclasses, functools, json, pathlib, re, statistics
 
+from cryptobench.shared import paths
+from cryptobench.shared.document.document import read_yaml
+from cryptobench.stages.measurement.session.blocks import run_files
+from cryptobench.stages.measurement.validation.rejected import run_of
+
 FAIL, NOTE = "fail", "note"
-CASE = "case"
+CASE, RUN = "case", "run"
+# a problem line that names a case the run gave up on: no file is expected for it
+GAVE_UP = ("case_failed: ", "case_skipped: ")
 # androidx targets about 100 ms a sample; the collapsed samples seen on a Pixel 10 were under 0.1 ms
 SHORT_SAMPLE_MS = 1.0
 # androidx ends a warm-up at 8 s whether or not the timing has settled; it does not report which happened
@@ -83,6 +90,66 @@ def warmup_near_cap(result, _expectation):
 
 
 @dataclasses.dataclass(frozen=True)
+class RunFolder:
+    """One run as check_run reads it: problems its recorded lines, files its record's digests (None before a record exists)."""
+    unit: pathlib.Path
+    folder: pathlib.Path
+    pass_folder: pathlib.Path
+    repetition: int
+    problems: tuple = ()
+    files: dict | None = None
+    # energy-samples.yaml's cases while the process still holds them; None reads the file
+    sized: dict | None = None
+
+    @property
+    def run(self):
+        return run_of(self.unit, self.folder, self.repetition)
+
+    @functools.cached_property
+    def order(self):
+        """The cases the process launched; None for a host run, which keeps no per-case files."""
+        order = paths.Measurement(self.folder).order
+        return order.read_text().split() if order.is_file() else None
+
+    def gave_up(self, case):
+        return any(line.startswith(GAVE_UP) and f" {case}:" in line for line in self.problems)
+
+    @property
+    def expected(self):
+        return [case for case in self.order or () if not self.gave_up(case)]
+
+    @functools.cached_property
+    def relaunched(self):
+        """case -> the samples a short window's relaunch ran with, from energy-samples.yaml."""
+        samples = paths.Measurement(self.folder).energy_samples
+        cases = self.sized if self.sized is not None else (read_yaml(samples).get("cases") or {}) if samples.is_file() else {}
+        return {case: entry["relaunched"]["samples"] for case, entry in cases.items() if isinstance(entry.get("relaunched"), dict)}
+
+    def result(self, case):
+        return Result(self.run, case, paths.Measurement(self.folder).case(case), self.relaunched.get(case))
+
+
+def every_case_present(run, _expectation):
+    return [(case, "no cases/<case>.json for a case the run launched and did not give up on")
+            for case in run.expected if not paths.Measurement(run.folder).case(case).is_file()]
+
+
+def no_extra_case(run, _expectation):
+    cases = paths.Measurement(run.folder).cases
+    launched = set(run.order or ())
+    return [(path.stem, "a case file the run did not launch") for path in sorted(cases.glob("*.json")) if path.stem not in launched and not paths.litter(path)]
+
+
+def files_match_record(run, _expectation):
+    if run.files is None:
+        return []
+    now = run_files(run.folder, run.pass_folder)
+    named = lambda path: path[len(paths.CASES) + 1:-len(".json")] if path.startswith(f"{paths.CASES}/") else None
+    return [(named(path), f"{path}: {'missing' if path not in now else 'not recorded' if path not in run.files else 'its digest differs'}")
+            for path in sorted(set(now) | set(run.files)) if now.get(path) != run.files.get(path)]
+
+
+@dataclasses.dataclass(frozen=True)
 class Rule:
     code: str
     scope: str
@@ -97,6 +164,9 @@ RULES = (
     Rule("miscalibrated", CASE, FAIL, calibrated),
     Rule("sample_count", CASE, FAIL, sample_count),
     Rule("warmup_near_cap", CASE, NOTE, warmup_near_cap),
+    Rule("case_missing", RUN, FAIL, every_case_present),
+    Rule("case_extra", RUN, NOTE, no_extra_case),
+    Rule("files_differ", RUN, FAIL, files_match_record),
 )
 
 
@@ -114,3 +184,19 @@ def check_case(result, expectation):
 
 def failed(findings):
     return [finding for finding in findings if finding.severity == FAIL]
+
+
+def check_run(run, expectation):
+    """check_case for every case the run kept a file of, then the run rows; a host run, with no per-case files, only matches its record."""
+    expectation = expectation.planned(paths.RunTree(run.unit).preparation.prepared)
+    findings = []
+    for case in (case for case in run.expected if paths.Measurement(run.folder).case(case).is_file()):
+        findings += check_case(run.result(case), expectation)
+    for rule in (row for row in RULES if row.scope == RUN):
+        findings += [Finding(rule.code, RUN, run.run, case, detail, rule.severity) for case, detail in rule.check(run, expectation)]
+    return findings
+
+
+def redone(findings):
+    """The cases a fail names, each once, in order: what a run launches again."""
+    return list(dict.fromkeys(finding.case for finding in failed(findings) if finding.case))

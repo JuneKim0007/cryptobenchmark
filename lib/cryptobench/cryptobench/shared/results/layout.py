@@ -6,7 +6,7 @@ from cryptobench.shared.log.warn import warn
 
 STAGING_PREFIX = ".staging-"
 # one run's unit, manifest first; discovery/ joins it when the next run replaces discovery (overwrite)
-UNIT = (paths.MANIFEST, paths.CONFIGURATION, paths.PREPARATION, paths.BENCHMARK, paths.ANALYSIS, paths.CHART, paths.CHECK, paths.INTEROP)
+UNIT = (paths.MANIFEST, paths.CONFIGURATION, paths.PREPARATION, paths.BENCHMARK, paths.ANALYSIS, paths.CHART, paths.CHECK, paths.INTEROP, paths.VALIDATION)
 STAMP = "%Y%m%dT%H%M%SZ"
 
 

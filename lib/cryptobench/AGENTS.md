@@ -162,7 +162,7 @@ cryptobench/stages/measurement/session/dynamic_temperature.py : run.thermalGate 
 cryptobench/stages/measurement/session/energy_hook.py : session hook: the energy source's window around a process, traces pulled per case, dry pass, joules
 cryptobench/stages/measurement/session/gate_history.py : what one temperature gate session did: per-case waits and discards for thermal.json, its per-pass line
 cryptobench/stages/measurement/session/launch.py : the only place a timed run of a case starts: hold, launch, verdict, check_case, rejected/, retries, relaunched entries
-cryptobench/stages/measurement/session/measure.py : one device measuring session of the benchmark: processes, a process per case, hooks; a process repetition's folder and line, a case's progress line
+cryptobench/stages/measurement/session/measure.py : one device measuring session of the benchmark: processes, a process per case, hooks, check_run at a process's end with its cases launched again; a process repetition's folder and line, a case's progress line
 cryptobench/stages/measurement/session/passes.py : run.passes: PASS_ROWS (metrics, keeps capture, cleaned, owned key, sizing) and pass_views from RunView; one device session per metric group, its device arguments and conversion, the merge per metric; MergeRunsKt over process repetitions
 cryptobench/stages/measurement/session/skips.py : a skipped.yaml record whose code codes.yaml holds as an outcome or an error: a final skip, its case_skipped line
 cryptobench/stages/measurement/session/thermal_hook.py : session hook: temperature around every process and case into thermal.json with the gate's history, its lines per pass
@@ -174,7 +174,8 @@ cryptobench/stages/measurement/tests/ : pytest tests of the measurement stage
 cryptobench/stages/measurement/validation/__init__.py : package of result validation: the rules table, the expectation it reads, rejected attempts
 cryptobench/stages/measurement/validation/expectation.py : what a run of one pass promised, from the run record's run block: samples per case, minimum window
 cryptobench/stages/measurement/validation/rejected.py : rejected/<UTC>/[<pass>/]process-<n>/<case>.json with why.yaml: an attempt that failed a rule
-cryptobench/stages/measurement/validation/rules.py : the one rules table (code, scope, severity, check), Finding, Result, check_case
+cryptobench/stages/measurement/validation/report.py : validation.yaml: per run the last check_run result; the block end's checker
+cryptobench/stages/measurement/validation/rules.py : the one rules table (code, scope, severity, check), Finding, Result, RunFolder, check_case, check_run
 cryptobench/stages/measurement/thermal.py : device temperatures from dumpsys thermalservice: sensors by HAL name, status, sentinels skipped, unavailable as a reason
 cryptobench/stages/verification/__init__.py : package of the verification stage
 cryptobench/stages/verification/check.py : --check run: every planned case once through the real harness (host CheckKt, device EndToEndCheck under the dry run), check.yaml, its summary and failures, published beside a finished run or as a new device folder; discovery's steps passed in

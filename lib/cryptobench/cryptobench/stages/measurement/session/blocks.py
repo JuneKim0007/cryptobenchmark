@@ -23,6 +23,8 @@ class Blocks:
     repetitions: int
     identity: dict
     run_id: str | None
+    # a recorded run's entry -> its check_run findings as documents (validation/report.py checker)
+    check: object
     label: str | None = None
     boot: object = lambda: None
 
@@ -63,6 +65,8 @@ def measured(blocks, folder, measure, keep, problems):
             before = len(problems)
             relaunched = measure(repetition) or []
             runs.append(run_entry(blocks, folder, repetition, problems[before:], relaunched))
+        for run in runs:
+            run["findings"] = blocks.check(run)
         write(blocks, block, (first, last), runs, (start, blocks.boot()), problems)
 
 

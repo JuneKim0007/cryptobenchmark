@@ -9,7 +9,7 @@ from failure import reported  # noqa: E402
 
 OPTIONS = types.SimpleNamespace(stacktrace=False, stream=False)
 DOCUMENT = {"run": {"processRepetitions": 1, "orderSeed": 1}}
-ONE_BLOCK = lambda folder: blocks.Blocks(folder, 10, 1, {}, None)
+ONE_BLOCK = lambda folder: blocks.Blocks(folder, 10, 1, {}, None, lambda _entry: [])
 
 
 def dying(rows):
@@ -52,7 +52,7 @@ def test_a_host_rerun_keeps_the_recorded_blocks_and_benches_only_the_rest(tmp_pa
         return []
     monkeypatch.setattr(benchmark.gradle_runner, "run", bench)
     monkeypatch.setattr(benchmark.passes, "merge_runs", lambda *_arguments: None)
-    document, in_blocks = {"run": {"processRepetitions": 3, "orderSeed": 1}}, blocks.Blocks(tmp_path, 1, 3, {"code": "c"}, None)
+    document, in_blocks = {"run": {"processRepetitions": 3, "orderSeed": 1}}, blocks.Blocks(tmp_path, 1, 3, {"code": "c"}, None, lambda _entry: [])
     with pytest.raises(KeyboardInterrupt):
         benchmark.host_cases(OPTIONS, document, "c", "t", "e", tmp_path, tmp_path, {}, [], in_blocks)
     written = benchmark.host_cases(OPTIONS, document, "c", "t", "e", tmp_path, tmp_path, {}, [], in_blocks)

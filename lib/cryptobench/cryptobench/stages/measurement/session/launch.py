@@ -1,5 +1,6 @@
 """The only place a timed run of a case starts: each attempt is held for temperature, launched between the hooks, then judged."""
 from cryptobench.shared.device.adb import DeviceLost
+from cryptobench.shared import paths
 from cryptobench.shared.errors.coded import code_in
 from cryptobench.shared.errors.line import one_line
 from cryptobench.stages.measurement.session import case_isolation, dynamic_temperature, skips
@@ -80,7 +81,7 @@ def attempts(device, plan, process, case, hooks, pulled, short):
             again("temperature_discarded")
             continue
         result = rules.Result(rejected.run_of(plan.unit, process.into, process.repetition), case, pulled, relaunched)
-        findings = [] if failure else rules.check_case(result, plan.expectation)
+        findings = [] if failure else rules.check_case(result, plan.expectation.planned(paths.RunTree(plan.unit).preparation.prepared))
         failed = rules.failed(findings)
         if not failure and not failed:
             for finding in findings:
