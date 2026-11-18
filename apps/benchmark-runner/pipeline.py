@@ -62,9 +62,9 @@ def parse_options():
     parser.add_argument("--energy-accept-unresponsive", action="store_true",
                         help="run energy cases even when the rails do not respond to load; for plumbing tests only, the joules are not measurements")
     parser.add_argument("--reconnect-wait-minutes", type=int, metavar="M",
-                        help="with --device: how long a lost adb transport is waited for before the run stops (default in session/reconnect.py)")
+                        help="with --device: how long a lost adb transport is waited for before the run stops (default in shared/device/reconnect.py)")
     parser.add_argument("--reconnect-poll-seconds", type=int, metavar="S",
-                        help="with --device: how often adb get-state is asked while waiting (default in session/reconnect.py)")
+                        help="with --device: how often adb get-state is asked while waiting (default in shared/device/reconnect.py)")
     parser.add_argument("--stacktrace", action="store_true", help="print the tool's full output on failure")
     parser.add_argument("--stream", action="store_true", help="show each tool's progress while it runs")
     parser.add_argument("--harness", metavar="HARNESS_YAML",

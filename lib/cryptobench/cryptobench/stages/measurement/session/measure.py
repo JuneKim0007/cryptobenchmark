@@ -6,7 +6,8 @@ from cryptobench.shared.device import timeouts
 from cryptobench.shared.errors.failures import AllSkipped
 from cryptobench.shared.errors.line import one_line
 from cryptobench.stages.measurement import case_files
-from cryptobench.stages.measurement.session import blocks, case_isolation, dynamic_temperature, launch, reconnect, skips
+from cryptobench.shared.device import instrumentation, reconnect
+from cryptobench.stages.measurement.session import blocks, case_isolation, dynamic_temperature, launch, skips
 from cryptobench.shared.device.adb import DeviceError, DeviceLost
 from cryptobench.shared.device.plan import clear_outputs
 from cryptobench.shared import paths
@@ -172,7 +173,7 @@ def measure(device, plan, process, hooks):
 
 
 def planned(device, plan):
-    return case_isolation.listed(device.instrument(plan.test_class, *plan.arguments, "-e", "log", "true"))
+    return case_isolation.listed(instrumentation.once(device, instrumentation.Instrumented(plan.test_class, passed=None), *plan.arguments, "-e", "log", "true"))
 
 
 def each_case(device, plan, process, hooks):

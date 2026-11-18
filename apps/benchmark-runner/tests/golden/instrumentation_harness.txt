@@ -1,4 +1,4 @@
-shell rm -f /plan/scoped-interop.yaml
 shell rm -rf /plan/scope-keys
+shell rm -f /plan/scoped-interop.yaml
 instrument ScopedInterop
 pull /plan/scoped-interop.yaml <tmp>/scoped/scoped-interop.yaml

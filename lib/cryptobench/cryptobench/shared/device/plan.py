@@ -16,11 +16,16 @@ def push_plan(device, *files):
             raise DeviceError(f"AOT compile {package}: {compiled.strip()}")
 
 
+def plan_pulls(device, preparation):
+    """(remote, local) of the prepared and skipped files."""
+    return ((f"{device.files}/{paths.PREPARED}", paths.Preparation(preparation).prepared),
+            (f"{device.files}/{paths.SKIPPED}", paths.Preparation(preparation).skipped))
+
+
 def pull_plan(device, preparation):
     preparation.mkdir(parents=True, exist_ok=True)
-    device.pull(f"{device.files}/{paths.PREPARED}", paths.Preparation(preparation).prepared)
-    device.pull(f"{device.files}/{paths.SKIPPED}", paths.Preparation(preparation).skipped)
-
+    for remote, local in plan_pulls(device, preparation):
+        device.pull(remote, local)
 
 
 def recorded_skips(device, local):
@@ -29,10 +34,14 @@ def recorded_skips(device, local):
     return read_yaml(local) if device.pull_optional(f"{device.files}/{paths.SKIPPED}", local) else {}
 
 
-def clear_outputs(device, plan_files=()):
+def outputs(device, plan_files=()):
     """androidx's outputs and the plan directory's per-run files, so nothing of an earlier process is pulled as this one's."""
-    planned = " ".join(f"{device.files}/{name}" for name in (*plan_files, paths.CPU_PINS))
-    device.shell(f"rm -f {device.media}/*-benchmarkData.json {device.media}/*.perfetto-trace {device.media}/*.trace {planned}")
+    return (f"{device.media}/*-benchmarkData.json", f"{device.media}/*.perfetto-trace", f"{device.media}/*.trace",
+            *(f"{device.files}/{name}" for name in (*plan_files, paths.CPU_PINS)))
+
+
+def clear_outputs(device, plan_files=()):
+    device.shell(f"rm -f {' '.join(outputs(device, plan_files))}")
 
 
 def push(device, options, plan, energy=None):

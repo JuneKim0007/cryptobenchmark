@@ -58,7 +58,7 @@ class Device:
 
 @pytest.fixture
 def run(tmp_path, monkeypatch):
-    monkeypatch.setattr(discover, "probe", lambda device, discovery, _arguments: device.probe(discovery))
+    monkeypatch.setattr(discover, "probe", lambda device, discovery, _waits, _arguments: device.probe(discovery))
     monkeypatch.setattr(discover.facts, "gather", lambda _device, discovery, _capture, _build: discovery / "facts.yaml")
     monkeypatch.setattr(discover.bundled, "check_effective", lambda *_arguments: None)
 
@@ -68,7 +68,8 @@ def run(tmp_path, monkeypatch):
         (configured / "effective.yaml").write_text("schemaVersion: 1\nproviders: {}\n")
         return [str(configured / "effective.yaml")]
     monkeypatch.setattr(discover.gradle_runner, "run", configure)
-    options = types.SimpleNamespace(discovery="verify", probe_store=str(tmp_path / "store"), stacktrace=False, stream=False)
+    options = types.SimpleNamespace(discovery="verify", probe_store=str(tmp_path / "store"), stacktrace=False, stream=False, reconnect_wait_minutes=None,
+                                    reconnect_poll_seconds=None)
 
     def once(device):
         results = tmp_path / "results"

@@ -1,6 +1,7 @@
 """An --interop run: perf-repair's pairs checked on the host JVM or the device, published beside or as the device folder."""
 import pathlib, time
 
+from cryptobench.shared.device import reconnect
 from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared.results import layout as results_layout
 from cryptobench.shared.results.publish_unit import Route, publish_unit
@@ -25,7 +26,7 @@ def interop_run(options, configuration, device, root, shipped, discover_staged, 
         out = paths.InteropFolder(staged_plan.parent).result
         started = time.monotonic()
         if device:
-            interop_oracle.on_device(device, effective, capture, trial, staged_plan, out)
+            interop_oracle.on_device(device, reconnect.Reconnect.of(device, options), effective, capture, trial, staged_plan, out)
         else:
             interop_oracle.on_host(capture, trial, staged_plan, out, options.stacktrace, options.stream)
         elapsed("interop check", started)

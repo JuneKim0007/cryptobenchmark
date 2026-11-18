@@ -3,7 +3,7 @@ import pathlib, shutil, time
 from dataclasses import dataclass
 
 from cryptobench.shared.settings import effective_view
-from cryptobench.shared.device import gradle_runner
+from cryptobench.shared.device import gradle_runner, reconnect
 from cryptobench.shared.device.identity import capture_id, device_id
 from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared import paths
@@ -44,7 +44,7 @@ def discover_in_place(options, configuration, device, results, shipped):
         if capture:
             capture, trial = capture_files.pair(capture)
         else:
-            probe(device, discovery, bundled.instrumentation_arguments(shipped))
+            probe(device, discovery, reconnect.Reconnect.of(device, options), bundled.instrumentation_arguments(shipped))
             capture, trial = capture_files.added(discovery, before)
             if value:
                 probe_store.keep(store(options), value, capture)

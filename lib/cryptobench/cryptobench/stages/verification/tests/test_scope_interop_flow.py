@@ -7,12 +7,13 @@ import yaml
 from cryptobench.stages.verification import harness  # noqa: E402
 from cryptobench.stages.discovery.discover import Discovered  # noqa: E402
 from fake_phone import Phone  # noqa: E402
+from cryptobench.shared.device.reconnect import Off  # noqa: E402
 from failure import reported  # noqa: E402
 
 
 def test_the_scope_check_is_its_own_process(tmp_path):
     phone = Phone(tmp_path)
-    interop = harness.scoped_interop(phone, tmp_path / "scoped")
+    interop = harness.scoped_interop(phone, Off(), tmp_path / "scoped")
     assert phone.log == ["clear", "instrument ScopedInterop", "pull scoped-interop.yaml"] and interop.name == "scoped-interop.yaml"
 
 
@@ -27,7 +28,7 @@ def test_a_harness_run_writes_the_verdicts_into_the_plan_and_times_nothing(tmp_p
     pushed = []
     monkeypatch.setattr(harness, "push", lambda _device, _options, files: pushed.extend(files))
     monkeypatch.setattr(phone, "pull", lambda _remote, local: pathlib.Path(local).write_text('"a": {interop: passed, check: same_output}\n'))
-    files = harness.check_scopes(types.SimpleNamespace(harness=str(tmp_path / "harness.yaml")), None, phone, tmp_path, scoped, plan, [], discovered)
+    files = harness.check_scopes(types.SimpleNamespace(harness=str(tmp_path / "harness.yaml"), reconnect_wait_minutes=None, reconnect_poll_seconds=None), None, phone, tmp_path, scoped, plan, [], discovered)
     assert capture in pushed and phone.ran == [] and files["scopedPlan"] == plan
     record = yaml.safe_load(plan.read_text())["scopes"][0]
     assert (record["status"], record["interop"]["result"]) == ("checked", "passed")

@@ -2,9 +2,9 @@
 published beside a finished run or as a new device folder."""
 import time
 
-from cryptobench.shared.device import gradle_runner
-from cryptobench.shared.device.adb import NO_DEFAULT_PROFILER, PASSED, DeviceError, instrumentation_report
-from cryptobench.shared.device.plan import clear_outputs, pull_plan, push_plan
+from cryptobench.shared.device import gradle_runner, instrumentation, reconnect
+from cryptobench.shared.device.adb import NO_DEFAULT_PROFILER
+from cryptobench.shared.device.plan import outputs, plan_pulls, push_plan
 from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared.results import layout as results_layout
 from cryptobench.shared.results.publish_unit import Route, publish_unit
@@ -55,14 +55,13 @@ def on_host(options, effective, capture, trial, known_answers, into):
 
 
 def on_device(device, options, effective, capture, trial, known_answers, into):
-    clear_outputs(device, (paths.CHECK_RESULT,))
-    push_plan(device, effective, paths.Configuration.holding(effective).guide, capture, trial, known_answers)
+    waits = reconnect.Reconnect.of(device, options)
+    waits.retried(lambda: push_plan(device, effective, paths.Configuration.holding(effective).guide, capture, trial, known_answers), "the plan push")
     suppressed = ["-e", "androidx.benchmark.suppressErrors", options.suppress_errors] if options.suppress_errors else []
-    output = device.instrument("EndToEndCheck", *NO_DEFAULT_PROFILER, *DRY_RUN, *suppressed)
-    if not PASSED.search(output):
-        raise DeviceError("EndToEndCheck failed on the device:\n" + instrumentation_report(output))
-    device.pull(f"{device.files}/{paths.CHECK_RESULT}", paths.CheckFolder(into).result)
-    pull_plan(device, paths.CheckFolder(into).preparation.root)
+    row = instrumentation.Instrumented("EndToEndCheck", cleared=outputs(device, (paths.CHECK_RESULT,)),
+                                       pulled=((f"{device.files}/{paths.CHECK_RESULT}", paths.CheckFolder(into).result),
+                                               *plan_pulls(device, paths.CheckFolder(into).preparation.root)))
+    instrumentation.run(device, waits, row, *NO_DEFAULT_PROFILER, *DRY_RUN, *suppressed)
 
 
 def summary(result):

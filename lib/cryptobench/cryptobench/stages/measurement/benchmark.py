@@ -11,7 +11,8 @@ from cryptobench.shared.errors.line import one_line
 from cryptobench.shared.errors.failures import AllSkipped, CommandError
 from cryptobench.shared import paths
 from cryptobench.stages.measurement import resume
-from cryptobench.stages.measurement.session import blocks, case_isolation, energy_hook, passes, reconnect, skips, warmup
+from cryptobench.shared.device import instrumentation, reconnect
+from cryptobench.stages.measurement.session import blocks, case_isolation, energy_hook, passes, skips, warmup
 from cryptobench.stages.measurement.session import measure as measure_session
 from cryptobench.stages.measurement.measuring import (Measuring, convert, energy_preflight, gated, pass_arguments, pull_pins, record, session_arguments,
                                                          singles, thermal_flag, timed_hooks)
@@ -81,7 +82,7 @@ def measure_cases(options, device, results, found, problems, require_energy):
     if device:
         waits = reconnect.Reconnect.of(device, options)
         print(waits.line())
-        run = Measuring(device, EnergySession(device), energy_stage.source(effective, options.energy_python, options.stacktrace), options, discovery,
+        run = Measuring(device, EnergySession(device, waits), energy_stage.source(effective, options.energy_python, options.stacktrace), options, discovery,
                         files, problems, effective_view.throttle_sleep(document), effective_view.case_cooldown(document), reconnect=waits)
         try:
             written, processes = device_cases(run, document, [effective, paths.Configuration.holding(effective).guide, capture, trial], captures, benchmark,
@@ -121,7 +122,7 @@ def warm_up(run, document, preparation):
     if warmup.off(document):
         return
     arguments = session_arguments(run)
-    planned = case_isolation.listed(run.device.instrument("CryptoBenchmark", *arguments, "-e", "log", "true"))
+    planned = case_isolation.listed(instrumentation.once(run.device, instrumentation.Instrumented("CryptoBenchmark", passed=None), *arguments, "-e", "log", "true"))
     pull_plan(run.device, preparation)
     cases = read_yaml(paths.Preparation(preparation).prepared).get("cases") or []
     warmup.run(run.device, "CryptoBenchmark", arguments, planned, cases, document, run.gate.session("warm-up"),

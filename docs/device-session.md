@@ -25,10 +25,12 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 | rule | value |
 |---|---|
 | printed at measurement start | `device:    a lost adb transport is waited for up to <m> min, adb get-state every <s> s` |
-| in a case | never a failed case: `lib/cryptobench/cryptobench/stages/measurement/session/reconnect.py` polls `adb get-state` until it says `device`, then the same case is held by the gate and launched again; its retries and discards are unchanged |
+| in a case | never a failed case: `lib/cryptobench/cryptobench/shared/device/reconnect.py` polls `adb get-state` until it says `device`, then the same case is held by the gate and launched again; its retries and discards are unchanged |
 | outside a case | the step (output clear, case listing, plan pull, a hook's process step, plan push, gate start, warm-up) runs again once the device is back |
 | past the bound | `device_lost: <reason>; not back after <s> s (adb get-state: <state>); run stopped`: the hooks close without waiting again, the cases measured so far stay, the manifest is marked `partial`, the run exits 1 |
-| discovery | install, probe and configure do not wait: a lost device there ends the run |
+| one instrumentation step | `DeviceProbe`, `EndToEndCheck`, `InteropCheck`, `ScopedInterop` and the energy dry pass run through `lib/cryptobench/cryptobench/shared/device/instrumentation.py` `run()`: once the device is back the whole step runs again, its clears first; their plan push waits the same way |
+| pass rule | `DeviceProbe`, `InteropCheck`, `ScopedInterop` and a measured case pass only on an `OK (1 test)` line; `EndToEndCheck`, the energy dry pass and the warm-up on any `OK (<n> tests)` line |
+| discovery | install and configure do not wait: a lost device there ends the run |
 
 ## Passes
 

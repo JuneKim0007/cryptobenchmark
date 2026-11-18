@@ -1,7 +1,7 @@
-shell rm -f /media/*-benchmarkData.json /media/*.perfetto-trace /media/*.trace /plan/check.yaml /plan/cpu-pins.yaml
 push_files <tmp>/effective.yaml <tmp>/guide.yaml <tmp>/probe.yaml <tmp>/trial.yaml <tmp>/known.yaml
 shell cmd package compile -f -m speed io.github.junekim0007.cryptobench
 shell cmd package compile -f -m speed io.github.junekim0007.cryptobench.test
+shell rm -f /media/*-benchmarkData.json /media/*.perfetto-trace /media/*.trace /plan/check.yaml /plan/cpu-pins.yaml
 instrument EndToEndCheck -e androidx.benchmark.profiling.mode None -e androidx.benchmark.dryRunMode.enable true
 pull /plan/check.yaml <tmp>/check/check.yaml
 pull /plan/prepared.yaml <tmp>/check/preparation/prepared.yaml

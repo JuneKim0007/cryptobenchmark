@@ -2,13 +2,13 @@
 import time
 
 from cryptobench.shared.settings import effective_view
-from cryptobench.shared.device import timeouts
+from cryptobench.shared.device import instrumentation, timeouts
 from cryptobench.stages.measurement.session import case_isolation
 from cryptobench.stages.measurement.session import dynamic_temperature, passes, skips
 from cryptobench.stages.measurement.session.measure import COUNTED
 from cryptobench.stages.measurement import thermal
-from cryptobench.shared.device.adb import PASSED, DeviceError, DeviceLost
-from cryptobench.shared.device.plan import clear_outputs
+from cryptobench.shared.device.adb import DeviceError, DeviceLost
+from cryptobench.shared.device.plan import clear_outputs, outputs
 from cryptobench.shared.errors.line import one_line
 from cryptobench.shared.log.warn import warn
 
@@ -65,16 +65,18 @@ def once(device, test_class, arguments, selected, iterations, gate, left_out, sk
     before, started = thermal.read(device), time.monotonic()
     named = ("-e", case_isolation.CASE_ARGUMENT, ",".join(selected), "-e", passes.PASS_ARGUMENT, WARMUP_PASS, "-e", passes.SAMPLES_ARGUMENT, str(iterations))
     output = ""
+    row = instrumentation.Instrumented(test_class, cleared=outputs(device), clear_when=instrumentation.AFTER)
     try:
-        output = device.instrument(test_class, *arguments, *named, step="case")
-        failed = None if PASSED.search(output) else device.report(output)
+        output, failed = instrumentation.once(device, row, *arguments, *named, step="case"), None
     except DeviceLost:
         raise
+    except instrumentation.Failed as error:
+        output, failed = error.output, device.report(error.output)
     except (DeviceError, timeouts.StepTimeout) as error:
         device.force_stop()
+        clear_outputs(device)
         failed = str(error)
     found = {case: code for case, code in skipped().items() if case in selected} if failed else {}
-    clear_outputs(device)
     after = thermal.read(device)
     for case, code in found.items():
         print(f"warm-up:   {skips.line(case, code)}")

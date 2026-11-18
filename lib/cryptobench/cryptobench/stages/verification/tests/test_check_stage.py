@@ -9,7 +9,7 @@ from cryptobench.shared.device.adb import DeviceError  # noqa: E402
 from cryptobench.shared.device import gradle_runner  # noqa: E402
 
 FILES = "/sdcard/plan"
-OPTIONS = types.SimpleNamespace(suppress_errors="EMULATOR,UNLOCKED", stacktrace=False, stream=False)
+OPTIONS = types.SimpleNamespace(suppress_errors="EMULATOR,UNLOCKED", stacktrace=False, stream=False, reconnect_wait_minutes=None, reconnect_poll_seconds=None)
 RESULT = {"schemaVersion": 1, "summary": {"cases": 3, "outcomes": {"pass": 1, "fail": 1, "notRun": 1}, "oracles": {"knownAnswer": {"pass": 1, "fail": 1}}},
           "cases": [{"id": "a", "outcome": "pass", "oracles": {}},
                     {"id": "b", "case": {"type": "MessageDigest", "algorithm": "SHA-256"}, "outcome": "fail", "oracles": {"knownAnswer": {"verdict": "fail", "reason": "output_differs"}}},
@@ -29,7 +29,7 @@ class FakeDevice:
     def push_files(self, *files):
         self.calls.append(("push", *map(str, files)))
 
-    def instrument(self, test_class, *arguments):
+    def instrument(self, test_class, *arguments, step="instrument"):
         self.calls.append(("instrument", test_class, *arguments))
         return self.output
 
@@ -40,7 +40,8 @@ class FakeDevice:
 def test_the_device_check_runs_every_case_in_one_dry_run_process_and_pulls_its_record(tmp_path):
     device = FakeDevice("OK (12 tests)\n")
     check.on_device(device, OPTIONS, "e.yaml", "p.yaml", "t.yaml", "k.yaml", tmp_path)
-    assert device.calls[1] == ("push", "e.yaml", str(pathlib.Path("e.yaml").with_name("guide.yaml")), "p.yaml", "t.yaml", "k.yaml")
+    assert device.calls[0] == ("push", "e.yaml", str(pathlib.Path("e.yaml").with_name("guide.yaml")), "p.yaml", "t.yaml", "k.yaml")
+    assert device.calls[1][0] == "clear"
     test_class, *arguments = device.calls[2][1:]
     assert test_class == "EndToEndCheck"
     assert " ".join(check.DRY_RUN) in " ".join(arguments) and "EMULATOR,UNLOCKED" in arguments

@@ -57,8 +57,10 @@ cryptobench/shared/device/capture.py : a capture's runtime block, its schema ver
 cryptobench/shared/device/clocks.py : per-core cpufreq over adb; clocks.yaml and cpuLocked
 cryptobench/shared/device/gradle_runner.py : runs one command of apps/benchmark/cli by its main class; filters its failure to the tool's own lines
 cryptobench/shared/device/identity.py : device id from a capture's runtime block
+cryptobench/shared/device/instrumentation.py : Instrumented, one instrumentation step's row (test class, clears before or after, pass rule, pulls); once() runs it, Failed when it did not pass; run() waits out a lost transport and runs it again
 cryptobench/shared/device/plan.py : the device plan: pushed and AOT-compiled, prepared and skipped pulled back, the skips recorded so far, per-run outputs cleared; a run's push with the suppressErrors warning, then the energy settle's files
 cryptobench/shared/device/probe.py : DeviceRow; adb transports classified ready or not with a coded fix, keyed by ro.serialno or emulator:<avd>, unstable_id otherwise; the --devices listing
+cryptobench/shared/device/reconnect.py : a lost adb transport: the bounded wait polling adb get-state, the step or case again, DeviceGone past the bound; Off for no wait
 cryptobench/shared/device/tests/ : pytest tests of the device listing and the alias file, from hand-written adb and getprop text
 cryptobench/shared/device/timeouts.py : ceilings of the host's subprocess steps (adb, install, instrument, case, gradle, compile, energy, analysis); expiry is one coded error
 cryptobench/shared/digest/__init__.py : package of the digests over bytes
@@ -160,7 +162,6 @@ cryptobench/stages/measurement/session/gate_history.py : what one temperature ga
 cryptobench/stages/measurement/session/launch.py : the only place a timed run of a case starts: hold, launch, verdict, retries
 cryptobench/stages/measurement/session/measure.py : one device measuring session of the benchmark: processes, a process per case, hooks; a process repetition's folder and line, a case's progress line
 cryptobench/stages/measurement/session/passes.py : run.passes: one device session per metric group, its device arguments and conversion, the merge per metric; MergeRunsKt over process repetitions
-cryptobench/stages/measurement/session/reconnect.py : a lost adb transport mid-run: the bounded wait polling adb get-state, the step or case again, DeviceGone past the bound
 cryptobench/stages/measurement/session/skips.py : a skipped.yaml record whose code codes.yaml holds as an outcome or an error: a final skip, its case_skipped line
 cryptobench/stages/measurement/session/thermal_hook.py : session hook: temperature around every process and case into thermal.json with the gate's history, its lines per pass
 cryptobench/stages/measurement/session/variant_order.py : run.variants on a device: an item's fixed and notFixed cases adjacent, A/B then B/A over repetitions; run.orderSeed's per-process shuffle; the order's identity stanza

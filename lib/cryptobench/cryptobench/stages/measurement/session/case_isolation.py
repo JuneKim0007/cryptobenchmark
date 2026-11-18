@@ -2,7 +2,7 @@
 import json
 import re
 
-from cryptobench.shared.device import timeouts
+from cryptobench.shared.device import instrumentation, timeouts
 from cryptobench.shared.errors.line import one_line
 from cryptobench.shared.device.adb import ONE_PASSED
 
@@ -19,15 +19,15 @@ def listed(output):
 
 def launch_case(device, test_class, arguments, case, pulled):
     """None, or the failure line; the case's benchmarkData stays at pulled."""
-    device.shell(f"rm -f {device.data}")
+    row = instrumentation.Instrumented(test_class, cleared=(device.data,), passed=ONE_PASSED)
     try:
-        output = device.instrument(test_class, *arguments, "-e", CASE_ARGUMENT, case, step="case")
+        instrumentation.once(device, row, *arguments, "-e", CASE_ARGUMENT, case, step="case")
     except timeouts.StepTimeout as error:
         # killing adb leaves the test running on the device; the next case must not start beside it
         device.force_stop()
         return f"case_failed: {case}: {error}"
-    if not ONE_PASSED.search(output):
-        return f"case_failed: {case}: {one_line(device.report(output) or 'no output')}"
+    except instrumentation.Failed as failed:
+        return f"case_failed: {case}: {one_line(device.report(failed.output) or 'no output')}"
     if not device.pull_optional(device.data, pulled):
         return f"case_failed: {case}: no benchmarkData.json after a passing run"
     named = _result_name(pulled)

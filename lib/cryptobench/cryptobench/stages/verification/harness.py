@@ -4,7 +4,8 @@ import pathlib, shutil, time
 from cryptobench.pipeline.took import elapsed
 from cryptobench.shared.log.stdout import WROTE, say
 from cryptobench.shared import paths
-from cryptobench.shared.device.adb import ONE_PASSED, DeviceError, instrumentation_report
+from cryptobench.shared.device import instrumentation, reconnect
+from cryptobench.shared.device.adb import ONE_PASSED
 from cryptobench.shared.device.identity import capture_id
 from cryptobench.shared.device.plan import push
 from cryptobench.shared.document.document import read_yaml
@@ -35,17 +36,14 @@ def require_harness_device(harness, capture):
             raise CommandError(f"harness_other_device: {harness} was built for {wanted}, the attached device is {attached}")
 
 
-def scoped_interop(device, into):
+def scoped_interop(device, waits, into):
     """ScopedInterop in its own process: every scope's verdict."""
     interop = paths.Scoped(into).interop
     interop.unlink(missing_ok=True)
     into.mkdir(parents=True, exist_ok=True)
-    device.shell(f"rm -f {device.files}/{paths.SCOPED_INTEROP}")
-    device.shell(f"rm -rf {device.files}/{paths.DeviceDirs.SCOPE_KEYS}")
-    output = device.instrument("ScopedInterop")
-    if not ONE_PASSED.search(output):
-        raise DeviceError("ScopedInterop failed on the device:\n" + instrumentation_report(output))
-    device.pull(f"{device.files}/{paths.SCOPED_INTEROP}", interop)
+    result = f"{device.files}/{paths.SCOPED_INTEROP}"
+    instrumentation.run(device, waits, instrumentation.Instrumented("ScopedInterop", cleared=(result,), cleared_dirs=(f"{device.files}/{paths.DeviceDirs.SCOPE_KEYS}",),
+                                                                     passed=ONE_PASSED, pulled=((result, interop),)))
     return interop
 
 
@@ -54,10 +52,11 @@ def check_scopes(options, configuration, device, results, scoped, plan, shipped,
     found = discover(options, configuration, device, results, shipped)
     effective, capture, trial, files = found.effective, found.capture, found.trial, found.files
     require_harness_device(pathlib.Path(options.harness).resolve(), capture)
-    push(device, options, [effective, capture, trial])
+    waits = reconnect.Reconnect.of(device, options)
+    waits.retried(lambda: push(device, options, [effective, capture, trial]), "the plan push")
     started = time.monotonic()
     print("check:     ScopedInterop on the device")
-    interop = scoped_interop(device, scoped)
+    interop = scoped_interop(device, waits, scoped)
     record = scope_results.merge(plan, interop)
     files.update(scopedPlan=plan, scopedInterop=interop)
     for scope in record["scopes"]:

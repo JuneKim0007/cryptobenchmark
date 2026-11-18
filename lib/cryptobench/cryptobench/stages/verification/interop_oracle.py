@@ -1,12 +1,11 @@
 """The oracle steps of pipeline.py --interop: the plan's pairs on the host JVM or on the attached device."""
 import shutil
 
-
-from cryptobench.shared.device import gradle_runner
+from cryptobench.shared.device import gradle_runner, instrumentation
 from cryptobench.shared import paths
-from cryptobench.shared.device.adb import ONE_PASSED, DeviceError, instrumentation_report
+from cryptobench.shared.device.adb import ONE_PASSED
+from cryptobench.shared.device.plan import push_plan
 from cryptobench.shared.document.document import read_yaml
-
 
 
 def stage_plan(plan, into):
@@ -22,13 +21,10 @@ def on_host(capture, trial, plan, out, stacktrace, stream):
     gradle_runner.run(f"{capture} {trial} {plan} {out}", stacktrace, stream, main_class="InteropKt")
 
 
-def on_device(device, effective, capture, trial, plan, out):
-    device.shell(f"rm -f {device.files}/{paths.INTEROP_RESULT}")
-    device.push_files(effective, capture, trial, plan)
-    output = device.instrument("InteropCheck")
-    if not ONE_PASSED.search(output):
-        raise DeviceError("InteropCheck failed on the device:\n" + instrumentation_report(output))
-    device.pull(f"{device.files}/{paths.INTEROP_RESULT}", out)
+def on_device(device, waits, effective, capture, trial, plan, out):
+    waits.retried(lambda: push_plan(device, effective, capture, trial, plan), "the plan push")
+    result = f"{device.files}/{paths.INTEROP_RESULT}"
+    instrumentation.run(device, waits, instrumentation.Instrumented("InteropCheck", cleared=(result,), passed=ONE_PASSED, pulled=((result, out),)))
 
 
 def summary(out):
