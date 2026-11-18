@@ -47,3 +47,25 @@ def test_still_short_after_the_relaunch_is_flagged_and_kept_not_launched_again(t
     asked, process, outcome, _ = run(tmp_path, monkeypatch, [(1000, [2e5] * 10), (1000, [1e5] * 38)])
     assert (asked, outcome, process.samples["a"]["shortWindow"]) == (["10", "38"], None, True)
     assert "warning: short_window: a: 3.80 s with 38 samples, below 5 s" in capsys.readouterr().out
+
+
+def test_a_relaunch_that_fails_every_retry_keeps_the_short_window_flagged(tmp_path, monkeypatch, capsys):
+    pulled, left = tmp_path / "benchmark/cases/a.json", [(1000, [2e5] * 10)]
+    pulled.parent.mkdir(parents=True)
+
+    def launched(_device, _class, _arguments, _case, into):
+        if not left:
+            into.unlink(missing_ok=True)
+            return "case_failed: a: Process crashed."
+        pulled_file(into, *left.pop(0))
+    monkeypatch.setattr(launch.case_isolation, "launch_case", launched)
+    sizing = window.MinWindow(5, 10, lambda samples: ("-e", "cryptobench.samples", str(samples)))
+    plan = types.SimpleNamespace(gate=dynamic_temperature.Off(), retries=1, test_class="T", arguments=(), sizing=sizing, unit=tmp_path,
+                                 expectation=expectation.Expectation("energy", 10, 5), refused=lambda _case: None,
+                                 reconnect=types.SimpleNamespace(retried=lambda step, _what: step()))
+    process = measure.Process(1, tmp_path / "benchmark")
+    assert launch.run_of_case(None, plan, process, "a", [], pulled) is None
+    assert json.loads(pulled.read_text())["benchmarks"][0]["metrics"]["timeNs"]["runs"] == [2e5] * 10
+    assert process.samples == {"a": {"samples": 10, "windowSeconds": 2.0, "shortWindow": True}}
+    assert [entry["code"] for entry in process.relaunched] == ["short_window", "case_failed"]
+    assert "warning: short_window: a: 2.00 s with 10 samples kept, below 5 s; its relaunch failed: case_failed: a: Process crashed." in capsys.readouterr().out

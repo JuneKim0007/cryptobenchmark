@@ -42,6 +42,13 @@ class MinWindow:
             warn(f"short_window: {case}: {window:.2f} s with {relaunched} samples, below {self.minimum} s")
         return None
 
+    def kept_short(self, process, case, failure):
+        """The relaunch failed every retry: the first, short window stays the case's result."""
+        process.samples[case]["shortWindow"] = True
+        entry = process.samples[case]
+        warn(f"short_window: {case}: {entry['windowSeconds']:.2f} s with {entry['samples']} samples kept, below {self.minimum} s; "
+             f"its relaunch failed: {failure}")
+
     def write(self, process, path):
         document = {"schemaVersion": ENERGY_SAMPLES_DOC.version, "minWindowSeconds": self.minimum, "cases": process.samples}
         return write_text(path, dump_yaml(document))

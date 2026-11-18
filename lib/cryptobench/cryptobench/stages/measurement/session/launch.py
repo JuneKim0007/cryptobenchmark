@@ -36,10 +36,21 @@ def hook_failed(case, hook, step, error):
 
 
 def run_of_case(device, plan, process, case, hooks, pulled):
+    """None, or the case's failure line; a short energy window whose relaunch fails every retry keeps its short result (decision 32)."""
+    short = []
+    failure = attempts(device, plan, process, case, hooks, pulled, short)
+    if failure and short:
+        pulled.write_bytes(short[0])
+        plan.sizing.kept_short(process, case, failure)
+        return None
+    return failure
+
+
+def attempts(device, plan, process, case, hooks, pulled, short):
     """None, or the case's failure line. Heat discards the run and measures it again; a lost device is waited for and the same case held and
     launched again; a case the device's preparation skipped with a final code is case_skipped, never launched again; an attempt that fails
     a rule (validation/rules.py) moves to rejected/ and, like any other failure, is retried, then the next case goes on. Every launch
-    again is one process.relaunched entry."""
+    again is one process.relaunched entry; short takes the bytes of a window launched again for being short."""
     gate, retries, discards, attempt = plan.gate, plan.retries, 0, 0
     # a short energy window is launched once more with more samples, outside the retries
     arguments, relaunched = plan.arguments, None
@@ -76,6 +87,7 @@ def run_of_case(device, plan, process, case, hooks, pulled):
                 print(f"note: {finding.code}: {finding.detail}")
             more = plan.sizing.sized(process, case, pulled, relaunched) if plan.sizing else None
             if more:
+                short.append(pulled.read_bytes())
                 again("short_window")
                 arguments, relaunched = plan.sizing.arguments(more), more
                 continue
