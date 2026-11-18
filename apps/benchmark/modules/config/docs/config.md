@@ -15,8 +15,8 @@ Authored settings: `config/global*.yaml` and `config/testsets/*.yaml`, committed
 |---|---|
 | `testsets/predefined.yaml` | paper tiers 1–4 on AndroidOpenSSL, BundledConscrypt, BundledBC and AndroidKeyStore: operations `variants: [fixed, notFixed]`, software key generation `[fixed]`, AndroidKeyStore `[secure]`; then breadth, BouncyCastle-only, legacy, post-quantum and AndroidKeyStore rows; one provider-less rule per JCA type adds every other inventory primitive at provider-chosen parameters; per-row overrides, `Cipher RSA/*` inputSizes `[32]`; no excludes |
 | `testsets/quick.yaml` | 11 includes, one per primitive; AES 128/256, `AES_<n>/*` variants their own size; RSA/* keySizes `[2048]`, inputSizes `[32]`, harness iterations 5, `key.provider: any`; EC `secp256r1` |
-| `testsets/smoke.yaml` | SHA-256; AES/GCM/NoPadding with keySizes `[256]`, GCM 128 + `fresh(12)`; HmacSHA256 |
-| `testsets/known-answers.yaml` | 11 includes: every primitive with a known-answer vector in `algorithms/vectors/`; AES keySizes `[128, 256]` |
+| `testsets/smoke.yaml` | SHA-256; AES/GCM/NoPadding with keySizes `[256]`; HmacSHA256 |
+| `testsets/known-answers.yaml` | 11 includes: every primitive with a known-answer vector in `algorithms/vectors/`; AES keySizes `[128, 256]`; AESWrap `key.provider: any` |
 
 Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 
