@@ -1,0 +1,518 @@
+# Schema — required: schemaVersion. Everything else is optional.
+#   description  free text
+#   include      rules {provider?, type?, name?, group?, variants?}; at least one of provider|type|name; empty = whole inventory; name accepts *
+#   exclude      same rule shape without variants; exclude always wins
+#   overrides    [{match: rule (required), set: (required) {keySizes?, inputSizes?, key?, parameters?, operations?, variants?, harness?}}]
+#   group        optional, only with a name: one primitive measured more than once with different parameters (not the chart group)
+schemaVersion: 1                 # required
+description: 'paper tiers 1-4, then every other inventory primitive at provider-chosen parameters; a tier row''s settings win'
+
+# rows without variants take run.variants; the type rules at the end add every primitive no row names
+include:
+  - {provider: AndroidOpenSSL, type: Cipher, name: AES/CBC/PKCS5Padding, variants: [fixed, notFixed]}
+  - {provider: AndroidOpenSSL, type: Cipher, name: AES/GCM/NoPadding, variants: [fixed, notFixed]}
+  - {provider: AndroidOpenSSL, type: MessageDigest, name: SHA-256, variants: [fixed, notFixed]}
+  - {provider: AndroidOpenSSL, type: MessageDigest, name: SHA-1, variants: [fixed, notFixed]}
+  - {provider: AndroidOpenSSL, type: MessageDigest, name: MD5, variants: [fixed, notFixed]}
+  - {provider: AndroidOpenSSL, type: Mac, name: HmacSHA256, variants: [fixed, notFixed]}
+  - {provider: AndroidOpenSSL, type: Cipher, name: RSA/ECB/OAEPWithSHA-256AndMGF1Padding, variants: [fixed, notFixed]}
+  - {provider: AndroidOpenSSL, type: Cipher, name: RSA/ECB/PKCS1Padding, variants: [fixed, notFixed]}
+  - {provider: AndroidOpenSSL, type: Signature, name: SHA256withRSA, variants: [fixed, notFixed]}
+  - {provider: AndroidOpenSSL, type: KeyGenerator, name: AES, variants: [fixed]}
+  - {provider: AndroidOpenSSL, type: KeyPairGenerator, name: RSA, variants: [fixed]}
+  - {provider: BundledConscrypt, type: Cipher, name: AES/CBC/PKCS5Padding, variants: [fixed, notFixed]}
+  - {provider: BundledConscrypt, type: Cipher, name: AES/GCM/NoPadding, variants: [fixed, notFixed]}
+  - {provider: BundledConscrypt, type: MessageDigest, name: SHA-256, variants: [fixed, notFixed]}
+  - {provider: BundledConscrypt, type: MessageDigest, name: SHA-1, variants: [fixed, notFixed]}
+  - {provider: BundledConscrypt, type: MessageDigest, name: MD5, variants: [fixed, notFixed]}
+  - {provider: BundledConscrypt, type: Mac, name: HmacSHA256, variants: [fixed, notFixed]}
+  - {provider: BundledConscrypt, type: Cipher, name: RSA/ECB/OAEPWithSHA-256AndMGF1Padding, variants: [fixed, notFixed]}
+  - {provider: BundledConscrypt, type: Cipher, name: RSA/ECB/PKCS1Padding, variants: [fixed, notFixed]}
+  - {provider: BundledConscrypt, type: Signature, name: SHA256withRSA, variants: [fixed, notFixed]}
+  - {provider: BundledConscrypt, type: KeyGenerator, name: AES, variants: [fixed]}
+  - {provider: BundledConscrypt, type: KeyPairGenerator, name: RSA, variants: [fixed]}
+  - {provider: BundledBC, type: Cipher, name: 2.16.840.1.101.3.4.1.2, variants: [fixed, notFixed]}
+  - {provider: BundledBC, type: Cipher, name: 2.16.840.1.101.3.4.1.42, variants: [fixed, notFixed]}
+  - {provider: BundledBC, type: MessageDigest, name: SHA-256, variants: [fixed, notFixed]}
+  - {provider: BundledBC, type: MessageDigest, name: SHA-1, variants: [fixed, notFixed]}
+  - {provider: BundledBC, type: MessageDigest, name: MD5, variants: [fixed, notFixed]}
+  - {provider: BundledBC, type: Mac, name: HMACSHA256, variants: [fixed, notFixed]}
+  - {provider: BundledBC, type: Cipher, name: RSA/ECB/OAEPPadding, variants: [fixed, notFixed]}
+  - {provider: BundledBC, type: Cipher, name: RSA/ECB/PKCS1Padding, variants: [fixed, notFixed]}
+  - {provider: BundledBC, type: Signature, name: SHA256WITHRSA, variants: [fixed, notFixed]}
+  - {provider: BundledBC, type: KeyGenerator, name: AES, variants: [fixed]}
+  - {provider: BundledBC, type: KeyPairGenerator, name: RSA, variants: [fixed]}
+  - {provider: AndroidKeyStore, type: KeyGenerator, name: AES, variants: [secure]}
+  - {provider: AndroidKeyStore, type: KeyGenerator, name: AES, group: sb, variants: [secure]}
+  - {provider: AndroidKeyStore, type: KeyPairGenerator, name: RSA, variants: [secure]}
+  - {provider: AndroidKeyStore, type: KeyPairGenerator, name: RSA, group: sb, variants: [secure]}
+  - {provider: AndroidOpenSSL, type: Signature, name: SHA256withECDSA, variants: [fixed, notFixed]}
+  - {provider: AndroidOpenSSL, type: Signature, name: SHA384withECDSA, variants: [fixed, notFixed]}
+  - {provider: AndroidOpenSSL, type: Signature, name: EdDSA, variants: [fixed, notFixed]}
+  - {provider: AndroidOpenSSL, type: KeyAgreement, name: ECDH, group: p256, variants: [fixed, notFixed]}
+  - {provider: AndroidOpenSSL, type: KeyAgreement, name: ECDH, group: p384, variants: [fixed, notFixed]}
+  - {provider: AndroidOpenSSL, type: KeyAgreement, name: XDH, variants: [fixed, notFixed]}
+  - {provider: AndroidOpenSSL, type: KeyPairGenerator, name: EC, group: p256, variants: [fixed]}
+  - {provider: AndroidOpenSSL, type: KeyPairGenerator, name: EC, group: p384, variants: [fixed]}
+  - {provider: AndroidOpenSSL, type: KeyPairGenerator, name: EdDSA, variants: [fixed]}
+  - {provider: AndroidOpenSSL, type: KeyPairGenerator, name: XDH, variants: [fixed]}
+  - {provider: BundledConscrypt, type: Signature, name: SHA256withECDSA, variants: [fixed, notFixed]}
+  - {provider: BundledConscrypt, type: Signature, name: SHA384withECDSA, variants: [fixed, notFixed]}
+  - {provider: BundledConscrypt, type: Signature, name: EdDSA, variants: [fixed, notFixed]}
+  - {provider: BundledConscrypt, type: KeyAgreement, name: ECDH, group: p256, variants: [fixed, notFixed]}
+  - {provider: BundledConscrypt, type: KeyAgreement, name: ECDH, group: p384, variants: [fixed, notFixed]}
+  - {provider: BundledConscrypt, type: KeyAgreement, name: XDH, variants: [fixed, notFixed]}
+  - {provider: BundledConscrypt, type: KeyPairGenerator, name: EC, group: p256, variants: [fixed]}
+  - {provider: BundledConscrypt, type: KeyPairGenerator, name: EC, group: p384, variants: [fixed]}
+  - {provider: BundledConscrypt, type: KeyPairGenerator, name: EdDSA, variants: [fixed]}
+  - {provider: BundledConscrypt, type: KeyPairGenerator, name: XDH, variants: [fixed]}
+  - {provider: BundledBC, type: Signature, name: SHA256WITHECDSA, variants: [fixed, notFixed]}
+  - {provider: BundledBC, type: Signature, name: SHA384WITHECDSA, variants: [fixed, notFixed]}
+  - {provider: BundledBC, type: Signature, name: ED25519, variants: [fixed, notFixed]}
+  - {provider: BundledBC, type: KeyAgreement, name: ECDH, group: p256, variants: [fixed, notFixed]}
+  - {provider: BundledBC, type: KeyAgreement, name: ECDH, group: p384, variants: [fixed, notFixed]}
+  - {provider: BundledBC, type: KeyPairGenerator, name: EC, group: p256, variants: [fixed]}
+  - {provider: BundledBC, type: KeyPairGenerator, name: EC, group: p384, variants: [fixed]}
+  - {provider: BundledBC, type: KeyPairGenerator, name: ED25519, variants: [fixed]}
+  - {provider: BundledBC, type: KeyPairGenerator, name: X25519, variants: [fixed]}
+  - {provider: AndroidKeyStore, type: KeyPairGenerator, name: EC, group: p256, variants: [secure]}
+  - {provider: AndroidKeyStore, type: KeyPairGenerator, name: EC, group: p384, variants: [secure]}
+  - {provider: AndroidKeyStore, type: KeyPairGenerator, name: EC, group: sbp256, variants: [secure]}
+  - {provider: AndroidKeyStore, type: KeyPairGenerator, name: Ed25519, variants: [secure]}
+  - {provider: AndroidKeyStore, type: KeyPairGenerator, name: XDH, variants: [secure]}
+  - {provider: AndroidOpenSSL, type: MessageDigest, name: SHA-512, variants: [fixed, notFixed]}
+  - {provider: AndroidOpenSSL, type: Mac, name: HmacSHA1, variants: [fixed, notFixed]}
+  - {provider: AndroidOpenSSL, type: Mac, name: HmacSHA512, variants: [fixed, notFixed]}
+  - {provider: AndroidOpenSSL, type: Cipher, name: ChaCha20/Poly1305/NoPadding, variants: [fixed, notFixed]}
+  - {provider: AndroidOpenSSL, type: Cipher, name: AES/CTR/NoPadding, variants: [fixed, notFixed]}
+  - {provider: BundledConscrypt, type: MessageDigest, name: SHA-512, variants: [fixed, notFixed]}
+  - {provider: BundledConscrypt, type: Mac, name: HmacSHA1, variants: [fixed, notFixed]}
+  - {provider: BundledConscrypt, type: Mac, name: HmacSHA512, variants: [fixed, notFixed]}
+  - {provider: BundledConscrypt, type: Cipher, name: ChaCha20/Poly1305/NoPadding, variants: [fixed, notFixed]}
+  - {provider: BundledConscrypt, type: Cipher, name: AES/CTR/NoPadding, variants: [fixed, notFixed]}
+  - {provider: BundledBC, type: MessageDigest, name: SHA-512, variants: [fixed, notFixed]}
+  - {provider: BundledBC, type: Mac, name: HMACSHA1, variants: [fixed, notFixed]}
+  - {provider: BundledBC, type: Mac, name: HMACSHA512, variants: [fixed, notFixed]}
+  - {provider: BundledBC, type: Cipher, name: CHACHA20-POLY1305, variants: [fixed, notFixed]}
+  - {provider: BundledBC, type: Signature, name: RSASSA-PSS, variants: [fixed, notFixed]}
+  - {provider: AndroidOpenSSL, type: MessageDigest, name: SHA-384, variants: [fixed, notFixed]}
+  - {provider: AndroidOpenSSL, type: Mac, name: HmacSHA384, variants: [fixed, notFixed]}
+  - {provider: AndroidOpenSSL, type: Cipher, name: DESEDE/CBC/PKCS5Padding, variants: [fixed, notFixed]}
+  - {provider: BundledConscrypt, type: MessageDigest, name: SHA-384, variants: [fixed, notFixed]}
+  - {provider: BundledConscrypt, type: Mac, name: HmacSHA384, variants: [fixed, notFixed]}
+  - {provider: BundledConscrypt, type: Cipher, name: DESEDE/CBC/PKCS5Padding, variants: [fixed, notFixed]}
+  - {provider: BundledBC, type: MessageDigest, name: SHA-384, variants: [fixed, notFixed]}
+  - {provider: BundledBC, type: Mac, name: HMACSHA384, variants: [fixed, notFixed]}
+  - {provider: AndroidOpenSSL, type: Signature, name: SLH-DSA-SHA2-128S}
+  - {provider: AndroidOpenSSL, type: Signature, name: ML-DSA-65}
+  - {provider: AndroidOpenSSL, type: Signature, name: ML-DSA-87}
+  - {provider: AndroidOpenSSL, type: KeyPairGenerator, name: ML-KEM-768}
+  - {provider: AndroidOpenSSL, type: KeyPairGenerator, name: ML-KEM-1024}
+  - {provider: AndroidOpenSSL, type: KeyPairGenerator, name: ML-DSA-65}
+  - {provider: AndroidOpenSSL, type: KeyPairGenerator, name: ML-DSA-87}
+  - {provider: BundledConscrypt, type: Signature, name: SLH-DSA-SHA2-128S}
+  - {provider: BundledConscrypt, type: Signature, name: ML-DSA-65}
+  - {provider: BundledConscrypt, type: Signature, name: ML-DSA-87}
+  - {provider: BundledConscrypt, type: Signature, name: ML-DSA-44}
+  - {provider: BundledBC, type: Signature, name: ML-DSA-44}
+  - {provider: BundledBC, type: Signature, name: ML-DSA-65}
+  - {provider: BundledBC, type: Signature, name: ML-DSA-87}
+  - {provider: BundledBC, type: Signature, name: SLH-DSA, group: sha2-128s}
+  - {provider: BundledConscrypt, type: KeyPairGenerator, name: ML-KEM-768}
+  - {provider: BundledConscrypt, type: KeyPairGenerator, name: ML-KEM-1024}
+  - {provider: BundledConscrypt, type: KeyPairGenerator, name: ML-DSA-65}
+  - {provider: BundledConscrypt, type: KeyPairGenerator, name: ML-DSA-87}
+  - {provider: BundledConscrypt, type: KeyPairGenerator, name: ML-DSA-44}
+  - {provider: BundledConscrypt, type: KeyPairGenerator, name: SLH-DSA-SHA2-128S}
+  - {provider: BundledBC, type: KeyPairGenerator, name: SLH-DSA-SHA2-128S}
+  - {provider: BundledBC, type: KeyPairGenerator, name: ML-KEM-512}
+  - {provider: BundledBC, type: KeyPairGenerator, name: ML-KEM-768}
+  - {provider: BundledBC, type: KeyPairGenerator, name: ML-KEM-1024}
+  - {provider: BundledBC, type: KeyPairGenerator, name: ML-DSA-44}
+  - {provider: BundledBC, type: KeyPairGenerator, name: ML-DSA-65}
+  - {provider: BundledBC, type: KeyPairGenerator, name: ML-DSA-87}
+  - {provider: AndroidOpenSSL, type: Cipher, name: AES/GCM-SIV/NoPadding}
+  - {provider: AndroidOpenSSL, type: MessageDigest, name: SHA-224}
+  - {provider: AndroidOpenSSL, type: Mac, name: HmacSHA224}
+  - {provider: AndroidOpenSSL, type: KeyAgreement, name: ECDH, group: p521}
+  - {provider: BC, type: KeyAgreement, name: DH}
+  - {provider: AndroidOpenSSL, type: Signature, name: SHA512withECDSA}
+  - {provider: AndroidOpenSSL, type: KeyPairGenerator, name: EC, group: p521}
+  - {provider: BC, type: KeyPairGenerator, name: DH}
+  - {provider: BundledConscrypt, type: Cipher, name: AES/GCM-SIV/NoPadding}
+  - {provider: BundledConscrypt, type: MessageDigest, name: SHA-224}
+  - {provider: BundledBC, type: MessageDigest, name: SHA-224}
+  - {provider: BundledConscrypt, type: Mac, name: HmacSHA224}
+  - {provider: BundledBC, type: Mac, name: HMACSHA224}
+  - {provider: BundledConscrypt, type: KeyAgreement, name: ECDH, group: p521}
+  - {provider: BundledBC, type: KeyAgreement, name: ECDH, group: p521}
+  - {provider: BundledBC, type: KeyAgreement, name: DH}
+  - {provider: BundledConscrypt, type: Signature, name: SHA512withECDSA}
+  - {provider: BundledBC, type: Signature, name: SHA512WITHECDSA}
+  - {provider: BundledConscrypt, type: KeyPairGenerator, name: EC, group: p521}
+  - {provider: BundledBC, type: KeyPairGenerator, name: EC, group: p521}
+  - {provider: BundledBC, type: KeyPairGenerator, name: DH}
+  - {provider: BundledBC, type: MessageDigest, name: SHA3-224}
+  - {provider: BundledBC, type: MessageDigest, name: SHA3-256}
+  - {provider: BundledBC, type: MessageDigest, name: SHA3-384}
+  - {provider: BundledBC, type: MessageDigest, name: SHA3-512}
+  - {provider: BundledBC, type: Mac, name: HMACSHA3-224}
+  - {provider: BundledBC, type: Mac, name: HMACSHA3-256}
+  - {provider: BundledBC, type: Mac, name: HMACSHA3-384}
+  - {provider: BundledBC, type: Mac, name: HMACSHA3-512}
+  - {provider: BundledBC, type: Signature, name: ED448}
+  - {provider: BundledBC, type: KeyPairGenerator, name: ED448}
+  - {provider: BundledBC, type: Signature, name: SLH-DSA, group: sha2-128f}
+  - {provider: BundledBC, type: Signature, name: SLH-DSA, group: shake-128f}
+  - {provider: BundledBC, type: Signature, name: SLH-DSA, group: shake-128s}
+  - {provider: BundledBC, type: KeyPairGenerator, name: SLH-DSA-SHA2-128F}
+  - {provider: BundledBC, type: KeyPairGenerator, name: SLH-DSA-SHAKE-128F}
+  - {provider: BundledBC, type: KeyPairGenerator, name: SLH-DSA-SHAKE-128S}
+  - {provider: BundledBC, type: KeyPairGenerator, name: X448}
+  - {provider: AndroidOpenSSL, type: Cipher, name: ARC4}
+  - {provider: AndroidOpenSSL, type: Mac, name: HmacMD5}
+  - {provider: BundledConscrypt, type: Cipher, name: ARC4}
+  - {provider: BundledConscrypt, type: Mac, name: HmacMD5}
+  - {provider: BundledBC, type: Cipher, name: ARC4}
+  - {provider: BundledBC, type: Mac, name: HMACMD5}
+  - {provider: BundledBC, type: Signature, name: SHA256WITHDSA}
+  - {provider: BundledBC, type: KeyPairGenerator, name: DSA}
+  - {provider: BundledBC, type: KeyAgreement, name: DH, group: modp1024}
+  - {provider: BundledBC, type: KeyPairGenerator, name: DH, group: modp1024}
+  - {provider: BC, type: Signature, name: SHA256WITHDSA}
+  - {provider: BC, type: KeyPairGenerator, name: DSA}
+  - {provider: BC, type: KeyAgreement, name: DH, group: modp1024}
+  - {provider: BC, type: KeyPairGenerator, name: DH, group: modp1024}
+  - {provider: AndroidKeyStore, type: KeyGenerator, name: DESede, variants: [secure]}
+  - {provider: AndroidKeyStore, type: KeyGenerator, name: HmacSHA1, variants: [secure]}
+  - {provider: AndroidKeyStore, type: KeyGenerator, name: HmacSHA224, variants: [secure]}
+  - {provider: AndroidKeyStore, type: KeyGenerator, name: HmacSHA256, variants: [secure]}
+  - {provider: AndroidKeyStore, type: KeyGenerator, name: HmacSHA384, variants: [secure]}
+  - {provider: AndroidKeyStore, type: KeyGenerator, name: HmacSHA512, variants: [secure]}
+  - {provider: AndroidKeyStore, type: KeyGenerator, name: DESede, group: sb, variants: [secure]}
+  - {provider: AndroidKeyStore, type: KeyGenerator, name: HmacSHA256, group: sb, variants: [secure]}
+  - {provider: AndroidKeyStore, type: KeyPairGenerator, name: EC, group: p521, variants: [secure]}
+  - {provider: AndroidKeyStore, type: KeyPairGenerator, name: ML-DSA, variants: [secure]}
+  - {provider: AndroidKeyStore, type: KeyPairGenerator, name: ML-DSA-65, variants: [secure]}
+  - {provider: AndroidKeyStore, type: KeyPairGenerator, name: ML-DSA-87, variants: [secure]}
+  - {provider: AndroidKeyStore, type: KeyPairGenerator, name: RSA, group: sbx, variants: [secure]}
+  - {provider: AndroidKeyStore, type: KeyPairGenerator, name: EC, group: sbp384, variants: [secure]}
+  - {provider: AndroidKeyStore, type: KeyPairGenerator, name: Ed25519, group: sb, variants: [secure]}
+  - {provider: AndroidKeyStore, type: KeyPairGenerator, name: XDH, group: sb, variants: [secure]}
+  - {provider: AndroidKeyStore, type: KeyPairGenerator, name: EC}
+  - {provider: AndroidOpenSSL, type: KeyAgreement, name: ECDH}
+  - {provider: AndroidOpenSSL, type: KeyPairGenerator, name: EC}
+  - {provider: BundledBC, type: KeyAgreement, name: ECDH}
+  - {provider: BundledBC, type: KeyPairGenerator, name: EC}
+  - {provider: BundledBC, type: Signature, name: SLH-DSA}
+  - {provider: BundledConscrypt, type: KeyAgreement, name: ECDH}
+  - {provider: BundledConscrypt, type: KeyPairGenerator, name: EC}
+  - {type: Cipher}
+  - {type: KeyAgreement}
+  - {type: KeyGenerator}
+  - {type: KeyPairGenerator}
+  - {type: Mac}
+  - {type: MessageDigest}
+  - {type: Signature}
+
+overrides:
+  - match: {provider: AndroidOpenSSL, type: Cipher, name: AES/CBC/PKCS5Padding}
+    set: {keySizes: [128, 256], operations: [ENCRYPT, DECRYPT], inputSizes: [1024]}
+  - match: {provider: AndroidOpenSSL, type: Cipher, name: AES/GCM/NoPadding}
+    set: {keySizes: [128, 256], operations: [ENCRYPT, DECRYPT], inputSizes: [1024]}
+  - match: {provider: AndroidOpenSSL, type: MessageDigest, name: SHA-256}
+    set: {inputSizes: [1024]}
+  - match: {provider: AndroidOpenSSL, type: MessageDigest, name: SHA-1}
+    set: {inputSizes: [1024]}
+  - match: {provider: AndroidOpenSSL, type: MessageDigest, name: MD5}
+    set: {inputSizes: [1024]}
+  - match: {provider: AndroidOpenSSL, type: Mac, name: HmacSHA256}
+    set: {keySizes: [256], inputSizes: [1024]}
+  - match: {provider: AndroidOpenSSL, type: Cipher, name: RSA/ECB/OAEPWithSHA-256AndMGF1Padding}
+    set: {keySizes: [2048, 3072], operations: [ENCRYPT, DECRYPT], inputSizes: [32], parameters: {class: javax.crypto.spec.OAEPParameterSpec, arguments: [SHA-256, MGF1, {class: java.security.spec.MGF1ParameterSpec, arguments: [SHA-256]}, {field: javax.crypto.spec.PSource$PSpecified.DEFAULT}]}}
+  - match: {provider: AndroidOpenSSL, type: Cipher, name: RSA/ECB/PKCS1Padding}
+    set: {keySizes: [2048], operations: [ENCRYPT, DECRYPT], inputSizes: [32]}
+  - match: {provider: AndroidOpenSSL, type: Signature, name: SHA256withRSA}
+    set: {keySizes: [2048, 3072, 4096], operations: [SIGN, VERIFY], inputSizes: [1024]}
+  - match: {provider: AndroidOpenSSL, type: KeyGenerator, name: AES}
+    set: {keySizes: [128, 256]}
+  - match: {provider: AndroidOpenSSL, type: KeyPairGenerator, name: RSA}
+    set: {keySizes: [2048, 3072, 4096]}
+  - match: {provider: BundledConscrypt, type: Cipher, name: AES/CBC/PKCS5Padding}
+    set: {keySizes: [128, 256], operations: [ENCRYPT, DECRYPT], inputSizes: [1024]}
+  - match: {provider: BundledConscrypt, type: Cipher, name: AES/GCM/NoPadding}
+    set: {keySizes: [128, 256], operations: [ENCRYPT, DECRYPT], inputSizes: [1024]}
+  - match: {provider: BundledConscrypt, type: MessageDigest, name: SHA-256}
+    set: {inputSizes: [1024]}
+  - match: {provider: BundledConscrypt, type: MessageDigest, name: SHA-1}
+    set: {inputSizes: [1024]}
+  - match: {provider: BundledConscrypt, type: MessageDigest, name: MD5}
+    set: {inputSizes: [1024]}
+  - match: {provider: BundledConscrypt, type: Mac, name: HmacSHA256}
+    set: {keySizes: [256], inputSizes: [1024]}
+  - match: {provider: BundledConscrypt, type: Cipher, name: RSA/ECB/OAEPWithSHA-256AndMGF1Padding}
+    set: {keySizes: [2048, 3072], operations: [ENCRYPT, DECRYPT], inputSizes: [32], parameters: {class: javax.crypto.spec.OAEPParameterSpec, arguments: [SHA-256, MGF1, {class: java.security.spec.MGF1ParameterSpec, arguments: [SHA-256]}, {field: javax.crypto.spec.PSource$PSpecified.DEFAULT}]}}
+  - match: {provider: BundledConscrypt, type: Cipher, name: RSA/ECB/PKCS1Padding}
+    set: {keySizes: [2048], operations: [ENCRYPT, DECRYPT], inputSizes: [32]}
+  - match: {provider: BundledConscrypt, type: Signature, name: SHA256withRSA}
+    set: {keySizes: [2048, 3072, 4096], operations: [SIGN, VERIFY], inputSizes: [1024]}
+  - match: {provider: BundledConscrypt, type: KeyGenerator, name: AES}
+    set: {keySizes: [128, 256]}
+  - match: {provider: BundledConscrypt, type: KeyPairGenerator, name: RSA}
+    set: {keySizes: [2048, 3072, 4096]}
+  - match: {provider: BundledBC, type: Cipher, name: 2.16.840.1.101.3.4.1.2}
+    set: {operations: [ENCRYPT, DECRYPT], inputSizes: [1024]}
+  - match: {provider: BundledBC, type: Cipher, name: 2.16.840.1.101.3.4.1.42}
+    set: {operations: [ENCRYPT, DECRYPT], inputSizes: [1024]}
+  - match: {provider: BundledBC, type: MessageDigest, name: SHA-256}
+    set: {inputSizes: [1024]}
+  - match: {provider: BundledBC, type: MessageDigest, name: SHA-1}
+    set: {inputSizes: [1024]}
+  - match: {provider: BundledBC, type: MessageDigest, name: MD5}
+    set: {inputSizes: [1024]}
+  - match: {provider: BundledBC, type: Mac, name: HMACSHA256}
+    set: {keySizes: [256], inputSizes: [1024]}
+  - match: {provider: BundledBC, type: Cipher, name: RSA/ECB/OAEPPadding}
+    set: {keySizes: [2048, 3072], operations: [ENCRYPT, DECRYPT], inputSizes: [32], parameters: {class: javax.crypto.spec.OAEPParameterSpec, arguments: [SHA-256, MGF1, {class: java.security.spec.MGF1ParameterSpec, arguments: [SHA-256]}, {field: javax.crypto.spec.PSource$PSpecified.DEFAULT}]}}
+  - match: {provider: BundledBC, type: Cipher, name: RSA/ECB/PKCS1Padding}
+    set: {keySizes: [2048], operations: [ENCRYPT, DECRYPT], inputSizes: [32]}
+  - match: {provider: BundledBC, type: Signature, name: SHA256WITHRSA}
+    set: {keySizes: [2048, 3072, 4096], operations: [SIGN, VERIFY], inputSizes: [1024]}
+  - match: {provider: BundledBC, type: KeyGenerator, name: AES}
+    set: {keySizes: [128, 256]}
+  - match: {provider: BundledBC, type: KeyPairGenerator, name: RSA}
+    set: {keySizes: [2048, 3072, 4096]}
+  - match: {provider: AndroidKeyStore, type: KeyGenerator, name: AES}
+    set: {keySizes: [128, 256]}
+  - match: {provider: AndroidKeyStore, type: KeyGenerator, name: AES, group: sb}
+    set: {keySizes: [128, 256], key: {backing: strongbox}}
+  - match: {provider: AndroidKeyStore, type: KeyPairGenerator, name: RSA}
+    set: {keySizes: [2048, 3072, 4096]}
+  - match: {provider: AndroidKeyStore, type: KeyPairGenerator, name: RSA, group: sb}
+    set: {keySizes: [2048], key: {backing: strongbox}}
+  - match: {provider: AndroidOpenSSL, type: Signature, name: SHA256withECDSA}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp256r1]}, operations: [SIGN, VERIFY], inputSizes: [1024]}
+  - match: {provider: AndroidOpenSSL, type: Signature, name: SHA384withECDSA}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp384r1]}, operations: [SIGN, VERIFY], inputSizes: [1024]}
+  - match: {provider: AndroidOpenSSL, type: Signature, name: EdDSA}
+    set: {operations: [SIGN, VERIFY], inputSizes: [1024]}
+  - match: {provider: AndroidOpenSSL, type: KeyAgreement, name: ECDH, group: p256}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp256r1]}}
+  - match: {provider: AndroidOpenSSL, type: KeyAgreement, name: ECDH, group: p384}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp384r1]}}
+  - match: {provider: AndroidOpenSSL, type: KeyPairGenerator, name: EC, group: p256}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp256r1]}}
+  - match: {provider: AndroidOpenSSL, type: KeyPairGenerator, name: EC, group: p384}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp384r1]}}
+  - match: {provider: BundledConscrypt, type: Signature, name: SHA256withECDSA}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp256r1]}, operations: [SIGN, VERIFY], inputSizes: [1024]}
+  - match: {provider: BundledConscrypt, type: Signature, name: SHA384withECDSA}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp384r1]}, operations: [SIGN, VERIFY], inputSizes: [1024]}
+  - match: {provider: BundledConscrypt, type: Signature, name: EdDSA}
+    set: {operations: [SIGN, VERIFY], inputSizes: [1024]}
+  - match: {provider: BundledConscrypt, type: KeyAgreement, name: ECDH, group: p256}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp256r1]}}
+  - match: {provider: BundledConscrypt, type: KeyAgreement, name: ECDH, group: p384}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp384r1]}}
+  - match: {provider: BundledConscrypt, type: KeyPairGenerator, name: EC, group: p256}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp256r1]}}
+  - match: {provider: BundledConscrypt, type: KeyPairGenerator, name: EC, group: p384}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp384r1]}}
+  - match: {provider: BundledBC, type: Signature, name: SHA256WITHECDSA}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp256r1]}, operations: [SIGN, VERIFY], inputSizes: [1024]}
+  - match: {provider: BundledBC, type: Signature, name: SHA384WITHECDSA}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp384r1]}, operations: [SIGN, VERIFY], inputSizes: [1024]}
+  - match: {provider: BundledBC, type: Signature, name: ED25519}
+    set: {operations: [SIGN, VERIFY], inputSizes: [1024]}
+  - match: {provider: BundledBC, type: KeyAgreement, name: ECDH, group: p256}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp256r1]}}
+  - match: {provider: BundledBC, type: KeyAgreement, name: ECDH, group: p384}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp384r1]}}
+  - match: {provider: BundledBC, type: KeyPairGenerator, name: EC, group: p256}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp256r1]}}
+  - match: {provider: BundledBC, type: KeyPairGenerator, name: EC, group: p384}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp384r1]}}
+  - match: {provider: AndroidKeyStore, type: KeyPairGenerator, name: EC, group: p256}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp256r1]}}
+  - match: {provider: AndroidKeyStore, type: KeyPairGenerator, name: EC, group: p384}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp384r1]}}
+  - match: {provider: AndroidKeyStore, type: KeyPairGenerator, name: EC, group: sbp256}
+    set: {key: {backing: strongbox, class: java.security.spec.ECGenParameterSpec, arguments: [secp256r1]}}
+  - match: {provider: AndroidOpenSSL, type: MessageDigest, name: SHA-512}
+    set: {inputSizes: [1024]}
+  - match: {provider: AndroidOpenSSL, type: Mac, name: HmacSHA1}
+    set: {keySizes: [160], inputSizes: [1024]}
+  - match: {provider: AndroidOpenSSL, type: Mac, name: HmacSHA512}
+    set: {keySizes: [512], inputSizes: [1024]}
+  - match: {provider: AndroidOpenSSL, type: Cipher, name: ChaCha20/Poly1305/NoPadding}
+    set: {operations: [ENCRYPT, DECRYPT], inputSizes: [1024]}
+  - match: {provider: AndroidOpenSSL, type: Cipher, name: AES/CTR/NoPadding}
+    set: {keySizes: [128], operations: [ENCRYPT], inputSizes: [1024]}
+  - match: {provider: BundledConscrypt, type: MessageDigest, name: SHA-512}
+    set: {inputSizes: [1024]}
+  - match: {provider: BundledConscrypt, type: Mac, name: HmacSHA1}
+    set: {keySizes: [160], inputSizes: [1024]}
+  - match: {provider: BundledConscrypt, type: Mac, name: HmacSHA512}
+    set: {keySizes: [512], inputSizes: [1024]}
+  - match: {provider: BundledConscrypt, type: Cipher, name: ChaCha20/Poly1305/NoPadding}
+    set: {operations: [ENCRYPT, DECRYPT], inputSizes: [1024]}
+  - match: {provider: BundledConscrypt, type: Cipher, name: AES/CTR/NoPadding}
+    set: {keySizes: [128], operations: [ENCRYPT], inputSizes: [1024]}
+  - match: {provider: BundledBC, type: MessageDigest, name: SHA-512}
+    set: {inputSizes: [1024]}
+  - match: {provider: BundledBC, type: Mac, name: HMACSHA1}
+    set: {keySizes: [160], inputSizes: [1024]}
+  - match: {provider: BundledBC, type: Mac, name: HMACSHA512}
+    set: {keySizes: [512], inputSizes: [1024]}
+  - match: {provider: BundledBC, type: Cipher, name: CHACHA20-POLY1305}
+    set: {operations: [ENCRYPT, DECRYPT], inputSizes: [1024]}
+  - match: {provider: BundledBC, type: Signature, name: RSASSA-PSS}
+    set: {keySizes: [2048], parameters: {class: java.security.spec.PSSParameterSpec, arguments: [SHA-256, MGF1, {class: java.security.spec.MGF1ParameterSpec, arguments: [SHA-256]}, 32, 1]}, operations: [SIGN, VERIFY], inputSizes: [1024]}
+  - match: {provider: AndroidOpenSSL, type: MessageDigest, name: SHA-384}
+    set: {inputSizes: [1024]}
+  - match: {provider: AndroidOpenSSL, type: Mac, name: HmacSHA384}
+    set: {keySizes: [384], inputSizes: [1024]}
+  - match: {provider: AndroidOpenSSL, type: Cipher, name: DESEDE/CBC/PKCS5Padding}
+    set: {operations: [ENCRYPT, DECRYPT], inputSizes: [1024]}
+  - match: {provider: BundledConscrypt, type: MessageDigest, name: SHA-384}
+    set: {inputSizes: [1024]}
+  - match: {provider: BundledConscrypt, type: Mac, name: HmacSHA384}
+    set: {keySizes: [384], inputSizes: [1024]}
+  - match: {provider: BundledConscrypt, type: Cipher, name: DESEDE/CBC/PKCS5Padding}
+    set: {operations: [ENCRYPT, DECRYPT], inputSizes: [1024]}
+  - match: {provider: BundledBC, type: MessageDigest, name: SHA-384}
+    set: {inputSizes: [1024]}
+  - match: {provider: BundledBC, type: Mac, name: HMACSHA384}
+    set: {keySizes: [384], inputSizes: [1024]}
+  - match: {provider: AndroidOpenSSL, type: Signature, name: SLH-DSA-SHA2-128S}
+    set: {operations: [SIGN, VERIFY], inputSizes: [1024]}
+  - match: {provider: AndroidOpenSSL, type: Signature, name: ML-DSA-65}
+    set: {operations: [SIGN, VERIFY], inputSizes: [1024]}
+  - match: {provider: AndroidOpenSSL, type: Signature, name: ML-DSA-87}
+    set: {operations: [SIGN, VERIFY], inputSizes: [1024]}
+  - match: {provider: BundledConscrypt, type: Signature, name: SLH-DSA-SHA2-128S}
+    set: {operations: [SIGN, VERIFY], inputSizes: [1024]}
+  - match: {provider: BundledConscrypt, type: Signature, name: ML-DSA-65}
+    set: {operations: [SIGN, VERIFY], inputSizes: [1024]}
+  - match: {provider: BundledConscrypt, type: Signature, name: ML-DSA-87}
+    set: {operations: [SIGN, VERIFY], inputSizes: [1024]}
+  - match: {provider: BundledConscrypt, type: Signature, name: ML-DSA-44}
+    set: {operations: [SIGN, VERIFY], inputSizes: [1024]}
+  - match: {provider: BundledBC, type: Signature, name: ML-DSA-44}
+    set: {operations: [SIGN, VERIFY], inputSizes: [1024]}
+  - match: {provider: BundledBC, type: Signature, name: ML-DSA-65}
+    set: {operations: [SIGN, VERIFY], inputSizes: [1024]}
+  - match: {provider: BundledBC, type: Signature, name: ML-DSA-87}
+    set: {operations: [SIGN, VERIFY], inputSizes: [1024]}
+  - match: {provider: BundledBC, type: Signature, name: SLH-DSA, group: sha2-128s}
+    set: {key: {field: org.bouncycastle.jcajce.spec.SLHDSAParameterSpec.slh_dsa_sha2_128s}, operations: [SIGN, VERIFY], inputSizes: [1024]}
+  - match: {provider: AndroidOpenSSL, type: Cipher, name: AES/GCM-SIV/NoPadding}
+    set: {keySizes: [128, 256], operations: [ENCRYPT, DECRYPT], inputSizes: [1024]}
+  - match: {provider: AndroidOpenSSL, type: MessageDigest, name: SHA-224}
+    set: {inputSizes: [1024]}
+  - match: {provider: AndroidOpenSSL, type: Mac, name: HmacSHA224}
+    set: {keySizes: [224], inputSizes: [1024]}
+  - match: {provider: AndroidOpenSSL, type: KeyAgreement, name: ECDH, group: p521}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp521r1]}}
+  - match: {provider: BC, type: KeyAgreement, name: DH}
+    set: {key: {class: javax.crypto.spec.DHParameterSpec, arguments: [{class: java.math.BigInteger, arguments: [FFFFFFFFFFFFFFFFADF85458A2BB4A9AAFDC5620273D3CF1D8B9C583CE2D3695A9E13641146433FBCC939DCE249B3EF97D2FE363630C75D8F681B202AEC4617AD3DF1ED5D5FD65612433F51F5F066ED0856365553DED1AF3B557135E7F57C935984F0C70E0E68B77E2A689DAF3EFE8721DF158A136ADE73530ACCA4F483A797ABC0AB182B324FB61D108A94BB2C8E3FBB96ADAB760D7F4681D4F42A3DE394DF4AE56EDE76372BB190B07A7C8EE0A6D709E02FCE1CDF7E2ECC03404CD28342F619172FE9CE98583FF8E4F1232EEF28183C3FE3B1B4C6FAD733BB5FCBC2EC22005C58EF1837D1683B2C6F34A26C1B2EFFA886B423861285C97FFFFFFFFFFFFFFFF, 16]}, 2]}}
+  - match: {provider: AndroidOpenSSL, type: Signature, name: SHA512withECDSA}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp521r1]}, operations: [SIGN, VERIFY], inputSizes: [1024]}
+  - match: {provider: AndroidOpenSSL, type: KeyPairGenerator, name: EC, group: p521}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp521r1]}}
+  - match: {provider: BC, type: KeyPairGenerator, name: DH}
+    set: {key: {class: javax.crypto.spec.DHParameterSpec, arguments: [{class: java.math.BigInteger, arguments: [FFFFFFFFFFFFFFFFADF85458A2BB4A9AAFDC5620273D3CF1D8B9C583CE2D3695A9E13641146433FBCC939DCE249B3EF97D2FE363630C75D8F681B202AEC4617AD3DF1ED5D5FD65612433F51F5F066ED0856365553DED1AF3B557135E7F57C935984F0C70E0E68B77E2A689DAF3EFE8721DF158A136ADE73530ACCA4F483A797ABC0AB182B324FB61D108A94BB2C8E3FBB96ADAB760D7F4681D4F42A3DE394DF4AE56EDE76372BB190B07A7C8EE0A6D709E02FCE1CDF7E2ECC03404CD28342F619172FE9CE98583FF8E4F1232EEF28183C3FE3B1B4C6FAD733BB5FCBC2EC22005C58EF1837D1683B2C6F34A26C1B2EFFA886B423861285C97FFFFFFFFFFFFFFFF, 16]}, 2]}}
+  - match: {provider: BundledConscrypt, type: Cipher, name: AES/GCM-SIV/NoPadding}
+    set: {keySizes: [128, 256], operations: [ENCRYPT, DECRYPT], inputSizes: [1024]}
+  - match: {provider: BundledConscrypt, type: MessageDigest, name: SHA-224}
+    set: {inputSizes: [1024]}
+  - match: {provider: BundledBC, type: MessageDigest, name: SHA-224}
+    set: {inputSizes: [1024]}
+  - match: {provider: BundledConscrypt, type: Mac, name: HmacSHA224}
+    set: {keySizes: [224], inputSizes: [1024]}
+  - match: {provider: BundledBC, type: Mac, name: HMACSHA224}
+    set: {keySizes: [224], inputSizes: [1024]}
+  - match: {provider: BundledConscrypt, type: KeyAgreement, name: ECDH, group: p521}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp521r1]}}
+  - match: {provider: BundledBC, type: KeyAgreement, name: ECDH, group: p521}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp521r1]}}
+  - match: {provider: BundledBC, type: KeyAgreement, name: DH}
+    set: {key: {class: javax.crypto.spec.DHParameterSpec, arguments: [{class: java.math.BigInteger, arguments: [FFFFFFFFFFFFFFFFADF85458A2BB4A9AAFDC5620273D3CF1D8B9C583CE2D3695A9E13641146433FBCC939DCE249B3EF97D2FE363630C75D8F681B202AEC4617AD3DF1ED5D5FD65612433F51F5F066ED0856365553DED1AF3B557135E7F57C935984F0C70E0E68B77E2A689DAF3EFE8721DF158A136ADE73530ACCA4F483A797ABC0AB182B324FB61D108A94BB2C8E3FBB96ADAB760D7F4681D4F42A3DE394DF4AE56EDE76372BB190B07A7C8EE0A6D709E02FCE1CDF7E2ECC03404CD28342F619172FE9CE98583FF8E4F1232EEF28183C3FE3B1B4C6FAD733BB5FCBC2EC22005C58EF1837D1683B2C6F34A26C1B2EFFA886B423861285C97FFFFFFFFFFFFFFFF, 16]}, 2]}}
+  - match: {provider: BundledConscrypt, type: Signature, name: SHA512withECDSA}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp521r1]}, operations: [SIGN, VERIFY], inputSizes: [1024]}
+  - match: {provider: BundledBC, type: Signature, name: SHA512WITHECDSA}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp521r1]}, operations: [SIGN, VERIFY], inputSizes: [1024]}
+  - match: {provider: BundledConscrypt, type: KeyPairGenerator, name: EC, group: p521}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp521r1]}}
+  - match: {provider: BundledBC, type: KeyPairGenerator, name: EC, group: p521}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp521r1]}}
+  - match: {provider: BundledBC, type: KeyPairGenerator, name: DH}
+    set: {key: {class: javax.crypto.spec.DHParameterSpec, arguments: [{class: java.math.BigInteger, arguments: [FFFFFFFFFFFFFFFFADF85458A2BB4A9AAFDC5620273D3CF1D8B9C583CE2D3695A9E13641146433FBCC939DCE249B3EF97D2FE363630C75D8F681B202AEC4617AD3DF1ED5D5FD65612433F51F5F066ED0856365553DED1AF3B557135E7F57C935984F0C70E0E68B77E2A689DAF3EFE8721DF158A136ADE73530ACCA4F483A797ABC0AB182B324FB61D108A94BB2C8E3FBB96ADAB760D7F4681D4F42A3DE394DF4AE56EDE76372BB190B07A7C8EE0A6D709E02FCE1CDF7E2ECC03404CD28342F619172FE9CE98583FF8E4F1232EEF28183C3FE3B1B4C6FAD733BB5FCBC2EC22005C58EF1837D1683B2C6F34A26C1B2EFFA886B423861285C97FFFFFFFFFFFFFFFF, 16]}, 2]}}
+  - match: {provider: BundledBC, type: MessageDigest, name: SHA3-224}
+    set: {inputSizes: [1024]}
+  - match: {provider: BundledBC, type: MessageDigest, name: SHA3-256}
+    set: {inputSizes: [1024]}
+  - match: {provider: BundledBC, type: MessageDigest, name: SHA3-384}
+    set: {inputSizes: [1024]}
+  - match: {provider: BundledBC, type: MessageDigest, name: SHA3-512}
+    set: {inputSizes: [1024]}
+  - match: {provider: BundledBC, type: Mac, name: HMACSHA3-224}
+    set: {keySizes: [224], inputSizes: [1024]}
+  - match: {provider: BundledBC, type: Mac, name: HMACSHA3-256}
+    set: {keySizes: [256], inputSizes: [1024]}
+  - match: {provider: BundledBC, type: Mac, name: HMACSHA3-384}
+    set: {keySizes: [384], inputSizes: [1024]}
+  - match: {provider: BundledBC, type: Mac, name: HMACSHA3-512}
+    set: {keySizes: [512], inputSizes: [1024]}
+  - match: {provider: BundledBC, type: Signature, name: ED448}
+    set: {operations: [SIGN, VERIFY], inputSizes: [1024]}
+  - match: {provider: BundledBC, type: Signature, name: SLH-DSA, group: sha2-128f}
+    set: {key: {field: org.bouncycastle.jcajce.spec.SLHDSAParameterSpec.slh_dsa_sha2_128f}, operations: [SIGN, VERIFY], inputSizes: [1024]}
+  - match: {provider: BundledBC, type: Signature, name: SLH-DSA, group: shake-128f}
+    set: {key: {field: org.bouncycastle.jcajce.spec.SLHDSAParameterSpec.slh_dsa_shake_128f}, operations: [SIGN, VERIFY], inputSizes: [1024]}
+  - match: {provider: BundledBC, type: Signature, name: SLH-DSA, group: shake-128s}
+    set: {key: {field: org.bouncycastle.jcajce.spec.SLHDSAParameterSpec.slh_dsa_shake_128s}, operations: [SIGN, VERIFY], inputSizes: [1024]}
+  - match: {provider: AndroidOpenSSL, type: Cipher, name: ARC4}
+    set: {operations: [ENCRYPT], inputSizes: [1024]}
+  - match: {provider: AndroidOpenSSL, type: Mac, name: HmacMD5}
+    set: {keySizes: [128], inputSizes: [1024]}
+  - match: {provider: BundledConscrypt, type: Cipher, name: ARC4}
+    set: {operations: [ENCRYPT], inputSizes: [1024]}
+  - match: {provider: BundledConscrypt, type: Mac, name: HmacMD5}
+    set: {keySizes: [128], inputSizes: [1024]}
+  - match: {provider: BundledBC, type: Cipher, name: ARC4}
+    set: {operations: [ENCRYPT], inputSizes: [1024]}
+  - match: {provider: BundledBC, type: Mac, name: HMACMD5}
+    set: {keySizes: [128], inputSizes: [1024]}
+  - match: {provider: BundledBC, type: Signature, name: SHA256WITHDSA}
+    set: {keySizes: [2048], operations: [SIGN, VERIFY], inputSizes: [1024]}
+  - match: {provider: BundledBC, type: KeyPairGenerator, name: DSA}
+    set: {keySizes: [2048]}
+  - match: {provider: BundledBC, type: KeyAgreement, name: DH, group: modp1024}
+    set: {key: {class: javax.crypto.spec.DHParameterSpec, arguments: [{class: java.math.BigInteger, arguments: [FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7EDEE386BFB5A899FA5AE9F24117C4B1FE649286651ECE65381FFFFFFFFFFFFFFFF, 16]}, 2]}}
+  - match: {provider: BundledBC, type: KeyPairGenerator, name: DH, group: modp1024}
+    set: {key: {class: javax.crypto.spec.DHParameterSpec, arguments: [{class: java.math.BigInteger, arguments: [FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7EDEE386BFB5A899FA5AE9F24117C4B1FE649286651ECE65381FFFFFFFFFFFFFFFF, 16]}, 2]}}
+  - match: {provider: BC, type: Signature, name: SHA256WITHDSA}
+    set: {keySizes: [2048], operations: [SIGN, VERIFY], inputSizes: [1024]}
+  - match: {provider: BC, type: KeyPairGenerator, name: DSA}
+    set: {keySizes: [2048]}
+  - match: {provider: BC, type: KeyAgreement, name: DH, group: modp1024}
+    set: {key: {class: javax.crypto.spec.DHParameterSpec, arguments: [{class: java.math.BigInteger, arguments: [FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7EDEE386BFB5A899FA5AE9F24117C4B1FE649286651ECE65381FFFFFFFFFFFFFFFF, 16]}, 2]}}
+  - match: {provider: BC, type: KeyPairGenerator, name: DH, group: modp1024}
+    set: {key: {class: javax.crypto.spec.DHParameterSpec, arguments: [{class: java.math.BigInteger, arguments: [FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7EDEE386BFB5A899FA5AE9F24117C4B1FE649286651ECE65381FFFFFFFFFFFFFFFF, 16]}, 2]}}
+  - match: {provider: AndroidKeyStore, type: KeyGenerator, name: DESede, group: sb}
+    set: {key: {backing: strongbox}}
+  - match: {provider: AndroidKeyStore, type: KeyGenerator, name: HmacSHA256, group: sb}
+    set: {key: {backing: strongbox}}
+  - match: {provider: AndroidKeyStore, type: KeyPairGenerator, name: EC, group: p521}
+    set: {key: {class: java.security.spec.ECGenParameterSpec, arguments: [secp521r1]}}
+  - match: {provider: AndroidKeyStore, type: KeyPairGenerator, name: RSA, group: sbx}
+    set: {keySizes: [3072, 4096], key: {backing: strongbox}}
+  - match: {provider: AndroidKeyStore, type: KeyPairGenerator, name: EC, group: sbp384}
+    set: {key: {backing: strongbox, class: java.security.spec.ECGenParameterSpec, arguments: [secp384r1]}}
+  - match: {provider: AndroidKeyStore, type: KeyPairGenerator, name: Ed25519, group: sb}
+    set: {key: {backing: strongbox}}
+  - match: {provider: AndroidKeyStore, type: KeyPairGenerator, name: XDH, group: sb}
+    set: {key: {backing: strongbox}}
+  - match: {type: Cipher, name: RSA/*}
+    set: {inputSizes: [32]}

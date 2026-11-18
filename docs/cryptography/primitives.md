@@ -1,70 +1,63 @@
 # Primitives
 
-## Configured scope
+## Configured test set
 
-`config/testsets/scope.yaml`, the test set of `config/global.yaml`. Field rules: `apps/benchmark/modules/config/docs/config.md`.
+`config/testsets/predefined.yaml`, the test set of `config/global.yaml`. Field rules: `apps/benchmark/modules/config/docs/config.md`.
 
-| JCA type | name rule | key | parameters | role |
-|---|---|---|---|---|
-| Cipher | `AES/GCM/NoPadding` | AES 128, 192, 256 | `GCMParameterSpec(128, fresh(12))` | measured |
-| Cipher | `AES/CBC/PKCS5Padding` | AES 128, 192, 256 | `IvParameterSpec(fresh(16))` | measured |
-| Cipher | `AES/CTR/NoPadding` | AES 128, 192, 256 | `IvParameterSpec(fresh(16))` | measured |
-| Cipher | `ChaCha20*` | | `ChaCha20`: `ChaCha20ParameterSpec(fresh(12), 1)`; `ChaCha20*Poly1305*`: `IvParameterSpec(fresh(12))` | measured |
-| Cipher | `RSA/ECB/OAEP*` | RSA 2048, 4096; input 32 bytes | `OAEPWithSHA-256AndMGF1Padding`: `OAEPParameterSpec(SHA-256, MGF1, MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT)` | measured |
-| Cipher | `RSA/ECB/PKCS1Padding` | RSA 2048, 4096; input 32 bytes | | measured |
-| Cipher | `DESede/CBC/PKCS5Padding` | | `IvParameterSpec(fresh(8))` | baseline (3DES) |
-| Cipher | `ARCFOUR` | | | baseline (RC4) |
-| MessageDigest | `SHA-256`, `SHA-1`, `SHA-512` | | | measured |
-| MessageDigest | `MD5` | | | baseline |
-| Mac | `HmacSHA256`, `HmacSHA1` | | | measured |
-| Signature | `SHA256withRSA` | RSA 2048, 4096 | | measured |
-| Signature | `SHA256withECDSA` | EC `secp256r1` | | measured |
-| KeyGenerator | `AES` | 128, 192, 256 | | measured |
-| KeyPairGenerator | `RSA` | 2048, 4096 | | measured |
-| KeyPairGenerator | `EC` | `secp256r1` | | measured |
+| part | providers | primitives |
+|---|---|---|
+| tier 1 | AndroidOpenSSL, BundledConscrypt, BundledBC, AndroidKeyStore | AES-CBC, AES-GCM, SHA-256, SHA-1, MD5, HmacSHA256, RSA OAEP-SHA256 and PKCS#1, SHA256withRSA, AES and RSA key generation; StrongBox AES and RSA-2048 |
+| tier 2 | same | ECDSA P-256 and P-384, Ed25519, ECDH P-256 and P-384, X25519, their key generation; StrongBox P-256 |
+| tier 3 | same | SHA-512, HmacSHA1, HmacSHA512, RSA-3072, ChaCha20-Poly1305, AES-CTR, BundledBC RSASSA-PSS |
+| tier 4 | same | SHA-384, HmacSHA384, RSA-4096, DESede-CBC |
+| breadth | AndroidOpenSSL, BundledConscrypt, BundledBC, platform BC | SHA-224, HmacSHA224, AES-GCM-SIV, P-521, FFDH-2048 |
+| BouncyCastle only | BundledBC | SHA-3, HMAC-SHA3, Ed448, X448, SLH-DSA 128f and SHAKE |
+| legacy | AndroidOpenSSL, BundledConscrypt, BundledBC, platform BC | ARC4, HmacMD5, DSA-2048, DH-1024 as group `modp1024` |
+| post-quantum | AndroidOpenSSL, BundledConscrypt, BundledBC | ML-DSA, ML-KEM key generation, SLH-DSA-SHA2-128s |
+| AndroidKeyStore | AndroidKeyStore | DESede, HmacSHA1–512, P-521, ML-DSA key generation; StrongBox RSA-3072/4096, P-384, Ed25519, X25519, DESede, HmacSHA256 |
+| remaining | any | one rule per JCA type: every other inventory primitive at provider-chosen parameters |
 
-- Rules name no provider: every provider serving a matched name is selected.
-- `exclude` is empty in `scope.yaml` and `global.yaml`.
-- Out of scope: ML-DSA, ML-KEM, SLH-DSA, HPKE, X25519, ECDH, XDH, AES-CMAC, AES/GCM-SIV, Ed25519, DES, Blowfish, DSA.
+- A primitive named in a tier takes the tier's settings.
+- `exclude` is empty.
 
 ## Observed per provider
 
-Device data; devices in [providers.md](providers.md). `in scope` = the names a `scope.yaml` rule matches.
+Device data; devices in [providers.md](providers.md).
 
-| primitive | provider | JCA type | use | in scope |
-|---|---|---|---|---|
-| AES/GCM/NoPadding | AndroidOpenSSL | Cipher | bulk encryption with integrity | yes |
-| AES/GCM-SIV/NoPadding | AndroidOpenSSL | Cipher | bulk encryption, survives IV reuse | no |
-| AES/CBC/{NoPadding,PKCS5Padding} | AndroidOpenSSL | Cipher | bulk encryption, no integrity | PKCS5Padding |
-| AES/ECB/{NoPadding,PKCS5Padding} | AndroidOpenSSL | Cipher | single block; leaks patterns | no |
-| AES/CTR/NoPadding | AndroidOpenSSL | Cipher | stream-style bulk encryption | yes |
-| AES_{128,256}/… | AndroidOpenSSL | Cipher | key-size-pinned variants | no |
-| ChaCha20 | AndroidOpenSSL | Cipher | bulk encryption without AES hardware | yes |
-| ChaCha20/Poly1305/NoPadding | AndroidOpenSSL | Cipher | as above, with integrity | yes |
-| DESEDE/CBC/{NoPadding,PKCS5Padding} | AndroidOpenSSL | Cipher | legacy interop | PKCS5Padding |
-| ARC4 | AndroidOpenSSL | Cipher | legacy interop; broken | rule names `ARCFOUR` |
-| AES/{ECB,CBC,CTR,GCM}, DESede | AndroidKeyStoreBCWorkaround | Cipher | bulk encryption under a hardware key | matching names |
-| RSA/ECB/OAEPPadding, OAEPWithSHA-{1,224,256,384,512}AndMGF1Padding | AndroidOpenSSL | Cipher | key transport, small payloads | yes |
-| RSA/ECB/{NoPadding,PKCS1Padding} | AndroidOpenSSL | Cipher | legacy key transport | PKCS1Padding |
-| RSA (PKCS1, OAEP) | AndroidKeyStoreBCWorkaround | Cipher | key transport under a hardware key | matching names |
-| SHA-{1,224,256,384,512}, MD5 | AndroidOpenSSL | MessageDigest | fingerprints, HMAC and signature input | SHA-1, SHA-256, SHA-512, MD5 |
-| HmacSHA{1,224,256,384,512}, HmacMD5 | AndroidOpenSSL | Mac | integrity tag with a shared key | HmacSHA1, HmacSHA256 |
-| AESCMAC | AndroidOpenSSL | Mac | integrity tag from a block cipher | no |
-| HmacSHA{1,224,256,384,512} | AndroidKeyStore | Mac | integrity tag under a hardware key | HmacSHA1, HmacSHA256 |
-| SHA{1,224,256,384,512}withRSA, MD5withRSA | AndroidOpenSSL | Signature | authenticity with an RSA key | SHA256withRSA |
-| SHA{1,224,256,384,512}withRSA/PSS | AndroidOpenSSL | Signature | as above, PSS padding | no |
-| SHA{1,224,256,384,512}withECDSA, NONEwithECDSA | AndroidOpenSSL | Signature | authenticity with a small EC key | SHA256withECDSA |
-| EdDSA (Ed25519) | AndroidOpenSSL | Signature | authenticity, deterministic nonce | no |
-| ML-DSA-{44,65,87}, SLH-DSA-SHA2-128S, MLDSA*-hybrids | AndroidOpenSSL | Signature | post-quantum authenticity | no |
-| RSA, ECDSA | AndroidKeyStoreBCWorkaround | Signature | authenticity with a hardware key | matching names |
-| ML-DSA-{65,87} | AndroidKeyStore | Signature | post-quantum, hardware key | no |
-| ML-KEM-{768,1024}, XWING | AndroidOpenSSL | KeyPairGenerator (KEM) | post-quantum shared secret | no |
-| XDH (X25519) | AndroidOpenSSL | KeyAgreement | shared secret between two parties | no |
-| ECDH, XDH | AndroidKeyStore | KeyAgreement | shared secret with a hardware key | no |
-| AES, ARC4, ChaCha20, DESEDE, Hmac* | AndroidOpenSSL | KeyGenerator | make a secret key | AES |
-| AES, HmacSHA*, DESede | AndroidKeyStore | KeyGenerator | make a non-exportable hardware key | AES |
-| RSA, EC, EdDSA, XDH, ML-*, XWING | AndroidOpenSSL | KeyPairGenerator | make a key pair | RSA, EC |
-| RSA, EC, XDH, ED25519 | AndroidKeyStore | KeyPairGenerator | make a hardware key pair | RSA, EC |
+| primitive | provider | JCA type | use |
+|---|---|---|---|
+| AES/GCM/NoPadding | AndroidOpenSSL | Cipher | bulk encryption with integrity |
+| AES/GCM-SIV/NoPadding | AndroidOpenSSL | Cipher | bulk encryption, survives IV reuse |
+| AES/CBC/{NoPadding,PKCS5Padding} | AndroidOpenSSL | Cipher | bulk encryption, no integrity |
+| AES/ECB/{NoPadding,PKCS5Padding} | AndroidOpenSSL | Cipher | single block; leaks patterns |
+| AES/CTR/NoPadding | AndroidOpenSSL | Cipher | stream-style bulk encryption |
+| AES_{128,256}/… | AndroidOpenSSL | Cipher | key-size-pinned variants |
+| ChaCha20 | AndroidOpenSSL | Cipher | bulk encryption without AES hardware |
+| ChaCha20/Poly1305/NoPadding | AndroidOpenSSL | Cipher | as above, with integrity |
+| DESEDE/CBC/{NoPadding,PKCS5Padding} | AndroidOpenSSL | Cipher | legacy interop |
+| ARC4 | AndroidOpenSSL | Cipher | legacy interop; broken |
+| AES/{ECB,CBC,CTR,GCM}, DESede | AndroidKeyStoreBCWorkaround | Cipher | bulk encryption under a hardware key |
+| RSA/ECB/OAEPPadding, OAEPWithSHA-{1,224,256,384,512}AndMGF1Padding | AndroidOpenSSL | Cipher | key transport, small payloads |
+| RSA/ECB/{NoPadding,PKCS1Padding} | AndroidOpenSSL | Cipher | legacy key transport |
+| RSA (PKCS1, OAEP) | AndroidKeyStoreBCWorkaround | Cipher | key transport under a hardware key |
+| SHA-{1,224,256,384,512}, MD5 | AndroidOpenSSL | MessageDigest | fingerprints, HMAC and signature input |
+| HmacSHA{1,224,256,384,512}, HmacMD5 | AndroidOpenSSL | Mac | integrity tag with a shared key |
+| AESCMAC | AndroidOpenSSL | Mac | integrity tag from a block cipher |
+| HmacSHA{1,224,256,384,512} | AndroidKeyStore | Mac | integrity tag under a hardware key |
+| SHA{1,224,256,384,512}withRSA, MD5withRSA | AndroidOpenSSL | Signature | authenticity with an RSA key |
+| SHA{1,224,256,384,512}withRSA/PSS | AndroidOpenSSL | Signature | as above, PSS padding |
+| SHA{1,224,256,384,512}withECDSA, NONEwithECDSA | AndroidOpenSSL | Signature | authenticity with a small EC key |
+| EdDSA (Ed25519) | AndroidOpenSSL | Signature | authenticity, deterministic nonce |
+| ML-DSA-{44,65,87}, SLH-DSA-SHA2-128S, MLDSA*-hybrids | AndroidOpenSSL | Signature | post-quantum authenticity |
+| RSA, ECDSA | AndroidKeyStoreBCWorkaround | Signature | authenticity with a hardware key |
+| ML-DSA-{65,87} | AndroidKeyStore | Signature | post-quantum, hardware key |
+| ML-KEM-{768,1024}, XWING | AndroidOpenSSL | KeyPairGenerator (KEM) | post-quantum shared secret |
+| XDH (X25519) | AndroidOpenSSL | KeyAgreement | shared secret between two parties |
+| ECDH, XDH | AndroidKeyStore | KeyAgreement | shared secret with a hardware key |
+| AES, ARC4, ChaCha20, DESEDE, Hmac* | AndroidOpenSSL | KeyGenerator | make a secret key |
+| AES, HmacSHA*, DESede | AndroidKeyStore | KeyGenerator | make a non-exportable hardware key |
+| RSA, EC, EdDSA, XDH, ML-*, XWING | AndroidOpenSSL | KeyPairGenerator | make a key pair |
+| RSA, EC, XDH, ED25519 | AndroidKeyStore | KeyPairGenerator | make a hardware key pair |
 
 ## Observed usage rules
 

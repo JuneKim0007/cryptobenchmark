@@ -1,6 +1,6 @@
-# Schema and which keys are optional: see scope.yaml.
+# Schema and which keys are optional: see predefined.yaml.
 schemaVersion: 1                 # required
-description: quick vertical run — one representative per primitive in the README scope, explicit parameters
+description: quick vertical run — one representative per primitive, explicit parameters
 
 include:
   - {type: MessageDigest, name: SHA-256}

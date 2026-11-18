@@ -48,7 +48,7 @@ services:
     const val GLOBAL = """
 schemaVersion: 1
 selection:
-  testSet: testsets/scope.yaml
+  testSet: testsets/predefined.yaml
   exclude:
   - {type: KeyGenerator}
 run: {inputSizes: [64, 1024], phases: [WARM], metrics: [TIME], variants: [fixed, notFixed], processRepetitions: 2, seed: 7}

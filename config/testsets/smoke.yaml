@@ -1,4 +1,4 @@
-# Schema and which keys are optional: see scope.yaml.
+# Schema and which keys are optional: see predefined.yaml.
 schemaVersion: 1                 # required
 description: a few staples, for CI and dry runs
 

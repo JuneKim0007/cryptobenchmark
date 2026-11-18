@@ -22,14 +22,14 @@ class GlobalDocumentTest {
     private val inventory = fixture.inventory
     private val testSet = fixture.testSet
 
-    private val head = "schemaVersion: 1\nselection: {testSet: testsets/scope.yaml}\n"
+    private val head = "schemaVersion: 1\nselection: {testSet: testsets/predefined.yaml}\n"
 
     private fun global(text: String) = GlobalDocument.parse(codec.load(head + text))
 
     private fun run(text: String) = global(text).run
 
     private fun effective(chosen: io.github.junekim0007.cryptobench.config.global.dto.GlobalConfig) = EffectiveDocument.parse(codec.load(YamlCodec.DOCUMENT.dump(EffectiveDocument.of(
-        EffectiveBuilder().build(chosen, testSet, inventory, EffectiveBuilder.Files("global.yaml", "testsets/scope.yaml", "inventory.yaml"))))))
+        EffectiveBuilder().build(chosen, testSet, inventory, EffectiveBuilder.Files("global.yaml", "testsets/predefined.yaml", "inventory.yaml"))))))
 
     @Test
     fun aMissingRunSectionOrKeyKeepsDefaults() {

@@ -33,7 +33,7 @@ class DocumentRoundTripTest {
         val report = Report(warned.runId, warned.warnings, warned.skipped)
         assertEquals(report, files.at(File(directory, "report.yaml"), ReportDocument).let { it.write(report); it.read() })
         assertEquals(global, files.at(File(directory, "global.yaml"), GlobalDocument).let { it.write(global); it.read() })
-        assertEquals(testSet, files.at(File(directory, "scope.yaml"), TestSetDocument).let { it.write(testSet); it.read() })
+        assertEquals(testSet, files.at(File(directory, "predefined.yaml"), TestSetDocument).let { it.write(testSet); it.read() })
         val text = File(directory, "effective.yaml").readText()
         assertTrue(text, !text.contains("&id") && !text.contains("*id"))
     }

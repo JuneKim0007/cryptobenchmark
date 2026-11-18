@@ -2,7 +2,7 @@
 schemaVersion: 1                 # required
 
 selection:                       # required
-  testSet: testsets/scope.yaml   # required — relative to this file
+  testSet: testsets/predefined.yaml   # required — relative to this file
 
 run:                             # optional
   variants: [fixed, notFixed]     # optional, default [fixed, notFixed, secure]; secure runs key generation only

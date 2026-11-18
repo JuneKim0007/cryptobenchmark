@@ -21,7 +21,7 @@ object EffectiveFixture {
     const val TEXT = """schemaVersion: 2
 generatedFrom:
   global: global.yaml
-  testSet: testsets/scope.yaml
+  testSet: testsets/predefined.yaml
   inventory: inventory.yaml
   capture: probe_20260921T204537Z.yaml
   trial: trial_20260921T204537Z.yaml
