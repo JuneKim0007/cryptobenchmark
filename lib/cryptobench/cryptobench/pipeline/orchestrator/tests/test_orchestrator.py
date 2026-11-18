@@ -61,9 +61,8 @@ def test_groups_run_in_order_each_worker_with_its_serial_and_the_host_last(sessi
                                                                                  "emulator:cb-api33 tier2", "host tier1"]
     assert "serial:    emulator-5554 --device True" in lines(folder / "emulator-cb-api33/tier2.log")
     assert "serial:    - --bench True" in lines(folder / "host/tier1.log")
-    generated = yaml.safe_load((folder / "emulator-cb-api33/tier2.global.yaml").read_text())
-    root = pathlib.Path(folder).parents[2]
-    assert generated == {"schemaVersion": 1, "layers": [str(root / "global.yaml")], "selection": {"testSet": str(root / "tier2.yaml")}}
+    generated = (folder / "emulator-cb-api33/tier2.global.yaml").read_text()
+    assert f"testSet: {pathlib.Path(folder).parents[2] / 'tier2.yaml'}" in generated and "seed: 1" in generated
     assert rows[0].results.endswith("/dev-56301AAAA00001/tier1")
     listed = yaml.safe_load((folder / "index.yaml").read_text())
     assert [(r["target"], r["suite"], r["state"]) for r in listed["runs"]] == [(r.target, r.suite, r.state) for r in rows] and listed["cases"] == []

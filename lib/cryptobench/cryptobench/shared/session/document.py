@@ -12,8 +12,8 @@ SESSION_DOC = DocumentKind("session", 1, AT_PATH)
 HOST = "host"
 SELECT = ("all", "listed")
 TOP = ("schemaVersion", "name", "devices", "host", "defaults", "targets")
-SECTIONS = {"devices": ("emulators", "select"), "host": ("benchmark",), "defaults": ("config", "overlays", "suites", "order")}
-TARGET = ("config", "overlays", "suites", "order")
+SECTIONS = {"devices": ("emulators", "select"), "host": ("benchmark",), "defaults": ("config", "suites", "order")}
+TARGET = ("config", "suites", "order")
 NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 
 
@@ -24,7 +24,7 @@ class Session:
     emulators: bool
     select: str
     host_benchmark: bool
-    # config, overlays, suites, order as written; paths resolved against the session file's folder
+    # config, suites, order as written; paths resolved against the session file's folder
     defaults: dict
     targets: dict[str, dict]
 
@@ -43,19 +43,18 @@ def keys(path, where, value, known):
 
 
 def entry(path, where, value, folder):
-    """config, overlays and suites typed and resolved; order left as written for the target's own check."""
+    """config and suites typed and resolved; order left as written for the target's own check."""
     value = keys(path, where, value or {}, TARGET)
     out = dict(value)
     if "config" in value:
         if not isinstance(value["config"], str) or not value["config"].strip():
             raise refused(path, "wrong_type", f"{where}.config is {value['config']!r}; expected a file path")
         out["config"] = (folder / value["config"]).resolve()
-    for key, kind in (("overlays", "global-file layer"), ("suites", "test-set file")):
-        if key in value:
-            listed = value[key]
-            if not isinstance(listed, list) or not all(isinstance(s, str) and s.strip() for s in listed):
-                raise refused(path, "wrong_type", f"{where}.{key} is {listed!r}; expected a list of {kind} paths")
-            out[key] = [(folder / s).resolve() for s in listed]
+    if "suites" in value:
+        suites = value["suites"]
+        if not isinstance(suites, list) or not all(isinstance(s, str) and s.strip() for s in suites):
+            raise refused(path, "wrong_type", f"{where}.suites is {suites!r}; expected a list of test-set file paths")
+        out["suites"] = [(folder / s).resolve() for s in suites]
     return out
 
 

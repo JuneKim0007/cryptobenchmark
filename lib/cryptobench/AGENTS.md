@@ -19,7 +19,7 @@ cryptobench/pipeline/orchestrator/board.py : StatusBoard: one status line per ta
 cryptobench/pipeline/orchestrator/index.py : index.yaml: every case of a session's runs from the files each run wrote: suite, device, target, configured, prepared, skip code, runs measured, from
 cryptobench/pipeline/orchestrator/plan.py : a session's plan before anything runs: devices listed, targets resolved and grouped, skips and notices; --check-session
 cryptobench/pipeline/orchestrator/run.py : --session: the plan, order groups ascending, one worker per target and suite (sequential), each skip or failure in the session log, the target log and the summary, then index.yaml; a stop forwarded to the running worker; session_incomplete
-cryptobench/pipeline/orchestrator/suite_config.py : one suite's composition in the session folder: the target's config and overlays as layers, selection.testSet the suite
+cryptobench/pipeline/orchestrator/suite_config.py : one suite's global.yaml in the session folder: the target's config with selection.testSet the suite
 cryptobench/pipeline/orchestrator/summary.py : Row; the summary table (target, suite, state, code, results), written as summary.txt
 cryptobench/pipeline/orchestrator/tests/ : pytest tests of the orchestrator with fake workers: order, serials, skips, failures, stop, status lines
 cryptobench/pipeline/orchestrator/worker.py : Worker: one pipeline.py child in its own process group, its transcript in the target log, ANDROID_SERIAL its target's; a stop goes through shared/stop/child.py with the pipeline grace; Outcome from its last error: and results: lines
@@ -107,7 +107,7 @@ cryptobench/shared/results/run_inputs.py : digests of a run's inputs, providers.
 cryptobench/shared/results/select.py : the device folder of a results root a reader names, or the only one there
 cryptobench/shared/session/__init__.py : package of a session: session.yaml, its targets against the devices adb lists, order groups
 cryptobench/shared/session/document.py : Session; session.yaml read and checked whole, paths resolved against its folder; a file that cannot be read stops
-cryptobench/shared/session/targets.py : TargetSpec, Resolved; resolve: each target found by key, alias or serial, its order, config, overlays and suites checked, a coded skip per bad target, the host after the last phone group; groups; nothing_to_measure
+cryptobench/shared/session/targets.py : TargetSpec, Resolved; resolve: each target found by key, alias or serial, its order, config and suites checked, a coded skip per bad target, the host after the last phone group; groups; nothing_to_measure
 cryptobench/shared/session/tests/ : pytest tests of session.yaml and target resolution, one per fallback row
 cryptobench/shared/settings/__init__.py : package of the run's settings readers the stages share
 cryptobench/shared/settings/bundled.py : providers.bundled of global.yaml: the digest's raw read, build property of the app or host CLI, DeviceProbe argument, effective record and check

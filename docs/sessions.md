@@ -14,7 +14,6 @@ host:
   benchmark: false           # default false
 defaults:
   config: global.yaml        # default: the run's global.yaml chain (run.md)
-  overlays: [fixed.yaml]     # default []: layers over config
   suites: [tier1.yaml]       # test-set files; one suite = one run
   order: 0                   # default 0
 targets:                     # keys: a device key, an alias, a transport serial, or host
@@ -30,7 +29,6 @@ targets:                     # keys: a device key, an alias, a transport serial,
 | `order` | integer >= 0; one group per value, groups in ascending order |
 | host order | `targets.host.order` when set, else one past the highest device order (0 with no device) |
 | `config`, `suites` | the target's own, else `defaults` |
-| `overlays` | `defaults` then the target's, appended; a missing one skips the target (`missing_file: <path> (overlays of <target>)`) |
 
 ## Resolution
 
@@ -41,7 +39,7 @@ targets:                     # keys: a device key, an alias, a transport serial,
 | adb lists no such key, alias or serial | `device_not_attached: <target>: ...; attached: <keys>` |
 | listed but not ready | the listing's `device_unauthorized`, `device_offline`, `device_no_permissions` or `device_not_booted` line |
 | order not an integer >= 0 (a float, text, a boolean, negative) | `invalid_order: <target>: <value>; use an integer >= 0` |
-| config, an overlay or a suite file missing | `missing_file: <path> (<setting>)`; a named file never falls back |
+| config or a suite file missing | `missing_file: <path> (<setting>)`; a named file never falls back |
 | no suites | `nothing_to_measure: <target>: no suites ...` |
 | two suites with one file stem | `target_conflict: <target>: suites ... share the name <stem>` |
 | two target keys for one device | `target_conflict: <a> and <b> name one device, <key>`, both skipped |
@@ -68,7 +66,7 @@ Prints the device listing, one `order <n>:   <target> (<key>, adb <serial> | hos
 | within a group | one target after another, its suites in the listed order (`parallel_unavailable`) |
 | worker | `pipeline.py --config <suite config> --results <DIR> --per-suite --device` on a device, `--bench` on the host, plus `--stacktrace` and `--energy-python` when given; its own process group; stdin closed |
 | `ANDROID_SERIAL` | the target's transport serial on a device worker; an inherited value is ignored with `warning: android_serial_ignored: ...`; `--suppress-errors` (or `CRYPTOBENCH_SUPPRESS_ERRORS`) reaches device workers as that variable; a host worker gets neither it nor `CRYPTOBENCH_SUPPRESS_ERRORS` |
-| suite config | a composition, `layers: [<config>, <overlays>...]` and `selection.testSet` the suite, absolute paths, written to the session folder ([layers.md](../apps/benchmark/modules/config/docs/layers.md)); the pipeline refuses it as `--config` (`not_supported: ... lists layers`) |
+| suite config | the target's config with `selection.testSet` set to the suite's absolute path, written to the session folder |
 | a run | one suite on one target, at `<DIR>/<device_id>/<suite>/` ([results.md](results.md#device-folder)); a failed run ends only itself |
 | status | one line per target, `target:    <target>: <suite>: <worker's last line>`; redrawn in place on a terminal, else printed when it changes |
 | Ctrl-C, SIGTERM, SIGHUP | SIGTERM to the running worker's group, which writes its partial manifest; its group is killed after 120 s or a second Ctrl-C; the summary marks it `stopped` and the rest `not started`; the session then stops as on Ctrl-C |
