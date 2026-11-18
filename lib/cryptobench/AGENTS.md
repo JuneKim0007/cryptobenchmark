@@ -111,8 +111,9 @@ cryptobench/shared/session/targets.py : TargetSpec, Resolved; resolve: each targ
 cryptobench/shared/session/tests/ : pytest tests of session.yaml and target resolution, one per fallback row
 cryptobench/shared/settings/__init__.py : package of the run's settings readers the stages share
 cryptobench/shared/settings/bundled.py : providers.bundled of global.yaml: the digest's raw read, build property of the app or host CLI, DeviceProbe argument, effective record and check
+cryptobench/shared/settings/defaults.py : parity/defaults.yaml read by dotted path: the value :config writes for a key a config leaves out
 cryptobench/shared/settings/effective_view.py : effective.yaml with the warnings and skips of report.yaml
-cryptobench/shared/settings/energy_capture.py : a node's energy capture and source against the default; a copy of the energy scripts' capture.py, kept equal by a test
+cryptobench/shared/settings/energy_capture.py : a node's energy capture and source against parity/defaults.yaml; a copy of the energy scripts' capture.py, kept equal by a test
 cryptobench/shared/stats/__init__.py : package of the benchmark's calculations, with no I/O: descriptive statistics, the run count's equations, display units
 cryptobench/shared/stats/descriptive.py : one definition of each per-case statistic: mean, sample SD, CoV, interpolated quantiles, IQR, QCD; which one leads
 cryptobench/shared/stats/equations.py : every calculation the run count uses; no I/O

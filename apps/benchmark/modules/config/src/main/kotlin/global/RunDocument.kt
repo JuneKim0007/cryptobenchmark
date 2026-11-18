@@ -1,6 +1,7 @@
 package io.github.junekim0007.cryptobench.config.global
 
 import io.github.junekim0007.cryptobench.config.entry.Variants
+import io.github.junekim0007.cryptobench.settings.EnergySettings
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
 import io.github.junekim0007.cryptobench.config.global.dto.MeasurePass
 import io.github.junekim0007.cryptobench.config.global.dto.RunSettings
@@ -55,6 +56,10 @@ object RunDocument {
         run.thermalGate?.let { put(THERMAL_GATE, ThermalGateDocument.of(it)) }
         if (run.passes.isNotEmpty()) put(PASSES, run.passes.associateTo(LinkedHashMap()) { it.name to mapOf(SAMPLES to it.samples) })
  if (!run.harness.isEmpty) put(HARNESS, HarnessSettings.write(run.harness)) }
+
+    /** What of() writes for a run that sets nothing, with the energy capture and source a node without them gets; orderSeed has none. */
+    fun defaults(): Map<String, Any> = of(RunSettings(orderSeed = 0L)) - ORDER_SEED +
+        (HARNESS to HarnessSettings.write(HarnessSettings(energy = EnergySettings(capture = EnergySettings.CAPTURES.first(), source = EnergySettings.RAILS))))
 
     fun parse(document: Map<String, Any>, path: String): RunSettings {
         expectKeys(document, listOf(INPUT_SIZES, PHASES, METRICS, VARIANTS, PROCESS_REPETITIONS, SEED, PASSES, THROTTLE_SLEEP, CASE_COOLDOWN, WARMUP, THERMAL_GATE, LAUNCH_RETRIES, RESUME_BLOCK_RUNS, ORDER_SEED, HARNESS), path)

@@ -36,6 +36,7 @@ apps/benchmark/modules/config/src/main/kotlin/entry/EntryKeys.kt : per-primitive
 apps/benchmark/modules/config/src/main/kotlin/entry/KeySource.kt : a key's written algorithm and provider checked against the inventory's generators, its backing against tee and strongbox
 apps/benchmark/modules/config/src/main/kotlin/entry/Variants.kt : variants names, the [fixed] fallback and its notice, the asked paths a type runs, the secure_path_unavailable text
 apps/benchmark/modules/config/src/main/kotlin/global/AnalysisDocument.kt : analysis section reader and writer
+apps/benchmark/modules/config/src/main/kotlin/global/DefaultsDocument.kt : parity/defaults.yaml: run and analysis defaults as :config writes them, the energy capture and source a node without them gets
 apps/benchmark/modules/config/src/main/kotlin/global/GlobalDocument.kt : global.yaml schema
 apps/benchmark/modules/config/src/main/kotlin/global/PolicyDocument.kt : policy section reader and writer
 apps/benchmark/modules/config/src/main/kotlin/global/ProvidersDocument.kt : providers section reader and writer; bundled list shared with effective
@@ -79,6 +80,7 @@ apps/benchmark/modules/config/src/test/kotlin/AlgorithmNamesTest.kt : the cases 
 apps/benchmark/modules/config/src/test/kotlin/AuthoredFilesTest.kt : a typo key or a bad providers.bundled stops the parse-only read
 apps/benchmark/modules/config/src/test/kotlin/CommittedConfigTest.kt : committed config/ files parse
 apps/benchmark/modules/config/src/test/kotlin/ConfigurationTest.kt : facade tests
+apps/benchmark/modules/config/src/test/kotlin/DefaultsFileTest.kt : parity/defaults.yaml is what DefaultsDocument writes; -Dexamples.update rewrites it
 apps/benchmark/modules/config/src/test/kotlin/DocumentFixture.kt : built documents shared by the schema tests
 apps/benchmark/modules/config/src/test/kotlin/DocumentRoundTripTest.kt : every document round-trips; schemaVersion stamp and check
 apps/benchmark/modules/config/src/test/kotlin/EffectiveBuilderTest.kt : selection, policy and facts tests

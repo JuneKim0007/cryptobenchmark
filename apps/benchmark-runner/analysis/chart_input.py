@@ -5,11 +5,11 @@ import pathlib
 
 from cryptobench.shared.stats.units import DisplayUnits
 from cryptobench.shared.document.document import read_yaml
+from cryptobench.shared.settings import defaults
 
-# Mirrors AnalysisSettings in :config. effective.yaml always carries these, so they apply only when that file is
-# missing; test_charts.py compares them with the committed effective example so the two cannot drift apart.
-DEFAULTS = {"charts": ["iqrBars", "throughput", "latency", "stability"], "headline": "auto", "meanUpToCovPercent": 5.0,
-            "units": {"latency": "ms", "throughput": "MB/s"}}
+# :config's analysis defaults; effective.yaml always carries them, so they apply only when that file is missing
+DEFAULTS = {"charts": defaults.at("analysis.charts"), "headline": defaults.at("analysis.statistic.headline"),
+            "meanUpToCovPercent": defaults.at("analysis.statistic.meanUpToCovPercent"), "units": defaults.at("analysis.units")}
 UNIDENTIFIED = (0, "unidentified")      # ChartGroup.UNIDENTIFIED in :preparation
 
 

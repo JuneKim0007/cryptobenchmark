@@ -48,6 +48,7 @@ class Repo:
     perfrepair_settings = property(lambda self: self.perf_repair / "perfrepair.yaml")
     dotenv = property(lambda self: self.perf_repair / ".env")
     library = property(lambda self: self.root / "lib/cryptobench")
+    defaults = property(lambda self: self.root / "parity/defaults.yaml")
 
 
 def repo(root: Path | str | None = None) -> Repo:
