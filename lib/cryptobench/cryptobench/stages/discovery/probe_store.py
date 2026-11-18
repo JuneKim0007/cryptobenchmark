@@ -11,6 +11,7 @@ from cryptobench.shared.document.dump import dump_yaml
 from cryptobench.shared.errors.input_error import InputError
 from cryptobench.shared.errors.line import one_line
 from cryptobench.shared.log.warn import warn
+from cryptobench.shared.results import identity
 from cryptobench.stages.discovery import build_versions, capture_files
 
 KEY = "key.yaml"
@@ -81,13 +82,19 @@ def stored(folder, value):
 
 
 def differences(store, value):
-    """Which key parts differ from the newest stored entry, for the line that says why the probe runs."""
-    entries = sorted(store.glob(f"*/{KEY}"), key=lambda f: f.stat().st_mtime) if store.is_dir() else []
-    if not entries:
-        return "the store is empty"
-    other = read_yaml(entries[-1]).get("key") or {}
-    changed = sorted(part for part in set(value) | set(other) if value.get(part) != other.get(part)) or ["nothing (an incomplete entry)"]
-    return f"the newest entry {entries[-1].parent.name} differs in {', '.join(changed)}"
+    """The nested key fields that differ from the newest readable entry of this device fingerprint, for the line that says why the probe runs."""
+    fingerprint, same = value["device"]["fingerprint"], []
+    for path in (f for f in store.glob(f"*/{KEY}") if not f.parent.name.startswith(".")) if store.is_dir() else []:
+        try:
+            other = read_yaml(path).get("key")
+        except (OSError, InputError):
+            continue
+        if isinstance(other, dict) and isinstance(other.get("device"), dict) and other["device"].get("fingerprint") == fingerprint:
+            same.append((path.stat().st_mtime, path.parent.name, other))
+    if not same:
+        return f"no stored entry for fingerprint {fingerprint}"
+    _, name, other = max(same, key=lambda found: found[:2])
+    return f"the newest entry {name} of this fingerprint differs in {', '.join(field[1:] for field in identity.changed(value, other, '.'))}"
 
 
 def has_plan_directory(device):

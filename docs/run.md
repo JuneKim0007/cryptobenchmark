@@ -71,7 +71,7 @@ python3 apps/benchmark-runner/pipeline.py [--config PATH] [--results DIR] [--dis
 | no match | the probe runs as under `overwrite`, and its capture, trial and requirements are stored under the key (`warning: probe_store_failed: ...` when they cannot be) |
 | damaged | `key.yaml` unreadable, without `files` or naming another key, or a listed file missing or with another sha256: `full probe: stored entry <k> is damaged: <file>`, the probe runs and its files replace the entry |
 | fallback | an unreadable or empty key part, or no plan directory on the device: the probe runs; nothing is stored when the key is incomplete |
-| printed | `discovery: verify: reused <capture>: key <k> matches ...`, or `discovery: verify: full probe: <why>`, naming the key parts that differ from the newest stored entry |
+| printed | `discovery: verify: reused <capture>: key <k> matches ...`, or `discovery: verify: full probe: <why>`; with no entry under the key, the dotted key fields (e.g. `device.apex.com.android.conscrypt`) that differ from the newest readable entry of the same `device.fingerprint`, or `no stored entry for fingerprint <f>` |
 
 ## apps/benchmark-runner/explain.py
 

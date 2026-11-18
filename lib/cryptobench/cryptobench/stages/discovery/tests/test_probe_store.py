@@ -1,6 +1,7 @@
 """--discovery verify on a fake device: the first build probes and stores its capture+trial, the same build reuses them unchanged with the
 device's older pair removed, and any change or unreadable key part probes again, saying why."""
 import itertools
+import os
 import types
 
 import pytest
@@ -16,8 +17,8 @@ class Device:
     """install, the probe (a new stamp each time), the build reads and the plan directory, logged."""
     files = "/sdcard/plan"
 
-    def __init__(self, apex=APEX, plan_directory=True, installed="/data/app/~~a1==/pkg-b2=="):
-        self.apex, self.plan_directory, self.installed = apex, plan_directory, installed
+    def __init__(self, apex=APEX, plan_directory=True, installed="/data/app/~~a1==/pkg-b2==", fingerprint="f/p:17/X/1"):
+        self.apex, self.plan_directory, self.installed, self.fingerprint = apex, plan_directory, installed, fingerprint
         self.log, self.stamps = [], (f"20260101T00000{n}Z" for n in itertools.count())
 
     def install(self, _properties):
@@ -31,7 +32,7 @@ class Device:
             (discovery / f"{kind}_{stamp}.yaml").write_text(yaml.safe_dump(document))
 
     def identity(self):
-        return {"sdkInt": 36, "model": "m", "fingerprint": "f/p:17/X/1"}
+        return {"sdkInt": 36, "model": "m", "fingerprint": self.fingerprint}
 
     def run(self, *arguments, check=True):
         command = arguments[1]
@@ -85,7 +86,7 @@ def test_the_first_build_probes_and_stores_then_the_same_build_reuses_the_pair_u
     again = Device()
     assert run(again) == ["probe_20260101T000000Z.yaml"] and again.log == ["install", "forget captures"]
     out = capsys.readouterr().out
-    assert "discovery: verify: full probe: no stored capture for key " in out and "the store is empty" in out
+    assert "discovery: verify: full probe: no stored capture for key " in out and "no stored entry for fingerprint f/p:17/X/1" in out
     assert f"discovery: verify: reused {entries[0]}/probe_20260101T000000Z.yaml: key {entries[0].name} matches" in out
     assert (tmp_path / "results/discovery/probe_20260101T000000Z.yaml").read_bytes() == (entries[0] / "probe_20260101T000000Z.yaml").read_bytes()
 
@@ -95,7 +96,18 @@ def test_a_changed_apex_probes_again_and_says_which_part_differs(run, capsys):
     changed = Device(apex=APEX.replace('versionCode="2"', 'versionCode="3"'))
     run(changed)
     assert changed.log == ["install", "probe 20260101T000000Z"]
-    assert "differs in device" in capsys.readouterr().out
+    assert "of this fingerprint differs in device.apex.com.android.conscrypt\n" in capsys.readouterr().out
+
+
+def test_the_reason_names_the_nested_fields_that_differ_from_the_newest_entry_of_the_same_fingerprint(run, tmp_path, capsys):
+    art = APEX.replace('versionCode="1"', 'versionCode="5"')
+    for n, device in enumerate((Device(), Device(apex=art), Device(fingerprint="f/p:17/Y/2"))):
+        run(device)
+        newest = max((tmp_path / "store").glob("*/key.yaml"), key=lambda f: f.stat().st_mtime_ns)
+        os.utime(newest, (n, n))
+    assert "; no stored entry for fingerprint f/p:17/Y/2\n" in capsys.readouterr().out
+    run(Device(apex=art.replace('versionCode="2"', 'versionCode="3"')))
+    assert capsys.readouterr().out.count("of this fingerprint differs in device.apex.com.android.conscrypt\n") == 1
 
 
 @pytest.mark.parametrize("break_it, why", [
