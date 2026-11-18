@@ -10,9 +10,11 @@ from cryptobench.stages.verification.scope import languages as scope_languages
 from cryptobench.stages.verification.scope import signature as scope_signature
 from cryptobench.stages.verification.scope import wrapper as scope_wrapper
 from cryptobench.shared import paths
+from cryptobench.shared.document.document import DocumentKind
 from cryptobench.shared.document.dump import dump_yaml
 
 GENERATED_MARK = "/cryptobench/scoped/"
+SCOPED_PLAN_DOC = DocumentKind("scoped plan", 1)
 
 
 class GenerateError(Exception):
@@ -116,7 +118,7 @@ def generate(harness_path, root, out, compiler=scope_compile.gradle):
         plan = {key: value for key, value in vars(entry.interop).items() if value is not None and key != "index"}
         records[scope_id].update(interop=plan)
     out.mkdir(parents=True, exist_ok=True)
-    document = {"schemaVersion": 1, "app": harness.app, "harness": str(pathlib.Path(harness_path).resolve()),
+    document = {"schemaVersion": SCOPED_PLAN_DOC.version, "app": harness.app, "harness": str(pathlib.Path(harness_path).resolve()),
                 "seed": scope_inputs.SEED, "scopes": list(records.values())}
     paths.Scoped(out).plan.write_text(dump_yaml(document))
     return paths.Scoped(out).plan, list(compiled)

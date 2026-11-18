@@ -3,16 +3,21 @@ by a narrow pattern that must match once, so a rename on either side fails here.
 import ast
 import pathlib
 import re
+import tempfile
+import unittest.mock
+
+import yaml
 
 from cryptobench.shared.settings import bundled
 from analysis import chart_input
 from cryptobench.stages.measurement.session import case_isolation, passes, thermal_hook, variant_order
 from cryptobench.stages.verification.scope import wrapper
 from cryptobench.stages.verification import check
+from cryptobench.stages.discovery import facts, probe
 from cryptobench.shared.device import capture
 from cryptobench.shared.catalogue import guide_items, names, vectors
 from cryptobench.shared.paths import device_dirs
-import energy, preflight
+import energy, manafa_session, preflight
 from rails import trace
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
@@ -87,7 +92,7 @@ def test_metric_keys_of_benchmark_json():
 def test_instrumentation_arguments():
     assert case_isolation.CASE_ARGUMENT == const(AT / "CaseFilter.kt", "ARGUMENT")
     assert check.DRY_RUN == ["-e", const(AT / "EndToEndCheck.kt", "DRY_RUN"), "true"]
-    assert const(AT / "DeviceProbe.kt", "HOST_MILLIS") == "hostMillis" and '"DeviceProbe", "-e", "hostMillis"' in (STAGES / "discovery/probe.py").read_text()
+    assert probe.HOST_MILLIS == const(AT / "DeviceProbe.kt", "HOST_MILLIS")
     assert bundled.KEY == const("environment/discovery/src/main/kotlin/bundled/BundledProviders.kt", "KEY")
 
 
@@ -138,6 +143,23 @@ def test_thermal_json_keys():
     assert set(record) - {"note"} == keys and const(case_document, "NOTE") == "note" and const(case_document, "GATE") == "gate"
 
 
+def capability_version():
+    return int(kotlin("benchmark/src/main/kotlin/check/EnergyCapability.kt", r'document\["schemaVersion"\] == (\d+)'))
+
+
+def manafa_written_version():
+    """The schemaVersion manafa_session.check writes when manafa cannot start, without a phone."""
+    def refused():
+        raise manafa_session.CannotStart("no phone")
+    with tempfile.TemporaryDirectory() as folder, unittest.mock.patch.object(manafa_session, "started", refused):
+        out = pathlib.Path(folder) / "energy.yaml"
+        try:
+            manafa_session.check(0, out)
+        except manafa_session.CannotStart:
+            pass
+        return yaml.safe_load(out.read_text())["schemaVersion"]
+
+
 def test_schema_versions_across_the_boundary():
     pairs = [
         (capture.SCHEMA, number("environment/discovery/src/main/kotlin/contract/CapturedEnvironment.kt", "SCHEMA_VERSION")),
@@ -146,10 +168,10 @@ def test_schema_versions_across_the_boundary():
         (guide_items.SCHEMA_VERSION, number("preparation/src/main/kotlin/guide/Guide.kt", "SUPPORTED_SCHEMA_VERSION")),
         (vectors.SCHEMA_VERSION, int(kotlin("benchmark/src/main/kotlin/verify/known/KnownAnswerFile.kt", r'DocumentFile\.read\(file, "known_answers", (\d+)\)'))),
         (energy.SCHEMA_VERSION, number("benchmark/src/main/kotlin/report/energy/EnergyWindows.kt", "SCHEMA_VERSION")),
-        (preflight.capability({}, {}, 1, False)["schemaVersion"],
-         int(kotlin("benchmark/src/main/kotlin/check/EnergyCapability.kt", r'document\["schemaVersion"\] == (\d+)'))),
+        (preflight.capability({}, {}, 1, False)["schemaVersion"], capability_version()),
+        (manafa_written_version(), capability_version()),
         (names.SCHEMA_VERSION, number("config/src/main/kotlin/names/AlgorithmNames.kt", "SCHEMA_VERSION")),
-        (int(re.search(r'"schemaVersion": (\d+)', (STAGES / "discovery/facts.py").read_text()).group(1)), int(kotlin("settings/src/main/kotlin/Facts.kt", r'document\["schemaVersion"\] == (\d+)'))),
+        (facts.FACTS_DOC.version, int(kotlin("settings/src/main/kotlin/Facts.kt", r'document\["schemaVersion"\] == (\d+)'))),
     ]
     assert [python for python, _ in pairs] == [k for _, k in pairs]
     # thermal.json carries a version Python writes and no Kotlin reader checks (JetpackResults.thermalOf)

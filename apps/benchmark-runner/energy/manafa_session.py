@@ -62,7 +62,7 @@ def profile_of(em):
 
 
 def check(seconds, capability):
-    base = {"schemaVersion": 1, "source": estimate.SOURCE, "kind": estimate.KIND}
+    base = {"schemaVersion": energy.CAPABILITY_VERSION, "source": estimate.SOURCE, "kind": estimate.KIND}
     out = pathlib.Path(capability)
     try:
         em = started()

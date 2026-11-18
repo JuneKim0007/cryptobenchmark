@@ -3,6 +3,7 @@ import pathlib, sys
 
 import yaml
 
+from energy import CAPABILITY_VERSION  # noqa: E402
 from rails import counters  # noqa: E402
 
 RESPONSIVE = 1.10  # a busy window must use at least 10% more energy than an idle one
@@ -12,7 +13,7 @@ def capability(idle_rails, busy_rails, seconds, accept):
     idle = sum(counters.whole(s) for s in idle_rails.values())
     busy = sum(counters.whole(s) for s in busy_rails.values())
     present = bool(idle_rails) and bool(busy_rails)
-    return {"schemaVersion": 1, "railsPresent": present,
+    return {"schemaVersion": CAPABILITY_VERSION, "railsPresent": present,
             "railsResponsive": present and idle > 0 and busy >= idle * RESPONSIVE,
             "idleMicrojoules": idle, "busyMicrojoules": busy, "windowSeconds": seconds,
             "acceptUnresponsive": accept}

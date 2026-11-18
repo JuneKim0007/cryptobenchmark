@@ -6,10 +6,13 @@ from cryptobench.shared.log.warn import warn
 from cryptobench.shared.device import capture as captured, clocks
 from cryptobench.shared.device.adb import PACKAGE
 from cryptobench.shared import paths
+from cryptobench.shared.document.document import DocumentKind
 from cryptobench.shared.document.dump import dump_yaml
 
 NATIVE_LIBRARY = "libaffinity.so"
 APK = paths.repo().apk
+# read by Facts.kt (timed)
+FACTS_DOC = DocumentKind("facts", 1)
 
 
 def rooted(device):
@@ -34,7 +37,7 @@ def pinning(apk, abi):
 def collect(device, capture, build):
     sdk = captured.read_runtime(capture).get("sdkInt")
     return {
-        "schemaVersion": 1,
+        "schemaVersion": FACTS_DOC.version,
         "os": {"sdkInt": int(sdk) if str(sdk).isdigit() else None},
         "rooted": rooted(device),
         "cpu": {"cores": [{"core": c["index"], "online": c["online"], "maxKhz": c["cpuMaxKhz"]} for c in clocks.read(device)]},

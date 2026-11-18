@@ -11,6 +11,8 @@ MIN_POLLS = 20
 LARGE_TRACE_BYTES = 32 * 1024 * 1024
 # 2: source and kind
 SCHEMA_VERSION = 2
+# discovery/energy.yaml, written by preflight.py and manafa_session.py, read here and by EnergyCapability.kt (timed)
+CAPABILITY_VERSION = 1
 SOURCE = "rails"
 KIND = "measured"
 

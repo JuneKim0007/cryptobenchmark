@@ -1,7 +1,7 @@
 """CPU clock state read through adb shell; locked means every online core's floor equals its ceiling."""
 import re
 
-from cryptobench.shared.document.document import read_yaml
+from cryptobench.shared.document.document import DocumentKind, read_yaml
 from cryptobench.shared.document.dump import dump_yaml
 
 
@@ -9,6 +9,7 @@ READ = ('for c in /sys/devices/system/cpu/cpu[0-9]*; do f=$c/cpufreq; '
         'echo "${c##*/} $(cat $c/online 2>/dev/null || echo 1) $(cat $f/scaling_governor 2>/dev/null || echo -) '
         '$(cat $f/scaling_min_freq 2>/dev/null || echo -) $(cat $f/scaling_max_freq 2>/dev/null || echo -) '
         '$(cat $f/cpuinfo_max_freq 2>/dev/null || echo -)"; done')
+CLOCKS_DOC = DocumentKind("clocks", 1)
 
 
 def parse(text):
@@ -43,7 +44,7 @@ def capped(snapshot):
 
 def write(path, before, after, cases=None):
     state = locked([before, after])
-    document = {"schemaVersion": 1, "locked": "unknown" if state is None else state, "before": before, "after": after}
+    document = {"schemaVersion": CLOCKS_DOC.version, "locked": "unknown" if state is None else state, "before": before, "after": after}
     if cases:
         document["cases"] = cases
     path.parent.mkdir(parents=True, exist_ok=True)
