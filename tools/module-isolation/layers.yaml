@@ -17,7 +17,7 @@ modules:
     uses: {}
   config:
     uses:
-      settings: [Facts, HarnessSettings, Metric, Unsupported]
+      settings: [EnergySettings, Facts, HarnessSettings, Metric, Unsupported]
       files: all
       document: all
   preparation:
