@@ -2,6 +2,7 @@
 import time
 
 from cryptobench.shared.settings import bundled, effective_view
+from cryptobench.shared.settings.effective_view import EnergyView, RunView
 from cryptobench.shared.device import gradle_runner
 from cryptobench.stages.measurement.energy import steps as energy_stage
 from cryptobench.stages.measurement.energy.session import EnergySession
@@ -18,6 +19,9 @@ from cryptobench.stages.measurement.measuring import (Measuring, convert, energy
 from cryptobench.shared.device.plan import pull_plan, push, recorded_skips
 from cryptobench.pipeline.took import elapsed
 from cryptobench.shared.document.document import read_yaml
+
+# the ignored keys host_cases names in their own line
+OWN_LINES = ("run.passes", "run.thermalGate", "run.orderSeed")
 
 
 def measure_on_device(run, one, captures, preparation, repetitions, folder, written, measured_blocks):
@@ -70,22 +74,22 @@ def measure_cases(options, device, results, found, problems, require_energy, rec
     discovery, effective, capture, trial, files = found.discovery, found.effective, found.capture, found.trial, found.files
     started = time.monotonic()
     document = effective_view.read(effective)["document"]
-    repetitions, captures = effective_view.process_repetitions(document), energy_stage.captures(effective)
+    view, energy = RunView(document), EnergyView(document)
+    repetitions, captures = view.process_repetitions, energy.captures
     timed = bool(captures - {"dry"})
-    size = effective_view.resume_block_runs(document)
+    size = view.resume_block_runs
     in_blocks = lambda folder, label, boot: blocks.Blocks(folder, size, repetitions, record, document.get("runId"), label, boot)
     if captures - {"none"} and not device:
         raise CommandError("energy: only a --device run captures energy; set harness.energy.capture none for --bench")
     if captures - {"none"}:
         # the effective config holds the captures a test set turned on, which the first check could not see
-        options.energy_python = require_energy(energy_stage.source_name(effective), options.energy_python)
+        options.energy_python = require_energy(energy.source, options.energy_python)
     if device:
         waits = reconnect.Reconnect.of(device, options)
         print(waits.line())
-        source = energy_stage.source(effective, options.energy_python, options.stacktrace)
-        run = Measuring(device, EnergySession(device, waits), source, options, discovery, files, problems, variant_order.chosen(effective_view.order_seed(document))[0],
-                        effective_view.throttle_sleep(document), effective_view.case_cooldown(document), gate_opened(device, document, problems, waits),
-                        effective_view.launch_retries(document), waits)
+        source = energy_stage.source(energy, options.energy_python, options.stacktrace)
+        run = Measuring(device, EnergySession(device, waits), source, options, discovery, files, problems, variant_order.chosen(view.order_seed)[0],
+                        view.throttle_sleep, view.case_cooldown, gate_opened(device, document, problems, waits), view.launch_retries, waits)
         try:
             written, processes = device_cases(run, document, [effective, paths.Configuration.holding(effective).guide, capture, trial], captures, benchmark,
                                               preparation, in_blocks)
@@ -107,7 +111,7 @@ def measure_cases(options, device, results, found, problems, require_energy, rec
 def device_cases(run, document, plan_files, captures, benchmark, preparation, in_blocks):
     """Every pass of the run on the device; the per-process files for the manifest and how many processes ran. in_blocks(pass folder, pass name,
     boot) is a pass's blocks.Blocks."""
-    chosen, repetitions = passes.read(document, captures), effective_view.process_repetitions(document)
+    chosen, repetitions = passes.read(RunView(document), captures), RunView(document).process_repetitions
     energy = any(one.captures(captures) - {"none"} for one in chosen)
     energy_step = (lambda: energy_preflight(run.options, run.source, run.session, run.discovery, run.files)) if energy else None
     run.reconnect.retried(lambda: push(run.device, run.options, plan_files, energy_step), "the plan push")
@@ -132,13 +136,18 @@ def warm_up(run, document, preparation):
 
 def host_cases(options, document, capture, trial, effective, benchmark, preparation, files, problems, measured_blocks):
     """One BenchKt JVM per repetition, in measured_blocks; a block an earlier run recorded is kept, not measured again."""
-    repetitions, written = effective_view.process_repetitions(document), []
-    if (document.get("run") or {}).get("passes"):
+    view = RunView(document)
+    repetitions, written = view.process_repetitions, []
+    if view.passes:
         warn("run.passes: only a --device run measures in passes; this run measures once per process")
-    if effective_view.thermal_gate(document):
+    if view.thermal_gate:
         warn("TEMPERATURE SET BUT DEVICE CAN'T POLL: host_runtime; running without it", problems)
-    effective_view.order_seed(document)
+    # read so a missing or broken seed is refused on the host too
+    view.order_seed
     warn("run.orderSeed: only a --device run launches cases in an order; this run measures in the plan's order")
+    for path in effective_view.ignored_on_host(document):
+        if path not in OWN_LINES:
+            warn(f"ignored_on_host: {path} is set; only a --device run reads it")
     folder = lambda repetition: measure_session.process_folder(benchmark, repetition, repetitions)
 
     def measured(repetition):

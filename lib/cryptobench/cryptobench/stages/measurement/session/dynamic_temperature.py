@@ -9,7 +9,7 @@ from cryptobench.stages.measurement import start_margin as eq
 from cryptobench.shared.errors.coded import Coded
 from cryptobench.shared.errors.glossary import STOP
 from cryptobench.shared.errors.policy import resolve
-from cryptobench.shared.settings import effective_view
+from cryptobench.shared.settings.effective_view import GateView, RunView
 
 SECONDS_PER_MINUTE = 60
 GATE = "run.thermalGate"
@@ -40,14 +40,13 @@ class Settings:
     def of(cls, document):
         """run.thermalGate of effective.yaml, every key :config writes read through required; on_discard_limit is the action its
         onDiscardLimit names (codes.yaml temperature_discard_limit values), any other value refused."""
-        at = lambda key: effective_view.required(document, f"{GATE}.{key}")
-        margin = lambda key: at(f"startMargin.{key}")
-        initial = margin("initialCelsius")
-        rule = (eq.StartMarginRule(initial, margin("backoffFactor"), margin("maximumCelsius"), margin("cleanRunsToRecover"), margin("recoveryCelsius"))
-                if margin("dynamic") else eq.StartMarginRule(initial, 1, initial, 1, 0))
-        return cls(at("temperatureKeptCelsius"), at("cooldownMinutes") * SECONDS_PER_MINUTE, at("pollMinutes") * SECONDS_PER_MINUTE,
-                   at("pollTerminateMinutes") * SECONDS_PER_MINUTE, at("discardLimit"),
-                   resolve("temperature_discard_limit", at("onDiscardLimit"), f"{GATE}.onDiscardLimit"), at("readRetries"), at("readRetrySeconds"), rule)
+        gate = GateView(document)
+        initial = gate.initial
+        rule = (eq.StartMarginRule(initial, gate.backoff, gate.maximum, gate.clean_runs, gate.recovery)
+                if gate.dynamic else eq.StartMarginRule(initial, 1, initial, 1, 0))
+        return cls(gate.kept, gate.cooldown_minutes * SECONDS_PER_MINUTE, gate.poll_minutes * SECONDS_PER_MINUTE,
+                   gate.terminate_minutes * SECONDS_PER_MINUTE, gate.discard_limit,
+                   resolve("temperature_discard_limit", gate.on_discard_limit, f"{GATE}.onDiscardLimit"), gate.read_retries, gate.read_retry_seconds, rule)
 
 
 class Off:
@@ -162,7 +161,7 @@ class Gate:
 
 def opened(device, document, problems):
     """The one startup decision, printed once; a device that cannot report temperature still runs."""
-    if effective_view.thermal_gate(document) is None:
+    if RunView(document).thermal_gate is None:
         say("TEMPERATURE GATE OFF: run.thermalGate not set")
         return Gate(device, None, (), problems)
     capability = thermal.capability(device)

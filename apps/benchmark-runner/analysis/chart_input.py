@@ -5,11 +5,7 @@ import pathlib
 
 from cryptobench.shared.stats.units import DisplayUnits
 from cryptobench.shared.document.document import read_yaml
-from cryptobench.shared.settings import defaults
-
-# :config's analysis defaults; effective.yaml always carries them, so they apply only when that file is missing
-DEFAULTS = {"charts": defaults.at("analysis.charts"), "headline": defaults.at("analysis.statistic.headline"),
-            "meanUpToCovPercent": defaults.at("analysis.statistic.meanUpToCovPercent"), "units": defaults.at("analysis.units")}
+from cryptobench.shared.settings.effective_view import AnalysisView, found
 UNIDENTIFIED = (0, "unidentified")      # ChartGroup.UNIDENTIFIED in :preparation
 
 
@@ -24,16 +20,14 @@ def load(benchmark_file, prepared_file, effective_file):
 
 
 def settings(effective):
-    analysis = effective.get("analysis") or {}
-    statistic = analysis.get("statistic") or {}
+    view = AnalysisView(effective)
     return {
-        "charts": analysis["charts"] if "charts" in analysis else DEFAULTS["charts"],
-        "dir": analysis.get("dir"),
-        "headline": statistic.get("headline", DEFAULTS["headline"]),
-        "limit": float(statistic.get("meanUpToCovPercent", DEFAULTS["meanUpToCovPercent"])),
+        "charts": view.charts,
+        "dir": view.dir,
+        "headline": view.headline,
+        "limit": float(view.limit),
         "run_id": effective.get("runId") or "adhoc",
-        "units": DisplayUnits.parse({**DEFAULTS["units"], **(analysis.get("units") or {})}, "analysis.units"),
-        # additive: count-metric bars (allocationCount) are drawn when the run has such a metric, unless an explicit
-        # analysis.charts list leaves "countBars" out. DEFAULTS above stays what :config writes.
-        "countBars": "charts" not in analysis or "countBars" in (analysis["charts"] or []),
+        "units": DisplayUnits.parse({**AnalysisView({}).units, **view.units}, "analysis.units"),
+        # count-metric bars (allocationCount) are drawn unless an explicit analysis.charts list leaves "countBars" out
+        "countBars": found(effective, "analysis.charts") is None or "countBars" in (view.charts or []),
     }

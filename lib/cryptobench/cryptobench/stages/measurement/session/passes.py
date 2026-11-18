@@ -1,7 +1,6 @@
 """run.passes: one device session per metric group, what each pass asks the device and converts, and the merge per metric of their results."""
 import dataclasses, time
 
-from cryptobench.shared.settings import effective_view
 from cryptobench.shared.device import gradle_runner
 from cryptobench.shared.errors.failures import CommandError
 from cryptobench.stages.measurement.session.measure import process_folder
@@ -41,10 +40,9 @@ class Pass:
         return f" --metrics={','.join(self.metrics)} --samples={self.samples}" + (" --uncleaned" if self.name == ENERGY else "")
 
 
-def read(document, captures):
-    """The run's passes in the order written; none configured is the single pass."""
-    run = document.get("run") or {}
-    metrics, configured = effective_view.metrics(document), run.get("passes") or {}
+def read(view, captures):
+    """view: effective_view.RunView. The run's passes in the order written; none configured is the single pass."""
+    metrics, configured = view.metrics, view.passes or {}
     if not configured:
         if "measured" in captures:
             raise CommandError("not_supported: energy.capture measured without run.passes.energy; energy is always measured in its own pass")

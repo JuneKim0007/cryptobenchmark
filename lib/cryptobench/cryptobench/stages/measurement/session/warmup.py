@@ -1,7 +1,7 @@
 """run.warmup: a pre-flight run of a few cases before the first pass of a device run; its output is deleted, never pulled or converted."""
 import time
 
-from cryptobench.shared.settings import effective_view
+from cryptobench.shared.settings.effective_view import RunView
 from cryptobench.shared.device import instrumentation, timeouts
 from cryptobench.stages.measurement.session import case_isolation
 from cryptobench.stages.measurement.session import passes, skips
@@ -16,8 +16,8 @@ WARMUP_PASS = "warmup"   # PassArguments: any pass but energy and allocation cap
 
 
 def settings(document):
-    return (effective_view.required(document, "run.warmup.iterations"), effective_view.required(document, "run.warmup.jobs"),
-            effective_view.required(document, "run.warmup.cases"))
+    view = RunView(document)
+    return view.warmup_iterations, view.warmup_jobs, view.warmup_cases
 
 
 def matches(job, case):

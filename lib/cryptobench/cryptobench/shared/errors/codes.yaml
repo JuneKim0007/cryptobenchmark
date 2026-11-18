@@ -1110,6 +1110,7 @@ codes:
   hook_failed: {kind: notice}
   host_benchmark_not_set: {kind: notice}
   identity_changed: {kind: notice}
+  ignored_on_host: {kind: notice}
   input_preparation_failed: {kind: error}
   instance_refused: {kind: outcome}
   instantiation_failed: {kind: outcome}

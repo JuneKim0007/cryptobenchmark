@@ -4,14 +4,14 @@ import itertools, pathlib
 from cryptobench.shared import paths
 from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.results import run_record
-from cryptobench.shared.settings import effective_view
+from cryptobench.shared.settings.effective_view import RunView
 from cryptobench.stages.measurement.session import blocks, variant_order
 from cryptobench.shared.log.warn import warn
 
 
 def record(effective, capture, options):
     """The run's record (shared/results/run_record.py) with the order its seed chooses."""
-    order = variant_order.chosen(effective_view.order_seed(read_yaml(effective)))[1]
+    order = variant_order.chosen(RunView(read_yaml(effective)).order_seed)[1]
     return run_record.of(effective, capture, order, options)
 
 

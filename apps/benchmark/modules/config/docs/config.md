@@ -57,6 +57,8 @@ Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 | | `bundled[].create` | required | `fully.qualified.Class` (public no-argument constructor) or `fully.qualified.Class#staticFactory`; else `invalid_create` |
 | | `bundled[].alias` | unset | non-blank, no whitespace; the name the provider is registered under; required on the device when its own name is already installed |
 
+Defaults are `parity/defaults.yaml`, which `DefaultsDocument` writes and the Python readers read. A `--bench` run ignores `passes`, `thermalThrottleSleepSeconds`, `warmup`, `caseCooldownSeconds`, `thermalGate`, `launchRetries`, `orderSeed` and `harness.warmupIterations`, `profiling`, `cpu`: each set to other than its default is one `ignored_on_host: <key> is set` warning, or its own line for `passes`, `thermalGate` and `orderSeed` (the `host` column of `lib/cryptobench/cryptobench/shared/settings/effective_view.py` KEYS).
+
 `onFailure` governs selected primitives that cannot run. A broken authored file (parse, `schemaVersion`, unknown section or key) always stops.
 
 `analysis` is read by `apps/benchmark-runner/analysis/analyze.py` and `charts.py`; `apps/benchmark-runner/pipeline.py` records `analysis.units` in `manifest.yaml`, where perf-repair reads it (`docs/tools.md`, `docs/results.md`). It is left out of the run's input digest: a change reruns no measurement and applies from the next run's manifest.
