@@ -1,4 +1,4 @@
-package io.github.junekim0007.cryptobench.config.inventory.dto
+package io.github.junekim0007.cryptobench.config.source
 
 /** One row of discovery's keystore trial: a key of this size or curve generated on this path, or the trial's coded refusal. */
 data class KeystoreRow(

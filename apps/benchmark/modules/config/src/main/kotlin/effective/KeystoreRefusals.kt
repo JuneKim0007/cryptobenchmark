@@ -1,6 +1,7 @@
-package io.github.junekim0007.cryptobench.config.entry
+package io.github.junekim0007.cryptobench.config.effective
 
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveEntry
+import io.github.junekim0007.cryptobench.config.entry.KeySource
 import io.github.junekim0007.cryptobench.config.inventory.dto.Inventory
 import io.github.junekim0007.cryptobench.config.names.AlgorithmNames
 

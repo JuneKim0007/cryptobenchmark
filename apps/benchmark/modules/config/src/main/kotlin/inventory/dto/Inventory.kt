@@ -1,6 +1,7 @@
 package io.github.junekim0007.cryptobench.config.inventory.dto
 
 import io.github.junekim0007.cryptobench.config.names.AlgorithmNames
+import io.github.junekim0007.cryptobench.config.source.KeystoreRow
 
 data class Inventory(
     val generatedFrom: InventorySource,

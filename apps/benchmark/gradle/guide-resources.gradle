@@ -1,9 +1,9 @@
 // Puts the implementation guide's catalogues on the classpath of the build that applies this; the one place that knows where they are.
 def guide = new File(buildscript.sourceFile.parentFile.parentFile.parentFile.parentFile, 'algorithms')
-// discovery's keystore trial reads its catalogues beside its class: in discovery's own build and the cli build that compiles its sources
-def keystoreTrial = project.path in [':environment:discovery', ':']
+// discovery's keystore trial reads its catalogues beside its class: in discovery's own build (:discovery in tools/module-isolation) and the cli build that compiles its sources
+def keystoreTrial = project.path in [':environment:discovery', ':discovery', ':']
 // discovery carries nothing else: the APK merges every module's resources, so a file two modules carry collides
-def keystoreTrialOnly = project.path == ':environment:discovery'
+def keystoreTrialOnly = project.path in [':environment:discovery', ':discovery']
 tasks.matching { it.name == 'processResources' }.configureEach {
     if (keystoreTrial) {
         from(guide) { include 'keygen.none_catalogue.yaml', 'keypairgen.none_catalogue.yaml'; into 'io/github/junekim0007/cryptobench/discovery/trial/keystore' }

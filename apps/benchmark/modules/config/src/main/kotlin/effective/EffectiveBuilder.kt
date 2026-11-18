@@ -7,7 +7,6 @@ import io.github.junekim0007.cryptobench.config.effective.dto.EntryOrigin
 import io.github.junekim0007.cryptobench.config.effective.dto.Skip
 import io.github.junekim0007.cryptobench.config.entry.EnginePaths
 import io.github.junekim0007.cryptobench.config.entry.KeySource
-import io.github.junekim0007.cryptobench.config.entry.KeystoreRefusals
 import io.github.junekim0007.cryptobench.config.entry.Variants
 import io.github.junekim0007.cryptobench.config.global.dto.GlobalConfig
 import io.github.junekim0007.cryptobench.config.global.dto.Policy

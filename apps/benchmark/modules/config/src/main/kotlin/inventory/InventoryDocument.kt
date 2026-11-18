@@ -2,7 +2,7 @@ package io.github.junekim0007.cryptobench.config.inventory
 
 import io.github.junekim0007.cryptobench.config.inventory.dto.Inventory
 import io.github.junekim0007.cryptobench.config.inventory.dto.InventoryEntry
-import io.github.junekim0007.cryptobench.config.inventory.dto.KeystoreRow
+import io.github.junekim0007.cryptobench.config.source.KeystoreRow
 import io.github.junekim0007.cryptobench.config.yaml.DocumentHandler
 import io.github.junekim0007.cryptobench.config.yaml.ProviderTree
 import io.github.junekim0007.cryptobench.document.DocumentFields.boolean

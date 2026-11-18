@@ -29,3 +29,4 @@ cryptobenchmark-release-key.jks
 /apps/benchmark/modules/android/src/androidTest/java/io/github/junekim0007/cryptobench/scoped/
 .coverage
 /settings.yaml
+*.egg-info/
