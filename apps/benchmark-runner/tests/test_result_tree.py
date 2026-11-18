@@ -37,4 +37,4 @@ def test_an_energy_and_a_timing_pass(tmp_path, monkeypatch):
     per_pass = [f"benchmark/{folder}/{name}" for folder in ("energy", "timing") for name in
                 ("benchmark.json", "benchmarkData.json", "cases/a.json", "cases/b.json", "clocks.yaml", "order.txt", "thermal.json")]
     blocks = [f"benchmark/{folder}/blocks/block-1.yaml" for folder in ("energy", "timing")]
-    assert found == sorted(COMMON + per_pass + blocks + ["benchmark/energy/energy.json", "discovery/energy.yaml"])
+    assert found == sorted(COMMON + per_pass + blocks + ["benchmark/energy/energy.json", "benchmark/energy/energy-samples.yaml", "discovery/energy.yaml"])

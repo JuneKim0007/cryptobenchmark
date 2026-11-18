@@ -12,7 +12,7 @@ from cryptobench.shared.errors.line import one_line
 from cryptobench.shared.errors.failures import AllSkipped, CommandError
 from cryptobench.shared import paths
 from cryptobench.shared.device import instrumentation, reconnect
-from cryptobench.stages.measurement.session import blocks, case_isolation, energy_hook, passes, skips, variant_order, warmup
+from cryptobench.stages.measurement.session import blocks, case_isolation, energy_hook, passes, skips, variant_order, warmup, window
 from cryptobench.stages.measurement.session import measure as measure_session
 from cryptobench.stages.measurement.measuring import (Measuring, convert, energy_preflight, gate_opened, pass_arguments, pull_pins, record, session_arguments,
                                                          singles, thermal_flag, timed_hooks)
@@ -43,14 +43,17 @@ def measure_on_device(run, one, captures, preparation, repetitions, folder, writ
     def held(process):
         if timed:
             written.append(paths.Measurement(process.into).json)
+        if sizing and process.samples:
+            run.files.setdefault("energySamples", []).append(sizing.write(process, paths.Measurement(process.into).energy_samples))
         record(run.files, process.into, captures, device)
 
     arguments = pass_arguments(run, one)
+    sizing = window.MinWindow(one.min_window, one.samples, lambda samples: pass_arguments(run, one, samples)) if one.row.sizing == passes.MIN_WINDOW else None
     plan = measure_session.Plan("CryptoBenchmark", arguments, run.order, gate, run.retries, run.reconnect, timed=bool(timed),
                                 cleared=(paths.PREPARED, paths.SKIPPED), stale=(paths.Preparation(preparation).prepared, paths.Preparation(preparation).skipped),
                                 pull_plan=lambda process: (pull_plan(device, preparation), pull_pins(device, process.into)), after_process=converted,
                                 blocks=measured_blocks, kept=held,
-                                refused=lambda case: device_skips(device, preparation).get(case))
+                                refused=lambda case: device_skips(device, preparation).get(case), sizing=sizing)
     measure_session.run_session(device, plan, repetitions, hooks, folder, run.problems)
 
 

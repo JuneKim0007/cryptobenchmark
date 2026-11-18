@@ -38,13 +38,15 @@ def run_of_case(device, plan, process, case, hooks, pulled):
     launched again; a case the device's preparation skipped with a final code is case_skipped, never launched again; anything else is
     retried, then the next case goes on."""
     gate, retries, discards = plan.gate, plan.retries, 0
+    # a short energy window is launched once more with more samples, outside the retries
+    arguments, relaunched = plan.arguments, None
     while True:
         try:
             if not gate.hold(case):
                 return f"case_failed: {case}: temperature_unreadable"
             # the gate's start reading goes to the Thermal hook and its end reading comes back for the verdict, so a run is read once at each end
             process.start_reading, process.end_reading = gate.take_start(), None
-            failure = hooked_case(process, case, hooks, lambda: case_isolation.launch_case(device, plan.test_class, plan.arguments, case, pulled))
+            failure = hooked_case(process, case, hooks, lambda: case_isolation.launch_case(device, plan.test_class, arguments, case, pulled))
             verdict = gate.verdict(case, process.end_reading) if not failure else eq.IGNORED
         except DeviceLost as lost:
             pulled.unlink(missing_ok=True)
@@ -63,6 +65,10 @@ def run_of_case(device, plan, process, case, hooks, pulled):
         if not failure and not short:
             for line in calibration.near_cap(pulled):
                 print(line)
+            more = plan.sizing.sized(process, case, pulled, relaunched) if plan.sizing else None
+            if more:
+                arguments, relaunched = plan.sizing.arguments(more), more
+                continue
             return None
         reason = failure or f"case_failed: {case}: {short[0]}"
         code = failure and plan.reconnect.retried(lambda: plan.refused(case), "the skip record read")

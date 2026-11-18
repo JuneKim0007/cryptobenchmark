@@ -1293,6 +1293,7 @@ codes:
   scopes_conflict: {kind: error}
   secure_path_unavailable: {kind: notice}
   setup_refused: {kind: outcome}
+  short_window: {kind: notice}
   several_devices: {kind: error}
   signature_changed: {kind: outcome}
   signature_needs_a_key_pair: {kind: error}

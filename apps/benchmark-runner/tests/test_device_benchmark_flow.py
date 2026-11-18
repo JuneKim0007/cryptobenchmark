@@ -176,9 +176,10 @@ def test_each_pass_is_its_own_session_and_every_metric_comes_from_its_pass(tmp_p
            "passes": {"timing": {"samples": 300}, "energy": {"samples": 100, "minWindowSeconds": 5}, "allocation": {"samples": 100}}}
     phone, files, _problems, results = measured(tmp_path, monkeypatch, run)
     named = [args[args.index("cryptobench.pass") + 1] + ":" + args[args.index("cryptobench.samples") + 1] for args in phone.arguments]
-    assert named == ["timing:300", "timing:300", "energy:100", "energy:100", "allocation:100", "allocation:100"]
+    # the fake phone's 0.1 s window is short of 5 s: each energy case is launched once more with 100 x 1.5 x 5 / 0.1 samples
+    assert named == ["timing:300", "timing:300", "energy:100", "energy:7500", "energy:100", "energy:7500", "allocation:100", "allocation:100"]
     assert steps(phone).count("window open") == 1 and steps(phone).index("window open") > steps(phone).index("instrument CryptoBenchmark b")
-    assert [c.split("--metrics=")[1].split(" --thermal")[0] for c in phone.converted] == ["TIME --samples=300", "TIME --samples=100 --uncleaned", "TIME,ALLOCATION --samples=100"]
+    assert [c.split("--metrics=")[1].split(" --thermal")[0] for c in phone.converted] == ["TIME --samples=300", "TIME --uncleaned", "TIME,ALLOCATION --samples=100"]
     merged = json.loads((results / "benchmark/benchmark.json").read_text())["cases"][0]["metrics"]
     assert merged == {"timeNs": {"runs": [1.0]}, "energyJ": {"runs": [2.0]}, "allocationCount": {"runs": [3.0]}}
     assert len(files["clocks"]) == 3 and files["clocks"][0] == results / "benchmark/timing/clocks.yaml"

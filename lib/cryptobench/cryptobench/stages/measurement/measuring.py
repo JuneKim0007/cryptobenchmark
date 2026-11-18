@@ -61,8 +61,8 @@ def session_arguments(run):
     return measure_arguments(run.options.suppress_errors, run.throttle_sleep)
 
 
-def pass_arguments(run, one):
-    return tuple(measure_arguments(run.options.suppress_errors, run.throttle_sleep)) + one.arguments()
+def pass_arguments(run, one, samples=None):
+    return tuple(measure_arguments(run.options.suppress_errors, run.throttle_sleep)) + one.arguments(samples)
 
 
 def timed_hooks(run, one, gate):
@@ -96,6 +96,6 @@ def record(files, into, captures, device):
 
 
 def singles(files, repetitions):
-    for single in ("energy", "clocks", "cpuPins"):
+    for single in ("energy", "clocks", "cpuPins", "energySamples"):
         if single in files and repetitions == 1:
             files[single] = files[single][0]

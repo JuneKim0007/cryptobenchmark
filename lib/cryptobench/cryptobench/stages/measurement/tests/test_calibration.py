@@ -32,7 +32,7 @@ def launches(monkeypatch, tmp_path, repeats):
         calls.append(1)
         data(tmp_path, repeat=repeats[len(calls) - 1]).rename(pulled)
     monkeypatch.setattr(case_isolation, "launch_case", launch)
-    plan = types.SimpleNamespace(gate=dynamic_temperature.Off(), retries=2, test_class="T", arguments=())
+    plan = types.SimpleNamespace(gate=dynamic_temperature.Off(), retries=2, test_class="T", arguments=(), sizing=None)
     return launch_module.run_of_case(None, plan, measure.Process(1, tmp_path), "a", [], file), len(calls)
 
 
