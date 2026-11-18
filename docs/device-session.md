@@ -106,7 +106,7 @@ Why: the phone's power controller lowers the CPU limit once skin reaches its own
 | unreadable | a reading is retried `readRetries` times; still unreadable: logged, that run is dropped, the next case goes on; a failed reading is never a pass |
 | refused | a failed launch whose case the device recorded in `skipped.yaml` with a code `codes.yaml` holds as an `outcome` or an `error` (`keystore_unsupported`, `strongbox_unavailable`, `api_too_low`, `not_supported`, ...): `case_skipped: <id>: <code>` in `problems`, not launched again in that process; a record without such a code, or none, is an other failure |
 | all skipped | a process whose every case is `case_skipped`: `all_cases_skipped: ...`, the run stops measuring, its manifest keeps `prepared.yaml` and `skipped.yaml` and no `benchmark.json`, exit 0; a session's row for it is `all_skipped` ([sessions.md](sessions.md)) |
-| other failures | crash, timeout, no data, collapsed calibration: `launchRetries` more launches, then the next case |
+| other failures | crash, timeout, a result rule's fail ([validation.md](validation.md#case-rules)): `launchRetries` more launches, then the next case |
 | order | hold, then the case hooks, launch, hooks, verdict (`lib/cryptobench/cryptobench/stages/measurement/session/launch.py`) |
 
 ## Warm-up
@@ -126,6 +126,8 @@ Why: the phone's power controller lowers the CPU limit once skin reaches its own
 
 ## One process per case
 
+Each pulled case file is held against the result rules: [validation.md](validation.md).
+
 `CryptoBenchmark` runs one instrumentation process per measured case.
 
 | printed | what runs |
@@ -140,9 +142,4 @@ Why: the phone's power controller lowers the CPU limit once skin reaches its own
 - Why: a provider that leaks native memory across calls can abort its process (seen: a bundled provider's HMAC throwing `std::bad_alloc` after many `doFinal` calls on one reused `Mac`). In one process that ends every case after it; with a process per case the OS reclaims the memory when the case's process exits, and only that case is lost.
 - Cost: each case pays an instrumentation start, about 1–2 s against about 60 s of measuring, and the device lists the plan again in every process without calling a provider, then prepares only its own case.
 - A case whose process fails (`Process crashed.`, a failed test, no `benchmarkData.json`) or passes the `case` ceiling ([Timeouts](timeouts.md); the app is force-stopped before the next case) prints `case_failed: <id>: <reason>`, goes to `manifest.yaml` `problems`, and the run goes on; every case failing raises, unless every one is `case_skipped` ([Thermal gate](#thermal-gate) table, `all skipped`).
-- A pulled `cases/<id>.json` whose `benchmarks[0].name`, without the error ids androidx prefixes (`EMULATOR_`), is not `measure[<id>]` (another case's result, none, unreadable) is deleted and is `case_failed: <id>: result_mismatch: ...`, retried as a failed launch.
 - Energy: the rails pre-flight runs once per run, after the plan push and AOT compile, never per process; `measured` keeps one Jetpack trace per case; `EnergyDryBenchmark`, `ScopedInterop`, `InteropCheck` and `DeviceProbe` stay one process each.
-
-## Calibration
-
-androidx sets the calls per sample from a warm-up moving average that one stall can inflate, down to one call. A launch whose samples are under 1 ms (`lib/cryptobench/cryptobench/stages/measurement/session/calibration.py`) is measured once more; a second is `case_failed: <case>: miscalibrated`. A warm-up that probably ended at androidx's 8 s limit instead of settling prints `note: warmup_near_cap`.

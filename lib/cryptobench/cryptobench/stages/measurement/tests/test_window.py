@@ -4,7 +4,8 @@ import types
 
 import yaml
 
-from cryptobench.stages.measurement.session import dynamic_temperature, launch, window
+from cryptobench.stages.measurement.session import dynamic_temperature, launch, measure, window
+from cryptobench.stages.measurement.validation import expectation
 
 
 def pulled_file(path, repeat, runs):
@@ -14,15 +15,17 @@ def pulled_file(path, repeat, runs):
 
 def run(tmp_path, monkeypatch, windows):
     """windows: the (repeatIterations, runs) each launch pulls; returns the samples each launch asked for, the process and the outcome."""
-    pulled, asked, left = tmp_path / "a.json", [], list(windows)
+    pulled, asked, left = tmp_path / "benchmark/cases/a.json", [], list(windows)
+    pulled.parent.mkdir(parents=True)
 
     def launched(_device, _class, arguments, _case, into):
         asked.append(arguments[-1])
         pulled_file(into, *left.pop(0))
     monkeypatch.setattr(launch.case_isolation, "launch_case", launched)
     sizing = window.MinWindow(5, 10, lambda samples: ("-e", "cryptobench.samples", str(samples)))
-    plan = types.SimpleNamespace(gate=dynamic_temperature.Off(), retries=0, test_class="T", arguments=("-e", "cryptobench.samples", "10"), sizing=sizing)
-    process = types.SimpleNamespace(samples={}, start_reading=None, end_reading=None)
+    plan = types.SimpleNamespace(gate=dynamic_temperature.Off(), retries=0, test_class="T", arguments=("-e", "cryptobench.samples", "10"), sizing=sizing,
+                                 unit=tmp_path, expectation=expectation.Expectation("energy", 10, 5))
+    process = measure.Process(1, tmp_path / "benchmark")
     return asked, process, launch.run_of_case(None, plan, process, "a", [], pulled), sizing
 
 

@@ -55,7 +55,7 @@ def measured(tmp_path, monkeypatch, run, phone=None, **phone_options):
     results, effective, capture, trial = layout(tmp_path, run)
     files, problems = {"effective": effective}, []
     pipeline.benchmarked(OPTIONS, phone, results, discover.Discovered(results / "discovery", effective, capture, trial, files), problems,
-                         {"identity": "of this run"})
+                         {"identity": "of this run", "run": yaml.safe_load(effective.read_text())["run"]})
     return phone, files, problems, results
 
 
@@ -173,11 +173,11 @@ def test_every_case_failing_stops_the_run(tmp_path, monkeypatch):
 
 def test_each_pass_is_its_own_session_and_every_metric_comes_from_its_pass(tmp_path, monkeypatch):
     run = {"metrics": ["TIME", "ALLOCATION"], "harness": {"energy": {"capture": "measured"}},
-           "passes": {"timing": {"samples": 300}, "energy": {"samples": 100, "minWindowSeconds": 5}, "allocation": {"samples": 100}}}
+           "passes": {"timing": {"samples": 300}, "energy": {"samples": 3, "minWindowSeconds": 5}, "allocation": {"samples": 100}}}
     phone, files, _problems, results = measured(tmp_path, monkeypatch, run)
     named = [args[args.index("cryptobench.pass") + 1] + ":" + args[args.index("cryptobench.samples") + 1] for args in phone.arguments]
-    # the fake phone's 0.1 s window is short of 5 s: each energy case is launched once more with 100 x 1.5 x 5 / 0.1 samples
-    assert named == ["timing:300", "timing:300", "energy:100", "energy:7500", "energy:100", "energy:7500", "allocation:100", "allocation:100"]
+    # the fake phone's 3 samples are a 0.3 s window, short of 5 s: each energy case is launched once more with 3 x 1.5 x 5 / 0.3 samples
+    assert named == ["timing:300", "timing:300", "energy:3", "energy:75", "energy:3", "energy:75", "allocation:100", "allocation:100"]
     assert steps(phone).count("window open") == 1 and steps(phone).index("window open") > steps(phone).index("instrument CryptoBenchmark b")
     assert [c.split("--metrics=")[1].split(" --thermal")[0] for c in phone.converted] == ["TIME --samples=300", "TIME --uncleaned", "TIME,ALLOCATION --samples=100"]
     merged = json.loads((results / "benchmark/benchmark.json").read_text())["cases"][0]["metrics"]

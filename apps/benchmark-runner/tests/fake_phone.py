@@ -12,6 +12,7 @@ from cryptobench.shared.device import timeouts  # noqa: E402
 OK = types.SimpleNamespace(returncode=0, stdout="", stderr="")
 MISSING = types.SimpleNamespace(returncode=1, stdout="", stderr="not found")
 CRASHED = "INSTRUMENTATION_RESULT: shortMsg=Process crashed.\nINSTRUMENTATION_CODE: 0\n"
+SAMPLES = "cryptobench.samples"
 NOT_PREPARED = "INSTRUMENTATION_STATUS: stack=java.lang.IllegalStateException: not_prepared: {0}\nTests run: {1},  Failures: {2}\n"
 
 
@@ -24,9 +25,9 @@ def listed(_repetition, cases):
 UNGATED = {"gate": dynamic_temperature.Off(), "retries": 0, "reconnect": reconnect.Off()}
 
 
-def jetpack_case(case, sleep=0):
+def jetpack_case(case, sleep=0, samples=1):
     return {"name": f"measure[{case}]", "repeatIterations": 10, "warmupIterations": 100, "thermalThrottleSleepSeconds": sleep, "totalRunTimeNs": 10**9,
-            "metrics": {"timeNs": {"minimum": 1e7, "maximum": 1e7, "median": 1e7, "coefficientOfVariation": 0.0, "runs": [1e7]}}}
+            "metrics": {"timeNs": {"minimum": 1e7, "maximum": 1e7, "median": 1e7, "coefficientOfVariation": 0.0, "runs": [1e7] * samples}}}
 
 
 class Phone(device_module.Device):
@@ -39,6 +40,8 @@ class Phone(device_module.Device):
         self.refuse, self.skips = dict(refuse or {}), []
         self.written, self.log, self.ran, self.arguments, self.converted = [], [], [], [], []
         self.thermal, self.notices, self.boot = thermal, [], "boot-1"
+        # the cryptobench.samples the last launch asked for; androidx gives exactly that many
+        self.samples = 1
 
     def serial(self):
         return os.environ.get("ANDROID_SERIAL") or "FAKE00000001"
@@ -55,7 +58,8 @@ class Phone(device_module.Device):
     def pulled(self, remote, local, check):
         if remote == self.data and self.written:
             self.log.append("pull data")
-            pathlib.Path(local).write_text(json.dumps({"context": {"build": {"model": "fake"}}, "benchmarks": [jetpack_case(c) for c in self.written]}))
+            pathlib.Path(local).write_text(json.dumps({"context": {"build": {"model": "fake"}},
+                                                       "benchmarks": [jetpack_case(c, samples=self.samples) for c in self.written]}))
             return OK
         if remote.endswith("skipped.yaml") and self.skips:
             self.skipped_file(local)
@@ -116,6 +120,7 @@ class Phone(device_module.Device):
         if test_class == "ScopedInterop":
             return "OK (1 test)\n"
         self.arguments.append(arguments)
+        self.samples = int(arguments[arguments.index(SAMPLES) + 1]) if SAMPLES in arguments else 1
         wanted = named.split(",") if named else list(self.cases)
         self.ran.append((test_class, named))
         if named in self.crash:

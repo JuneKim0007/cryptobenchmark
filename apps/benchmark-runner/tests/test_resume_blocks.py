@@ -119,9 +119,10 @@ def test_a_block_record_names_its_identity_runs_boot_and_files(tmp_path, monkeyp
     rerun(SEVEN)
     third = record(rerun.device, 3)
     assert {key: third[key] for key in ("schemaVersion", "pass", "block", "runs", "repetitions", "size", "bootId", "outcome")} == {
-        "schemaVersion": 2, "pass": None, "block": 3, "runs": {"first": 5, "last": 6}, "repetitions": 7, "size": 2,
+        "schemaVersion": 3, "pass": None, "block": 3, "runs": {"first": 5, "last": 6}, "repetitions": 7, "size": 2,
         "bootId": {"start": "boot-1", "end": "boot-1"}, "outcome": "finished"}
     assert [run["folder"] for run in third["processes"]] == ["process-5", "process-6"] and third["processes"][0]["problems"] == []
+    assert third["processes"][0]["relaunched"] == []
     assert sorted(third["processes"][0]["files"]) == ["benchmark.json", "benchmarkData.json", "cases/a.json", "cases/b.json", "clocks.yaml", "order.txt",
                                                          "thermal.json"]
     assert sorted(third["identity"]) == ["clean", "code", "commit", "device", "energyAcceptUnresponsive", "order", "run", "schema", "selection",
@@ -338,3 +339,9 @@ def test_an_old_format_record_starts_fresh_naming_the_schema(tmp_path, monkeypat
     capsys.readouterr()
     rerun(SEVEN)
     assert lines(capsys, "warning: identity_changed") == ["warning: identity_changed: schema, suppressErrors; starting fresh"]
+
+
+def test_a_block_record_lists_each_launch_again_with_the_code_that_caused_it(tmp_path, monkeypatch):
+    rerun = Rerun(tmp_path, monkeypatch, Phone(tmp_path, crash={"b"}))
+    rerun({"launchRetries": 1})
+    assert record(rerun.device, 1)["processes"][0]["relaunched"] == [{"case": "b", "attempt": 1, "code": "case_failed"}]

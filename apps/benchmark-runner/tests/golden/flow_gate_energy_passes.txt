@@ -6,16 +6,14 @@ measure:   CryptoBenchmark on the device; --stream shows each case
 measure:   one process per case (2 cases)
 order:     <tmp>/results/benchmark/energy/order.txt
 traces:    a: 0 pulled, 1 expected
-window:    a: 0.10 s below 5 s; launching again with 225 samples
+window:    a: 0.30 s below 5 s; launching again with 75 samples
 gate:      a: 35.9 C, start limit 35.75 C => waiting 3 minutes to cool down, then polling every 1 min
 gate:      a: passed at 26.9 C after 180 s
 traces:    a: 0 pulled, 1 expected
-warning: short_window: a: 0.10 s with 225 samples, below 5 s
 case:      1 of 2 a ok
 traces:    b: 0 pulled, 2 expected
-window:    b: 0.10 s below 5 s; launching again with 225 samples
+window:    b: 0.30 s below 5 s; launching again with 75 samples
 traces:    b: 0 pulled, 2 expected
-warning: short_window: b: 0.10 s with 225 samples, below 5 s
 case:      2 of 2 b ok
 clocks:    0 of 2 cases started or ended with a core capped below its maximum
 traces:    0 pulled

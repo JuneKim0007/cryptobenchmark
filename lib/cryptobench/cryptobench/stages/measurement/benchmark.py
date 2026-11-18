@@ -14,6 +14,7 @@ from cryptobench.shared import paths
 from cryptobench.shared.device import instrumentation, reconnect
 from cryptobench.stages.measurement.session import blocks, case_isolation, energy_hook, passes, skips, variant_order, warmup, window
 from cryptobench.stages.measurement.session import measure as measure_session
+from cryptobench.stages.measurement.validation import expectation
 from cryptobench.stages.measurement.measuring import (Measuring, convert, energy_preflight, gate_opened, pass_arguments, pull_pins, record, session_arguments,
                                                          singles, thermal_flag, timed_hooks)
 from cryptobench.shared.device.plan import pull_plan, push, recorded_skips
@@ -49,7 +50,8 @@ def measure_on_device(run, one, captures, preparation, repetitions, folder, writ
 
     arguments = pass_arguments(run, one)
     sizing = window.MinWindow(one.min_window, one.samples, lambda samples: pass_arguments(run, one, samples)) if one.row.sizing == passes.MIN_WINDOW else None
-    plan = measure_session.Plan("CryptoBenchmark", arguments, run.order, gate, run.retries, run.reconnect, timed=bool(timed),
+    plan = measure_session.Plan("CryptoBenchmark", arguments, run.order, gate, run.retries, run.reconnect, run.unit,
+                                expectation.of(run.record["run"], one.name), timed=bool(timed),
                                 cleared=(paths.PREPARED, paths.SKIPPED), stale=(paths.Preparation(preparation).prepared, paths.Preparation(preparation).skipped),
                                 pull_plan=lambda process: (pull_plan(device, preparation), pull_pins(device, process.into)), after_process=converted,
                                 blocks=measured_blocks, kept=held,
@@ -92,7 +94,7 @@ def measure_cases(options, device, results, found, problems, require_energy, rec
         print(waits.line())
         source = energy_stage.source(energy, options.energy_python, options.stacktrace)
         run = Measuring(device, EnergySession(device, waits), source, options, discovery, files, problems, variant_order.chosen(view.order_seed)[0],
-                        view.throttle_sleep, view.case_cooldown, gate_opened(device, document, problems, waits), view.launch_retries, waits)
+                        view.throttle_sleep, view.case_cooldown, gate_opened(device, document, problems, waits), view.launch_retries, waits, results, record)
         try:
             written, processes = device_cases(run, document, [effective, paths.Configuration.holding(effective).guide, capture, trial], captures, benchmark,
                                               preparation, in_blocks)

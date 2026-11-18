@@ -9,7 +9,7 @@ from cryptobench.shared.document.dump import dump_yaml
 from cryptobench.shared.document.write import write_text
 from cryptobench.shared.log.warn import warn
 
-SCHEMA = 2
+SCHEMA = 3
 RECORD_DOC = DocumentKind("block record", SCHEMA)
 FINISHED, BOOT_CHANGED = "finished", "boot_changed"
 
@@ -50,7 +50,7 @@ def run_files(run, pass_folder):
 
 def measured(blocks, folder, measure, keep, problems):
     """A recorded block's runs go through keep(repetition), their recorded problem lines joining problems; any other block is measured run by run,
-    each run's lines being what measure(repetition) added to problems, then recorded."""
+    each run's lines being what measure(repetition) added to problems and its relaunches what it returns, then recorded."""
     kept = recorded(blocks.folder)
     for block, first, last in ranges(blocks.repetitions, blocks.size):
         if block in kept:
@@ -61,14 +61,14 @@ def measured(blocks, folder, measure, keep, problems):
         start, runs = blocks.boot(), []
         for repetition in range(first, last + 1):
             before = len(problems)
-            measure(repetition)
-            runs.append(run_entry(blocks, folder, repetition, problems[before:]))
+            relaunched = measure(repetition) or []
+            runs.append(run_entry(blocks, folder, repetition, problems[before:], relaunched))
         write(blocks, block, (first, last), runs, (start, blocks.boot()), problems)
 
 
-def run_entry(blocks, folder, repetition, lines):
+def run_entry(blocks, folder, repetition, lines, relaunched):
     into = folder(repetition)
-    return {"repetition": repetition, "folder": into.relative_to(blocks.folder).as_posix(), "problems": list(lines),
+    return {"repetition": repetition, "folder": into.relative_to(blocks.folder).as_posix(), "problems": list(lines), "relaunched": list(relaunched),
             "files": run_files(into, blocks.folder)}
 
 

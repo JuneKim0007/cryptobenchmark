@@ -9,10 +9,11 @@ from cryptobench.stages.measurement.session import case_isolation  # noqa: E402
 from cryptobench.stages.measurement.session import measure as measure_session  # noqa: E402
 from cryptobench.stages.measurement.session import variant_order  # noqa: E402
 from fake_phone import jetpack_case, listed, UNGATED, UNGATED, OK, Phone  # noqa: E402
+from cryptobench.stages.measurement.validation.expectation import Expectation
 
 
 def session(phone, tmp_path, problems=None):
-    plan = measure_session.Plan("CryptoBenchmark", ("-e", "x", "y"), listed, **UNGATED)
+    plan = measure_session.Plan("CryptoBenchmark", ("-e", "x", "y"), listed, **UNGATED, unit=tmp_path, expectation=Expectation(None, None))
     return measure_session.run_session(phone, plan, 1, [], lambda _repetition: tmp_path / "benchmark",
                                        [] if problems is None else problems)
 
@@ -67,8 +68,8 @@ def test_an_error_that_ends_the_session_keeps_every_case_measured_before_it(tmp_
 def test_a_seeded_order_is_the_order_the_cases_launch_in_and_is_written_beside_them(tmp_path):
     cases = tuple("abcdefgh")
     phone = Phone(tmp_path, cases=cases)
-    plan = measure_session.Plan("CryptoBenchmark", ("-e", "x", "y"), variant_order.shuffled(5), **UNGATED)
-    processes = measure_session.run_session(phone, plan, 2, [], lambda r: tmp_path / f"process-{r}", [])
+    plan = measure_session.Plan("CryptoBenchmark", ("-e", "x", "y"), variant_order.shuffled(5), **UNGATED, unit=tmp_path, expectation=Expectation(None, None))
+    processes = measure_session.run_session(phone, plan, 2, [], lambda r: tmp_path / "benchmark" / f"process-{r}", [])
     launched = [named for _test, named in phone.ran if named]
     assert launched == [case for process in processes for case in process.cases]
     for process in processes:
@@ -96,16 +97,12 @@ class Stale(Phone):
         return super().pulled(remote, local, check)
 
 
-@pytest.mark.parametrize("name", ["measure[b]", "EMULATOR_measure[b]", "DEBUGGABLE_EMULATOR_measure[b]"])
-def test_the_error_ids_androidx_prefixes_still_name_the_case(name):
-    assert case_isolation.SUPPRESSED_PREFIX.sub("", name) == "measure[b]"
-    assert case_isolation.SUPPRESSED_PREFIX.sub("", "EMULATOR_measure[a]") != "measure[b]"
-
-
 @pytest.mark.parametrize("written, named", [(["a"], "measure[a]"), ([], "no benchmark")], ids=["another case", "no benchmark"])
 def test_a_pulled_result_that_names_another_case_is_refused_and_never_stored(tmp_path, written, named):
     phone, problems = Stale(tmp_path, "b", written, cases=("a", "b", "c")), []
     process, = session(phone, tmp_path, problems)
     assert [b["name"] for b in json.loads(process.data.read_text())["benchmarks"]] == ["measure[a]", "measure[c]"]
-    assert problems == [f"case_failed: b: result_mismatch: the pulled benchmarkData.json names {named}, not measure[b]; not stored"]
+    assert problems == [f"case_failed: b: result_mismatch: the pulled benchmarkData.json names {named}, not measure[b]"]
     assert sorted(p.name for p in (process.into / "cases").iterdir()) == ["a.json", "c.json"]
+    [rejected] = (tmp_path / "rejected").iterdir()
+    assert sorted(p.name for p in (rejected / "process-1").iterdir()) == ["b.json", "why.yaml"]

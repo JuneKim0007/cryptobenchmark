@@ -33,6 +33,9 @@ class Measuring:
     gate: object
     retries: int
     reconnect: object
+    # the device folder and the run's record (shared/results/run_record.py), whose run block each pass's Expectation reads
+    unit: pathlib.Path
+    record: dict
 
 
 def convert(run, arguments):

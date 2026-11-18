@@ -233,6 +233,7 @@ class RunTree:
     scoped = property(lambda self: Scoped(self.root / n.SCOPED))
     scoped_plan_failed = property(lambda self: self.root / n.SCOPED_PLAN_FAILED)
     superseded = property(lambda self: self.root / n.SUPERSEDED)
+    rejected = property(lambda self: self.root / n.REJECTED)
 
     device = property(lambda self: self.root / n.DEVICE)
     rows = property(lambda self: self.root / n.ROWS)

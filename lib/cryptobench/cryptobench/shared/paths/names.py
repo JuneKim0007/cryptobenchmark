@@ -4,7 +4,7 @@ from .device_dirs import PLAN_DIRECTORY, SCOPE_KEYS
 MANIFEST, DEVICE = "manifest.yaml", "device.yaml"
 CONFIGURATION, DISCOVERY, PREPARATION, BENCHMARK, ANALYSIS, CHART, CHECK, INTEROP, SCOPED = (
     "configuration", "discovery", "preparation", "benchmark", "analysis", "chart", "check", "interop", "scoped")
-SUPERSEDED = "superseded"
+SUPERSEDED, REJECTED, WHY = "superseded", "rejected", "why.yaml"
 SESSIONS, SESSION_LOG, SESSION_SUMMARY, INDEX = "sessions", "session.log", "summary.txt", "index.yaml"
 EFFECTIVE, INVENTORY, CONFIG_REPORT, GUIDE, KNOWN_ANSWERS = "effective.yaml", "inventory.yaml", "report.yaml", "guide.yaml", "known-answers.yaml"
 CAPTURE_PREFIX, TRIAL_PREFIX, REQUIREMENTS_PREFIX = "probe", "trial", "requirements"

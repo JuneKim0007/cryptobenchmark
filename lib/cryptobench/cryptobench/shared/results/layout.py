@@ -60,8 +60,11 @@ def merge_folder(source, target):
 
 
 def aside(target):
-    """A new superseded/<UTC second>[-n]/: mkdir refuses an existing name, so two moves in one second never meet."""
-    root = paths.RunTree(target).superseded
+    return stamped(paths.RunTree(target).superseded)
+
+
+def stamped(root):
+    """A new <root>/<UTC second>[-n]/: mkdir refuses an existing name, so two moves in one second never meet."""
     root.mkdir(exist_ok=True)
     stamp = datetime.datetime.now(datetime.timezone.utc).strftime(STAMP)
     for n in itertools.count(1):

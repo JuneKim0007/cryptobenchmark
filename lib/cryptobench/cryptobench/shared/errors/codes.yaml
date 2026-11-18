@@ -1135,9 +1135,14 @@ codes:
   key_size_not_in_guide: {kind: error}
   keystore_born_key: {kind: outcome}
   keystore_unsupported: {kind: outcome}
+  miscalibrated: {kind: notice}
+  no_data: {kind: notice}
   parallel_unavailable: {kind: notice}
+  result_mismatch: {kind: notice}
+  sample_count: {kind: notice}
   session_incomplete: {kind: error}
   target_conflict: {kind: error}
+  temperature_discarded: {kind: notice}
   unstable_id: {kind: notice}
   library_outside_checkout: {kind: error, default: stop}
   mac_needs_a_secret_key: {kind: error}
@@ -1354,5 +1359,6 @@ codes:
   verify_needs_a_key_pair: {kind: error}
   verify_without_signature: {kind: error}
   warmup_job_matches_nothing: {kind: notice}
+  warmup_near_cap: {kind: notice}
   window_uncovered: {kind: outcome}
   wrong_type: {kind: error}

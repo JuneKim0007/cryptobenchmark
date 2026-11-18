@@ -26,6 +26,9 @@ class Plan:
     gate: object
     retries: int
     reconnect: object
+    # the device folder, whose rejected/ takes a failed attempt; the pass's validation/expectation.Expectation
+    unit: pathlib.Path
+    expectation: object
     timed: bool = True
     cleared: tuple = ()
     stale: tuple = ()
@@ -50,6 +53,8 @@ class Process:
     end_reading: object = None
     # what plan.sizing recorded per case: energy-samples.yaml
     samples: dict = dataclasses.field(default_factory=dict)
+    # {case, attempt, code} per launch again: the block record's relaunched
+    relaunched: list = dataclasses.field(default_factory=list)
 
     @property
     def data(self):
@@ -97,7 +102,9 @@ def run_session(device, plan, repetitions, hooks, folder, problems):
         hook.before_session()
     processes = []
 
-    measured = lambda repetition: processes.append(one_process(device, plan, Process(repetition, folder(repetition)), hooks, repetitions, problems))
+    def measured(repetition):
+        processes.append(one_process(device, plan, Process(repetition, folder(repetition)), hooks, repetitions, problems))
+        return processes[-1].relaunched
     if plan.blocks is None:
         for repetition in range(1, repetitions + 1):
             measured(repetition)

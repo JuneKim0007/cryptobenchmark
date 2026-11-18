@@ -6,6 +6,7 @@ from cryptobench.stages.measurement.session import measure as measure_session  #
 from cryptobench.stages.measurement.session import energy_hook  # noqa: E402
 from cryptobench.shared.device.adb import DeviceError  # noqa: E402
 from fake_phone import Energy, listed, UNGATED, Phone  # noqa: E402
+from cryptobench.stages.measurement.validation.expectation import Expectation
 
 
 class Session:
@@ -32,8 +33,8 @@ def run(tmp_path, captures, failing=(), problems=None, timed=True):
     source = (FailingEnergy if "joules" in failing else Energy)(phone)
     dry = lambda _into, guarded: phone.log.append(f"dry guarded={guarded}")
     hook = energy_hook.EnergyCapture(source, Session(phone, failing), captures, tmp_path, tmp_path, [] if problems is None else problems, dry, timed)
-    plan = measure_session.Plan("CryptoBenchmark", (), listed, **UNGATED, timed=timed)
-    measure_session.run_session(phone, plan, 1, [hook], lambda _r: tmp_path / "b", [] if problems is None else problems)
+    plan = measure_session.Plan("CryptoBenchmark", (), listed, **UNGATED, unit=tmp_path, expectation=Expectation(None, None), timed=timed)
+    measure_session.run_session(phone, plan, 1, [hook], lambda _r: tmp_path / "benchmark", [] if problems is None else problems)
     return [line for line in phone.log if line in ("window open", "window close", "joules", "pull traces") or line.startswith(("dry", "instrument"))]
 
 

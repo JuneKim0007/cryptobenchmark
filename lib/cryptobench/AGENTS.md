@@ -155,14 +155,13 @@ cryptobench/stages/measurement/measuring.py : what a run's device sessions share
 cryptobench/stages/measurement/resume.py : the run's record; at a measuring run's publish: the blocks of a stopped run with the same identity that stay in place, verified; the resumed, identity_changed and block_unverified lines; the manifest's resumed: note
 cryptobench/stages/measurement/session/__init__.py : package of one device measuring session: processes, cases, passes, order, warm-up, hooks
 cryptobench/stages/measurement/session/blocks.py : run.resumeBlockRuns: a pass's runs in blocks, a recorded block kept, any other measured then recorded; the block record (identity, runId, runs, boot id, files)
-cryptobench/stages/measurement/session/calibration.py : whether androidx's warm-up left usable samples: collapsed calls per sample, a warm-up near its time limit
-cryptobench/stages/measurement/session/case_isolation.py : one case's instrumentation process, its pull checked to name the case, the device's case listing
+cryptobench/stages/measurement/session/case_isolation.py : one case's instrumentation process and its pull, the device's case listing
 cryptobench/stages/measurement/session/clocks_hook.py : session hook: the clock state around every process and case into clocks.yaml
 cryptobench/stages/measurement/session/cooldown_hook.py : session hook: run.caseCooldownSeconds of host sleep between measured cases, one line per pass
 cryptobench/stages/measurement/session/dynamic_temperature.py : run.thermalGate facade: the startup decision, hold, verdict and start margin; the only caller of start_margin's functions
 cryptobench/stages/measurement/session/energy_hook.py : session hook: the energy source's window around a process, traces pulled per case, dry pass, joules
 cryptobench/stages/measurement/session/gate_history.py : what one temperature gate session did: per-case waits and discards for thermal.json, its per-pass line
-cryptobench/stages/measurement/session/launch.py : the only place a timed run of a case starts: hold, launch, verdict, retries
+cryptobench/stages/measurement/session/launch.py : the only place a timed run of a case starts: hold, launch, verdict, check_case, rejected/, retries, relaunched entries
 cryptobench/stages/measurement/session/measure.py : one device measuring session of the benchmark: processes, a process per case, hooks; a process repetition's folder and line, a case's progress line
 cryptobench/stages/measurement/session/passes.py : run.passes: PASS_ROWS (metrics, keeps capture, cleaned, owned key, sizing) and pass_views from RunView; one device session per metric group, its device arguments and conversion, the merge per metric; MergeRunsKt over process repetitions
 cryptobench/stages/measurement/session/skips.py : a skipped.yaml record whose code codes.yaml holds as an outcome or an error: a final skip, its case_skipped line
@@ -172,6 +171,10 @@ cryptobench/stages/measurement/session/window.py : run.passes.energy.minWindowSe
 cryptobench/stages/measurement/session/warmup.py : run.warmup: a pre-flight run of a few planned cases before the first pass, final skips left out and chosen again, off at 0 iterations; its output never pulled
 cryptobench/stages/measurement/start_margin.py : the temperature gate's start margin: hot, clean and ignored outcomes, the start limit and how the margin moves; no I/O
 cryptobench/stages/measurement/tests/ : pytest tests of the measurement stage
+cryptobench/stages/measurement/validation/__init__.py : package of result validation: the rules table, the expectation it reads, rejected attempts
+cryptobench/stages/measurement/validation/expectation.py : what a run of one pass promised, from the run record's run block: samples per case, minimum window
+cryptobench/stages/measurement/validation/rejected.py : rejected/<UTC>/[<pass>/]process-<n>/<case>.json with why.yaml: an attempt that failed a rule
+cryptobench/stages/measurement/validation/rules.py : the one rules table (code, scope, severity, check), Finding, Result, check_case
 cryptobench/stages/measurement/thermal.py : device temperatures from dumpsys thermalservice: sensors by HAL name, status, sentinels skipped, unavailable as a reason
 cryptobench/stages/verification/__init__.py : package of the verification stage
 cryptobench/stages/verification/check.py : --check run: every planned case once through the real harness (host CheckKt, device EndToEndCheck under the dry run), check.yaml, its summary and failures, published beside a finished run or as a new device folder; discovery's steps passed in
