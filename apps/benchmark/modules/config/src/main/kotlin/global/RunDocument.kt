@@ -37,6 +37,7 @@ object RunDocument {
     private const val JOBS = "jobs"
     private const val CASES = "cases"
     private const val SAMPLES = "samples"
+    private const val MIN_WINDOW_SECONDS = "minWindowSeconds"
     private const val HARNESS = "harness"
 
     fun of(run: RunSettings): Map<String, Any> = linkedMapOf(
@@ -54,7 +55,8 @@ object RunDocument {
         put(ORDER_SEED, run.orderSeed)
         put(WARMUP, linkedMapOf<String, Any>(ITERATIONS to run.warmup.iterations, JOBS to run.warmup.jobs.map { RuleDocument.of(it) }, CASES to run.warmup.cases))
         run.thermalGate?.let { put(THERMAL_GATE, ThermalGateDocument.of(it)) }
-        if (run.passes.isNotEmpty()) put(PASSES, run.passes.associateTo(LinkedHashMap()) { it.name to mapOf(SAMPLES to it.samples) })
+        if (run.passes.isNotEmpty()) put(PASSES, run.passes.associateTo(LinkedHashMap()) { pass ->
+            pass.name to linkedMapOf<String, Any>(SAMPLES to pass.samples).apply { pass.minWindowSeconds?.let { put(MIN_WINDOW_SECONDS, it) } } })
  if (!run.harness.isEmpty) put(HARNESS, HarnessSettings.write(run.harness)) }
 
     /** What of() writes for a run that sets nothing, with the energy capture and source a node without them gets; orderSeed has none. */
@@ -94,7 +96,8 @@ object RunDocument {
 
     private fun passes(document: Map<String, Any>, path: String): List<MeasurePass> = document.keys.map { name ->
         val pass = asSection(document.getValue(name), "$path.$name")
-        expectKeys(pass, listOf(SAMPLES), "$path.$name")
-        MeasurePass(name, number(pass, SAMPLES).toInt())
+        expectKeys(pass, listOf(SAMPLES, MIN_WINDOW_SECONDS), "$path.$name")
+        val samples = number(pass, SAMPLES).toInt()
+        optionalNumber(pass, MIN_WINDOW_SECONDS)?.let { MeasurePass(name, samples, it.toInt()) } ?: MeasurePass(name, samples)
     }
 }

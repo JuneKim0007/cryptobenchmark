@@ -50,6 +50,7 @@ These are not settings.
 - GC stays on; a full collection is forced between iters with the timer stopped, so one rarely lands inside an iter, and the pause is reported beside the time.
 - The app and every bundled provider are compiled ahead of time (`speed`) before measuring.
 - Energy is always measured in its own pass, traced and without forced collections; timing is never traced.
+- Energy windows are at least 5 s by default (power-rail polling); set `run.passes.energy.minWindowSeconds` to change it.
 - A process prepares only the case it runs, so another case's keys or failures can't affect it.
 - A launch whose warm-up left unusably short iters is measured once more, then recorded as failed.
 

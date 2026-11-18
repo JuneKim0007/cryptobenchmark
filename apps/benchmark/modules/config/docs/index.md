@@ -46,7 +46,7 @@ apps/benchmark/modules/config/src/main/kotlin/global/ThermalGateDocument.kt : ru
 apps/benchmark/modules/config/src/main/kotlin/global/dto/AnalysisSettings.kt : analysis defaults and validation: charts, dir, statistic, display units
 apps/benchmark/modules/config/src/main/kotlin/global/dto/BundledProvider.kt : one bundled provider and its validation: artifact, create, alias
 apps/benchmark/modules/config/src/main/kotlin/global/dto/GlobalConfig.kt : global model
-apps/benchmark/modules/config/src/main/kotlin/global/dto/MeasurePass.kt : one run.passes entry: name timing, energy or allocation, samples >= 1
+apps/benchmark/modules/config/src/main/kotlin/global/dto/MeasurePass.kt : one run.passes entry: name timing, energy or allocation, samples >= 1; energy's minWindowSeconds, default 5
 apps/benchmark/modules/config/src/main/kotlin/global/dto/Policy.kt : onFailure enum STOP, SKIP
 apps/benchmark/modules/config/src/main/kotlin/global/dto/ProviderSources.kt : providers section model; no duplicate artifact or alias
 apps/benchmark/modules/config/src/main/kotlin/global/dto/RunSettings.kt : run defaults and validation

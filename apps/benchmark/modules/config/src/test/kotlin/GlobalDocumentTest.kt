@@ -110,6 +110,8 @@ class GlobalDocumentTest {
             "run: {passes: {timing: {samples: 0}}}\n" to "not_positive: run.passes.timing.samples",
             "run: {metrics: [TIME, ALLOCATION], passes: {energy: {samples: 5}, allocation: {samples: 5}}}\n" to "missing_pass: run.passes [energy, allocation]",
             "run: {passes: {timing: {samples: 1}, allocation: {samples: 1}}}\n" to "pass_without_metric: run.passes.allocation",
+            "run: {passes: {timing: {samples: 1, minWindowSeconds: 5}}}\n" to "not_supported: run.passes.timing.minWindowSeconds",
+            "run: {passes: {energy: {samples: 1, minWindowSeconds: 0}}}\n" to "not_positive: run.passes.energy.minWindowSeconds",
         ).forEach { (text, code) ->
             val message = assertThrows(text, IllegalArgumentException::class.java) { run(text) }.message!!
             assertTrue(message, message.startsWith(code))
@@ -120,6 +122,15 @@ class GlobalDocumentTest {
     @Test
     fun aSinglePassNeedsNoTimingPass() {
         assertEquals(listOf("energy"), run("run: {passes: {energy: {samples: 5}}}\n").passes.map { it.name })
+    }
+
+    /** The energy pass always carries its minimum window: 5 s unless set, and written either way. */
+    @Test
+    fun anEnergyPassKeepsAMinimumWindowOfFiveSecondsUnlessSet() {
+        assertEquals(listOf(5, 8), listOf("", ", minWindowSeconds: 8").map { run("run: {passes: {energy: {samples: 5$it}}}\n").passes.single().minWindowSeconds })
+        val written = GlobalDocument.of(global("run: {passes: {energy: {samples: 5}}}\n"))
+        @Suppress("UNCHECKED_CAST")
+        assertEquals(mapOf("energy" to mapOf("samples" to 5, "minWindowSeconds" to 5)), (written["run"] as Map<String, Any>)["passes"])
     }
 
     /** No charts line means every chart; naming some turns the rest off; an empty list writes the summary only. */
