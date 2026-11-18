@@ -1,6 +1,8 @@
 package io.github.junekim0007.cryptobench.discovery.write
 
 import io.github.junekim0007.cryptobench.discovery.contract.DefaultRunOutcome
+import io.github.junekim0007.cryptobench.discovery.contract.KeystoreRow
+import io.github.junekim0007.cryptobench.discovery.contract.KeystoreSection
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceTrialEntry
 import io.github.junekim0007.cryptobench.discovery.contract.TransformationTrialEntry
 import io.github.junekim0007.cryptobench.discovery.contract.TrialOutcome
@@ -12,6 +14,7 @@ import io.github.junekim0007.cryptobench.document.DocumentFields.optionalBoolean
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalNumber
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSection
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalString
+import io.github.junekim0007.cryptobench.document.DocumentFields.section
 import io.github.junekim0007.cryptobench.document.DocumentFields.sections
 import io.github.junekim0007.cryptobench.document.DocumentFields.sectionsIfKeyPresent
 import io.github.junekim0007.cryptobench.document.DocumentFields.string
@@ -46,12 +49,21 @@ object TrialDocument {
     private const val SIZE = "size"
     private const val REFUSED = "refused"
 
+    private const val KEYSTORE = "keystore"
+    private const val ROWS = "rows"
+    private const val ABSENT = "absent"
+    private const val BACKING = "backing"
+    private const val CURVE = "curve"
+    private const val SUPPORTED = "supported"
+    private const val MILLIS = "millis"
+
     fun of(report: TrialReport): Map<String, Any> = linkedMapOf<String, Any>(
         SCHEMA_VERSION to report.schemaVersion,
         CAPTURED_AT_MILLIS to report.capturedAtMillis,
     ).apply {
         report.defaultRunInputSize?.let { put(DEFAULT_RUN_INPUT_SIZE, it) }
         put(SERVICES, report.services.map { serviceDocument(it) })
+        report.keystore?.let { put(KEYSTORE, keystoreDocument(it)) }
     }
 
     fun parse(document: Map<String, Any>): TrialReport {
@@ -64,8 +76,38 @@ object TrialDocument {
             services = sections(document, SERVICES).map { serviceEntry(it) },
             schemaVersion = schemaVersion,
             defaultRunInputSize = optionalNumber(document, DEFAULT_RUN_INPUT_SIZE)?.toInt(),
+            // required: a trial written before the keystore trial is refused
+            keystore = keystoreSection(section(document, KEYSTORE)),
         )
     }
+
+    private fun keystoreDocument(section: KeystoreSection): Map<String, Any> =
+        if (section.absent.isNotEmpty()) linkedMapOf(ABSENT to section.absent) else linkedMapOf(ROWS to section.rows.map { keystoreRowDocument(it) })
+
+    private fun keystoreSection(document: Map<String, Any>): KeystoreSection =
+        KeystoreSection(rows = sectionsIfKeyPresent(document, ROWS).map { keystoreRow(it) }, absent = optionalString(document, ABSENT))
+
+    private fun keystoreRowDocument(row: KeystoreRow): Map<String, Any> {
+        val document = linkedMapOf<String, Any>(PROVIDER to row.provider, TYPE to row.type, ALGORITHM to row.algorithm, BACKING to row.backing)
+        row.keySize?.let { document[KEY_SIZE] = it }
+        if (row.curve.isNotEmpty()) document[CURVE] = row.curve
+        document[SUPPORTED] = row.supported
+        if (!row.supported) document[ERROR] = row.error
+        document[MILLIS] = row.millis
+        return document
+    }
+
+    private fun keystoreRow(document: Map<String, Any>): KeystoreRow = KeystoreRow(
+        provider = string(document, PROVIDER),
+        type = string(document, TYPE),
+        algorithm = string(document, ALGORITHM),
+        backing = string(document, BACKING),
+        keySize = optionalNumber(document, KEY_SIZE)?.toInt(),
+        curve = optionalString(document, CURVE),
+        supported = boolean(document, SUPPORTED),
+        error = optionalString(document, ERROR),
+        millis = number(document, MILLIS).toLong(),
+    )
 
     private fun serviceDocument(service: ServiceTrialEntry): Map<String, Any> {
         val document = linkedMapOf<String, Any>(

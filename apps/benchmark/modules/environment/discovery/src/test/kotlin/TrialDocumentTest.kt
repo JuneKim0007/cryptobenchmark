@@ -1,6 +1,8 @@
 package io.github.junekim0007.cryptobench.discovery
 
 import io.github.junekim0007.cryptobench.discovery.contract.DefaultRunOutcome
+import io.github.junekim0007.cryptobench.discovery.contract.KeystoreRow
+import io.github.junekim0007.cryptobench.discovery.contract.KeystoreSection
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceTrialEntry
 import io.github.junekim0007.cryptobench.discovery.contract.TransformationTrialEntry
 import io.github.junekim0007.cryptobench.discovery.contract.TrialOutcome
@@ -29,12 +31,27 @@ class TrialDocumentTest {
             ),
             ServiceTrialEntry(provider = "SunPKCS11", type = "KeyStore", algorithm = "PKCS11", outcome = TrialOutcome.failure("provider_not_installed")),
         ),
+        keystore = KeystoreSection(listOf(
+            KeystoreRow("AndroidKeyStore", "KeyPairGenerator", "RSA", KeystoreRow.STRONGBOX, keySize = 2048, supported = true, millis = 8000),
+            KeystoreRow("AndroidKeyStore", "KeyPairGenerator", "EC", KeystoreRow.STRONGBOX, curve = "secp384r1", supported = false, error = "keystore_unsupported: x", millis = 3),
+            KeystoreRow("AndroidKeyStore", "KeyPairGenerator", "XDH", KeystoreRow.TEE, supported = true),
+        )),
     )
 
     @Test
     fun roundTripsThroughYaml() {
         val codec = YamlCodec.CAPTURE
         assertEquals(report, TrialDocument.parse(codec.load(codec.dump(TrialDocument.of(report)))))
+    }
+
+    @Test
+    fun anAbsentKeystoreSectionKeepsItsReason() {
+        val absent = report.copy(keystore = KeystoreSection(absent = "not_supported: no keystore"))
+        val document = TrialDocument.of(absent)
+        assertEquals(mapOf("absent" to "not_supported: no keystore"), document["keystore"])
+        assertEquals(absent, TrialDocument.parse(document))
+        assertThrows(IllegalArgumentException::class.java) { KeystoreRow("P", "KeyGenerator", "AES", "secure", supported = true) }
+        assertThrows(IllegalArgumentException::class.java) { KeystoreSection(report.keystore!!.rows, absent = "x") }
     }
 
     /** Another schema is refused, and an outcome carries an error exactly when it fails. */

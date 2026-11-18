@@ -83,6 +83,7 @@ Every runtime field is required on read.
 | `capturedAtMillis` | long | the capture this trial belongs to |
 | `defaultRunInputSize` | int | the input size every default run tries first; written only when set |
 | `services` | list | one entry per captured service |
+| `keystore` | object | the keystore trial ([keystore.md](keystore.md)); required on read |
 
 ## services[] (trial)
 
@@ -120,5 +121,24 @@ Every runtime field is required on read.
 | `keyFormat` | string | the same key's `getFormat()`, e.g. `RAW`, `PKCS#8`; absent when null, for other types and a generator that did not run |
 | `triedKeys` | list | a generator whose default ran: each other size asked of it, `size` with that key's `keyMaterial` and `keyFormat`, or `refused: true`; secret keys 128, 192, 256; a pair 256, 384, 1024, 2048 below its default, none without a default size |
 | `error` | string | present exactly when `works` is false |
+
+## keystore
+
+| field | type | description |
+|---|---|---|
+| `absent` | string | why the trial did not run, e.g. `not_supported: ...`; present exactly when `rows` is not |
+| `rows` | list | one per generation |
+
+## rows[] (keystore)
+
+| field | type | description |
+|---|---|---|
+| `provider`, `type`, `algorithm` | string | the generator service |
+| `backing` | string | `tee` or `strongbox` |
+| `keySize` | int | the size asked; absent for a curve or block-only row |
+| `curve` | string | the curve asked; absent for a size or block-only row |
+| `supported` | bool | the key was generated |
+| `error` | string | present exactly when `supported` is false: `keystore_unsupported`, `strongbox_unavailable`, `api_too_low` or `not_supported`, then the detail |
+| `millis` | long | generation and delete time; `0` for a row not tried |
 
 Fields of `requirements_<utc>.yaml`: [requirements.md](requirements.md).

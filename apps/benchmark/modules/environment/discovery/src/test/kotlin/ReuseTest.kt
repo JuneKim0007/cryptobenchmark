@@ -1,6 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery
 
 import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
+import io.github.junekim0007.cryptobench.discovery.contract.KeystoreSection
 import io.github.junekim0007.cryptobench.discovery.contract.RequirementReport
 import io.github.junekim0007.cryptobench.discovery.contract.RuntimeInfo
 import io.github.junekim0007.cryptobench.discovery.contract.TrialReport
@@ -23,7 +24,7 @@ class ReuseTest {
     private fun written(capturedAtMillis: Long, runtime: RuntimeInfo = RUNTIME, withTrial: Boolean = true): File {
         val capture = CAPTURE.copy(runtime = runtime, capturedAtMillis = capturedAtMillis)
         if (withTrial) {
-            TrialYamlWriter(directory).write(TrialReport(capturedAtMillis))
+            TrialYamlWriter(directory).write(TrialReport(capturedAtMillis, keystore = KeystoreSection(absent = "not_supported: x")))
             RequirementYamlWriter(directory).write(RequirementReport(capturedAtMillis, capturedAtMillis))
         }
         return EnvironmentYamlWriter(directory).write(capture)
@@ -46,6 +47,16 @@ class ReuseTest {
         val captureFile = written(FIRST, withTrial = false)
         assertNull(discovery.reusable(RUNTIME))
         File(captureFile.parentFile, captureFile.name.replace("probe_", "trial_")).writeText("broken: [")
+        assertNull(discovery.reusable(RUNTIME))
+    }
+
+    /** A trial written before the keystore trial has no keystore section: it is refused and the device probes again. */
+    @Test
+    fun aTrialWithoutTheKeystoreSectionIsNotReused() {
+        val captureFile = written(FIRST, withTrial = false)
+        TrialYamlWriter(directory).write(TrialReport(FIRST))
+        RequirementYamlWriter(directory).write(RequirementReport(FIRST, FIRST))
+        assertEquals(true, File(captureFile.parentFile, captureFile.name.replace("probe_", "trial_")).isFile)
         assertNull(discovery.reusable(RUNTIME))
     }
 

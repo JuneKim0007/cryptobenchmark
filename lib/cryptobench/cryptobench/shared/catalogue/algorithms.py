@@ -31,6 +31,8 @@ OPTIONAL_FIELDS = {"key", "contract", "knownVectors", "keystore"}
 KEYSTORE = "keystore"
 KEYSTORE_LEAVES = ("source", "url")
 KEYSTORE_CURVE = "curve"
+# what discovery's keystore trial generates per path; never a builder authorization
+KEYSTORE_TRIAL_SIZES, KEYSTORE_TRIAL = "trialKeySizes", ("trialKeySizes", "trialCurves")
 CONTRACT_SIDES = ("input", "output")
 CLOSED_BOOLEANS = ("passwordBased", "wrap", "prehashed")
 CONTRACT_KEY = "key"
@@ -256,8 +258,9 @@ def _shape_problems(raw) -> list[str]:
              "providers": dict}
     found = [f"{k} is not a {t.__name__}" for k, t in kinds.items() if not isinstance(raw[k], t)]
     keystore = raw.get(KEYSTORE, {})
-    found += [f"{KEYSTORE} is not a mapping of name lists and a curve name"] * (not isinstance(keystore, dict) or not all(
-        isinstance(v, str) if k == KEYSTORE_CURVE else isinstance(v, list) and v and all(isinstance(x, str) for x in v)
+    found += [f"{KEYSTORE} is not a mapping of name lists, a curve name and trial key sizes"] * (not isinstance(keystore, dict) or not all(
+        isinstance(v, str) if k == KEYSTORE_CURVE else isinstance(v, list) and v and all(
+            type(x) is int and x > 0 if k == KEYSTORE_TRIAL_SIZES else isinstance(x, str) for x in v)
         for k, v in keystore.items() if k not in KEYSTORE_LEAVES))
     found += [f"{k} holds a non-mapping" for k in ("required", "optional", "sourcedOnly")
               if isinstance(raw[k], list) and not all(isinstance(x, dict) for x in raw[k])]
