@@ -2,7 +2,7 @@
 
 ## Configured test set
 
-`config/testsets/predefined.yaml`, the test set of `config/global.yaml`. Field rules: `apps/benchmark/modules/config/docs/config.md`.
+`config/testsets/default_predefined.yaml`, the test set of `config/global.yaml`. Field rules: `apps/benchmark/modules/config/docs/config.md`.
 
 | part | providers | primitives |
 |---|---|---|

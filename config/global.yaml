@@ -2,7 +2,7 @@
 schemaVersion: 1                 # required
 
 selection:                       # required
-  testSet: testsets/predefined.yaml   # required — relative to this file
+  testSet: testsets/default_predefined.yaml   # required — relative to this file
 
 run:                             # optional
   inputSizes: [64, 1024, 16384]  # optional, default [1024] — bytes per call
