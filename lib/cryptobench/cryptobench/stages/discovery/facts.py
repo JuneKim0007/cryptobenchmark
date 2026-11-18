@@ -7,7 +7,6 @@ from cryptobench.shared.device import capture as captured, clocks
 from cryptobench.shared.device.adb import PACKAGE
 from cryptobench.shared import paths
 from cryptobench.shared.document.dump import dump_yaml
-from cryptobench.stages.discovery import build_versions
 
 NATIVE_LIBRARY = "libaffinity.so"
 APK = paths.repo().apk
@@ -32,7 +31,7 @@ def pinning(apk, abi):
         return f"lib/{abi}/{NATIVE_LIBRARY}" in archive.namelist()
 
 
-def collect(device, capture):
+def collect(device, capture, build):
     sdk = captured.read_runtime(capture).get("sdkInt")
     return {
         "schemaVersion": 1,
@@ -40,11 +39,11 @@ def collect(device, capture):
         "rooted": rooted(device),
         "cpu": {"cores": [{"core": c["index"], "online": c["online"], "maxKhz": c["cpuMaxKhz"]} for c in clocks.read(device)]},
         "pinning": pinning(APK, installed_abi(device)),
-        "build": build_versions.read(device),
+        "build": build,
     }
 
 
-def gather(device, discovery, capture):
+def gather(device, discovery, capture, build):
     path = paths.Discovery(discovery).facts
-    path.write_text(dump_yaml(collect(device, capture)))
+    path.write_text(dump_yaml(collect(device, capture, build)))
     return path

@@ -8,9 +8,11 @@ from cryptobench.shared import paths
 from cryptobench.shared.device.adb import PACKAGE, DeviceError, DeviceLost
 from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.document.dump import dump_yaml
+from cryptobench.shared.errors.input_error import InputError
 from cryptobench.shared.errors.line import one_line
 from cryptobench.shared.log.warn import warn
-from cryptobench.stages.discovery import build_versions, capture_files
+from cryptobench.shared.results import identity
+from cryptobench.stages.discovery import capture_files
 
 KEY = "key.yaml"
 
@@ -26,19 +28,19 @@ def say(line):
 
 
 def installed_apks(device, package):
-    """{apk path: sha256} of an installed package, read on the device; {} when pm knows no path for it."""
+    """{apk file name: sha256} of an installed package, read on the device; {} when pm knows no path for it. The install folder is random per install."""
     found = {}
     for line in device.run("shell", f"pm path {package}", check=False).stdout.splitlines():
         if line.startswith("package:"):
             path = line[len("package:"):].strip()
-            found[path] = (device.run("shell", f"sha256sum {path}", check=False).stdout.split() or [None])[0]
+            found[path.rsplit("/", 1)[-1]] = (device.run("shell", f"sha256sum {path}", check=False).stdout.split() or [None])[0]
     return found
 
 
-def key(device, shipped):
+def key(device, shipped, build):
     """(the build key, why it cannot identify this build or None). The installed APKs carry the code and the bundled jars that run."""
     try:
-        value = {"device": {"fingerprint": device.identity()["fingerprint"], **build_versions.read(device)},
+        value = {"device": {"fingerprint": device.identity()["fingerprint"], **build},
                  "apk": {package: installed_apks(device, package) for package in (PACKAGE, f"{PACKAGE}.test")},
                  "bundled": shipped}
     except DeviceLost:
@@ -56,22 +58,43 @@ def named(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode()).hexdigest()[:16]
 
 
-def stored(folder):
-    """The capture of a complete stored entry, else None."""
-    captures = sorted(p for p in paths.Discovery(folder).captures() if capture_files.CAPTURE.fullmatch(p.name)) if folder.is_dir() else []
-    if len(captures) != 1 or not (folder / KEY).is_file():
-        return None
-    return captures[0] if all(p.is_file() for p in trio(captures[0])) else None
+def digest(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def stored(folder, value):
+    """(the capture, None) when key.yaml names this key and the sha256 of each file it lists; (None, the damaged file) for any other entry
+    there; (None, None) when there is none."""
+    if not folder.is_dir():
+        return None, None
+    try:
+        recorded = read_yaml(folder / KEY)
+    except (OSError, InputError):
+        return None, KEY
+    files = recorded.get("files")
+    captures = [name for name in files if capture_files.CAPTURE.fullmatch(name)] if isinstance(files, dict) else []
+    if recorded.get("key") != value or len(captures) != 1 or sorted(files) != sorted(p.name for p in trio(folder / captures[0])):
+        return None, KEY
+    for path in trio(folder / captures[0]):
+        if not path.is_file() or digest(path) != files[path.name]:
+            return None, path.name
+    return folder / captures[0], None
 
 
 def differences(store, value):
-    """Which key parts differ from the newest stored entry, for the line that says why the probe runs."""
-    entries = sorted(store.glob(f"*/{KEY}"), key=lambda f: f.stat().st_mtime) if store.is_dir() else []
-    if not entries:
-        return "the store is empty"
-    other = read_yaml(entries[-1])
-    changed = sorted(part for part in set(value) | set(other) if value.get(part) != other.get(part)) or ["nothing (an incomplete entry)"]
-    return f"the newest entry {entries[-1].parent.name} differs in {', '.join(changed)}"
+    """The nested key fields that differ from the newest readable entry of this device fingerprint, for the line that says why the probe runs."""
+    fingerprint, same = value["device"]["fingerprint"], []
+    for path in (f for f in store.glob(f"*/{KEY}") if not f.parent.name.startswith(".")) if store.is_dir() else []:
+        try:
+            other = read_yaml(path).get("key")
+        except (OSError, InputError):
+            continue
+        if isinstance(other, dict) and isinstance(other.get("device"), dict) and other["device"].get("fingerprint") == fingerprint:
+            same.append((path.stat().st_mtime, path.parent.name, other))
+    if not same:
+        return f"no stored entry for fingerprint {fingerprint}"
+    _, name, other = max(same, key=lambda found: found[:2])
+    return f"the newest entry {name} of this fingerprint differs in {', '.join(field[1:] for field in identity.changed(value, other, '.'))}"
 
 
 def has_plan_directory(device):
@@ -83,14 +106,17 @@ def forget_captures(device):
     device.shell("rm -f " + " ".join(f"{device.files}/{prefix}_*.yaml" for prefix in (paths.CAPTURE_PREFIX, paths.TRIAL_PREFIX, paths.REQUIREMENTS_PREFIX)))
 
 
-def verified(device, discovery, shipped, store):
+def verified(device, discovery, shipped, store, build):
     """(the reused capture copied into discovery, or None when the probe must run; the key, or None when it is incomplete)."""
-    value, missing = key(device, shipped)
+    value, missing = key(device, shipped, build)
     if missing:
         say(f"full probe: the key is incomplete: {missing}")
         return None, None
     entry = store / named(value)
-    capture = stored(entry)
+    capture, damaged = stored(entry, value)
+    if damaged:
+        say(f"full probe: stored entry {entry.name} is damaged: {damaged}")
+        return None, value
     if capture is None:
         say(f"full probe: no stored capture for key {entry.name}; {differences(store, value)}")
         return None, value
@@ -105,9 +131,10 @@ def verified(device, discovery, shipped, store):
 
 
 def keep(store, value, capture):
-    """The probe's capture, trial and requirements under the key, written whole or not at all; a failed write only warns."""
+    """The probe's capture, trial and requirements under the key with their sha256, written whole or not at all, replacing a damaged entry;
+    a failed write only warns."""
     entry = store / named(value)
-    if stored(entry):
+    if stored(entry, value)[0]:
         return
     staging = store / f".staging-{entry.name}"
     try:
@@ -115,7 +142,7 @@ def keep(store, value, capture):
         staging.mkdir(parents=True)
         for source in trio(capture):
             shutil.copy2(source, staging / source.name)
-        (staging / KEY).write_text(dump_yaml(value))
+        (staging / KEY).write_text(dump_yaml({"key": value, "files": {p.name: digest(p) for p in trio(staging / capture.name)}}))
         shutil.rmtree(entry, ignore_errors=True)
         staging.rename(entry)
         say(f"stored {entry / capture.name} under key {entry.name}")

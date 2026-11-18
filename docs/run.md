@@ -65,11 +65,13 @@ python3 apps/benchmark-runner/pipeline.py [--config PATH] [--results DIR] [--dis
 
 | step | rule |
 |---|---|
-| key | `ro.build.fingerprint`, the security patch and the apex versionCodes facts.yaml records; sha256 of each installed APK file of the app and the test package, read on the device (`pm path`, `sha256sum`), which carry the code and the bundled jars; `providers.bundled`; named by the first 16 hex of its sha256 |
-| match | `<DIR>/<key>/` holds one capture with its trial and requirements: they are copied unchanged into `discovery/`, the device's `probe_*`, `trial_*` and `requirements_*` are deleted so the plan push leaves the reused pair the newest by name, and no probe runs |
+| key | `ro.build.fingerprint`, the security patch and the apex versionCodes facts.yaml records; sha256 of each installed APK file of the app and the test package by file name (`base.apk`, `split_*.apk`; the install folder is random), read on the device (`pm path`, `sha256sum`), which carry the code and the bundled jars; `providers.bundled`; named by the first 16 hex of its sha256 |
+| entry | `<DIR>/<key>/` holds one capture, its trial and requirements, and `key.yaml`: `key` (the key) and `files` (`<file name>: <sha256>` of the three) |
+| match | `key.yaml` names this key and each listed file has its sha256: the three are copied unchanged into `discovery/`, the device's `probe_*`, `trial_*` and `requirements_*` are deleted so the plan push leaves the reused pair the newest by name, and no probe runs |
 | no match | the probe runs as under `overwrite`, and its capture, trial and requirements are stored under the key (`warning: probe_store_failed: ...` when they cannot be) |
+| damaged | `key.yaml` unreadable, without `files` or naming another key, or a listed file missing or with another sha256: `full probe: stored entry <k> is damaged: <file>`, the probe runs and its files replace the entry |
 | fallback | an unreadable or empty key part, or no plan directory on the device: the probe runs; nothing is stored when the key is incomplete |
-| printed | `discovery: verify: reused <capture>: key <k> matches ...`, or `discovery: verify: full probe: <why>`, naming the key parts that differ from the newest stored entry |
+| printed | `discovery: verify: reused <capture>: key <k> matches ...`, or `discovery: verify: full probe: <why>`; with no entry under the key, the dotted key fields (e.g. `device.apex.com.android.conscrypt`) that differ from the newest readable entry of the same `device.fingerprint`, or `no stored entry for fingerprint <f>` |
 
 ## apps/benchmark-runner/explain.py
 

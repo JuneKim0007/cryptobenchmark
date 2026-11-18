@@ -9,7 +9,7 @@ from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared import paths
 from cryptobench.shared.results import layout as results_layout
 from cryptobench.shared.settings import bundled
-from cryptobench.stages.discovery import capture_files, facts, probe_store
+from cryptobench.stages.discovery import build_versions, capture_files, facts, probe_store
 from cryptobench.stages.discovery.probe import probe
 from cryptobench.pipeline.took import elapsed
 from cryptobench.shared.log.warn import warn
@@ -38,7 +38,8 @@ def discover_in_place(options, configuration, device, results, shipped):
         device.install(bundled.gradle_properties(shipped))
         elapsed("build and install", started)
         started, before = time.monotonic(), capture_files.stamped(discovery)
-        capture, value = probe_store.verified(device, discovery, shipped, store(options)) if options.discovery == "verify" else (None, None)
+        build = build_versions.read(device, device.identity()["sdkInt"])
+        capture, value = probe_store.verified(device, discovery, shipped, store(options), build) if options.discovery == "verify" else (None, None)
         if capture:
             capture, trial = capture_files.pair(capture)
         else:
@@ -46,7 +47,7 @@ def discover_in_place(options, configuration, device, results, shipped):
             capture, trial = capture_files.added(discovery, before)
             if value:
                 probe_store.keep(store(options), value, capture)
-        known = facts.gather(device, discovery, capture)
+        known = facts.gather(device, discovery, capture, build)
         written = gradle_runner.run(f"{capture} {trial} {configured} {configuration} --facts={known}", options.stacktrace, options.stream, main_class="ConfigureKt")
     else:
         reuse = " --reuse" if options.discovery == "reuse" else ""
