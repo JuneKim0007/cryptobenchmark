@@ -47,6 +47,8 @@ class BenchmarkManifest:
     partial: dict | None = None
     deltas: tuple[dict, ...] = ()
     retried: tuple[str, ...] = ()
+    # the run's record (cryptobench shared/results/run_record.py)
+    run: dict = field(default_factory=dict)
 
     @property
     def display_units(self) -> DisplayUnits:
@@ -62,7 +64,7 @@ class BenchmarkManifest:
         optional = {"units": self.units, "energy": self.energy, "problems": list(self.problems),
                     "resumed": list(self.resumed), "partial": self.partial, "deltas": list(self.deltas), "retried": list(self.retried)}
         return {"schemaVersion": MANIFEST_DOC.version, "mode": self.mode, "config": self.config, "deviceId": self.deviceId,
-                "inputs": self.inputs, "runtime": self.runtime, "providers": [vars(p) for p in self.providers], "files": self.files,
+                "inputs": self.inputs, **({"run": self.run} if self.run else {}), "runtime": self.runtime, "providers": [vars(p) for p in self.providers], "files": self.files,
                 "counts": self.counts,
                 **({"operations": {t: list(o) for t, o in self.operations.items()}} if self.operations is not None else {}),
                 **{key: value for key, value in optional.items() if value}}
@@ -80,4 +82,4 @@ class BenchmarkManifest:
                    doc.get("files") or {}, doc.get("counts") or {}, doc["deviceId"],
                    doc.get("inputs") or {}, _units(doc.get("units")), _operations(doc.get("operations")),
                    doc.get("energy"), tuple(doc.get("problems") or ()), tuple(doc.get("resumed") or ()), doc.get("partial"),
-                   tuple(doc.get("deltas") or ()), tuple(doc.get("retried") or ()))
+                   tuple(doc.get("deltas") or ()), tuple(doc.get("retried") or ()), doc.get("run") or {})

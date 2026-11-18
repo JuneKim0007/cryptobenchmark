@@ -40,6 +40,7 @@ def calls(monkeypatch, tmp_path):
     monkeypatch.setattr(pipeline.results_layout, "warn_if_temp", recorder("warn_if_temp"))
     monkeypatch.setattr(pipeline, "discover_published", recorder("discover_published", (tmp_path, discover.Discovered(None, None, None, None, {}))))
     monkeypatch.setattr(pipeline.guide, "write", recorder("guide"))
+    monkeypatch.setattr(pipeline.resume, "record", recorder("run_record", {}))
 
     def run(**flags):
         monkeypatch.setattr(pipeline, "parse_options", lambda: argparse.Namespace(**{**FLAGS, **flags}))
@@ -53,11 +54,11 @@ START = ["global_config", "config_check", "dependencies"]
 
 
 @pytest.mark.parametrize("flags, order", [
-    ({}, START + ["warn_if_temp", "discover_published", "guide", "manifest"]),
-    ({"probe": True}, START + ["warn_if_temp", "discover_published", "guide", "manifest"]),
-    ({"probe": True, "device": True}, START + ["Device", "connect", "warn_if_temp", "discover_published", "guide", "manifest"]),
-    ({"bench": True}, START + ["warn_if_temp", "discover_published", "guide", "measure_cases", "manifest"]),
-    ({"device": True}, START + ["Device", "connect", "warn_if_temp", "discover_published", "guide", "measure_cases", "manifest"]),
+    ({}, START + ["warn_if_temp", "discover_published", "guide", "run_record", "manifest"]),
+    ({"probe": True}, START + ["warn_if_temp", "discover_published", "guide", "run_record", "manifest"]),
+    ({"probe": True, "device": True}, START + ["Device", "connect", "warn_if_temp", "discover_published", "guide", "run_record", "manifest"]),
+    ({"bench": True}, START + ["warn_if_temp", "discover_published", "guide", "run_record", "measure_cases", "manifest"]),
+    ({"device": True}, START + ["Device", "connect", "warn_if_temp", "discover_published", "guide", "run_record", "measure_cases", "manifest"]),
     ({"check": True, "bench": True}, START + ["warn_if_temp", "check_run"]),
     ({"interop": "plan.yaml", "bench": True}, START + ["warn_if_temp", "interop_run"]),
     ({"harness": "harness.yaml", "device": True}, START + ["Device", "connect", "checked_folder", "harness_run"]),

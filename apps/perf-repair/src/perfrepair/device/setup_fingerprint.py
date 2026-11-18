@@ -1,5 +1,5 @@
-"""The setup a benchmark measured under, read from its own folder, and the first field two setups differ in: a delta is
-merged only into a benchmark of the same setup."""
+"""The setup a benchmark measured under, read from its own folder, and the fields two setups differ in: a delta is merged only into a
+benchmark of the same setup, its run record (manifest run:) the same but for the delta's selection and order."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -8,9 +8,12 @@ from cryptobench.shared.paths import RunTree
 from ..data_handler.inbound import read_manifest
 from ..data_handler.inbound.manifest import manifest_file
 from cryptobench.shared.document.document import read_yaml
+from cryptobench.shared.results import run_record
 
 # device id carries the build fingerprint; the runtime fields that change what one call costs
 RUNTIME = ("fingerprint", "compilationMode", "sdkInt", "javaRuntimeVersion")
+# a delta picks its own cases and may draw its own order (decision 39.5)
+ALLOWED = ("selection", "order", "run.orderSeed")
 # the run block minus selection: everything a case's numbers depend on
 CASE_FIELDS = ("resolvedParameters", "harness", "metrics", "perCall")
 # a probe has neither process files nor an energy mark yet
@@ -35,20 +38,18 @@ def _bundled(manifest, base: Path) -> list[str]:
 def fingerprint(folder: Path) -> dict:
     """Flat `field: value` pairs; a field one folder lacks reads None."""
     manifest, base = read_manifest(RunTree(folder).manifest)
-    effective = manifest_file(manifest, base, "effective")
     prepared = manifest_file(manifest, base, "prepared")
-    run = (read_yaml(effective).get("run") or {}) if effective else {}
     planned = (read_yaml(prepared).get("run") or {}) if prepared else {}
     out = {"deviceId": manifest.deviceId, "mode": manifest.mode, "bundled": _bundled(manifest, base),
            "processes": len(manifest.files.get("processes") or ()), "energy": manifest.energy}
     # a probe writes a field it cannot know as empty, and a capture may hold a number the benchmark writes as text
     out.update({f"runtime.{k}": str(manifest.runtime[k]) if manifest.runtime.get(k) not in (None, "") else None for k in RUNTIME})
-    return _flat("prepared", planned, _flat("run", run, out))
+    return _flat("prepared", planned, out)
 
 
 def provider_setup(folder: Path) -> dict:
-    """What a verdict between two providers rests on: the device, its runtime and the bundled providers, not the run block."""
-    return {k: v for k, v in fingerprint(folder).items() if not k.startswith(("run.", "prepared.")) and k not in MEASURE_TIME}
+    """What a verdict between two providers rests on: the device, its runtime and the bundled providers, not the plan's run block."""
+    return {k: v for k, v in fingerprint(folder).items() if not k.startswith("prepared.") and k not in MEASURE_TIME}
 
 
 def case_setups(folder: Path) -> dict[str, dict]:
@@ -84,3 +85,16 @@ def without_narrowed(stored: dict, now: dict) -> tuple[dict, dict]:
         for k in [k for k in stored if k.startswith(f"{block}.passes.") and k.split(".")[2] not in kept]:
             stored.pop(k)
     return stored, now
+
+
+def run_changes(stored: Path, staged: Path, narrowed: bool) -> list[str]:
+    """`<field>: <stored> stored, <now> now` per run-record field (run_record.changed) a delta may not change; narrowed: the delta cut its run
+    block to a subset of the stored variants and passes (without_narrowed)."""
+    before, after = (read_manifest(RunTree(f).manifest)[0].run for f in (stored, staged))
+    if not before:
+        return ["run: no run record stored; the benchmark is measured again"]
+    names = {n for n in run_record.changed(before, after) if n not in ALLOWED}
+    flat = (_flat("", before, {}), _flat("", after, {}))
+    kept = dict(zip(("stored", "now"), without_narrowed(*flat) if narrowed else flat))
+    return [line for line in differing(kept["stored"], kept["now"]) if line.split(":")[0] in names or line.split(":")[0].rpartition(".")[0] in names
+            or any(line.startswith(f"{n}.") for n in names)]

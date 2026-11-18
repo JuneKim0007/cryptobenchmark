@@ -9,9 +9,9 @@ from ..dto.device import DeviceRecord
 STAGES = ("probe", "benchmark", "inbound", "screen", "primitives")
 LABELS = {"bundled": "providers.bundled", "config": "global.yaml", "names": "the names catalog",
           "screening": "the screening catalog", "rows": "rows.json", "measurements": "measurements.json",
-          "screen": "grouping/screen.json"}
+          "screen": "grouping/screen.json", "code": "the measuring code"}
 # a stage reruns when an input it reads changed, or a stage it reads from reruns
-READS = {"probe": ("bundled", "config"), "benchmark": (), "inbound": (), "screen": ("names", "screening"),
+READS = {"probe": ("bundled", "config"), "benchmark": ("code",), "inbound": (), "screen": ("names", "screening"),
          "primitives": ("rows", "measurements", "screen")}
 AFTER = {"probe": (), "benchmark": ("probe",), "inbound": ("benchmark",), "screen": ("probe", "benchmark"),
          "primitives": ("inbound", "screen")}
@@ -77,7 +77,9 @@ def _probe(seen: Seen, current: dict) -> str | None:
 
 
 def _benchmark(seen: Seen, current: dict) -> str | None:
-    return None if "benchmark" in seen.manifest.files else "the manifest lists no benchmark"
+    if "benchmark" not in seen.manifest.files:
+        return "the manifest lists no benchmark"
+    return _changed("benchmark", {"code": seen.manifest.run.get("code")}, current)
 
 
 def _record(seen: Seen) -> str | None:

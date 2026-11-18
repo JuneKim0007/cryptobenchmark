@@ -7,6 +7,7 @@ import yaml
 
 import test_rerun_safety
 from cryptobench.shared import paths
+from cryptobench.shared.results import identity, run_record
 from cryptobench.stages.measurement.session import variant_order
 from fake_phone import Phone
 from test_manifest import PROBE
@@ -64,6 +65,7 @@ def lines(capsys, prefix):
 
 
 SEVEN = {"processRepetitions": 7, "resumeBlockRuns": 2}
+real_code = identity.code
 FACTS = {"schemaVersion": 1, "build": {"securityPatch": "2026-10-05", "apex": {"com.android.conscrypt": 1, "com.android.art": 1}}}
 
 
@@ -121,7 +123,8 @@ def test_a_block_record_names_its_identity_runs_boot_and_files(tmp_path, monkeyp
         "bootId": {"start": "boot-1", "end": "boot-1"}, "outcome": "finished"}
     assert [run["folder"] for run in third["processes"]] == ["process-5", "process-6"] and third["processes"][0]["problems"] == []
     assert sorted(third["processes"][0]["files"]) == ["benchmark.json", "benchmarkData.json", "cases/a.json", "cases/b.json", "clocks.yaml", "thermal.json"]
-    assert sorted(third["identity"]) == ["code", "device", "order", "run", "schema", "selection", "suppressErrors"]
+    assert sorted(third["identity"]) == ["clean", "code", "commit", "device", "order", "run", "schema", "selection", "suppressErrors"]
+    assert sorted(third["identity"]["code"]) == ["runner", "timed"] and len(third["identity"]["commit"]) == 40
     assert third["identity"]["run"]["resumeBlockRuns"] == 2 and third["identity"]["order"] == variant_order.chosen(None)[1]
     assert third["identity"]["suppressErrors"] == [] and third["runId"].endswith("Z")
     assert record(rerun.device, 4)["runs"] == {"first": 7, "last": 7}
@@ -138,6 +141,8 @@ def test_a_block_record_names_its_identity_runs_boot_and_files(tmp_path, monkeyp
                                                                                                                   "com.android.art": 2}}}) or {},
      "device.build.apex.com.android.art"),
     (lambda monkeypatch: monkeypatch.setattr(test_rerun_safety, "FACTS", {"schemaVersion": 1}) or {}, "device.build"),
+    (lambda monkeypatch: monkeypatch.setattr(identity, "code", lambda: {**real_code(), "runner": "edited"}) or {}, "code.runner"),
+    (lambda monkeypatch: monkeypatch.setattr(identity, "code", lambda: {**real_code(), "timed": "edited"}) or {}, "code.timed"),
     (lambda monkeypatch: monkeypatch.setattr(test_rerun_safety, "PROBE", {**PROBE, "runtime": {**PROBE["runtime"], "release": "17.1"}}) or {},
      "device.release"),
 ])
@@ -285,6 +290,19 @@ def test_os_litter_in_a_kept_run_and_beside_its_records_does_not_unverify_it(tmp
     out = capsys.readouterr().out.splitlines()
     assert "resumed:   kept blocks 1-2 (runs 1-4), restarting at run 5" in out and not [line for line in out if "block_unverified" in line]
     assert ".DS_Store" not in record(rerun.device, 1)["processes"][0]["files"]
+
+
+def test_another_commit_of_the_same_code_resumes_and_the_manifest_run_is_every_block_identity(tmp_path, monkeypatch, capsys):
+    rerun = Rerun(tmp_path, monkeypatch)
+    stopped(rerun, SEVEN, launch=2 * 5 + 2)
+    real = run_record.checkout
+    monkeypatch.setattr(run_record, "checkout", lambda: {**real(), "commit": "0" * 40, "clean": False})
+    capsys.readouterr()
+    rerun(SEVEN)
+    assert not lines(capsys, "warning: identity_changed")
+    run = manifest_of(rerun.device)["run"]
+    assert run["commit"] == "0" * 40 and run == record(rerun.device, 3)["identity"]
+    assert run_record.changed(record(rerun.device, 1)["identity"], run) == []
 
 
 def test_the_manifest_names_the_kept_blocks_and_the_run_that_measured_them(tmp_path, monkeypatch):

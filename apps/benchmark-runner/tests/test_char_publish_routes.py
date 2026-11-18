@@ -48,6 +48,8 @@ def snapshot(rerun, tmp_path, out):
     tree = sorted(p.relative_to(root).as_posix() for p in root.rglob("*") if p.is_file())
     document = yaml.safe_load(paths.RunTree(rerun.device).manifest.read_text())
     document["operations"] = "<engine operations>"
+    if "run" in document:
+        document["run"].update(commit="<commit>", clean="<clean>", code="<code digests>")
     said = [line for line in out.splitlines() if line.startswith(("results:", "wrote:", "interop:", "check:"))]
     text = "tree:\n" + "".join(f"  {p}\n" for p in tree) + "manifest:\n" + yaml.safe_dump(document, sort_keys=False) + "stdout:\n" + "".join(f"  {s}\n" for s in said)
     return STAMP.sub("<stamp>", text.replace(str(tmp_path), "<tmp>"))

@@ -47,9 +47,9 @@ def survived(problems):
     return {"problems": list(problems)} if problems else {}
 
 
-def manifest(results, mode, configuration, files, problems=(), partial=None, resumed=()):
+def manifest(results, mode, configuration, files, problems=(), partial=None, resumed=(), run=None):
     """partial: the record of a run that stopped, which marks the manifest unfinished (paths.finished); resumed: per pass the blocks an earlier
-    run measured and this one kept."""
+    run measured and this one kept; run: the run's record (run_record.py), the identity of every block it wrote."""
     def load(key):
         text = files[key].read_text()
         return json.loads(text) if files[key].suffix == ".json" else parse_yaml(text, str(files[key]))
@@ -63,6 +63,7 @@ def manifest(results, mode, configuration, files, problems=(), partial=None, res
         "config": str(configuration),
         "deviceId": device_id(captured),
         "inputs": run_inputs.digests(configuration),
+        **({"run": run} if run else {}),
         "runtime": runtime(measured, captured, files),
         "providers": [{"name": p["name"], "precedence": p["precedence"], "serviceCount": len(p.get("services") or [])}
                       for p in sorted(probe.get("providers") or [], key=lambda p: p["precedence"])],

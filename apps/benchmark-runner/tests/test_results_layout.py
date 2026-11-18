@@ -181,17 +181,17 @@ def test_a_harness_run_takes_no_results_root():
 
 
 def test_a_write_that_fails_midway_leaves_the_old_manifest_whole_and_no_temporary(tmp_path, monkeypatch):
-    path = write(tmp_path / layout.paths.MANIFEST, "files: {old: whole}\n")
+    path = write(tmp_path / layout.paths.MANIFEST, "schemaVersion: 1\nfiles: {old: whole}\n")
 
     def broken(_descriptor):
         raise OSError("disk full")
     monkeypatch.setattr(os, "fsync", broken)
     with pytest.raises(OSError):
         manifest.add_to_manifest(tmp_path, {"new": tmp_path / "half"})
-    assert path.read_text() == "files: {old: whole}\n" and [p.name for p in tmp_path.iterdir()] == [layout.paths.MANIFEST]
+    assert path.read_text() == "schemaVersion: 1\nfiles: {old: whole}\n" and [p.name for p in tmp_path.iterdir()] == [layout.paths.MANIFEST]
     monkeypatch.undo()
     manifest.add_to_manifest(tmp_path, {"new": tmp_path / "whole"})
-    assert path.read_text() == "files:\n  old: whole\n  new: whole\n"
+    assert path.read_text() == "schemaVersion: 1\nfiles:\n  old: whole\n  new: whole\n"
 
 
 def test_a_failed_run_leaves_the_last_finished_folder_and_a_finished_one_replaces_it(tmp_path):

@@ -15,6 +15,8 @@ _APK = "modules/android/build/outputs/apk/release/android-release.apk"
 _TIMED_CODE = (*(f"apps/benchmark/modules/{m}/src/main/**/*" for m in ("jca", "settings", "files", "document", "preparation", "benchmark")),
                "apps/benchmark/modules/android/src/**/*", "apps/benchmark/modules/android/build.gradle", "apps/benchmark/cli/src/main/**/*",
                "apps/benchmark/gradle/libs.versions.toml", f"{roots.ALGORITHMS}/{SETUP_CATALOG}")
+# what launches, orders, retries, gates and reads energy around the timed code
+_RUNNER_CODE = ("lib/cryptobench/cryptobench/stages/measurement/**/*.py", f"{roots.RUNNER}/energy/**/*.py", f"{roots.RUNNER}/energy/*.pbtx")
 
 
 @dataclass(frozen=True)
@@ -37,6 +39,7 @@ class Repo:
     kotlin_name_users = property(lambda self: tuple(self.gradle_root / s for s in _KOTLIN_NAME_USERS))
     apk = property(lambda self: self.gradle_root / _APK)
     timed_code = property(lambda self: _TIMED_CODE)
+    runner_code = property(lambda self: _RUNNER_CODE)
     engine_operations = property(lambda self: self.gradle_root / _ENGINE_OPERATIONS)
     preparation_resources = property(lambda self: self.gradle_root / "modules/preparation/src/main/resources")
     setup_catalog = property(lambda self: self.algorithms / SETUP_CATALOG)

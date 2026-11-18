@@ -62,16 +62,17 @@ def dry_pass(session, into, preparation, problems, guarded):
     energy_stage.guarded(problems, step) if guarded else step()
 
 
-def measure_cases(options, device, results, found, problems, require_energy):
-    """found is discovery's Discovered; require_energy is the entry point's check of the energy interpreter, passed in; it returns the interpreter the run uses."""
+def measure_cases(options, device, results, found, problems, require_energy, record):
+    """found is discovery's Discovered; require_energy is the entry point's check of the energy interpreter, passed in; it returns the interpreter the run uses;
+    record: the run's record, every block's identity."""
     benchmark, preparation = paths.RunTree(results).benchmark.root, paths.RunTree(results).preparation.root
     discovery, effective, capture, trial, files = found.discovery, found.effective, found.capture, found.trial, found.files
     started = time.monotonic()
     document = effective_view.read(effective)["document"]
     repetitions, captures = effective_view.process_repetitions(document), energy_stage.captures(effective)
     timed = bool(captures - {"dry"})
-    size, identity = effective_view.resume_block_runs(document), resume.run_identity(effective, capture, options.suppress_errors)
-    in_blocks = lambda folder, label, boot: blocks.Blocks(folder, size, repetitions, identity, document.get("runId"), label, boot)
+    size = effective_view.resume_block_runs(document)
+    in_blocks = lambda folder, label, boot: blocks.Blocks(folder, size, repetitions, record, document.get("runId"), label, boot)
     if captures - {"none"} and not device:
         raise CommandError("energy: only a --device run captures energy; set harness.energy.capture none for --bench")
     if captures - {"none"}:

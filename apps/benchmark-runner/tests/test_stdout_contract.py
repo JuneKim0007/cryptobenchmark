@@ -57,7 +57,7 @@ def test_identify_prints_one_sorted_json_line(tmp_path, monkeypatch, capsys):
     lines = capsys.readouterr().out.splitlines()
     assert len(lines) == 1 and lines[0].startswith("identity:  {")
     found = json.loads(compiled(OUTBOUND, "IDENTITY").match(lines[0]).group(1))
-    assert list(found) == ["config", "deviceId", "harness", "inputs", "mode"]
+    assert list(found) == ["code", "config", "deviceId", "harness", "inputs", "mode"] and sorted(found["code"]) == ["runner", "timed"]
     assert found["deviceId"] == device_id(RUNTIME) and found["mode"] == "host" and found["harness"] == "c" * 64
     assert found["config"] == str(tmp_path / "global.yaml") and set(found["inputs"]) == {"bundled", "config"}
     assert lines[0] == "identity:  " + json.dumps(found, sort_keys=True)

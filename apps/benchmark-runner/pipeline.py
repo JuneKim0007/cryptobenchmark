@@ -16,7 +16,7 @@ from cryptobench.pipeline.stage import Stage, StageContext
 from cryptobench.stages.configuration.global_file import global_config
 from cryptobench.shared import paths
 from cryptobench.shared.results import layout as results_layout
-from cryptobench.shared.results import partial, run_inputs
+from cryptobench.shared.results import identity as run_identity, partial, run_inputs
 from cryptobench.shared.results.lock import DeviceLock
 from cryptobench.shared.results.manifest import manifest
 from cryptobench.stages.verification.scope import code_digest
@@ -124,7 +124,7 @@ def identify(options, configuration, device):
     """The device id before any probe: getprop on a device, the JVM's fields on a host; the probe's capture gives the same."""
     runtime = device.identity() if device else host_runtime(options)
     identity = {"deviceId": device_id(runtime), "mode": "device" if device else "host", "config": str(configuration),
-                "inputs": run_inputs.digests(configuration), "harness": code_digest.digest()}
+                "inputs": run_inputs.digests(configuration), "harness": code_digest.digest(), "code": run_identity.code()}
     print(f"identity:  {json.dumps(identity, sort_keys=True)}")
 
 
@@ -187,17 +187,18 @@ def measured(context):
         results, found = guided(context, root, kept)
         files = found.files
         mode, resumed = "device" if device else "host", resume.note(results) if measuring else []
+        run = resume.record(found.effective, found.capture, options.suppress_errors)
         if measuring:
-            stopped = lambda record, pulled: manifest(results, mode, configuration, files | pulled, context.problems, partial=record, resumed=resumed)
+            stopped = lambda record, pulled: manifest(results, mode, configuration, files | pulled, context.problems, partial=record, resumed=resumed, run=run)
             with partial.kept(results, stopped):
-                benchmarked(options, device, results, found, context.problems)
-        manifest(results, mode, configuration, files, context.problems, resumed=resumed)
+                benchmarked(options, device, results, found, context.problems, run)
+        manifest(results, mode, configuration, files, context.problems, resumed=resumed, run=run)
         results_layout.report_superseded(results)
 
 
-def benchmarked(options, device, results, found, problems):
+def benchmarked(options, device, results, found, problems, run):
     """Measurement, then the analysis of what it timed."""
-    timed, written, repetitions = measure_cases(options, device, results, found, problems, dependencies.require_energy)
+    timed, written, repetitions = measure_cases(options, device, results, found, problems, dependencies.require_energy, run)
     if timed:
         benchmark, preparation = paths.RunTree(results).benchmark.root, paths.RunTree(results).preparation.root
         not_measured.report(paths.Preparation(preparation).prepared, paths.Measurement(benchmark).json, problems)

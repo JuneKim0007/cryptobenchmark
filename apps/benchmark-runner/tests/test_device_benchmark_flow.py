@@ -54,7 +54,8 @@ def measured(tmp_path, monkeypatch, run, phone=None, **phone_options):
     measured_fakes(monkeypatch, phone)
     results, effective, capture, trial = layout(tmp_path, run)
     files, problems = {"effective": effective}, []
-    pipeline.benchmarked(OPTIONS, phone, results, discover.Discovered(results / "discovery", effective, capture, trial, files), problems)
+    pipeline.benchmarked(OPTIONS, phone, results, discover.Discovered(results / "discovery", effective, capture, trial, files), problems,
+                         {"identity": "of this run"})
     return phone, files, problems, results
 
 

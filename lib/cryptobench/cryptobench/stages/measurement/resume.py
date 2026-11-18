@@ -3,15 +3,16 @@ import itertools, pathlib
 
 from cryptobench.shared import paths
 from cryptobench.shared.document.document import read_yaml
-from cryptobench.shared.results import identity
+from cryptobench.shared.results import run_record
 from cryptobench.shared.settings import effective_view
 from cryptobench.stages.measurement.session import blocks, variant_order
 from cryptobench.shared.log.warn import warn
 
 
-def run_identity(effective, capture, suppress_errors):
+def record(effective, capture, suppress_errors):
+    """The run's record (shared/results/run_record.py) with the order its seed chooses."""
     order = variant_order.chosen(effective_view.order_seed(read_yaml(effective)))[1]
-    return identity.of(effective, capture, order, suppress_errors)
+    return run_record.of(effective, capture, order, suppress_errors)
 
 
 def kept(effective, capture, target, suppress_errors):
@@ -22,9 +23,9 @@ def kept(effective, capture, target, suppress_errors):
     found = records(target)
     if not found:
         return ()
-    now = run_identity(effective, capture, suppress_errors)
+    now = record(effective, capture, suppress_errors)
     earlier = next((record["identity"] for _, _, record in found if isinstance(record, dict) and isinstance(record.get("identity"), dict)), None)
-    changed = identity.changed(earlier, now) if earlier is not None else ["schema"]
+    changed = run_record.changed(earlier, now) if earlier is not None else ["schema"]
     if changed:
         warn(f"identity_changed: {', '.join(changed)}; starting fresh")
         return ()
@@ -85,7 +86,7 @@ def unverified(record, folder, block, now):
     try:
         if not blocks.RECORD_DOC.accepts(record.get("schemaVersion")):
             return f"schemaVersion {record.get('schemaVersion')}"
-        if record["identity"] != now:
+        if run_record.changed(record["identity"], now):
             return "identity differs from this run's"
         if record["outcome"] != blocks.FINISHED:
             return f"outcome {record['outcome']}"

@@ -37,6 +37,7 @@ from .setup_fingerprint import (
     case_setups,
     differing,
     fingerprint,
+    run_changes,
     without_narrowed,
 )
 from cryptobench.shared.results.manifest import write as write_manifest
@@ -134,7 +135,7 @@ def run_delta(folder: Path, gaps: tuple[Gap, ...], anchors: frozenset[str], sess
     # a setup that differs is refused before the session, not after hours of it
     run_pipeline(config, root, "device" if on_device else "configure", benchmark=benchmark, echo=echo, device=folder,
                  extra=("--probe",))
-    early = tuple(before_measuring(*alike(fingerprint(folder), fingerprint(staged))))
+    early = tuple(before_measuring(*alike(fingerprint(folder), fingerprint(staged))) + run_changes(folder, staged, run is not None))
     if early:
         return Delta(session, mismatch=early, lines=[line])
     run_pipeline(config, root, stage, benchmark=benchmark, echo=echo, device=folder,
@@ -143,7 +144,8 @@ def run_delta(folder: Path, gaps: tuple[Gap, ...], anchors: frozenset[str], sess
     staged_doc = read_json(staged / read_manifest(RunTree(staged).manifest)[0].files["benchmark"])
     staged_cases = {c["id"] for c in staged_doc.get("cases") or []}
     shared = stored_cases & staged_cases
-    mismatch = tuple(differing(*alike(fingerprint(folder), fingerprint(staged))) + _case_mismatch(folder, staged, shared))
+    mismatch = tuple(differing(*alike(fingerprint(folder), fingerprint(staged))) + run_changes(folder, staged, run is not None)
+                     + _case_mismatch(folder, staged, shared))
     if mismatch:
         return Delta(session, anchors=tuple(sorted(shared)), mismatch=mismatch, lines=[line])
     drift, compared = _drift(rd.load_measurements(folder).byRow, _measurements(staged), shared)
