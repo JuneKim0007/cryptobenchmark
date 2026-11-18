@@ -4,22 +4,22 @@ import time
 
 from cryptobench.shared.device import gradle_runner
 from cryptobench.shared.device.adb import NO_DEFAULT_PROFILER, PASSED, DeviceError, instrumentation_report
-from cryptobench.shared.device.identity import capture_id
 from cryptobench.shared.device.plan import clear_outputs, pull_plan, push_plan
 from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared.results import layout as results_layout
-from cryptobench.shared.results.manifest import add_to_manifest, manifest
+from cryptobench.shared.results.publish_unit import Route, publish_unit
 from cryptobench.stages.verification import known_answers as answers
 from cryptobench.shared import paths
 from cryptobench.shared.catalogue import vectors
 from cryptobench.pipeline.took import elapsed
 from cryptobench.shared.log.warn import warn
-from cryptobench.shared.log.stdout import RESULTS, say
 from cryptobench.shared.settings import bundled
 from cryptobench.shared.document.document import read_yaml
 
 # androidx.benchmark 1.5.0: one call per measureRepeated, no warm-up, no timing, no output file
 DRY_RUN = ["-e", "androidx.benchmark.dryRunMode.enable", "true"]
+CHECK = Route(paths.CHECK, lambda tree: {"check": tree.check.result},
+              lambda tree: {"guide": tree.configuration.guide, "knownAnswers": tree.configuration.known_answers})
 
 
 def require_check_run(options, device):
@@ -43,23 +43,10 @@ def check_run(options, configuration, device, root, discovered, located, suite=N
             on_host(options, effective, capture, trial, known_answers, into)
         elapsed("end-to-end check", started)
         failed = summary(paths.CheckFolder(into).result)
-        results = results_layout.unit_folder(root, capture_id(capture), suite)
-        beside = paths.finished(results)
-        if beside:
-            paths.RunTree(stage).configuration.root.rename(paths.CheckFolder(into).configuration.root)
-            results_layout.publish_beside(stage, results, paths.CHECK)
-        else:
-            results_layout.publish(stage, results, options.discovery)
-    say(RESULTS, results)
-    tree = paths.RunTree(results)
-    if beside:
-        add_to_manifest(results, {"check": tree.check.result})
-    else:
-        written = {"guide": tree.configuration.guide, "knownAnswers": tree.configuration.known_answers, "check": tree.check.result}
-        manifest(results, "device" if device else "host", configuration, located(results, capture.name).files | written)
-    results_layout.report_superseded(results)
+        results = publish_unit(root, stage, found, CHECK, mode="device" if device else "host", configuration=configuration,
+                               discovery_mode=options.discovery, located=located, suite=suite)
     if failed:
-        raise CommandError(f"check_failed: {failed} cases failed or errored, see {tree.check.result}")
+        raise CommandError(f"check_failed: {failed} cases failed or errored, see {paths.RunTree(results).check.result}")
 
 
 def on_host(options, effective, capture, trial, known_answers, into):

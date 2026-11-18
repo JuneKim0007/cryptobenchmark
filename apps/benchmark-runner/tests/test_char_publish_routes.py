@@ -1,4 +1,4 @@
-"""Characterization (Py-P2): what --interop and --check publish today, beside a finished run and into a new folder, on the host and the fake phone;
+"""Characterization (Py-P2): what --interop and --check publish through publish_unit, beside a finished run and into a new folder, on the host and the fake phone;
 the tree, the manifest and the route's stdout against golden/publish_*.txt. UPDATE_GOLDEN=1 rewrites them."""
 import os, pathlib, re
 
@@ -107,20 +107,20 @@ def test_today_publish_tree_manifest_and_stdout(name, tmp_path, monkeypatch, cap
     matches(name, snapshot(rerun, tmp_path, capsys.readouterr().out))
 
 
-def test_today_interop_beside_a_finished_run_drops_its_staged_configuration_and_check_keeps_it(tmp_path, monkeypatch):
+def test_interop_and_check_beside_a_finished_run_keep_their_configuration(tmp_path, monkeypatch):
     rerun = routed(tmp_path, monkeypatch)
     rerun()
     rerun(interop=str(rerun.plan))
     tree = paths.RunTree(rerun.device)
-    assert not (tree.interop.root / paths.CONFIGURATION).exists()
+    assert tree.interop.configuration.effective.is_file()
     rerun(check=True)
     assert tree.check.configuration.effective.is_file()
 
 
-def test_today_interop_prints_no_results_line_and_check_does(tmp_path, monkeypatch, capsys):
+def test_interop_and_check_print_one_results_line(tmp_path, monkeypatch, capsys):
     rerun = routed(tmp_path, monkeypatch)
     rerun(interop=str(rerun.plan))
-    assert not [line for line in capsys.readouterr().out.splitlines() if line.startswith("results:")]
+    assert [line for line in capsys.readouterr().out.splitlines() if line.startswith("results:")] == [f"results:   {rerun.device}"]
     rerun(check=True)
     assert [line for line in capsys.readouterr().out.splitlines() if line.startswith("results:")] == [f"results:   {rerun.device}"]
 

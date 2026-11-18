@@ -1,14 +1,14 @@
 """An --interop run: perf-repair's pairs checked on the host JVM or the device, published beside or as the device folder."""
 import pathlib, time
 
-from cryptobench.shared.device.identity import capture_id
 from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared.results import layout as results_layout
-from cryptobench.shared.results.manifest import add_to_manifest, manifest
+from cryptobench.shared.results.publish_unit import Route, publish_unit
 from cryptobench.stages.verification import interop_oracle
 from cryptobench.pipeline.took import elapsed
-from cryptobench.shared.log.stdout import WROTE, say
 from cryptobench.shared import paths
+
+INTEROP = Route(paths.INTEROP, lambda tree: {"interopPlan": tree.interop.plan, "interop": tree.interop.result})
 
 
 def interop_run(options, configuration, device, root, shipped, discover_staged, located, suite=None):
@@ -18,7 +18,6 @@ def interop_run(options, configuration, device, root, shipped, discover_staged, 
         raise CommandError("--interop: the pairs are checked on a --bench (host JVM) or a --device run, without --harness")
     if not plan.is_file():
         raise CommandError(f"missing_file: {plan} (--interop)")
-    mode = "device" if device else "host"
     with results_layout.staged(root) as stage:
         found = discover_staged(options, configuration, device, root, stage, shipped, suite)
         effective, capture, trial = found.effective, found.capture, found.trial
@@ -31,17 +30,5 @@ def interop_run(options, configuration, device, root, shipped, discover_staged, 
             interop_oracle.on_host(capture, trial, staged_plan, out, options.stacktrace, options.stream)
         elapsed("interop check", started)
         interop_oracle.summary(out)
-        results = results_layout.unit_folder(root, capture_id(capture), suite)
-        finished = paths.finished(results)
-        if finished:
-            results_layout.publish_beside(stage, results, paths.INTEROP)
-        else:
-            results_layout.publish(stage, results, options.discovery)
-    interop = paths.RunTree(results).interop
-    say(WROTE, interop.result)
-    added = {"interopPlan": interop.plan, "interop": interop.result}
-    if finished:
-        add_to_manifest(results, added)
-    else:
-        manifest(results, mode, configuration, located(results, capture.name).files | added)
-    results_layout.report_superseded(results)
+        publish_unit(root, stage, found, INTEROP, mode="device" if device else "host", configuration=configuration,
+                     discovery_mode=options.discovery, located=located, suite=suite)

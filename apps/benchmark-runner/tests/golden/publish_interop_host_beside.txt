@@ -6,6 +6,7 @@ tree:
   probed-api36-4c538a37/discovery/probe_<stamp>.yaml
   probed-api36-4c538a37/discovery/trial_<stamp>.yaml
   probed-api36-4c538a37/discovery/trial_<stamp>.yaml
+  probed-api36-4c538a37/interop/configuration/effective.yaml
   probed-api36-4c538a37/interop/interop.yaml
   probed-api36-4c538a37/interop/interop_plan.yaml
   probed-api36-4c538a37/manifest.yaml
@@ -45,5 +46,5 @@ stdout:
   wrote:     <tmp>/results/probed-api36-4c538a37/manifest.yaml
   interop:   p2 g fail: bytes differ
   interop:   2 pairs, 1 fail, 1 pass
-  wrote:     <tmp>/results/probed-api36-4c538a37/interop/interop.yaml
+  results:   <tmp>/results/probed-api36-4c538a37
   wrote:     <tmp>/results/probed-api36-4c538a37/manifest.yaml

@@ -75,10 +75,10 @@ def test_today_a_finished_measured_run(tmp_path, monkeypatch):
     assert len(_whole_run_took(lines)) == 1
 
 
-def test_today_interop_has_no_results_line_for_the_worker(tmp_path, monkeypatch):
+def test_interop_gives_the_worker_its_results_line(tmp_path, monkeypatch):
     rerun = routed(tmp_path, monkeypatch)
     lines, code = transcript(rerun, monkeypatch, interop=str(rerun.plan))
-    assert code == 0 and outcome(tmp_path, lines, code).results is None
+    assert code == 0 and outcome(tmp_path, lines, code).results == str(rerun.device)
     assert streamed(lines) == rerun.device / "manifest.yaml"
 
 

@@ -115,6 +115,7 @@ class CheckFolder(Section):
 class InteropFolder(Section):
     plan = property(lambda self: self.root / n.INTEROP_PLAN)
     result = property(lambda self: self.root / n.INTEROP_RESULT)
+    configuration = property(lambda self: Configuration(self.root / n.CONFIGURATION))
 
 
 class Scoped(Section):
