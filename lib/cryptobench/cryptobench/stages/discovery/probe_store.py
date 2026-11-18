@@ -26,12 +26,12 @@ def say(line):
 
 
 def installed_apks(device, package):
-    """{apk path: sha256} of an installed package, read on the device; {} when pm knows no path for it."""
+    """{apk file name: sha256} of an installed package, read on the device; {} when pm knows no path for it. The install folder is random per install."""
     found = {}
     for line in device.run("shell", f"pm path {package}", check=False).stdout.splitlines():
         if line.startswith("package:"):
             path = line[len("package:"):].strip()
-            found[path] = (device.run("shell", f"sha256sum {path}", check=False).stdout.split() or [None])[0]
+            found[path.rsplit("/", 1)[-1]] = (device.run("shell", f"sha256sum {path}", check=False).stdout.split() or [None])[0]
     return found
 
 

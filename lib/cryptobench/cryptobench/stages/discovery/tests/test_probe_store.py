@@ -16,8 +16,9 @@ class Device:
     """install, the probe (a new stamp each time), the build reads and the plan directory, logged."""
     files = "/sdcard/plan"
 
-    def __init__(self, apex=APEX, plan_directory=True):
-        self.apex, self.plan_directory, self.log, self.stamps = apex, plan_directory, [], (f"20260101T00000{n}Z" for n in itertools.count())
+    def __init__(self, apex=APEX, plan_directory=True, installed="/data/app/~~a1==/pkg-b2=="):
+        self.apex, self.plan_directory, self.installed = apex, plan_directory, installed
+        self.log, self.stamps = [], (f"20260101T00000{n}Z" for n in itertools.count())
 
     def install(self, _properties):
         self.log.append("install")
@@ -35,7 +36,7 @@ class Device:
     def run(self, *arguments, check=True):
         command = arguments[1]
         if command.startswith("pm path "):
-            out = f"package:/data/app/{command.split()[-1]}/base.apk\n"
+            out = "".join(f"package:{self.installed}/{command.split()[-1]}/{apk}\n" for apk in ("base.apk", "split_config.arm64_v8a.apk"))
         elif command.startswith("sha256sum "):
             out = f"{'ab' * 32}  {command.split()[-1]}\n"
         elif command == f"getprop {build_versions.SECURITY_PATCH}":
@@ -107,3 +108,10 @@ def test_anything_the_key_cannot_vouch_for_falls_back_to_the_probe(run, capsys, 
     break_it(device)
     run(device)
     assert device.log == ["install", "probe 20260101T000000Z"] and why in capsys.readouterr().out
+
+
+def test_two_installs_of_the_same_build_differing_only_in_their_random_folders_give_one_key():
+    one, other = Device(installed="/data/app/~~Xq3Zw==/pkg-Yt7=="), Device(installed="/data/app/~~Lm0Rr==/pkg-Pa9==")
+    first, second = probe_store.key(one, []), probe_store.key(other, [])
+    assert first == second and first[1] is None
+    assert sorted(first[0]["apk"][probe_store.PACKAGE]) == ["base.apk", "split_config.arm64_v8a.apk"]

@@ -65,7 +65,7 @@ python3 apps/benchmark-runner/pipeline.py [--config PATH] [--results DIR] [--dis
 
 | step | rule |
 |---|---|
-| key | `ro.build.fingerprint`, the security patch and the apex versionCodes facts.yaml records; sha256 of each installed APK file of the app and the test package, read on the device (`pm path`, `sha256sum`), which carry the code and the bundled jars; `providers.bundled`; named by the first 16 hex of its sha256 |
+| key | `ro.build.fingerprint`, the security patch and the apex versionCodes facts.yaml records; sha256 of each installed APK file of the app and the test package by file name (`base.apk`, `split_*.apk`; the install folder is random), read on the device (`pm path`, `sha256sum`), which carry the code and the bundled jars; `providers.bundled`; named by the first 16 hex of its sha256 |
 | match | `<DIR>/<key>/` holds one capture with its trial and requirements: they are copied unchanged into `discovery/`, the device's `probe_*`, `trial_*` and `requirements_*` are deleted so the plan push leaves the reused pair the newest by name, and no probe runs |
 | no match | the probe runs as under `overwrite`, and its capture, trial and requirements are stored under the key (`warning: probe_store_failed: ...` when they cannot be) |
 | fallback | an unreadable or empty key part, or no plan directory on the device: the probe runs; nothing is stored when the key is incomplete |
