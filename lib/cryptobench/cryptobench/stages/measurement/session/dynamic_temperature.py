@@ -9,8 +9,10 @@ from cryptobench.stages.measurement import start_margin as eq
 from cryptobench.shared.errors.coded import Coded
 from cryptobench.shared.errors.glossary import STOP
 from cryptobench.shared.errors.policy import resolve
+from cryptobench.shared.settings import effective_view
 
 SECONDS_PER_MINUTE = 60
+GATE = "run.thermalGate"
 UNREADABLE = "unreadable"
 
 
@@ -35,13 +37,17 @@ class Settings:
     rule: eq.StartMarginRule
 
     @classmethod
-    def of(cls, gate):
-        m = gate["startMargin"]
-        rule = (eq.StartMarginRule(m["initialCelsius"], m["backoffFactor"], m["maximumCelsius"], m["cleanRunsToRecover"], m["recoveryCelsius"])
-                if m["dynamic"] else eq.StartMarginRule(m["initialCelsius"], 1, m["initialCelsius"], 1, 0))
-        return cls(gate["temperatureKeptCelsius"], gate["cooldownMinutes"] * SECONDS_PER_MINUTE, gate["pollMinutes"] * SECONDS_PER_MINUTE,
-                   gate["pollTerminateMinutes"] * SECONDS_PER_MINUTE, gate["discardLimit"], gate["onDiscardLimit"], gate["readRetries"],
-                   gate["readRetrySeconds"], rule)
+    def of(cls, document):
+        """run.thermalGate of effective.yaml, every key :config writes read through required; on_discard_limit is the action its
+        onDiscardLimit names (codes.yaml temperature_discard_limit values), any other value refused."""
+        at = lambda key: effective_view.required(document, f"{GATE}.{key}")
+        margin = lambda key: at(f"startMargin.{key}")
+        initial = margin("initialCelsius")
+        rule = (eq.StartMarginRule(initial, margin("backoffFactor"), margin("maximumCelsius"), margin("cleanRunsToRecover"), margin("recoveryCelsius"))
+                if margin("dynamic") else eq.StartMarginRule(initial, 1, initial, 1, 0))
+        return cls(at("temperatureKeptCelsius"), at("cooldownMinutes") * SECONDS_PER_MINUTE, at("pollMinutes") * SECONDS_PER_MINUTE,
+                   at("pollTerminateMinutes") * SECONDS_PER_MINUTE, at("discardLimit"),
+                   resolve("temperature_discard_limit", at("onDiscardLimit"), f"{GATE}.onDiscardLimit"), at("readRetries"), at("readRetrySeconds"), rule)
 
 
 class Off:
@@ -136,7 +142,7 @@ class DynamicTemperature:
 
     def discard_limit_reached(self, case):
         line = f"temperature_discard_limit: {case}: {self.settings.discard_limit} runs discarded"
-        if resolve("temperature_discard_limit", self.settings.on_discard_limit) == STOP:
+        if self.settings.on_discard_limit == STOP:
             raise Terminated(line + "; benchmark stopped")
         warn(line + "; moving to the next case", self.problems)
         return f"case_failed: {line}"
@@ -154,15 +160,15 @@ class Gate:
         return DynamicTemperature(self.device, self.settings, self.sensors, self.problems, label) if self.settings else Off()
 
 
-def opened(device, gate, problems):
+def opened(device, document, problems):
     """The one startup decision, printed once; a device that cannot report temperature still runs."""
-    if gate is None:
+    if effective_view.thermal_gate(document) is None:
         say("TEMPERATURE GATE OFF: run.thermalGate not set")
         return Gate(device, None, (), problems)
     capability = thermal.capability(device)
     if not capability.available:
         warn(f"TEMPERATURE SET BUT DEVICE CAN'T POLL: {capability.reason}; running without it", problems)
         return Gate(device, None, (), problems)
-    settings = Settings.of(gate)
+    settings = Settings.of(document)
     say(f"TEMPERATURE GATE SET: kept {settings.kept:.1f} C on {', '.join(capability.sensors)}; a run starts at or below {eq.start_limit(settings.kept, eq.first_margin(settings.rule)):.2f} C, is discarded if it ends at or above {settings.kept:.1f} C")
     return Gate(device, settings, capability.sensors, problems)

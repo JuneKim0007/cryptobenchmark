@@ -99,7 +99,8 @@ Why: the phone's power controller lowers the CPU limit once skin reaches its own
 | hold | before every launch of a run, the warm-up and the energy dry pass: above the limit, wait `cooldownMinutes`, then read every `pollMinutes` |
 | end | a run ending at or above `temperatureKeptCelsius` is discarded and measured again; the margin widens by `backoffFactor`, up to `maximumCelsius`; `cleanRunsToRecover` clean runs narrow it by `recoveryCelsius`, never below `initialCelsius` |
 | stop | still too hot after `pollTerminateMinutes`: the benchmark stops with `temperature_gate_timeout` |
-| limit | `discardLimit` discards of one run: `onDiscardLimit` |
+| limit | `discardLimit` discards of one run: `onDiscardLimit`, `nextCase` (the case fails, the next goes on) or `stop` (the benchmark stops); the vocabulary is `codes.yaml` `temperature_discard_limit` `values`, which :config's `ThermalGate.ON_DISCARD_LIMIT` matches (`test_thermal_gate.py`) |
+| read | every gate key through `effective_view.required` when the gate opens: an absent one is `missing_field: run.thermalGate.<key> in effective.yaml`, an unknown `onDiscardLimit` `invalid: run.thermalGate.onDiscardLimit ...`, both before the first case |
 | unreadable | a reading is retried `readRetries` times; still unreadable: logged, that run is dropped, the next case goes on; a failed reading is never a pass |
 | refused | a failed launch whose case the device recorded in `skipped.yaml` with a code `codes.yaml` holds as an `outcome` or an `error` (`keystore_unsupported`, `strongbox_unavailable`, `api_too_low`, `not_supported`, ...): `case_skipped: <id>: <code>` in `problems`, not launched again in that process; a record without such a code, or none, is an other failure |
 | all skipped | a process whose every case is `case_skipped`: `all_cases_skipped: ...`, the run stops measuring, its manifest keeps `prepared.yaml` and `skipped.yaml` and no `benchmark.json`, exit 0 |

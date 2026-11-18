@@ -43,7 +43,7 @@ def convert(run, arguments):
 
 
 def gate_opened(device, document, problems, waits):
-    return waits.retried(lambda: dynamic_temperature.opened(device, effective_view.thermal_gate(document), problems), "the thermal gate's start")
+    return waits.retried(lambda: dynamic_temperature.opened(device, document, problems), "the thermal gate's start")
 
 
 def measure_arguments(suppress, throttle_sleep=None):
