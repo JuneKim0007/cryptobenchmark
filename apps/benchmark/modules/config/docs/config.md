@@ -35,16 +35,15 @@ Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 | | `metrics` | `[TIME]` | `TIME`, `ALLOCATION`; must hold `TIME`, no repeats (`Metric.read`); `benchmark.json` reports only these, whatever androidx runs ([measure.md](../../benchmark/docs/measure.md#jetpack-conversion)) |
 | | `variants` | `[fixed, notFixed, secure]` | the execution paths every entry inherits ([entry.md](entry.md#variants)) |
 | | `processRepetitions` | `1` | `>= 1`; independent process runs |
-| | `isolation` | `case` | `case` or `run`, else `invalid: run.isolation`; `--device` only: `case` runs each measured case in its own instrumentation process, `run` all of them in one ([run.md](../../../../../docs/run.md#device-run)) |
 | | `seed` | `0` | input seed |
 | | `passes` | `{}` | map of `timing`, `energy`, `allocation` to `{samples: n}`, `n >= 1`, in run order; `timing` required with two or more passes (`missing_pass`); a single pass is its own base; `allocation` needs `ALLOCATION` in `metrics` (`pass_without_metric`); another name `invalid`; [device-session.md](../../../../../docs/device-session.md#passes) |
 | | `thermalThrottleSleepSeconds` | unset | `>= 0`, else `negative`; `--device`: passed as `-e androidx.benchmark.thermalThrottle.sleepDurationSeconds`; unset keeps Jetpack's default |
 | | `warmup` | `{iterations: 10, jobs: []}` | `iterations >= 0`, else `negative`, 0 off; `jobs` test-set rules, resolved to the entries they select; `[]` the plan's first 3 cases; `--device` only ([device-session.md](../../../../../docs/device-session.md#warm-up)) |
-| | `caseCooldownSeconds` | `0` | `>= 0`, else `negative`; `--device`: host sleep before every measured case but a session's first, between processes with `isolation: run` ([device-session.md](../../../../../docs/device-session.md#cool-down-and-frequency-caps)) |
-| | `thermalGate` | absent: off | keys in `example/config_global_example.yaml`; needs `isolation: case` |
+| | `caseCooldownSeconds` | `0` | `>= 0`, else `negative`; `--device`: host sleep before every measured case but a session's first ([device-session.md](../../../../../docs/device-session.md#cool-down-and-frequency-caps)) |
+| | `thermalGate` | absent: off | keys in `example/config_global_example.yaml` |
 | | `launchRetries` | `2` | extra launches of a run that failed for a reason other than heat or a final preparation skip ([device-session.md](../../../../../docs/device-session.md#thermal-gate)) |
 | | `resumeBlockRuns` | `10` | `>= 1`, else `not_positive`; host only: a rerun of a stopped run with the same identity keeps its finished blocks of this many consecutive runs ([results.md](../../../../../docs/results.md#resuming-a-stopped-run)) |
-| | `orderSeed` | absent: the plan's item order | a whole number; needs `isolation: case` (`invalid`); `--device`: each process shuffles the items with `Random("<seed>:<repetition>")`, an item's variants kept adjacent ([device-session.md](../../../../../docs/device-session.md)); part of a run's identity ([results.md](../../../../../docs/results.md#resuming-a-stopped-run)) |
+| | `orderSeed` | absent: the plan's item order | a whole number; `--device`: each process shuffles the items with `Random("<seed>:<repetition>")`, an item's variants kept adjacent ([device-session.md](../../../../../docs/device-session.md)); part of a run's identity ([results.md](../../../../../docs/results.md#resuming-a-stopped-run)) |
 | | `harness` | empty | key table in `apps/benchmark/modules/settings/docs/settings.md`; energy keys in `docs/energy.md` |
 | `policy` | `onFailure` | `skip` | `stop` or `skip`, case-insensitive; other: `invalid: policy.onFailure` |
 | `analysis` | `charts` | `[iqrBars, throughput, latency, stability]` | names from that list, no duplicates; `[]` draws none; another name fails `invalid: analysis.charts` |

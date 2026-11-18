@@ -5,8 +5,6 @@ from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared import paths
 from cryptobench.shared.document.document import read_yaml
 
-CASE_ISOLATION = "case"
-
 
 def read(effective_file):
     effective = pathlib.Path(effective_file)
@@ -41,10 +39,6 @@ def metrics(document):
     return listed
 
 
-def isolation(document):
-    return required(document, "run.isolation")
-
-
 def throttle_sleep(document):
     """None keeps Jetpack's own sleep; RunSettings already refused a negative value."""
     return (document.get("run") or {}).get("thermalThrottleSleepSeconds")
@@ -76,7 +70,7 @@ def resume_block_runs(document):
 
 
 def order_seed(document):
-    """run.orderSeed, None when absent; RunSettings refuses it under isolation run, a hand-edited value that is not whole is refused here."""
+    """run.orderSeed, None when absent; a hand-edited value that is not whole is refused here."""
     seed = (document.get("run") or {}).get("orderSeed")
     if seed is not None and (not isinstance(seed, int) or isinstance(seed, bool)):
         raise CommandError(f"invalid: run.orderSeed {seed!r}, expected a whole number")

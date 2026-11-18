@@ -23,7 +23,7 @@ def test_a_device_identity_is_the_runtime_with_the_build_facts_and_a_host_one_th
 def test_suppressed_errors_are_a_set_whatever_their_order_and_spacing(tmp_path, monkeypatch):
     monkeypatch.setattr(identity, "timed_code", lambda: "c")
     effective = tmp_path / "effective.yaml"
-    effective.write_text(yaml.safe_dump({"run": {"isolation": "case"}}))
+    effective.write_text(yaml.safe_dump({"run": {"seed": 0}}))
     of = lambda suppress: identity.of(effective, discovery(tmp_path), {"scheme": "interleaved"}, suppress)["suppressErrors"]
     assert of("UNLOCKED,EMULATOR") == of(" EMULATOR, UNLOCKED,") == ["EMULATOR", "UNLOCKED"] and of("") == []
 

@@ -14,7 +14,6 @@ import io.github.junekim0007.cryptobench.document.DocumentFields.numbers
 import io.github.junekim0007.cryptobench.document.DocumentFields.optional
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalNumber
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSection
-import io.github.junekim0007.cryptobench.document.DocumentFields.optionalString
 import io.github.junekim0007.cryptobench.document.DocumentFields.strings
 
 object RunDocument {
@@ -24,7 +23,6 @@ object RunDocument {
     private const val METRICS = "metrics"
     private const val VARIANTS = "variants"
     private const val PROCESS_REPETITIONS = "processRepetitions"
-    private const val ISOLATION = "isolation"
     private const val SEED = "seed"
     private const val PASSES = "passes"
     private const val THROTTLE_SLEEP = "thermalThrottleSleepSeconds"
@@ -45,7 +43,6 @@ object RunDocument {
         METRICS to run.metrics,
         VARIANTS to run.variants,
         PROCESS_REPETITIONS to run.processRepetitions,
-        ISOLATION to run.isolation,
         SEED to run.seed,
     ).apply {
         run.thermalThrottleSleepSeconds?.let { put(THROTTLE_SLEEP, it) }
@@ -59,7 +56,7 @@ object RunDocument {
  if (!run.harness.isEmpty) put(HARNESS, HarnessSettings.write(run.harness)) }
 
     fun parse(document: Map<String, Any>, path: String): RunSettings {
-        expectKeys(document, listOf(INPUT_SIZES, PHASES, METRICS, VARIANTS, PROCESS_REPETITIONS, ISOLATION, SEED, PASSES, THROTTLE_SLEEP, CASE_COOLDOWN, WARMUP, THERMAL_GATE, LAUNCH_RETRIES, RESUME_BLOCK_RUNS, ORDER_SEED, HARNESS), path)
+        expectKeys(document, listOf(INPUT_SIZES, PHASES, METRICS, VARIANTS, PROCESS_REPETITIONS, SEED, PASSES, THROTTLE_SLEEP, CASE_COOLDOWN, WARMUP, THERMAL_GATE, LAUNCH_RETRIES, RESUME_BLOCK_RUNS, ORDER_SEED, HARNESS), path)
         val defaults = RunSettings()
         return RunSettings(
             inputSizes = optional(document, INPUT_SIZES, defaults.inputSizes, ::numbers),
@@ -67,7 +64,6 @@ object RunDocument {
             metrics = optional(document, METRICS, defaults.metrics, ::strings),
             variants = Variants.read(document, VARIANTS, "$path.$VARIANTS")?.values ?: defaults.variants,
             processRepetitions = optionalNumber(document, PROCESS_REPETITIONS)?.toInt() ?: defaults.processRepetitions,
-            isolation = optionalString(document, ISOLATION).ifEmpty { defaults.isolation },
             seed = optionalNumber(document, SEED)?.toLong() ?: defaults.seed,
             thermalThrottleSleepSeconds = optionalNumber(document, THROTTLE_SLEEP)?.toInt(),
             caseCooldownSeconds = optionalNumber(document, CASE_COOLDOWN)?.toInt() ?: defaults.caseCooldownSeconds,

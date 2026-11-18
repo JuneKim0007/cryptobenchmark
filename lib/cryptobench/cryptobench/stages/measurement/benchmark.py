@@ -19,11 +19,11 @@ from cryptobench.pipeline.took import elapsed
 from cryptobench.shared.document.document import read_yaml
 
 
-def measure_on_device(run, one, captures, preparation, isolation, repetitions, folder, written, measured_blocks):
+def measure_on_device(run, one, captures, preparation, repetitions, folder, written, measured_blocks):
     device, captures = run.device, one.captures(captures)
     timed = captures - {"dry"}
     gate = run.gate.session(one.label)
-    hooks = timed_hooks(run, one, isolation, gate) if timed else []
+    hooks = timed_hooks(run, one, gate) if timed else []
     if captures - {"none"}:
         dry = lambda into, guarded: (gate.hold("energy dry pass"), dry_pass(run.session, into, preparation, run.problems, guarded))[1]
         hooks.insert(0, energy_hook.EnergyCapture(run.source, run.session, captures, run.discovery, preparation, run.problems, dry, bool(timed)))
@@ -46,7 +46,7 @@ def measure_on_device(run, one, captures, preparation, isolation, repetitions, f
                                 pull_plan=lambda process: (pull_plan(device, preparation), pull_pins(device, process.into)), after_process=converted,
                                 gate=gate, retries=run.retries, reconnect=run.reconnect, blocks=measured_blocks, kept=held,
                                 refused=lambda case: device_skips(device, preparation).get(case))
-    measure_session.run_session(device, plan, repetitions, isolation, hooks, folder, run.problems)
+    measure_session.run_session(device, plan, repetitions, hooks, folder, run.problems)
 
 
 
@@ -108,10 +108,9 @@ def device_cases(run, document, plan_files, captures, benchmark, preparation, in
     run = gated(run, document)
     energy_step = (lambda: energy_preflight(run.options, run.source, run.session, run.discovery, run.files)) if energy else None
     run.reconnect.retried(lambda: push(run.device, run.options, plan_files, energy_step), "the plan push")
-    isolation = effective_view.isolation(document)
     run.reconnect.retried(lambda: warm_up(run, document, preparation), "the warm-up")
     boot = lambda: run.reconnect.retried(run.device.boot_id, "the boot id read")
-    measure_one = lambda one, folder, written: measure_on_device(run, one, captures, preparation, isolation, repetitions, folder, written,
+    measure_one = lambda one, folder, written: measure_on_device(run, one, captures, preparation, repetitions, folder, written,
                                                                  in_blocks(one.folder(benchmark), one.name, boot))
     return passes.run_all(chosen, repetitions, benchmark, measure_one, run.options), repetitions * len(chosen)
 

@@ -18,7 +18,7 @@ def test_a_gated_run_with_one_unreadable_start_writes_the_shared_golden(tmp_path
 
 def test_without_a_gate_the_document_ends_with_a_null_gate_and_no_case_has_one(tmp_path, monkeypatch):
     Heat(monkeypatch)
-    _phone, _files, _problems, results = measured(tmp_path, monkeypatch, {"isolation": "case"})
+    _phone, _files, _problems, results = measured(tmp_path, monkeypatch, {})
     text = (results / "benchmark/thermal.json").read_text()
     document = json.loads(text)
     assert list(document) == ["schemaVersion", "process", "cases", "gate"] and text.endswith('\n "gate": null\n}')

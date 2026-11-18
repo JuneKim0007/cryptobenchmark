@@ -1,4 +1,4 @@
-"""isolation: case over a fake instrumentation: one case aborts its process, the others still produce results."""
+"""One process per case over a fake instrumentation: one case aborts its process, the others still produce results."""
 import json
 import pathlib
 
@@ -10,15 +10,15 @@ from cryptobench.stages.measurement.session import measure as measure_session  #
 from fake_phone import OK, Phone, jetpack_case  # noqa: E402
 
 
-def session(phone, tmp_path, isolation, problems=None):
+def session(phone, tmp_path, problems=None):
     plan = measure_session.Plan("CryptoBenchmark", ("-e", "x", "y"))
-    return measure_session.run_session(phone, plan, 1, isolation, [], lambda _repetition: tmp_path / "benchmark",
+    return measure_session.run_session(phone, plan, 1, [], lambda _repetition: tmp_path / "benchmark",
                                        [] if problems is None else problems)
 
 
 def test_a_case_that_kills_its_process_loses_only_itself(tmp_path):
     phone, problems = Phone(tmp_path, cases=("a", "crash", "b", "hang"), crash=("crash",), hang=("hang",)), []
-    process, = session(phone, tmp_path, "case", problems)
+    process, = session(phone, tmp_path, problems)
     assert [b["name"] for b in json.loads(process.data.read_text())["benchmarks"]] == ["measure[a]", "measure[b]"]
     assert [line.split(": ")[:2] for line in problems] == [["case_failed", "crash"], ["case_failed", "hang"]]
     assert "force-stop" in phone.log
@@ -29,17 +29,10 @@ def test_the_merged_file_is_the_one_the_kept_case_files_give_and_a_file_already_
     stale = tmp_path / "benchmark/cases/old.json"
     stale.parent.mkdir(parents=True)
     stale.write_text("{}")
-    process, = session(Phone(tmp_path, cases=("a", "b")), tmp_path, "case")
+    process, = session(Phone(tmp_path, cases=("a", "b")), tmp_path)
     kept = [json.loads((process.into / "cases" / f"{case}.json").read_text()) for case in ("a", "b")]
     expected = {"context": kept[0]["context"], "benchmarks": [b for document in kept for b in document["benchmarks"]]}
     assert process.data.read_text() == json.dumps(expected, indent=1) and stale.read_text() == "{}"
-
-
-def test_isolation_run_keeps_one_process_for_every_case(tmp_path):
-    phone = Phone(tmp_path, cases=("a", "b", "c", "d"))
-    process, = session(phone, tmp_path, "run")
-    assert phone.ran == [("CryptoBenchmark", None)]
-    assert len(json.loads(process.data.read_text())["benchmarks"]) == 4
 
 
 def test_the_listing_is_the_planned_cases_in_order():
@@ -65,7 +58,7 @@ def test_an_error_that_ends_the_session_keeps_every_case_measured_before_it(tmp_
         return cleared(command)
     monkeypatch.setattr(phone, "shell", offline)
     with pytest.raises(measure_session.DeviceError, match="device offline"):
-        session(phone, tmp_path, "case")
+        session(phone, tmp_path)
     data = tmp_path / "benchmark/benchmarkData.json"
     assert [b["name"] for b in json.loads(data.read_text())["benchmarks"]] == ["measure[a]", "measure[b]"]
 
@@ -97,7 +90,7 @@ def test_the_error_ids_androidx_prefixes_still_name_the_case(name):
 @pytest.mark.parametrize("written, named", [(["a"], "measure[a]"), ([], "no benchmark")], ids=["another case", "no benchmark"])
 def test_a_pulled_result_that_names_another_case_is_refused_and_never_stored(tmp_path, written, named):
     phone, problems = Stale(tmp_path, "b", written, cases=("a", "b", "c")), []
-    process, = session(phone, tmp_path, "case", problems)
+    process, = session(phone, tmp_path, problems)
     assert [b["name"] for b in json.loads(process.data.read_text())["benchmarks"]] == ["measure[a]", "measure[c]"]
     assert problems == [f"case_failed: b: result_mismatch: the pulled benchmarkData.json names {named}, not measure[b]; not stored"]
     assert sorted(p.name for p in (process.into / "cases").iterdir()) == ["a.json", "c.json"]

@@ -10,12 +10,11 @@ from cryptobench.shared.document.json_dump import json_text
 SCHEMA_VERSION = 1
 
 
-def record(start, end, scope=None):
+def record(start, end):
     """benchmark.json's thermal shape; why a reading is missing, cached or the process's goes in note, never in that shape."""
     entry = {"start": start.sensors, "end": end.sensors, "startStatus": start.status, "endStatus": end.status}
     notes = [r for r in (start.reason, end.reason) if r][:1]
     notes += ["source: cached"] if "cached" in (start.source, end.source) else []
-    notes += [f"scope: {scope}"] if scope else []
     if notes:
         entry["note"] = "; ".join(notes)
     return entry
@@ -29,7 +28,6 @@ def sleeps(data):
 
 
 class Thermal(Hooks):
-    """With one process for every case there is no case boundary: each case gets the process's reading, scope run."""
 
     def __init__(self, device, label, history):
         self.device, self.label, self.history = device, label, history
@@ -51,10 +49,7 @@ class Thermal(Hooks):
     def after_process(self, process):
         gated, end = self.history.records(), thermal.read(self.device)
         cases = self.cases.setdefault(process.repetition, {})
-        paused = sleeps(process.data)
-        for case in paused:
-            cases.setdefault(case, record(self.process_start, end, scope="run"))
-        self.paused[process.repetition] = paused
+        self.paused[process.repetition] = sleeps(process.data)
         document = {"schemaVersion": SCHEMA_VERSION, "process": record(self.process_start, end),
                     "cases": {case: reading | ({"gate": gated[case]} if case in gated else {}) for case, reading in cases.items()},
                     "gate": self.history.document}

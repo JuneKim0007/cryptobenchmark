@@ -1,14 +1,13 @@
-"""One measuring session on the device: processes over repetitions, a process per case or one for all, and hooks around the session,
+"""One measuring session on the device: processes over repetitions, an instrumentation process per case, and hooks around the session,
 each process and each case."""
 import dataclasses, pathlib, re
 
-from cryptobench.shared.settings import effective_view
 from cryptobench.shared.device import timeouts
 from cryptobench.shared.errors.failures import AllSkipped
 from cryptobench.shared.errors.line import one_line
 from cryptobench.stages.measurement import case_files
-from cryptobench.stages.measurement.session import blocks, calibration, case_isolation, dynamic_temperature, launch, reconnect, skips
-from cryptobench.shared.device.adb import PASSED, DeviceError, DeviceLost
+from cryptobench.stages.measurement.session import blocks, case_isolation, dynamic_temperature, launch, reconnect, skips
+from cryptobench.shared.device.adb import DeviceError, DeviceLost
 from cryptobench.shared.device.plan import clear_outputs
 from cryptobench.shared import paths
 from cryptobench.shared.log.warn import warn
@@ -88,15 +87,14 @@ def process_line(repetition, repetitions):
         print(f"process:   {repetition} of {repetitions}")
 
 
-def run_session(device, plan, repetitions, isolation, hooks, folder, problems):
+def run_session(device, plan, repetitions, hooks, folder, problems):
     """folder(repetition) is the process's folder; a case that failed is one problem line, a process that measured none the run's failure. A block an
     earlier run recorded is not measured again: its processes go through plan.kept."""
     for hook in hooks:
         hook.before_session()
     processes = []
 
-    measured = lambda repetition: processes.append(one_process(device, plan, Process(repetition, folder(repetition)), isolation, hooks, repetitions,
-                                                               problems))
+    measured = lambda repetition: processes.append(one_process(device, plan, Process(repetition, folder(repetition)), hooks, repetitions, problems))
     if plan.blocks is None:
         for repetition in range(1, repetitions + 1):
             measured(repetition)
@@ -107,7 +105,7 @@ def run_session(device, plan, repetitions, isolation, hooks, folder, problems):
     return processes
 
 
-def one_process(device, plan, process, isolation, hooks, repetitions, problems):
+def one_process(device, plan, process, hooks, repetitions, problems):
     process_line(process.repetition, repetitions)
     process.into.mkdir(parents=True, exist_ok=True)
     started = []
@@ -117,7 +115,7 @@ def one_process(device, plan, process, isolation, hooks, repetitions, problems):
             started.append(hook)
             plan.reconnect.retried(lambda hook=hook: hook.before_process(process), f"{type(hook).__name__}.before_process")
         if plan.timed:
-            measure(device, plan, process, isolation, hooks)
+            measure(device, plan, process, hooks)
             plan.reconnect.retried(lambda: plan.pull_plan(process), "the plan pull")
     except BaseException as error:
         # the interrupt kills adb, not the test it started on the device
@@ -165,15 +163,12 @@ def closed(process, hooks, waits=reconnect.Off()):
     return failed
 
 
-def measure(device, plan, process, isolation, hooks):
+def measure(device, plan, process, hooks):
     print(f"measure:   {plan.test_class} on the device" + ("" if device.stream else "; --stream shows each case"))
     plan.reconnect.retried(lambda: clear_outputs(device, plan.cleared), "the clearing of the device's outputs")
     for stale in (process.data, *plan.stale):
         stale.unlink(missing_ok=True)
-    if isolation == effective_view.CASE_ISOLATION:
-        each_case(device, plan, process, hooks)
-    else:
-        all_cases(device, plan, process)
+    each_case(device, plan, process, hooks)
 
 
 def planned(device, plan):
@@ -182,7 +177,7 @@ def planned(device, plan):
 
 def each_case(device, plan, process, hooks):
     process.cases = plan.order(process.repetition, plan.reconnect.retried(lambda: planned(device, plan), "the case listing"))
-    print(f"measure:   one process per case ({len(process.cases)} cases, isolation: case)")
+    print(f"measure:   one process per case ({len(process.cases)} cases)")
     case_files.opened(process.into)
     measured = []
     for number, case in enumerate(process.cases, 1):
@@ -202,19 +197,6 @@ def each_case(device, plan, process, hooks):
         raise DeviceError(f"{plan.test_class} failed on the device for every case:\n" + "\n".join(process.failures or ["no case planned"]))
 
 
-
 def verdict(failure):
     return "ok" if not failure else "skipped" if skips.every_case([failure]) else "failed"
 
-
-def all_cases(device, plan, process):
-    print("measure:   one process for every case (isolation: run)")
-    output = device.instrument(plan.test_class, *plan.arguments)
-    if not PASSED.search(output):
-        counted = COUNTED.search(output)
-        if not counted or counted.group(1) == counted.group(2):
-            raise DeviceError(f"{plan.test_class} failed on the device:\n" + device.report(output))
-        warn(f"{plan.test_class}: " + device.report(output).replace("\n", "\nwarning: "))
-    device.pull(device.data, process.data)
-    # one process for every case: nothing to measure again without repeating them all
-    process.failures.extend(f"case_failed: {line}" for line in calibration.short_samples(process.data))

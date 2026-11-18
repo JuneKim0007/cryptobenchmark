@@ -36,7 +36,7 @@ class Recorded(measure_session.Hooks):
 
 def session(phone, tmp_path, hooks, problems):
     plan = measure_session.Plan("CryptoBenchmark", (), after_process=lambda process: phone.log.append("convert"))
-    return measure_session.run_session(phone, plan, 1, "case", hooks, lambda _repetition: tmp_path / "benchmark", problems)
+    return measure_session.run_session(phone, plan, 1, hooks, lambda _repetition: tmp_path / "benchmark", problems)
 
 
 def hook_steps(phone):

@@ -30,7 +30,7 @@ def test_a_stop_signal_during_a_case_force_stops_the_device_like_ctrl_c(tmp_path
         return measured(test_class, *arguments, step=step)
     monkeypatch.setattr(phone, "instrument", signalled)
     with pytest.raises(KeyboardInterrupt):
-        measure_session.run_session(phone, measure_session.Plan("CryptoBenchmark", ()), 1, "case", [], lambda _repetition: tmp_path / "benchmark", [])
+        measure_session.run_session(phone, measure_session.Plan("CryptoBenchmark", ()), 1, [], lambda _repetition: tmp_path / "benchmark", [])
     assert phone.log[-1] == "force-stop"
     assert (tmp_path / "benchmark/cases/a.json").is_file()
 

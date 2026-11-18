@@ -24,7 +24,7 @@ def steps(phone):
 
 
 # The run section as :config writes it; a test overrides what it is about.
-RUN = {"metrics": ["TIME"], "processRepetitions": 1, "isolation": "case", "caseCooldownSeconds": 0, "launchRetries": 0, "resumeBlockRuns": 10,
+RUN = {"metrics": ["TIME"], "processRepetitions": 1, "caseCooldownSeconds": 0, "launchRetries": 0, "resumeBlockRuns": 10,
        "warmup": {"iterations": 0, "jobs": []}}
 
 
@@ -58,8 +58,8 @@ def measured(tmp_path, monkeypatch, run, phone=None, **phone_options):
     return phone, files, problems, results
 
 
-def test_isolation_case_is_one_process_per_case_and_one_conversion(tmp_path, monkeypatch):
-    phone, files, problems, results = measured(tmp_path, monkeypatch, {"isolation": "case"})
+def test_one_process_per_case_and_one_conversion(tmp_path, monkeypatch):
+    phone, files, problems, results = measured(tmp_path, monkeypatch, {})
     instrumented = [s for s in steps(phone) if s.startswith("instrument ")]
     assert instrumented == ["instrument CryptoBenchmark a", "instrument CryptoBenchmark b"]
     assert steps(phone).count("convert") == 1 and steps(phone)[-1] == "convert"
@@ -68,21 +68,15 @@ def test_isolation_case_is_one_process_per_case_and_one_conversion(tmp_path, mon
     assert files["prepared"] == results / "preparation/prepared.yaml"
 
 
-def test_isolation_run_is_one_process(tmp_path, monkeypatch):
-    phone, _files, _problems, _results = measured(tmp_path, monkeypatch, {"isolation": "run"})
-    assert [s for s in steps(phone) if s.startswith("instrument ")] == ["instrument CryptoBenchmark"]
-    assert steps(phone).count("convert") == 1 and steps(phone)[-1] == "convert"
-
-
 def test_repetitions_each_write_their_folder_and_merge(tmp_path, monkeypatch):
-    phone, files, _problems, results = measured(tmp_path, monkeypatch, {"isolation": "case", "processRepetitions": 2})
+    phone, files, _problems, results = measured(tmp_path, monkeypatch, {"processRepetitions": 2})
     assert [s for s in steps(phone) if s.startswith("instrument ")] == ["instrument CryptoBenchmark a", "instrument CryptoBenchmark b"] * 2
     assert steps(phone).count("convert") == 2 and steps(phone)[-1] == "merge"
     assert files["clocks"] == [results / "benchmark/process-1/clocks.yaml", results / "benchmark/process-2/clocks.yaml"]
     assert (results / "benchmark/process-1/benchmark.json").is_file() and (results / "benchmark/process-2/benchmark.json").is_file()
 
 
-MEASURED = {"isolation": "case", "harness": {"energy": {"capture": "measured"}}, "passes": {"energy": {"samples": 3}, "timing": {"samples": 3}}}
+MEASURED = {"harness": {"energy": {"capture": "measured"}}, "passes": {"energy": {"samples": 3}, "timing": {"samples": 3}}}
 
 
 def test_measured_capture_runs_inside_the_window_with_a_preflight_first(tmp_path, monkeypatch):
@@ -126,7 +120,7 @@ def test_a_clock_record_that_fails_after_the_process_still_closes_the_window_and
 
 
 def test_a_crash_and_a_hang_cost_only_their_cases(tmp_path, monkeypatch):
-    phone, _files, problems, _results = measured(tmp_path, monkeypatch, {"isolation": "case"}, cases=("a", "crash", "hang", "b"),
+    phone, _files, problems, _results = measured(tmp_path, monkeypatch, {}, cases=("a", "crash", "hang", "b"),
                                                  crash=("crash",), hang=("hang",))
     assert [line.split(":")[1].strip() for line in problems if line.startswith("case_failed")] == ["crash", "hang"]
     assert "force-stop" in steps(phone) and "not_measured: crash" in problems
@@ -145,7 +139,7 @@ def test_every_strongbox_refusal_on_record_is_a_final_keystore_unsupported_skip(
 
 def test_a_coded_preparation_skip_is_final_and_a_crash_keeps_its_retries(tmp_path, monkeypatch):
     refused = next(iter(REFUSED))
-    phone, _files, problems, _results = measured(tmp_path, monkeypatch, {"isolation": "case", "launchRetries": 2},
+    phone, _files, problems, _results = measured(tmp_path, monkeypatch, {"launchRetries": 2},
                                                  cases=("a", "crash", refused, "b"), crash=("crash",), refuse=REFUSED)
     launched = [s for s in steps(phone) if s.startswith("instrument ")]
     assert launched.count(f"instrument CryptoBenchmark {refused}") == 1 and launched.count("instrument CryptoBenchmark crash") == 3
@@ -153,7 +147,7 @@ def test_a_coded_preparation_skip_is_final_and_a_crash_keeps_its_retries(tmp_pat
 
 
 def test_a_process_whose_every_case_is_a_coded_skip_is_an_outcome_not_a_device_error(tmp_path, monkeypatch):
-    phone, files, problems, _results = measured(tmp_path, monkeypatch, {"isolation": "case", "launchRetries": 2}, cases=tuple(REFUSED), refuse=REFUSED)
+    phone, files, problems, _results = measured(tmp_path, monkeypatch, {"launchRetries": 2}, cases=tuple(REFUSED), refuse=REFUSED)
     assert [s for s in steps(phone) if s.startswith("instrument ")] == [f"instrument CryptoBenchmark {case}" for case in REFUSED]
     assert problems[:-1] == [f"case_skipped: {case}: keystore_unsupported" for case in REFUSED]
     assert problems[-1].startswith("all_cases_skipped: every case of CryptoBenchmark is a coded preparation skip: 5 cases")
@@ -162,7 +156,7 @@ def test_a_process_whose_every_case_is_a_coded_skip_is_an_outcome_not_a_device_e
 
 def test_the_warm_up_leaves_out_a_coded_skip_and_warms_the_next_cases(tmp_path, monkeypatch):
     first = list(REFUSED)[:3]
-    phone, _files, problems, _results = measured(tmp_path, monkeypatch, {"isolation": "case", "warmup": {"iterations": 5, "jobs": []}},
+    phone, _files, problems, _results = measured(tmp_path, monkeypatch, {"warmup": {"iterations": 5, "jobs": []}},
                                                  cases=(*first, "a", "b"), refuse=REFUSED)
     warmed = [args[args.index("case") + 1] for args in phone.arguments if "warmup" in args]
     assert warmed == [",".join(first), "a,b"]
@@ -171,11 +165,11 @@ def test_the_warm_up_leaves_out_a_coded_skip_and_warms_the_next_cases(tmp_path, 
 
 def test_every_case_failing_stops_the_run(tmp_path, monkeypatch):
     with pytest.raises(DeviceError, match="failed on the device for every case"):
-        measured(tmp_path, monkeypatch, {"isolation": "case"}, cases=("a",), crash=("a",))
+        measured(tmp_path, monkeypatch, {}, cases=("a",), crash=("a",))
 
 
 def test_each_pass_is_its_own_session_and_every_metric_comes_from_its_pass(tmp_path, monkeypatch):
-    run = {"isolation": "case", "metrics": ["TIME", "ALLOCATION"], "harness": {"energy": {"capture": "measured"}},
+    run = {"metrics": ["TIME", "ALLOCATION"], "harness": {"energy": {"capture": "measured"}},
            "passes": {"timing": {"samples": 300}, "energy": {"samples": 100}, "allocation": {"samples": 100}}}
     phone, files, _problems, results = measured(tmp_path, monkeypatch, run)
     named = [args[args.index("cryptobench.pass") + 1] + ":" + args[args.index("cryptobench.samples") + 1] for args in phone.arguments]
@@ -196,7 +190,7 @@ def test_the_throttle_sleep_reaches_every_process_and_unset_passes_nothing(tmp_p
 
 def test_measured_energy_without_its_own_pass_is_refused(tmp_path, monkeypatch):
     with pytest.raises(SystemExit) as stopped, reported():
-        measured(tmp_path, monkeypatch, {"isolation": "case", "harness": {"energy": {"capture": "measured"}}})
+        measured(tmp_path, monkeypatch, {"harness": {"energy": {"capture": "measured"}}})
     assert stopped.value.code == 1
 
 
@@ -219,7 +213,7 @@ Current cooling devices from HAL:
 
 
 def test_temperature_is_read_around_every_case_and_reaches_the_conversion(tmp_path, monkeypatch):
-    phone, _files, problems, results = measured(tmp_path, monkeypatch, {"isolation": "case"}, thermal=DUMP)
+    phone, _files, problems, results = measured(tmp_path, monkeypatch, {}, thermal=DUMP)
     assert phone.log.count("thermal") == 2 + 2 * 2
     reading = json.loads((results / "benchmark/thermal.json").read_text())
     assert reading["cases"]["a"] == {"start": {"cpu7": 41.5}, "end": {"cpu7": 41.5}, "startStatus": 1, "endStatus": 1}
@@ -227,19 +221,14 @@ def test_temperature_is_read_around_every_case_and_reaches_the_conversion(tmp_pa
 
 
 def test_temperature_unavailable_is_null_with_a_reason_and_no_case_fails(tmp_path, monkeypatch):
-    phone, _files, problems, results = measured(tmp_path, monkeypatch, {"isolation": "case"})
+    phone, _files, problems, results = measured(tmp_path, monkeypatch, {})
     reading = json.loads((results / "benchmark/thermal.json").read_text())["cases"]["b"]
     assert reading["start"] is None and reading["endStatus"] is None and reading["note"].startswith("thermal_unavailable: ")
     assert problems == [] and json.loads((results / "benchmark/benchmark.json").read_text())["cases"]
 
 
-def test_one_process_for_every_case_gives_each_case_the_process_reading_noted(tmp_path, monkeypatch):
-    _phone, _files, _problems, results = measured(tmp_path, monkeypatch, {"isolation": "run"}, thermal=DUMP)
-    assert json.loads((results / "benchmark/thermal.json").read_text())["cases"]["a"]["note"] == "scope: run"
-
-
 def test_the_warm_up_runs_once_before_the_first_pass_and_never_reaches_the_results(tmp_path, monkeypatch):
-    run = {"isolation": "case", "warmup": {"iterations": 10, "jobs": [{"provider": "P", "type": "T", "name": "b"}]},
+    run = {"warmup": {"iterations": 10, "jobs": [{"provider": "P", "type": "T", "name": "b"}]},
            "passes": {"timing": {"samples": 3}}}
     phone, _files, problems, results = measured(tmp_path, monkeypatch, run, cases=("a", "b"))
     log = steps(phone)
@@ -252,7 +241,7 @@ def test_the_warm_up_runs_once_before_the_first_pass_and_never_reaches_the_resul
 
 
 def test_a_failed_warm_up_costs_the_run_nothing(tmp_path, monkeypatch):
-    phone, _files, problems, results = measured(tmp_path, monkeypatch, {"isolation": "case", "warmup": {"iterations": 5, "jobs": []}},
+    phone, _files, problems, results = measured(tmp_path, monkeypatch, {"warmup": {"iterations": 5, "jobs": []}},
                                                 cases=("a", "b"), crash=("a,b",))
     assert problems == []
     assert len(json.loads((results / "benchmark/benchmark.json").read_text())["cases"]) == 2
@@ -261,12 +250,10 @@ def test_a_failed_warm_up_costs_the_run_nothing(tmp_path, monkeypatch):
 def test_the_cool_down_sleeps_between_cases_never_before_the_first(tmp_path, monkeypatch):
     slept = []
     monkeypatch.setattr(cooldown_hook.time, "sleep", slept.append)
-    measured(tmp_path, monkeypatch, {"isolation": "case", "caseCooldownSeconds": 20})
+    measured(tmp_path, monkeypatch, {"caseCooldownSeconds": 20})
     assert slept == [20]
-    measured(tmp_path / "run", monkeypatch, {"isolation": "run", "processRepetitions": 2, "caseCooldownSeconds": 5})
-    assert slept == [20, 5]
-    measured(tmp_path / "off", monkeypatch, {"isolation": "case"})
-    assert slept == [20, 5]
+    measured(tmp_path / "off", monkeypatch, {})
+    assert slept == [20]
 
 
 def test_an_order_seed_launches_each_process_in_its_drawn_order_and_changes_nothing_else(tmp_path, monkeypatch):
@@ -283,6 +270,6 @@ def test_an_order_seed_launches_each_process_in_its_drawn_order_and_changes_noth
 
 def test_variants_run_interleaved_per_item_each_in_its_own_process(tmp_path, monkeypatch):
     cases = ("m_fixed", "m_notFixed", "c_fixed", "c_notFixed")
-    phone, _files, _problems, _results = measured(tmp_path, monkeypatch, {"isolation": "case", "processRepetitions": 2}, cases=cases)
+    phone, _files, _problems, _results = measured(tmp_path, monkeypatch, {"processRepetitions": 2}, cases=cases)
     run = [line.split()[-1] for line in steps(phone) if line.startswith("instrument CryptoBenchmark ")]
     assert run == ["m_fixed", "m_notFixed", "c_fixed", "c_notFixed", "m_notFixed", "m_fixed", "c_notFixed", "c_fixed"]

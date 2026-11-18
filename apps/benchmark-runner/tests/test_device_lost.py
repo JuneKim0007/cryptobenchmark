@@ -78,7 +78,7 @@ def lost_run(tmp_path, monkeypatch, polls, wait_minutes=1):
     monkeypatch.setattr(timeouts, "run", phone.answer)
     monkeypatch.setattr("test_device_benchmark_flow.OPTIONS", types.SimpleNamespace(**{**vars(OPTIONS), "reconnect_wait_minutes": wait_minutes,
                                                                                          "reconnect_poll_seconds": 10}))
-    return phone, measured(tmp_path, monkeypatch, {"isolation": "case", "thermalGate": GATE, "launchRetries": 1}, phone=phone)
+    return phone, measured(tmp_path, monkeypatch, {"thermalGate": GATE, "launchRetries": 1}, phone=phone)
 
 
 def test_the_pilots_lost_transport_is_waited_out_and_the_same_case_runs_again(tmp_path, monkeypatch, capsys):

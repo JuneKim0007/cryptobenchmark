@@ -36,7 +36,6 @@
    "notFixed"
   ],
   "processRepetitions": 1,
-  "isolation": "case",
   "seed": 42,
   "caseCooldownSeconds": 0,
   "launchRetries": 2,
