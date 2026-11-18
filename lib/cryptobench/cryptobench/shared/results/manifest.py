@@ -6,11 +6,13 @@ from cryptobench.shared.device.capture import runtime as capture_runtime
 from cryptobench.shared.device.identity import device_id
 from cryptobench.shared import paths
 from cryptobench.shared.results import run_inputs
-from cryptobench.shared.document.document import parse_yaml, read_yaml
+from cryptobench.shared.document.document import DocumentKind, parse_yaml, read_yaml
 from cryptobench.shared.document.dump import dump_yaml
 from cryptobench.shared.document.write import MANIFEST, write_text
 
 ENGINE_OPERATIONS = paths.repo().engine_operations
+MANIFEST_DOC = DocumentKind("manifest", 1)
+MODES = ("host", "device")
 
 
 def runtime(measured, captured, files):
@@ -56,7 +58,7 @@ def manifest(results, mode, configuration, files, problems=(), partial=None, res
     captured = capture_runtime(probe)
     counted = {"prepared": ("prepared", "cases"), "skipped": ("skipped", "skipped"), "measured": ("benchmark", "cases")}
     document = {
-        "schemaVersion": 1,
+        "schemaVersion": MANIFEST_DOC.version,
         "mode": mode,
         "config": str(configuration),
         "deviceId": device_id(captured),
@@ -70,14 +72,15 @@ def manifest(results, mode, configuration, files, problems=(), partial=None, res
                    for count, (key, field) in counted.items() if key in files},
         "operations": operations(),
     } | units(files) | estimated_mark(files.get("energy")) | survived(problems) | ({"resumed": list(resumed)} if resumed else {}) | ({"partial": partial} if partial else {})
-    path = paths.RunTree(results).manifest
-    write_text(path, dump_yaml(document), staging=MANIFEST)
-    print(f"wrote:     {path}")
+    print(f"wrote:     {write(results, document)}")
+
+
+def write(results, document):
+    """manifest.yaml replaced whole through its hidden temporary; every writer of a manifest goes through here."""
+    return write_text(paths.RunTree(results).manifest, dump_yaml(document), staging=MANIFEST)
 
 
 def add_to_manifest(results, added):
-    path = paths.RunTree(results).manifest
-    document = read_yaml(path)
+    document = MANIFEST_DOC.read(paths.RunTree(results).manifest)
     document["files"].update({key: value.relative_to(results).as_posix() for key, value in added.items()})
-    write_text(path, dump_yaml(document), staging=MANIFEST)
-    print(f"wrote:     {path}")
+    print(f"wrote:     {write(results, document)}")

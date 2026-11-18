@@ -39,9 +39,8 @@ def fingerprint(folder: Path) -> dict:
     prepared = manifest_file(manifest, base, "prepared")
     run = (read_yaml(effective).get("run") or {}) if effective else {}
     planned = (read_yaml(prepared).get("run") or {}) if prepared else {}
-    # energy: the source and kind of an estimated run, a top-level mark BenchmarkManifest does not keep
     out = {"deviceId": manifest.deviceId, "mode": manifest.mode, "bundled": _bundled(manifest, base),
-           "processes": len(manifest.files.get("processes") or ()), "energy": read_yaml(RunTree(base).manifest).get("energy")}
+           "processes": len(manifest.files.get("processes") or ()), "energy": manifest.energy}
     # a probe writes a field it cannot know as empty, and a capture may hold a number the benchmark writes as text
     out.update({f"runtime.{k}": str(manifest.runtime[k]) if manifest.runtime.get(k) not in (None, "") else None for k in RUNTIME})
     return _flat("prepared", planned, _flat("run", run, out))

@@ -312,13 +312,10 @@ def test_a_merge_refuses_an_id_the_benchmark_holds(device, tmp_path):
 
 def test_an_interrupted_merge_leaves_the_stored_benchmark_whole(device, tmp_path, monkeypatch):
     before = {name: (device / name).read_bytes() for name in (MANIFEST, "benchmark/benchmark.json", "preparation/prepared.yaml")}
-    real = delta_merge.write_text_making_parents
 
-    def dies_at_the_switch(path, text):
-        if Path(path).name == MANIFEST:
-            raise KeyboardInterrupt
-        return real(path, text)
-    monkeypatch.setattr(delta_merge, "write_text_making_parents", dies_at_the_switch)
+    def dies_at_the_switch(results, document):
+        raise KeyboardInterrupt
+    monkeypatch.setattr(delta_merge, "write_manifest", dies_at_the_switch)
     with pytest.raises(KeyboardInterrupt):
         merge_delta(device, staged_copy(device, tmp_path), {"added"}, "s", "checked")
     assert {name: (device / name).read_bytes() for name in before} == before

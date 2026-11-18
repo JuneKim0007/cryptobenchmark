@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import shutil
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 from cryptobench.shared.paths import RunTree
@@ -39,7 +39,7 @@ from .setup_fingerprint import (
     fingerprint,
     without_narrowed,
 )
-from cryptobench.shared.document.dump import dump_yaml
+from cryptobench.shared.results.manifest import write as write_manifest
 
 RESULTS = "results"
 DRIFT_METRIC = "timeNs"
@@ -88,7 +88,7 @@ def _drift(stored: dict, now: dict, anchors: set[str]) -> tuple[tuple[str, ...],
 
 def _whole_run_cases(folder: Path, measured: int) -> int:
     """The cases the whole benchmark's took: line timed: the measured count without what deltas added."""
-    return measured - sum(len(d.get("cases") or ()) for d in read_yaml(RunTree(folder).manifest).get("deltas") or ())
+    return measured - sum(len(d.get("cases") or ()) for d in read_manifest(RunTree(folder).manifest)[0].deltas)
 
 
 def _case_mismatch(stored: Path, staged: Path, shared: set[str]) -> list[str]:
@@ -161,6 +161,5 @@ def rerun_whole(folder: Path, gaps: tuple[Gap, ...], session: str, on_device: bo
     manifest, _ = read_manifest(RunTree(folder).manifest)
     config = write_rerun_config(Path(manifest.config), folder, {g.item for g in gaps})
     run_pipeline(config, folder.parent, "device" if on_device else "bench", benchmark=benchmark, echo=echo, device=folder)
-    measured = read_yaml(RunTree(folder).manifest)
-    write_text_making_parents(RunTree(folder).manifest, dump_yaml({**measured, "retried": _retried(gaps), "deltas": [
-        {"session": session, "cases": [], "rerun": True}]}))
+    measured = read_manifest(RunTree(folder).manifest)[0]
+    write_manifest(folder, replace(measured, retried=tuple(_retried(gaps)), deltas=({"session": session, "cases": [], "rerun": True},)).to_json())

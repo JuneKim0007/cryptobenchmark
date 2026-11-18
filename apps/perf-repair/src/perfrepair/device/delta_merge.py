@@ -3,16 +3,18 @@ manifest.yaml, renamed in last, is the one switch, so an interrupted merge leave
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 from cryptobench.shared.paths import BENCHMARK, BENCHMARK_JSON, PROCESS_FORM, RunTree
+from ..data_handler.inbound import read_manifest
 from ..dto.dossier import SETUP_DRIFT
 from ..files import read_json, write_text_making_parents
 from cryptobench.shared.document.json_dump import json_text
 from cryptobench.shared.errors.input_error import InputError
 from cryptobench.shared.document.document import parse_yaml, read_yaml
 from cryptobench.shared.document.dump import dump_yaml
+from cryptobench.shared.results.manifest import write as write_manifest
 
 PLANNED = ("prepared", "skipped")
 NO_PLAN = "null"
@@ -95,34 +97,33 @@ def merge_delta(folder: Path, staged: Path, ids: set[str], session: str, compari
     """ids: the delta's cases to add; one already stored refuses the merge, never replaces a case; retried: the lost cases
     this delta measured again; fill: per stored case the metrics it lacks, taken from the delta's same case."""
     folder, staged, fill = Path(folder), Path(staged), fill or {}
-    manifest, delta = read_yaml(RunTree(folder).manifest), read_yaml(RunTree(staged).manifest)
-    files = dict(manifest["files"])
+    manifest, delta = read_manifest(RunTree(folder).manifest)[0], read_manifest(RunTree(staged).manifest)[0]
+    files = dict(manifest.files)
     mine = [read_json(folder / p) for p in [files["benchmark"], *(files.get("processes") or ())]]
-    theirs = [read_json(staged / p) for p in [delta["files"]["benchmark"], *(delta["files"].get("processes") or ())]]
+    theirs = [read_json(staged / p) for p in [delta.files["benchmark"], *(delta.files.get("processes") or ())]]
     _same_samples(_samples(mine), _samples(theirs), ids | set(fill), _planned_alike(folder, files),
-                  _planned_alike(staged, delta["files"]))
+                  _planned_alike(staged, delta.files))
     out = Path(BENCHMARK) / f"merged-{session}"
     merged = _benchmarks(mine[0], theirs[0], ids, fill, session, comparison)
     texts = {"benchmark": json_text(merged)}
     for n, (a, b) in enumerate(zip(mine[1:], theirs[1:]), 1):
         texts[PROCESS_FORM.format(n)] = json_text(_benchmarks(a, b, ids, fill, session, comparison))
     for key in PLANNED:
-        if files.get(key) and delta["files"].get(key):
-            texts[key] = dump_yaml(_plan_file(key, read_yaml(folder / files[key]), read_yaml(staged / delta["files"][key])))
+        if files.get(key) and delta.files.get(key):
+            texts[key] = dump_yaml(_plan_file(key, read_yaml(folder / files[key]), read_yaml(staged / delta.files[key])))
     for key, text in texts.items():
         name = f"{key}/{BENCHMARK_JSON}" if key.startswith("process-") else f"{key}.yaml" if key in PLANNED else BENCHMARK_JSON
         write_text_making_parents(folder / out / name, text)
     files.update({k: str(out / (f"{k}.yaml" if k in PLANNED else BENCHMARK_JSON)) for k in texts if not k.startswith("process-")})
     if files.get("processes"):
         files["processes"] = [str(out / PROCESS_FORM.format(n) / BENCHMARK_JSON) for n in range(1, len(files["processes"]) + 1)]
-    counts = dict(manifest.get("counts") or {})
+    counts = dict(manifest.counts)
     counts["measured"] = counts.get("measured", 0) + len(ids)
     if "prepared" in texts:
         counts["prepared"] = len(parse_yaml(texts["prepared"], "prepared").get("cases") or [])
     filled = {c["id"]: c["filled"] for c in merged["cases"] if c["id"] in fill and c.get("session") == session and c.get("filled")}
-    deltas = list(manifest.get("deltas") or []) + [{"session": session, "cases": sorted(ids), "comparison": comparison,
-                                                     "from": str(staged), **({"filled": filled} if filled else {})}]
-    tried = sorted(set(manifest.get("retried") or ()) | set(retried))
-    write_text_making_parents(RunTree(folder).manifest, dump_yaml({**manifest, "files": files, "counts": counts, "deltas": deltas,
-                                                                    **({"retried": tried} if tried else {})}))
+    deltas = (*manifest.deltas, {"session": session, "cases": sorted(ids), "comparison": comparison,
+                                                     "from": str(staged), **({"filled": filled} if filled else {})})
+    tried = tuple(sorted(set(manifest.retried) | set(retried)))
+    write_manifest(folder, replace(manifest, files=files, counts=counts, deltas=deltas, retried=tried).to_json())
     return Merged(tuple(sorted(ids)), str(out))
