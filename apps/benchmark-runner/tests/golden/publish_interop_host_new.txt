@@ -1,0 +1,43 @@
+tree:
+  .lock
+  probed-api36-4c538a37/configuration/effective.yaml
+  probed-api36-4c538a37/discovery/probe_<stamp>.yaml
+  probed-api36-4c538a37/discovery/trial_<stamp>.yaml
+  probed-api36-4c538a37/interop/interop.yaml
+  probed-api36-4c538a37/interop/interop_plan.yaml
+  probed-api36-4c538a37/manifest.yaml
+manifest:
+schemaVersion: 1
+mode: host
+config: <tmp>/global.yaml
+deviceId: probed-api36-4c538a37
+inputs:
+  bundled: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+  config: 49301b9953f2c669f76d2f2de50ddb3052ef6bc20725bf15c8b2d61ee550e579
+runtime:
+  fingerprint: a/b/c:16/X/1:user/release-keys
+  model: probed
+  sdkInt: 36
+providers:
+- name: first
+  precedence: 1
+  serviceCount: 2
+- name: second
+  precedence: 2
+  serviceCount: 1
+- name: empty
+  precedence: 3
+  serviceCount: 0
+files:
+  probe: discovery/probe_<stamp>.yaml
+  trial: discovery/trial_<stamp>.yaml
+  effective: configuration/effective.yaml
+  interopPlan: interop/interop_plan.yaml
+  interop: interop/interop.yaml
+counts: {}
+operations: <engine operations>
+stdout:
+  interop:   p2 g fail: bytes differ
+  interop:   2 pairs, 1 fail, 1 pass
+  wrote:     <tmp>/results/probed-api36-4c538a37/interop/interop.yaml
+  wrote:     <tmp>/results/probed-api36-4c538a37/manifest.yaml
