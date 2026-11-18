@@ -59,11 +59,12 @@ class GlobalDocumentTest {
               thermalThrottleSleepSeconds: 30
               caseCooldownSeconds: 20
               resumeBlockRuns: 1
-              warmup: {iterations: 0, jobs: [{type: MessageDigest, name: SHA-256}]}
+              warmup: {iterations: 0, jobs: [{type: MessageDigest, name: SHA-256}], cases: 2}
               passes: {timing: {samples: 3}, allocation: {samples: 2}}
         """.trimIndent() + "\n")
         assertEquals(listOf(MeasurePass("timing", 3), MeasurePass("allocation", 2)), written.passes)
         assertEquals(1, written.resumeBlockRuns)
+        assertEquals(2, written.warmup.cases)
         assertEquals(written, GlobalDocument.parse(codec.load(YamlCodec.DOCUMENT.dump(GlobalDocument.of(global("").copy(run = written))))).run)
     }
 
@@ -99,6 +100,7 @@ class GlobalDocumentTest {
             "run: {caseCooldownSeconds: -1}\n" to "negative: caseCooldownSeconds",
             "run: {resumeBlockRuns: 0}\n" to "not_positive: resumeBlockRuns 0",
             "run: {warmup: {iterations: -1}}\n" to "negative: run.warmup.iterations",
+            "run: {warmup: {cases: 0}}\n" to "not_positive: run.warmup.cases 0",
             "run: {thermalGate: {}}\n" to "missing_field: run.thermalGate.temperatureKeptCelsius",
             "run: {thermalGate: {temperatureKeptCelsius: 36.0, cooldownMinutes: 1.5}}\n" to "not_whole: run.thermalGate.cooldownMinutes",
             "run: {thermalGate: {temperatureKeptCelsius: 36.0, pollMinutes: 0}}\n" to "not_positive: run.thermalGate.pollMinutes",

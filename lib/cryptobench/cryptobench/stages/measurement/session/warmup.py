@@ -4,7 +4,7 @@ import time
 from cryptobench.shared.settings import effective_view
 from cryptobench.shared.device import timeouts
 from cryptobench.stages.measurement.session import case_isolation
-from cryptobench.stages.measurement.session import dynamic_temperature, passes, skips
+from cryptobench.stages.measurement.session import passes, skips
 from cryptobench.stages.measurement.session.measure import COUNTED
 from cryptobench.stages.measurement import thermal
 from cryptobench.shared.device.adb import PASSED, DeviceError, DeviceLost
@@ -12,12 +12,12 @@ from cryptobench.shared.device.plan import clear_outputs
 from cryptobench.shared.errors.line import one_line
 from cryptobench.shared.log.warn import warn
 
-DEFAULT_CASES = 3
 WARMUP_PASS = "warmup"   # PassArguments: any pass but energy and allocation captures no energy
 
 
 def settings(document):
-    return effective_view.required(document, "run.warmup.iterations"), effective_view.required(document, "run.warmup.jobs")
+    return (effective_view.required(document, "run.warmup.iterations"), effective_view.required(document, "run.warmup.jobs"),
+            effective_view.required(document, "run.warmup.cases"))
 
 
 def matches(job, case):
@@ -25,10 +25,10 @@ def matches(job, case):
     return (job["provider"], job["type"], job["name"], job.get("group")) == (case.get("provider"), case.get("type"), case.get("algorithm"), case.get("group"))
 
 
-def chosen(planned, cases, jobs):
-    """The planned ids the jobs select, in plan order; no job means the plan's first few."""
+def chosen(planned, cases, jobs, count):
+    """The planned ids the jobs select, in plan order; no job means the plan's first count (run.warmup.cases)."""
     if not jobs:
-        return planned[:DEFAULT_CASES]
+        return planned[:count]
     by_id = {case["id"]: case for case in cases}
     return [case for case in planned if any(matches(rule, by_id.get(case, {})) for rule in jobs)]
 
@@ -40,15 +40,15 @@ def off(document):
     return False
 
 
-def run(device, test_class, arguments, planned, cases, document, gate=dynamic_temperature.Off(), skipped=lambda: {}):
+def run(device, test_class, arguments, planned, cases, document, gate, skipped):
     """One process over the chosen cases; a failure warns and the session goes on. skipped(): the device's final skips by case id
     (skips.py); a chosen case among them is left out and the choice made again. Returns the cases it warmed."""
     if off(document):
         return []
-    iterations, jobs = settings(document)
+    iterations, jobs, count = settings(document)
     left_out = {case: code for case, code in skipped().items() if case in planned}
     while True:
-        selected = chosen([case for case in planned if case not in left_out], cases, jobs)
+        selected = chosen([case for case in planned if case not in left_out], cases, jobs, count)
         if not selected:
             warn("WARM-UP SKIPPED: run.warmup.jobs select no planned case" + (" that prepares" if left_out else "") + "; measuring without a warm-up")
             return []

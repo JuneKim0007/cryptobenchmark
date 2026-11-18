@@ -22,6 +22,7 @@ run:
   warmup:
     iterations: 10
     jobs: []
+    cases: 3
   thermalGate:
     temperatureKeptCelsius: 36.0
     cooldownMinutes: 3

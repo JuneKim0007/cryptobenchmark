@@ -5,7 +5,7 @@ import pytest
 
 import pipeline
 from cryptobench.stages.measurement.session import measure as measure_session
-from fake_phone import listed, Phone
+from fake_phone import listed, UNGATED, Phone
 
 
 @pytest.fixture
@@ -30,7 +30,7 @@ def test_a_stop_signal_during_a_case_force_stops_the_device_like_ctrl_c(tmp_path
         return measured(test_class, *arguments, step=step)
     monkeypatch.setattr(phone, "instrument", signalled)
     with pytest.raises(KeyboardInterrupt):
-        measure_session.run_session(phone, measure_session.Plan("CryptoBenchmark", (), listed), 1, [], lambda _repetition: tmp_path / "benchmark", [])
+        measure_session.run_session(phone, measure_session.Plan("CryptoBenchmark", (), listed, **UNGATED), 1, [], lambda _repetition: tmp_path / "benchmark", [])
     assert phone.log[-1] == "force-stop"
     assert (tmp_path / "benchmark/cases/a.json").is_file()
 

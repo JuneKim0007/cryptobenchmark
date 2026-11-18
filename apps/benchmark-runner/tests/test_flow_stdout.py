@@ -33,7 +33,7 @@ FLOWS = {
     "gate_cooldown": lambda tmp_path, monkeypatch: (Heat(monkeypatch), monkeypatch.setattr(flow.cooldown_hook.time, "sleep", lambda _s: None),
                                                     measured(tmp_path, monkeypatch, CASE | {"caseCooldownSeconds": 4})),
     "warmup_failed_cooldown": lambda tmp_path, monkeypatch: (monkeypatch.setattr(flow.cooldown_hook.time, "sleep", lambda _s: None), measured(
-        tmp_path, monkeypatch, {"caseCooldownSeconds": 4, "warmup": {"iterations": 5, "jobs": []}}, crash=("a,b",), thermal=DUMP)),
+        tmp_path, monkeypatch, {"caseCooldownSeconds": 4, "warmup": {"iterations": 5, "jobs": [], "cases": 3}}, crash=("a,b",), thermal=DUMP)),
 }
 
 

@@ -14,7 +14,7 @@ internal object WarmupJobs {
         val selected = entries.filter { entry -> warmup.jobs.any { entry.selectedBy(it) } }
         val warnings = warmup.jobs.filter { job -> entries.none { it.selectedBy(job) } }.map { "warmup_job_matches_nothing: $it" }
         // No entry selected: the warm-up is off, as the runner would have skipped it.
-        return (if (selected.isEmpty()) Warmup(0) else Warmup(warmup.iterations, selected.map { it.rule })) to warnings
+        return (if (selected.isEmpty()) warmup.copy(iterations = 0, jobs = emptyList()) else warmup.copy(jobs = selected.map { it.rule })) to warnings
     }
 
     private class Entry(val provider: String, val type: String, val name: String, val group: String?) {

@@ -30,6 +30,7 @@ run:
     warmup:
       iterations: 0
       jobs: []
+      cases: 3
   selection: c2b27b9384e2c84c4f23e12d1afd3bc7feab488e0ce441bdc5e5ff01a221fe85
   code: <code digests>
   device:

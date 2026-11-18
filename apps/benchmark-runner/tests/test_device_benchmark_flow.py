@@ -25,7 +25,7 @@ def steps(phone):
 
 # The run section as :config writes it; a test overrides what it is about. Seed 4792 draws the listed order for these fixtures' few cases.
 RUN = {"metrics": ["TIME"], "processRepetitions": 1, "caseCooldownSeconds": 0, "launchRetries": 0, "resumeBlockRuns": 10, "orderSeed": 4792,
-       "warmup": {"iterations": 0, "jobs": []}}
+       "warmup": {"iterations": 0, "jobs": [], "cases": 3}}
 
 
 def layout(tmp_path, run):
@@ -158,7 +158,7 @@ def test_a_process_whose_every_case_is_a_coded_skip_is_an_outcome_not_a_device_e
 
 def test_the_warm_up_leaves_out_a_coded_skip_and_warms_the_next_cases(tmp_path, monkeypatch):
     first = list(REFUSED)[:3]
-    phone, _files, problems, _results = measured(tmp_path, monkeypatch, {"warmup": {"iterations": 5, "jobs": []}},
+    phone, _files, problems, _results = measured(tmp_path, monkeypatch, {"warmup": {"iterations": 5, "jobs": [], "cases": 3}},
                                                  cases=(*first, "a", "b"), refuse=REFUSED)
     warmed = [args[args.index("case") + 1] for args in phone.arguments if "warmup" in args]
     assert warmed == [",".join(first), "a,b"]
@@ -231,7 +231,7 @@ def test_temperature_unavailable_is_null_with_a_reason_and_no_case_fails(tmp_pat
 
 
 def test_the_warm_up_runs_once_before_the_first_pass_and_never_reaches_the_results(tmp_path, monkeypatch):
-    run = {"warmup": {"iterations": 10, "jobs": [{"provider": "P", "type": "T", "name": "b"}]},
+    run = {"warmup": {"iterations": 10, "jobs": [{"provider": "P", "type": "T", "name": "b"}], "cases": 3},
            "passes": {"timing": {"samples": 3}}}
     phone, _files, problems, results = measured(tmp_path, monkeypatch, run, cases=("a", "b"))
     log = steps(phone)
@@ -244,7 +244,7 @@ def test_the_warm_up_runs_once_before_the_first_pass_and_never_reaches_the_resul
 
 
 def test_a_failed_warm_up_costs_the_run_nothing(tmp_path, monkeypatch):
-    phone, _files, problems, results = measured(tmp_path, monkeypatch, {"warmup": {"iterations": 5, "jobs": []}},
+    phone, _files, problems, results = measured(tmp_path, monkeypatch, {"warmup": {"iterations": 5, "jobs": [], "cases": 3}},
                                                 cases=("a", "b"), crash=("a,b",))
     assert problems == []
     assert len(json.loads((results / "benchmark/benchmark.json").read_text())["cases"]) == 2

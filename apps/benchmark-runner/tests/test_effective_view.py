@@ -34,8 +34,9 @@ class EffectiveView(unittest.TestCase):
             "run.processRepetitions": lambda: effective_view.process_repetitions({}),
             "run.resumeBlockRuns": lambda: effective_view.resume_block_runs({"run": {}}),
             "run.caseCooldownSeconds": lambda: effective_view.case_cooldown({"run": {}}),
-            "run.warmup.iterations": lambda: warmup.settings({"run": {"warmup": {"jobs": []}}}),
-            "run.warmup.jobs": lambda: warmup.settings({"run": {"warmup": {"iterations": 1}}}),
+            "run.warmup.iterations": lambda: warmup.settings({"run": {"warmup": {"jobs": [], "cases": 3}}}),
+            "run.warmup.jobs": lambda: warmup.settings({"run": {"warmup": {"iterations": 1, "cases": 3}}}),
+            "run.warmup.cases": lambda: warmup.settings({"run": {"warmup": {"iterations": 1, "jobs": []}}}),
             "run.metrics": lambda: passes.read({"run": {}}, {"none"}),
         }
         for path, read in reads.items():
@@ -63,7 +64,7 @@ class EffectiveView(unittest.TestCase):
             self.assertEqual(f"error: invalid: run.orderSeed {seed!r}, expected a whole number\n", stderr.getvalue())
 
     def test_an_empty_warmup_job_list_is_read_as_written(self):
-        self.assertEqual((0, []), warmup.settings({"run": {"warmup": {"iterations": 0, "jobs": []}}}))
+        self.assertEqual((0, [], 3), warmup.settings({"run": {"warmup": {"iterations": 0, "jobs": [], "cases": 3}}}))
 
 
 if __name__ == "__main__":

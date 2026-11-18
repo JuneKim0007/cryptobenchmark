@@ -38,7 +38,7 @@ Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 | | `seed` | `0` | input seed |
 | | `passes` | `{}` | map of `timing`, `energy`, `allocation` to `{samples: n}`, `n >= 1`, in run order; `timing` required with two or more passes (`missing_pass`); a single pass is its own base; `allocation` needs `ALLOCATION` in `metrics` (`pass_without_metric`); another name `invalid`; [device-session.md](../../../../../docs/device-session.md#passes) |
 | | `thermalThrottleSleepSeconds` | unset | `>= 0`, else `negative`; `--device`: passed as `-e androidx.benchmark.thermalThrottle.sleepDurationSeconds`; unset keeps Jetpack's default |
-| | `warmup` | `{iterations: 10, jobs: []}` | `iterations >= 0`, else `negative`, 0 off; `jobs` test-set rules, resolved to the entries they select; `[]` the plan's first 3 cases; `--device` only ([device-session.md](../../../../../docs/device-session.md#warm-up)) |
+| | `warmup` | `{iterations: 10, jobs: [], cases: 3}` | `iterations >= 0`, else `negative`, 0 off; `jobs` test-set rules, resolved to the entries they select; `[]` the plan's first `cases` cases (`>= 1`, else `not_positive`); `--device` only ([device-session.md](../../../../../docs/device-session.md#warm-up)) |
 | | `caseCooldownSeconds` | `0` | `>= 0`, else `negative`; `--device`: host sleep before every measured case but a session's first ([device-session.md](../../../../../docs/device-session.md#cool-down-and-frequency-caps)) |
 | | `thermalGate` | absent: off | keys in `example/config_global_example.yaml` |
 | | `launchRetries` | `2` | extra launches of a run that failed for a reason other than heat or a final preparation skip ([device-session.md](../../../../../docs/device-session.md#thermal-gate)) |

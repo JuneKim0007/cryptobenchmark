@@ -12,7 +12,7 @@ from cryptobench.shared import paths
 from cryptobench.stages.measurement import resume
 from cryptobench.stages.measurement.session import blocks, case_isolation, energy_hook, passes, reconnect, skips, variant_order, warmup
 from cryptobench.stages.measurement.session import measure as measure_session
-from cryptobench.stages.measurement.measuring import (Measuring, convert, energy_preflight, gated, pass_arguments, pull_pins, record, session_arguments,
+from cryptobench.stages.measurement.measuring import (Measuring, convert, energy_preflight, gate_opened, pass_arguments, pull_pins, record, session_arguments,
                                                          singles, thermal_flag, timed_hooks)
 from cryptobench.shared.device.plan import pull_plan, push, recorded_skips
 from cryptobench.pipeline.took import elapsed
@@ -41,10 +41,10 @@ def measure_on_device(run, one, captures, preparation, repetitions, folder, writ
         record(run.files, process.into, captures, device)
 
     arguments = pass_arguments(run, one)
-    plan = measure_session.Plan("CryptoBenchmark", arguments, timed=bool(timed), order=run.order,
+    plan = measure_session.Plan("CryptoBenchmark", arguments, run.order, gate, run.retries, run.reconnect, timed=bool(timed),
                                 cleared=(paths.PREPARED, paths.SKIPPED), stale=(paths.Preparation(preparation).prepared, paths.Preparation(preparation).skipped),
                                 pull_plan=lambda process: (pull_plan(device, preparation), pull_pins(device, process.into)), after_process=converted,
-                                gate=gate, retries=run.retries, reconnect=run.reconnect, blocks=measured_blocks, kept=held,
+                                blocks=measured_blocks, kept=held,
                                 refused=lambda case: device_skips(device, preparation).get(case))
     measure_session.run_session(device, plan, repetitions, hooks, folder, run.problems)
 
@@ -81,9 +81,10 @@ def measure_cases(options, device, results, found, problems, require_energy, rec
     if device:
         waits = reconnect.Reconnect.of(device, options)
         print(waits.line())
-        run = Measuring(device, EnergySession(device), energy_stage.source(effective, options.energy_python, options.stacktrace), options, discovery,
-                        files, problems, variant_order.chosen(effective_view.order_seed(document))[0], effective_view.throttle_sleep(document),
-                        effective_view.case_cooldown(document), reconnect=waits)
+        source = energy_stage.source(effective, options.energy_python, options.stacktrace)
+        run = Measuring(device, EnergySession(device), source, options, discovery, files, problems, variant_order.chosen(effective_view.order_seed(document))[0],
+                        effective_view.throttle_sleep(document), effective_view.case_cooldown(document), gate_opened(device, document, problems, waits),
+                        effective_view.launch_retries(document), waits)
         try:
             written, processes = device_cases(run, document, [effective, paths.Configuration.holding(effective).guide, capture, trial], captures, benchmark,
                                               preparation, in_blocks)
@@ -107,7 +108,6 @@ def device_cases(run, document, plan_files, captures, benchmark, preparation, in
     boot) is a pass's blocks.Blocks."""
     chosen, repetitions = passes.read(document, captures), effective_view.process_repetitions(document)
     energy = any(one.captures(captures) - {"none"} for one in chosen)
-    run = gated(run, document)
     energy_step = (lambda: energy_preflight(run.options, run.source, run.session, run.discovery, run.files)) if energy else None
     run.reconnect.retried(lambda: push(run.device, run.options, plan_files, energy_step), "the plan push")
     run.reconnect.retried(lambda: warm_up(run, document, preparation), "the warm-up")

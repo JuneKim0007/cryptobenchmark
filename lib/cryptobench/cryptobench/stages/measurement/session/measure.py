@@ -6,7 +6,7 @@ from cryptobench.shared.device import timeouts
 from cryptobench.shared.errors.failures import AllSkipped
 from cryptobench.shared.errors.line import one_line
 from cryptobench.stages.measurement import case_files
-from cryptobench.stages.measurement.session import blocks, case_isolation, dynamic_temperature, launch, reconnect, skips
+from cryptobench.stages.measurement.session import blocks, case_isolation, launch, reconnect, skips
 from cryptobench.shared.device.adb import DeviceError, DeviceLost
 from cryptobench.shared.device.plan import clear_outputs
 from cryptobench.shared import paths
@@ -21,14 +21,15 @@ class Plan:
     arguments: tuple
     # (repetition, listed cases) -> the launch order (variant_order.chosen)
     order: object
+    # the pass's dynamic_temperature gate, run.launchRetries, the run's reconnect.Reconnect
+    gate: object
+    retries: int
+    reconnect: object
     timed: bool = True
     cleared: tuple = ()
     stale: tuple = ()
     pull_plan: object = lambda _process: None
     after_process: object = lambda _process: None
-    gate: object = dynamic_temperature.Off()
-    retries: int = 0
-    reconnect: object = reconnect.Off()
     # the pass's blocks.Blocks; None measures every repetition and records nothing
     blocks: object = None
     kept: object = lambda _process: None
@@ -147,7 +148,7 @@ def stopped(device):
         warn(f"device_lost: the app could not be force-stopped; {str(lost).split(': ', 1)[-1]}")
 
 
-def closed(process, hooks, waits=reconnect.Off()):
+def closed(process, hooks, waits):
     """Every hook's after_process, so one failing still leaves the others closed and the pulled data converted; the first error, else None."""
     failed = None
     for hook in reversed(hooks):

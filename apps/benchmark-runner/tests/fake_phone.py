@@ -3,7 +3,7 @@ import contextlib, json, pathlib, types
 
 import yaml
 
-from cryptobench.stages.measurement.session import case_isolation  # noqa: E402
+from cryptobench.stages.measurement.session import case_isolation, dynamic_temperature, reconnect  # noqa: E402
 from cryptobench.shared.device import adb as device_module  # noqa: E402
 from cryptobench.shared.device import gradle_runner  # noqa: E402
 from cryptobench.shared.device import timeouts  # noqa: E402
@@ -17,6 +17,10 @@ NOT_PREPARED = "INSTRUMENTATION_STATUS: stack=java.lang.IllegalStateException: n
 def listed(_repetition, cases):
     """A test plan's launch order: the cases as the device lists them."""
     return list(cases)
+
+
+# a test plan's gate, retries and reconnect: no gate, no retry, no wait
+UNGATED = {"gate": dynamic_temperature.Off(), "retries": 0, "reconnect": reconnect.Off()}
 
 
 def jetpack_case(case, sleep=0):

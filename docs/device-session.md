@@ -113,7 +113,7 @@ Why: the phone's power controller lowers the CPU limit once skin reaches its own
 | rule | value |
 |---|---|
 | what it is | a pre-flight check that the app, the providers and the timed loop run on this device; not temperature stabilisation, and no number of it is kept |
-| cases | `jobs`: test-set rules, resolved by config to the entries they select; `[]` the plan's first 3; a case `skipped.yaml` holds as a final skip is left out, and a warm-up whose only failures are such skips prints `warm-up:   case_skipped: <id>: <code>` per case and counts the rest, or chooses again when none is left |
+| cases | `jobs`: test-set rules, resolved by config to the entries they select; `[]` the plan's first `run.warmup.cases` (3); a case `skipped.yaml` holds as a final skip is left out, and a warm-up whose only failures are such skips prints `warm-up:   case_skipped: <id>: <code>` per case and counts the rest, or chooses again when none is left |
 | samples | `iterations` (10) per case, as `-e cryptobench.pass warmup`: no energy capture |
 | output | deleted on the device right after; never pulled, never converted, never in `benchmark.json` |
 | printed | `warm-up:   <n> cases x <i> samples in <s>s, a pre-flight check, not measured; hottest <c> C before, <c> C after` |

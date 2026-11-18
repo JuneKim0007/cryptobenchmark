@@ -4,7 +4,7 @@ import json
 import pytest
 
 from cryptobench.stages.measurement.session import measure as measure_session  # noqa: E402
-from fake_phone import listed, Phone  # noqa: E402
+from fake_phone import listed, UNGATED, Phone  # noqa: E402
 
 
 class Recorded(measure_session.Hooks):
@@ -35,7 +35,7 @@ class Recorded(measure_session.Hooks):
 
 
 def session(phone, tmp_path, hooks, problems):
-    plan = measure_session.Plan("CryptoBenchmark", (), listed, after_process=lambda process: phone.log.append("convert"))
+    plan = measure_session.Plan("CryptoBenchmark", (), listed, **UNGATED, after_process=lambda process: phone.log.append("convert"))
     return measure_session.run_session(phone, plan, 1, hooks, lambda _repetition: tmp_path / "benchmark", problems)
 
 
