@@ -149,14 +149,14 @@ cryptobench/stages/measurement/resume.py : at a measuring run's publish: the blo
 cryptobench/stages/measurement/session/__init__.py : package of one device measuring session: processes, cases, passes, order, warm-up, hooks
 cryptobench/stages/measurement/session/blocks.py : run.resumeBlockRuns: a pass's runs in blocks, a recorded block kept, any other measured then recorded; the block record (identity, runId, runs, boot id, files)
 cryptobench/stages/measurement/session/calibration.py : whether androidx's warm-up left usable samples: collapsed calls per sample, a warm-up near its time limit
-cryptobench/stages/measurement/session/case_isolation.py : run.isolation case: one case's instrumentation process, its pull checked to name the case, the device's case listing
+cryptobench/stages/measurement/session/case_isolation.py : one case's instrumentation process, its pull checked to name the case, the device's case listing
 cryptobench/stages/measurement/session/clocks_hook.py : session hook: the clock state around every process and case into clocks.yaml
 cryptobench/stages/measurement/session/cooldown_hook.py : session hook: run.caseCooldownSeconds of host sleep between measured cases, one line per pass
 cryptobench/stages/measurement/session/dynamic_temperature.py : run.thermalGate facade: the startup decision, hold, verdict and start margin; the only caller of start_margin's functions
 cryptobench/stages/measurement/session/energy_hook.py : session hook: the energy source's window around a process, traces pulled per case, dry pass, joules
 cryptobench/stages/measurement/session/gate_history.py : what one temperature gate session did: per-case waits and discards for thermal.json, its per-pass line
 cryptobench/stages/measurement/session/launch.py : the only place a timed run of a case starts: hold, launch, verdict, retries
-cryptobench/stages/measurement/session/measure.py : one device measuring session of the benchmark: processes, a process per case or one for all, hooks; a process repetition's folder and line, a case's progress line
+cryptobench/stages/measurement/session/measure.py : one device measuring session of the benchmark: processes, a process per case, hooks; a process repetition's folder and line, a case's progress line
 cryptobench/stages/measurement/session/passes.py : run.passes: one device session per metric group, its device arguments and conversion, the merge per metric; MergeRunsKt over process repetitions
 cryptobench/stages/measurement/session/reconnect.py : a lost adb transport mid-run: the bounded wait polling adb get-state, the step or case again, DeviceGone past the bound
 cryptobench/stages/measurement/session/skips.py : a skipped.yaml record whose code codes.yaml holds as an outcome or an error: a final skip, its case_skipped line

@@ -11,8 +11,6 @@ data class RunSettings(
     // each item once per path: fixed keeps the setup the API lets a call keep, notFixed makes it every call, secure is not built
     val variants: List<String> = Variants.NAMES,
     val processRepetitions: Int = 1,
-    // case: one device process per measured case, so a case that kills its process loses only itself
-    val isolation: String = CASE,
     val seed: Long = 0L,
     // empty: one pass measures every metric; else one device session per metric group, merged per metric
     val passes: List<MeasurePass> = emptyList(),
@@ -49,15 +47,10 @@ data class RunSettings(
         require(caseCooldownSeconds >= 0) { "negative: caseCooldownSeconds $caseCooldownSeconds" }
         require(launchRetries >= 0) { "negative: launchRetries $launchRetries" }
         require(resumeBlockRuns >= 1) { "not_positive: resumeBlockRuns $resumeBlockRuns" }
-        require(thermalGate == null || isolation == CASE) { "invalid: run.thermalGate needs run.isolation $CASE, a whole-session process has no single run to discard" }
-        require(orderSeed == null || isolation == CASE) { "invalid: run.orderSeed needs run.isolation $CASE, a whole-session process runs its cases in the device's order" }
-        require(isolation in ISOLATIONS) { "invalid: run.isolation $isolation, expected one of $ISOLATIONS" }
     }
 
     companion object {
-        const val CASE = "case"
         const val LAUNCH_RETRIES = 2
         const val RESUME_BLOCK_RUNS = 10
-        val ISOLATIONS = listOf(CASE, "run")
     }
 }

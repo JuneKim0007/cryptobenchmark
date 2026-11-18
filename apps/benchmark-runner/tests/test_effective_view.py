@@ -30,7 +30,6 @@ class EffectiveView(unittest.TestCase):
 
     def test_a_missing_key_fails_with_its_code_not_a_key_error(self):
         reads = {
-            "run.isolation": lambda: effective_view.isolation({"run": {}}),
             "run.processRepetitions": lambda: effective_view.process_repetitions({}),
             "run.resumeBlockRuns": lambda: effective_view.resume_block_runs({"run": {}}),
             "run.caseCooldownSeconds": lambda: effective_view.case_cooldown({"run": {}}),

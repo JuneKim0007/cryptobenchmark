@@ -43,7 +43,6 @@ class GlobalDocumentTest {
     @Test
     fun whatARunMeasuresWhenNothingIsSaid() {
         val run = run("")
-        assertEquals("case", run.isolation)
         assertEquals(null, run.thermalGate)
         assertEquals(listOf("fixed", "notFixed", "secure"), run.variants)
         assertEquals(Warmup(10, emptyList()), run.warmup)
@@ -56,7 +55,6 @@ class GlobalDocumentTest {
     fun everyRunSettingSurvivesTheFile() {
         val written = run("""
             run:
-              isolation: run
               metrics: [TIME, ALLOCATION]
               variants: [notFixed]
               thermalThrottleSleepSeconds: 30
@@ -89,7 +87,7 @@ class GlobalDocumentTest {
     @Test
     fun aBadRunSettingIsRefusedByItsCode() {
         listOf(
-            "run: {isolation: process}\n" to "invalid: run.isolation",
+            "run: {isolation: case}\n" to "unknown_keys: run [isolation]",
             "run: {thermalThrottleSleepSeconds: -1}\n" to "negative: thermalThrottleSleepSeconds",
             "run: {caseCooldownSeconds: -1}\n" to "negative: caseCooldownSeconds",
             "run: {resumeBlockRuns: 0}\n" to "not_positive: resumeBlockRuns 0",
@@ -99,8 +97,6 @@ class GlobalDocumentTest {
             "run: {thermalGate: {temperatureKeptCelsius: 36.0, pollMinutes: 0}}\n" to "not_positive: run.thermalGate.pollMinutes",
             "run: {thermalGate: {temperatureKeptCelsius: 36.0, onDiscardLimit: nope}}\n" to "invalid: run.thermalGate.onDiscardLimit",
             "run: {thermalGate: {temperatureKeptCelsius: 36.0, margin: 3}}\n" to "unknown_keys: run.thermalGate [margin]",
-            "run: {isolation: run, thermalGate: {temperatureKeptCelsius: 36.0}}\n" to "invalid: run.thermalGate needs run.isolation",
-            "run: {isolation: run, orderSeed: 7}\n" to "invalid: run.orderSeed needs run.isolation",
             "run: {passes: {timing: {samples: 1}, speed: {samples: 1}}}\n" to "invalid: run.passes.speed",
             "run: {passes: {timing: {samples: 0}}}\n" to "not_positive: run.passes.timing.samples",
             "run: {metrics: [TIME, ALLOCATION], passes: {energy: {samples: 5}, allocation: {samples: 5}}}\n" to "missing_pass: run.passes [energy, allocation]",

@@ -13,7 +13,7 @@ from test_device_benchmark_flow import RUN, measured  # noqa: E402
 MARGIN = {"dynamic": True, "initialCelsius": 0.25, "backoffFactor": 2.0, "maximumCelsius": 3.0, "cleanRunsToRecover": 10, "recoveryCelsius": 0.05}
 GATE = {"temperatureKeptCelsius": 36.0, "cooldownMinutes": 3, "pollMinutes": 1, "pollTerminateMinutes": 30, "discardLimit": 5,
         "onDiscardLimit": "nextCase", "readRetries": 2, "readRetrySeconds": 1, "startMargin": MARGIN}
-CASE = {"isolation": "case", "thermalGate": GATE}
+CASE = {"thermalGate": GATE}
 
 
 class Heat:
@@ -53,7 +53,7 @@ def gate_of(results, case):
 
 def test_not_set_says_so_and_never_waits(tmp_path, monkeypatch, capsys):
     heat = Heat(monkeypatch, start=50.0)
-    measured(tmp_path, monkeypatch, {"isolation": "case"})
+    measured(tmp_path, monkeypatch, {})
     assert heat.slept == [] and capsys.readouterr().out.count("TEMPERATURE GATE OFF") == 1
 
 
@@ -99,7 +99,7 @@ def test_a_run_ending_hot_is_discarded_measured_again_and_widens_the_margin(tmp_
 def test_dynamic_false_keeps_the_margin_after_a_discard(tmp_path, monkeypatch):
     gate = GATE | {"startMargin": MARGIN | {"dynamic": False}}
     Heat(monkeypatch, start=35.7, rise=0.4, cooling=0.05)
-    _phone, _files, _problems, results = measured(tmp_path, monkeypatch, {"isolation": "case", "thermalGate": gate})
+    _phone, _files, _problems, results = measured(tmp_path, monkeypatch, {"thermalGate": gate})
     assert gate_of(results, "a")["target"] == 35.75 and gate_of(results, "b")["target"] == 35.75
 
 
@@ -107,7 +107,7 @@ def test_a_run_that_keeps_ending_hot_stops_at_the_limit_and_the_next_case_goes_o
     gate = GATE | {"discardLimit": 2}
     heat = Heat(monkeypatch, start=30.0, rise=10.0, cooling=0.05)
     with pytest.raises(DeviceError):  # every case ends over the limit here, so no case is left measured
-        measured(tmp_path, monkeypatch, {"isolation": "case", "thermalGate": gate})
+        measured(tmp_path, monkeypatch, {"thermalGate": gate})
     assert len(heat.launches) == 4 and capsys.readouterr().out.count("temperature_discard_limit") >= 2
 
 
@@ -115,7 +115,7 @@ def test_on_discard_limit_stop_ends_the_benchmark(tmp_path, monkeypatch):
     gate = GATE | {"discardLimit": 1, "onDiscardLimit": "stop"}
     Heat(monkeypatch, start=30.0, rise=10.0, cooling=1.0)
     with pytest.raises(dynamic_temperature.Terminated, match="temperature_discard_limit"):
-        measured(tmp_path, monkeypatch, {"isolation": "case", "thermalGate": gate})
+        measured(tmp_path, monkeypatch, {"thermalGate": gate})
 
 
 def test_an_unreadable_start_retries_then_moves_to_the_next_case(tmp_path, monkeypatch):

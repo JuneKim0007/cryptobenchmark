@@ -36,7 +36,6 @@ class EffectiveKeysAgreeTest {
               metrics: [TIME]
               variants: [fixed]
               processRepetitions: 1
-              isolation: case
               seed: 0
               orderSeed: 7
               passes: {timing: {samples: 5}}
@@ -65,7 +64,7 @@ class EffectiveKeysAgreeTest {
 
         // What config writes; warnings and skipped go to report.yaml.
         val TOP = setOf("schemaVersion", "generatedFrom", "runId", "run", "policy", "analysis", "bundledProviders", "providers")
-        val RUN = setOf("inputSizes", "phases", "metrics", "variants", "processRepetitions", "isolation", "seed",
+        val RUN = setOf("inputSizes", "phases", "metrics", "variants", "processRepetitions", "seed",
             "thermalThrottleSleepSeconds", "caseCooldownSeconds", "warmup", "thermalGate", "launchRetries", "resumeBlockRuns", "orderSeed", "passes", "harness")
         val ENTRY = setOf("keySizes", "inputSizes", "key", "parameters", "operations", "variants", "providerDefaults", "harness", "from")
     }

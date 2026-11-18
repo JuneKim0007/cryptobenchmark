@@ -12,20 +12,16 @@ def hook_orders(tmp_path, monkeypatch, run):
     seen = []
     real = measure_session.run_session
 
-    def recorded(device, plan, repetitions, isolation, hooks, folder, problems):
+    def recorded(device, plan, repetitions, hooks, folder, problems):
         seen.append((plan, [type(h).__name__ for h in hooks], hooks))
-        return real(device, plan, repetitions, isolation, hooks, folder, problems)
+        return real(device, plan, repetitions, hooks, folder, problems)
     monkeypatch.setattr(measure_session, "run_session", recorded)
     measured(tmp_path, monkeypatch, run)
     return seen
 
 
 def test_a_timed_session_without_energy_runs_cooldown_clocks_thermal(tmp_path, monkeypatch):
-    assert [names for _p, names, _h in hook_orders(tmp_path, monkeypatch, {"isolation": "case"})] == [TIMED]
-
-
-def test_isolation_run_keeps_the_same_order(tmp_path, monkeypatch):
-    assert [names for _p, names, _h in hook_orders(tmp_path, monkeypatch, {"isolation": "run"})] == [TIMED]
+    assert [names for _p, names, _h in hook_orders(tmp_path, monkeypatch, {})] == [TIMED]
 
 
 def test_measured_energy_puts_the_capture_outermost_in_its_own_pass_only(tmp_path, monkeypatch):
