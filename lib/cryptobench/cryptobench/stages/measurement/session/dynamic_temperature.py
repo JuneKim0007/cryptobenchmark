@@ -90,7 +90,7 @@ class DynamicTemperature:
         self.started = None
         began, reading, limit = time.monotonic(), self.readable(thermal.read), self.limit()
         if not reading.skin:
-            warn(f"temperature_unreadable: {case}: {reading.reason or 'no skin sensor in this reading'}; moving to the next case", self.problems)
+            warn(f"temperature_unreadable: {case}: {reading.reason or 'no skin sensor in this reading'}", self.problems)
             return False
         if self.cool_enough(reading):
             self.history.passed(case, limit, 0.0)
