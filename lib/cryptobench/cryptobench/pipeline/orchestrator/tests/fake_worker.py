@@ -19,4 +19,9 @@ if suite == "sleeps":
         sys.exit(130)
     signal.signal(signal.SIGTERM, stopped)
     time.sleep(60)
-print(f"results:   {results}/dev-{os.environ.get('ANDROID_SERIAL', 'host')}/{suite}")
+folder = results / f"dev-{os.environ.get('ANDROID_SERIAL', 'host')}" / suite
+print(f"results:   {folder}")
+if suite == "skipped":
+    folder.mkdir(parents=True, exist_ok=True)
+    (folder / "manifest.yaml").write_text(yaml.safe_dump({"schemaVersion": 1, "problems": [
+        "case_skipped: k: keystore_unsupported", "all_cases_skipped: every case of CryptoBenchmark is a coded preparation skip: 1 cases, listed in skipped.yaml"]}))

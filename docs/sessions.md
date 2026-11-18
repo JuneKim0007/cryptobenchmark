@@ -70,18 +70,18 @@ Prints the device listing, one `order <n>:   <target> (<key>, adb <serial> | hos
 | a run | one suite on one target, at `<DIR>/<device_id>/<suite>/` ([results.md](results.md#device-folder)); a failed run ends only itself |
 | status | one line per target, `target:    <target>: <suite>: <worker's last line>`; redrawn in place on a terminal, else printed when it changes |
 | Ctrl-C, SIGTERM, SIGHUP | SIGTERM to the running worker's group, which writes its partial manifest; its group is killed after 120 s or a second Ctrl-C; the summary marks it `stopped` and the rest `not started`; the session then stops as on Ctrl-C |
-| end | the summary is printed and written; any row not `finished` is `session_incomplete: <n> of <m> rows did not finish; see <summary>`, exit 1 |
+| end | the summary is printed and written; any row neither `finished` nor `all_skipped` is `session_incomplete: <n> of <m> rows did not finish; see <summary>`, exit 1 |
 | `<DIR>/sessions/<name>/.lock` | one session of a name at a time: `device_busy` |
 
 `<DIR>/sessions/<name>/` holds no measurements:
 
 | file | holds |
 |---|---|
-| `session.log` | one stamped line per event: `session`, `notice:`, `skipped: <target>: <line>`, `start: <target> <suite>: <argv>`, `finished:`, `failed: <target> <suite>: <worker's error line>`, `stopped:`, `summary:`, `index:` |
+| `session.log` | one stamped line per event: `session`, `notice:`, `skipped: <target>: <line>`, `start: <target> <suite>: <argv>`, `finished:`, `all_skipped: <target> <suite>: <the manifest's all_cases_skipped line>`, `failed: <target> <suite>: <worker's error line>`, `stopped:`, `summary:`, `index:` |
 | `<target>/<suite>.log` | the worker's stdout and stderr, then the session's line for it; `<target>` with characters other than letters, digits, `.`, `_`, `-` as `-` |
 | `<target>/target.log` | a skipped target's line |
 | `<target>/<suite>.global.yaml` | the suite config |
-| `summary.txt` | `target suite state code results`; state `finished`, `failed`, `skipped`, `stopped` or `not started`; code the first word of the worker's last `error:` line, `subprocess_failed` for an exit without one |
+| `summary.txt` | `target suite state code results`; state `finished`, `all_skipped` (exit 0 and the run's manifest `problems` hold `all_cases_skipped: ...`; code `all_cases_skipped`), `failed`, `skipped`, `stopped` or `not started`; code the first word of the worker's last `error:` line, `subprocess_failed` for an exit without one |
 | `index.yaml` | [index.yaml](#indexyaml) |
 
 ## index.yaml

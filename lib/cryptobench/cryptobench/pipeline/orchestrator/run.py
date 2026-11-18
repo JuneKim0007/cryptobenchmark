@@ -15,7 +15,7 @@ from cryptobench.pipeline.orchestrator import plan as session_plan
 from cryptobench.pipeline.orchestrator import suite_config
 from cryptobench.pipeline.orchestrator.board import StatusBoard
 from cryptobench.pipeline.orchestrator.summary import Row, table, written
-from cryptobench.pipeline.orchestrator.worker import SERIAL, Worker
+from cryptobench.pipeline.orchestrator.worker import COMPLETE, SERIAL, Worker
 from cryptobench.shared import paths
 from cryptobench.shared.device import probe
 from cryptobench.shared.document.append import append_line
@@ -96,7 +96,7 @@ def orchestrated(session, resolved, log: Session, results, passed, command, boar
             finish(log, summary, board)
             raise KeyboardInterrupt
     finish(log, summary, board)
-    unfinished = [row for row in summary if row.state != "finished"]
+    unfinished = [row for row in summary if row.state not in COMPLETE]
     if unfinished:
         raise CommandError(f"session_incomplete: {len(unfinished)} of {len(summary)} rows did not finish; "
                            f"see {log.folder / paths.SESSION_SUMMARY}")

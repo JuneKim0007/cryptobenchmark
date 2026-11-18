@@ -3,7 +3,7 @@ each process and each case."""
 import dataclasses, pathlib, re
 
 from cryptobench.shared.device import timeouts
-from cryptobench.shared.errors.failures import AllSkipped
+from cryptobench.shared.errors.failures import ALL_CASES_SKIPPED, AllSkipped
 from cryptobench.shared.errors.line import one_line
 from cryptobench.stages.measurement import case_files
 from cryptobench.stages.measurement.session import blocks, case_isolation, launch, reconnect, skips
@@ -191,7 +191,7 @@ def each_case(device, plan, process, hooks):
             # rewritten after every case, so an error that ends the session keeps every case measured before it
             case_files.merge(process.into, measured, process.data)
     if not measured and skips.every_case(process.failures):
-        raise AllSkipped(f"{skips.ALL_CASES_SKIPPED}: every case of {plan.test_class} is a coded preparation skip: {len(process.failures)} cases, "
+        raise AllSkipped(f"{ALL_CASES_SKIPPED}: every case of {plan.test_class} is a coded preparation skip: {len(process.failures)} cases, "
                          f"listed in {paths.SKIPPED}")
     if not measured:
         raise DeviceError(f"{plan.test_class} failed on the device for every case:\n" + "\n".join(process.failures or ["no case planned"]))

@@ -103,7 +103,7 @@ Why: the phone's power controller lowers the CPU limit once skin reaches its own
 | read | every gate key through `effective_view.required` when the gate opens: an absent one is `missing_field: run.thermalGate.<key> in effective.yaml`, an unknown `onDiscardLimit` `invalid: run.thermalGate.onDiscardLimit ...`, both before the first case |
 | unreadable | a reading is retried `readRetries` times; still unreadable: logged, that run is dropped, the next case goes on; a failed reading is never a pass |
 | refused | a failed launch whose case the device recorded in `skipped.yaml` with a code `codes.yaml` holds as an `outcome` or an `error` (`keystore_unsupported`, `strongbox_unavailable`, `api_too_low`, `not_supported`, ...): `case_skipped: <id>: <code>` in `problems`, not launched again in that process; a record without such a code, or none, is an other failure |
-| all skipped | a process whose every case is `case_skipped`: `all_cases_skipped: ...`, the run stops measuring, its manifest keeps `prepared.yaml` and `skipped.yaml` and no `benchmark.json`, exit 0 |
+| all skipped | a process whose every case is `case_skipped`: `all_cases_skipped: ...`, the run stops measuring, its manifest keeps `prepared.yaml` and `skipped.yaml` and no `benchmark.json`, exit 0; a session's row for it is `all_skipped` ([sessions.md](sessions.md)) |
 | other failures | crash, timeout, no data, collapsed calibration: `launchRetries` more launches, then the next case |
 | order | hold, then the case hooks, launch, hooks, verdict (`lib/cryptobench/cryptobench/stages/measurement/session/launch.py`) |
 

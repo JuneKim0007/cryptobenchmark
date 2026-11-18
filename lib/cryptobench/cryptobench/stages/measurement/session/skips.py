@@ -3,7 +3,7 @@ process, one case_skipped line; any other failure keeps its retries."""
 from cryptobench.shared.errors.coded import code_in
 from cryptobench.shared.errors.glossary import codes
 
-CASE_SKIPPED, ALL_CASES_SKIPPED = "case_skipped", "all_cases_skipped"
+CASE_SKIPPED = "case_skipped"
 FINAL_KINDS = ("outcome", "error")
 
 
