@@ -1,5 +1,6 @@
 """The phases over perf-repair's fake pipeline: real guide children with the dry-run gateway, no JVM, no phone, no model."""
 import json
+import os
 import pathlib
 import subprocess
 import sys
@@ -94,8 +95,11 @@ def test_a_first_phase_failure_stops_the_second(index, monkeypatch):
     assert found[1:] == ["facade guided: guided_not_run: the crypto phase failed"]
 
 
-def test_the_facade_reports_a_missing_dependency_friendly():
-    probe = "import importlib.util, sys; sys.modules['yaml'] = None; importlib.util.find_spec = lambda name: None; import runpy; runpy.run_path(sys.argv[1], run_name='__main__')"
+@pytest.mark.parametrize("hidden, module", [("sys.modules['yaml'] = None; importlib.util.find_spec = lambda name: None", "yaml"),
+                                            ("sys.modules['cryptobench'] = None", "cryptobench")])
+def test_the_facade_reports_a_missing_dependency_friendly(hidden, module):
+    probe = f"import importlib.util, sys; {hidden}; import runpy; runpy.run_path(sys.argv[1], run_name='__main__')"
+    path = os.pathsep.join(str(ROOT / folder) for folder in ("apps/cli", "lib/cryptobench"))
     done = subprocess.run([sys.executable, "-c", probe, str(ROOT / "apps/cli/facade.py"), "--settings", "x"], capture_output=True, text=True,
-                          env={"PYTHONPATH": str(ROOT / "apps/cli")}, check=False)
-    assert done.returncode == 1 and done.stderr.strip() == "error: missing_dependency: yaml; pip install -r requirements.txt"
+                          env={"PYTHONPATH": path}, check=False)
+    assert done.returncode == 1 and done.stderr.strip() == f"error: missing_dependency: {module}; pip install -r requirements.txt"

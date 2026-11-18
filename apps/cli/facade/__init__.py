@@ -5,6 +5,6 @@ import sys
 try:
     from cryptobench.shared import paths
 except ModuleNotFoundError:
-    sys.exit("facade: missing_dependency: cryptobench; pip install -r requirements.txt")
+    sys.exit("error: missing_dependency: cryptobench; pip install -r requirements.txt")
 
 paths.add_app_imports()
