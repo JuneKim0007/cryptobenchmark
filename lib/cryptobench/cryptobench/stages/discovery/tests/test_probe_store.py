@@ -115,3 +115,28 @@ def test_two_installs_of_the_same_build_differing_only_in_their_random_folders_g
     first, second = probe_store.key(one, []), probe_store.key(other, [])
     assert first == second and first[1] is None
     assert sorted(first[0]["apk"][probe_store.PACKAGE]) == ["base.apk", "split_config.arm64_v8a.apk"]
+
+
+def first_lines(path):
+    lines = path.read_text().splitlines(keepends=True)
+    path.write_text("".join(lines[:len(lines) // 2]))
+
+
+@pytest.mark.parametrize("damage, prefix", [
+    (first_lines, "probe"),
+    (first_lines, "trial"),
+    (lambda path: path.write_text(""), "requirements"),
+    (lambda path: path.unlink(), "trial"),
+    (lambda path: path.write_text(yaml.safe_dump(yaml.safe_load(path.read_text())["key"])), "key"),
+], ids=["truncated capture", "truncated trial", "empty file", "missing file", "key.yaml without digests"])
+def test_a_damaged_entry_is_named_probed_again_and_replaced(run, tmp_path, capsys, damage, prefix):
+    run(Device())
+    entry = next((tmp_path / "store").iterdir())
+    damaged = next(entry.glob(f"{prefix}*.yaml"))
+    damage(damaged)
+    device = Device()
+    assert run(device) == ["probe_20260101T000000Z.yaml"] and device.log == ["install", "probe 20260101T000000Z"]
+    assert f"discovery: verify: full probe: stored entry {entry.name} is damaged: {damaged.name}\n" in capsys.readouterr().out
+    again = Device()
+    run(again)
+    assert again.log == ["install", "forget captures"] and [p.name for p in (tmp_path / "store").iterdir()] == [entry.name]

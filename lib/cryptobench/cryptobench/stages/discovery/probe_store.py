@@ -8,6 +8,7 @@ from cryptobench.shared import paths
 from cryptobench.shared.device.adb import PACKAGE, DeviceError, DeviceLost
 from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.document.dump import dump_yaml
+from cryptobench.shared.errors.input_error import InputError
 from cryptobench.shared.errors.line import one_line
 from cryptobench.shared.log.warn import warn
 from cryptobench.stages.discovery import build_versions, capture_files
@@ -56,12 +57,27 @@ def named(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode()).hexdigest()[:16]
 
 
-def stored(folder):
-    """The capture of a complete stored entry, else None."""
-    captures = sorted(p for p in paths.Discovery(folder).captures() if capture_files.CAPTURE.fullmatch(p.name)) if folder.is_dir() else []
-    if len(captures) != 1 or not (folder / KEY).is_file():
-        return None
-    return captures[0] if all(p.is_file() for p in trio(captures[0])) else None
+def digest(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def stored(folder, value):
+    """(the capture, None) when key.yaml names this key and the sha256 of each file it lists; (None, the damaged file) for any other entry
+    there; (None, None) when there is none."""
+    if not folder.is_dir():
+        return None, None
+    try:
+        recorded = read_yaml(folder / KEY)
+    except (OSError, InputError):
+        return None, KEY
+    files = recorded.get("files")
+    captures = [name for name in files if capture_files.CAPTURE.fullmatch(name)] if isinstance(files, dict) else []
+    if recorded.get("key") != value or len(captures) != 1 or sorted(files) != sorted(p.name for p in trio(folder / captures[0])):
+        return None, KEY
+    for path in trio(folder / captures[0]):
+        if not path.is_file() or digest(path) != files[path.name]:
+            return None, path.name
+    return folder / captures[0], None
 
 
 def differences(store, value):
@@ -69,7 +85,7 @@ def differences(store, value):
     entries = sorted(store.glob(f"*/{KEY}"), key=lambda f: f.stat().st_mtime) if store.is_dir() else []
     if not entries:
         return "the store is empty"
-    other = read_yaml(entries[-1])
+    other = read_yaml(entries[-1]).get("key") or {}
     changed = sorted(part for part in set(value) | set(other) if value.get(part) != other.get(part)) or ["nothing (an incomplete entry)"]
     return f"the newest entry {entries[-1].parent.name} differs in {', '.join(changed)}"
 
@@ -90,7 +106,10 @@ def verified(device, discovery, shipped, store):
         say(f"full probe: the key is incomplete: {missing}")
         return None, None
     entry = store / named(value)
-    capture = stored(entry)
+    capture, damaged = stored(entry, value)
+    if damaged:
+        say(f"full probe: stored entry {entry.name} is damaged: {damaged}")
+        return None, value
     if capture is None:
         say(f"full probe: no stored capture for key {entry.name}; {differences(store, value)}")
         return None, value
@@ -105,9 +124,10 @@ def verified(device, discovery, shipped, store):
 
 
 def keep(store, value, capture):
-    """The probe's capture, trial and requirements under the key, written whole or not at all; a failed write only warns."""
+    """The probe's capture, trial and requirements under the key with their sha256, written whole or not at all, replacing a damaged entry;
+    a failed write only warns."""
     entry = store / named(value)
-    if stored(entry):
+    if stored(entry, value)[0]:
         return
     staging = store / f".staging-{entry.name}"
     try:
@@ -115,7 +135,7 @@ def keep(store, value, capture):
         staging.mkdir(parents=True)
         for source in trio(capture):
             shutil.copy2(source, staging / source.name)
-        (staging / KEY).write_text(dump_yaml(value))
+        (staging / KEY).write_text(dump_yaml({"key": value, "files": {p.name: digest(p) for p in trio(staging / capture.name)}}))
         shutil.rmtree(entry, ignore_errors=True)
         staging.rename(entry)
         say(f"stored {entry / capture.name} under key {entry.name}")
