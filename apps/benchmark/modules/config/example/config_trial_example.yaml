@@ -3,6 +3,11 @@
 schemaVersion: 3
 capturedAtMillis: 1750000000000
 defaultRunInputSize: 1024
+# One key per catalogue key size or curve and hardware path of a keystore provider's generators; absent: {reason} on a runtime without one.
+keystore:
+  rows:
+  - {provider: AndroidKeyStore, type: KeyPairGenerator, algorithm: RSA, backing: strongbox, keySize: 2048, supported: true, millis: 8012}
+  - {provider: AndroidKeyStore, type: KeyPairGenerator, algorithm: RSA, backing: strongbox, keySize: 3072, supported: false, error: 'keystore_unsupported: KeyPairGenerator RSA/3072 strongbox: KeyStoreException: Unsupported key size', millis: 41}
 services:
 - provider: SUN
   type: MessageDigest

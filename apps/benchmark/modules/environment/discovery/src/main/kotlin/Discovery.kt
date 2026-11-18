@@ -9,6 +9,7 @@ import io.github.junekim0007.cryptobench.discovery.contract.RuntimeInfo
 import io.github.junekim0007.cryptobench.discovery.trial.DefaultRunTrial
 import io.github.junekim0007.cryptobench.discovery.trial.TrialRunner
 import io.github.junekim0007.cryptobench.discovery.trial.call.DefaultKeys
+import io.github.junekim0007.cryptobench.discovery.trial.keystore.KeystoreTrial
 import io.github.junekim0007.cryptobench.discovery.trial.requirement.RequirementTrial
 import io.github.junekim0007.cryptobench.discovery.write.CaptureDocument
 import io.github.junekim0007.cryptobench.discovery.write.EnvironmentYamlWriter
@@ -28,6 +29,7 @@ class Discovery(
     private val trialRunner: TrialRunner = TrialRunner(),
     private val defaultRunTrial: DefaultRunTrial = DefaultRunTrial(),
     private val requirementTrial: RequirementTrial = RequirementTrial(),
+    private val keystoreTrial: KeystoreTrial = KeystoreTrial(),
     private val codec: YamlCodec = YamlCodec.CAPTURE,
 ) {
 
@@ -70,6 +72,8 @@ class Discovery(
     fun trial(capture: CapturedEnvironment, providers: Array<Provider>?): TrialFiles {
         val keys = DefaultKeys(providers.orEmpty().toList())
         val trial = defaultRunTrial.run(trialRunner.run(capture, providers), providers, keys)
-        return TrialFiles(trialWriter.write(trial), requirementWriter.write(requirementTrial.run(capture, trial, providers, keys)))
+        val requirements = requirementTrial.run(capture, trial, providers, keys)
+        val keystore = keystoreTrial.run(capture, requirements, providers)
+        return TrialFiles(trialWriter.write(trial.copy(keystore = keystore)), requirementWriter.write(requirements))
     }
 }

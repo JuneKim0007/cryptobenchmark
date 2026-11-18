@@ -5,6 +5,7 @@ data class TrialReport(
     val services: List<ServiceTrialEntry> = emptyList(),
     val schemaVersion: Int = SCHEMA_VERSION,
     val defaultRunInputSize: Int? = null,
+    val keystore: KeystoreSection? = null,
 ) {
 
     companion object {

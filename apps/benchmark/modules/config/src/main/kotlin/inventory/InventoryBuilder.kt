@@ -31,7 +31,7 @@ class InventoryBuilder {
             }
             providers[provider] = types
         }
-        return Inventory(InventorySource(files.capture, files.trial, capture.device), providers, warnings)
+        return Inventory(InventorySource(files.capture, files.trial, capture.device), providers, warnings, trial.keystore)
     }
 
     data class Files(val capture: String, val trial: String)

@@ -262,6 +262,8 @@ algorithm:
     signaturePaddings: {means: KeyProperties.SIGNATURE_PADDING_* names the key may be used with., format: text}
     digests: {means: KeyProperties.DIGEST_* names the key may be used with., format: text}
     curve: {means: 'The curve given as setAlgorithmParameterSpec(ECGenParameterSpec(curve)) when the entry gives no key spec: without it AndroidKeyStore makes its default EC key (P-256) under any generator name.', format: text}
+    trialKeySizes: {means: 'Key sizes discovery''s keystore trial generates once per hardware path; never passed to the guide.', format: number}
+    trialCurves: {means: 'Curves discovery''s keystore trial generates once per hardware path, as ECGenParameterSpec(curve); never passed to the guide.', format: text}
   sourcedOnly:
     fact:
       means: A fact only a standard can give; a run cannot prove it.

@@ -35,6 +35,7 @@ apps/benchmark/modules/config/src/main/kotlin/effective/dto/Skip.kt : skip recor
 apps/benchmark/modules/config/src/main/kotlin/entry/EnginePaths.kt : setup-catalog.yaml's rows as config reads them: the paths a type applies, the generator types
 apps/benchmark/modules/config/src/main/kotlin/entry/EntryKeys.kt : per-primitive key names shared by test-set overrides and effective entries
 apps/benchmark/modules/config/src/main/kotlin/entry/KeySource.kt : a key's written algorithm and provider checked against the inventory's generators, its backing against tee and strongbox
+apps/benchmark/modules/config/src/main/kotlin/entry/KeystoreRefusals.kt : a secure-only entry against the keystore trial's rows: sizes kept, coded refusals
 apps/benchmark/modules/config/src/main/kotlin/entry/Variants.kt : variants names, the [fixed] fallback and its notice, the asked paths a type runs, the secure_path_unavailable text
 apps/benchmark/modules/config/src/main/kotlin/global/AnalysisDocument.kt : analysis section reader and writer
 apps/benchmark/modules/config/src/main/kotlin/global/DefaultsDocument.kt : parity/defaults.yaml: run and analysis defaults as :config writes them, the energy capture and source a node without them gets
@@ -59,6 +60,7 @@ apps/benchmark/modules/config/src/main/kotlin/inventory/InventorySourceDocument.
 apps/benchmark/modules/config/src/main/kotlin/inventory/dto/Inventory.kt : inventory model with its build warnings; rejects two spellings of one canonical name
 apps/benchmark/modules/config/src/main/kotlin/inventory/dto/InventoryEntry.kt : one observed primitive
 apps/benchmark/modules/config/src/main/kotlin/inventory/dto/InventorySource.kt : inventory provenance
+apps/benchmark/modules/config/src/main/kotlin/inventory/dto/KeystoreRow.kt : one keystore trial row: provider, type, algorithm, backing, size or curve, supported or the coded error
 apps/benchmark/modules/config/src/main/kotlin/layers/LayerStack.kt : a composition's layers merged by MERGE_RULES with each leaf's layer; a plain file is a stack of one; nested layers refused
 apps/benchmark/modules/config/src/main/kotlin/layers/Provenance.kt : generatedFrom.settings from the written sections and the stack; a parse failure named with its layer
 apps/benchmark/modules/config/src/main/kotlin/names/AlgorithmNames.kt : algorithm-names.yaml reader: canonical name and key size, rule name match, identifier fold
@@ -92,6 +94,7 @@ apps/benchmark/modules/config/src/test/kotlin/ExampleFilesTest.kt : example inpu
 apps/benchmark/modules/config/src/test/kotlin/Fixtures.kt : shared test fixtures
 apps/benchmark/modules/config/src/test/kotlin/GlobalDocumentTest.kt : global.yaml analysis section tests
 apps/benchmark/modules/config/src/test/kotlin/InventoryBuilderTest.kt : inventory tests
+apps/benchmark/modules/config/src/test/kotlin/KeystoreRefusalsTest.kt : refused keystore rows as config skips, refused sizes dropped, rows the trial lacks kept, a trial without the section refused
 apps/benchmark/modules/config/src/test/kotlin/LayerStackTest.kt : merge rules, layer refusals, a composition of the example writes the plain effective apart from generatedFrom
 apps/benchmark/modules/config/src/test/kotlin/MalformedDocumentsTest.kt : malformed documents refused by name
 apps/benchmark/modules/config/src/test/kotlin/OverrideResolverTest.kt : override precedence tests

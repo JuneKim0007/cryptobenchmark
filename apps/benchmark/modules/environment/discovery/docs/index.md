@@ -3,8 +3,9 @@
 ```
 apps/benchmark/modules/environment/discovery/.gitignore : ignores /build
 apps/benchmark/modules/environment/discovery/README.md : module summary and link to this index
-apps/benchmark/modules/environment/discovery/build.gradle : Kotlin/JVM 17 library; api :jca; :files and :document
+apps/benchmark/modules/environment/discovery/build.gradle : Kotlin/JVM 17 library; api :jca; :files and :document; the keystore trial's catalogues through gradle/guide-resources.gradle
 apps/benchmark/modules/environment/discovery/docs/index.md : this map
+apps/benchmark/modules/environment/discovery/docs/keystore.md : the keystore trial: rows, StrongBox, refusal codes, cost
 apps/benchmark/modules/environment/discovery/docs/probe.md : probe, trial and reuse behaviour
 apps/benchmark/modules/environment/discovery/docs/requirements.md : the requirement trial: facts per type, rules, file fields
 apps/benchmark/modules/environment/discovery/docs/security_contract.md : fields of probe_, trial_ and requirements_ files
@@ -30,6 +31,7 @@ apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/ProviderFac
 apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/CapturedEnvironment.kt : capture model, SCHEMA_VERSION 1
 apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/DefaultRunOutcome.kt : one default-run result
 apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/KeyCacheStats.kt : keys generated, refused and reused over a run
+apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/KeystoreSection.kt : keystore trial rows (one generation per size or curve and path) or the reason the section is absent
 apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/ParameterReadBack.kt : the one read-back of a spec (readable, describe) for levels 2 and 3
 apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/ProviderEntry.kt : one provider record with origin and artifact
 apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/ProviderOrigin.kt : platform or bundled
@@ -48,6 +50,10 @@ apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/DefaultRunTri
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/TransformationSet.kt : every declared mode x padding of a Cipher service
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/TrialRunner.kt : level 1: instantiate each captured service
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/call/ : per-type default calls, their registry, default keys, key names and key bits
+apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/keystore/KeystoreCatalogue.kt : the generator catalogues' keystore blocks: authorizations, trial key sizes and curves
+apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/keystore/KeystoreMaker.kt : what the keystore trial needs of a runtime: classes, StrongBox feature, generate, sweep, delete
+apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/keystore/KeystoreTrial.kt : level 4: one key per keystore-born generator, size or curve and hardware path, coded refusals
+apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/keystore/ReflectiveKeystore.kt : KeyGenParameterSpec by reflection, the provider's KeyStore, the StrongBox feature
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/AgreementFacts.kt : KeyAgreement facts
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/AliasRuns.kt : per declared alias: class run, same behaviour, own-name key
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/CallOrder.kt : one engine's real calls in order: setup once, operation per use; run, and written to the record
@@ -89,6 +95,7 @@ apps/benchmark/modules/environment/discovery/src/test/kotlin/DefaultRunTrialTest
 apps/benchmark/modules/environment/discovery/src/test/kotlin/GeneratorKeysTest.kt : triedKeys: each size with its own key, a refusal, a pair asked no size above its default
 apps/benchmark/modules/environment/discovery/src/test/kotlin/JcaContractTest.kt : JCA-surface drift checks on the running JVM
 apps/benchmark/modules/environment/discovery/src/test/kotlin/KeyNamesTest.kt : KeyNames tests
+apps/benchmark/modules/environment/discovery/src/test/kotlin/KeystoreTrialTest.kt : keystore trial with a fake keystore: rows per size, curve and path, coded refusals, no StrongBox, absent section, bundled catalogue
 apps/benchmark/modules/environment/discovery/src/test/kotlin/ParityFixturesTest.kt : parity/duplicate-key.yaml keeps its last value through this codec
 apps/benchmark/modules/environment/discovery/src/test/kotlin/ProbeDirectoryTest.kt : no-overwrite test
 apps/benchmark/modules/environment/discovery/src/test/kotlin/ProviderProbeTest.kt : ProviderProbe tests

@@ -18,3 +18,5 @@ dependencies {
     implementation project(':document')
     testImplementation 'junit:junit:4.13.2'
 }
+
+apply from: '../../../gradle/guide-resources.gradle'

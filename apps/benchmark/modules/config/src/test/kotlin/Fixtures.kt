@@ -25,6 +25,7 @@ providers:
 schemaVersion: 3
 capturedAtMillis: 1700000000000
 defaultRunInputSize: 1024
+keystore: {absent: 'not_supported: no keystore on this runtime'}
 services:
 - provider: SunJCE
   type: Cipher

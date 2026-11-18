@@ -51,8 +51,8 @@ class DocumentRoundTripTest {
     @Test
     fun theFileLayerStampsAndChecksTheVersion() {
         val written = files.at(File(directory, "inventory.yaml"), InventoryDocument).write(inventory)
-        assertTrue(written.readText().startsWith("schemaVersion: 1\n"))
-        written.writeText(written.readText().replaceFirst("schemaVersion: 1", "schemaVersion: 9"))
+        assertTrue(written.readText().startsWith("schemaVersion: 2\n"))
+        written.writeText(written.readText().replaceFirst("schemaVersion: 2", "schemaVersion: 9"))
         val refused = assertThrows(IllegalArgumentException::class.java) { files.at(written, InventoryDocument).read() }.message!!
         assertTrue(refused, refused.startsWith("unsupported_schema_version: inventory.yaml: 9"))
     }
