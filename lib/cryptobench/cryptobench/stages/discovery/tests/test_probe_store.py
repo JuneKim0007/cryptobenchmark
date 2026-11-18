@@ -17,8 +17,8 @@ class Device:
     """install, the probe (a new stamp each time), the build reads and the plan directory, logged."""
     files = "/sdcard/plan"
 
-    def __init__(self, apex=APEX, plan_directory=True, installed="/data/app/~~a1==/pkg-b2==", fingerprint="f/p:17/X/1"):
-        self.apex, self.plan_directory, self.installed, self.fingerprint = apex, plan_directory, installed, fingerprint
+    def __init__(self, apex=APEX, plan_directory=True, installed="/data/app/~~a1==/pkg-b2==", fingerprint="f/p:17/X/1", sdk=36):
+        self.apex, self.plan_directory, self.installed, self.fingerprint, self.sdk = apex, plan_directory, installed, fingerprint, sdk
         self.log, self.stamps = [], (f"20260101T00000{n}Z" for n in itertools.count())
 
     def install(self, _properties):
@@ -32,7 +32,7 @@ class Device:
             (discovery / f"{kind}_{stamp}.yaml").write_text(yaml.safe_dump(document))
 
     def identity(self):
-        return {"sdkInt": 36, "model": "m", "fingerprint": self.fingerprint}
+        return {"sdkInt": self.sdk, "model": "m", "fingerprint": self.fingerprint}
 
     def run(self, *arguments, check=True):
         command = arguments[1]
@@ -59,7 +59,7 @@ class Device:
 @pytest.fixture
 def run(tmp_path, monkeypatch):
     monkeypatch.setattr(discover, "probe", lambda device, discovery, _arguments: device.probe(discovery))
-    monkeypatch.setattr(discover.facts, "gather", lambda _device, discovery, _capture: discovery / "facts.yaml")
+    monkeypatch.setattr(discover.facts, "gather", lambda _device, discovery, _capture, _build: discovery / "facts.yaml")
     monkeypatch.setattr(discover.bundled, "check_effective", lambda *_arguments: None)
 
     def configure(arguments, _stacktrace, _stream=False, *, main_class, **_options):
@@ -124,7 +124,8 @@ def test_anything_the_key_cannot_vouch_for_falls_back_to_the_probe(run, capsys, 
 
 def test_two_installs_of_the_same_build_differing_only_in_their_random_folders_give_one_key():
     one, other = Device(installed="/data/app/~~Xq3Zw==/pkg-Yt7=="), Device(installed="/data/app/~~Lm0Rr==/pkg-Pa9==")
-    first, second = probe_store.key(one, []), probe_store.key(other, [])
+    build = {"securityPatch": "2026-11-05", "apex": {"com.android.conscrypt": 2, "com.android.art": 1}}
+    first, second = probe_store.key(one, [], build), probe_store.key(other, [], build)
     assert first == second and first[1] is None
     assert sorted(first[0]["apk"][probe_store.PACKAGE]) == ["base.apk", "split_config.arm64_v8a.apk"]
 
@@ -152,3 +153,15 @@ def test_a_damaged_entry_is_named_probed_again_and_replaced(run, tmp_path, capsy
     again = Device()
     run(again)
     assert again.log == ["install", "forget captures"] and [p.name for p in (tmp_path / "store").iterdir()] == [entry.name]
+
+
+def test_below_sdk_29_the_key_is_complete_so_the_second_run_reuses(run, capsys):
+    run(Device(apex="", sdk=26))
+    again = Device(apex="", sdk=26)
+    run(again)
+    assert again.log == ["install", "forget captures"] and "incomplete" not in capsys.readouterr().out
+
+
+def test_an_unreadable_apex_list_is_read_and_warned_once_per_run(run, capsys):
+    run(Device(apex=""))
+    assert capsys.readouterr().out.count("facts_unknown: build.apex") == 1

@@ -12,7 +12,7 @@ from cryptobench.shared.errors.input_error import InputError
 from cryptobench.shared.errors.line import one_line
 from cryptobench.shared.log.warn import warn
 from cryptobench.shared.results import identity
-from cryptobench.stages.discovery import build_versions, capture_files
+from cryptobench.stages.discovery import capture_files
 
 KEY = "key.yaml"
 
@@ -37,10 +37,10 @@ def installed_apks(device, package):
     return found
 
 
-def key(device, shipped):
+def key(device, shipped, build):
     """(the build key, why it cannot identify this build or None). The installed APKs carry the code and the bundled jars that run."""
     try:
-        value = {"device": {"fingerprint": device.identity()["fingerprint"], **build_versions.read(device)},
+        value = {"device": {"fingerprint": device.identity()["fingerprint"], **build},
                  "apk": {package: installed_apks(device, package) for package in (PACKAGE, f"{PACKAGE}.test")},
                  "bundled": shipped}
     except DeviceLost:
@@ -106,9 +106,9 @@ def forget_captures(device):
     device.shell("rm -f " + " ".join(f"{device.files}/{prefix}_*.yaml" for prefix in (paths.CAPTURE_PREFIX, paths.TRIAL_PREFIX, paths.REQUIREMENTS_PREFIX)))
 
 
-def verified(device, discovery, shipped, store):
+def verified(device, discovery, shipped, store, build):
     """(the reused capture copied into discovery, or None when the probe must run; the key, or None when it is incomplete)."""
-    value, missing = key(device, shipped)
+    value, missing = key(device, shipped, build)
     if missing:
         say(f"full probe: the key is incomplete: {missing}")
         return None, None
