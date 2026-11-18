@@ -127,3 +127,19 @@ def test_a_missing_session_file_stops(tmp_path):
 
 def test_the_name_defaults_to_the_file_stem(folder):
     assert session(folder, "").name == "session" and session(folder, "name: tiers\n").name == "tiers"
+
+
+def test_overlays_append_defaults_then_the_target_and_config_replaces(folder):
+    for name in ("fixed.yaml", "energy.yaml"):
+        (folder / name).write_text("run: {}\n")
+    result = resolved(folder, "defaults: {suites: [tier1.yaml], overlays: [fixed.yaml]}\n"
+                              "targets:\n  56301AAAA00001: {config: host.yaml, overlays: [energy.yaml]}\n", rows=[PIXEL])
+    pixel = by_name(result)["56301AAAA00001"]
+    assert (pixel.config, pixel.overlays) == (folder / "host.yaml", (folder / "fixed.yaml", folder / "energy.yaml"))
+
+
+def test_a_missing_overlay_skips_the_target_and_a_bad_list_stops(folder):
+    result = resolved(folder, "defaults: {suites: [tier1.yaml], overlays: [gone.yaml]}\n", rows=[PIXEL])
+    assert result.skipped == [("56301AAAA00001", f"missing_file: {folder / 'gone.yaml'} (overlays of 56301AAAA00001)")]
+    with pytest.raises(InputError, match="wrong_type: .*defaults.overlays is 'x.yaml'; expected a list of global-file layer paths"):
+        session(folder, "defaults: {overlays: x.yaml}\n")

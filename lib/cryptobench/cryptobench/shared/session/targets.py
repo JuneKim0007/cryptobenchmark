@@ -22,6 +22,8 @@ class TargetSpec:
     suites: tuple[Path, ...]
     order: int
     unstable: bool = False
+    # layers over config: defaults' overlays, then the target's
+    overlays: tuple[Path, ...] = ()
 
 
 @dataclasses.dataclass(frozen=True)
@@ -49,13 +51,18 @@ def order_of(name: str, entry: dict, defaults: dict, fallback: int | None) -> in
     return value
 
 
-def files_of(name: str, entry: dict, defaults: dict, config: Callable[[], Path]) -> tuple[Path, tuple[Path, ...]] | str:
-    """The target's config and suites, or the line that skips it; a named file that is missing never falls back."""
+def files_of(name: str, entry: dict, defaults: dict, config: Callable[[], Path]) -> tuple[Path, tuple[Path, ...], tuple[Path, ...]] | str:
+    """The target's config, suites and overlays, or the line that skips it; a named file that is missing never falls back. config replaces,
+    overlays append."""
     named = entry.get("config") or defaults.get("config")
     chosen = named or config()
     if not chosen.is_file():
         where = f"targets.{name}.config" if entry.get("config") else "defaults.config"
         return f"missing_file: {chosen} ({where})"
+    overlays = (*defaults.get("overlays", []), *entry.get("overlays", []))
+    for overlay in overlays:
+        if not overlay.is_file():
+            return f"missing_file: {overlay} (overlays of {name})"
     suites = entry.get("suites", defaults.get("suites", []))
     if not suites:
         return f"nothing_to_measure: {name}: no suites in targets.{name} or defaults"
@@ -68,7 +75,7 @@ def files_of(name: str, entry: dict, defaults: dict, config: Callable[[], Path])
     clash = next((paths for paths in stems.values() if len(paths) > 1), None)
     if clash:
         return f"target_conflict: {name}: suites {', '.join(map(str, clash))} share the name {clash[0].stem}"
-    return chosen, tuple(suites)
+    return chosen, tuple(suites), overlays
 
 
 def resolve(session: Session, rows: list[DeviceRow], aliases: dict[str, str], config: Callable[[], Path]) -> Resolved:
@@ -101,7 +108,7 @@ def resolve(session: Session, rows: list[DeviceRow], aliases: dict[str, str], co
         if problem:
             skipped.append((name, problem))
             continue
-        targets.append(TargetSpec(name, key, row.transport, files[0], files[1], order, row.note is not None))
+        targets.append(TargetSpec(name, key, row.transport, files[0], files[1], order, row.note is not None, files[2]))
     if not session.host_benchmark:
         notices.append("host_benchmark_not_set: host.benchmark is false")
         if HOST in session.targets:
@@ -114,7 +121,7 @@ def resolve(session: Session, rows: list[DeviceRow], aliases: dict[str, str], co
         if problem:
             skipped.append((HOST, problem))
         else:
-            targets.append(TargetSpec(HOST, HOST, None, files[0], files[1], order))
+            targets.append(TargetSpec(HOST, HOST, None, files[0], files[1], order, overlays=files[2]))
     return Resolved(targets, skipped, notices)
 
 
