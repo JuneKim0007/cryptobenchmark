@@ -1,0 +1,4 @@
+shell rm -f /plan/interop.yaml
+push_files <tmp>/effective.yaml <tmp>/probe.yaml <tmp>/trial.yaml <tmp>/plan.yaml
+instrument InteropCheck
+pull /plan/interop.yaml <tmp>/out.yaml

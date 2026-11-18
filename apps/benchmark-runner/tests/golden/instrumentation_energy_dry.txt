@@ -1,0 +1,9 @@
+shell rm -f /plan/energy-dry.yaml
+run push <tmp>/config.txt /data/local/tmp/config.txt
+shell cat /data/local/tmp/config.txt | perfetto --txt -c - -o /data/misc/perfetto-traces/dry.perfetto-trace --background-wait
+instrument EnergyDryBenchmark -e androidx.benchmark.profiling.mode None
+shell kill 4242; while kill -0 4242 2>/dev/null; do sleep 0.2; done
+pull /data/misc/perfetto-traces/dry.perfetto-trace <tmp>/dry.perfetto-trace
+pull /plan/energy-dry.yaml <tmp>/calls.json
+pull /plan/prepared.yaml <tmp>/preparation/prepared.yaml
+pull /plan/skipped.yaml <tmp>/preparation/skipped.yaml

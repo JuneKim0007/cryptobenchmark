@@ -1,0 +1,4 @@
+shell rm -rf /plan
+shell rm -f /media/*-benchmarkData.json
+instrument DeviceProbe -e hostMillis <ms> -e bundled x
+pull /plan/. <tmp>/discovery

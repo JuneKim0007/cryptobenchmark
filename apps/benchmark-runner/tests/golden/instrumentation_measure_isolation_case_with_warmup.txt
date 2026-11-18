@@ -1,0 +1,36 @@
+push_files <tmp>/results/configuration/effective.yaml <tmp>/results/configuration/guide.yaml <tmp>/results/discovery/probe_1.yaml <tmp>/results/discovery/trial_1.yaml
+shell cmd package compile -f -m speed io.github.junekim0007.cryptobench
+shell cmd package compile -f -m speed io.github.junekim0007.cryptobench.test
+instrument CryptoBenchmark -e androidx.benchmark.profiling.mode None -e log true
+pull /plan/prepared.yaml <tmp>/results/preparation/prepared.yaml
+pull /plan/skipped.yaml <tmp>/results/preparation/skipped.yaml
+pull_optional /plan/skipped.yaml <tmp>/results/preparation/skipped.yaml
+shell dumpsys thermalservice
+instrument CryptoBenchmark -e androidx.benchmark.profiling.mode None -e case a,b -e cryptobench.pass warmup -e cryptobench.samples 5
+shell rm -f /media/*-benchmarkData.json /media/*.perfetto-trace /media/*.trace /plan/cpu-pins.yaml
+shell dumpsys thermalservice
+shell cat /proc/sys/kernel/random/boot_id
+shell for c in /sys/devices/system/cpu/cpu[0-9]*; do f=$c/cpufreq; echo "${c##*/} $(cat $c/online 2>/dev/null || echo 1) $(cat $f/scaling_governor 2>/dev/null || echo -) $(cat $f/scaling_min_freq 2>/dev/null || echo -) $(cat $f/scaling_max_freq 2>/dev/null || echo -) $(cat $f/cpuinfo_max_freq 2>/dev/null || echo -)"; done
+shell dumpsys thermalservice
+shell rm -f /media/*-benchmarkData.json /media/*.perfetto-trace /media/*.trace /plan/prepared.yaml /plan/skipped.yaml /plan/cpu-pins.yaml
+instrument CryptoBenchmark -e androidx.benchmark.profiling.mode None -e log true
+shell for c in /sys/devices/system/cpu/cpu[0-9]*; do f=$c/cpufreq; echo "${c##*/} $(cat $c/online 2>/dev/null || echo 1) $(cat $f/scaling_governor 2>/dev/null || echo -) $(cat $f/scaling_min_freq 2>/dev/null || echo -) $(cat $f/scaling_max_freq 2>/dev/null || echo -) $(cat $f/cpuinfo_max_freq 2>/dev/null || echo -)"; done
+shell dumpsys thermalservice
+shell rm -f /media/data.json
+instrument CryptoBenchmark -e androidx.benchmark.profiling.mode None -e case a
+pull_optional /media/data.json <tmp>/results/benchmark/cases/a.json
+shell dumpsys thermalservice
+shell for c in /sys/devices/system/cpu/cpu[0-9]*; do f=$c/cpufreq; echo "${c##*/} $(cat $c/online 2>/dev/null || echo 1) $(cat $f/scaling_governor 2>/dev/null || echo -) $(cat $f/scaling_min_freq 2>/dev/null || echo -) $(cat $f/scaling_max_freq 2>/dev/null || echo -) $(cat $f/cpuinfo_max_freq 2>/dev/null || echo -)"; done
+shell for c in /sys/devices/system/cpu/cpu[0-9]*; do f=$c/cpufreq; echo "${c##*/} $(cat $c/online 2>/dev/null || echo 1) $(cat $f/scaling_governor 2>/dev/null || echo -) $(cat $f/scaling_min_freq 2>/dev/null || echo -) $(cat $f/scaling_max_freq 2>/dev/null || echo -) $(cat $f/cpuinfo_max_freq 2>/dev/null || echo -)"; done
+shell dumpsys thermalservice
+shell rm -f /media/data.json
+instrument CryptoBenchmark -e androidx.benchmark.profiling.mode None -e case b
+pull_optional /media/data.json <tmp>/results/benchmark/cases/b.json
+shell dumpsys thermalservice
+shell for c in /sys/devices/system/cpu/cpu[0-9]*; do f=$c/cpufreq; echo "${c##*/} $(cat $c/online 2>/dev/null || echo 1) $(cat $f/scaling_governor 2>/dev/null || echo -) $(cat $f/scaling_min_freq 2>/dev/null || echo -) $(cat $f/scaling_max_freq 2>/dev/null || echo -) $(cat $f/cpuinfo_max_freq 2>/dev/null || echo -)"; done
+pull /plan/prepared.yaml <tmp>/results/preparation/prepared.yaml
+pull /plan/skipped.yaml <tmp>/results/preparation/skipped.yaml
+pull_optional /plan/cpu-pins.yaml <tmp>/results/benchmark/cpu-pins.yaml
+shell dumpsys thermalservice
+shell for c in /sys/devices/system/cpu/cpu[0-9]*; do f=$c/cpufreq; echo "${c##*/} $(cat $c/online 2>/dev/null || echo 1) $(cat $f/scaling_governor 2>/dev/null || echo -) $(cat $f/scaling_min_freq 2>/dev/null || echo -) $(cat $f/scaling_max_freq 2>/dev/null || echo -) $(cat $f/cpuinfo_max_freq 2>/dev/null || echo -)"; done
+shell cat /proc/sys/kernel/random/boot_id
