@@ -113,7 +113,7 @@ cryptobench/shared/settings/__init__.py : package of the run's settings readers 
 cryptobench/shared/settings/bundled.py : providers.bundled of global.yaml: the digest's raw read, build property of the app or host CLI, DeviceProbe argument, effective record and check
 cryptobench/shared/settings/defaults.py : parity/defaults.yaml read by dotted path: the value :config writes for a key a config leaves out
 cryptobench/shared/settings/effective_view.py : the KEY table of effective.yaml (path, read rule, honoured on --bench); RunView, GateView, AnalysisView, EnergyView; the keys a host run ignores; effective.yaml with the warnings and skips of report.yaml
-cryptobench/shared/settings/energy_capture.py : a node's energy capture and source against parity/defaults.yaml; a copy of the energy scripts' capture.py, kept equal by a test
+cryptobench/shared/settings/energy_capture.py : a node's energy capture and source against the default; a copy of the energy scripts' capture.py, kept equal by a test
 cryptobench/shared/stats/__init__.py : package of the benchmark's calculations, with no I/O: descriptive statistics, the run count's equations, display units
 cryptobench/shared/stats/descriptive.py : one definition of each per-case statistic: mean, sample SD, CoV, interpolated quantiles, IQR, QCD; which one leads
 cryptobench/shared/stats/equations.py : every calculation the run count uses; no I/O
@@ -167,6 +167,7 @@ cryptobench/stages/measurement/session/passes.py : run.passes: PASS_ROWS (metric
 cryptobench/stages/measurement/session/skips.py : a skipped.yaml record whose code codes.yaml holds as an outcome or an error: a final skip, its case_skipped line
 cryptobench/stages/measurement/session/thermal_hook.py : session hook: temperature around every process and case into thermal.json with the gate's history, its lines per pass
 cryptobench/stages/measurement/session/variant_order.py : run.variants on a device: an item's fixed and notFixed cases adjacent, A/B then B/A over repetitions; run.orderSeed's per-process shuffle; the order's identity stanza
+cryptobench/stages/measurement/session/window.py : run.passes.energy.minWindowSeconds: a case's window from its pulled file, one relaunch at 1.5 x the minimum, short_window, energy-samples.yaml
 cryptobench/stages/measurement/session/warmup.py : run.warmup: a pre-flight run of a few planned cases before the first pass, final skips left out and chosen again, off at 0 iterations; its output never pulled
 cryptobench/stages/measurement/start_margin.py : the temperature gate's start margin: hot, clean and ignored outcomes, the start limit and how the margin moves; no I/O
 cryptobench/stages/measurement/tests/ : pytest tests of the measurement stage
