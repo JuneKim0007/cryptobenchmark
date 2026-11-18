@@ -152,9 +152,9 @@ cryptobench/stages/measurement/energy/session.py : Perfetto sessions on the devi
 cryptobench/stages/measurement/energy/sources/ : one adapter per energy.source on the host; how the host runs apps/benchmark-runner/energy
 cryptobench/stages/measurement/energy/steps.py : energy steps of a --device run: capture selection, the run's energy source
 cryptobench/stages/measurement/measuring.py : what a run's device sessions share: the Measuring context, the thermal gate's start, the androidx arguments of a session and a pass, timed hooks, ConvertKt, per-process files and core pins
-cryptobench/stages/measurement/resume.py : the run's record; at a measuring run's publish: the blocks of a stopped run with the same identity that stay in place, verified; the resumed, identity_changed and block_unverified lines; the manifest's resumed: note
+cryptobench/stages/measurement/resume.py : the run's record; at a measuring run's publish the RedoPlan: the blocks of a stopped run with the same identity that stay in place, verified and content-checked, and the kept runs' failing cases launched again; the resumed, redo, identity_changed and block_unverified lines; the manifest's resumed: note
 cryptobench/stages/measurement/session/__init__.py : package of one device measuring session: processes, cases, passes, order, warm-up, hooks
-cryptobench/stages/measurement/session/blocks.py : run.resumeBlockRuns: a pass's runs in blocks, a recorded block kept, any other measured then recorded; the block record (identity, runId, runs, boot id, files)
+cryptobench/stages/measurement/session/blocks.py : run.resumeBlockRuns: a pass's runs in blocks, a recorded block kept (its redo runs launched again and its record rewritten), any other measured then recorded; the block record (identity, runId, runs, boot id, problems, relaunched, findings, files)
 cryptobench/stages/measurement/session/case_isolation.py : one case's instrumentation process and its pull, the device's case listing
 cryptobench/stages/measurement/session/clocks_hook.py : session hook: the clock state around every process and case into clocks.yaml
 cryptobench/stages/measurement/session/cooldown_hook.py : session hook: run.caseCooldownSeconds of host sleep between measured cases, one line per pass

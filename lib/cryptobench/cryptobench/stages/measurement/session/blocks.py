@@ -25,6 +25,8 @@ class Blocks:
     run_id: str | None
     # a recorded run's entry -> its check_run findings as documents (validation/report.py checker)
     check: object
+    # repetition -> {case: [Finding]}: a kept run's cases the restart launches again (resume.RedoPlan)
+    redo: dict
     label: str | None = None
     boot: object = lambda: None
 
@@ -50,15 +52,24 @@ def run_files(run, pass_folder):
             if path.is_file() and not path.is_relative_to(blocks) and not paths.litter(path)}
 
 
-def measured(blocks, folder, measure, keep, problems):
-    """A recorded block's runs go through keep(repetition), their recorded problem lines joining problems; any other block is measured run by run,
-    each run's lines being what measure(repetition) added to problems and its relaunches what it returns, then recorded."""
+def measured(blocks, folder, measure, keep, redo, problems):
+    """A recorded block's runs go through keep(repetition), their recorded problem lines joining problems, but a run blocks.redo names, whose
+    cases go through redo(repetition, failed, its recorded lines) and whose record entry is then rewritten; any other block is measured run by run, each run's
+    lines being what measure(repetition) added to problems and its relaunches what it returns, then recorded."""
     kept = recorded(blocks.folder)
     for block, first, last in ranges(blocks.repetitions, blocks.size):
         if block in kept:
             for run in kept[block]["processes"]:
-                keep(run["repetition"])
+                before = len(problems)
                 problems += run["problems"]
+                if run["repetition"] not in blocks.redo:
+                    keep(run["repetition"])
+                    continue
+                relaunched = redo(run["repetition"], blocks.redo[run["repetition"]], tuple(run["problems"]))
+                run.update(run_entry(blocks, folder, run["repetition"], problems[before:], run["relaunched"] + relaunched))
+                run["findings"] = blocks.check(run)
+            if any(run["repetition"] in blocks.redo for run in kept[block]["processes"]):
+                rewritten(blocks, kept[block])
             continue
         start, runs = blocks.boot(), []
         for repetition in range(first, last + 1):
@@ -88,3 +99,8 @@ def write(blocks, block, span, runs, boot, problems):
     path = paths.Measurement(blocks.folder).block(block)
     path.parent.mkdir(parents=True, exist_ok=True)
     write_text(path, dump_yaml(record), durable=True, exclusive=True)
+
+
+def rewritten(blocks, record):
+    """A kept block whose cases a restart launched again: its record replaced, durably, with the runs' new entries."""
+    write_text(paths.Measurement(blocks.folder).block(record["block"]), dump_yaml(record), durable=True)

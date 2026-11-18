@@ -198,15 +198,39 @@ def test_a_finished_run_is_never_resumed(tmp_path, monkeypatch, capsys):
     assert not lines(capsys, "resumed:") and stop.launches == 2 * 7
 
 
-def test_a_record_whose_files_changed_is_measured_again_with_every_block_after_it(tmp_path, monkeypatch, capsys):
+def test_a_kept_runs_changed_case_file_is_rejected_and_only_that_case_launched_again_in_it(tmp_path, monkeypatch, capsys):
     rerun = Rerun(tmp_path, monkeypatch)
     stopped(rerun, SEVEN, launch=2 * 6 + 1)
     paths.RunTree(rerun.device).benchmark.process(3).case("a").write_text("{}")
+    stop = Stop(rerun.phone, monkeypatch)
+    capsys.readouterr()
+    rerun(SEVEN)
+    out = capsys.readouterr().out.splitlines()
+    assert out.index("resumed:   kept blocks 1-3 (runs 1-6), restarting at run 7") < out.index("redo:      run 3: a (result_mismatch)") < \
+        next(n for n, line in enumerate(out) if line.startswith("measure:"))
+    assert not [line for line in out if "block_unverified" in line] and stop.launches == 1 + 2
+    assert [named for _test, named in rerun.phone.ran[-3:]] == ["a", "a", "b"]
+    entry = record(rerun.device, 2)["processes"][0]
+    assert entry["repetition"] == 3 and entry["relaunched"] == [{"case": "a", "attempt": 1, "code": "result_mismatch"}] and entry["findings"] == []
+    [rejected] = paths.RunTree(rerun.device).rejected.iterdir()
+    assert (rejected / "process-3/a.json").read_text() == "{}"
+    validation = yaml.safe_load(paths.RunTree(rerun.device).validation.read_text())["runs"]
+    assert validation["process-3"]["checkedBy"] == "block_end" and validation["process-1"]["checkedBy"] == "restart"
+    assert paths.finished(rerun.device) and json.loads(paths.RunTree(rerun.device).benchmark.process(3).case("a").read_text())["benchmarks"]
+    process = paths.RunTree(rerun.device).benchmark.process(3)
+    assert sorted(json.loads(process.thermal.read_text())["cases"]) == ["a", "b"] and sorted(yaml.safe_load(process.clocks.read_text())["cases"]) == ["a", "b"]
+    assert [b["name"] for b in json.loads(process.data.read_text())["benchmarks"]] == ["measure[a]", "measure[b]"]
+
+
+def test_a_kept_runs_changed_run_file_is_measured_again_with_every_block_after_it(tmp_path, monkeypatch, capsys):
+    rerun = Rerun(tmp_path, monkeypatch)
+    stopped(rerun, SEVEN, launch=2 * 6 + 1)
+    paths.RunTree(rerun.device).benchmark.process(3).json.write_text("{}")
     capsys.readouterr()
     rerun(SEVEN)
     out = capsys.readouterr().out.splitlines()
     assert [line.split(": ")[2] for line in out if line.startswith("warning: block_unverified")] == [str(paths.RunTree(rerun.device).benchmark.block(2))]
-    assert "process-3: its files differ from the record" in next(line for line in out if "block_unverified" in line)
+    assert "process-3: files_differ: benchmark.json: its digest differs" in next(line for line in out if "block_unverified" in line)
     assert "resumed:   kept block 1 (runs 1-2), restarting at run 3" in out
 
 

@@ -13,6 +13,7 @@ from cryptobench.shared.device.adb import DeviceError, DeviceLost
 from cryptobench.shared.device.plan import clear_outputs
 from cryptobench.shared import paths
 from cryptobench.shared.log.warn import warn
+from cryptobench.shared.document.document import read_yaml
 
 COUNTED = re.compile(r"^Tests run: (\d+),\s+Failures: (\d+)", re.M)
 
@@ -56,6 +57,18 @@ class Process:
     samples: dict = dataclasses.field(default_factory=dict)
     # {case, attempt, code} per launch again: the block record's relaunched
     relaunched: list = dataclasses.field(default_factory=list)
+    # {case: [Finding]}: a kept run's cases a restart launches again; empty measures every case
+    redo: dict = dataclasses.field(default_factory=dict)
+    # the kept run's recorded problem lines, so its given-up cases stay given up
+    recorded: tuple = ()
+
+    def earlier(self, path, key="cases"):
+        """A redo's per-case entries of a file the process rewrites, for the cases not launched again; {} otherwise."""
+        if not self.redo or not path.is_file():
+            return {}
+        document = read_yaml(path)
+        entries = document.get(key) if key else document
+        return {case: entry for case, entry in (entries or {}).items() if case not in self.redo}
 
     @property
     def data(self):
@@ -110,7 +123,10 @@ def run_session(device, plan, repetitions, hooks, folder, problems):
         for repetition in range(1, repetitions + 1):
             measured(repetition)
     else:
-        blocks.measured(plan.blocks, folder, measured, lambda repetition: plan.kept(Process(repetition, folder(repetition))), problems)
+        def redone(repetition, failed, lines):
+            processes.append(one_process(device, plan, Process(repetition, folder(repetition), redo=failed, recorded=lines), hooks, repetitions, problems))
+            return processes[-1].relaunched
+        blocks.measured(plan.blocks, folder, measured, lambda repetition: plan.kept(Process(repetition, folder(repetition))), redone, problems)
     for hook in reversed(hooks):
         hook.after_session(processes)
     return processes
@@ -188,6 +204,11 @@ def planned(device, plan):
 
 
 def each_case(device, plan, process, hooks):
+    if process.redo:
+        process.cases = paths.Measurement(process.into).order.read_text().split()
+        print(f"measure:   {len(process.redo)} of {len(process.cases)} cases of a kept run launched again")
+        again(device, plan, process, hooks, rejected.run_of(plan.unit, process.into, process.repetition), process.redo)
+        return
     process.cases = plan.order(process.repetition, plan.reconnect.retried(lambda: planned(device, plan), "the case listing"))
     print(f"measure:   one process per case ({len(process.cases)} cases)")
     case_files.opened(process.into)
@@ -212,21 +233,25 @@ def each_case(device, plan, process, hooks):
 
 
 def completed(device, plan, process, hooks):
-    """check_run at the process's end, its plan pulled: a case without a file, or whose file now fails a rule, moves to rejected/ and is
-    launched once more in this process, before the next one starts."""
-    run = rules.RunFolder(plan.unit, process.into, process.into, process.repetition, tuple(process.failures), sized=process.samples)
-    findings = rules.check_run(run, plan.expectation)
-    for case in rules.redone(findings):
-        failed = [finding for finding in rules.failed(findings) if finding.case == case]
+    """check_run at the process's end, its plan pulled: a case without a file, or whose file now fails a rule, is launched once more in this
+    process, before the next one starts."""
+    run = rules.RunFolder(plan.unit, process.into, process.into, process.repetition, process.recorded + tuple(process.failures), sized=process.samples)
+    findings = rules.failed(rules.check_run(run, plan.expectation))
+    again(device, plan, process, hooks, run.run, {case: [f for f in findings if f.case == case] for case in rules.redone(findings)})
+
+
+def again(device, plan, process, hooks, run, failed):
+    """failed: {case: [Finding]}; each case's file moves to rejected/ and the case is launched again, then benchmarkData.json merged again."""
+    for case, found in failed.items():
         attempt = 1 + sum(1 for entry in process.relaunched if entry["case"] == case)
-        rejected.moved(plan.unit, run.result(case), attempt, failed)
-        process.relaunched.append({"case": case, "attempt": attempt, "code": failed[0].code})
+        rejected.moved(plan.unit, rules.Result(run, case, case_files.path(process.into, case)), attempt, found)
+        process.relaunched.append({"case": case, "attempt": attempt, "code": found[0].code})
         failure = launch.run_of_case(device, plan, process, case, hooks, case_files.path(process.into, case))
-        print(f"case:      {case} launched again ({failed[0].code}) {verdict(failure)}")
+        print(f"case:      {case} launched again ({found[0].code}) {verdict(failure)}")
         if failure:
             print(failure)
             process.failures.append(failure)
-    if rules.redone(findings):
+    if failed:
         case_files.merge(process.into, [case for case in process.cases if case_files.path(process.into, case).is_file()], process.data)
 
 

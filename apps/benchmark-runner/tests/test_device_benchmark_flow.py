@@ -8,7 +8,7 @@ from cryptobench.shared.device.adb import DeviceError  # noqa: E402
 from cryptobench.shared.errors.failures import EnergyError  # noqa: E402
 from cryptobench.stages.measurement.session import clocks_hook, cooldown_hook, variant_order  # noqa: E402
 import pipeline  # noqa: E402
-from cryptobench.stages.measurement import benchmark  # noqa: E402
+from cryptobench.stages.measurement import benchmark, resume  # noqa: E402
 from cryptobench.stages.discovery import discover  # noqa: E402
 from cryptobench.stages.measurement.session import skips  # noqa: E402
 from failure import reported  # noqa: E402
@@ -55,7 +55,7 @@ def measured(tmp_path, monkeypatch, run, phone=None, **phone_options):
     results, effective, capture, trial = layout(tmp_path, run)
     files, problems = {"effective": effective}, []
     pipeline.benchmarked(OPTIONS, phone, results, discover.Discovered(results / "discovery", effective, capture, trial, files), problems,
-                         {"identity": "of this run", "run": yaml.safe_load(effective.read_text())["run"]})
+                         {"identity": "of this run", "run": yaml.safe_load(effective.read_text())["run"]}, resume.NOTHING)
     return phone, files, problems, results
 
 

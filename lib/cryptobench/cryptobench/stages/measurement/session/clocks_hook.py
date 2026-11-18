@@ -20,7 +20,7 @@ class Clocks(Hooks):
         self.cases[case] = {"start": self.case_start, "end": clocks.capped(clocks.read(self.device))}
 
     def after_process(self, process):
-        clocks.write(paths.Measurement(process.into).clocks, self.before, clocks.read(self.device), self.cases)
+        clocks.write(paths.Measurement(process.into).clocks, self.before, clocks.read(self.device), process.earlier(paths.Measurement(process.into).clocks) | self.cases)
         if self.cases:
             hit = sum(1 for c in self.cases.values() if c["start"] or c["end"])
             print(f"clocks:    {hit} of {len(self.cases)} cases started or ended with a core capped below its maximum")

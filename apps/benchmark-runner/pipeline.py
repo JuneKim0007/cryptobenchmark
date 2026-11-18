@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Runs the host pipeline in order and reports one readable failure."""
-import argparse, contextlib, functools, json, os, pathlib, subprocess, sys, traceback
+import argparse, contextlib, json, os, pathlib, subprocess, sys, traceback
 
 import dependencies  # first: it reports a missing PyYAML, which the imports below need
 from cryptobench.shared.device import aliases, probe
@@ -190,22 +190,25 @@ def measured(context):
     measuring = not options.probe and bool(options.bench or device)
     with published(context) as root:
         # only a measuring run resumes: a probe over a stopped run moves it aside whole
-        kept = functools.partial(resume.kept, options=options) if measuring else keep_nothing
+        plans = []
+        kept = (lambda effective, capture, target: plans.append(resume.planned(effective, capture, target, options)) or plans[-1].kept) \
+            if measuring else keep_nothing
         results, found = guided(context, root, kept)
+        redo = plans[-1] if plans else resume.NOTHING
         files = found.files
         mode, resumed = "device" if device else "host", resume.note(results) if measuring else []
         run = resume.record(found.effective, found.capture, options)
         if measuring:
             stopped = lambda record, pulled: manifest(results, mode, configuration, files | pulled, context.problems, partial=record, resumed=resumed, run=run)
             with partial.kept(results, stopped):
-                benchmarked(options, device, results, found, context.problems, run)
+                benchmarked(options, device, results, found, context.problems, run, redo)
         manifest(results, mode, configuration, files, context.problems, resumed=resumed, run=run)
         results_layout.report_superseded(results)
 
 
-def benchmarked(options, device, results, found, problems, run):
-    """Measurement, then the analysis of what it timed."""
-    timed, written, repetitions = measure_cases(options, device, results, found, problems, dependencies.require_energy, run)
+def benchmarked(options, device, results, found, problems, run, redo):
+    """Measurement, then the analysis of what it timed; redo: the restart's resume.RedoPlan."""
+    timed, written, repetitions = measure_cases(options, device, results, found, problems, dependencies.require_energy, run, redo)
     if timed:
         benchmark, preparation = paths.RunTree(results).benchmark.root, paths.RunTree(results).preparation.root
         not_measured.report(paths.Preparation(preparation).prepared, paths.Measurement(benchmark).json, problems)

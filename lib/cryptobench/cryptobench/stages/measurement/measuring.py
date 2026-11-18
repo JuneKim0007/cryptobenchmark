@@ -10,6 +10,8 @@ from cryptobench.pipeline.took import elapsed
 from cryptobench.shared.log.warn import warn
 from cryptobench.shared import paths
 from cryptobench.shared.document.document import read_yaml
+from cryptobench.shared.document.dump import dump_yaml
+from cryptobench.shared.document.write import write_text
 
 THROTTLE_SLEEP = "androidx.benchmark.thermalThrottle.sleepDurationSeconds"
 
@@ -54,10 +56,14 @@ def measure_arguments(suppress, throttle_sleep=None):
             + (["-e", THROTTLE_SLEEP, str(throttle_sleep)] if throttle_sleep is not None else []))
 
 
-def pull_pins(device, into):
-    """The per-case core pins a timed process writes beside its results."""
-    paths.Measurement(into).cpu_pins.unlink(missing_ok=True)
-    device.pull_optional(f"{device.files}/{paths.CPU_PINS}", paths.Measurement(into).cpu_pins)
+def pull_pins(device, process):
+    """The per-case core pins a timed process writes beside its results; a redo keeps the pins of the cases it did not launch again."""
+    pins = paths.Measurement(process.into).cpu_pins
+    kept = process.earlier(pins, key=None)
+    pins.unlink(missing_ok=True)
+    device.pull_optional(f"{device.files}/{paths.CPU_PINS}", pins)
+    if kept:
+        write_text(pins, dump_yaml(kept | ((read_yaml(pins) or {}) if pins.is_file() else {})))
 
 
 def session_arguments(run):

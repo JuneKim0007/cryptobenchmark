@@ -51,7 +51,8 @@ class Thermal(Hooks):
         cases = self.cases.setdefault(process.repetition, {})
         self.paused[process.repetition] = sleeps(process.data)
         document = {"schemaVersion": SCHEMA_VERSION, "process": record(self.process_start, end),
-                    "cases": {case: reading | ({"gate": gated[case]} if case in gated else {}) for case, reading in cases.items()},
+                    "cases": process.earlier(paths.Measurement(process.into).thermal)
+                    | {case: reading | ({"gate": gated[case]} if case in gated else {}) for case, reading in cases.items()},
                     "gate": self.history.document}
         paths.Measurement(process.into).thermal.write_text(json_text(document))
 

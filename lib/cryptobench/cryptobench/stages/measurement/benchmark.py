@@ -53,7 +53,7 @@ def measure_on_device(run, one, captures, preparation, repetitions, folder, writ
     plan = measure_session.Plan("CryptoBenchmark", arguments, run.order, gate, run.retries, run.reconnect, run.unit,
                                 expectation.of(run.record["run"], one.name), timed=bool(timed),
                                 cleared=(paths.PREPARED, paths.SKIPPED), stale=(paths.Preparation(preparation).prepared, paths.Preparation(preparation).skipped),
-                                pull_plan=lambda process: (pull_plan(device, preparation), pull_pins(device, process.into)), after_process=converted,
+                                pull_plan=lambda process: (pull_plan(device, preparation), pull_pins(device, process)), after_process=converted,
                                 blocks=measured_blocks, kept=held,
                                 refused=lambda case: device_skips(device, preparation).get(case), sizing=sizing)
     measure_session.run_session(device, plan, repetitions, hooks, folder, run.problems)
@@ -72,9 +72,9 @@ def dry_pass(session, into, preparation, problems, guarded):
     energy_stage.guarded(problems, step) if guarded else step()
 
 
-def measure_cases(options, device, results, found, problems, require_energy, record):
+def measure_cases(options, device, results, found, problems, require_energy, record, redo):
     """found is discovery's Discovered; require_energy is the entry point's check of the energy interpreter, passed in; it returns the interpreter the run uses;
-    record: the run's record, every block's identity."""
+    record: the run's record, every block's identity; redo: the restart's resume.RedoPlan."""
     benchmark, preparation = paths.RunTree(results).benchmark.root, paths.RunTree(results).preparation.root
     discovery, effective, capture, trial, files = found.discovery, found.effective, found.capture, found.trial, found.files
     started = time.monotonic()
@@ -84,7 +84,9 @@ def measure_cases(options, device, results, found, problems, require_energy, rec
     timed = bool(captures - {"dry"})
     size = view.resume_block_runs
     in_blocks = lambda folder, label, boot: blocks.Blocks(folder, size, repetitions, record, document.get("runId"),
-                                                          report.checker(results, folder, expectation.of(record["run"], label)), label, boot)
+                                                          report.checker(results, folder, expectation.of(record["run"], label)), redo.of_pass(label), label, boot)
+    if redo.findings:
+        report.written(results, report.RESTART, redo.findings)
     if captures - {"none"} and not device:
         raise CommandError("energy: only a --device run captures energy; set harness.energy.capture none for --bench")
     if captures - {"none"}:
@@ -168,7 +170,8 @@ def host_cases(options, document, capture, trial, effective, benchmark, preparat
     def held(into):
         written.append(paths.Measurement(into).json)
         record(files, into, {"none"}, None)
-    blocks.measured(measured_blocks, folder, measured, lambda repetition: held(folder(repetition)), problems)
+    # a host run keeps no per-case files, so a restart never launches its cases again
+    blocks.measured(measured_blocks, folder, measured, lambda repetition: held(folder(repetition)), None, problems)
     if repetitions > 1:
         passes.merge_runs(benchmark, written, options)
     return written
