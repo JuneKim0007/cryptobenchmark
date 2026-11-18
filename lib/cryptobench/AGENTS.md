@@ -79,6 +79,7 @@ cryptobench/shared/log/emit.py : emit(): one event as a log record (logger crypt
 cryptobench/shared/log/event.py : Event: one events.jsonl line (schema 1); event names (a `finding`: a coded fact for the status log), kinds, each field's types
 cryptobench/shared/log/sink.py : EventSink(views): each record under the root logger as an Event line in events.jsonl, then each view's line; records before the folder is known kept in order; append_repaired and log_dropped, its own two notices; a data value JSON cannot write kept as text
 cryptobench/shared/log/stderr.py : the stderr handler: INFO and above, event records left out
+cryptobench/shared/log/stdout.py : the labelled lines other programs read (results:, wrote:, identity:, took:, error:) one column wide; line(), say(), last()
 cryptobench/shared/log/tests/ : pytest tests of the event log: append_line, attach, the sink, emit and step, warn
 cryptobench/shared/log/warn.py : warn(): a `warning:` line, added to the run's problems when it keeps a list, and one log event with the line's code
 cryptobench/shared/paths/__init__.py : one interface to every path the Python modules use: `from cryptobench.shared import paths`

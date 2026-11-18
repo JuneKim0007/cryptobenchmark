@@ -5,12 +5,13 @@ import re
 import statistics
 from pathlib import Path
 
+from cryptobench.shared.log.stdout import TOOK
 from cryptobench.shared.paths import RunTree
 from ..dto.benchmark_coverage import Gap
 from cryptobench.shared.catalogue.grouping import parse_qualified
 
 DELTA_RESULTS = "/delta/results"
-TOOK = re.compile(r"^took:\s+prepare and measure in (?P<s>[0-9.]+)s$")
+MEASURED_IN = re.compile(rf"^{re.escape(TOOK)}prepare and measure in (?P<s>[0-9.]+)s$")
 
 
 def _whole_run_took(lines: list[str]) -> list[float]:
@@ -19,7 +20,7 @@ def _whole_run_took(lines: list[str]) -> list[float]:
     for line in lines:
         if line.startswith("$ "):
             delta = DELTA_RESULTS in line
-        elif (m := TOOK.match(line)) and not delta:
+        elif (m := MEASURED_IN.match(line)) and not delta:
             took.append(float(m["s"]))
     return took
 

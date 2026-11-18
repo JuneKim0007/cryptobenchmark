@@ -3,13 +3,14 @@ import subprocess, sys, time
 
 from cryptobench.pipeline.took import elapsed
 from cryptobench.shared.log.warn import warn
+from cryptobench.shared.log.stdout import WROTE, say
 from cryptobench.shared import paths
 from cryptobench.shared.device import timeouts
 from cryptobench.shared.errors.line import one_line
 
 
 def analyse(results, files, effective, preparation, benchmark, written, repetitions):
-    print(f"wrote:     {paths.Measurement(benchmark).json}")
+    say(WROTE, paths.Measurement(benchmark).json)
     files["benchmark"] = paths.Measurement(benchmark).json
     if repetitions > 1:
         files["processes"] = written

@@ -10,6 +10,7 @@ from failure import fail, reported
 from cryptobench.shared.errors.line import one_line
 from cryptobench.shared.errors.coded import Coded
 from cryptobench.shared.log.warn import warn
+from cryptobench.shared.log.stdout import IDENTITY, say
 from cryptobench.pipeline.orchestrator import plan as session_plan
 from cryptobench.pipeline.orchestrator import run as session_run
 from cryptobench.pipeline.stage import Stage, StageContext
@@ -125,7 +126,7 @@ def identify(options, configuration, device):
     runtime = device.identity() if device else host_runtime(options)
     identity = {"deviceId": device_id(runtime), "mode": "device" if device else "host", "config": str(configuration),
                 "inputs": run_inputs.digests(configuration), "harness": code_digest.digest()}
-    print(f"identity:  {json.dumps(identity, sort_keys=True)}")
+    say(IDENTITY, json.dumps(identity, sort_keys=True))
 
 
 def results_root(options):

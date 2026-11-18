@@ -6,6 +6,7 @@ from cryptobench.shared.device import gradle_runner
 from cryptobench.stages.measurement.energy import steps as energy_stage
 from cryptobench.stages.measurement.energy.session import EnergySession
 from cryptobench.shared.log.warn import warn
+from cryptobench.shared.log.stdout import WROTE, say
 from cryptobench.shared.errors.line import one_line
 from cryptobench.shared.errors.failures import AllSkipped, CommandError
 from cryptobench.shared import paths
@@ -94,7 +95,7 @@ def measure_cases(options, device, results, found, problems, require_energy):
     else:
         written, processes = host_cases(options, document, capture, trial, effective, benchmark, preparation, files, problems,
                                         in_blocks(benchmark, None, lambda: None)), repetitions
-    print(f"wrote:     {paths.Preparation(preparation).prepared}")
+    say(WROTE, paths.Preparation(preparation).prepared)
     elapsed("prepare and measure", started)
     collapse(files, preparation, processes)
     return timed, written, repetitions

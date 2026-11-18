@@ -13,6 +13,7 @@ from cryptobench.stages.discovery import build_versions, capture_files, facts, p
 from cryptobench.stages.discovery.probe import probe
 from cryptobench.pipeline.took import elapsed
 from cryptobench.shared.log.warn import warn
+from cryptobench.shared.log.stdout import RESULTS, WROTE, say
 from cryptobench.shared.document.document import parse_yaml
 
 
@@ -58,7 +59,7 @@ def discover_in_place(options, configuration, device, results, shipped):
         if reuse:
             capture_files.reprobed(before, capture)
     for path in written:
-        print(f"wrote:     {path}")
+        say(WROTE, path)
     effective = paths.Configuration(configured).effective
     if not effective.is_file():
         raise CommandError(f"missing_file: {effective}")
@@ -117,7 +118,7 @@ def discover_published(options, configuration, device, root, shipped, kept=keep_
         found = discover_staged(options, configuration, device, root, stage, shipped, suite)
         results = results_layout.unit_folder(root, capture_id(found.capture), suite)
         results_layout.publish(stage, results, options.discovery, kept(found.effective, found.capture, results))
-    print(f"results:   {results}")
+    say(RESULTS, results)
     return results, located(results, found.capture.name)
 
 

@@ -93,21 +93,22 @@ def test_today_a_check_with_failures_reads_its_coded_line(tmp_path, monkeypatch)
     assert streamed(lines) == rerun.device / "manifest.yaml"
 
 
-def test_today_an_energy_step_the_run_survived_prints_an_error_line_and_finishes(tmp_path, monkeypatch):
+def test_an_energy_step_the_run_survived_prints_a_warning_and_finishes(tmp_path, monkeypatch):
     energy_refused(monkeypatch)
     rerun = routed(tmp_path, monkeypatch)
     lines, code = transcript(rerun, monkeypatch, run=MEASURED)
-    assert code == 0 and "error: energy_failed: manafa_cannot_start: no session" in lines
+    assert code == 0 and "warning: energy_failed: manafa_cannot_start: no session" in lines
+    assert not [line for line in lines if line.startswith("error")]
     assert outcome(tmp_path, lines, code) == Outcome("finished", None, str(rerun.device))
 
 
-def test_today_a_run_killed_after_a_survived_energy_step_is_blamed_on_the_energy_line(tmp_path, monkeypatch):
+def test_a_run_killed_after_a_survived_energy_step_is_not_blamed_on_it(tmp_path, monkeypatch):
     energy_refused(monkeypatch)
     rerun = routed(tmp_path, monkeypatch)
     lines, _code = transcript(rerun, monkeypatch, run=MEASURED)
     found = outcome(tmp_path, lines[:-3], -signal.SIGKILL)
-    assert found.state == "failed" and found.line == "energy_failed: manafa_cannot_start: no session" and found.code == "energy_failed"
-    assert failed_line(lines[:-3], -signal.SIGKILL).endswith("; error: energy_failed: manafa_cannot_start: no session")
+    assert found.state == "failed" and found.line == f"subprocess_failed: pipeline.py exited {-signal.SIGKILL}"
+    assert "energy_failed" not in failed_line(lines[:-3], -signal.SIGKILL)
 
 
 def test_today_a_stopped_run_prints_no_error_line_and_its_last_wrote_line_is_the_partial_manifest(tmp_path, monkeypatch):

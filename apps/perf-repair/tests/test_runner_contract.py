@@ -1,14 +1,11 @@
-"""The fake pipelines perf-repair's tests run print the real runner's prefixes, so a fake cannot pass a line the runner never prints."""
+"""The fake pipelines perf-repair's tests run print the runner's own labels (cryptobench.shared.log.stdout), so a fake cannot pass a line the runner never prints."""
 import ast
 from pathlib import Path
 
-from perfrepair.data_handler.outbound.benchmark_runner import IDENTITY, WROTE_MANIFEST
-from perfrepair.device.delta_estimate import TOOK
+from cryptobench.shared.log.stdout import IDENTITY, TOOK, WROTE
 
-REPO = Path(__file__).parents[3]
 FAKES = sorted((Path(__file__).parent / "fixtures").glob("*/apps/benchmark-runner/pipeline.py"))
-PRODUCERS = {"wrote:     ": REPO / "lib/cryptobench/cryptobench/shared/results/manifest.py", "identity:  ": REPO / "apps/benchmark-runner/pipeline.py",
-             "took:      ": REPO / "lib/cryptobench/cryptobench/pipeline/took.py"}
+PREFIXES = (WROTE, IDENTITY, TOOK)
 
 
 def printed_prefixes(path: Path) -> set[str]:
@@ -24,22 +21,11 @@ def printed_prefixes(path: Path) -> set[str]:
     return found
 
 
-def test_the_patterns_are_the_ones_the_runner_tests_pin():
-    assert WROTE_MANIFEST.pattern == r"^wrote:\s+(.*/manifest\.yaml)$"
-    assert IDENTITY.pattern == r"^identity:\s+(\{.*\})$"
-    assert TOOK.pattern == r"^took:\s+prepare and measure in (?P<s>[0-9.]+)s$"
-
-
-def test_the_real_runner_prints_each_prefix():
-    for prefix, producer in PRODUCERS.items():
-        assert any(text.startswith(prefix) for text in printed_prefixes(producer)), (prefix, producer)
-
-
 def test_every_fake_pipeline_uses_the_runners_exact_prefixes():
     assert len(FAKES) == 2
     for fake in FAKES:
         for text in printed_prefixes(fake):
-            for prefix in PRODUCERS:
+            for prefix in PREFIXES:
                 label = prefix.rstrip()
                 if text.startswith(label):
                     assert text.startswith(prefix), (fake, text)

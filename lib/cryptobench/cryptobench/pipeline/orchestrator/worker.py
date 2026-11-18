@@ -9,8 +9,8 @@ import subprocess
 from pathlib import Path
 
 from cryptobench.shared.errors.coded import code_in
+from cryptobench.shared.log.stdout import ERROR, RESULTS, last
 
-ERROR, RESULTS = "error: ", "results:   "
 SERIAL = "ANDROID_SERIAL"
 
 
@@ -76,9 +76,8 @@ class Worker:
 
     def outcome(self) -> Outcome:
         lines = self.transcript()
-        errors = [line[len(ERROR):] for line in lines if line.startswith(ERROR)]
-        results = [line[len(RESULTS):].strip() for line in lines if line.startswith(RESULTS)]
+        error = last(ERROR, lines)
         code = self.process.returncode
         state = "stopped" if self.stopped else "finished" if code == 0 else "failed"
-        line = errors[-1] if errors else None if code == 0 else f"subprocess_failed: pipeline.py exited {code}"
-        return Outcome(state, line if state != "finished" else None, results[-1] if results else None)
+        line = error if error is not None else None if code == 0 else f"subprocess_failed: pipeline.py exited {code}"
+        return Outcome(state, line if state != "finished" else None, last(RESULTS, lines))

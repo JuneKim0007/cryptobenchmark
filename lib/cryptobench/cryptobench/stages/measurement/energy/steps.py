@@ -1,9 +1,8 @@
 """The energy steps of pipeline.py --device: capture selection and the run's one energy source."""
-import sys
-
 from cryptobench.shared.device import timeouts
 from cryptobench.shared.device.adb import DeviceError, DeviceLost
 from cryptobench.shared.errors.line import one_line
+from cryptobench.shared.log.warn import warn
 from cryptobench.shared import paths
 from cryptobench.shared.settings.energy_capture import capture, source as source_of
 
@@ -43,12 +42,10 @@ def source(effective, python, stacktrace=False):
 
 
 def guarded(problems, step):
-    """An energy step that fails costs this process its energy, never its timing: one error line, recorded."""
+    """An energy step that fails costs this process its energy, never its timing: one warning, recorded."""
     try:
         step()
     except DeviceLost:
         raise
     except (EnergyError, DeviceError, timeouts.StepTimeout) as error:
-        line = "energy_failed: " + one_line(error)
-        print(f"error: {line}", file=sys.stderr)
-        problems.append(line)
+        warn("energy_failed: " + one_line(error), problems)

@@ -7,6 +7,7 @@ from cryptobench.shared.results import layout as results_layout
 from cryptobench.shared.results.manifest import add_to_manifest, manifest
 from cryptobench.stages.verification import interop_oracle
 from cryptobench.pipeline.took import elapsed
+from cryptobench.shared.log.stdout import WROTE, say
 from cryptobench.shared import paths
 
 
@@ -37,7 +38,7 @@ def interop_run(options, configuration, device, root, shipped, discover_staged, 
         else:
             results_layout.publish(stage, results, options.discovery)
     interop = paths.RunTree(results).interop
-    print(f"wrote:     {interop.result}")
+    say(WROTE, interop.result)
     added = {"interopPlan": interop.plan, "interop": interop.result}
     if finished:
         add_to_manifest(results, added)

@@ -1,43 +1,53 @@
-"""The lines perf-repair reads from the runner, printed by the real producers and matched by perf-repair's own regexes."""
-import ast, json, pathlib, re, time, types
+"""The lines perf-repair reads from the runner, printed by the real producers and read by perf-repair's own readers."""
+import collections, io, json, re, time, types
 
+import failure
 import pipeline
 from cryptobench.pipeline import took
+from cryptobench.shared.log import stdout
 from cryptobench.shared.results.manifest import add_to_manifest
+from perfrepair.data_handler.outbound import benchmark_runner
+from perfrepair.device.delta_estimate import _whole_run_took
 from test_manifest import RUNTIME, layout, written
 from cryptobench.shared.device.identity import device_id
 
-ROOT = pathlib.Path(__file__).resolve().parents[3]
-OUTBOUND = ROOT / "apps/perf-repair/src/perfrepair/data_handler/outbound/benchmark_runner.py"
-DELTA_ESTIMATE = ROOT / "apps/perf-repair/src/perfrepair/device/delta_estimate.py"
+
+def streamed(lines):
+    process = types.SimpleNamespace(stdout=iter(f"{line}\n" for line in lines))
+    return benchmark_runner._stream(process, io.StringIO(), collections.deque(maxlen=40), None)
 
 
-def compiled(path, name):
-    """The pattern perf-repair compiles under `name`, read from its source so the two ends cannot drift apart."""
-    for node in ast.parse(path.read_text()).body:
-        if isinstance(node, ast.Assign) and [getattr(t, "id", None) for t in node.targets] == [name]:
-            return re.compile(node.value.args[0].value)
-    raise AssertionError(f"{name} not in {path}")
+def test_the_labels_keep_one_column():
+    assert {len(label) for label in (stdout.RESULTS, stdout.WROTE, stdout.IDENTITY, stdout.TOOK)} == {11}
+    assert stdout.line(stdout.WROTE, "x") == "wrote:     x" and stdout.ERROR == "error: "
 
 
-def test_perf_repairs_patterns_are_the_ones_pinned_here():
-    assert compiled(OUTBOUND, "WROTE_MANIFEST").pattern == r"^wrote:\s+(.*/manifest\.yaml)$"
-    assert compiled(OUTBOUND, "IDENTITY").pattern == r"^identity:\s+(\{.*\})$"
-    assert compiled(DELTA_ESTIMATE, "TOOK").pattern == r"^took:\s+prepare and measure in (?P<s>[0-9.]+)s$"
+def test_failure_prints_the_error_label_without_importing_cryptobench(capsys):
+    # dependencies.py reports a missing cryptobench through failure.py, so it keeps its own copy
+    try:
+        failure.fail("x")
+    except SystemExit:
+        pass
+    assert capsys.readouterr().err == stdout.line(stdout.ERROR, "x") + "\n"
+
+
+def test_last_reads_the_last_labelled_value():
+    assert stdout.last(stdout.RESULTS, ["results:   a", "wrote:     b", "results:   c "]) == "c"
+    assert stdout.last(stdout.RESULTS, ["wrote:     b"]) is None
 
 
 def test_took_prints_the_label_and_tenths_of_a_second(capsys):
     took.elapsed("prepare and measure", time.monotonic() - 12.34)
     line = capsys.readouterr().out
     assert re.fullmatch(r"took:      prepare and measure in 12\.[34]s\n", line)
-    assert float(compiled(DELTA_ESTIMATE, "TOOK").match(line.rstrip("\n")).group("s")) >= 12.3
+    assert _whole_run_took([line.rstrip("\n")])[0] >= 12.3
 
 
 def test_the_manifest_write_prints_one_wrote_line_perf_repair_finds(tmp_path, capsys):
     written(tmp_path, "host", layout(tmp_path, measured=False))
     lines = capsys.readouterr().out.splitlines()
     assert lines == [f"wrote:     {tmp_path / 'manifest.yaml'}"]
-    assert compiled(OUTBOUND, "WROTE_MANIFEST").match(lines[-1]).group(1) == str(tmp_path / "manifest.yaml")
+    assert streamed(lines) == tmp_path / "manifest.yaml"
 
 
 def test_a_file_added_beside_a_finished_run_reprints_the_manifest_line(tmp_path, capsys):
@@ -56,7 +66,7 @@ def test_identify_prints_one_sorted_json_line(tmp_path, monkeypatch, capsys):
     pipeline.identify(types.SimpleNamespace(), tmp_path / "global.yaml", None)
     lines = capsys.readouterr().out.splitlines()
     assert len(lines) == 1 and lines[0].startswith("identity:  {")
-    found = json.loads(compiled(OUTBOUND, "IDENTITY").match(lines[0]).group(1))
+    found = json.loads(stdout.last(stdout.IDENTITY, lines))
     assert list(found) == ["config", "deviceId", "harness", "inputs", "mode"]
     assert found["deviceId"] == device_id(RUNTIME) and found["mode"] == "host" and found["harness"] == "c" * 64
     assert found["config"] == str(tmp_path / "global.yaml") and set(found["inputs"]) == {"bundled", "config"}

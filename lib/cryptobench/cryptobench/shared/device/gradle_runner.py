@@ -8,6 +8,7 @@ from cryptobench.shared.device import timeouts
 from cryptobench.shared.errors.line import one_line
 from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared import paths
+from cryptobench.shared.log.stdout import ERROR
 
 WRAPPER = paths.repo().gradlew
 CLI = paths.repo().benchmark_cli
@@ -23,7 +24,7 @@ def failure_message(output):
     reported, following = [], False
     for line in output:
         if line.startswith(("error:", "skipped:", "warning:")):
-            reported.append(line[len("error: "):] if line.startswith("error: ") else line)
+            reported.append(line.removeprefix(ERROR))
             following = True
         elif following and line.startswith("  "):
             reported.append(line)

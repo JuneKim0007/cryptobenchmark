@@ -9,6 +9,7 @@ from cryptobench.shared.results import run_inputs
 from cryptobench.shared.document.document import parse_yaml, read_yaml
 from cryptobench.shared.document.dump import dump_yaml
 from cryptobench.shared.document.write import MANIFEST, write_text
+from cryptobench.shared.log.stdout import WROTE, say
 
 ENGINE_OPERATIONS = paths.repo().engine_operations
 
@@ -72,7 +73,7 @@ def manifest(results, mode, configuration, files, problems=(), partial=None, res
     } | units(files) | estimated_mark(files.get("energy")) | survived(problems) | ({"resumed": list(resumed)} if resumed else {}) | ({"partial": partial} if partial else {})
     path = paths.RunTree(results).manifest
     write_text(path, dump_yaml(document), staging=MANIFEST)
-    print(f"wrote:     {path}")
+    say(WROTE, path)
 
 
 def add_to_manifest(results, added):
@@ -80,4 +81,4 @@ def add_to_manifest(results, added):
     document = read_yaml(path)
     document["files"].update({key: value.relative_to(results).as_posix() for key, value in added.items()})
     write_text(path, dump_yaml(document), staging=MANIFEST)
-    print(f"wrote:     {path}")
+    say(WROTE, path)

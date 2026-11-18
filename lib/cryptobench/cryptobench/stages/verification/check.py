@@ -14,6 +14,7 @@ from cryptobench.shared import paths
 from cryptobench.shared.catalogue import vectors
 from cryptobench.pipeline.took import elapsed
 from cryptobench.shared.log.warn import warn
+from cryptobench.shared.log.stdout import RESULTS, say
 from cryptobench.shared.settings import bundled
 from cryptobench.shared.document.document import read_yaml
 
@@ -49,7 +50,7 @@ def check_run(options, configuration, device, root, discovered, located, suite=N
             results_layout.publish_beside(stage, results, paths.CHECK)
         else:
             results_layout.publish(stage, results, options.discovery)
-    print(f"results:   {results}")
+    say(RESULTS, results)
     tree = paths.RunTree(results)
     if beside:
         add_to_manifest(results, {"check": tree.check.result})

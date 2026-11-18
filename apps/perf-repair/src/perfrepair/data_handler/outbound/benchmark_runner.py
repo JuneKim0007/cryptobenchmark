@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import re
 import subprocess
 import sys
 from collections import deque
@@ -16,12 +15,10 @@ from cryptobench.shared import paths
 from cryptobench.shared.errors.failures import BenchmarkRunError
 from cryptobench.shared.errors.input_error import InputError
 from cryptobench.shared.log.attach import run_id
+from cryptobench.shared.log import stdout
 from cryptobench.shared.stop.terminate import terminate
 
 MISSING_DEPENDENCY = "missing_dependency: "
-# the id is known only to the run, so the run says where its manifest went
-WROTE_MANIFEST = re.compile(r"^wrote:\s+(.*/manifest\.yaml)$")
-IDENTITY = re.compile(r"^identity:\s+(\{.*\})$")
 STAGES = {"configure": [], "bench": ["--bench"], "device": ["--device"]}
 
 
@@ -42,7 +39,7 @@ def check_dependencies(config: Path | None, on_device: bool, benchmark: Path | s
     if done.returncode == 0:
         return
     last = (done.stderr or done.stdout).strip().splitlines()[-1:] or [f"dependencies.py exited {done.returncode}"]
-    line = last[0].removeprefix("error: ")
+    line = last[0].removeprefix(stdout.ERROR)
     if line.startswith(MISSING_DEPENDENCY):
         terminate("missing_dependency", line.removeprefix(MISSING_DEPENDENCY), stage="device", step="preflight")
     raise BenchmarkRunError(line)
@@ -58,11 +55,11 @@ def identify(config: Path | None, on_device: bool, benchmark: Path | str | None 
         lines = process.communicate()[0].splitlines()
     if deadline.expired:
         _timed_out("identify", seconds, None, None)
-    found = [m.group(1) for m in map(IDENTITY.match, lines) if m]
+    found = stdout.last(stdout.IDENTITY, lines)
     if process.returncode != 0 or not found:
         raise BenchmarkRunError(f"identify_failed: pipeline --identify exited {process.returncode}; last lines:\n"
                                 + "\n".join(lines[-10:]))
-    return json.loads(found[-1])
+    return json.loads(found)
 
 
 def require_connected(folder: Path, config: Path | None, on_device: bool, doing: str, benchmark: Path | str | None = None) -> None:
@@ -88,7 +85,7 @@ def _lines(path: Path) -> int:
 
 def _failed(stage: str, code: int, last: list[str], ref: str, app: str | None) -> None:
     """The one line of a failed call: its exit and last error line here, its tail only in the Halt's message."""
-    errors = [line for line in last if line.lstrip().startswith("error")] or [line for line in last if line.strip()]
+    errors = [line for line in last if line.lstrip().startswith(stdout.ERROR)] or [line for line in last if line.strip()]
     terminate("pipeline_failed", f"pipeline exited {code} ({stage})" + (f"; {errors[-1].strip()}" if errors else ""),
               stage="device", step="pipeline", item=stage, app=app, ref=ref, data={"exit": code, "stage": stage},
               trace=f"; full log {ref}; last lines:\n" + "\n".join(last))
@@ -99,16 +96,16 @@ def _timed_out(stage: str, seconds: int, ref: str | None, app: str | None) -> No
               stage="device", step="pipeline", item=stage, app=app, ref=ref, data={"seconds": seconds, "stage": stage})
 
 
-def _stream(process: subprocess.Popen, log, last: deque[str], echo: Callable[[str], None] | None) -> Path | None:
-    """Every line into the transcript and the tail; the manifest the run says it wrote."""
+def _stream(process: subprocess.Popen, log, tail: deque[str], echo: Callable[[str], None] | None) -> Path | None:
+    """Every line into the transcript and the tail; the manifest the run says it wrote, its id known only to the run."""
     manifest = None
     for line in process.stdout:
         log.write(line)
-        last.append(line.rstrip("\n"))
-        wrote = WROTE_MANIFEST.match(last[-1])
-        manifest = Path(wrote.group(1)) if wrote else manifest
+        tail.append(line.rstrip("\n"))
+        wrote = stdout.last(stdout.WROTE, (tail[-1],))
+        manifest = Path(wrote) if wrote and wrote.endswith(f"/{paths.MANIFEST}") else manifest
         if echo:
-            echo(last[-1])
+            echo(tail[-1])
     return manifest
 
 

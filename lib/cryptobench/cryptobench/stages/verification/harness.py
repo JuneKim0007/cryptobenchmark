@@ -2,6 +2,7 @@
 import pathlib, shutil, time
 
 from cryptobench.pipeline.took import elapsed
+from cryptobench.shared.log.stdout import WROTE, say
 from cryptobench.shared import paths
 from cryptobench.shared.device.adb import ONE_PASSED, DeviceError, instrumentation_report
 from cryptobench.shared.device.identity import capture_id
@@ -21,7 +22,7 @@ def generate_scopes(options, scoped):
     elapsed(f"generate and compile {len(compiled)} scopes", started)
     if not compiled:
         raise CommandError(f"nothing_to_check: no scope compiled, see {scoped.parent / paths.SCOPED_PLAN_FAILED}")
-    print(f"wrote:     {plan}")
+    say(WROTE, plan)
     return plan
 
 
