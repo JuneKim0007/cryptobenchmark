@@ -20,5 +20,5 @@ internal class DocumentFixture {
         CaptureSource.parse(codec.load(Fixtures.CAPTURE)), TrialSource.parse(codec.load(Fixtures.TRIAL)), InventoryBuilder.Files("probe_x.yaml", "trial_x.yaml"))
     val global = GlobalDocument.parse(codec.load(Fixtures.GLOBAL))
     val testSet = TestSetDocument.parse(codec.load(Fixtures.TEST_SET))
-    val effective = EffectiveBuilder().build(global, testSet, inventory, EffectiveBuilder.Files("global.yaml", "testsets/scope.yaml", "inventory.yaml"))
+    val effective = EffectiveBuilder().build(global, testSet, inventory, EffectiveBuilder.Files("global.yaml", "testsets/default_predefined.yaml", "inventory.yaml"))
 }

@@ -14,7 +14,7 @@ class ConfigurationTest {
     private val capture = File(directory, "discovery/probe_x.yaml").apply { parentFile.mkdirs(); writeText(Fixtures.CAPTURE) }
     private val trial = File(directory, "discovery/trial_x.yaml").apply { writeText(Fixtures.TRIAL) }
     private val global = File(directory, "config/global.yaml").apply { parentFile.mkdirs(); writeText(Fixtures.GLOBAL) }
-    private val testSet = File(directory, "config/testsets/scope.yaml").apply { parentFile.mkdirs(); writeText(Fixtures.TEST_SET) }
+    private val testSet = File(directory, "config/testsets/default_predefined.yaml").apply { parentFile.mkdirs(); writeText(Fixtures.TEST_SET) }
     private val configuration = Configuration(File(directory, "configuration"))
 
     /** The inventory is regenerated on every probe; authored files are never written. */
@@ -35,14 +35,14 @@ class ConfigurationTest {
         val missingGlobal = File(directory, "nowhere/global.yaml")
         assertEquals("missing_file: ${missingGlobal.path}", assertThrows(IllegalArgumentException::class.java) { configuration.effective(missingGlobal) }.message)
 
-        global.writeText(Fixtures.GLOBAL.replace("testsets/scope.yaml", "testsets/scop.yaml"))
+        global.writeText(Fixtures.GLOBAL.replace("testsets/default_predefined.yaml", "testsets/predefine.yaml"))
         val missingTestSet = assertThrows(IllegalArgumentException::class.java) { configuration.effective(global) }.message!!
-        assertTrue(missingTestSet, missingTestSet.startsWith("missing_file: ") && missingTestSet.endsWith("(global.yaml selection.testSet: testsets/scop.yaml)"))
+        assertTrue(missingTestSet, missingTestSet.startsWith("missing_file: ") && missingTestSet.endsWith("(global.yaml selection.testSet: testsets/predefine.yaml)"))
 
         global.writeText(Fixtures.GLOBAL)
         testSet.writeText(Fixtures.TEST_SET.replace("- {type: Cipher, name: RSA}", "- {type: Cipher, nme: RSA}"))
         val insideTheFile = assertThrows(IllegalArgumentException::class.java) { configuration.effective(global) }.message!!
-        assertTrue(insideTheFile, insideTheFile.startsWith("scope.yaml: unknown_keys: include[1] [nme]"))
+        assertTrue(insideTheFile, insideTheFile.startsWith("default_predefined.yaml: unknown_keys: include[1] [nme]"))
     }
 
     /** A failed run must not leave the previous run's effective.yaml for preparation to pick up. */
@@ -72,7 +72,7 @@ class ConfigurationTest {
     @Test
     fun anAbsoluteTestSetPathIsUsedAsGiven() {
         configuration.inventory(capture, trial)
-        global.writeText(Fixtures.GLOBAL.replace("testsets/scope.yaml", testSet.absolutePath))
+        global.writeText(Fixtures.GLOBAL.replace("testsets/default_predefined.yaml", testSet.absolutePath))
         assertEquals("effective.yaml", configuration.effective(global).name)
     }
 }

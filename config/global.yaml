@@ -2,11 +2,15 @@
 schemaVersion: 1                 # required
 
 selection:                       # required
-  testSet: testsets/scope.yaml   # required — relative to this file
+  testSet: testsets/default_predefined.yaml   # required — relative to this file
 
 run:                             # optional
-  variants: [fixed, notFixed]     # optional, default [fixed, notFixed, secure]; secure runs key generation only
   inputSizes: [64, 1024, 16384]  # optional, default [1024] — bytes per call
   seed: 0                        # optional, default 0 — seeds the input bytes
   harness:
     iterations: 100              # optional — measurement samples per case
+
+providers:                       # optional: the test set's BundledConscrypt and BundledBC rows
+  bundled:
+    - {artifact: 'org.conscrypt:conscrypt-android:2.9.0', create: 'org.conscrypt.Conscrypt#newProvider', alias: BundledConscrypt}
+    - {artifact: 'org.bouncycastle:bcprov-jdk18on:1.87', create: org.bouncycastle.jce.provider.BouncyCastleProvider, alias: BundledBC}

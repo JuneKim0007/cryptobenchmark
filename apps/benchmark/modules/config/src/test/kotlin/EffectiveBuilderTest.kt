@@ -35,7 +35,7 @@ class EffectiveBuilderTest {
     )
     private val global = GlobalDocument.parse(codec.load(Fixtures.GLOBAL))
     private val testSet = TestSetDocument.parse(codec.load(Fixtures.TEST_SET))
-    private val names = EffectiveBuilder.Files("global.yaml", "testsets/scope.yaml", "inventory.yaml")
+    private val names = EffectiveBuilder.Files("global.yaml", "testsets/default_predefined.yaml", "inventory.yaml")
 
     private val effective = EffectiveBuilder().build(global, testSet, inventory, names)
 
@@ -124,7 +124,7 @@ class EffectiveBuilderTest {
         )
         val entries = EffectiveBuilder().build(global, overlapping, inventory, names).providers.getValue("SunJCE").getValue("Cipher")
         val origin = { key: String -> entries.getValue(key).from!! }
-        assertEquals("testsets/scope.yaml", origin("AES/CBC/PKCS5PADDING").testSet)
+        assertEquals("testsets/default_predefined.yaml", origin("AES/CBC/PKCS5PADDING").testSet)
         assertEquals(listOf(0, 2), origin("AES/CBC/PKCS5PADDING").includes.keys.toList())
         assertEquals(overlapping.include[2].rule, origin("AES/CBC/PKCS5PADDING").includes[2])
         assertEquals(listOf(1), origin("AES/CBC/PKCS5PADDING@sized").includes.keys.toList())
