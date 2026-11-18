@@ -61,3 +61,5 @@ Two forms state a fact once for many entries. Reading applies them, so an entry'
 An entry's form, every word against the glossary (naming an unlisted term), its engine type against its family's, its id in exactly one catalogue and listed under exactly one family of `../../algorithms/groups.yaml`.
 
 `catalogue_check` runs `entry_check` over every entry. Nothing checks that every service a build registers has an entry.
+
+A tool, not a run step: no pipeline or perf-repair stage calls it; its callers are the tests `test_catalogue_entry.py`, `test_catalogue_mutation.py` and `test_glossary.py`.

@@ -18,6 +18,7 @@
 | `MergeRunsKt` | `<output dir> <benchmark.json>...` | merged `benchmark.json` |
 | `MergePassesKt` | `<output dir> <timing benchmark.json> [<metric key>=<benchmark.json> ...]` | one `benchmark.json`, each owned metric from its pass ([measure.md](../apps/benchmark/modules/benchmark/docs/measure.md#pass-merge)) |
 | `InteropKt` | `<capture> <trial> <interop_plan.yaml> <interop.yaml>` | `interop.yaml`; prints its path |
+| `CheckDiffKt` | `... run -PmainClass=CheckDiffKt --args="<baseline check.yaml> <current check.yaml>"` | a tool, no pipeline step calls it: every case only in one file and every field that differs ([check.md](../apps/benchmark/modules/benchmark/docs/check.md#baseline-and-diff)); exit 1 on any difference or unreadable file, 2 without two paths |
 
 - Main class comes from `-PmainClass`, default `ProbeKt`.
 - `ProbeKt` and `ConfigureKt` fall back to the nearest `config/global.yaml` up the tree; none found gives a warning and no `effective.yaml`.
@@ -26,6 +27,16 @@
 - `apps/benchmark/gradlew -p apps/benchmark/cli test` excludes `*ExampleFilesTest` and writes captures to `build/capture`.
 - CI `.github/workflows/jca-contract.yml` job `probe`: that test on Java 17, 21, 25 (temurin), fail-fast off; uploads `build/capture/*.yaml` as `capture-java-<N>`.
 - `BenchKt` prepares and measures with the host harness: `apps/benchmark/modules/benchmark/docs/measure.md`.
+
+## Standalone tools
+
+Not a pipeline or perf-repair step; each runs on its own.
+
+| tool | doc |
+|---|---|
+| `apps/benchmark-runner/explain.py` | each resolved setting of a run and its source ([run.md](run.md#appsbenchmark-runnerexplainpy)) |
+| `CheckDiffKt` | two `check.yaml` files diffed ([cli](#cli)) |
+| `apps/perf-repair/src/perfrepair/validation/catalogue_entry.py` | a catalogue entry's static checks, run by tests ([algorithm-catalogue.md](../apps/perf-repair/docs/algorithm-catalogue.md#static-checks-validationcatalogue_entrypy)) |
 
 ## android-api-check
 
