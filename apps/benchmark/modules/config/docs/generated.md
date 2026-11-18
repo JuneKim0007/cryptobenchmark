@@ -12,7 +12,7 @@ inventory.yaml + facts.yaml (optional) --------------------+-> EffectiveBuilder 
 
 | call | does |
 |---|---|
-| `inventory(captureFile, trialFile)` | deletes the old inventory; reads capture (schema 1) and trial (schema 3); writes inventory |
+| `inventory(captureFile, trialFile)` | deletes the old inventory; reads capture (schema 1) and trial (schema 3, its `keystore` section required: `missing_field: keystore`); writes inventory |
 | `effective(globalFile, inventoryFile, factsFile?)` | deletes the old effective and report; reads global and its test set; writes report, then effective |
 | `readEffective()` | reads `effective.yaml` back, with `warnings` and `skipped` of the `report.yaml` beside it when present |
 
@@ -30,6 +30,7 @@ Host entry `ConfigureKt`: `docs/tools.md`.
 | `reason` | trial error, else `failed` |
 | `generatedFrom` | `capture`, `trial` file names; `device` = the capture's `runtime` block |
 | duplicate | two names with one canonical name and key size in one provider and type (a provider registering a second spelling as its own service): the first in trial order is kept, the other left out with the warning `duplicate_name: <provider>.<type> <kept> and <left out> are one name; <left out> left out` |
+| `keystore` | the trial's keystore rows `{provider, type, algorithm, backing, keySize?, curve?, supported, error?}`; omitted when the trial has none (its section absent on a runtime without a keystore) |
 | `warnings` | what the build left out; omitted when empty; `effective` puts them first in `report.yaml` `warnings` |
 | refused | an `inventory.yaml` that holds two spellings of one name: `duplicate_name` |
 | pairing | capture and trial `capturedAtMillis` differ: `mismatched_trial: capture <a>, trial <b>` |
@@ -43,6 +44,7 @@ Host entry `ConfigureKt`: `docs/tools.md`.
 | stop check | under `stop`, any skip fails `stopped_on_failure: <n>` listing the skips |
 | resolve | overrides per entry, by precedence in [config.md](config.md#override-precedence) |
 | device check | run and entry harness against facts |
+| keystore check | an entry whose variants are `[secure]` against the inventory's `keystore` rows of its provider, type, name and backing (`key.backing`, else `tee`): each `keySizes` value whose row is refused is dropped and skipped with the row's `error` (`keystore_unsupported`, `strongbox_unavailable`, `api_too_low`, `not_supported`); without `keySizes`, the row with no size and the curve of a `java.security.spec.ECGenParameterSpec` key spec (none without one) decides the whole entry; every size refused skips the entry; a size or curve the trial has no row for keeps the entry as it is |
 | stop check | repeated after the device check |
 | empty | nothing selected: `nothing_selected` |
 

@@ -1,4 +1,4 @@
-schemaVersion: 1
+schemaVersion: 2
 generatedFrom:
   capture: config_capture_example.yaml
   trial: config_trial_example.yaml
@@ -41,3 +41,9 @@ providers:
         keyAlgorithm: HmacSHA256
         keyProvider: SunJCE
         aliases: [1.2.840.113549.2.9]
+keystore:
+- {provider: AndroidKeyStore, type: KeyPairGenerator, algorithm: RSA, backing: strongbox,
+  keySize: 2048, supported: true}
+- {provider: AndroidKeyStore, type: KeyPairGenerator, algorithm: RSA, backing: strongbox,
+  keySize: 3072, supported: false, error: 'keystore_unsupported: KeyPairGenerator
+    RSA/3072 strongbox: KeyStoreException: Unsupported key size'}

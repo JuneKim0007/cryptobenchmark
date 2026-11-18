@@ -1,9 +1,12 @@
 package io.github.junekim0007.cryptobench.config.source
 
+import io.github.junekim0007.cryptobench.config.inventory.dto.KeystoreRow
+
 data class TrialView(
     val capturedAtMillis: Long,
     val entries: List<Entry>,
     val defaultRunInputSize: Int? = null,
+    val keystore: List<KeystoreRow> = emptyList(),
 ) {
 
     data class Entry(

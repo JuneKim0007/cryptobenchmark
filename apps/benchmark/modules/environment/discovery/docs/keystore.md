@@ -12,3 +12,4 @@ Level 4 of the trial ([probe.md](probe.md)): whether a keystore provider makes e
 | refusal | a builder member this API lacks `api_too_low`; `StrongBoxUnavailableException` in the cause chain `strongbox_unavailable`; any other failure `keystore_unsupported: <type> <alg>[/<size or curve>] <backing>: ` and the innermost cause |
 | no keystore classes | the section is `absent: not_supported: ...` (every host JVM) |
 | cost | one generation per row, timed in `millis`: StrongBox RSA-2048 ≈ 8 s; TEE RSA-4096 several seconds; a refusal returns at once |
+| consumer | configure: a refused row is a config skip with its `error` (`apps/benchmark/modules/config/docs/generated.md`) |

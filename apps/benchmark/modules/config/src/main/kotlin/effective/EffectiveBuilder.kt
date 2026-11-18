@@ -7,6 +7,7 @@ import io.github.junekim0007.cryptobench.config.effective.dto.EntryOrigin
 import io.github.junekim0007.cryptobench.config.effective.dto.Skip
 import io.github.junekim0007.cryptobench.config.entry.EnginePaths
 import io.github.junekim0007.cryptobench.config.entry.KeySource
+import io.github.junekim0007.cryptobench.config.entry.KeystoreRefusals
 import io.github.junekim0007.cryptobench.config.entry.Variants
 import io.github.junekim0007.cryptobench.config.global.dto.GlobalConfig
 import io.github.junekim0007.cryptobench.config.global.dto.Policy
@@ -101,6 +102,10 @@ class EffectiveBuilder {
                     entries.skips += Skip(Skip.CONFIG, located.provider, located.type, key, refusal)
                     continue
                 }
+                // a secure-only entry: each size or curve the keystore trial refused is a config skip with the trial's code, never prepared
+                val checked = if (variants == listOf(Variants.SECURE)) KeystoreRefusals.of(entry, located, inventory) else null
+                checked?.refusals?.forEach { entries.skips += Skip(Skip.CONFIG, located.provider, located.type, key, it) }
+                if (checked?.whole == true) continue
                 for (dropped in asked - runnable.toSet()) {
                     if (dropped == Variants.SECURE) entries.secureAsked++
                     else entries.dropped.merge(located.type to dropped, 1, Int::plus)
@@ -112,7 +117,7 @@ class EffectiveBuilder {
                 }
                 entries.warnings += unsupported.map { fallback(it, path, runHarness) }
                 entries.providers.getOrPut(located.provider) { LinkedHashMap() }
-                    .getOrPut(located.type) { LinkedHashMap() }[key] = entry.copy(variants = variants, key = KeySource.spelled(entry.key, inventory), harness = HARNESS.honoured(entry.harness, unsupported, facts, path),
+                    .getOrPut(located.type) { LinkedHashMap() }[key] = entry.copy(keySizes = checked?.keySizes ?: entry.keySizes, variants = variants, key = KeySource.spelled(entry.key, inventory), harness = HARNESS.honoured(entry.harness, unsupported, facts, path),
                         from = origin(located, group))
             }
         }

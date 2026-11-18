@@ -6,6 +6,7 @@ data class Inventory(
     val generatedFrom: InventorySource,
     val providers: Map<String, Map<String, Map<String, InventoryEntry>>>,
     val warnings: List<String> = emptyList(),
+    val keystore: List<KeystoreRow> = emptyList(),
 ) {
 
     init {
