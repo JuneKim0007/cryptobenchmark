@@ -15,7 +15,8 @@ class LayerStackTest {
     @get:Rule
     val folder = TemporaryFolder()
 
-    private val example = File("example")
+    // the config module's own examples, from its build or from cli's, which compiles these tests too
+    private val example = listOf(File("example"), File("../modules/config/example")).first { File(it, "config_global_example.yaml").isFile }
 
     private fun file(name: String, text: String): File = File(folder.root, name).apply { parentFile.mkdirs(); writeText(text) }
 
