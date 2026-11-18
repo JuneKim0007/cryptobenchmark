@@ -19,7 +19,7 @@ The command for both sides is `apps/cli/facade.py` ([facade.md](facade.md)); thi
 python3 apps/benchmark-runner/pipeline.py [--config PATH] [--results DIR] [--discovery overwrite|keep|reuse|verify] [--probe-store DIR]
                             [--bench | --device] [--suppress-errors ERRORS] [--energy-python PYTHON]
                             [--energy-accept-unresponsive] [--reconnect-wait-minutes M] [--reconnect-poll-seconds S]
-                            [--stacktrace] [--stream] [--harness HARNESS_YAML] [--interop PLAN_YAML] [--probe] [--identify] [--devices] [--check-session SESSION_YAML] [--session SESSION_YAML] [--per-suite]
+                            [--stacktrace] [--stream] [--harness HARNESS_YAML] [--interop PLAN_YAML] [--probe] [--identify] [--devices] [--check-session SESSION_YAML] [--audit RESULTS] [--session SESSION_YAML] [--per-suite]
 ```
 
 | flag | default | effect |
@@ -33,6 +33,7 @@ python3 apps/benchmark-runner/pipeline.py [--config PATH] [--results DIR] [--dis
 | `--probe` | off | discovery and configure only, with `--device` on the device; the device folder and its manifest, nothing measured |
 | `--identify` | off | one line `identity:  {code, config, deviceId, harness, inputs, mode}` (JSON), `code` `{timed, runner}` as in the run record ([results.md](results.md#resuming-a-stopped-run)), `harness` the digest of the files `lib/cryptobench/cryptobench/stages/verification/scope/code_digest.py` names, and nothing written: `getprop` on a device, `RuntimeFieldsKt` on a host; the id the probe would give |
 | `--devices`, `--check-session SESSION_YAML`, `--session SESSION_YAML` | off | what adb sees ([devices.md](devices.md)); a session's plan and skips; a session's run ([sessions.md](sessions.md)); each before the global.yaml is read; with `--config` or any mode fails |
+| `--audit RESULTS` | off | reads every measured unit under `RESULTS` (outside `superseded/`, `rejected/`) and writes only `RESULTS/audit.yaml`, then one `wrote:` line ([validation.md](validation.md#audit)); before the global.yaml is read; with any mode, `--config` or `--per-suite` fails |
 | `--suppress-errors ERRORS` | `CRYPTOBENCH_SUPPRESS_ERRORS`, else `""` | passed as `androidx.benchmark.suppressErrors`, e.g. `EMULATOR,UNLOCKED`; numbers are then not comparable; part of a resumed run's identity ([results.md](results.md#resuming-a-stopped-run)); the variable reaches a run the guide or facade starts |
 | `--energy-python PYTHON` | `sys.executable`, else the source's cached venv ([energy.md](energy.md)) | interpreter with `apps/benchmark-runner/energy/requirements.txt` installed; `requirements-manafa.txt` too for `energy.source: manafa` |
 | `--energy-accept-unresponsive` | off | run energy cases on unresponsive rails, see [energy.md](energy.md#pre-flight); part of the run record ([results.md](results.md#resuming-a-stopped-run)) |

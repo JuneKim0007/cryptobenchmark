@@ -171,7 +171,8 @@ cryptobench/stages/measurement/session/window.py : run.passes.energy.minWindowSe
 cryptobench/stages/measurement/session/warmup.py : run.warmup: a pre-flight run of a few planned cases before the first pass, final skips left out and chosen again, off at 0 iterations; its output never pulled
 cryptobench/stages/measurement/start_margin.py : the temperature gate's start margin: hot, clean and ignored outcomes, the start limit and how the margin moves; no I/O
 cryptobench/stages/measurement/tests/ : pytest tests of the measurement stage
-cryptobench/stages/measurement/validation/__init__.py : package of result validation: the rules table, the expectation it reads, rejected attempts
+cryptobench/stages/measurement/validation/__init__.py : package of result validation: the rules table, the expectation it reads, rejected attempts, validation.yaml, the audit
+cryptobench/stages/measurement/validation/audit.py : pipeline.py --audit: every measured unit under a results root read only, per case runs, relaunches, rejected attempts, findings, outliers; audit.yaml
 cryptobench/stages/measurement/validation/expectation.py : what a run of one pass promised, from the run record's run block: samples per case, minimum window
 cryptobench/stages/measurement/validation/rejected.py : rejected/<UTC>/[<pass>/]process-<n>/<case>.json with why.yaml: an attempt that failed a rule
 cryptobench/stages/measurement/validation/report.py : validation.yaml: per run the last check_run result; the block end's checker

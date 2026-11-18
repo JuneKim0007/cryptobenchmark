@@ -10,7 +10,7 @@ from failure import fail, reported
 from cryptobench.shared.errors.line import one_line
 from cryptobench.shared.errors.coded import Coded
 from cryptobench.shared.log.warn import warn
-from cryptobench.shared.log.stdout import IDENTITY, say
+from cryptobench.shared.log.stdout import IDENTITY, WROTE, say
 from cryptobench.pipeline.orchestrator import plan as session_plan
 from cryptobench.pipeline.orchestrator import run as session_run
 from cryptobench.pipeline.stage import Stage, StageContext
@@ -26,6 +26,7 @@ from cryptobench.stages.analysis import not_measured
 from cryptobench.stages.analysis.scripts import analyse
 from cryptobench.stages.configuration import config_check, guide
 from cryptobench.stages.measurement import resume
+from cryptobench.stages.measurement.validation import audit
 from cryptobench.stages.measurement.benchmark import measure_cases
 from cryptobench.stages.verification.check import check_run, require_check_run
 from cryptobench.stages.discovery.discover import discover_in_place, discover_published, discover_staged, host_runtime, keep_nothing, located
@@ -59,6 +60,8 @@ def parser():
                         help="list what adb sees: each device's key, alias, kind, model, API level and connection, or why it is not ready; reads no config")
     parser.add_argument("--session", metavar="SESSION_YAML",
                         help="run a session.yaml: each target's suites as pipeline.py workers, order groups in ascending order, a summary table")
+    parser.add_argument("--audit", metavar="RESULTS",
+                        help="read every measured unit under RESULTS and write RESULTS/audit.yaml: per case runs, relaunches, rejected attempts, outliers; changes nothing else")
     parser.add_argument("--check-session", metavar="SESSION_YAML",
                         help="resolve a session.yaml against the devices adb lists and print its targets, order groups and skips; runs nothing")
     parser.add_argument("--per-suite", action="store_true",
@@ -104,6 +107,9 @@ REFUSED = (
     (lambda o: o.per_suite and (o.identify or o.harness), "--per-suite: places a run's folder, so it goes with no --identify or --harness"),
     (lambda o: o.devices and any((o.config, o.bench, o.device, o.probe, o.identify, o.check, o.harness, o.interop)),
      "--devices: lists the attached devices and runs alone"),
+    (lambda o: o.audit and any((o.check_session, o.session, o.devices, o.config, o.bench, o.device, o.probe, o.identify, o.check, o.harness, o.interop,
+                                o.per_suite)),
+     "--audit: reads a campaign's results and runs alone"),
     (lambda o: o.check_session and any((o.devices, o.config, o.bench, o.device, o.probe, o.identify, o.check, o.harness, o.interop)),
      "--check-session: resolves a session and runs alone"),
     (lambda o: o.session and any((o.check_session, o.devices, o.config, o.bench, o.device, o.probe, o.identify, o.check, o.harness, o.interop, o.per_suite)),
@@ -245,6 +251,8 @@ def main():
         return session_run.run_session(pathlib.Path(options.session), results_root(options), lambda: global_config(None), worker_options(options))
     if options.check_session:
         return session_plan.check(options.check_session, results_root(options), lambda: global_config(None))
+    if options.audit:
+        return say(WROTE, audit.written(pathlib.Path(options.audit).expanduser().resolve()))
     configuration = global_config(options.config)
     # before any build; --identify runs no stage and starts no Gradle
     checked = None if options.identify else config_check.parsed(configuration)

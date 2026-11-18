@@ -15,5 +15,5 @@ docs/sessions.md : session.yaml, target resolution and its codes, --check-sessio
 docs/shared-functions.md : generated: benchmark runner, cli, tools and lib functions other modules import: module, signature, rule, callers
 docs/timeouts.md : the ceiling of each host subprocess step and why its value
 docs/tools.md : tools/ builds: commands, arguments, outputs
-docs/validation.md : the result rules table, rejected/ attempts, relaunched entries
+docs/validation.md : the result rules table, rejected/ attempts, relaunched entries, check_run at a process's and a block's end, validation.yaml, the --audit
 ```

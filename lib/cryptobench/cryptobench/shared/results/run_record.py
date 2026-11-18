@@ -34,6 +34,7 @@ FLAGS = {
     "identify": (NOT_DATA, "measures nothing"),
     "devices": (NOT_DATA, "measures nothing"),
     "check_session": (NOT_DATA, "measures nothing"),
+    "audit": (NOT_DATA, "reads results, measures nothing"),
     "check": (NOT_DATA, "calls each case once, untimed"),
     "harness": (NOT_DATA, "checks scopes, measures nothing"),
     "interop": (NOT_DATA, "checks pairs, measures nothing"),

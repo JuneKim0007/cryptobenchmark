@@ -20,6 +20,7 @@ REFUSALS = [
     (["--device", "--reconnect-poll-seconds", "-1"], "--reconnect-wait-minutes, --reconnect-poll-seconds: negative"),
     (["--per-suite", "--identify"], "--per-suite: places a run's folder, so it goes with no --identify or --harness"),
     (["--devices", "--bench"], "--devices: lists the attached devices and runs alone"),
+    (["--audit", "results", "--device"], "--audit: reads a campaign's results and runs alone"),
     (["--check-session", "s.yaml", "--device"], "--check-session: resolves a session and runs alone"),
     (["--session", "s.yaml", "--bench"], "--session: picks each worker's mode and config itself, so it goes with no mode, --config or --per-suite"),
 ]
@@ -55,3 +56,9 @@ def test_a_stop_under_stacktrace_is_one_error_line_without_a_traceback(tmp_path)
     missing = tmp_path / "absent.yaml"
     done = command("--config", str(missing), "--bench", "--stacktrace")
     assert (done.returncode, done.stderr) == (1, f"error: missing_file: {missing} (--config)\n")
+
+
+def test_audit_runs_alone_before_any_config_and_writes_only_audit_yaml(tmp_path):
+    done = command("--audit", str(tmp_path))
+    assert (done.returncode, done.stdout, done.stderr) == (0, f"wrote:     {tmp_path.resolve() / 'audit.yaml'}\n", "")
+    assert [p.name for p in tmp_path.iterdir()] == ["audit.yaml"]

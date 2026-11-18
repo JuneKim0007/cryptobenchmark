@@ -73,6 +73,7 @@ Paths relative to the device folder.
 | `benchmark/` | `benchmarkData.json`, `clocks.yaml`, `thermal.json`, `cpu-pins.yaml` when written | `--device` |
 | `<pass folder>/blocks/` | `block-<b>.yaml`: one finished block's record ([below](#resuming-a-stopped-run)); the pass folder is `benchmark/` or `benchmark/<pass>/` | `--bench`, `--device` |
 | `validation.yaml` | per run the last `check_run` result ([validation.md](validation.md#validationyaml)) | `--bench`, `--device` |
+| `<results root>/audit.yaml` | the campaign audit ([validation.md](validation.md#audit)) | `--audit` |
 | `benchmark/cases/` | `<id>.json`: one case's pulled `benchmarkData.json`, in each process folder | `--device` ([device-session.md](device-session.md#one-process-per-case)) |
 | `benchmark/order.txt` | the case ids in the order the process launched them, in each process folder | `--device` |
 | `benchmark/` | `energy.json`, `traces/` (`*.perfetto-trace`, `dry.pftrace`), `energy-dry.yaml`, `energy-samples.yaml` (energy pass); `manafa/` (`manafa.log`, power profile) with `energy.source: manafa` | energy capture |

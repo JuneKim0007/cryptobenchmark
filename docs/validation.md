@@ -24,6 +24,8 @@ Every pulled `cases/<id>.json` is held against one rules table (`lib/cryptobench
 | `case_missing` | fail | a case of `order.txt` with no `cases/<id>.json` and no `case_failed: <id>:` or `case_skipped: <id>:` line of the run |
 | `case_extra` | note | a `cases/*.json` the run did not launch |
 | `files_differ` | fail | a file missing, added or changed against the block record's `files`; the case named when the file is `cases/<id>.json` |
+| `short_window` | note | energy pass only: `energy-samples.yaml` flags the case `shortWindow` (kept below `minWindowSeconds`) |
+| `window_uncovered` | note | energy pass only: `energy.json` gives the case `window_uncovered` among its `invalid` reasons |
 
 | when | what runs | on a fail |
 |---|---|---|
@@ -33,3 +35,9 @@ Every pulled `cases/<id>.json` is held against one rules table (`lib/cryptobench
 ## validation.yaml
 
 In the device folder, part of the unit (a publish moves it aside with `manifest.yaml`): `schemaVersion: 1`, `runs: {<run>: {checkedBy, fails, findings}}`, `<run>` the process folder under `benchmark/` (`process-<n>`, `<pass>/process-<n>`); each check replaces its runs' entries. `checkedBy`: `block_end` or `restart`. A finding: `code`, `scope` (`case`, `run`), `run`, `case`, `detail`, `severity` (`fail`, `note`).
+
+## Audit
+
+`pipeline.py --audit RESULTS` (`lib/cryptobench/cryptobench/stages/measurement/validation/audit.py`) reads, never changes: every unit under `RESULTS` holding `manifest.yaml` and `benchmark/`, outside `superseded/` and `rejected/`, through its block records (`schemaVersion` 3 only) and `check_run`.
+
+`RESULTS/audit.yaml`: `schemaVersion: 1`, `units: {<unit>: {<pass or single>: {runs, cases: {<id>: {runsPresent, relaunched, rejected, findings {code: runs}, outliers}}}}}`; `outliers`: the runs whose median of `timeNs.runs` is outside Tukey's fences (1.5 × IQR) over the case's runs, from 4 runs on; flagged only.

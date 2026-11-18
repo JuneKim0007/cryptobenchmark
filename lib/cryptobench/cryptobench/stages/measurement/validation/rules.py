@@ -8,7 +8,8 @@ from cryptobench.stages.measurement.session.blocks import run_files
 from cryptobench.stages.measurement.validation.rejected import run_of
 
 FAIL, NOTE = "fail", "note"
-CASE, RUN = "case", "run"
+# PASS: a run row of the pass sized by its window (min_window, the energy pass) only
+CASE, RUN, PASS = "case", "run", "pass"
 # a problem line that names a case the run gave up on: no file is expected for it
 GAVE_UP = ("case_failed: ", "case_skipped: ")
 # androidx targets about 100 ms a sample; the collapsed samples seen on a Pixel 10 were under 0.1 ms
@@ -149,6 +150,20 @@ def files_match_record(run, _expectation):
             for path in sorted(set(now) | set(run.files)) if now.get(path) != run.files.get(path)]
 
 
+def window_kept_short(run, _expectation):
+    """Decision 32: a window still short after its one relaunch is kept and flagged."""
+    samples = paths.Measurement(run.folder).energy_samples
+    cases = (read_yaml(samples).get("cases") or {}) if samples.is_file() else {}
+    return [(case, f"{entry.get('windowSeconds')} s window kept below the minimum") for case, entry in cases.items() if entry.get("shortWindow")]
+
+
+def window_covered(run, _expectation):
+    energy = paths.Measurement(run.folder).energy
+    cases = (json.loads(energy.read_text()).get("cases") or {}) if energy.is_file() else {}
+    return [(case, "the timed phase reaches past the rail samples; no energy number") for case, entry in cases.items()
+            if any("window_uncovered" in str(reason) for reason in entry.get("invalid") or [])]
+
+
 @dataclasses.dataclass(frozen=True)
 class Rule:
     code: str
@@ -167,6 +182,8 @@ RULES = (
     Rule("case_missing", RUN, FAIL, every_case_present),
     Rule("case_extra", RUN, NOTE, no_extra_case),
     Rule("files_differ", RUN, FAIL, files_match_record),
+    Rule("short_window", PASS, NOTE, window_kept_short),
+    Rule("window_uncovered", PASS, NOTE, window_covered),
 )
 
 
@@ -192,8 +209,9 @@ def check_run(run, expectation):
     findings = []
     for case in (case for case in run.expected if paths.Measurement(run.folder).case(case).is_file()):
         findings += check_case(run.result(case), expectation)
-    for rule in (row for row in RULES if row.scope == RUN):
-        findings += [Finding(rule.code, RUN, run.run, case, detail, rule.severity) for case, detail in rule.check(run, expectation)]
+    scopes = (RUN, PASS) if expectation.min_window is not None else (RUN,)
+    for rule in (row for row in RULES if row.scope in scopes):
+        findings += [Finding(rule.code, rule.scope, run.run, case, detail, rule.severity) for case, detail in rule.check(run, expectation)]
     return findings
 
 

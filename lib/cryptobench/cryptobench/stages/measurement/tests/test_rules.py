@@ -140,3 +140,12 @@ def test_a_relaunch_counts_the_samples_it_asked_for(tmp_path):
     assert [f.code for f in rules.check_run(run, energy)] == ["sample_count"]
     sized = rules.RunFolder(tmp_path, run.folder, run.folder, 1, sized={"a": {"samples": 3, "relaunched": {"samples": 75}}})
     assert rules.check_run(sized, energy) == []
+
+
+def test_the_energy_pass_rows_note_a_kept_short_window_and_an_uncovered_window(tmp_path):
+    run = run_folder(tmp_path, ["a", "b"], ["a", "b"])
+    (run.folder / "energy-samples.yaml").write_text(yaml.safe_dump({"cases": {"a": {"samples": 3, "windowSeconds": 1.0, "shortWindow": True}}}))
+    (run.folder / "energy.json").write_text(json.dumps({"cases": {"b": {"valid": False, "invalid": ["window_uncovered"]}}}))
+    found = [(f.code, f.scope, f.case, f.severity) for f in rules.check_run(run, expectation.Expectation("energy", 3, 5))]
+    assert found == [("short_window", "pass", "a", "note"), ("window_uncovered", "pass", "b", "note")]
+    assert rules.check_run(run, expectation.Expectation("timing", 3)) == []

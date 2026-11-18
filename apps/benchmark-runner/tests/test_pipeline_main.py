@@ -7,7 +7,7 @@ import pipeline
 from cryptobench.stages.discovery import discover
 from cryptobench.shared.errors.failures import CommandError
 
-FLAGS = {"probe": False, "identify": False, "devices": False, "check_session": None, "session": None, "per_suite": False, "interop": None, "harness": None, "check": False, "bench": False, "device": False,
+FLAGS = {"probe": False, "identify": False, "devices": False, "check_session": None, "audit": None, "session": None, "per_suite": False, "interop": None, "harness": None, "check": False, "bench": False, "device": False,
          "config": None, "results": None, "stream": False, "stacktrace": False, "suppress_errors": ""}
 
 
