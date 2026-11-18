@@ -32,6 +32,7 @@ from ..ai.parse.algorithm_classify import command as classify_cmd
 from ..ai.parse.algorithm_classify.command import Reviewer
 from ..ai.parse.grouping_assign import command as assign_cmd
 from .report.checks import report
+from cryptobench.shared.stop.child import stop_like_ctrl_c
 
 
 BUILD_MODEL_FLAGS = ("agent", "auth", "model", "effort", "prompts")
@@ -75,6 +76,7 @@ def _assign(ap: argparse.ArgumentParser, args: argparse.Namespace) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
+    stop_like_ctrl_c()
     attach()
     ap, steps = _parser()
     args = ap.parse_args(argv)

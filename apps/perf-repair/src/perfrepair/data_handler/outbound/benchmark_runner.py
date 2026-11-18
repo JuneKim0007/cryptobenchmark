@@ -16,6 +16,7 @@ from cryptobench.shared.errors.failures import BenchmarkRunError
 from cryptobench.shared.errors.input_error import InputError
 from cryptobench.shared.log.attach import run_id
 from cryptobench.shared.log import stdout
+from cryptobench.shared.stop.child import PIPELINE_GRACE_SECONDS
 from cryptobench.shared.stop.terminate import terminate
 
 MISSING_DEPENDENCY = "missing_dependency: "
@@ -51,7 +52,7 @@ def identify(config: Path | None, on_device: bool, benchmark: Path | str | None 
     command = [sys.executable, str(paths.repo(root).pipeline), *_chosen(config), "--identify", *(["--device"] if on_device else [])]
     seconds = pipeline_seconds()
     with subprocess.Popen(command, cwd=root, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
-                          env=child_env(), start_new_session=True) as process, Deadline(process, seconds) as deadline:
+                          env=child_env(), start_new_session=True) as process, Deadline(process, seconds, PIPELINE_GRACE_SECONDS) as deadline:
         lines = process.communicate()[0].splitlines()
     if deadline.expired:
         _timed_out("identify", seconds, None, None)
@@ -92,7 +93,7 @@ def _failed(stage: str, code: int, last: list[str], ref: str, app: str | None) -
 
 
 def _timed_out(stage: str, seconds: int, ref: str | None, app: str | None) -> None:
-    terminate("pipeline_timeout", f"pipeline ran past {seconds}s ({stage}); killed with its children",
+    terminate("pipeline_timeout", f"pipeline ran past {seconds}s ({stage}); stopped with its children",
               stage="device", step="pipeline", item=stage, app=app, ref=ref, data={"seconds": seconds, "stage": stage})
 
 
@@ -127,7 +128,7 @@ def run_pipeline(config: Path | None, results: Path | None, stage: str = "config
     seconds = pipeline_seconds()
     with open(log_path, "a") as log, subprocess.Popen(
             command, cwd=root, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1,
-            env=child_env(PYTHONUNBUFFERED="1"), start_new_session=True) as process, Deadline(process, seconds) as deadline:
+            env=child_env(PYTHONUNBUFFERED="1"), start_new_session=True) as process, Deadline(process, seconds, PIPELINE_GRACE_SECONDS) as deadline:
         log.write(f"# {stage}" + (f" app {app}" if app else "") + "\n$ " + " ".join(command) + "\n")
         manifest = _stream(process, log, last, echo)
         code = process.wait()

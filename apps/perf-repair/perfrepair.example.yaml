@@ -54,7 +54,7 @@ apps:                      # per app: the guide, `ai replace`
   replace: {}              # role keys of Select: `ai replace` and the guide's upgrade and replace steps
   review: false            # true: a reviewer one tier up reads each Select pick that edits code
 
-timeouts:                  # seconds a child process may run before it is killed with its children
+timeouts:                  # seconds a child process may run before it is stopped with its children
   claude: 3600             # one claude -p call; past it claude_cli_timeout
   pipeline: 518400         # seconds (144 hours), or unlimited; one pipeline.py call; a temperature-gated device benchmark can run for days; past it pipeline_timeout
 

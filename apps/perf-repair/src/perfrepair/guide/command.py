@@ -39,6 +39,7 @@ from cryptobench.shared.stop.terminate import terminate
 from .outcome import write_outcome
 from .state import Guide
 from .targets import run_targets
+from cryptobench.shared.stop.child import stop_like_ctrl_c
 
 LOG = logging.getLogger(__name__)
 
@@ -81,6 +82,7 @@ def parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
+    stop_like_ctrl_c()
     attach()
     ap = parser()
     a = ap.parse_args(argv)

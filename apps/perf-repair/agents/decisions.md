@@ -60,7 +60,7 @@ src/perfrepair/ai/runtime/engine/outbox.py : the only commit: durable, exclusive
 src/perfrepair/ai/runtime/gateway/args.py : --agent, --auth, --model, --effort per role, with each role's default and the gateways' choices in the help
 src/perfrepair/ai/runtime/gateway/claude.py : the claude gateway: ClaudeSettings (auth, model, effort, binary; its effort levels), the secret auth api needs, spawn by auth, the CLI with timeouts.claude
 src/perfrepair/ai/runtime/gateway/claude_api.py : Messages API transport: whole message list per request, cached system prompt, JSON schema output without the keywords the API refuses (`API_UNSUPPORTED`), server-side refusal fallback
-src/perfrepair/ai/runtime/gateway/claude_cli.py : Claude CLI headless (`claude -p`) transport: isolated sessions, --resume, existing login, the child's environment from child_env; a work folder it made removed with it; ClaudeCliError `claude_cli_failed`, a CLI that cannot run included; a call past its timeout killed with its children, `claude_cli_timeout`
+src/perfrepair/ai/runtime/gateway/claude_cli.py : Claude CLI headless (`claude -p`) transport: isolated sessions, --resume, existing login, the child's environment from child_env; a work folder it made removed with it; ClaudeCliError `claude_cli_failed`, a CLI that cannot run included; a call past its timeout stopped with its children (SIGTERM, 10 s grace, SIGKILL), `claude_cli_timeout`
 src/perfrepair/ai/runtime/gateway/contract.py : Gateway: what one provider declares: name, settings class, spawn, secret, choices
 src/perfrepair/ai/runtime/gateway/dry_run.py : the dry-run gateway: no keys, answers with the role's stand-in
 src/perfrepair/ai/runtime/gateway/registry.py : name → Gateway; the default gateway; `unknown_gateway`

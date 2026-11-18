@@ -24,10 +24,9 @@ from cryptobench.shared.log.warn import warn
 from cryptobench.shared.results.lock import DeviceLock
 from cryptobench.shared.session import targets as session_targets
 from cryptobench.shared.session.targets import TargetSpec
+from cryptobench.shared.stop import child
 
 POLL_SECONDS = 1.0
-# a stopped worker gets this long to write its partial manifest before its group is killed
-STOP_GRACE_SECONDS = 120
 UNSAFE = re.compile(r"[^A-Za-z0-9._-]+")
 
 
@@ -120,16 +119,7 @@ def ran(target: TargetSpec, suite: Path, log: Session, results: Path, passed, co
             board.update(target.name, f"{suite.stem}: {worker.last_line() or 'started'}")
             time.sleep(POLL_SECONDS)
     except KeyboardInterrupt:
-        worker.stop()
-        deadline = time.monotonic() + STOP_GRACE_SECONDS
-        try:
-            while worker.poll() is None and time.monotonic() < deadline:
-                time.sleep(POLL_SECONDS)
-        except KeyboardInterrupt:
-            pass
-        if worker.poll() is None:
-            worker.kill()
-            worker.process.wait()
+        worker.stop(child.PIPELINE_GRACE_SECONDS, POLL_SECONDS)
     outcome = worker.outcome()
     status = outcome.state if outcome.line is None else f"{outcome.state}: {outcome.line}"
     board.update(target.name, f"{suite.stem}: {status}")

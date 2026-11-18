@@ -1,1 +1,2 @@
-"""The terminator: the code table and terminate(), one finding event then a Halt or the action; `stops.<code>` overrides an overridable code's action."""
+"""The terminator: the code table and terminate(), one finding event then a Halt or the action; `stops.<code>` overrides an overridable code's action.
+child.py: how a child process is stopped."""

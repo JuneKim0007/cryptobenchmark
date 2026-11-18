@@ -22,7 +22,7 @@ cryptobench/pipeline/orchestrator/run.py : --session: the plan, order groups asc
 cryptobench/pipeline/orchestrator/suite_config.py : one suite's global.yaml in the session folder: the target's config with selection.testSet the suite
 cryptobench/pipeline/orchestrator/summary.py : Row; the summary table (target, suite, state, code, results), written as summary.txt
 cryptobench/pipeline/orchestrator/tests/ : pytest tests of the orchestrator with fake workers: order, serials, skips, failures, stop, status lines
-cryptobench/pipeline/orchestrator/worker.py : Worker: one pipeline.py child in its own process group, its transcript in the target log, ANDROID_SERIAL its target's; SIGTERM to the group on stop; Outcome from its last error: and results: lines
+cryptobench/pipeline/orchestrator/worker.py : Worker: one pipeline.py child in its own process group, its transcript in the target log, ANDROID_SERIAL its target's; a stop goes through shared/stop/child.py with the pipeline grace; Outcome from its last error: and results: lines
 cryptobench/pipeline/stage.py : StageContext (options, configuration, device, the parse-only check's answer, the --per-suite suite, the run's problems list), what each stage reads; Stage, a stage's shape
 cryptobench/pipeline/took.py : the took: line of a timed step
 cryptobench/shared/__init__.py : package of the components the stages share, importing neither the pipeline nor a stage
@@ -117,10 +117,11 @@ cryptobench/shared/stats/__init__.py : package of the benchmark's calculations, 
 cryptobench/shared/stats/descriptive.py : one definition of each per-case statistic: mean, sample SD, CoV, interpolated quantiles, IQR, QCD; which one leads
 cryptobench/shared/stats/equations.py : every calculation the run count uses; no I/O
 cryptobench/shared/stats/units.py : DisplayUnits: nanoseconds per call in the chosen latency and throughput units; significant-figure numbers
-cryptobench/shared/stop/__init__.py : package of the terminator: the code table and terminate()
+cryptobench/shared/stop/__init__.py : package of the terminator: the code table and terminate(); how a child process is stopped
+cryptobench/shared/stop/child.py : stop(process, grace, poll): SIGTERM to the child's group, up to grace seconds, SIGKILL to the group, wait (a Ctrl-C during the grace kills at once); PIPELINE_GRACE_SECONDS 120; stop_like_ctrl_c(): SIGTERM and SIGHUP raise KeyboardInterrupt
 cryptobench/shared/stop/codes.py : the code table, loaded from the glossary: every stop, warn and skip code once with its default action, the actions stops.<code> may choose (none: fixed, and why), exit and next step
 cryptobench/shared/stop/terminate.py : terminate(): the action resolved, one finding event with data.code, action and next (the code's, or next_step), then Halt, warn or skip; halt_of(): a fixed stop's Halt handed back
-cryptobench/shared/stop/tests/ : pytest tests of the code table and halt_of
+cryptobench/shared/stop/tests/ : pytest tests of the code table, halt_of and the child stop
 cryptobench/shared/versions/__init__.py : package of dependency versions
 cryptobench/shared/versions/order.py : a Gradle version: pinned or not; newest of several
 cryptobench/stages/__init__.py : package of the run's stages, one package each, importing none of them

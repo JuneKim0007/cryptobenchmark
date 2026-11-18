@@ -17,6 +17,8 @@ from ..agent.reply import AgentRefused, AgentReply
 from .claude_api import DEFAULT_MODEL
 
 WEB_SEARCH = "WebSearch"
+# claude -p keeps nothing a stop could save: a short grace, then the group is killed
+GRACE_SECONDS = 10
 Runner = Callable[[list[str], str, Path, dict[str, str], "int | None"], subprocess.CompletedProcess]
 
 
@@ -29,7 +31,7 @@ class ClaudeCliError(AgentFailed):
 
 def _run(command: list[str], stdin: str, cwd: Path, env: dict[str, str], timeout: int | None) -> subprocess.CompletedProcess:
     with subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
-                          cwd=cwd, env=env, start_new_session=True) as process, Deadline(process, timeout) as deadline:
+                          cwd=cwd, env=env, start_new_session=True) as process, Deadline(process, timeout, GRACE_SECONDS) as deadline:
         out, err = process.communicate(stdin)
     if deadline.expired:
         raise subprocess.TimeoutExpired(command, timeout)
@@ -61,7 +63,7 @@ class ClaudeCliSession(LifetimeGuarded):
         try:
             return o.runner(command, text, o.workdir, child_env(), o.timeout)
         except subprocess.TimeoutExpired:
-            raise AgentFailed("claude_cli_timeout", f"{o.binary} -p ran past {o.timeout}s (timeouts.claude); killed") from None
+            raise AgentFailed("claude_cli_timeout", f"{o.binary} -p ran past {o.timeout}s (timeouts.claude); stopped") from None
         except OSError as e:
             raise ClaudeCliError(f"cannot run {o.binary}: {e}") from e
 

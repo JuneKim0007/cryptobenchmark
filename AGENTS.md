@@ -68,11 +68,11 @@ apps/benchmark/modules/jca/ : the one catch rule and the provider-message scrubb
 apps/benchmark/modules/preparation/ : effective.yaml to prepared cases, each called once; prepared.yaml, skipped.yaml
 apps/benchmark/modules/settings/ : harness key table shared by config, preparation and benchmark
 apps/benchmark/settings.gradle : Gradle projects and their directories under apps/benchmark/modules/
-apps/cli/facade.py : one command for benchmark then guided repair from one settings index; --check
+apps/cli/facade.py : one command for benchmark then guided repair from one settings index; SIGTERM as Ctrl-C; --check
 apps/cli/facade/__init__.py : package of the facade: index, tree check, phases; the repository root; the runner and perfrepair on the path
 apps/cli/facade/check.py : every path exists, each file through its real parser, each key where it belongs, the direction rule, the catalogs
 apps/cli/facade/index.py : the root settings file: paths and what spans a run; any key it does not know is an error
-apps/cli/facade/phases.py : the crypto and guided phases as guide children with every path named; one coded line each
+apps/cli/facade/phases.py : the crypto and guided phases as guide children with every path named, each in its own session and stopped with its grace when the facade is interrupted; one coded line each
 apps/cli/facade/tree.py : the resolved tree: nodes, direction rule, printed lines, the document a run record keeps
 apps/cli/tests/ : pytest for the facade
 apps/perf-repair/ : cryptobenchmark results to crypto replacements applied per call site, compiled and interop-checked on a phone

@@ -17,9 +17,11 @@ from .runtime.gateway.args import add_agent_args
 from .runtime.gateway.spawn import spawn
 from .runtime.prompt.args import add_prompt_args, load_prompts
 from .select import command as select_cmd
+from cryptobench.shared.stop.child import stop_like_ctrl_c
 
 
 def main(argv: list[str] | None = None) -> int:
+    stop_like_ctrl_c()
     attach()
     ap = argparse.ArgumentParser(prog="perfrepair.ai", description=__doc__)
     sub = ap.add_subparsers(dest="stage", required=True)

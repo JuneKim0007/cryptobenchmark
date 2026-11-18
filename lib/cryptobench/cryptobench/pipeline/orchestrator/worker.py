@@ -1,10 +1,9 @@
-"""Worker: one pipeline.py child for one target's suite, in its own process group with its transcript in the target log; perf-repair's
-child pattern (child/deadline.py): a caller that fails or is stopped stops the child's whole group."""
+"""Worker: one pipeline.py child for one target's suite, in its own process group with its transcript in the target log; a stopped
+session stops the child's whole group (shared/stop/child.py)."""
 from __future__ import annotations
 
 import dataclasses
 import os
-import signal
 import subprocess
 from pathlib import Path
 
@@ -13,6 +12,7 @@ from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.errors.coded import code_in
 from cryptobench.shared.errors.failures import ALL_CASES_SKIPPED
 from cryptobench.shared.log.stdout import ERROR, RESULTS, last
+from cryptobench.shared.stop import child
 
 SERIAL = "ANDROID_SERIAL"
 
@@ -68,19 +68,10 @@ class Worker:
     def transcript(self) -> list[str]:
         return self.log.read_text(errors="replace").splitlines() if self.log.is_file() else []
 
-    def stop(self) -> None:
-        """SIGTERM to the group: pipeline.py stops as on Ctrl-C and writes its partial manifest."""
+    def stop(self, grace: float, poll: float) -> None:
+        """pipeline.py stops as on Ctrl-C and writes its partial manifest; past the grace, or on a second Ctrl-C, the group is killed."""
         self.stopped = True
-        try:
-            os.killpg(self.process.pid, signal.SIGTERM)
-        except (ProcessLookupError, PermissionError):
-            pass
-
-    def kill(self) -> None:
-        try:
-            os.killpg(self.process.pid, signal.SIGKILL)
-        except (ProcessLookupError, PermissionError):
-            pass
+        child.stop(self.process, grace, poll)
 
     def outcome(self) -> Outcome:
         lines = self.transcript()

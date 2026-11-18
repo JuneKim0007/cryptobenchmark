@@ -81,6 +81,7 @@
 | `capture(node, default)` | `lib/cryptobench/cryptobench/shared/settings/energy_capture.py` | `_energy(node).get('capture', default)` | cryptobench.stages.analysis.not_measured, cryptobench.stages.measurement.energy.steps, dependencies |
 | `source(node, default)` | `lib/cryptobench/cryptobench/shared/settings/energy_capture.py` | `_energy(node).get('source', default)` | cryptobench.stages.measurement.energy.steps, dependencies |
 | `summarize(runs)` | `lib/cryptobench/cryptobench/shared/stats/descriptive.py` | - | analyze, chart_model |
+| `stop_like_ctrl_c()` | `lib/cryptobench/cryptobench/shared/stop/child.py` | kill and a closed terminal raise KeyboardInterrupt, so the process stops its children and records a partial run. | facade.py, pipeline |
 | `global_config(argument)` | `lib/cryptobench/cryptobench/stages/configuration/global_file.py` | - | dependencies, pipeline |
 | `requirements(capture)` | `lib/cryptobench/cryptobench/stages/discovery/capture_files.py` | The requirements written with this capture; absent only in a folder a test wrote. | cryptobench.stages.discovery.discover, cryptobench.stages.discovery.probe_store |
 | `case_arguments(captures_found, capability, preparation, data, traces, dry_calls, out)` | `lib/cryptobench/cryptobench/stages/measurement/energy/sources/runner.py` | - | cryptobench.stages.measurement.energy.sources.manafa_source, cryptobench.stages.measurement.energy.sources.rails_source |

@@ -1,11 +1,13 @@
-"""Characterization (Py-P6): the facade installs no SIGTERM handler and runs its guide child in its own process group; a SIGTERM to the facade
-ends it and leaves the child running."""
+"""Characterization (Py-P6), changed: the facade turns SIGTERM into Ctrl-C and runs its guide child in a session of its own; a SIGTERM to the
+facade stops the child's group, then the facade ends as on Ctrl-C. Before, the child shared the facade's group and was left running."""
 import os, pathlib, signal, subprocess, sys, textwrap, time
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 FACADE = textwrap.dedent("""
     import pathlib, sys, types
+    from cryptobench.shared.stop.child import stop_like_ctrl_c
     from facade import phases
+    stop_like_ctrl_c()
     folder = pathlib.Path(sys.argv[1])
     phases.sys = types.SimpleNamespace(executable=str(folder / "guide"))
     index = types.SimpleNamespace(llm_config=folder / "l.yaml", crypto_config=folder / "c.yaml", harness_config=None, run_id=None,
@@ -23,7 +25,7 @@ def alive(pid):
         return False
 
 
-def test_today_a_sigterm_to_the_facade_orphans_its_guide_child(tmp_path):
+def test_a_sigterm_to_the_facade_stops_its_guide_child(tmp_path):
     guide = tmp_path / "guide"
     guide.write_text(GUIDE)
     guide.chmod(0o755)
@@ -36,14 +38,14 @@ def test_today_a_sigterm_to_the_facade_orphans_its_guide_child(tmp_path):
                 child = int((tmp_path / "child.pid").read_text())
                 break
             time.sleep(0.05)
-        assert child and os.getpgid(child) == os.getpgid(facade.pid)
+        assert child and os.getpgid(child) == child != os.getpgid(facade.pid)
         facade.send_signal(signal.SIGTERM)
-        assert facade.wait(10) == -signal.SIGTERM
-        time.sleep(0.2)
-        assert alive(child)
+        assert facade.wait(10) == -signal.SIGINT
+        assert not alive(child)
     finally:
-        try:
-            os.killpg(facade.pid, signal.SIGKILL)
-        except ProcessLookupError:
-            pass
+        for group in {facade.pid, child} - {None}:
+            try:
+                os.killpg(group, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
         facade.wait(10)

@@ -4,13 +4,14 @@ import signal
 import pytest
 
 import pipeline
+from cryptobench.shared.stop.child import STOP_SIGNALS, stop_like_ctrl_c
 from cryptobench.stages.measurement.session import measure as measure_session
 from fake_phone import listed, UNGATED, Phone
 
 
 @pytest.fixture
 def restored():
-    before = {stop: signal.getsignal(stop) for stop in pipeline.STOP_SIGNALS}
+    before = {stop: signal.getsignal(stop) for stop in STOP_SIGNALS}
     yield
     for stop, handler in before.items():
         signal.signal(stop, handler)
@@ -20,7 +21,7 @@ def restored():
 def test_a_stop_signal_during_a_case_force_stops_the_device_like_ctrl_c(tmp_path, monkeypatch, restored, name):
     if not hasattr(signal, name):
         pytest.skip(f"{name}: not on this platform")
-    pipeline.stop_like_ctrl_c()
+    stop_like_ctrl_c()
     phone = Phone(tmp_path, cases=("a", "b"))
     measured = phone.instrument
 
@@ -36,7 +37,7 @@ def test_a_stop_signal_during_a_case_force_stops_the_device_like_ctrl_c(tmp_path
 
 
 def test_main_maps_the_stop_signals_before_reading_its_options(monkeypatch, restored):
-    for stop in pipeline.STOP_SIGNALS:
+    for stop in STOP_SIGNALS:
         signal.signal(stop, signal.SIG_DFL)
 
     def options():
@@ -44,4 +45,4 @@ def test_main_maps_the_stop_signals_before_reading_its_options(monkeypatch, rest
     monkeypatch.setattr(pipeline, "parse_options", options)
     with pytest.raises(SystemExit):
         pipeline.main()
-    assert pipeline.STOP_SIGNALS and all(signal.getsignal(stop) is signal.default_int_handler for stop in pipeline.STOP_SIGNALS)
+    assert STOP_SIGNALS and all(signal.getsignal(stop) is signal.default_int_handler for stop in STOP_SIGNALS)

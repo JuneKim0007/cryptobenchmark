@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Runs the host pipeline in order and reports one readable failure."""
-import argparse, contextlib, functools, json, os, pathlib, signal, subprocess, sys, traceback
+import argparse, contextlib, functools, json, os, pathlib, subprocess, sys, traceback
 
 import dependencies  # first: it reports a missing PyYAML, which the imports below need
 from cryptobench.shared.device import aliases, probe
@@ -20,6 +20,7 @@ from cryptobench.shared.results import layout as results_layout
 from cryptobench.shared.results import identity as run_identity, partial, run_inputs
 from cryptobench.shared.results.lock import DeviceLock
 from cryptobench.shared.results.manifest import manifest
+from cryptobench.shared.stop.child import stop_like_ctrl_c
 from cryptobench.stages.verification.scope import code_digest
 from cryptobench.stages.analysis import not_measured
 from cryptobench.stages.analysis.scripts import analyse
@@ -214,16 +215,6 @@ def benchmarked(options, device, results, found, problems, run):
 # the first row whose option is set runs; None marks the plain run, the last row
 ROUTES: tuple[tuple[str | None, Stage], ...] = (
     ("identify", identified), ("harness", harnessed), ("interop", interoperated), ("check", checked), (None, measured))
-
-
-# no SIGHUP on Windows
-STOP_SIGNALS = tuple(getattr(signal, name) for name in ("SIGTERM", "SIGHUP") if hasattr(signal, name))
-
-
-def stop_like_ctrl_c():
-    """kill and a closed terminal stop the run as Ctrl-C does, so the session force-stops the device's test and the manifest says partial."""
-    for stop in STOP_SIGNALS:
-        signal.signal(stop, signal.default_int_handler)
 
 
 def main():

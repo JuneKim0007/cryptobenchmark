@@ -9,7 +9,12 @@ import tempfile
 from dataclasses import dataclass
 
 from cryptobench.shared import paths
+from cryptobench.shared.stop.child import PIPELINE_GRACE_SECONDS
+from perfrepair.child.deadline import Deadline
 from perfrepair.run_dir.run_record import RESUME
+
+# a stopped guide first gives its own pipeline.py child that child's grace
+GUIDE_GRACE_SECONDS = PIPELINE_GRACE_SECONDS + 30
 
 
 @dataclass(frozen=True)
@@ -46,7 +51,9 @@ def guided_flags(crypto):
 
 def _guide(index, flags, settings_file, outcome_file, root):
     command = [sys.executable, "-m", "perfrepair", "guide", *common_flags(index, settings_file, outcome_file), *flags]
-    code = subprocess.run(command, cwd=paths.code_root(), env=child_env(index, root), check=False).returncode
+    with subprocess.Popen(command, cwd=paths.code_root(), env=child_env(index, root), start_new_session=True) as process, \
+            Deadline(process, None, GUIDE_GRACE_SECONDS):
+        code = process.wait()
     if not outcome_file.is_file():
         return Outcome(code)
     done = json.loads(outcome_file.read_text())

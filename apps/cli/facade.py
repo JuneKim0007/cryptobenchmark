@@ -13,6 +13,7 @@ from facade.check import check
 from facade.phases import run_phases
 from facade.tree import CATALOG
 from cryptobench.shared.errors.line import one_line
+from cryptobench.shared.stop.child import stop_like_ctrl_c
 
 
 def _report(checked):
@@ -31,6 +32,7 @@ def _report(checked):
 
 
 def main():
+    stop_like_ctrl_c()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--settings", required=True, metavar="FILE", help="the root settings index (settings.example.yaml)")
     parser.add_argument("--check", action="store_true",

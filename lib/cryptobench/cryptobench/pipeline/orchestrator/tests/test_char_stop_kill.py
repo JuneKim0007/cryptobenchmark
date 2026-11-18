@@ -1,4 +1,4 @@
-"""Characterization (Py-P6): a worker that ignores SIGTERM is SIGKILLed with its group once the stop grace has passed; the row reads stopped with
+"""Characterization (Py-P6): through shared/stop/child.py, a worker that ignores SIGTERM is SIGKILLed with its group once the stop grace has passed; the row reads stopped with
 the exit -9 as its line."""
 import io, sys
 
@@ -6,15 +6,16 @@ import pytest
 
 from cryptobench.pipeline.orchestrator import run as session_run
 from cryptobench.pipeline.orchestrator.board import StatusBoard
+from cryptobench.shared.stop import child
 from test_orchestrator import PIXEL, lines, session  # noqa: F401
 
 DEAF = "import signal, sys, time\nsignal.signal(signal.SIGTERM, signal.SIG_IGN)\nprint('deaf', flush=True)\ntime.sleep(60)\n"
 
 
-def test_today_a_worker_deaf_to_sigterm_is_killed_after_the_grace(session, tmp_path, monkeypatch):  # noqa: F811
+def test_a_worker_deaf_to_sigterm_is_killed_after_the_grace(session, tmp_path, monkeypatch):  # noqa: F811
     script = tmp_path / "deaf_worker.py"
     script.write_text(DEAF)
-    monkeypatch.setattr(session_run, "STOP_GRACE_SECONDS", 0.5)
+    monkeypatch.setattr(child, "PIPELINE_GRACE_SECONDS", 0.5)
     real_sleep, polls = session_run.time.sleep, []
 
     def sleep(seconds):
