@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.benchmark.verify.oracle.cross
 
-import io.github.junekim0007.cryptobench.benchmark.verify.OutputBytes
+import io.github.junekim0007.cryptobench.preparation.peer.OutputBytes
 import io.github.junekim0007.cryptobench.benchmark.verify.oracle.CheckedCall
 import io.github.junekim0007.cryptobench.jca.failure.Attempt
 import io.github.junekim0007.cryptobench.preparation.input.OperationInput

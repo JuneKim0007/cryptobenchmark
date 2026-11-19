@@ -42,7 +42,6 @@ apps/benchmark/modules/benchmark/src/main/kotlin/run/decorate/Rewarm.kt : TimedL
 apps/benchmark/modules/benchmark/src/main/kotlin/run/energy/Energy.kt : energy settings with defaults
 apps/benchmark/modules/benchmark/src/main/kotlin/run/energy/WindowMarker.kt : begin and end marker port
 apps/benchmark/modules/benchmark/src/main/kotlin/verify/CaseCheck.kt : one case end to end: its invocation, one harness call, what it did, every oracle; the oracles strongest first; the invocation's afterCall last
-apps/benchmark/modules/benchmark/src/main/kotlin/verify/OutputBytes.kt : a call's output as bytes and their SHA-256
 apps/benchmark/modules/benchmark/src/main/kotlin/verify/known/KnownAnswer.kt : one sourced vector and which cases it matches
 apps/benchmark/modules/benchmark/src/main/kotlin/verify/known/KnownAnswerFile.kt : reads known-answers.yaml; hex inside parameter trees to bytes
 apps/benchmark/modules/benchmark/src/main/kotlin/verify/known/RawMaterial.kt : check mode only: a case with the vector's raw key, fixed parameters and input

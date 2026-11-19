@@ -2,7 +2,7 @@ package io.github.junekim0007.cryptobench.benchmark.verify.oracle
 
 import io.github.junekim0007.cryptobench.benchmark.run.OneCall
 import io.github.junekim0007.cryptobench.benchmark.run.OutputHook
-import io.github.junekim0007.cryptobench.benchmark.verify.OutputBytes
+import io.github.junekim0007.cryptobench.preparation.peer.OutputBytes
 import io.github.junekim0007.cryptobench.benchmark.verify.known.KnownAnswer
 import io.github.junekim0007.cryptobench.benchmark.verify.known.RawMaterial
 import io.github.junekim0007.cryptobench.preparation.peer.Outcome

@@ -78,6 +78,7 @@ apps/benchmark/modules/preparation/src/main/kotlin/parameter/resolve/PerInitValu
 apps/benchmark/modules/preparation/src/main/kotlin/parameter/resolve/ResolvedParameters.kt : what the provider used after one call; key names
 apps/benchmark/modules/preparation/src/main/kotlin/parameter/resolve/SpecFields.kt : fields of reported parameters, by spec class
 apps/benchmark/modules/preparation/src/main/kotlin/peer/Outcome.kt : a peer check's verdict: Pass, Fail or NotCheckable with a coded reason, and its label
+apps/benchmark/modules/preparation/src/main/kotlin/peer/OutputBytes.kt : a call's output as bytes where it has them (a key's encoding, a pair's public one) and their SHA-256
 apps/benchmark/modules/preparation/src/main/kotlin/port/Availability.kt : Available or Unavailable(reason, registered)
 apps/benchmark/modules/preparation/src/main/kotlin/port/DeviceCapability.kt : device port: providers, check, measuredKeyAlgorithm, the captured API level
 apps/benchmark/modules/preparation/src/main/kotlin/prepare/CasePreparer.kt : one case: key, bind, input, one call, parameter read-back, a secure case's keystore spec, KeyInfo and delete; a failed step throws PreparationException with its code

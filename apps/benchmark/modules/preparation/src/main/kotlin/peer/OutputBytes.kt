@@ -1,4 +1,4 @@
-package io.github.junekim0007.cryptobench.benchmark.verify
+package io.github.junekim0007.cryptobench.preparation.peer
 
 import java.security.Key
 import java.security.KeyPair
