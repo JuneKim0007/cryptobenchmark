@@ -1229,6 +1229,7 @@ codes:
   nothing_to_measure: {kind: error}
   operation_refused: {kind: outcome}
   oracle_failed: {kind: outcome}
+  order_mismatch: {kind: error}
   orphan_vector: {kind: outcome}
   out_of_range: {kind: error}
   output_differs: {kind: outcome}

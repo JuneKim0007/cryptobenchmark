@@ -86,6 +86,15 @@ items:
     }
 
     @Test
+    fun listedKeepsEveryCaseThePlanCheckLetThroughEvenOneThatFailsToPrepare() {
+        val plan = plan
+        val prepared = plan.preparedAll(effective())
+        assertEquals(4, plan.listed.size)
+        assertEquals(prepared.map { it.case.id }, plan.listed.take(1))
+        assertEquals(plan.listed.drop(1), logged.map { it.caseId })
+    }
+
+    @Test
     fun aLaterStageFailureIsTheCasesSkipToo() {
         ThrowingProvider.armed = false
         val plan = plan

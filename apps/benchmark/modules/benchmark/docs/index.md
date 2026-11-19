@@ -11,6 +11,7 @@ apps/benchmark/modules/benchmark/example/benchmark_jetpack_example.json : exampl
 apps/benchmark/modules/benchmark/example/benchmark_prepared_example.yaml : prepared.yaml paired with the Jetpack example
 apps/benchmark/modules/benchmark/src/main/kotlin/RefusedPlanException.kt : a run-wide refusal, or no case left, from PlanCheck.runnable
 apps/benchmark/modules/benchmark/src/main/kotlin/check/EnergyCapability.kt : parses energy.yaml; derives the energy refusal
+apps/benchmark/modules/benchmark/src/main/kotlin/check/LaunchOrder.kt : a host process's measuring order from the runner's order file; order_mismatch unless it names each listed case once
 apps/benchmark/modules/benchmark/src/main/kotlin/check/PlanCheck.kt : pre-preparation refusals for the listed cases; the runnable cases with the refused ones left out, and those as skips
 apps/benchmark/modules/benchmark/src/main/kotlin/check/Refusal.kt : one refusal (caseId, reason)
 apps/benchmark/modules/benchmark/src/main/kotlin/check/RunnablePlan.kt : the orchestrator's side: listing, plan check, one case prepared at a time, any throw that case's logged skip; the one writer of skipped.yaml and prepared.yaml

@@ -35,11 +35,16 @@ class RunnablePlan(
 
     private var exhausted: OutOfMemoryError? = null
 
+    // the ids the plan check let through, in listing order
+    var listed: List<String> = emptyList()
+        private set
+
     // written: false in a process given its cases by name, which adds to the files the listing wrote instead of replacing them.
     fun list(effective: File, written: Boolean): List<BenchmarkCase> {
         listing = preparation.list(effective)
         val checked = planCheck.runnable(listing.cases, listing.global.processRepetitions)
         refused = checked.skipped
+        listed = checked.runnable.map { it.id }
         if (written) {
             skipFile.write(skipped)
             preparedFile.listed(listing, checked.runnable)
