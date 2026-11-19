@@ -9,7 +9,7 @@ generatedFrom:
     defaultKeySizeProperty: '', fingerprint: '', javaVendor: Eclipse Adoptium, javaRuntimeVersion: 17.0.11+9,
     osName: Linux, osArch: x86_64}
   layers:
-  - {path: config_global_example.yaml, sha256: ddc97d750b1195924802131cac9ae77962dd4b77fde772628ea5c65d16121c76}
+  - {path: config_global_example.yaml, sha256: 70ab2b0478715cfaba0ac6f6a66338e07596f427e143698f557c1292a7066c7a}
   settings: {run.inputSizes: layer 1 config_global_example.yaml, run.phases: layer
       1 config_global_example.yaml, run.metrics: layer 1 config_global_example.yaml,
     run.variants: default, run.processRepetitions: layer 1 config_global_example.yaml,

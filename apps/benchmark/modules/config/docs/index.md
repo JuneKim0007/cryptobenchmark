@@ -3,7 +3,7 @@
 ```
 apps/benchmark/modules/config/.gitignore : ignores /build
 apps/benchmark/modules/config/README.md : module summary and link to this index
-apps/benchmark/modules/config/build.gradle : Kotlin/JVM 17 library; snakeyaml 2.3, :settings, :files and :document; passes examples.update to tests
+apps/benchmark/modules/config/build.gradle : Kotlin/JVM 17 library; snakeyaml 2.3, :settings, :files (and its test fixtures) and :document; passes examples.update to tests
 apps/benchmark/modules/config/docs/config.md : authored files: global.yaml, test sets, rules, overrides, groups
 apps/benchmark/modules/config/docs/entry.md : an entry's variants and key source: values, precedence, notices, checks
 apps/benchmark/modules/config/docs/generated.md : inventory.yaml, effective.yaml and report.yaml: build order, skips, warnings, errors
@@ -36,7 +36,7 @@ apps/benchmark/modules/config/src/main/kotlin/entry/EntryKeys.kt : per-primitive
 apps/benchmark/modules/config/src/main/kotlin/entry/KeySource.kt : a key's written algorithm and provider checked against the inventory's generators, its backing against tee and strongbox
 apps/benchmark/modules/config/src/main/kotlin/entry/Variants.kt : variants names, the [fixed] fallback and its notice, the asked paths a type runs, the secure_path_unavailable text
 apps/benchmark/modules/config/src/main/kotlin/global/AnalysisDocument.kt : analysis section reader and writer
-apps/benchmark/modules/config/src/main/kotlin/global/DefaultsDocument.kt : parity/defaults.yaml: run and analysis defaults as :config writes them, the energy capture and source a node without them gets
+apps/benchmark/modules/config/src/main/kotlin/global/DefaultsDocument.kt : contracts/defaults/defaults.yaml: run and analysis defaults as :config writes them, the energy capture and source a node without them gets
 apps/benchmark/modules/config/src/main/kotlin/global/GlobalDocument.kt : global.yaml schema
 apps/benchmark/modules/config/src/main/kotlin/global/PolicyDocument.kt : policy section reader and writer
 apps/benchmark/modules/config/src/main/kotlin/global/ProvidersDocument.kt : providers section reader and writer; bundled list shared with effective
@@ -83,7 +83,8 @@ apps/benchmark/modules/config/src/test/kotlin/AlgorithmNamesTest.kt : the cases 
 apps/benchmark/modules/config/src/test/kotlin/AuthoredFilesTest.kt : a typo key or a bad providers.bundled stops the parse-only read
 apps/benchmark/modules/config/src/test/kotlin/CommittedConfigTest.kt : committed config/ files parse
 apps/benchmark/modules/config/src/test/kotlin/ConfigurationTest.kt : facade tests
-apps/benchmark/modules/config/src/test/kotlin/DefaultsFileTest.kt : parity/defaults.yaml is what DefaultsDocument writes; -Dexamples.update rewrites it
+apps/benchmark/modules/config/src/test/kotlin/ContractsTest.kt : contracts/ global, effective, facts, algorithm-names and scalars read to their .json values; the duplicate-key refusal and exponent read
+apps/benchmark/modules/config/src/test/kotlin/DefaultsFileTest.kt : contracts/defaults/defaults.yaml is what DefaultsDocument writes; -Dexamples.update rewrites it
 apps/benchmark/modules/config/src/test/kotlin/DocumentFixture.kt : built documents shared by the schema tests
 apps/benchmark/modules/config/src/test/kotlin/DocumentRoundTripTest.kt : every document round-trips; schemaVersion stamp and check
 apps/benchmark/modules/config/src/test/kotlin/EffectiveBuilderTest.kt : selection, policy and facts tests
@@ -96,7 +97,6 @@ apps/benchmark/modules/config/src/test/kotlin/KeystoreRefusalsTest.kt : refused 
 apps/benchmark/modules/config/src/test/kotlin/LayerStackTest.kt : merge rules, layer refusals, a composition of the example writes the plain effective apart from generatedFrom
 apps/benchmark/modules/config/src/test/kotlin/MalformedDocumentsTest.kt : malformed documents refused by name
 apps/benchmark/modules/config/src/test/kotlin/OverrideResolverTest.kt : override precedence tests
-apps/benchmark/modules/config/src/test/kotlin/ParityFixturesTest.kt : parity/ global, effective, facts, algorithm-names and scalars read to their .json values; the duplicate-key refusal and exponent read
 apps/benchmark/modules/config/src/test/kotlin/PathsAndKeySourceTest.kt : variants precedence, fallback, notFixed and secure notices, a trial-failed generator on the secure path, a written key source and backing checked
 apps/benchmark/modules/config/src/test/kotlin/RuleTest.kt : rule matching tests
 apps/benchmark/modules/config/src/test/kotlin/WarmupJobsTest.kt : warm-up jobs resolved to entries; nothing selected turns it off

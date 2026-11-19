@@ -38,7 +38,7 @@ sourceSets {
         ))
     }
     test {
-        kotlin.setSrcDirs(listOf("../modules/jca/src/test/kotlin", "../modules/document/src/test/kotlin", "../modules/environment/discovery/src/test/kotlin", "../modules/config/src/test/kotlin", "src/test/kotlin"))
+        kotlin.setSrcDirs(listOf("../modules/jca/src/test/kotlin", "../modules/document/src/test/kotlin", "../modules/environment/discovery/src/test/kotlin", "../modules/config/src/test/kotlin", "../modules/files/src/testFixtures/kotlin", "src/test/kotlin"))
         resources.setSrcDirs(listOf("../modules/config/src/test/resources"))
     }
 }

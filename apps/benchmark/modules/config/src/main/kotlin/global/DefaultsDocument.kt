@@ -2,7 +2,7 @@ package io.github.junekim0007.cryptobench.config.global
 
 import io.github.junekim0007.cryptobench.config.global.dto.AnalysisSettings
 
-/** parity/defaults.yaml: the value :config writes for each key a config leaves out, which Python reads instead of a copy. */
+/** contracts/defaults/defaults.yaml: the value :config writes for each key a config leaves out, which Python reads instead of a copy. */
 object DefaultsDocument {
 
     const val SCHEMA_VERSION = 1

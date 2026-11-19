@@ -40,7 +40,8 @@ configure(subprojects.filter { it.name in moduleDirectories }) {
             rootDir.resolve(moduleDirectories.getValue("preparation")).resolve("src/main/kotlin").takeIf { name == "benchmark" },
         )
         sourceSets["main"].kotlin.setSrcDirs(sources)
-        sourceSets["test"].kotlin.setSrcDirs(listOf(File(moduleDirectory, "src/test/kotlin")))
+        val fixtures = rootDir.resolve(moduleDirectories.getValue("files")).resolve("src/testFixtures/kotlin").takeIf { !leaf }
+        sourceSets["test"].kotlin.setSrcDirs(listOfNotNull(File(moduleDirectory, "src/test/kotlin"), fixtures))
     }
 
     val resourceDirectories = listOf(File(moduleDirectory, "src/main/resources"))

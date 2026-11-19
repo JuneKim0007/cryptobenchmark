@@ -1,4 +1,4 @@
-"""parity/defaults.yaml: the value :config writes for each key a config leaves out (DefaultsDocument.kt writes the file)."""
+"""contracts/defaults/defaults.yaml: the value :config writes for each key a config leaves out (DefaultsDocument.kt writes the file)."""
 import functools
 
 from cryptobench.shared import paths

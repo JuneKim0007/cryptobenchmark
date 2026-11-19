@@ -1,11 +1,12 @@
-"""thermal.json as the session hooks write it, byte for byte; parity/thermal.json is the file the Kotlin reader test reads too."""
+"""thermal.json as the session hooks write it, byte for byte; contracts/runner/thermal.json is the file the Kotlin reader test reads too."""
 import json, pathlib
 
 import fake_phone
+from cryptobench.shared import paths
 from test_thermal_gate import CASE, Heat
 from test_device_benchmark_flow import measured
 
-GOLDEN = pathlib.Path(__file__).resolve().parents[3] / "parity/thermal.json"
+GOLDEN = paths.repo().contract_runner / paths.THERMAL
 
 
 def test_a_gated_run_with_one_unreadable_start_writes_the_shared_golden(tmp_path, monkeypatch):

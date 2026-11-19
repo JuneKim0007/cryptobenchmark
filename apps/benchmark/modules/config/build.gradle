@@ -18,6 +18,7 @@ dependencies {
     implementation project(':files')
     implementation project(':document')
     testImplementation 'junit:junit:4.13.2'
+    testImplementation testFixtures(project(':files'))
 }
 
 tasks.withType(Test).configureEach {

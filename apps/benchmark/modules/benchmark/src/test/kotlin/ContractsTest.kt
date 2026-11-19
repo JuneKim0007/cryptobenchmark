@@ -3,6 +3,7 @@ package io.github.junekim0007.cryptobench.benchmark
 import io.github.junekim0007.cryptobench.benchmark.report.CaseDocument
 import io.github.junekim0007.cryptobench.benchmark.report.jetpack.JetpackResults
 import io.github.junekim0007.cryptobench.benchmark.verify.known.KnownAnswerFile
+import io.github.junekim0007.cryptobench.files.ContractsFolder
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFile
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -11,25 +12,23 @@ import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.SafeConstructor
 import java.io.File
 
-/** parity/: the known answers Python writes, and the thermal.json apps/benchmark-runner/tests/test_thermal_document.py pins byte for byte, as this module reads them. */
-class ParityFixturesTest {
+/** contracts/: the known answers Python writes, and the thermal.json apps/benchmark-runner/tests/test_thermal_document.py pins byte for byte, as this module reads them. */
+class ContractsTest {
 
-    private val parity = generateSequence(File("").absoluteFile) { it.parentFile }.map { File(it, "parity") }.firstOrNull { File(it, "duplicate-key.yaml").isFile }
-        ?: error("parity/ not found above ${File("").absoluteFile}")
 
-    private fun stated(name: String): Map<String, Any> = Yaml(SafeConstructor(LoaderOptions())).load(File(parity, "$name.json").readText())
+    private fun stated(name: String): Map<String, Any> = Yaml(SafeConstructor(LoaderOptions())).load(File(ContractsFolder.documents, "$name.json").readText())
 
     @Test
     fun theKnownAnswersPythonWroteReadToTheirStatedValueAndVectors() {
-        assertEquals(stated("known-answers"), DocumentFile.read(File(parity, "known-answers.yaml"), 1))
-        val vectors = KnownAnswerFile.read(File(parity, "known-answers.yaml"))
+        assertEquals(stated("known-answers"), DocumentFile.read(File(ContractsFolder.documents, "known-answers.yaml"), 1))
+        val vectors = KnownAnswerFile.read(File(ContractsFolder.documents, "known-answers.yaml"))
         assertEquals(listOf("sha256-abc", "hmac-sha256-rfc4231-case2", "aes128-gcm-cavp-encryptextiv-pt256-count0", "aes128-kw-rfc3394-4.1"), vectors.map { it.id })
         assertEquals(listOf("AESWrap", "AES/KW/NoPadding"), vectors.last().algorithms)
     }
 
     @Test
     fun theThermalFilePythonWritesReachesTheCaseRow() {
-        val text = File(parity, "thermal.json").readText()
+        val text = File(ContractsFolder.runner, "thermal.json").readText()
         val readings = JetpackResults.thermalOf(text)
         assertEquals(setOf("a", "b"), readings.keys)
         assertEquals(mapOf("start" to null, "end" to mapOf("skin" to 33.1), "startStatus" to null, "endStatus" to 0,
@@ -47,6 +46,6 @@ class ParityFixturesTest {
 
     @Test
     fun currentBehaviourADuplicateKeyKeepsTheLastValueInCaseDocument() {
-        assertEquals(mapOf("schemaVersion" to 1, "run" to mapOf("seed" to 2), "seed" to "last"), CaseDocument.load(File(parity, "duplicate-key.yaml").readText()))
+        assertEquals(mapOf("schemaVersion" to 1, "run" to mapOf("seed" to 2), "seed" to "last"), CaseDocument.load(File(ContractsFolder.yamlCodec, "duplicate-key.yaml").readText()))
     }
 }

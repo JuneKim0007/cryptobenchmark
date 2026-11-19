@@ -3,7 +3,7 @@
 ```
 apps/benchmark/modules/benchmark/.gitignore : ignores /build
 apps/benchmark/modules/benchmark/README.md : module summary and link to this index
-apps/benchmark/modules/benchmark/build.gradle : Kotlin/JVM 17 library; api :preparation; :files, :document; snakeyaml 2.3; passes examples.update to tests
+apps/benchmark/modules/benchmark/build.gradle : Kotlin/JVM 17 library; api :preparation; :files (and its test fixtures), :document; snakeyaml 2.3; passes examples.update to tests
 apps/benchmark/modules/benchmark/docs/check.md : the end-to-end check: one call per case, oracles, measured decisions, check.yaml, the diff
 apps/benchmark/modules/benchmark/docs/index.md : this map
 apps/benchmark/modules/benchmark/docs/measure.md : plan check, host harness, benchmark.json, merge, Jetpack conversion
@@ -79,6 +79,7 @@ apps/benchmark/modules/benchmark/src/test/kotlin/CaseRecordTest.kt : not-run ids
 apps/benchmark/modules/benchmark/src/test/kotlin/CaseSettingsTest.kt : HarnessSettings to CaseSettings tests
 apps/benchmark/modules/benchmark/src/test/kotlin/CheckFixture.kt : JDK prepared cases, a capability without peers and one with PeerProvider for the check tests
 apps/benchmark/modules/benchmark/src/test/kotlin/CheckModeTest.kt : the output hook absent from every timed path; ONCE hands one output
+apps/benchmark/modules/benchmark/src/test/kotlin/ContractsTest.kt : contracts/ known answers and the Python-written thermal.json read into vectors and case rows; CaseDocument keeps a duplicate key's last value
 apps/benchmark/modules/benchmark/src/test/kotlin/CorruptedOutputTest.kt : knownAnswer, crossProvider and contract each fail an output with one flipped byte, also through CaseCheck; the honest call passes them
 apps/benchmark/modules/benchmark/src/test/kotlin/CrossProviderOracleTest.kt : the peer recomputes the call's own output; a key it cannot rebuild is peer_key_rejected
 apps/benchmark/modules/benchmark/src/test/kotlin/DigestPropertiesTest.kt : a Mac random by bug fails the repeat with fixed or per-call parameters; a nonce-keyed one passes
@@ -89,7 +90,6 @@ apps/benchmark/modules/benchmark/src/test/kotlin/HostHarnessTest.kt : host loop 
 apps/benchmark/modules/benchmark/src/test/kotlin/JetpackResultsTest.kt : Jetpack conversion tests over example/
 apps/benchmark/modules/benchmark/src/test/kotlin/KnownAnswerFileTest.kt : the vector catalogue: sources, matching, hex, unknown fields
 apps/benchmark/modules/benchmark/src/test/kotlin/MergeTest.kt : per-process merge tests
-apps/benchmark/modules/benchmark/src/test/kotlin/ParityFixturesTest.kt : parity/ known answers and the Python-written thermal.json read into vectors and case rows; CaseDocument keeps a duplicate key's last value
 apps/benchmark/modules/benchmark/src/test/kotlin/PassMergeTest.kt : per-pass merge tests
 apps/benchmark/modules/benchmark/src/test/kotlin/PeerProvider.kt : a test provider delegating SHA-256 and HmacSHA256 to the JDK's, the cross-provider peer
 apps/benchmark/modules/benchmark/src/test/kotlin/PlanCheckTest.kt : refusal tests

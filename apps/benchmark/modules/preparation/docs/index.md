@@ -3,7 +3,7 @@
 ```
 apps/benchmark/modules/preparation/.gitignore : ignores /build
 apps/benchmark/modules/preparation/README.md : module summary and link to this index
-apps/benchmark/modules/preparation/build.gradle : Kotlin/JVM 17 library; snakeyaml 2.3, api :settings, :files and :document; passes examples.update to tests
+apps/benchmark/modules/preparation/build.gradle : Kotlin/JVM 17 library; snakeyaml 2.3, api :settings, :files (and its test fixtures) and :document; passes examples.update to tests
 apps/benchmark/modules/preparation/docs/index.md : this map
 apps/benchmark/modules/preparation/docs/interop.md : cross-provider interop check
 apps/benchmark/modules/preparation/docs/operations.md : operation consumption, timed calls, inputs, keys, parameter trees
@@ -103,6 +103,7 @@ apps/benchmark/modules/preparation/src/test/kotlin/BoundParametersTest.kt : cycl
 apps/benchmark/modules/preparation/src/test/kotlin/CaseResolverTest.kt : expansion and rejection tests
 apps/benchmark/modules/preparation/src/test/kotlin/ChartGroupTest.kt : chart group tests
 apps/benchmark/modules/preparation/src/test/kotlin/CipherCallTest.kt : CipherCall per-call init, instance and refusal tests
+apps/benchmark/modules/preparation/src/test/kotlin/ContractsTest.kt : contracts/ guide and effective read to their .json values and accepted by Guide and InboundFile; the duplicate-key refusal
 apps/benchmark/modules/preparation/src/test/kotlin/DiscoveryCapabilityTest.kt : capture and trial availability tests
 apps/benchmark/modules/preparation/src/test/kotlin/EffectiveFixture.kt : effective.yaml test fixture builder
 apps/benchmark/modules/preparation/src/test/kotlin/EngineCallTest.kt : what each PerCall makes, inits and operates per call; the trace's engine and inits; again() with the last call's parameters; no check-only state in the timed call
@@ -118,7 +119,6 @@ apps/benchmark/modules/preparation/src/test/kotlin/KeyPlannerTest.kt : key recip
 apps/benchmark/modules/preparation/src/test/kotlin/OperationContractTest.kt : per-operation consumption contract tests
 apps/benchmark/modules/preparation/src/test/kotlin/OperationInputTest.kt : per-operation input tests
 apps/benchmark/modules/preparation/src/test/kotlin/ParameterBinderTest.kt : parameter tree binding tests
-apps/benchmark/modules/preparation/src/test/kotlin/ParityFixturesTest.kt : parity/ guide and effective read to their .json values and accepted by Guide and InboundFile; the duplicate-key refusal
 apps/benchmark/modules/preparation/src/test/kotlin/PreparationFixture.kt : shared preparation test fixtures
 apps/benchmark/modules/preparation/src/test/kotlin/PreparationPolicyTest.kt : onFailure policy tests
 apps/benchmark/modules/preparation/src/test/kotlin/PreparedCaseTest.kt : prepared-case tests
