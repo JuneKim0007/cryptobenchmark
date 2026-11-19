@@ -1,4 +1,5 @@
 """The benchmark of a plain run: on the device in passes and sessions, or on the host JVM."""
+import functools
 import time
 
 from cryptobench.shared.settings import bundled, effective_view
@@ -15,6 +16,7 @@ from cryptobench.shared.device import instrumentation, reconnect
 from cryptobench.stages.measurement.session import blocks, case_isolation, energy_hook, passes, skips, variant_order, warmup, window
 from cryptobench.stages.measurement.session import measure as measure_session
 from cryptobench.stages.measurement.validation import expectation, report
+from cryptobench.stages.measurement import case_files
 from cryptobench.stages.measurement.measuring import (Measuring, convert, energy_preflight, gate_opened, pass_arguments, pull_pins, record, session_arguments,
                                                          singles, thermal_flag, timed_hooks)
 from cryptobench.shared.device.plan import pull_plan, push, recorded_skips
@@ -22,7 +24,7 @@ from cryptobench.pipeline.took import elapsed
 from cryptobench.shared.document.document import read_yaml
 
 # the ignored keys host_cases names in their own line
-OWN_LINES = ("run.passes", "run.thermalGate", "run.orderSeed")
+OWN_LINES = ("run.passes", "run.thermalGate")
 
 
 def measure_on_device(run, one, captures, preparation, repetitions, folder, written, measured_blocks):
@@ -92,11 +94,12 @@ def measure_cases(options, device, results, found, problems, require_energy, rec
     if captures - {"none"}:
         # the effective config holds the captures a test set turned on, which the first check could not see
         options.energy_python = require_energy(energy.source, options.energy_python)
+    order = variant_order.chosen(view.order_seed)[0]
     if device:
         waits = reconnect.Reconnect.of(device, options)
         print(waits.line())
         source = energy_stage.source(energy, options.energy_python, options.stacktrace)
-        run = Measuring(device, EnergySession(device, waits), source, options, discovery, files, problems, variant_order.chosen(view.order_seed)[0],
+        run = Measuring(device, EnergySession(device, waits), source, options, discovery, files, problems, order,
                         view.throttle_sleep, view.case_cooldown, gate_opened(device, document, problems, waits), view.launch_retries, waits, results, record)
         try:
             written, processes = device_cases(run, document, [effective, paths.Configuration.holding(effective).guide, capture, trial], captures, benchmark,
@@ -109,7 +112,7 @@ def measure_cases(options, device, results, found, problems, require_energy, rec
             return False, [], repetitions
     else:
         written, processes = host_cases(options, document, capture, trial, effective, benchmark, preparation, files, problems,
-                                        in_blocks(benchmark, None, lambda: None)), repetitions
+                                        in_blocks(benchmark, None, lambda: None), order), repetitions
     say(WROTE, paths.Preparation(preparation).prepared)
     elapsed("prepare and measure", started)
     collapse(files, preparation, processes)
@@ -142,29 +145,34 @@ def warm_up(run, document, preparation):
                lambda: run.reconnect.retried(lambda: device_skips(run.device, preparation), "the skip record read"))
 
 
-def host_cases(options, document, capture, trial, effective, benchmark, preparation, files, problems, measured_blocks):
-    """One BenchKt JVM per repetition, in measured_blocks; a block an earlier run recorded is kept, not measured again."""
+def host_cases(options, document, capture, trial, effective, benchmark, preparation, files, problems, measured_blocks, order):
+    """One BenchKt JVM per repetition, in measured_blocks, measuring in order(repetition, the listed cases); a block an earlier run recorded is
+    kept, not measured again."""
     view = RunView(document)
     repetitions, written = view.process_repetitions, []
     if view.passes:
         warn("run.passes: only a --device run measures in passes; this run measures once per process")
     if view.thermal_gate:
         warn("TEMPERATURE SET BUT DEVICE CAN'T POLL: host_runtime; running without it", problems)
-    # read so a missing or broken seed is refused on the host too
-    view.order_seed
-    warn("run.orderSeed: only a --device run launches cases in an order; this run measures in the plan's order")
     for path in effective_view.ignored_on_host(document):
         if path not in OWN_LINES:
             warn(f"ignored_on_host: {path} is set; only a --device run reads it")
     folder = lambda repetition: measure_session.process_folder(benchmark, repetition, repetitions)
+    properties = bundled.gradle_properties(document.get(bundled.KEY) or [])
+
+    # the first repetition measured lists once; a rerun that keeps every block lists nothing
+    @functools.cache
+    def listed():
+        return gradle_runner.run(f"{capture} {trial} {effective} {preparation}", options.stacktrace, main_class="ListCasesKt", properties=properties)
 
     def measured(repetition):
         into = folder(repetition)
         measure_session.process_line(repetition, repetitions)
         (paths.Measurement(into).json).unlink(missing_ok=True)
-        gradle_runner.run(f"{capture} {trial} {effective} {into} {preparation}", options.stacktrace, options.stream, main_class="BenchKt",
-                          properties=bundled.gradle_properties(document.get(bundled.KEY) or []),
-                          failed=lambda message: kept(into, message, problems))
+        into.mkdir(parents=True, exist_ok=True)
+        case_files.ordered(into, order(repetition, listed()))
+        gradle_runner.run(f"{capture} {trial} {effective} {into} {preparation} {paths.Measurement(into).order}", options.stacktrace, options.stream,
+                          main_class="BenchKt", properties=properties, failed=lambda message: kept(into, message, problems))
         held(into)
 
     def held(into):

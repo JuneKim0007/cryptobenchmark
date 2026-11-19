@@ -8,7 +8,7 @@ run:                             # required: orderSeed
   metrics: [TIME]                # optional, default [TIME]
   processRepetitions: 1          # optional, default 1
   seed: 42                       # optional, default 0
-  orderSeed: 20261115             # required — each device process shuffles the case order from (orderSeed, repetition)
+  orderSeed: 20261115             # required — each process, device or host, shuffles the case order from (orderSeed, repetition)
   harness: {iterations: 5, profiling: none}   # optional — 5 samples: a fast check, not paper numbers
 policy:                          # optional
   onFailure: skip                # optional, default skip

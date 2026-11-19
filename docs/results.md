@@ -75,7 +75,7 @@ Paths relative to the device folder.
 | `validation.yaml` | per run the last `check_run` result ([validation.md](validation.md#validationyaml)) | `--bench`, `--device` |
 | `<results root>/audit.yaml` | the campaign audit ([validation.md](validation.md#audit)) | `--audit` |
 | `benchmark/cases/` | `<id>.json`: one case's pulled `benchmarkData.json`, in each process folder | `--device` ([device-session.md](device-session.md#one-process-per-case)) |
-| `benchmark/order.txt` | the case ids in the order the process launched them, in each process folder | `--device` |
+| `benchmark/order.txt` | the case ids in the order the process launched them, in each process folder | `--bench`, `--device` |
 | `benchmark/` | `energy.json`, `traces/` (`*.perfetto-trace`, `dry.pftrace`), `energy-dry.yaml`, `energy-samples.yaml` (energy pass); `manafa/` (`manafa.log`, power profile) with `energy.source: manafa` | energy capture |
 | `scoped/` | `scoped-plan.yaml` with each scope's interop verdict merged in, `scoped-interop.yaml` (the device's verdicts); a failed run keeps only `scoped-plan.failed.yaml` beside `scoped/` | `--harness`, under `checked/`: [scoped.md](../apps/benchmark/modules/android/docs/scoped.md) |
 | `check/` | `check.yaml` (one record per case), `preparation/` (that process's `prepared.yaml`, `skipped.yaml`); `configuration/` (the settings it ran with) when published beside a finished run | `--check`: [check.md](../apps/benchmark/modules/benchmark/docs/check.md) |

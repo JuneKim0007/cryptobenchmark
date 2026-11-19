@@ -11,7 +11,7 @@ run:                                     # required: orderSeed; every other key 
   metrics: [TIME, ALLOCATION]            # optional, default [TIME] — TIME | ALLOCATION
   processRepetitions: 1                  # optional, default 1
   seed: 42                               # optional, default 0
-  orderSeed: 20261115                    # required — each device process shuffles the case order from (orderSeed, repetition)
+  orderSeed: 20261115                    # required — each process, device or host, shuffles the case order from (orderSeed, repetition)
   thermalGate:                           # optional, absent = off; --device only
     temperatureKeptCelsius: 36.0         # required: phone skin temperature no run may reach; a run ending at or above it is discarded
     cooldownMinutes: 3                   # optional, default 3: wait this long, without reading the phone, when it is too hot

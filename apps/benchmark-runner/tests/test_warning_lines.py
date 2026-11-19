@@ -10,7 +10,7 @@ from cryptobench.stages.verification import check
 from cryptobench.stages.measurement.measuring import record
 from fake_phone import Phone
 from test_check_stage import RESULT
-from test_host_bench_kept import DOCUMENT, ONE_BLOCK, OPTIONS, dying
+from test_host_bench_kept import DOCUMENT, ONE_BLOCK, OPTIONS, ORDER, dying
 from test_session_hooks import Recorded, session
 
 
@@ -61,11 +61,11 @@ def test_a_host_run_with_passes_and_a_gate_and_a_bench_that_died(tmp_path, monke
     monkeypatch.setattr(benchmark.gradle_runner, "run", dying([{"id": "a"}]))
     document = {"run": {**DOCUMENT["run"], "passes": {"timing": {"samples": 3}}, "thermalGate": {"temperatureKeptCelsius": 36.0}}}
     problems = []
-    benchmark.host_cases(OPTIONS, document, "c", "t", "e", tmp_path, tmp_path, {}, problems, ONE_BLOCK(tmp_path))
+    benchmark.host_cases(OPTIONS, document, "c", "t", "e", tmp_path, tmp_path, {}, problems, ONE_BLOCK(tmp_path), ORDER)
     assert capsys.readouterr().out.splitlines() == [
         "warning: run.passes: only a --device run measures in passes; this run measures once per process",
         "warning: TEMPERATURE SET BUT DEVICE CAN'T POLL: host_runtime; running without it",
-        "warning: run.orderSeed: only a --device run launches cases in an order; this run measures in the plan's order",
+        f"order:     {tmp_path / 'order.txt'}",
         "warning: bench_failed: error: Execution failed for task ':run'",
     ]
     assert problems == ["TEMPERATURE SET BUT DEVICE CAN'T POLL: host_runtime; running without it",
@@ -93,16 +93,16 @@ def test_a_failed_chart_script(tmp_path, monkeypatch, capsys):
     assert lines[2].startswith("took:      analyse in ") and len(lines) == 3
 
 
-def test_every_host_run_says_it_ignores_its_order_seed(tmp_path, monkeypatch, capsys):
+def test_a_host_run_reads_its_order_seed_and_warns_nothing_about_it(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(benchmark.gradle_runner, "run", dying([{"id": "a"}]))
-    benchmark.host_cases(OPTIONS, {"run": {**DOCUMENT["run"], "orderSeed": 7}}, "c", "t", "e", tmp_path, tmp_path, {}, [], ONE_BLOCK(tmp_path))
-    assert "warning: run.orderSeed: only a --device run launches cases in an order; this run measures in the plan's order\n" in capsys.readouterr().out
+    benchmark.host_cases(OPTIONS, {"run": {**DOCUMENT["run"], "orderSeed": 7}}, "c", "t", "e", tmp_path, tmp_path, {}, [], ONE_BLOCK(tmp_path), ORDER)
+    assert "orderSeed" not in capsys.readouterr().out
 
 
 def test_a_host_run_names_each_ignored_key_it_sets_once(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(benchmark.gradle_runner, "run", dying([{"id": "a"}]))
     document = {"run": {**DOCUMENT["run"], "orderSeed": 7, "launchRetries": 5, "caseCooldownSeconds": 0, "harness": {"cpu": {"pin": "big"}}}}
-    benchmark.host_cases(OPTIONS, document, "c", "t", "e", tmp_path, tmp_path, {}, [], ONE_BLOCK(tmp_path))
+    benchmark.host_cases(OPTIONS, document, "c", "t", "e", tmp_path, tmp_path, {}, [], ONE_BLOCK(tmp_path), ORDER)
     assert [line for line in capsys.readouterr().out.splitlines() if "ignored_on_host" in line] == [
         "warning: ignored_on_host: run.launchRetries is set; only a --device run reads it",
         "warning: ignored_on_host: run.harness.cpu is set; only a --device run reads it"]

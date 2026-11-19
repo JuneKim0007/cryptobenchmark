@@ -5,8 +5,10 @@ Prepared cases to measurements and `benchmark.json`. Device harness: `apps/bench
 ## Flow
 
 ```
-RunnablePlan: Preparation.list -> PlanCheck.runnable -> refused cases to skipped.yaml (host and device)
-            -> per runnable case: Preparation.prepareOne -> Invocations.of(prepared) -> HostHarness -> CaseMeasurement -> BenchmarkJson -> benchmark.json, rewritten whole after each case
+RunnablePlan: Preparation.list -> PlanCheck.runnable -> refused cases to skipped.yaml (host and device); listed: the runnable ids
+host: ListCasesKt prints listed; the runner writes each process's order.txt (variant_order)
+            -> BenchKt: per runnable case Preparation.prepareOne -> Invocations.of(prepared)
+            -> per id of LaunchOrder.of(listed, order.txt): HostHarness -> CaseMeasurement -> BenchmarkJson -> benchmark.json, rewritten whole after each case
 device: benchmarkData.json + prepared.yaml -> JetpackResults -> benchmark.json
 per process benchmark.json -> Merge -> benchmark.json
 ```

@@ -1,4 +1,4 @@
-"""run.variants on a device: each item's variants adjacent, A/B in odd repetitions and B/A in even ones; run.orderSeed shuffles the items."""
+"""run.variants on a device and the host: each item's variants adjacent, A/B in odd repetitions and B/A in even ones; run.orderSeed shuffles the items."""
 import random
 
 from cryptobench.stages.measurement.session import variant_order  # noqa: E402

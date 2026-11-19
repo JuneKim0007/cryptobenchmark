@@ -1,5 +1,5 @@
-"""run.variants on a device: an item's fixed and notFixed cases adjacent, fixed first in odd repetitions and last in even ones (A/B/B/A);
-run.orderSeed shuffles the items per process."""
+"""run.variants: an item's fixed and notFixed cases adjacent, fixed first in odd repetitions and last in even ones (A/B/B/A);
+run.orderSeed shuffles the items per process, on a device and on the host."""
 import random
 
 from cryptobench.shared.paths import VARIANTS
@@ -31,5 +31,5 @@ def shuffled(seed):
 
 
 def chosen(seed):
-    """The order a session launches cases in, and its part of a run's identity (shared/results/identity.py)."""
+    """The order a process, device or host, runs its cases in, and its part of a run's identity (shared/results/identity.py)."""
     return shuffled(seed), {"scheme": "shuffled", "seed": seed}

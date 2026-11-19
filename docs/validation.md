@@ -18,7 +18,7 @@ Every pulled `cases/<id>.json` is held against one rules table (`lib/cryptobench
 
 ## Run rules
 
-`check_run` holds one run (a process folder) against `check_case` for every case it kept a file of, then the run rows; the single pass's expected samples come from `preparation/prepared.yaml` once the process pulled it. A host run keeps no per-case files: only `files_differ` applies.
+`check_run` holds one run (a process folder) against `check_case` for every case it kept a file of, then the run rows; the single pass's expected samples come from `preparation/prepared.yaml` once the process pulled it. A host run keeps no per-case files: its `order.txt` has no `cases/` beside it, so only `files_differ` applies.
 
 | code | severity | condition |
 |---|---|---|

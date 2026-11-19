@@ -134,7 +134,7 @@ def test_host_main_classes_the_runner_names_exist():
         for path in root.rglob("*.py"):
             if "tests" not in path.relative_to(root).parts:
                 called |= set(re.findall(r'main_class="(\w+)Kt"', path.read_text()))
-    assert called == {"Probe", "Configure", "RuntimeFields", "Bench", "Check", "Interop", "Convert", "MergeRuns", "MergePasses"}
+    assert called == {"Probe", "Configure", "RuntimeFields", "ListCases", "Bench", "Check", "Interop", "Convert", "MergeRuns", "MergePasses"}
     assert all(re.search(r"^fun main\(", (CLI / f"{name}.kt").read_text(), re.M) for name in called)
     # CheckConfigKt goes through output_of with its name in a variable; CheckDiffKt has no Python caller
     assert '"CheckConfigKt"' in (STAGES / "configuration/config_check.py").read_text()

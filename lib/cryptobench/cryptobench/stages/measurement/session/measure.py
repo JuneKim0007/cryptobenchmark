@@ -213,7 +213,6 @@ def each_case(device, plan, process, hooks):
     print(f"measure:   one process per case ({len(process.cases)} cases)")
     case_files.opened(process.into)
     case_files.ordered(process.into, process.cases)
-    print(f"order:     {paths.Measurement(process.into).order}")
     measured = []
     for number, case in enumerate(process.cases, 1):
         failure = launch.run_of_case(device, plan, process, case, hooks, case_files.path(process.into, case))

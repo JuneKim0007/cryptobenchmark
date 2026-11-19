@@ -33,8 +33,8 @@ class MainExitsTest {
         val out = folder.newFolder("out").path
         val table = listOf(
             run("BenchKt"),
-            run("BenchKt", missing("probe.yaml"), missing("trial.yaml"), missing("effective.yaml"), out, out),
-            run("BenchKt", bad("probe.yaml"), bad("trial.yaml"), bad("effective.yaml"), out, out),
+            run("BenchKt", missing("probe.yaml"), missing("trial.yaml"), missing("effective.yaml"), out, out, missing("order.txt")),
+            run("BenchKt", bad("probe.yaml"), bad("trial.yaml"), bad("effective.yaml"), out, out, bad("order.txt")),
             run("CheckKt"),
             run("CheckKt", missing("probe.yaml"), missing("trial.yaml"), missing("effective.yaml"), missing("known-answers.yaml"), out),
             run("CheckKt", bad("probe.yaml"), bad("trial.yaml"), bad("effective.yaml"), bad("known-answers.yaml"), out),
@@ -73,9 +73,9 @@ class MainExitsTest {
     private companion object {
         // main and argument count | exit code | stderr's first line, +trace if a stack trace followed
         val EXPECTED = """
-            BenchKt 0 args | exit 2 | usage: <capture> <trial> <effective.yaml> <benchmark output directory> <preparation directory>
-            BenchKt 5 args | exit 1 | error: <tmp>/missing/effective.yaml (No such file or directory)
-            BenchKt 5 args | exit 1 | error: while parsing a flow sequence
+            BenchKt 0 args | exit 2 | usage: <capture> <trial> <effective.yaml> <benchmark output directory> <preparation directory> <order file>
+            BenchKt 6 args | exit 1 | error: <tmp>/missing/effective.yaml (No such file or directory)
+            BenchKt 6 args | exit 1 | error: while parsing a flow sequence
             CheckKt 0 args | exit 2 | usage: <capture> <trial> <effective.yaml> <known-answers.yaml> <output directory>
             CheckKt 5 args | exit 1 | error: <tmp>/missing/effective.yaml (No such file or directory)
             CheckKt 5 args | exit 1 | error: while parsing a flow sequence

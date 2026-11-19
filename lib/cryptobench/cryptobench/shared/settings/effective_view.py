@@ -72,7 +72,7 @@ KEYS = (
     ("run", "metrics", "run.metrics", _listed, True),
     ("run", "process_repetitions", "run.processRepetitions", required, True),
     ("run", "resume_block_runs", "run.resumeBlockRuns", _positive, True),
-    ("run", "order_seed", "run.orderSeed", _whole, False),
+    ("run", "order_seed", "run.orderSeed", _whole, True),
     # None keeps Jetpack's own sleep; RunSettings already refused a negative value
     ("run", "throttle_sleep", "run.thermalThrottleSleepSeconds", found, False),
     ("run", "case_cooldown", "run.caseCooldownSeconds", required, False),

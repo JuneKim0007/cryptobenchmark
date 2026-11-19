@@ -82,7 +82,7 @@ class EffectiveView(unittest.TestCase):
     def test_the_host_ignores_only_the_keys_set_to_other_than_the_default(self):
         document = {"run": {"caseCooldownSeconds": 0, "launchRetries": 4, "orderSeed": 1, "warmup": {"iterations": 10, "jobs": [], "cases": 5},
                             "processRepetitions": 3, "harness": {"profiling": "none"}}}
-        self.assertEqual(["run.orderSeed", "run.launchRetries", "run.warmup.cases", "run.harness.profiling"], effective_view.ignored_on_host(document))
+        self.assertEqual(["run.launchRetries", "run.warmup.cases", "run.harness.profiling"], effective_view.ignored_on_host(document))
 
 
 if __name__ == "__main__":

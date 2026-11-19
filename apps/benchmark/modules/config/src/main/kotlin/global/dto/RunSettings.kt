@@ -26,7 +26,7 @@ data class RunSettings(
     val launchRetries: Int = LAUNCH_RETRIES,
     // host only: a rerun of a stopped run keeps its finished blocks of this many consecutive runs
     val resumeBlockRuns: Int = RESUME_BLOCK_RUNS,
-    // each device process shuffles the items from (orderSeed, repetition); every run names it
+    // each process, device or host, shuffles the items from (orderSeed, repetition); every run names it
     val orderSeed: Long,
     val harness: HarnessSettings = HarnessSettings(),
 ) {

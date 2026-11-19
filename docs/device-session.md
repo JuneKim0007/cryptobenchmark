@@ -50,11 +50,11 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 
 ## Variants
 
-Each entry's `variants`, else `run.variants` ([operations.md](../apps/benchmark/modules/preparation/docs/operations.md#variants)): the device prepares one case per kept path of each item; `lib/cryptobench/cryptobench/stages/measurement/session/variant_order.py` orders the benchmark's cases.
+Each entry's `variants`, else `run.variants` ([operations.md](../apps/benchmark/modules/preparation/docs/operations.md#variants)): the device prepares one case per kept path of each item; `lib/cryptobench/cryptobench/stages/measurement/session/variant_order.py` orders the benchmark's cases, on a device and on the host.
 
 | rule | value |
 |---|---|
-| order | the items shuffled per process with `Random("<orderSeed>:<repetition>")` (`run.orderSeed`, required); an item's `fixed` and `notFixed` cases adjacent, `fixed` first in odd repetitions and `notFixed` first in even ones (A/B, then B/A: A/B/B/A over two); a host run measures in the plan's order and warns `run.orderSeed: only a --device run launches cases in an order; ...` |
+| order | the items shuffled per process with `Random("<orderSeed>:<repetition>")` (`run.orderSeed`, required); an item's `fixed` and `notFixed` cases adjacent, `fixed` first in odd repetitions and `notFixed` first in even ones (A/B, then B/A: A/B/B/A over two); a host run lists its cases once (`ListCasesKt`) and each `BenchKt` process measures them in its `order.txt` |
 | item | the case id without its last part `_fixed`, `_notFixed` or `_secure`; a `secure` case is an item of its own (another provider) |
 | process | each variant in its own process |
 | inputs | message bytes from `run.seed`, equal for both; keys from unseeded `SecureRandom` per process, so they differ ([operations.md](../apps/benchmark/modules/preparation/docs/operations.md#variants)); setup, inputs and buffers before the timer |
@@ -134,7 +134,7 @@ Each pulled case file is held against the result rules: [validation.md](validati
 |---|---|
 | `measure:   one process per case (<n> cases)` | `-e log true` lists the planned timed cases without running them, then one `am instrument -e case <id>` per case; each process writes its own `benchmarkData.json`, pulled after it to `cases/<id>.json` in the process folder and kept; the process's `benchmarkData.json` is merged from those files again after each case that passed (the first case's `context`, every case's `benchmarks`, in run order) |
 
-- Order: `order:     <process folder>/order.txt`, the cases in the order this process launches them, one id per line, written before the first launch.
+- Order: `order:     <process folder>/order.txt`, the cases in the order this process launches them, one id per line, written before the first launch; a host process writes one too, before its `BenchKt` starts, and keeps no `cases/`.
 - Progress: after each case `case:      <n> of <m> <id> ok` or `... failed`.
 - `cases/`: empty when a process starts, since the run's publish moved an earlier unit aside ([results.md](results.md#device-folder)); a stopped run keeps the files of the cases it finished, and `benchmarkData.json` holds them all.
 - Device time: a process per case costs about 1 to 2 s of instrumentation start plus the plan's preparation on the device, per case and per pass.
