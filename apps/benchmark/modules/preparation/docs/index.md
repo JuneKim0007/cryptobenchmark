@@ -32,7 +32,7 @@ apps/benchmark/modules/preparation/src/main/kotlin/input/OperationInput.kt : sea
 apps/benchmark/modules/preparation/src/main/kotlin/interop/ : cross-provider interop check: plan file, checks, verdicts, the plan run, interop.yaml
 apps/benchmark/modules/preparation/src/main/kotlin/key/generate/KeyInitializer.kt : KeyGenerator and KeyPairGenerator init
 apps/benchmark/modules/preparation/src/main/kotlin/key/generate/KeyMaterial.kt : sealed key material: None, Secret, Pairs
-apps/benchmark/modules/preparation/src/main/kotlin/key/generate/KeyMaterialGenerator.kt : builds KeyMaterial from a KeyRecipe
+apps/benchmark/modules/preparation/src/main/kotlin/key/generate/KeyMaterialGenerator.kt : builds KeyMaterial from a KeyRecipe; a second pair is the first one's jca PeerPair
 apps/benchmark/modules/preparation/src/main/kotlin/key/plan/KeyCandidate.kt : candidate key algorithm and optional size
 apps/benchmark/modules/preparation/src/main/kotlin/key/plan/KeyPlanner.kt : chooses the KeyRecipe for a case from its key source; every provider only under key.provider any and for the interop check
 apps/benchmark/modules/preparation/src/main/kotlin/key/plan/KeyRecipe.kt : sealed recipe: None, Secret, Pair, Unavailable

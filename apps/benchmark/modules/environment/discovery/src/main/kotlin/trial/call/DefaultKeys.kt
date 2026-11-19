@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery.trial.call
 
+import io.github.junekim0007.cryptobench.jca.peer.PeerPair
 import io.github.junekim0007.cryptobench.jca.failure.Attempt
 import io.github.junekim0007.cryptobench.discovery.contract.KeyCacheStats
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceKey
@@ -7,11 +8,9 @@ import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.NoSuchAlgorithmException
 import java.security.Provider
-import java.security.interfaces.ECKey
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.SecretKeyFactory
-import javax.crypto.interfaces.DHKey
 import javax.crypto.spec.PBEKeySpec
 
 // One cache per run, kept across trial levels: a refused generation is remembered too, since it refuses again.
@@ -64,14 +63,7 @@ internal class DefaultKeys(private val providers: List<Provider>) {
             Secret(algorithm, provider.name, key)
         }
 
-    fun peer(own: Pair): KeyPair {
-        val generator = KeyPairGenerator.getInstance(own.algorithm, own.provider)
-        when (val public = own.keys.public) {
-            is ECKey -> generator.initialize(public.params)
-            is DHKey -> generator.initialize(public.params)
-        }
-        return generator.generateKeyPair()
-    }
+    fun peer(own: Pair): KeyPair = PeerPair.of(own.keys, KeyPairGenerator.getInstance(own.algorithm, own.provider))
 
     fun stats(): KeyCacheStats = KeyCacheStats(generated, refused, reused, generationNanos / 1_000_000)
 

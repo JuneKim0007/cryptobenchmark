@@ -91,7 +91,7 @@ Errors are `BundledProviderException` with a `code`. The preparation and perf-re
 | Cipher | `ENCRYPT_MODE`, `doFinal(input)`; key from the first `KeyGenerator` candidate (base name, `<base>_<n>` size suffix, part before `-`), else a key pair's public key |
 | Cipher `providerChose` | space-separated `key=value`, keys as prepared.yaml `resolvedParameters`, read back through `ParameterReadBack.describe` (contract/, shared by levels 2 and 3): `ivBytes=<n> tagBits=<n>` for GCM; `digest=<d> mgf1=<d> labelBytes=<n>` for OAEP; else `ivBytes=<n>` when a second init fills in a different value, `fixedValueBytes=<n>` when it fills in the same one (a key-wrap integrity check value); `""` without parameters; `bareName` when the name has no `/` |
 | Signature | key algorithm = text after the last `with`, minus `inP1363Format`, `ECDSA` to `EC` |
-| KeyAgreement | `ECDH` to `EC`; peer pair generated with the same EC or DH parameters |
+| KeyAgreement | `ECDH` to `EC`; peer pair from jca `PeerPair`: the same EC curve, DH group or XEC named curve |
 | KeyGenerator, KeyPairGenerator | provider default size: key size, whether the key (a pair's private key) encodes, its format; then the other sizes in `triedKeys` ([security_contract.md](security_contract.md)) |
 
 | default key rule | value |

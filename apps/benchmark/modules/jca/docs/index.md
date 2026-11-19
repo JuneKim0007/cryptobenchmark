@@ -7,13 +7,15 @@ apps/benchmark/modules/jca/build.gradle : Kotlin/JVM 17 library; no project or l
 apps/benchmark/modules/jca/docs/index.md : this map
 apps/benchmark/modules/jca/src/main/kotlin/failure/Attempt.kt : the one catch rule: Exception or LinkageError as a Result, any other Error thrown
 apps/benchmark/modules/jca/src/main/kotlin/failure/ErrorText.kt : a provider's error text: key material removed (URLs kept), capped at 200; refusal of a block as that text or null
+apps/benchmark/modules/jca/src/main/kotlin/peer/PeerPair.kt : an agreement's second pair on the first one's EC curve, DH group or XEC named curve (initialized only when the default differs or refuses); discovery and preparation
 apps/benchmark/modules/jca/src/main/kotlin/reflect/Reflect.kt : invoke: a reflective call that throws what the method threw, never InvocationTargetException
 apps/benchmark/modules/jca/src/test/kotlin/AttemptTest.kt : the catch rule: which throwables are a result and which escape
+apps/benchmark/modules/jca/src/test/kotlin/PeerPairTest.kt : DH by key size, EC, X25519 and X448 peers share their domain and agree
 apps/benchmark/modules/jca/src/test/kotlin/ReflectTest.kt : invoke returns the method's value and throws its own exception
 ```
 
 | rule | value |
 |---|---|
-| users | discovery (every probe level), preparation (`CasePreparer` steps, interop), benchmark (`CaseCheck`), androidTest (`ScopeCheck`); `Reflect`: preparation's keystore spec and key info, discovery's cipher facts |
+| users | discovery (every probe level), preparation (`CasePreparer` steps, interop), benchmark (`CaseCheck`), androidTest (`ScopeCheck`); `Reflect`: preparation's keystore spec and key info, discovery's cipher facts; `PeerPair`: discovery's agreement trials, preparation's second key pair (interop included) |
 | dependencies | none; module-isolation compiles it alone and puts it on every other module's classpath |
 | orchestrator | the per-case boundary that turns any throw into a skip is benchmark's `RunnablePlan`, not this rule |

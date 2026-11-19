@@ -8,10 +8,12 @@ import java.security.Provider
 import java.security.PublicKey
 import java.security.Security
 import java.security.interfaces.ECPublicKey
+import java.security.interfaces.XECPublicKey
+import java.security.spec.NamedParameterSpec
 import javax.crypto.KeyAgreement
 import javax.crypto.interfaces.DHPublicKey
 
-/** Characterization: an agreement case's two pairs, made as KeyMaterialGenerator makes them (count = 2); whether they share parameters and agree.
+/** An agreement case's two pairs as KeyMaterialGenerator makes them (count = 2, the second through PeerPair): they share parameters and agree.
  * BC runs only with -PbundledArtifacts=org.bouncycastle:bcprov-jdk18on:<version> on the cli build. */
 class PeerPairsTest {
 
@@ -30,6 +32,7 @@ class PeerPairsTest {
     private fun parameters(key: PublicKey): Any = when (key) {
         is DHPublicKey -> listOf(key.params.p, key.params.g)
         is ECPublicKey -> listOf(key.params.curve, key.params.generator, key.params.order, key.params.cofactor)
+        is XECPublicKey -> (key.params as NamedParameterSpec).name
         else -> error("not an agreement key: ${key.javaClass.name}")
     }
 
@@ -47,6 +50,13 @@ class PeerPairsTest {
     fun bouncyCastleDh2048AndP256ByKeySize() = withBouncyCastle { name ->
         assertEquals(Observed(sameParameters = true, agrees = true), observed("DH", 2048, name, "DH"))
         assertEquals(Observed(sameParameters = true, agrees = true), observed("EC", 256, name, "ECDH"))
+    }
+
+    /** XDH's default curve is X25519: a pair sized 448 needs a peer on X448 too. */
+    @Test
+    fun xdh448PeersAreX448OnSunEcAndBouncyCastle() {
+        assertEquals(Observed(sameParameters = true, agrees = true), observed("XDH", 448, "SunEC", "XDH"))
+        withBouncyCastle { name -> assertEquals(Observed(sameParameters = true, agrees = true), observed("XDH", 448, name, "XDH")) }
     }
 
     private fun withBouncyCastle(block: (String) -> Unit) {
