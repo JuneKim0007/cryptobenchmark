@@ -57,7 +57,7 @@ def test_every_problem_is_reported_at_once(tmp_path):
 def test_another_schema_version_is_refused(tmp_path):
     path = tmp_path / "s.yaml"
     path.write_text("schemaVersion: 2\n")
-    with pytest.raises(ScreeningError, match="screening_schema"):
+    with pytest.raises(ScreeningError, match="^unsupported_schema_version: s.yaml: 2, this build reads 1$"):
         Screening.load(path, NAMES)
 
 

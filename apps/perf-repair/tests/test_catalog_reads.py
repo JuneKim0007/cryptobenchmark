@@ -18,5 +18,5 @@ def test_bad_yaml_in_a_catalogue_is_an_input_error(tmp_path, read):
 def test_another_schema_version_is_refused(tmp_path, read):
     path = tmp_path / "future.yaml"
     path.write_text("schemaVersion: 99\n")
-    with pytest.raises(InputError, match="schemaVersion 99"):
+    with pytest.raises(InputError, match="^unsupported_schema_version: future.yaml: 99, this build reads 1$"):
         read(path)

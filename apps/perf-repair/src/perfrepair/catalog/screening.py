@@ -5,7 +5,7 @@ from pathlib import Path
 
 from cryptobench.shared import paths
 from cryptobench.shared.errors.input_error import InputError
-from cryptobench.shared.document.document import AT_PATH, DocumentKind, parse_yaml
+from cryptobench.shared.document.document import DocumentKind, parse_yaml
 from cryptobench.shared.catalogue.names import Names, fold
 
 SCREENING = paths.SCREENING_CATALOG.path
@@ -19,7 +19,7 @@ class ScreeningError(InputError):
     pass
 
 
-SCREENING_DOC = DocumentKind("screening", SCHEMA_VERSION, "screening_schema: " + AT_PATH, ScreeningError)
+SCREENING_DOC = DocumentKind("screening", SCHEMA_VERSION, ScreeningError)
 
 
 @dataclass(frozen=True)

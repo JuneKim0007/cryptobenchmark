@@ -5,11 +5,11 @@ from functools import cache
 from pathlib import Path
 
 from cryptobench.shared import paths
-from cryptobench.shared.document.document import AT_PATH, DocumentKind
+from cryptobench.shared.document.document import DocumentKind
 
 CATALOG = paths.SDK_CONSTANTS.path
 SCHEMA_VERSION = 1
-SDK_CONSTANTS_DOC = DocumentKind("sdk constants", SCHEMA_VERSION, AT_PATH)
+SDK_CONSTANTS_DOC = DocumentKind("sdk constants", SCHEMA_VERSION)
 
 
 @cache

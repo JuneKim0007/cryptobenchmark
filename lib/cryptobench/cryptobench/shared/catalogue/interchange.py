@@ -8,12 +8,12 @@ from pathlib import Path
 
 
 from ..errors.input_error import InputError
-from ..document.document import AT_PATH, DocumentKind
+from ..document.document import DocumentKind
 from ..document.document import read_yaml
 
 CATALOG = paths.repo().algorithms / "interchange.yaml"
 SCHEMA_VERSION = 1
-INTERCHANGE_DOC = DocumentKind("interchange", SCHEMA_VERSION, AT_PATH)
+INTERCHANGE_DOC = DocumentKind("interchange", SCHEMA_VERSION)
 KEY_NONE, KEY_ASSUMED, KEY_ASKED = "none", "assumed", "asked"
 INPUT, KEY, OUTPUT = "input", "key", "output"
 

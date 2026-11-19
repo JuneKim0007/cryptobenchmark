@@ -11,7 +11,7 @@ from ...dto.site import Scope
 RELATIONS = paths.SCOPE_RELATIONS.path
 SUPPORTED_SCHEMA = 1
 
-RELATIONS_DOC = DocumentKind("relations", SUPPORTED_SCHEMA, "relations_schema: {path} schemaVersion {found}, supported {version}")
+RELATIONS_DOC = DocumentKind("relations", SUPPORTED_SCHEMA)
 
 
 @dataclass(frozen=True)

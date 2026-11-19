@@ -213,7 +213,7 @@ def test_a_scopes_json_of_another_schema_is_refused_never_read_with_defaults(run
     for name in ("scopes.json", "app.json", "units.json"):
         shutil.copy(DEMO / name, app / name)
     (app / "scopes.json").write_text((app / "scopes.json").read_text().replace('"schemaVersion": 6', '"schemaVersion": 4'))
-    with pytest.raises(ValueError, match=r"^schema_version: .*scopes.json schemaVersion 4 is not 6; rerun"):
+    with pytest.raises(ValueError, match=r"^unsupported_schema_version: scopes.json: 4, this build reads 6$"):
         dossier(run, "demo", F / "app", load_catalog(SCREENING), TIMING, **QUIET)
 
 

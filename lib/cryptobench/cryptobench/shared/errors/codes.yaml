@@ -234,14 +234,6 @@ codes:
       exit: 1
       next: "rerun the app's device step"
       why: "continuing would mix runs or devices"
-  schema_version:
-    kind: error
-    default: stop
-    stops:
-      settable: []
-      exit: 1
-      next: "rerun the step that writes the file"
-      why: "continuing would mix runs or devices"
   device_busy:
     kind: error
     default: stop
@@ -556,13 +548,21 @@ codes:
       exit: 1
       next: "set the secret in the environment or .env"
       why: "the input is unusable"
-  wrong_version:
+  missing_field:
     kind: error
     default: stop
     stops:
       settable: []
       exit: 1
-      next: "fix the prompts folder or prompts.yaml the message names"
+      next: "rerun the step that writes the file the message names, or fix it"
+      why: "the input is unusable"
+  unsupported_schema_version:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "rerun the step that writes the file the message names, or fix it"
       why: "the input is unusable"
   placeholder_missing:
     kind: error
@@ -708,22 +708,6 @@ codes:
       exit: 1
       next: "fix the catalog file the message names"
       why: "the input is unusable"
-  groups_schema:
-    kind: error
-    default: stop
-    stops:
-      settable: []
-      exit: 1
-      next: "fix the catalog file the message names"
-      why: "the input is unusable"
-  screening_schema:
-    kind: error
-    default: stop
-    stops:
-      settable: []
-      exit: 1
-      next: "fix the catalog file the message names"
-      why: "the input is unusable"
   screening_shape:
     kind: error
     default: stop
@@ -787,14 +771,6 @@ codes:
       settable: []
       exit: 1
       next: "name a build key of `algorithms/provider-builds.yaml`, or a name only one build carries"
-      why: "the input is unusable"
-  relations_schema:
-    kind: error
-    default: stop
-    stops:
-      settable: []
-      exit: 1
-      next: "fix the catalog file the message names"
       why: "the input is unusable"
   events_unreadable:
     kind: error
@@ -1156,7 +1132,6 @@ codes:
   manafa_stop_failed: {kind: notice}
   measure_failed: {kind: outcome}
   mismatched_trial: {kind: error}
-  missing_field: {kind: error}
   missing_key: {kind: error}
   missing_metric: {kind: error}
   missing_module: {kind: error}
@@ -1349,7 +1324,6 @@ codes:
   unsupported_operation: {kind: error}
   unsupported_parameter: {kind: outcome}
   unsupported_schema: {kind: error}
-  unsupported_schema_version: {kind: error}
   unused_setting: {kind: notice}
   usage: {kind: error}
   vararg_parameter: {kind: outcome}

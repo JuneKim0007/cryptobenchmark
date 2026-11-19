@@ -6,12 +6,12 @@ from functools import cache
 from pathlib import Path
 
 from cryptobench.shared import paths
-from cryptobench.shared.document.document import AT_PATH, DocumentKind, read_yaml
+from cryptobench.shared.document.document import DocumentKind, read_yaml
 from ..dto.lifecycle import ORIGINS, REQUIREMENTS
 
 ENGINES = paths.SCOPE_ENGINES.path
 SUPPORTED_SCHEMA = 1
-ENGINES_DOC = DocumentKind("engines", SUPPORTED_SCHEMA, AT_PATH)
+ENGINES_DOC = DocumentKind("engines", SUPPORTED_SCHEMA)
 _ENGINE_KEYS = {"configuration", "terminal", "optional", "requirements", "operations", "consumers"}
 _TOP_KEYS = {"schemaVersion", "factory", "engines", "origins", "specs", "accessors", "decoders", "comparisons"}
 

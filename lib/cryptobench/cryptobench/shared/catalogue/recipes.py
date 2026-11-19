@@ -7,7 +7,7 @@ from functools import cache
 from pathlib import Path
 
 from ..errors.input_error import InputError
-from ..document.document import AT_PATH, DocumentKind
+from ..document.document import DocumentKind
 from .glossary import direction_problems, recipe_problems, role_problems
 
 CATALOG = paths.repo().algorithms / "recipes.yaml"
@@ -21,7 +21,7 @@ class RecipeError(InputError):
     pass
 
 
-RECIPES_DOC = DocumentKind("recipes", SCHEMA_VERSION, INVALID + ": " + AT_PATH, RecipeError)
+RECIPES_DOC = DocumentKind("recipes", SCHEMA_VERSION, RecipeError)
 
 
 @dataclass(frozen=True)

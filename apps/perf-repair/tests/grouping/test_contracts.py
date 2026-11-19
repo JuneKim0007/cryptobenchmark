@@ -71,7 +71,7 @@ def test_a_contract_outside_the_set_is_refused():
 
 
 def test_profiles_of_the_old_schema_are_refused():
-    with pytest.raises(ValueError, match="rerun grouping build"):
+    with pytest.raises(ValueError, match="^unsupported_schema_version: profiles: 1, this build reads 5$"):
         read_profiles({"schemaVersion": 1, "profiles": {}})
 
 

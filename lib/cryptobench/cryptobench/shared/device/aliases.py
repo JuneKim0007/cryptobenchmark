@@ -3,10 +3,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from cryptobench.shared.document.document import AT_PATH, DocumentKind
+from cryptobench.shared.document.document import DocumentKind
 from cryptobench.shared.errors.input_error import InputError
 
-DEVICES_DOC = DocumentKind("devices", 1, AT_PATH)
+DEVICES_DOC = DocumentKind("devices", 1)
 KEYS = ("schemaVersion", "aliases")
 
 

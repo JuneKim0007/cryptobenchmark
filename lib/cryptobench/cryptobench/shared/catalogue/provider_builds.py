@@ -8,7 +8,7 @@ from functools import cache
 from pathlib import Path
 
 from ..errors.input_error import InputError
-from ..document.document import AT_PATH, DocumentKind
+from ..document.document import DocumentKind
 from .glossary import build_problems
 
 CATALOG = paths.repo().algorithms / "provider-builds.yaml"
@@ -20,7 +20,7 @@ class ProviderBuildError(InputError):
     pass
 
 
-BUILDS_DOC = DocumentKind("provider-builds", SCHEMA_VERSION, UNKNOWN + ": " + AT_PATH, ProviderBuildError)
+BUILDS_DOC = DocumentKind("provider-builds", SCHEMA_VERSION, ProviderBuildError)
 
 
 @dataclass(frozen=True)

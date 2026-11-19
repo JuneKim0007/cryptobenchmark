@@ -8,7 +8,7 @@ from functools import cache
 from pathlib import Path
 
 from cryptobench.shared import paths
-from cryptobench.shared.document.document import AT_PATH, DocumentKind, read_yaml
+from cryptobench.shared.document.document import DocumentKind, read_yaml
 from ..dto.lifecycle import Lifecycle
 from ..dto.site import KEY_SOURCES, SINKS
 from ..source.code import Code
@@ -16,7 +16,7 @@ from .extract import Function
 
 PATTERNS = paths.SCOPE_PATTERNS.path
 SUPPORTED_SCHEMA = 1
-PATTERNS_DOC = DocumentKind("patterns", SUPPORTED_SCHEMA, AT_PATH)
+PATTERNS_DOC = DocumentKind("patterns", SUPPORTED_SCHEMA)
 
 
 @dataclass(frozen=True)

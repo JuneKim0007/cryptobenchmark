@@ -142,7 +142,7 @@ def test_an_unknown_edit_kind_is_rejected(tmp_path):
 
 
 def test_a_replacements_file_of_another_version_is_refused():
-    with pytest.raises(ValueError, match=f"replacements schemaVersion 1 is not {REPLACEMENTS_SCHEMA_VERSION}"):
+    with pytest.raises(ValueError, match=f"^unsupported_schema_version: replacements: 1, this build reads {REPLACEMENTS_SCHEMA_VERSION}$"):
         read_replacements({"schemaVersion": 1, "app": APP, "replacements": []})
 
 

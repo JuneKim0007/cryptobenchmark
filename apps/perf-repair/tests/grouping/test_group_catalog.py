@@ -289,7 +289,7 @@ def test_a_stray_family_and_an_old_schema_are_refused(tmp_path):
     with pytest.raises(GroupsError, match="not a family"):
         load(path)
     path.write_text(yaml.safe_dump({"schemaVersion": 2, "source": "t", "groups": {}}))
-    with pytest.raises(GroupsError, match="groups_schema"):
+    with pytest.raises(GroupsError, match="^unsupported_schema_version: groups.yaml: 2, this build reads 3$"):
         load(path)
     assert catalog_file.CATALOG == CATALOG
 

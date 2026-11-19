@@ -4,7 +4,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from ..errors.input_error import InputError
-from ..document.document import AT_PATH, DocumentKind
+from ..document.document import DocumentKind
 from .algorithms import algorithms, algorithm_id
 from .families import Families
 from .guide_items import carried_recipes, parameter_tree
@@ -27,7 +27,7 @@ class VectorError(InputError):
     pass
 
 
-VECTORS_DOC = DocumentKind("vectors", SCHEMA_VERSION, INVALID + ": " + AT_PATH, VectorError)
+VECTORS_DOC = DocumentKind("vectors", SCHEMA_VERSION, VectorError)
 
 
 def _read_folder(folder: Path, origin: str, found: dict) -> None:

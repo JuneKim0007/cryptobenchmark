@@ -5,11 +5,11 @@ import dataclasses
 import re
 from pathlib import Path
 
-from cryptobench.shared.document.document import AT_PATH, DocumentKind
+from cryptobench.shared.document.document import DocumentKind
 from cryptobench.shared.errors.input_error import InputError
 from cryptobench.shared.results.layout import DISCOVERY_MODES
 
-SESSION_DOC = DocumentKind("session", 1, AT_PATH)
+SESSION_DOC = DocumentKind("session", 1)
 HOST = "host"
 SELECT = ("all", "listed")
 TOP = ("schemaVersion", "name", "devices", "host", "defaults", "targets", "discovery", "probeStore")

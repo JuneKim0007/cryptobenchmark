@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from ..errors.input_error import InputError
-from ..document.document import AT_PATH, DocumentKind
+from ..document.document import DocumentKind
 from .grouping import provider_of
 from .glossary import names_problems
 
@@ -27,7 +27,7 @@ class NamesError(InputError):
     pass
 
 
-NAMES_DOC = DocumentKind("names", SCHEMA_VERSION, "names_schema: " + AT_PATH, NamesError)
+NAMES_DOC = DocumentKind("names", SCHEMA_VERSION, NamesError)
 
 
 @dataclass(frozen=True)

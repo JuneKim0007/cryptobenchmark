@@ -37,7 +37,7 @@ def test_a_bad_key_is_one_coded_line(tmp_path, extra, code):
 
 
 @pytest.mark.parametrize("text, code", [
-    ("schemaVersion: 2\nresults: r\ncrypto: {config: c}\nllm: {config: l}\n", "wrong_version"),
+    ("schemaVersion: 2\nresults: r\ncrypto: {config: c}\nllm: {config: l}\n", "unsupported_schema_version"),
     ("schemaVersion: 1\ncrypto: {config: c}\nllm: {config: l}\n", "missing_key: results"),
     ("schemaVersion: 1\nresults: r\nllm: {config: l}\n", "missing_key: crypto.config"),
     ("schemaVersion: 1\nresults: r\ncrypto: {config: c}\n", "missing_key: llm.config"),

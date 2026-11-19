@@ -7,7 +7,7 @@ from cryptobench.shared.document.document import DocumentKind
 from ._services import services
 
 SUPPORTED_SCHEMA = 1
-PROBE_DOC = DocumentKind("probe", SUPPORTED_SCHEMA, "{path}: probe schemaVersion {found} is not {version}")
+PROBE_DOC = DocumentKind("probe", SUPPORTED_SCHEMA)
 
 
 @dataclass(frozen=True)

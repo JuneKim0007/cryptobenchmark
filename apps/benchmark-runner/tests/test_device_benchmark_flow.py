@@ -139,7 +139,7 @@ def test_every_strongbox_refusal_on_record_is_a_final_keystore_unsupported_skip(
 
 
 def test_a_skipped_yaml_of_the_old_schema_is_refused():
-    with pytest.raises(Exception, match="schemaVersion 1 is not 2"):
+    with pytest.raises(Exception, match="unsupported_schema_version: skipped.yaml: 1, this build reads 2"):
         skips.recorded({"schemaVersion": 1, "skipped": []})
 
 

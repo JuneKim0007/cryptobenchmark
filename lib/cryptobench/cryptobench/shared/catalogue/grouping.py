@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 
 from ..errors.input_error import InputError
-from ..document.document import NAMED, DocumentKind
+from ..document.document import DocumentKind
 from .signature import Signature
 
 SCHEMA_VERSION = 1
@@ -11,7 +11,7 @@ ITEMS_DOC = DocumentKind("items", SCHEMA_VERSION)
 CURSOR_SCHEMA_VERSION = 1
 # 4: signature; 5: a generator's key contract from its trial, keyContractFrom and keyContractConflict
 PROFILES_SCHEMA_VERSION = 5
-PROFILES_DOC = DocumentKind("profiles", PROFILES_SCHEMA_VERSION, NAMED + "; rerun grouping build")
+PROFILES_DOC = DocumentKind("profiles", PROFILES_SCHEMA_VERSION)
 SEPARATOR = "|"
 KEY_APP_HELD, KEY_PROVIDER_HELD, KEY_UNKNOWN = "app_held", "provider_held", "unknown"
 KEY_CONTRACTS = (KEY_APP_HELD, KEY_PROVIDER_HELD, KEY_UNKNOWN)

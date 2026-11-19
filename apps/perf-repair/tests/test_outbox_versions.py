@@ -167,7 +167,7 @@ def test_a_resume_with_the_same_values_or_nothing_left_to_ask_is_silent(tmp_path
 
 
 def test_an_unknown_record_version_is_refused():
-    with pytest.raises(ValueError, match="schemaVersion 2 is not"):
+    with pytest.raises(ValueError, match="^unsupported_schema_version: outbox record: 2, this build reads "):
         OutboxRecord.from_json({"schemaVersion": 2, "outcome": "dropped", "seq": 1})
 
 

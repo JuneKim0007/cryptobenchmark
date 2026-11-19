@@ -1,5 +1,5 @@
 """parse_yaml: a YAML text as the one shape its reader wants, or a coded refusal; DocumentKind: a versioned document's
-accepted schemaVersion and the refusal its reader raises for another."""
+accepted schemaVersion and the one refusal wording, Kotlin's, for another."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -44,28 +44,31 @@ def read_yaml(path: Path | str, shape: type = dict):
     return parse_yaml(Path(path).read_text(), str(path), shape=shape)
 
 
-NAMED = "{name} schemaVersion {found} is not {version}"
-AT_PATH = "{path}: schemaVersion {found} is not {version}"
-
-
 @dataclass(frozen=True)
 class DocumentKind:
-    """message is each reader's own wording, kept until one shape is chosen (backlog R51)."""
+    """name: the document in a refusal when no path is given; with a path, its file name, as Kotlin's SchemaVersion."""
     name: str
     version: int
-    message: str = NAMED
     error: type[InputError] = InputError
 
     def accepts(self, found: object) -> bool:
-        return found == self.version
+        return _number(found) and found == self.version
 
     def check(self, doc: dict, path: Path | str | None = None) -> dict:
         found = doc.get("schemaVersion")
-        if not self.accepts(found):
-            raise self.error(self.message.format(name=self.name, found=found, version=self.version, path=path), path,
-                             f"schemaVersion {found!r} is not {self.version}")
+        name = Path(path).name if path is not None else self.name
+        if not _number(found):
+            raise self.error(f"missing_field: {name}: schemaVersion", path, "schemaVersion")
+        if found != self.version:
+            raise self.error(f"unsupported_schema_version: {name}: {found}, this build reads {self.version}", path,
+                             f"{found}, this build reads {self.version}")
         return doc
 
     def read(self, path: Path | str, code: str = "invalid_yaml") -> dict:
         """The mapping at path through parse_yaml, refused with this kind's error on bad YAML or another schemaVersion."""
         return self.check(parse_yaml(Path(path).read_text(), str(path), code, error=self.error), path)
+
+
+def _number(found: object) -> bool:
+    # a YAML true is a Python int; Kotlin reads only a Number
+    return isinstance(found, (int, float)) and not isinstance(found, bool)

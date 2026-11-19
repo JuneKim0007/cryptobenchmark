@@ -10,7 +10,7 @@ from functools import cache
 from pathlib import Path
 
 from ..errors.input_error import InputError
-from ..document.document import AT_PATH, DocumentKind
+from ..document.document import DocumentKind
 from .signature import CONVENTION, UNKNOWN, Signature
 from .algorithms import (
     CONTRACT_KEY,
@@ -41,7 +41,7 @@ class GroupsError(InputError):
     pass
 
 
-GROUPS_DOC = DocumentKind("groups", SCHEMA_VERSION, "groups_schema: " + AT_PATH, GroupsError)
+GROUPS_DOC = DocumentKind("groups", SCHEMA_VERSION, GroupsError)
 
 
 @dataclass(frozen=True)

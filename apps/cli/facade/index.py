@@ -17,7 +17,7 @@ class SettingsIndexError(InputError):
     """One coded line about the index itself: nothing below it can be read."""
 
 
-INDEX = DocumentKind("settings index", SCHEMA_VERSION, "wrong_version: {path} schemaVersion {found} is not {version}", SettingsIndexError)
+INDEX = DocumentKind("settings index", SCHEMA_VERSION, SettingsIndexError)
 
 
 @dataclass(frozen=True)

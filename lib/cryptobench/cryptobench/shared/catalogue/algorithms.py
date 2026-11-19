@@ -7,7 +7,7 @@ from functools import cache
 from pathlib import Path
 
 from ..errors.input_error import InputError
-from ..document.document import AT_PATH, DocumentKind
+from ..document.document import DocumentKind
 from .types import NO_NONCE, NO_PARAMETERS, OUTPUT_KINDS
 from .deviations import CATALOG as DEVIATIONS, Deviations, load as load_deviations
 from .families import Families
@@ -53,7 +53,7 @@ class AlgorithmsError(InputError):
 
 
 INVALID = "algorithms_invalid"
-CATALOGUE_DOC = DocumentKind("algorithms", SCHEMA_VERSION, INVALID + ": " + AT_PATH, AlgorithmsError)
+CATALOGUE_DOC = DocumentKind("algorithms", SCHEMA_VERSION, AlgorithmsError)
 
 
 @dataclass(frozen=True)

@@ -6,7 +6,7 @@ from cryptobench.shared.document.document import DocumentKind
 
 # 3: the tier asked and the model that answered replace gateway, model, effort
 SCHEMA_VERSION = 3
-OUTBOX_RECORD_DOC = DocumentKind("outbox record", SCHEMA_VERSION, "{name} schemaVersion {found} is not {version}")
+OUTBOX_RECORD_DOC = DocumentKind("outbox record", SCHEMA_VERSION)
 OUTCOMES = ("decided", "dropped")
 
 

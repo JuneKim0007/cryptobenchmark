@@ -34,5 +34,5 @@ def test_a_bad_file_is_refused_with_its_code(tmp_path, text, code):
 
 
 def test_another_schema_version_is_refused_by_the_document_check(tmp_path):
-    with pytest.raises(InputError, match="devices.yaml: schemaVersion 2 is not 1"):
+    with pytest.raises(InputError, match="unsupported_schema_version: devices.yaml: 2, this build reads 1"):
         aliases.read(written(tmp_path, "schemaVersion: 2\naliases: {}\n"))

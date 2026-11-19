@@ -1,4 +1,4 @@
-"""dto/document.py and dto/coded.py: the one schemaVersion check, its error type, its reader's own wording."""
+"""dto/document.py and dto/coded.py: the one schemaVersion check, its error type, the one wording Kotlin gives."""
 import importlib
 import pkgutil
 
@@ -32,27 +32,33 @@ def _kinds() -> list[DocumentKind]:
 
 
 def test_every_kind_s_code_is_in_the_table():
-    # the raise-site scan in test_stop sees only raise literals; a kind's code lives in its message
+    # every kind refuses with these two codes; perf-repair reads their stops entries
     kinds = _kinds()
     assert len(kinds) >= 30
-    codes = {code_of(InputError(k.message.format(name=k.name, found=0, version=k.version, path="/d/f.yaml"))) for k in kinds}
-    assert codes - {None} <= set(CODES)
+    assert {"missing_field", "unsupported_schema_version"} <= set(CODES)
 
 
-def test_a_wrong_version_raises_the_kind_s_error_with_its_wording(tmp_path):
-    with pytest.raises(NamesError) as e:
+def test_a_wrong_version_raises_the_kind_s_error_with_the_file_name(tmp_path):
+    with pytest.raises(NamesError, match=r"^unsupported_schema_version: n.yaml: 2, this build reads 1$") as e:
         NAMES_DOC.check({"schemaVersion": 2}, tmp_path / "n.yaml")
-    assert (e.value.code, e.value.path) == ("names_schema", tmp_path / "n.yaml")
+    assert (e.value.code, e.value.path) == ("unsupported_schema_version", tmp_path / "n.yaml")
 
 
-def test_an_absent_version_is_refused():
-    with pytest.raises(InputError):
-        OUTBOX_RECORD_DOC.check({})
+@pytest.mark.parametrize("doc", [{}, {"schemaVersion": None}, {"schemaVersion": "1"}, {"schemaVersion": True}])
+def test_an_absent_or_non_number_version_is_missing_field_under_the_kind_s_name(doc):
+    with pytest.raises(InputError, match=r"^missing_field: outbox record: schemaVersion$"):
+        OUTBOX_RECORD_DOC.check(doc)
+
+
+def test_a_float_version_is_compared_as_a_number():
+    assert OUTBOX_RECORD_DOC.check({"schemaVersion": float(OUTBOX_RECORD_DOC.version)})
+    with pytest.raises(InputError, match=r"^unsupported_schema_version: outbox record: 1.5, this build reads "):
+        OUTBOX_RECORD_DOC.check({"schemaVersion": 1.5})
 
 
 def test_read_versioned_loads_then_checks(tmp_path):
     path = write_json(tmp_path / "scopes.json", {"schemaVersion": "6"})
-    with pytest.raises(InputError, match=r"^schema_version: "):
+    with pytest.raises(InputError, match=r"^missing_field: scopes.json: schemaVersion$"):
         read_versioned(SCOPES_DOC, path)
     write_json(path, {"schemaVersion": 6, "scopes": []})
     assert read_versioned(SCOPES_DOC, path)["scopes"] == []

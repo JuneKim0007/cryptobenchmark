@@ -105,7 +105,7 @@ def test_a_row_holds_only_what_code_writes_and_an_earlier_schema_is_refused(tmp_
     select_units(run, APP, ScriptedConversations(pick("C1")), LIBRARY, **QUIET)
     out = read_json(app / "replacements.json")
     assert set(out["replacements"][0]) == {"scope", "decision", "option", "edits", "risks", "reason", "deciding", "accepted", "needs"}
-    with pytest.raises(ValueError, match="replacements schemaVersion 5 is not 6"):
+    with pytest.raises(ValueError, match="^unsupported_schema_version: replacements: 5, this build reads 6$"):
         read_replacements({**out, "schemaVersion": 5})
 
 

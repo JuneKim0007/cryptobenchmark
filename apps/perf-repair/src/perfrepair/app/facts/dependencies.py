@@ -6,7 +6,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from cryptobench.shared import paths
-from cryptobench.shared.document.document import read_yaml
+from cryptobench.shared.document.document import DocumentKind
 from ...source.code import Code
 from ...source.language import of_build_file
 from ...source.lexer import mask
@@ -16,6 +16,7 @@ from .versions import pinned_versions
 LIBRARIES = paths.LIBRARIES.path
 REGISTRY = "Security"
 SUPPORTED_SCHEMA = 1
+LIBRARIES_DOC = DocumentKind("libraries", SUPPORTED_SCHEMA)
 
 _COORDINATE = re.compile(r"""["']([\w.\-]+):([\w.\-]+)(?::[^"'\s]*)?["']""")
 _MAP = re.compile(r"""group\s*[:=]\s*["']([\w.\-]+)["']\s*,\s*name\s*[:=]\s*["']([\w.\-]+)["']""")
@@ -50,9 +51,7 @@ class Registration:
 
 
 def read_libraries(path: Path = LIBRARIES) -> list[Library]:
-    doc = read_yaml(path)
-    if doc.get("schemaVersion") != SUPPORTED_SCHEMA:
-        raise ValueError(f"{path}: schemaVersion {doc.get('schemaVersion')} is not {SUPPORTED_SCHEMA}")
+    doc = LIBRARIES_DOC.read(path)
     return [Library(e["group"], e["name"] or "", e["providerName"]) for e in doc["libraries"]]
 
 

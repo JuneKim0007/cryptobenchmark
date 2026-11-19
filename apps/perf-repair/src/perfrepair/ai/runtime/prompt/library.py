@@ -17,7 +17,7 @@ class PromptError(InputError):
     pass
 
 
-REGISTRY_DOC = DocumentKind("prompts", SCHEMA_VERSION, "wrong_version: {path} schemaVersion {found} is not {version}", PromptError)
+REGISTRY_DOC = DocumentKind("prompts", SCHEMA_VERSION, PromptError)
 
 
 @dataclass(frozen=True)

@@ -6,7 +6,7 @@ import re
 from functools import cache
 
 from ..errors.input_error import InputError
-from ..document.document import AT_PATH, DocumentKind
+from ..document.document import DocumentKind
 
 CATALOG = paths.repo().algorithms / "glossary.yaml"
 SCHEMA_VERSION = 1
@@ -31,7 +31,7 @@ class GlossaryError(InputError):
     pass
 
 
-GLOSSARY_DOC = DocumentKind("glossary", SCHEMA_VERSION, UNKNOWN + ": " + AT_PATH, GlossaryError)
+GLOSSARY_DOC = DocumentKind("glossary", SCHEMA_VERSION, GlossaryError)
 
 
 @cache

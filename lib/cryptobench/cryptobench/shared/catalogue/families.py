@@ -3,12 +3,12 @@ from __future__ import annotations
 from .. import paths
 from pathlib import Path
 
-from ..document.document import AT_PATH, DocumentKind
+from ..document.document import DocumentKind
 from .grouping import Family
 
 CATALOG = paths.repo().algorithms / "families.yaml"
 SCHEMA_VERSION = 1
-FAMILIES_DOC = DocumentKind("families", SCHEMA_VERSION, AT_PATH)
+FAMILIES_DOC = DocumentKind("families", SCHEMA_VERSION)
 UNIDENTIFIED, ANY_TYPE = "unidentified", "any"
 
 

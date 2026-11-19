@@ -3,11 +3,11 @@ from __future__ import annotations
 from functools import cache
 
 from cryptobench.shared import paths
-from cryptobench.shared.document.document import AT_PATH, DocumentKind
+from cryptobench.shared.document.document import DocumentKind
 
 CATALOG = paths.KEY_CONTRACT.path
 SCHEMA_VERSION = 1
-KEY_CONTRACT_DOC = DocumentKind("key contract", SCHEMA_VERSION, AT_PATH)
+KEY_CONTRACT_DOC = DocumentKind("key contract", SCHEMA_VERSION)
 
 
 @cache

@@ -7,7 +7,7 @@ from pathlib import Path
 
 from cryptobench.shared import paths
 from cryptobench.shared.errors.input_error import InputError
-from cryptobench.shared.document.document import AT_PATH, DocumentKind
+from cryptobench.shared.document.document import DocumentKind
 from cryptobench.shared.catalogue.families import Families
 from cryptobench.shared.catalogue.names import Names, fold
 from .screening import ACCEPTED, DEPRECATED, Screening
@@ -21,7 +21,7 @@ class UpgradesError(InputError):
     pass
 
 
-UPGRADES_DOC = DocumentKind("upgrades", SCHEMA_VERSION, AT_PATH, UpgradesError)
+UPGRADES_DOC = DocumentKind("upgrades", SCHEMA_VERSION, UpgradesError)
 
 
 @dataclass(frozen=True)

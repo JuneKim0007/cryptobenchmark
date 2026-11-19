@@ -35,7 +35,7 @@ targets:                     # keys: a device key, an alias, a transport serial,
 
 ## Resolution
 
-`lib/cryptobench/cryptobench/shared/session/targets.py`. A session file that cannot be read stops: `missing_file`, `invalid_yaml`, `unknown_keys`, `not_a_mapping`, `wrong_type`, `missing_field` (`discovery: verify` without `probeStore`), another `schemaVersion`. Every other problem skips one target:
+`lib/cryptobench/cryptobench/shared/session/targets.py`. A session file that cannot be read stops: `missing_file`, `invalid_yaml`, `unknown_keys`, `not_a_mapping`, `wrong_type`, `missing_field` (`discovery: verify` without `probeStore`, or no `schemaVersion`), `unsupported_schema_version`. Every other problem skips one target:
 
 | problem | line |
 |---|---|

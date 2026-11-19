@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from ..errors.input_error import InputError
-from ..document.document import AT_PATH, DocumentKind
+from ..document.document import DocumentKind
 from .glossary import deviation_problems
 from .names import fold
 from .overrides import override_parent
@@ -22,7 +22,7 @@ class DeviationError(InputError):
     pass
 
 
-DEVIATIONS_DOC = DocumentKind("deviations", SCHEMA_VERSION, INVALID + ": " + AT_PATH, DeviationError)
+DEVIATIONS_DOC = DocumentKind("deviations", SCHEMA_VERSION, DeviationError)
 
 
 @dataclass(frozen=True)
