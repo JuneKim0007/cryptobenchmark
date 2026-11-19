@@ -17,13 +17,13 @@ modules:
     uses: {}
   config:
     uses:
-      settings: [EnergySettings, Facts, HarnessSettings, Metric, OnFailure, Skip, StoppedOnFailureException, Unsupported]
+      settings: [EnergySettings, Facts, HarnessSettings, Metric, OnFailure, Phase, RunKeys, Skip, StoppedOnFailureException, Unsupported]
       files: all
       document: all
   preparation:
     uses:
       jca: [failure.Attempt, failure.ErrorText, reflect.Reflect]
-      settings: [HarnessSettings, Metric, OnFailure, Skip, StoppedOnFailureException]
+      settings: [HarnessSettings, Metric, OnFailure, Phase, RunKeys, Skip, StoppedOnFailureException]
       files: all
       document: all
   benchmark:

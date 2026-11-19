@@ -4,7 +4,7 @@ import io.github.junekim0007.cryptobench.settings.OnFailure
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
 
 import io.github.junekim0007.cryptobench.settings.Metric
-import io.github.junekim0007.cryptobench.preparation.measurement.Phase
+import io.github.junekim0007.cryptobench.settings.Phase
 import io.github.junekim0007.cryptobench.preparation.measurement.Variant
 
 data class GlobalSettings(
@@ -17,16 +17,6 @@ data class GlobalSettings(
     val harness: HarnessSettings = HarnessSettings(),
     val variants: List<Variant>,
 ) {
-
-    init {
-        require(inputSizes.isNotEmpty()) { "missing_field: inputSizes" }
-        require(inputSizes.all { it > 0 }) { "not_positive: inputSizes $inputSizes" }
-        require(inputSizes.size == inputSizes.distinct().size) { "duplicate: inputSizes $inputSizes" }
-        require(phases.isNotEmpty()) { "missing_field: phases" }
-        require(metrics.isNotEmpty()) { "missing_field: metrics" }
-        require(variants.distinct().size == variants.size) { "invalid: run.variants $variants" }
-        require(processRepetitions >= 1) { "not_positive: processRepetitions $processRepetitions" }
-    }
 
     fun inputSizesFor(entryInputSizes: List<Int>): List<Int> = entryInputSizes.ifEmpty { inputSizes }
 }

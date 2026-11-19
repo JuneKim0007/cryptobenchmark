@@ -2,6 +2,7 @@ package io.github.junekim0007.cryptobench.preparation.measurement
 
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
 import io.github.junekim0007.cryptobench.settings.Metric
+import io.github.junekim0007.cryptobench.settings.Phase
 
 data class BenchmarkCase(
     val type: String,

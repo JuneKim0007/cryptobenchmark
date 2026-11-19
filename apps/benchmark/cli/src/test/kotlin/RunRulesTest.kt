@@ -24,7 +24,7 @@ class RunRulesTest {
     }
 
     @Test
-    fun todayConfigureAcceptsWhatPreparationRefuses() {
+    fun configureRefusesEveryRunRuleAndPreparationStillRefusesAnUnknownPhase() {
         val table = listOf(
             "inputSizes: [64], phases: [WARM], processRepetitions: 1",
             "inputSizes: [64], phases: [COLD], processRepetitions: 1",
@@ -46,9 +46,9 @@ class RunRulesTest {
         // run | configure | preparation
         val EXPECTED = """
             inputSizes: [64], phases: [WARM], processRepetitions: 1 | accepted | accepted
-            inputSizes: [64], phases: [COLD], processRepetitions: 1 | accepted | unknown_phase: COLD, one of [WARM]
-            inputSizes: [64, 64], phases: [WARM], processRepetitions: 1 | accepted | duplicate: inputSizes [64, 64]
-            inputSizes: [64], phases: [WARM], processRepetitions: 0 | not_positive: processRepetitions 0 | not_positive: processRepetitions 0
+            inputSizes: [64], phases: [COLD], processRepetitions: 1 | unknown_phase: COLD, one of [WARM] | unknown_phase: COLD, one of [WARM]
+            inputSizes: [64, 64], phases: [WARM], processRepetitions: 1 | duplicate: inputSizes [64, 64] | accepted
+            inputSizes: [64], phases: [WARM], processRepetitions: 0 | not_positive: processRepetitions 0 | accepted
         """.trimIndent()
     }
 }

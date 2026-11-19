@@ -39,10 +39,12 @@ one named case (Preparation.prepareOne): KeyPlanner -> KeyMaterialGenerator -> b
 
 ## run and policy
 
+Config refuses a run that breaks these at configure (`RunSettings`); preparation reads the keys of `RunKeys` and refuses any other.
+
 | key | rule |
 |---|---|
 | `inputSizes` | required; non-empty, positive, distinct |
-| `phases` | required; non-empty; `WARM` |
+| `phases` | required; `WARM` (`Phase.read`, also at preparation) |
 | `metrics` | required; `TIME`, `ALLOCATION`; must hold `TIME`, no repeats (`Metric.read` in `:settings`) |
 | `variants` | required, config writes it (its default lives there); distinct values of `fixed`, `notFixed`, `secure`, may be empty; absent: `missing_field`; an entry without its own takes it ([operations.md](operations.md#variants)) |
 | `processRepetitions` | required; `>= 1` |

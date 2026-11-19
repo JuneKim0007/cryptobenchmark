@@ -3,6 +3,22 @@ package io.github.junekim0007.cryptobench.config.global
 import io.github.junekim0007.cryptobench.config.entry.Variants
 import io.github.junekim0007.cryptobench.settings.EnergySettings
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
+import io.github.junekim0007.cryptobench.settings.RunKeys
+import io.github.junekim0007.cryptobench.settings.RunKeys.CASE_COOLDOWN
+import io.github.junekim0007.cryptobench.settings.RunKeys.HARNESS
+import io.github.junekim0007.cryptobench.settings.RunKeys.INPUT_SIZES
+import io.github.junekim0007.cryptobench.settings.RunKeys.LAUNCH_RETRIES
+import io.github.junekim0007.cryptobench.settings.RunKeys.METRICS
+import io.github.junekim0007.cryptobench.settings.RunKeys.ORDER_SEED
+import io.github.junekim0007.cryptobench.settings.RunKeys.PASSES
+import io.github.junekim0007.cryptobench.settings.RunKeys.PHASES
+import io.github.junekim0007.cryptobench.settings.RunKeys.PROCESS_REPETITIONS
+import io.github.junekim0007.cryptobench.settings.RunKeys.RESUME_BLOCK_RUNS
+import io.github.junekim0007.cryptobench.settings.RunKeys.SEED
+import io.github.junekim0007.cryptobench.settings.RunKeys.THERMAL_GATE
+import io.github.junekim0007.cryptobench.settings.RunKeys.THROTTLE_SLEEP
+import io.github.junekim0007.cryptobench.settings.RunKeys.VARIANTS
+import io.github.junekim0007.cryptobench.settings.RunKeys.WARMUP
 import io.github.junekim0007.cryptobench.config.global.dto.MeasurePass
 import io.github.junekim0007.cryptobench.config.global.dto.RunSettings
 import io.github.junekim0007.cryptobench.config.global.dto.Warmup
@@ -19,26 +35,11 @@ import io.github.junekim0007.cryptobench.document.DocumentFields.strings
 
 object RunDocument {
 
-    private const val INPUT_SIZES = "inputSizes"
-    private const val PHASES = "phases"
-    private const val METRICS = "metrics"
-    private const val VARIANTS = "variants"
-    private const val PROCESS_REPETITIONS = "processRepetitions"
-    private const val SEED = "seed"
-    private const val PASSES = "passes"
-    private const val THROTTLE_SLEEP = "thermalThrottleSleepSeconds"
-    private const val CASE_COOLDOWN = "caseCooldownSeconds"
-    private const val WARMUP = "warmup"
-    private const val THERMAL_GATE = "thermalGate"
-    private const val LAUNCH_RETRIES = "launchRetries"
-    private const val RESUME_BLOCK_RUNS = "resumeBlockRuns"
-    private const val ORDER_SEED = "orderSeed"
     private const val ITERATIONS = "iterations"
     private const val JOBS = "jobs"
     private const val CASES = "cases"
     private const val SAMPLES = "samples"
     private const val MIN_WINDOW_SECONDS = "minWindowSeconds"
-    private const val HARNESS = "harness"
 
     fun of(run: RunSettings): Map<String, Any> = linkedMapOf(
         INPUT_SIZES to run.inputSizes,
@@ -64,7 +65,7 @@ object RunDocument {
         (HARNESS to HarnessSettings.write(HarnessSettings(energy = EnergySettings(capture = EnergySettings.CAPTURES.first(), source = EnergySettings.RAILS))))
 
     fun parse(document: Map<String, Any>, path: String): RunSettings {
-        expectKeys(document, listOf(INPUT_SIZES, PHASES, METRICS, VARIANTS, PROCESS_REPETITIONS, SEED, PASSES, THROTTLE_SLEEP, CASE_COOLDOWN, WARMUP, THERMAL_GATE, LAUNCH_RETRIES, RESUME_BLOCK_RUNS, ORDER_SEED, HARNESS), path)
+        expectKeys(document, RunKeys.ALL, path)
         val orderSeed = optionalNumber(document, ORDER_SEED)?.toLong() ?: throw IllegalArgumentException("missing_field: $path.$ORDER_SEED")
         val defaults = RunSettings(orderSeed = orderSeed)
         return RunSettings(

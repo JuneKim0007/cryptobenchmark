@@ -17,12 +17,12 @@ class GlobalReaderTest {
             assertThrows(IllegalArgumentException::class.java) { global(EffectiveFixture.TEXT.replace("onFailure: skip", "onFailure: retry")) }.message!!.substringBefore(':'))
     }
 
-    /** A typo in run or policy is refused as :config refuses it; host-only run keys are known. */
+    /** A typo in run or policy, or a key no run has (isolation), is refused as :config refuses it. */
     @Test
     fun anUnknownRunOrPolicyKeyIsRefused() {
         fun rejection(text: String) = assertThrows(IllegalArgumentException::class.java) { global(text) }.message!!
         assertTrue(rejection(EffectiveFixture.TEXT.replace("  seed: 0\n", "  seed: 0\n  inputsizes: [1]\n")).startsWith("unknown_keys: run [inputsizes],"))
         assertTrue(rejection(EffectiveFixture.TEXT.replace("policy: {onFailure: skip}", "policy: {onFailure: skip, retry: 1}")).startsWith("unknown_keys: policy [retry],"))
-        assertEquals(listOf(1024), global(EffectiveFixture.TEXT.replace("  seed: 0\n", "  seed: 0\n  isolation: case\n")).inputSizes)
+        assertTrue(rejection(EffectiveFixture.TEXT.replace("  seed: 0\n", "  seed: 0\n  isolation: case\n")).startsWith("unknown_keys: run [isolation],"))
     }
 }

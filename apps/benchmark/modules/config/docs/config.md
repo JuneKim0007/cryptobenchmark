@@ -33,8 +33,8 @@ A composition of layers: [layers.md](layers.md).
 |---|---|---|---|
 | `selection` | `testSet` | required | non-blank; relative to global.yaml's directory unless absolute |
 | | `exclude` | `[]` | rules dropped after the test set |
-| `run` | `inputSizes` | `[1024]` | non-empty, all `> 0`; bytes per call |
-| | `phases` | `[WARM]` | non-empty, non-blank; value `WARM` checked by preparation |
+| `run` | `inputSizes` | `[1024]` | non-empty, all `> 0`, distinct (`duplicate: inputSizes`); bytes per call |
+| | `phases` | `[WARM]` | non-empty, distinct; `WARM` (`Phase.read` in `:settings`: `unknown_phase: <p>, one of [WARM]`) |
 | | `metrics` | `[TIME]` | `TIME`, `ALLOCATION`; must hold `TIME`, no repeats (`Metric.read`); `benchmark.json` reports only these, whatever androidx runs ([measure.md](../../benchmark/docs/measure.md#jetpack-conversion)) |
 | | `variants` | `[fixed, notFixed, secure]` | the execution paths every entry inherits ([entry.md](entry.md#variants)) |
 | | `processRepetitions` | `1` | `>= 1`; independent process runs |

@@ -5,7 +5,8 @@ import io.github.junekim0007.cryptobench.settings.HarnessSettings
 
 import io.github.junekim0007.cryptobench.preparation.inbound.InboundDocument
 import io.github.junekim0007.cryptobench.settings.Metric
-import io.github.junekim0007.cryptobench.preparation.measurement.Phase
+import io.github.junekim0007.cryptobench.settings.Phase
+import io.github.junekim0007.cryptobench.settings.RunKeys
 import io.github.junekim0007.cryptobench.preparation.measurement.Variant
 import io.github.junekim0007.cryptobench.document.DocumentFields.choice
 import io.github.junekim0007.cryptobench.document.DocumentFields.expectKeys
@@ -17,22 +18,17 @@ import io.github.junekim0007.cryptobench.document.DocumentFields.strings
 
 object GlobalReader {
 
-    // Host-only keys (isolation, passes, warmup, ...) are known here but read by the runner.
-    private val RUN_KEYS = listOf(
-        "inputSizes", "phases", "metrics", "variants", "processRepetitions", "isolation", "seed", "passes",
-        "thermalThrottleSleepSeconds", "caseCooldownSeconds", "warmup", "thermalGate", "launchRetries", "resumeBlockRuns", "orderSeed", "harness",
-    )
     private val POLICY_KEYS = listOf("onFailure")
 
     fun read(inbound: InboundDocument): GlobalSettings {
-        expectKeys(inbound.run, RUN_KEYS, "run")
+        expectKeys(inbound.run, RunKeys.ALL, "run")
         expectKeys(inbound.policy, POLICY_KEYS, "policy")
         return settings(inbound)
     }
 
     private fun settings(inbound: InboundDocument) = GlobalSettings(
         inputSizes = numbers(inbound.run, "inputSizes"),
-        phases = strings(inbound.run, "phases").mapTo(LinkedHashSet()) { choice<Phase>("phase", it) },
+        phases = Phase.read(strings(inbound.run, "phases"), "run.phases"),
         metrics = Metric.read(strings(inbound.run, "metrics"), "run.metrics"),
         processRepetitions = number(inbound.run, "processRepetitions").toInt(),
         seed = number(inbound.run, "seed").toLong(),

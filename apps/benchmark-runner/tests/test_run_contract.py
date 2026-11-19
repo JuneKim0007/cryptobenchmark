@@ -10,14 +10,14 @@ from cryptobench.shared import paths
 from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared.results import run_record
 
-RUN_DOCUMENT = paths.repo().gradle_root / "modules/config/src/main/kotlin/global/RunDocument.kt"
+RUN_KEYS_KT = paths.repo().gradle_root / "modules/settings/src/main/kotlin/RunKeys.kt"
 
 
 def kotlin_run_keys():
-    """The keys RunDocument.parse expects of run, by their constants' values."""
-    text = RUN_DOCUMENT.read_text()
-    constants = dict(re.findall(r'private const val (\w+) = "(\w+)"', text))
-    names = re.search(r"expectKeys\(document, listOf\(([^)]*)\), path\)", text).group(1)
+    """RunKeys.ALL, the keys config writes and preparation accepts, by their constants' values."""
+    text = RUN_KEYS_KT.read_text()
+    constants = dict(re.findall(r'const val (\w+) = "(\w+)"', text))
+    names = re.search(r"val ALL = listOf\(([^)]*)\)", text).group(1)
     return {constants[name.strip()] for name in names.split(",")}
 
 

@@ -1333,6 +1333,7 @@ codes:
   unknown_keys: {kind: error}
   unknown_parameters: {kind: outcome}
   unknown_per_call: {kind: error}
+  unknown_phase: {kind: error}
   unknown_section: {kind: error}
   unknown_status: {kind: outcome}
   unknown_variant: {kind: error}

@@ -3,6 +3,7 @@ package io.github.junekim0007.cryptobench.config.global.dto
 import io.github.junekim0007.cryptobench.config.entry.Variants
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
 import io.github.junekim0007.cryptobench.settings.Metric
+import io.github.junekim0007.cryptobench.settings.Phase
 
 data class RunSettings(
     val inputSizes: List<Int> = listOf(1024),
@@ -32,7 +33,8 @@ data class RunSettings(
 
     init {
         require(inputSizes.isNotEmpty() && inputSizes.all { it > 0 }) { "invalid: inputSizes $inputSizes" }
-        require(phases.isNotEmpty() && phases.none { it.isBlank() }) { "invalid: phases $phases" }
+        require(inputSizes.size == inputSizes.distinct().size) { "duplicate: inputSizes $inputSizes" }
+        Phase.read(phases, "run.phases")
         Metric.read(metrics, "run.metrics")
         require(Variants.valid(variants)) { "invalid: run.variants $variants, expected distinct values of ${Variants.NAMES}" }
         require(processRepetitions >= 1) { "not_positive: processRepetitions $processRepetitions" }

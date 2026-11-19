@@ -23,7 +23,7 @@ apps/benchmark/modules/preparation/src/main/kotlin/device/dto/ : capture and tri
 apps/benchmark/modules/preparation/src/main/kotlin/engine/EngineTypeName.kt : uppercase fold for engine type names
 apps/benchmark/modules/preparation/src/main/kotlin/engine/EngineTypes.kt : engine type to operations registry, read from engine-operations.yaml, with its TYPE_DEFAULT fallback
 apps/benchmark/modules/preparation/src/main/kotlin/global/GlobalReader.kt : reads run and policy sections into GlobalSettings
-apps/benchmark/modules/preparation/src/main/kotlin/global/GlobalSettings.kt : validated run-wide settings
+apps/benchmark/modules/preparation/src/main/kotlin/global/GlobalSettings.kt : run-wide settings as config checked them
 apps/benchmark/modules/preparation/src/main/kotlin/inbound/InboundDocument.kt : effective.yaml split into run, policy, providers sections
 apps/benchmark/modules/preparation/src/main/kotlin/inbound/InboundFile.kt : reads effective.yaml (schema config v1)
 apps/benchmark/modules/preparation/src/main/kotlin/input/CipherKeys.kt : picks the encrypt or decrypt key from KeyMaterial
@@ -43,7 +43,6 @@ apps/benchmark/modules/preparation/src/main/kotlin/measurement/BenchmarkCase.kt 
 apps/benchmark/modules/preparation/src/main/kotlin/measurement/CaseName.kt : builds the case id
 apps/benchmark/modules/preparation/src/main/kotlin/measurement/KeySource.kt : an entry key's algorithm, provider (same, any or a name) and backing, split from its spec; the providers tried, in order
 apps/benchmark/modules/preparation/src/main/kotlin/measurement/Operation.kt : enum of the ten operations
-apps/benchmark/modules/preparation/src/main/kotlin/measurement/Phase.kt : enum WARM
 apps/benchmark/modules/preparation/src/main/kotlin/measurement/Variant.kt : enum fixed, notFixed
 apps/benchmark/modules/preparation/src/main/kotlin/operation/AgreeKeyDefinition.kt : AGREE_KEY definition
 apps/benchmark/modules/preparation/src/main/kotlin/operation/CallTrace.kt : the engine an EngineCall holds and its init count, read outside the timed call by the end-to-end check

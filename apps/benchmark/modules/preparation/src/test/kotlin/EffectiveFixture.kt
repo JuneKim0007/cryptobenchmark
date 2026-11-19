@@ -3,7 +3,7 @@ package io.github.junekim0007.cryptobench.preparation
 import io.github.junekim0007.cryptobench.preparation.global.GlobalSettings
 import io.github.junekim0007.cryptobench.settings.OnFailure
 import io.github.junekim0007.cryptobench.settings.Metric
-import io.github.junekim0007.cryptobench.preparation.measurement.Phase
+import io.github.junekim0007.cryptobench.settings.Phase
 import io.github.junekim0007.cryptobench.preparation.measurement.Variant
 
 object EffectiveFixture {

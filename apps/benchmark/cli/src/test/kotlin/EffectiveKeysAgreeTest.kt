@@ -1,4 +1,5 @@
 import io.github.junekim0007.cryptobench.config.effective.EffectiveDocument
+import io.github.junekim0007.cryptobench.settings.RunKeys
 import io.github.junekim0007.cryptobench.document.YamlCodec
 import io.github.junekim0007.cryptobench.preparation.global.GlobalReader
 import io.github.junekim0007.cryptobench.preparation.inbound.InboundFile
@@ -66,8 +67,7 @@ class EffectiveKeysAgreeTest {
 
         // What config writes; warnings and skipped go to report.yaml.
         val TOP = setOf("schemaVersion", "generatedFrom", "runId", "run", "policy", "analysis", "bundledProviders", "providers")
-        val RUN = setOf("inputSizes", "phases", "metrics", "variants", "processRepetitions", "seed",
-            "thermalThrottleSleepSeconds", "caseCooldownSeconds", "warmup", "thermalGate", "launchRetries", "resumeBlockRuns", "orderSeed", "passes", "harness")
+        val RUN = RunKeys.ALL.toSet()
         val ENTRY = setOf("keySizes", "inputSizes", "key", "parameters", "operations", "variants", "providerDefaults", "harness", "from")
     }
 }

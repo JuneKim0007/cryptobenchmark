@@ -18,8 +18,6 @@ class BenchmarkRequestTest {
     fun rejectsShapeErrorsByName() {
         assertEquals("missing_field: selections", rejection { BenchmarkRequest(emptyList(), EffectiveFixture.ONE_WARM_RUN) })
         assertEquals("duplicate: selections", rejection { BenchmarkRequest(listOf(aes, aes), EffectiveFixture.ONE_WARM_RUN) })
-        assertEquals("not_positive: inputSizes [1024, -1]", rejection { EffectiveFixture.ONE_WARM_RUN.copy(inputSizes = listOf(1024, -1)) })
-        assertEquals("not_positive: processRepetitions 0", rejection { EffectiveFixture.ONE_WARM_RUN.copy(processRepetitions = 0) })
         assertEquals("missing_field: algorithm", rejection { Selection("Cipher", "", provider = "P") })
         assertEquals("duplicate: keySizes [128, 128]", rejection { Selection("Cipher", "AES", provider = "P", keySizes = listOf(128, 128)) })
         assertEquals("blank_provider: Cipher/AES", rejection { Selection("Cipher", "AES", provider = "") })
