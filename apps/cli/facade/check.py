@@ -11,7 +11,7 @@ from facade import tree as settings_tree
 from facade.index import Index, SettingsIndexError, read_index
 from facade.tree import CATALOG, CRYPTO, LLM, OVERRIDDEN, PACKAGED, ROOT_SIDE, Node
 
-CRYPTO_CATALOGS = (*sorted(paths.repo().preparation_resources.rglob("*.yaml")), paths.repo().setup_catalog)
+CRYPTO_CATALOGS = (paths.repo().engine_operations, paths.repo().setup_catalog)
 SCREENING_KEY = "device.screening.catalog"
 
 

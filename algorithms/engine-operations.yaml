@@ -1,5 +1,5 @@
 # Per JCA engine type, the operations the harness times; a type not listed falls back to TYPE_DEFAULT, which times nothing.
-# Read by engine/EngineTypes and copied into each run's manifest.yaml operations, so a results reader shares one list.
+# Read by preparation engine/EngineTypes (the build puts it beside the class) and copied into each run's manifest.yaml operations, so a results reader shares one list.
 schemaVersion: 1
 fallback: [TYPE_DEFAULT]
 types:

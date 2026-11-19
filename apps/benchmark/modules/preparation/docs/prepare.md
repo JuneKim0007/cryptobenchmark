@@ -18,7 +18,7 @@ one named case (Preparation.prepareOne): KeyPlanner -> KeyMaterialGenerator -> b
 | failure | a failed step throws `PreparationException` (`key_generation_failed`, `input_preparation_failed`, `dry_run_failed`, `parameters_unreadable`, or the key recipe's reason); an Exception or LinkageError is wrapped with the step's code, any other Error escapes unwrapped |
 | inputs | YAML only: effective.yaml, capture, trial |
 | key cache | generated key material is cached per recipe across cases |
-| registry | `EngineTypes.standard()`, read from `engine/engine-operations.yaml`, unless the caller passes another |
+| registry | `EngineTypes.standard()`, read from `algorithms/engine-operations.yaml` (the build puts it beside the class), unless the caller passes another |
 
 ## Inputs
 

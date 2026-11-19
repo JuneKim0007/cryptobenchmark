@@ -10,6 +10,7 @@ tasks.matching { it.name == 'processResources' }.configureEach {
     }
     if (keystoreTrialOnly) return
     from(guide) { include 'algorithm-names.yaml', 'setup-catalog.yaml' }
-    // preparation's operation/SetupCatalog (timed, frozen) reads its catalogue beside its class
+    // preparation's operation/SetupCatalog and engine/EngineTypes (timed) read their catalogues beside their classes
     from(guide) { include 'setup-catalog.yaml'; into 'io/github/junekim0007/cryptobench/preparation/operation' }
+    from(guide) { include 'engine-operations.yaml'; into 'io/github/junekim0007/cryptobench/preparation/engine' }
 }
