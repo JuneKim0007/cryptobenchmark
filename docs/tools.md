@@ -17,7 +17,7 @@
 | `ConvertKt` | `<benchmarkData.json> <prepared.yaml> <output dir> [energy.json] [--metrics=TIME,...] [--samples=n] [--thermal=thermal.json] [--uncleaned]` | `benchmark.json` from androidx output; a pass's metrics and samples, each case's temperature; `--uncleaned` for the energy pass, the one pass with no collection between samples; `--metrics` alone reports that set instead of each case's own ([run.md](run.md#recover-a-metric-without-a-device)) |
 | `MergeRunsKt` | `<output dir> <benchmark.json>...` | merged `benchmark.json` |
 | `MergePassesKt` | `<output dir> <timing benchmark.json> [<metric key>=<benchmark.json> ...]` | one `benchmark.json`, each owned metric from its pass ([measure.md](../apps/benchmark/modules/benchmark/docs/measure.md#pass-merge)) |
-| `InteropKt` | `<capture> <trial> <interop_plan.yaml> <interop.yaml>` | `interop.yaml`; prints its path |
+| `InteropKt` | `<capture> <trial> <effective.yaml> <interop_plan.yaml> <interop.yaml>` | the effective file's bundled providers installed, then `interop.yaml`; prints its path |
 | `CheckDiffKt` | `... run -PmainClass=CheckDiffKt --args="<baseline check.yaml> <current check.yaml>"` | a tool, no pipeline step calls it: every case only in one file and every field that differs ([check.md](../apps/benchmark/modules/benchmark/docs/check.md#baseline-and-diff)); exit 3 on any difference |
 
 - Main class comes from `-PmainClass`, default `ProbeKt`.

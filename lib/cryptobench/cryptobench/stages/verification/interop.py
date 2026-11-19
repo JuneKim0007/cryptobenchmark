@@ -28,7 +28,7 @@ def interop_run(options, configuration, device, root, shipped, discover_staged, 
         if device:
             interop_oracle.on_device(device, reconnect.Reconnect.of(device, options), effective, capture, trial, staged_plan, out)
         else:
-            interop_oracle.on_host(capture, trial, staged_plan, out, options.stacktrace, options.stream)
+            interop_oracle.on_host(effective, capture, trial, staged_plan, out, options.stacktrace, options.stream)
         elapsed("interop check", started)
         interop_oracle.summary(out)
         publish_unit(root, stage, found, INTEROP, mode="device" if device else "host", configuration=configuration,

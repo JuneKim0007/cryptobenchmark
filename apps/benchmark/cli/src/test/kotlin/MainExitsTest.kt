@@ -57,8 +57,8 @@ class MainExitsTest {
             run("MergeRunsKt", out, missing("benchmark.json")),
             run("MergeRunsKt", out, bad("benchmark.json")),
             run("InteropKt"),
-            run("InteropKt", missing("probe.yaml"), missing("trial.yaml"), missing("interop_plan.yaml"), missing("interop.yaml")),
-            run("InteropKt", bad("probe.yaml"), bad("trial.yaml"), bad("interop_plan.yaml"), out),
+            run("InteropKt", missing("probe.yaml"), missing("trial.yaml"), missing("effective.yaml"), missing("interop_plan.yaml"), missing("interop.yaml")),
+            run("InteropKt", bad("probe.yaml"), bad("trial.yaml"), bad("effective.yaml"), bad("interop_plan.yaml"), out),
             run("ProbeKt"),
             run("ProbeKt", folder.root.resolve("discovery").path, folder.root.resolve("configuration").path, missing("global.yaml")),
             run("ProbeKt", folder.root.resolve("discovery").path, folder.root.resolve("configuration").path, bad("global.yaml")),
@@ -94,9 +94,9 @@ class MainExitsTest {
             MergeRunsKt 0 args | exit 2 | usage: <output directory> <benchmark.json> [<benchmark.json> ...]
             MergeRunsKt 2 args | exit 1 | error: <tmp>/missing/benchmark.json (No such file or directory)
             MergeRunsKt 2 args | exit 1 | error: while parsing a flow sequence
-            InteropKt 0 args | exit 2 | usage: <capture> <trial> <interop_plan.yaml> <interop.yaml>
-            InteropKt 4 args | exit 1 | error: missing_file: <tmp>/missing/probe.yaml
-            InteropKt 4 args | exit 1 | error: unreadable_yaml: probe.yaml: while parsing a flow sequence
+            InteropKt 0 args | exit 2 | usage: <capture> <trial> <effective.yaml> <interop_plan.yaml> <interop.yaml>
+            InteropKt 5 args | exit 1 | error: <tmp>/missing/effective.yaml (No such file or directory)
+            InteropKt 5 args | exit 1 | error: while parsing a flow sequence
             ProbeKt 0 args | exit 2 | usage: probe <discovery output directory> [<configuration output directory>] [<global.yaml>] [--reuse]
             ProbeKt 3 args | exit 1 | error: missing_file: <tmp>/missing/global.yaml
             ProbeKt 3 args | exit 1 | error: unreadable_yaml: global.yaml: while parsing a flow sequence

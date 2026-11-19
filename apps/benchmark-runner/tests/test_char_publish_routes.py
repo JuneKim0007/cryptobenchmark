@@ -38,7 +38,7 @@ def routed(tmp_path, monkeypatch):
     rerun = Rerun(tmp_path, monkeypatch, RoutePhone(tmp_path))
     monkeypatch.setattr(check.answers, "write_known_answers", lambda effective, *_rest: written(paths.Configuration.holding(effective).known_answers, "{}"))
     monkeypatch.setattr(check, "on_host", lambda _o, _e, _c, _t, _k, into: written(paths.CheckFolder(into).result, CHECKED))
-    monkeypatch.setattr(interop_oracle, "on_host", lambda _c, _t, _p, out, *_rest: written(out, INTEROP))
+    monkeypatch.setattr(interop_oracle, "on_host", lambda _e, _c, _t, _p, out, *_rest: written(out, INTEROP))
     rerun.plan = written(tmp_path / "plan.yaml", "pairs: []\n")
     return rerun
 

@@ -17,8 +17,9 @@ def stage_plan(plan, into):
     return staged
 
 
-def on_host(capture, trial, plan, out, stacktrace, stream):
-    gradle_runner.run(f"{capture} {trial} {plan} {out}", stacktrace, stream, main_class="InteropKt")
+def on_host(effective, capture, trial, plan, out, stacktrace, stream):
+    """The pairs on this JVM, the effective file's bundled providers installed first, as CheckKt does."""
+    gradle_runner.run(f"{capture} {trial} {effective} {plan} {out}", stacktrace, stream, main_class="InteropKt")
 
 
 def on_device(device, waits, effective, capture, trial, plan, out):
