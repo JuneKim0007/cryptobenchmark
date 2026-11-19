@@ -11,7 +11,7 @@ def _document():
 
 
 def at(path):
-    """The default at a dotted path, or None where :config has none (orderSeed, thermalGate, a harness key)."""
+    """The default at a dotted path, or None where :config has none (orderSeed, thermalGate.temperatureKeptCelsius, most harness keys)."""
     value = _document()
     for key in path.split("."):
         value = value.get(key) if isinstance(value, dict) else None

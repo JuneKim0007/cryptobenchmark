@@ -5,6 +5,14 @@ object Values {
 
     val int: (Any, String) -> Int = { value, label -> (value as? Number)?.toInt() ?: throw wrongType(label, "a number", value) }
 
+    val whole: (Any, String) -> Int = { value, label ->
+        val number = value as? Number ?: throw wrongType(label, "a number", value)
+        require(number.toDouble() == number.toInt().toDouble()) { "not_whole: $label $value" }
+        number.toInt()
+    }
+
+    val decimal: (Any, String) -> Double = { value, label -> (value as? Number)?.toDouble() ?: throw wrongType(label, "a number", value) }
+
     val boolean: (Any, String) -> Boolean = { value, label -> value as? Boolean ?: throw wrongType(label, "true or false", value) }
 
     fun text(known: List<String>): (Any, String) -> String = { value, label ->

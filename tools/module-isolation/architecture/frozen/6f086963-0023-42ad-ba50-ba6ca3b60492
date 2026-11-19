@@ -30,4 +30,3 @@ benchmark.verify.oracle.contract.VerifyProperties -> preparation.input.Operation
 benchmark.verify.oracle.contract.VerifyProperties -> preparation.key.generate.KeyMaterial
 benchmark.verify.record.CaseRecord -> preparation.measurement.Variant
 benchmark.verify.record.CaseRecord -> preparation.operation.PerCall
-config.effective.EffectiveBuilder -> settings.Section

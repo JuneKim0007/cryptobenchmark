@@ -21,6 +21,7 @@ import io.github.junekim0007.cryptobench.settings.RunKeys.VARIANTS
 import io.github.junekim0007.cryptobench.settings.RunKeys.WARMUP
 import io.github.junekim0007.cryptobench.config.global.dto.MeasurePass
 import io.github.junekim0007.cryptobench.config.global.dto.RunSettings
+import io.github.junekim0007.cryptobench.config.global.dto.ThermalGate
 import io.github.junekim0007.cryptobench.config.global.dto.Warmup
 import io.github.junekim0007.cryptobench.config.testset.RuleDocument
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSections
@@ -55,13 +56,13 @@ object RunDocument {
         put(RESUME_BLOCK_RUNS, run.resumeBlockRuns)
         put(ORDER_SEED, run.orderSeed)
         put(WARMUP, linkedMapOf<String, Any>(ITERATIONS to run.warmup.iterations, JOBS to run.warmup.jobs.map { RuleDocument.of(it) }, CASES to run.warmup.cases))
-        run.thermalGate?.let { put(THERMAL_GATE, ThermalGateDocument.of(it)) }
+        run.thermalGate?.let { put(THERMAL_GATE, ThermalGate.GATE.write(it)) }
         if (run.passes.isNotEmpty()) put(PASSES, run.passes.associateTo(LinkedHashMap()) { pass ->
             pass.name to linkedMapOf<String, Any>(SAMPLES to pass.samples).apply { pass.minWindowSeconds?.let { put(MIN_WINDOW_SECONDS, it) } } })
  if (!run.harness.isEmpty) put(HARNESS, HarnessSettings.write(run.harness)) }
 
-    /** What of() writes for a run that sets nothing, with the energy capture and source a node without them gets; orderSeed has none. */
-    fun defaults(): Map<String, Any> = of(RunSettings(orderSeed = 0L)) - ORDER_SEED +
+    /** What of() writes for a run that sets nothing, with the gate's and the energy keys' defaults a block without them gets; orderSeed has none. */
+    fun defaults(): Map<String, Any> = of(RunSettings(orderSeed = 0L, thermalGate = ThermalGate.DEFAULTS)) - ORDER_SEED +
         (HARNESS to HarnessSettings.write(HarnessSettings(energy = EnergySettings(capture = EnergySettings.CAPTURES.first(), source = EnergySettings.RAILS))))
 
     fun parse(document: Map<String, Any>, path: String): RunSettings {
@@ -81,7 +82,7 @@ object RunDocument {
             resumeBlockRuns = optionalNumber(document, RESUME_BLOCK_RUNS)?.toInt() ?: defaults.resumeBlockRuns,
             orderSeed = orderSeed,
             warmup = optionalSection(document, WARMUP)?.let { warmup(it, "$path.$WARMUP") } ?: defaults.warmup,
-            thermalGate = optionalSection(document, THERMAL_GATE)?.let { ThermalGateDocument.parse(it, "$path.$THERMAL_GATE") },
+            thermalGate = optionalSection(document, THERMAL_GATE)?.let { ThermalGate.GATE.read(it, "$path.$THERMAL_GATE").resolved(ThermalGate.DEFAULTS, "$path.$THERMAL_GATE") },
             passes = optionalSection(document, PASSES)?.let { passes(it, "$path.$PASSES") } ?: defaults.passes,
             harness = optionalSection(document, HARNESS)?.let { HarnessSettings.read(it, "$path.$HARNESS") } ?: HarnessSettings(),
         )

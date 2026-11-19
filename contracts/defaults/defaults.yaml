@@ -14,6 +14,16 @@ run:
     iterations: 10
     jobs: []
     cases: 3
+  thermalGate:
+    cooldownMinutes: 3
+    pollMinutes: 1
+    pollTerminateMinutes: 30
+    discardLimit: 5
+    onDiscardLimit: nextCase
+    readRetries: 2
+    readRetrySeconds: 1
+    startMargin: {dynamic: true, initialCelsius: 0.25, backoffFactor: 2.0, maximumCelsius: 3.0,
+      cleanRunsToRecover: 10, recoveryCelsius: 0.05}
   harness:
     energy: {capture: none, source: rails}
 analysis:

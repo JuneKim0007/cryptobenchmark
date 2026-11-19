@@ -18,7 +18,7 @@ modules:
       files: [FileNames, VariantLabels]
   config:
     uses:
-      settings: [EnergySettings, EngineRows, Facts, HarnessSettings, Metric, OnFailure, Phase, RunKeys, Skip, StoppedOnFailureException, Unsupported]
+      settings: [EnergySettings, EngineRows, Facts, HarnessSettings, Leaf, Metric, Nested, OnFailure, Phase, RunKeys, Section, Skip, StoppedOnFailureException, Unsupported, Values]
       files: all
       document: all
   preparation:

@@ -41,7 +41,6 @@ apps/benchmark/modules/config/src/main/kotlin/global/GlobalDocument.kt : global.
 apps/benchmark/modules/config/src/main/kotlin/global/PolicyDocument.kt : policy section reader and writer
 apps/benchmark/modules/config/src/main/kotlin/global/ProvidersDocument.kt : providers section reader and writer; bundled list shared with effective
 apps/benchmark/modules/config/src/main/kotlin/global/RunDocument.kt : run section reader and writer
-apps/benchmark/modules/config/src/main/kotlin/global/ThermalGateDocument.kt : run.thermalGate reader and writer
 apps/benchmark/modules/config/src/main/kotlin/global/dto/AnalysisSettings.kt : analysis defaults and validation: charts, dir, statistic, display units
 apps/benchmark/modules/config/src/main/kotlin/global/dto/BundledProvider.kt : one bundled provider and its validation: artifact, create, alias
 apps/benchmark/modules/config/src/main/kotlin/global/dto/GlobalConfig.kt : global model
@@ -50,7 +49,7 @@ apps/benchmark/modules/config/src/main/kotlin/global/dto/Policy.kt : policy.onFa
 apps/benchmark/modules/config/src/main/kotlin/global/dto/ProviderSources.kt : providers section model; no duplicate artifact or alias
 apps/benchmark/modules/config/src/main/kotlin/global/dto/RunSettings.kt : run defaults and validation
 apps/benchmark/modules/config/src/main/kotlin/global/dto/Selection.kt : testSet and global excludes
-apps/benchmark/modules/config/src/main/kotlin/global/dto/ThermalGate.kt : run.thermalGate defaults and validation: sensors, margin, poll, timeout
+apps/benchmark/modules/config/src/main/kotlin/global/dto/ThermalGate.kt : run.thermalGate key table (Section), defaults, the merge over them and its checks
 apps/benchmark/modules/config/src/main/kotlin/global/dto/Warmup.kt : run.warmup defaults and validation: iterations, jobs
 apps/benchmark/modules/config/src/main/kotlin/inventory/InventoryBuilder.kt : capture x trial to inventory
 apps/benchmark/modules/config/src/main/kotlin/inventory/InventoryDocument.kt : inventory.yaml schema

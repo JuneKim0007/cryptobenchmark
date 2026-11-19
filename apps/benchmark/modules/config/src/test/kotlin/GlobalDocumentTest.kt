@@ -87,7 +87,7 @@ class GlobalDocumentTest {
     @Test
     fun aGateCanBeWrittenAndSwitchedOff() {
         val written = run("run: {thermalGate: {temperatureKeptCelsius: 36.0}}\n")
-        assertEquals(ThermalGate(36.0), written.thermalGate)
+        assertEquals(ThermalGate.DEFAULTS.copy(temperatureKeptCelsius = 36.0), written.thermalGate)
         assertEquals(written, GlobalDocument.parse(codec.load(YamlCodec.DOCUMENT.dump(GlobalDocument.of(global("").copy(run = written))))).run)
         assertEquals(null, run("run: {}\n").thermalGate)
     }
@@ -102,7 +102,7 @@ class GlobalDocumentTest {
             "run: {warmup: {iterations: -1}}\n" to "negative: run.warmup.iterations",
             "run: {warmup: {cases: 0}}\n" to "not_positive: run.warmup.cases 0",
             "run: {thermalGate: {}}\n" to "missing_field: run.thermalGate.temperatureKeptCelsius",
-            "run: {thermalGate: {temperatureKeptCelsius: 36.0, cooldownMinutes: 1.5}}\n" to "not_whole: run.thermalGate.cooldownMinutes",
+            "run: {thermalGate: {temperatureKeptCelsius: 36.0, cooldownMinutes: 1.5}}\n" to "not_whole: cooldownMinutes 1.5 at run.thermalGate",
             "run: {thermalGate: {temperatureKeptCelsius: 36.0, pollMinutes: 0}}\n" to "not_positive: run.thermalGate.pollMinutes",
             "run: {thermalGate: {temperatureKeptCelsius: 36.0, onDiscardLimit: nope}}\n" to "invalid: run.thermalGate.onDiscardLimit",
             "run: {thermalGate: {temperatureKeptCelsius: 36.0, margin: 3}}\n" to "unknown_keys: run.thermalGate [margin]",
