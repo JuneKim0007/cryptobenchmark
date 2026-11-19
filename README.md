@@ -49,18 +49,25 @@ python3 apps/cli/facade.py --settings settings.yaml                   # benchmar
 
 These are not settings.
 
-- GC stays on; a full collection is forced between iters with the timer stopped, so one rarely lands inside an iter, and the pause is reported beside the time.
+- A full GC is forced between iters, outside the timer; GC pauses are reported beside the time.
 - The app and every bundled provider are compiled ahead of time (`speed`) before measuring.
-- Energy is always measured in its own pass, traced and without forced collections; timing is never traced.
-- Energy windows are at least 5 s by default (power-rail polling); set `run.passes.energy.minWindowSeconds` to change it.
-- A process prepares only the case it runs, so another case's keys or failures can't affect it.
-- A launch whose warm-up left unusably short iters is measured once more, then recorded as failed.
+- Energy is measured in its own pass; timing is never traced.
+- Energy windows are at least 5 s (`run.passes.energy.minWindowSeconds`).
+- Each process prepares and measures one case.
+- Each process runs its cases in an order shuffled from `run.orderSeed`; an algorithm's fixed and notFixed cases run back to back.
+- A failed launch is retried `run.launchRetries` times.
+- A launch with too-short iters after warm-up is measured once more, then recorded as failed.
+- A run with fewer samples than asked is relaunched.
+- A failed attempt is kept in `rejected/` with its reason.
+- A stopped run resumes from its finished blocks.
+- One run at a time per phone.
+- Every skipped case is recorded with its code in `skipped.yaml`.
 
 ## Assumptions
 
-- AOT: real apps start JIT- or profile-compiled, so their first calls can be slower than these numbers.
-- Garbage collection: a real app pays for collection inside its own work; this cost is reported beside the number, not in it.
-- CPU: the measuring thread stays on one big core; a real app's thread moves between core types.
-- Clocks: on an unrooted phone clocks can't be locked, so numbers assume the governor holds the core at full speed.
-- Temperature: the phone is assumed not to be throttling; temperature is recorded for each case, and held to a limit only with `run.thermalGate`.
-- Keys: each launch generates its own key, so key-dependent algorithms (RSA, ECDSA) also vary from key to key.
+- Real apps start JIT- or profile-compiled; these numbers are ahead-of-time compiled.
+- GC cost is reported beside the time, not in it.
+- The measuring thread stays on one big core.
+- Clocks are not locked.
+- The phone is assumed not to throttle; temperature is recorded per case and held only with `run.thermalGate`.
+- Each launch generates its own key.
