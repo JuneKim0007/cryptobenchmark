@@ -148,7 +148,7 @@ def test_thermal_json_keys():
 
 
 def capability_version():
-    return int(kotlin("benchmark/src/main/kotlin/check/EnergyCapability.kt", r'document\["schemaVersion"\] == (\d+)'))
+    return int(kotlin("benchmark/src/main/kotlin/check/EnergyCapability.kt", r'SchemaVersion\.require\(document, (\d+), '))
 
 
 def manafa_written_version():
@@ -170,12 +170,12 @@ def test_schema_versions_across_the_boundary():
         (capture.SCHEMA, number("preparation/src/main/kotlin/device/CaptureFile.kt", "SUPPORTED_SCHEMA_VERSION")),
         (capture.SCHEMA, int(kotlin("config/src/main/kotlin/source/CaptureSource.kt", r"override val schemaVersion: Int = (\d+)"))),
         (guide_items.SCHEMA_VERSION, number("preparation/src/main/kotlin/guide/Guide.kt", "SUPPORTED_SCHEMA_VERSION")),
-        (vectors.SCHEMA_VERSION, int(kotlin("benchmark/src/main/kotlin/verify/known/KnownAnswerFile.kt", r'DocumentFile\.read\(file, "known_answers", (\d+)\)'))),
+        (vectors.SCHEMA_VERSION, int(kotlin("benchmark/src/main/kotlin/verify/known/KnownAnswerFile.kt", r'DocumentFile\.read\(file, (\d+)\)'))),
         (energy.SCHEMA_VERSION, number("benchmark/src/main/kotlin/report/energy/EnergyWindows.kt", "SCHEMA_VERSION")),
         (preflight.capability({}, {}, 1, False)["schemaVersion"], capability_version()),
         (manafa_written_version(), capability_version()),
         (names.SCHEMA_VERSION, number("config/src/main/kotlin/names/AlgorithmNames.kt", "SCHEMA_VERSION")),
-        (facts.FACTS_DOC.version, int(kotlin("settings/src/main/kotlin/Facts.kt", r'document\["schemaVersion"\] == (\d+)'))),
+        (facts.FACTS_DOC.version, number("settings/src/main/kotlin/Facts.kt", "SCHEMA_VERSION")),
     ]
     assert [python for python, _ in pairs] == [k for _, k in pairs]
     # thermal.json carries a version Python writes and no Kotlin reader checks (JetpackResults.thermalOf)
