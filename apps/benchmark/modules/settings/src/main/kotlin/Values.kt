@@ -12,20 +12,11 @@ object Values {
         value as? String ?: throw wrongType(label, "text", value)
     }
 
-    /** A number or a word, kept as text. */
-    val word: (Any, String) -> String = { value, label ->
-        when (value) {
-            is Number -> value.toLong().toString()
-            is String -> value
-            else -> throw wrongType(label, "a number or a word", value)
-        }
-    }
-
     fun section(value: Any, path: String): Map<String, Any> {
         @Suppress("UNCHECKED_CAST")
         return value as? Map<String, Any> ?: throw IllegalArgumentException("wrong_type: $path expects a mapping, got ${value::class.simpleName}")
     }
 
-    private fun wrongType(label: String, expected: String, value: Any) =
+    internal fun wrongType(label: String, expected: String, value: Any) =
         IllegalArgumentException("wrong_type: $label expects $expected, got ${value::class.simpleName}")
 }

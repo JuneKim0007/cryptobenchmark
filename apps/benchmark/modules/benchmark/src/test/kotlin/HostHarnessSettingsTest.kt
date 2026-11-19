@@ -8,6 +8,7 @@ import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
+import io.github.junekim0007.cryptobench.settings.CoreChoice
 import io.github.junekim0007.cryptobench.settings.CpuSettings
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
 import org.junit.Assert.assertEquals
@@ -25,7 +26,7 @@ class HostHarnessSettingsTest {
 
     @Test
     fun todayHostIgnoresWarmupIterationsCpuAndProfiling() {
-        val ignored = HarnessSettings(warmupIterations = 50, profiling = "MethodTracing", cpu = CpuSettings("0", true))
+        val ignored = HarnessSettings(warmupIterations = 50, profiling = "MethodTracing", cpu = CpuSettings(CoreChoice.Index(0), true))
         assertEquals(listOf(3, 3, 4, 4), listOf(
             samples(HarnessSettings()), samples(ignored), samples(HarnessSettings(iterations = 4)), samples(ignored.copy(iterations = 4)),
         ))

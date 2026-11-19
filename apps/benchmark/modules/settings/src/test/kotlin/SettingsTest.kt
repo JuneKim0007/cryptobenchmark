@@ -1,3 +1,4 @@
+import io.github.junekim0007.cryptobench.settings.CoreChoice
 import io.github.junekim0007.cryptobench.settings.CpuSettings
 import io.github.junekim0007.cryptobench.settings.EnergySettings
 import io.github.junekim0007.cryptobench.settings.Facts
@@ -19,18 +20,18 @@ class SettingsTest {
 
     @Test
     fun aHarnessRoundTripsAndAnUnsetBlockIsNotWritten() {
-        val harness = HarnessSettings(iterations = 20, profiling = "none", energy = EnergySettings("dry", 10, 2, 5), cpu = CpuSettings("7", true))
+        val harness = HarnessSettings(iterations = 20, profiling = "none", energy = EnergySettings("dry", 10, 2, 5), cpu = CpuSettings(CoreChoice.Index(7), true))
         assertEquals(harness, HarnessSettings.read(HarnessSettings.write(harness), "run.harness"))
         assertEquals(mapOf("iterations" to 5), HarnessSettings.write(HarnessSettings(iterations = 5)))
     }
 
     @Test
     fun nestedBlocksMergeFieldByFieldSoARuleCannotResetWhatItDoesNotName() {
-        val run = HarnessSettings(iterations = 50, energy = EnergySettings(capture = "measured", windowSeconds = 10), cpu = CpuSettings("big", true))
-        val rule = HarnessSettings(energy = EnergySettings(capture = "dry"), cpu = CpuSettings(core = "7"))
+        val run = HarnessSettings(iterations = 50, energy = EnergySettings(capture = "measured", windowSeconds = 10), cpu = CpuSettings(CoreChoice.Big, true))
+        val rule = HarnessSettings(energy = EnergySettings(capture = "dry"), cpu = CpuSettings(core = CoreChoice.Index(7)))
         val merged = run.mergedWith(rule)
         assertEquals(EnergySettings(capture = "dry", windowSeconds = 10), merged.energy)
-        assertEquals(CpuSettings("7", true), merged.cpu)
+        assertEquals(CpuSettings(CoreChoice.Index(7), true), merged.cpu)
     }
 
     @Test
@@ -67,7 +68,7 @@ class SettingsTest {
     fun bigResolvesToTheFastestOnlineCoreAndAnUnsupportedBlockIsRemovedWhole() {
         val (kept, none) = HARNESS.forDevice(harness(mapOf("core" to "big", "required" to true)), pinnable, "run.harness")
         assertTrue(none.isEmpty())
-        assertEquals(CpuSettings("7", true), kept.cpu)
+        assertEquals(CpuSettings(CoreChoice.Index(7), true), kept.cpu)
         val (dropped, missing) = HARNESS.forDevice(harness(mapOf("core" to "big", "required" to true)), Facts.UNKNOWN, "run.harness")
         assertEquals(listOf("run.harness.cpu"), missing.map { it.path })
         assertTrue(missing.single().required)

@@ -20,7 +20,7 @@ class CorePin private constructor(private val previous: Long?, val outcome: Outc
     companion object {
 
         fun apply(cpu: CpuSettings): CorePin {
-            val core = cpu.core?.toIntOrNull() ?: return failed("unresolved: cpu.core ${cpu.core}, ${FileNames.EFFECTIVE} should name an index")
+            val core = cpu.index ?: return failed("unresolved: cpu.core ${cpu.core}, ${FileNames.EFFECTIVE} should name an index")
             Affinity.loadError?.let { return failed("no_pinning: $it") }
             val previous = Affinity.allowed().takeIf { it != -1L } ?: return failed("affinity_unreadable: sched_getaffinity failed")
             val error = Affinity.allow(1L shl core)
