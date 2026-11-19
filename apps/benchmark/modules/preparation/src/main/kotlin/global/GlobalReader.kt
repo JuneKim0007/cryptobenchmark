@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation.global
 
+import io.github.junekim0007.cryptobench.settings.OnFailure
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
 
 import io.github.junekim0007.cryptobench.preparation.inbound.InboundDocument

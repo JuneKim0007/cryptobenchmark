@@ -12,7 +12,7 @@ import io.github.junekim0007.cryptobench.preparation.adapter.DiscoveryCapability
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
 import io.github.junekim0007.cryptobench.discovery.write.ProbeDirectory
-import io.github.junekim0007.cryptobench.preparation.report.Skip
+import io.github.junekim0007.cryptobench.settings.Skip
 import java.io.File
 
 /**

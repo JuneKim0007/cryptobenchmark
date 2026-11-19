@@ -17,22 +17,22 @@ modules:
     uses: {}
   config:
     uses:
-      settings: [EnergySettings, Facts, HarnessSettings, Metric, Unsupported]
+      settings: [EnergySettings, Facts, HarnessSettings, Metric, OnFailure, Skip, StoppedOnFailureException, Unsupported]
       files: all
       document: all
   preparation:
     uses:
       jca: [failure.Attempt, failure.ErrorText, reflect.Reflect]
-      settings: [HarnessSettings, Metric]
+      settings: [HarnessSettings, Metric, OnFailure, Skip, StoppedOnFailureException]
       files: all
       document: all
   benchmark:
     uses:
       jca: [failure.Attempt]
       preparation: [parameter.bind.BindException, measurement.BenchmarkCase, measurement.Operation, prepare.PreparedCase, operation.Invocations, operation.Invocation, Preparation,
-        prepare.Listing, prepare.PreparationException, prepare.StoppedOnFailureException, record.PreparedFile, report.Skip, report.SkipFile,
-        global.GlobalSettings, global.OnFailure, shared.FailureText, shared.DocumentFile]
-      settings: [HarnessSettings, EnergySettings, CpuSettings, Metric]
+        prepare.Listing, prepare.PreparationException, record.PreparedFile, report.SkipFile,
+        global.GlobalSettings, shared.FailureText, shared.DocumentFile]
+      settings: [HarnessSettings, EnergySettings, CpuSettings, Metric, Skip, OnFailure, StoppedOnFailureException]
       files: all
       document: [DocumentFields, SchemaVersion]
 
@@ -50,11 +50,11 @@ consumers:
     sources: apps/benchmark/modules/android/src/androidTest/kotlin
     uses:
       preparation: [Preparation, adapter.DiscoveryCapability, interop.InteropRun, interop.plan.InteropPlanFile, interop.report.InteropFile,
-        operation.Invocations, prepare.PreparedCase, report.Skip, measurement.BenchmarkCase,
+        operation.Invocations, prepare.PreparedCase, measurement.BenchmarkCase,
         measurement.Operation, key.plan.KeyPlanner, key.plan.KeyRecipe, key.generate.KeyMaterial, key.generate.KeyMaterialGenerator]
       benchmark: [report.MetricSamples, check.PlanCheck, check.RunnablePlan, check.Refusal, check.EnergyCapability,
         run.CaseSettings, run.compose.CaseRuns, run.energy.Energy, run.energy.WindowMarker]
-      settings: [CpuSettings, Metric]
+      settings: [CpuSettings, Metric, Skip]
       jca: [failure.Attempt]
       files: all
       discovery: [Discovery, bundled.BundledInstaller, bundled.BundledProviders, bundled.ProviderFactory, write.ProbeDirectory]

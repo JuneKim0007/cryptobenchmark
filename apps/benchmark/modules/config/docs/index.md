@@ -25,14 +25,12 @@ apps/benchmark/modules/config/src/main/kotlin/effective/LocatedMatch.kt : Rule.m
 apps/benchmark/modules/config/src/main/kotlin/effective/OverrideResolver.kt : merges applicable overrides into one EffectiveEntry; variants from overrides, includes, then the run
 apps/benchmark/modules/config/src/main/kotlin/effective/ReportDocument.kt : report.yaml schema
 apps/benchmark/modules/config/src/main/kotlin/effective/SkipDocument.kt : one skip record as a map, shared by effective and report
-apps/benchmark/modules/config/src/main/kotlin/effective/StoppedOnFailureException.kt : stop-policy failure carrying all skips
 apps/benchmark/modules/config/src/main/kotlin/effective/WarmupJobs.kt : run.warmup.jobs resolved to the effective entries they select
 apps/benchmark/modules/config/src/main/kotlin/effective/dto/EffectiveConfig.kt : effective model; rejects an empty selection; run id from the capture name
 apps/benchmark/modules/config/src/main/kotlin/effective/dto/EffectiveEntry.kt : one selected primitive's settings
 apps/benchmark/modules/config/src/main/kotlin/effective/dto/EffectiveSource.kt : generatedFrom of effective.yaml, with the layers and each setting's source
 apps/benchmark/modules/config/src/main/kotlin/effective/dto/EntryOrigin.kt : the test-set file and includes that selected an effective entry
 apps/benchmark/modules/config/src/main/kotlin/effective/dto/Report.kt : run id, warnings and skips of one effective build
-apps/benchmark/modules/config/src/main/kotlin/effective/dto/Skip.kt : skip record {stage, provider?, type?, name?, reason}
 apps/benchmark/modules/config/src/main/kotlin/entry/EnginePaths.kt : setup-catalog.yaml's rows as config reads them: the paths a type applies, the generator types
 apps/benchmark/modules/config/src/main/kotlin/entry/EntryKeys.kt : per-primitive key names shared by test-set overrides and effective entries
 apps/benchmark/modules/config/src/main/kotlin/entry/KeySource.kt : a key's written algorithm and provider checked against the inventory's generators, its backing against tee and strongbox
@@ -48,7 +46,7 @@ apps/benchmark/modules/config/src/main/kotlin/global/dto/AnalysisSettings.kt : a
 apps/benchmark/modules/config/src/main/kotlin/global/dto/BundledProvider.kt : one bundled provider and its validation: artifact, create, alias
 apps/benchmark/modules/config/src/main/kotlin/global/dto/GlobalConfig.kt : global model
 apps/benchmark/modules/config/src/main/kotlin/global/dto/MeasurePass.kt : one run.passes entry: name timing, energy or allocation, samples >= 1; energy's minWindowSeconds, default 5
-apps/benchmark/modules/config/src/main/kotlin/global/dto/Policy.kt : onFailure enum STOP, SKIP
+apps/benchmark/modules/config/src/main/kotlin/global/dto/Policy.kt : policy.onFailure, the :settings OnFailure
 apps/benchmark/modules/config/src/main/kotlin/global/dto/ProviderSources.kt : providers section model; no duplicate artifact or alias
 apps/benchmark/modules/config/src/main/kotlin/global/dto/RunSettings.kt : run defaults and validation
 apps/benchmark/modules/config/src/main/kotlin/global/dto/Selection.kt : testSet and global excludes

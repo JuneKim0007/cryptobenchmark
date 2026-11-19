@@ -1,5 +1,6 @@
-package io.github.junekim0007.cryptobench.preparation.report
+package io.github.junekim0007.cryptobench.settings
 
+/** A case or entry left out, by config or preparation; skipped.yaml and effective.yaml list them. */
 data class Skip(
     val stage: String,
     val provider: String? = null,
@@ -16,6 +17,7 @@ data class Skip(
     override fun toString(): String = "[$stage] ${provider ?: "*"} ${type ?: "*"} ${name ?: "*"}: $reason"
 
     companion object {
+        const val CONFIG = "config"
         const val PREPARATION = "preparation"
     }
 }

@@ -2,7 +2,7 @@ package io.github.junekim0007.cryptobench.benchmark
 
 import io.github.junekim0007.cryptobench.benchmark.check.RunnablePlan
 import io.github.junekim0007.cryptobench.benchmark.verify.record.CaseRecord
-import io.github.junekim0007.cryptobench.preparation.report.Skip
+import io.github.junekim0007.cryptobench.settings.Skip
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

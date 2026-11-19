@@ -1,10 +1,12 @@
 package io.github.junekim0007.cryptobench.config.effective
 
+import io.github.junekim0007.cryptobench.settings.StoppedOnFailureException
+import io.github.junekim0007.cryptobench.settings.OnFailure
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveConfig
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveEntry
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveSource
 import io.github.junekim0007.cryptobench.config.effective.dto.EntryOrigin
-import io.github.junekim0007.cryptobench.config.effective.dto.Skip
+import io.github.junekim0007.cryptobench.settings.Skip
 import io.github.junekim0007.cryptobench.config.entry.EnginePaths
 import io.github.junekim0007.cryptobench.config.entry.KeySource
 import io.github.junekim0007.cryptobench.config.entry.Variants
@@ -72,7 +74,7 @@ class EffectiveBuilder {
     }
 
     private fun stopOnSkips(policy: Policy, skips: List<Skip>) {
-        if (skips.isNotEmpty() && policy.onFailure == Policy.OnFailure.STOP) {
+        if (skips.isNotEmpty() && policy.onFailure == OnFailure.STOP) {
             throw StoppedOnFailureException(skips)
         }
     }

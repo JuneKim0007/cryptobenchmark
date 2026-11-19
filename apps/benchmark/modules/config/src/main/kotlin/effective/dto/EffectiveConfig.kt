@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.config.effective.dto
 
+import io.github.junekim0007.cryptobench.settings.Skip
 import io.github.junekim0007.cryptobench.config.global.dto.AnalysisSettings
 import io.github.junekim0007.cryptobench.config.global.dto.BundledProvider
 import io.github.junekim0007.cryptobench.config.global.dto.Policy

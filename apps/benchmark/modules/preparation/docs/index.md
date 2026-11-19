@@ -24,7 +24,6 @@ apps/benchmark/modules/preparation/src/main/kotlin/engine/EngineTypeName.kt : up
 apps/benchmark/modules/preparation/src/main/kotlin/engine/EngineTypes.kt : engine type to operations registry, read from engine-operations.yaml, with its TYPE_DEFAULT fallback
 apps/benchmark/modules/preparation/src/main/kotlin/global/GlobalReader.kt : reads run and policy sections into GlobalSettings
 apps/benchmark/modules/preparation/src/main/kotlin/global/GlobalSettings.kt : validated run-wide settings
-apps/benchmark/modules/preparation/src/main/kotlin/global/OnFailure.kt : enum STOP, SKIP
 apps/benchmark/modules/preparation/src/main/kotlin/inbound/InboundDocument.kt : effective.yaml split into run, policy, providers sections
 apps/benchmark/modules/preparation/src/main/kotlin/inbound/InboundFile.kt : reads effective.yaml (schema config v1)
 apps/benchmark/modules/preparation/src/main/kotlin/input/CipherKeys.kt : picks the encrypt or decrypt key from KeyMaterial
@@ -86,10 +85,8 @@ apps/benchmark/modules/preparation/src/main/kotlin/prepare/ChartGroup.kt : which
 apps/benchmark/modules/preparation/src/main/kotlin/prepare/Listing.kt : the cases and rejected selections of an effective file, with its run settings; no provider called
 apps/benchmark/modules/preparation/src/main/kotlin/prepare/PreparationException.kt : one step of a case's preparation failed: its code and the scrubbed failure
 apps/benchmark/modules/preparation/src/main/kotlin/prepare/PreparedCase.kt : a built case: case, recipe, key, parameters, keyParameters, input, resolvedParameters, afterCall; its chart group
-apps/benchmark/modules/preparation/src/main/kotlin/prepare/StoppedOnFailureException.kt : thrown under onFailure stop
 apps/benchmark/modules/preparation/src/main/kotlin/record/PreparedDocument.kt : prepared.yaml document shape
 apps/benchmark/modules/preparation/src/main/kotlin/record/PreparedFile.kt : prepared.yaml: the listed cases, then each one's prepared entry, or removed when it failed
-apps/benchmark/modules/preparation/src/main/kotlin/report/Skip.kt : one skipped item (stage, provider, type, name, reason)
 apps/benchmark/modules/preparation/src/main/kotlin/report/SkipFile.kt : skipped.yaml: written whole, read back, one skip added
 apps/benchmark/modules/preparation/src/main/kotlin/request/BenchmarkRequest.kt : selections and global settings, validated
 apps/benchmark/modules/preparation/src/main/kotlin/request/PrimitiveReader.kt : providers section to selections

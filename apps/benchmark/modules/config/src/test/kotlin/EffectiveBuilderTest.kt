@@ -1,7 +1,8 @@
 package io.github.junekim0007.cryptobench.config
 
+import io.github.junekim0007.cryptobench.settings.OnFailure
 import io.github.junekim0007.cryptobench.config.effective.EffectiveBuilder
-import io.github.junekim0007.cryptobench.config.effective.StoppedOnFailureException
+import io.github.junekim0007.cryptobench.settings.StoppedOnFailureException
 import io.github.junekim0007.cryptobench.config.global.GlobalDocument
 import io.github.junekim0007.cryptobench.config.global.dto.Policy
 import io.github.junekim0007.cryptobench.config.global.dto.Warmup
@@ -61,7 +62,7 @@ class EffectiveBuilderTest {
 
     @Test
     fun stopPolicyStopsAndListsEveryFailure() {
-        val strict = global.copy(policy = Policy(Policy.OnFailure.STOP))
+        val strict = global.copy(policy = Policy(OnFailure.STOP))
         val error = assertThrows(StoppedOnFailureException::class.java) { EffectiveBuilder().build(strict, testSet, inventory, names) }
         assertEquals(1, error.skipped.size)
     }

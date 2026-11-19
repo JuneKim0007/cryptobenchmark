@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation.report
 
+import io.github.junekim0007.cryptobench.settings.Skip
 import io.github.junekim0007.cryptobench.document.DocumentFields
 import io.github.junekim0007.cryptobench.files.FileNames
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFile

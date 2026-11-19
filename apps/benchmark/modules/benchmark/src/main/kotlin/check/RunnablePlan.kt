@@ -1,14 +1,14 @@
 package io.github.junekim0007.cryptobench.benchmark.check
 
 import io.github.junekim0007.cryptobench.preparation.Preparation
-import io.github.junekim0007.cryptobench.preparation.global.OnFailure
+import io.github.junekim0007.cryptobench.settings.OnFailure
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.prepare.Listing
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparationException
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
-import io.github.junekim0007.cryptobench.preparation.prepare.StoppedOnFailureException
+import io.github.junekim0007.cryptobench.settings.StoppedOnFailureException
 import io.github.junekim0007.cryptobench.preparation.record.PreparedFile
-import io.github.junekim0007.cryptobench.preparation.report.Skip
+import io.github.junekim0007.cryptobench.settings.Skip
 import io.github.junekim0007.cryptobench.preparation.report.SkipFile
 import io.github.junekim0007.cryptobench.preparation.shared.FailureText
 import java.io.File

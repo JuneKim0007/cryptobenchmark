@@ -6,7 +6,7 @@ import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparationException
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
 import io.github.junekim0007.cryptobench.preparation.record.PreparedFile
-import io.github.junekim0007.cryptobench.preparation.report.Skip
+import io.github.junekim0007.cryptobench.settings.Skip
 import io.github.junekim0007.cryptobench.preparation.report.SkipFile
 import java.io.File
 import java.nio.file.Files

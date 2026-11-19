@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.config.effective
 
-import io.github.junekim0007.cryptobench.config.effective.dto.Skip
+import io.github.junekim0007.cryptobench.settings.Skip
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalStringOrNull
 import io.github.junekim0007.cryptobench.document.DocumentFields.string
 

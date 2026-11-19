@@ -7,8 +7,8 @@ import org.junit.Assert.assertThrows
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
-import io.github.junekim0007.cryptobench.config.effective.dto.Skip as ConfigSkip
-import io.github.junekim0007.cryptobench.preparation.report.Skip as PreparationSkip
+import io.github.junekim0007.cryptobench.settings.Skip as ConfigSkip
+import io.github.junekim0007.cryptobench.settings.Skip as PreparationSkip
 
 /** Characterization: the same skips written by config (report.yaml) and preparation (skipped.yaml), and how each reads a skip without a stage. */
 class SkipWritersTest {

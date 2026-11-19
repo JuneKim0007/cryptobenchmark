@@ -5,7 +5,7 @@ import io.github.junekim0007.cryptobench.benchmark.verify.observe.ObservedCall
 import io.github.junekim0007.cryptobench.benchmark.verify.oracle.Judgement
 import io.github.junekim0007.cryptobench.preparation.interop.report.Outcome
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
-import io.github.junekim0007.cryptobench.preparation.report.Skip
+import io.github.junekim0007.cryptobench.settings.Skip
 import io.github.junekim0007.cryptobench.preparation.shared.FailureText
 
 /** One case of check.yaml: its plan, what ran, the outcome, every oracle's verdict, and the output digest where the call is deterministic. */

@@ -6,8 +6,8 @@ import io.github.junekim0007.cryptobench.benchmark.run.HostHarness
 import io.github.junekim0007.cryptobench.preparation.Preparation
 import io.github.junekim0007.cryptobench.preparation.port.Availability
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
-import io.github.junekim0007.cryptobench.preparation.prepare.StoppedOnFailureException
-import io.github.junekim0007.cryptobench.preparation.report.Skip
+import io.github.junekim0007.cryptobench.settings.StoppedOnFailureException
+import io.github.junekim0007.cryptobench.settings.Skip
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
