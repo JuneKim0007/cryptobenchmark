@@ -35,7 +35,15 @@ python3 apps/cli/facade.py --settings settings.yaml                   # benchmar
 
 - **Set `run.thermalGate` on a phone, and find its temperature for your device.** A hot phone slows its CPU without reporting it, so numbers shift silently. `temperatureKeptCelsius` 36.0 is where a Pixel 10 slows down; other devices may differ.
 - **Give very short algorithms more runs.** A case contains runs and a run contains iters. Fast hashes and MACs vary more from run to run than slow operations do, and more iters do not fix that: the extra launches do. `run.processRepetitions` sets one count for every case.
-- **Use airplane mode.** Background radio work adds noise.
+
+## Connected device setup
+
+- Turn on airplane mode.
+- Keep the charger connected for the whole run.
+- Start with the battery at 95% or more.
+- Enable USB debugging and connect over USB.
+- Close every other instance of the benchmark app.
+- Do not touch or move the phone while a run measures.
 
 ## Fixed behavior
 
