@@ -13,15 +13,7 @@ class SkipFile(private val directory: File) {
     fun write(skipped: List<Skip>): File {
         val document = linkedMapOf<String, Any>(
             "schemaVersion" to SCHEMA_VERSION,
-            "skipped" to skipped.map { skip ->
-                LinkedHashMap<String, Any>().apply {
-                    put("stage", skip.stage)
-                    skip.provider?.let { put("provider", it) }
-                    skip.type?.let { put("type", it) }
-                    skip.name?.let { put("name", it) }
-                    put("reason", skip.reason)
-                }
-            },
+            "skipped" to skipped.map(Skip::fields),
         )
         return DocumentFile.write(file, document)
     }
@@ -30,11 +22,9 @@ class SkipFile(private val directory: File) {
     fun added(skip: Skip): File = write(read() + skip)
 
     fun read(): List<Skip> =
-        DocumentFields.sections(DocumentFile.read(file, SCHEMA_VERSION), "skipped").map { entry ->
-            Skip(entry["stage"].toString(), entry["provider"]?.toString(), entry["type"]?.toString(), entry["name"]?.toString(), entry["reason"].toString())
-        }
+        DocumentFields.sections(DocumentFile.read(file, SCHEMA_VERSION), "skipped").map(Skip::read)
 
     companion object {
-        private const val SCHEMA_VERSION = 1
+        private const val SCHEMA_VERSION = 2
     }
 }

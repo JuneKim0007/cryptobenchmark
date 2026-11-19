@@ -7,10 +7,11 @@ import io.github.junekim0007.cryptobench.document.DocumentFields.expectKeys
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSections
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalStringOrNull
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalStrings
+import io.github.junekim0007.cryptobench.settings.Skip
 
 object ReportDocument : DocumentHandler<Report> {
 
-    override val schemaVersion: Int = 1
+    override val schemaVersion: Int = 2
 
     private const val RUN_ID = "runId"
     private const val WARNINGS = "warnings"
@@ -19,7 +20,7 @@ object ReportDocument : DocumentHandler<Report> {
     override fun of(value: Report): Map<String, Any> = LinkedHashMap<String, Any>().apply {
         value.runId?.let { put(RUN_ID, it) }
         put(WARNINGS, value.warnings)
-        put(SKIPPED, value.skipped.map { SkipDocument.of(it) })
+        put(SKIPPED, value.skipped.map(Skip::fields))
     }
 
     override fun parse(document: Map<String, Any>): Report {
@@ -27,7 +28,7 @@ object ReportDocument : DocumentHandler<Report> {
         return Report(
             runId = optionalStringOrNull(document, RUN_ID),
             warnings = optionalStrings(document, WARNINGS),
-            skipped = optionalSections(document, SKIPPED).map { SkipDocument.parse(it) },
+            skipped = optionalSections(document, SKIPPED).map(Skip::read),
         )
     }
 }

@@ -69,7 +69,7 @@ internal fun Preparation.prepareAll(effective: File, directory: File? = null): T
             prepareOne(case).also(record::prepared)
         } catch (failure: PreparationException) {
             record.failed(case.id)
-            failed += Skip(Skip.PREPARATION, case.provider, case.type, case.algorithm, "${case.id}: ${failure.reason}")
+            failed += Skip(Skip.PREPARATION, case.provider, case.type, case.algorithm, failure.reason, case.id)
             null
         }
     }

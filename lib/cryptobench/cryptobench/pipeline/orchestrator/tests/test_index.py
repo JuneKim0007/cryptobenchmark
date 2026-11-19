@@ -15,14 +15,14 @@ def unit(tmp_path):
     (folder / "benchmark").mkdir()
     (folder / "configuration/effective.yaml").write_text(yaml.safe_dump({"schemaVersion": 2, "providers": {
         "SunJCE": {"Mac": {"HmacSHA256": {"from": FROM}}}, "SUN": {"MessageDigest": {"SHA-256": {"from": {"testSet": "/s/tier1.yaml"}}}}}}))
-    (folder / "configuration/report.yaml").write_text(yaml.safe_dump({"schemaVersion": 1, "skipped": [
-        {"stage": "config", "provider": "BC", "type": "Mac", "name": "HmacSHA256", "reason": "no_match: nothing on this device matches the include"}]}))
+    (folder / "configuration/report.yaml").write_text(yaml.safe_dump({"schemaVersion": 2, "skipped": [
+        {"stage": "config", "provider": "BC", "type": "Mac", "name": "HmacSHA256", "code": "no_match", "reason": "nothing on this device matches the include"}]}))
     (folder / "preparation/prepared.yaml").write_text(yaml.safe_dump({"schemaVersion": 3, "cases": [
         {"id": "Mac_HmacSHA256_MAC_SunJCE_k256_i64_WARM_fixed", "from": FROM},
         {"id": "Mac_HmacSHA256_MAC_SunJCE_k256_i64_WARM_notFixed", "from": FROM}]}))
-    (folder / "preparation/skipped.yaml").write_text(yaml.safe_dump({"schemaVersion": 1, "skipped": [
+    (folder / "preparation/skipped.yaml").write_text(yaml.safe_dump({"schemaVersion": 2, "skipped": [
         {"stage": "preparation", "provider": "SUN", "type": "MessageDigest", "name": "SHA-256",
-         "reason": "MessageDigest_SHA-256_DIGEST_SUN_i64_WARM_fixed: unsupported_parameter: x"}]}))
+         "caseId": "MessageDigest_SHA-256_DIGEST_SUN_i64_WARM_fixed", "code": "unsupported_parameter", "reason": "x"}]}))
     (folder / "benchmark/benchmark.json").write_text(json.dumps({"cases": [
         {"id": "Mac_HmacSHA256_MAC_SunJCE_k256_i64_WARM_fixed", "metrics": {"timeNs": {"runs": [1.0, 2.0, 3.0]}}}]}))
     return folder
@@ -47,7 +47,3 @@ def test_a_run_that_wrote_nothing_has_no_cases_and_a_row_without_results_is_list
                                            tmp_path / "index.yaml").read_text())
     assert written["schemaVersion"] == 1 and written["session"] == "s"
     assert [r["state"] for r in written["runs"]] == ["skipped", "finished"] and {c["target"] for c in written["cases"]} == {"b"}
-
-
-def test_a_skip_reason_without_a_case_id_keeps_only_its_code():
-    assert index.skipped_case("plan_refused: the plan check failed") == (None, "plan_refused")

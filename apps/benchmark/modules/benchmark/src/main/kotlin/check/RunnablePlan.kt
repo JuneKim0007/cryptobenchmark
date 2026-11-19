@@ -68,7 +68,7 @@ class RunnablePlan(
         } catch (failure: Throwable) {
             val reason = (failure as? PreparationException)?.reason ?: FailureText.of(failure, "$code: ")
             onFailure()
-            Skip(stage, case.provider, case.type, case.algorithm, "${case.id}: $reason").also { skip ->
+            Skip(stage, case.provider, case.type, case.algorithm, reason, case.id).also { skip ->
                 added += skip
                 skipFile.added(skip)
                 log(skip)

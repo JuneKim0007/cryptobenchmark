@@ -59,7 +59,7 @@ class DocumentWritersTest {
               emptyList: []
               emptyMap: {}
             === YamlFile
-            schemaVersion: 1
+            schemaVersion: 2
             runId: run-1
             warnings:
             - 'w: one'
@@ -67,8 +67,8 @@ class DocumentWritersTest {
               two
               lines
             skipped:
-            - {stage: config, provider: P, type: Cipher, name: AES, reason: 'no_match: x'}
-            - {stage: config, reason: r}
+            - {stage: config, provider: P, type: Cipher, name: AES, code: no_match, reason: x}
+            - {stage: config, code: r}
             end
         """.trimIndent()
     }

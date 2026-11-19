@@ -18,7 +18,7 @@ class PlanCheck(
     class Checked(val runnable: List<BenchmarkCase>, val refused: List<Pair<BenchmarkCase, Refusal>>) {
 
         val skipped: List<Skip> get() = refused.map { (case, refusal) ->
-            Skip(STAGE, case.provider, case.type, case.algorithm, refusal.toString())
+            Skip(STAGE, case.provider, case.type, case.algorithm, refusal.reason, refusal.caseId)
         }
     }
 

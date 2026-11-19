@@ -51,11 +51,9 @@ class CaseRecord(
 
         // A case that ran and broke during the check is an error; a case stopped before it never ran.
         private fun fromSkip(skip: Skip): CaseRecord {
-            // A preparation skip names its case first; a rejection before expansion has only its service and code.
+            // a rejection before expansion names no case: its service and code stand in
             val reason = FailureText.stable(skip.reason)
-            val head = reason.substringBefore(": ")
-            val id = if (skip.type != null && head.startsWith(skip.type + "_")) head
-            else listOfNotNull(skip.stage, skip.provider, skip.type, skip.name, head).joinToString("|")
+            val id = skip.caseId ?: listOfNotNull(skip.stage, skip.provider, skip.type, skip.name, skip.code).joinToString("|")
             return CaseRecord(id, if (skip.stage == RunnablePlan.CHECK) ERROR else NOT_RUN, linkedMapOf<String, Any>("stage" to skip.stage, "reason" to reason).apply {
                 skip.provider?.let { put("provider", it) }
                 skip.type?.let { put("type", it) }

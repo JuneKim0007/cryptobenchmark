@@ -18,7 +18,6 @@ from perfrepair.data_handler.inbound.__main__ import main
 from perfrepair.data_handler.inbound.run_log import (
     NO_SAMPLES,
     normalise_reason,
-    split_case_id,
 )
 from perfrepair.data_handler.inbound.results import ended_throttled, thermal_of
 from perfrepair.dto import Measurements
@@ -186,11 +185,7 @@ def test_stops_variant_unrepaired_stop_refuses_before_writing(tmp_path):
     assert code == 1 and not (device / "rows.json").exists()
 
 
-def test_case_id_is_split_out_of_a_reason():
-    assert split_case_id("Cipher_X_k192_p81667fe4: dry_run_failed: Bad: 24 bytes") == (
-        "Cipher_X_k192_p81667fe4", "dry_run_failed: Bad: 24 bytes")
-    assert split_case_id("provider_not_installed: Foo") == (None, "provider_not_installed: Foo")
-    assert split_case_id("not_positive: iterations 0") == (None, "not_positive: iterations 0")
+def test_a_reason_loses_identity_hashes_and_extra_whitespace():
     assert normalise_reason("Key: Spec@9b4f8de3\n  more") == "Key: Spec@… more"
 
 

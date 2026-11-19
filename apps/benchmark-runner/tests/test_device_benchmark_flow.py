@@ -128,14 +128,19 @@ def test_a_crash_and_a_hang_cost_only_their_cases(tmp_path, monkeypatch):
 
 
 # a Pixel 10's StrongBox refusals as its skipped.yaml recorded them, each case three times (one launch and launchRetries 2)
-STRONGBOX = yaml.safe_load((pathlib.Path(__file__).parent / "fixtures/skipped_strongbox.yaml").read_text())["skipped"]
-REFUSED = {skips.split(record["reason"])[0]: record for record in STRONGBOX}
+STRONGBOX = yaml.safe_load((pathlib.Path(__file__).parent / "fixtures/skipped_strongbox.yaml").read_text())
+REFUSED = {record["caseId"]: record for record in STRONGBOX["skipped"]}
 
 
 def test_every_strongbox_refusal_on_record_is_a_final_keystore_unsupported_skip():
-    assert skips.recorded({"skipped": STRONGBOX}) == {case: "keystore_unsupported" for case in REFUSED} and len(REFUSED) == 5
-    assert skips.coded({"reason": "x: hook_failed_somewhere"}) is None and skips.coded({"reason": "provider_not_installed: Foo"}) is None
-    assert skips.coded({"reason": "x: bench_failed: a notice is no skip"}) is None
+    assert skips.recorded(STRONGBOX) == {case: "keystore_unsupported" for case in REFUSED} and len(REFUSED) == 5
+    assert skips.coded({"caseId": "x", "code": "hook_failed_somewhere"}) is None and skips.coded({"code": "provider_not_installed"}) is None
+    assert skips.coded({"caseId": "x", "code": "bench_failed", "reason": "a notice is no skip"}) is None
+
+
+def test_a_skipped_yaml_of_the_old_schema_is_refused():
+    with pytest.raises(Exception, match="schemaVersion 1 is not 2"):
+        skips.recorded({"schemaVersion": 1, "skipped": []})
 
 
 def test_a_coded_preparation_skip_is_final_and_a_crash_keeps_its_retries(tmp_path, monkeypatch):

@@ -14,7 +14,7 @@ apps/benchmark/modules/settings/src/main/kotlin/Key.kt : Key, Leaf and Nested se
 apps/benchmark/modules/settings/src/main/kotlin/Metric.kt : run.metrics enum TIME, ALLOCATION; reading
 apps/benchmark/modules/settings/src/main/kotlin/OnFailure.kt : policy.onFailure: STOP, SKIP; config and preparation read it
 apps/benchmark/modules/settings/src/main/kotlin/Section.kt : ordered key table: read, write, merge, forDevice
-apps/benchmark/modules/settings/src/main/kotlin/Skip.kt : one skipped item {stage (config | preparation), provider?, type?, name?, reason}; effective.yaml and skipped.yaml list them
+apps/benchmark/modules/settings/src/main/kotlin/Skip.kt : one skipped item {stage, provider?, type?, name?, caseId?, code, reason}, its record map and read; report.yaml and skipped.yaml list them
 apps/benchmark/modules/settings/src/main/kotlin/StoppedOnFailureException.kt : thrown under onFailure stop, carrying every skip
 apps/benchmark/modules/settings/src/main/kotlin/Support.kt : Support and Unsupported
 apps/benchmark/modules/settings/src/main/kotlin/Values.kt : single-value type readers

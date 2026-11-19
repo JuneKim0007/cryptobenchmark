@@ -20,8 +20,8 @@ class CaseRecordTest {
 
     @Test
     fun aCaseThatBrokeDuringTheCheckIsAnErrorAndOneThatNeverRanIsNotRun() {
-        val broke = Skip(RunnablePlan.CHECK, "BC", "Mac", "HmacSHA1", "Mac_HmacSHA1_x: check_failed: AssertionError: provider bug")
-        val neverRan = Skip(Skip.PREPARATION, "BC", "Mac", "HmacSHA256", "Mac_HmacSHA256_x: preparation_failed: no key")
+        val broke = Skip(RunnablePlan.CHECK, "BC", "Mac", "HmacSHA1", "check_failed: AssertionError: provider bug", "Mac_HmacSHA1_x")
+        val neverRan = Skip(Skip.PREPARATION, "BC", "Mac", "HmacSHA256", "preparation_failed: no key", "Mac_HmacSHA256_x")
         assertEquals(listOf(CaseRecord.ERROR, CaseRecord.NOT_RUN), CaseRecord.fromSkips(listOf(broke, neverRan)).map { it.outcome })
     }
 

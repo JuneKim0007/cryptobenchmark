@@ -85,7 +85,7 @@ class Phone(device_module.Device):
             self.pulled(remote, local, True)
 
     def skipped_file(self, local):
-        pathlib.Path(local).write_text(yaml.safe_dump({"skipped": self.skips}) if self.skips else "skipped: []\n")
+        pathlib.Path(local).write_text(yaml.safe_dump({"schemaVersion": 2, "skipped": self.skips}))
 
     def shell(self, command):
         if command.startswith("for c in /sys"):

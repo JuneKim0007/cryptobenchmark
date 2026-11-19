@@ -49,7 +49,7 @@ The instrumentation app that probes, prepares and measures on a device. Device r
 | inputs | `effective.yaml` required: `missing_file: ..., push effective.yaml with the capture and the trial`; newest `probe_*` via discovery's `ProbeDirectory`, its `trial_*` by the same stamp; none: `missing_file: ...` |
 | list | `RunnablePlan.list`: no key made, no provider called; a process without the `case` argument (the listing) writes `skipped.yaml` and `prepared.yaml` afresh, a process given cases by name only adds to them |
 | prepare | `DevicePlan.prepared(case)` inside the test: a failure is that case's skip in `skipped.yaml`, its entry removed from `prepared.yaml`; `CryptoBenchmark` and `EnergyDryBenchmark` then fail the test (`not_prepared: <skip>`), `EndToEndCheck` records it as notRun |
-| check | `PlanCheck.runnable` with `JetpackConfig.METRICS` and `energy.yaml` from the device directory: a refused case is left out and added to `skipped.yaml` (stage `benchmark`, reason `<caseId>: <refusal>`); a run-wide refusal or no case left throws `RefusedPlanException` |
+| check | `PlanCheck.runnable` with `JetpackConfig.METRICS` and `energy.yaml` from the device directory: a refused case is left out and added to `skipped.yaml` (stage `benchmark`, `caseId` and the refusal's `code`); a run-wide refusal or no case left throws `RefusedPlanException` |
 | timed cases | `harness.energy.capture` other than `dry`; with the instrumentation argument `case` (`CaseFilter.ARGUMENT`) only the named ids, in the argument's order |
 | dry cases | `harness.energy.capture` = `dry` |
 

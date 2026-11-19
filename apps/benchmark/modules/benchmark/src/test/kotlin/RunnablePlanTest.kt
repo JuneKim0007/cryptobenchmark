@@ -76,7 +76,7 @@ items:
     fun anyThrowAtPreparationLosesOnlyItsCase() {
         val prepared = plan.preparedAll(effective())
         assertEquals(listOf("MessageDigest_SHA-256_DIGEST_SUN_i64_WARM_fixed"), prepared.map { it.case.id })
-        val reasons = logged.map { it.reason.substringAfter(": ") }
+        val reasons = logged.map { it.reason }
         assertEquals(listOf("preparation_failed: AssertionError", "preparation_failed: StackOverflowError", "dry_run_failed: IllegalStateException"),
             reasons.map { it.substringBefore(": armed").substringBefore(": null").trimEnd(':', ' ') })
         val skipped = File(folder.root, "out/skipped.yaml").readText()

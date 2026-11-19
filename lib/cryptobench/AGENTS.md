@@ -105,6 +105,7 @@ cryptobench/shared/results/partial.py : a run that stopped: the partial record (
 cryptobench/shared/results/run_record.py : a measuring run's record: its identity, energyAcceptUnresponsive and the checkout's commit and clean, held by every block record and the manifest's run:; RUN_KEYS and FLAGS, the DATA / NOT_DATA table, and the refusal of an unresolved DATA value; changed without the checkout
 cryptobench/shared/results/run_inputs.py : digests of a run's inputs, providers.bundled and global.yaml with its test set (analysis left out), for the manifest and --identify
 cryptobench/shared/results/select.py : the device folder of a results root a reader names, or the only one there
+cryptobench/shared/results/skipped.py : skip records of skipped.yaml (SKIPPED_DOC) and report.yaml (REPORT_DOC), version-checked: stage, provider, type, name, caseId, code, reason
 cryptobench/shared/session/__init__.py : package of a session: session.yaml, its targets against the devices adb lists, order groups
 cryptobench/shared/session/document.py : Session; session.yaml read and checked whole, paths resolved against its folder, discovery and probeStore checked as pipeline.py takes them; a file that cannot be read stops
 cryptobench/shared/session/targets.py : TargetSpec, Resolved; resolve: each target found by key, alias or serial, its order, config, suites and the session's discovery mode checked, a coded skip per bad target, the host after the last phone group; groups; nothing_to_measure
@@ -164,7 +165,7 @@ cryptobench/stages/measurement/session/gate_history.py : what one temperature ga
 cryptobench/stages/measurement/session/launch.py : the only place a timed run of a case starts: hold, launch, verdict, check_case, rejected/, retries, relaunched entries
 cryptobench/stages/measurement/session/measure.py : one device measuring session of the benchmark: processes, a process per case, hooks, check_run at a process's end with its cases launched again; a process repetition's folder and line, a case's progress line
 cryptobench/stages/measurement/session/passes.py : run.passes: PASS_ROWS (metrics, keeps capture, cleaned, owned key, sizing) and pass_views from RunView; one device session per metric group, its device arguments and conversion, the merge per metric; MergeRunsKt over process repetitions
-cryptobench/stages/measurement/session/skips.py : a skipped.yaml record whose code codes.yaml holds as an outcome or an error: a final skip, its case_skipped line
+cryptobench/stages/measurement/session/skips.py : a skipped.yaml record (caseId, code) whose code codes.yaml holds as an outcome or an error: a final skip, its case_skipped line
 cryptobench/stages/measurement/session/thermal_hook.py : session hook: temperature around every process and case into thermal.json with the gate's history, its lines per pass
 cryptobench/stages/measurement/session/variant_order.py : run.variants on a device: an item's fixed and notFixed cases adjacent, A/B then B/A over repetitions; run.orderSeed's per-process shuffle; the order's identity stanza
 cryptobench/stages/measurement/session/window.py : run.passes.energy.minWindowSeconds: a case's window from its pulled file, one relaunch at 1.5 x the minimum, short_window, energy-samples.yaml

@@ -50,7 +50,7 @@ class EffectiveBuilderTest {
     /** An include that matches nothing on this device is reported, not silently dropped. */
     @Test
     fun whatCannotRunIsSkippedWithAReason() {
-        assertEquals(listOf("no_match"), effective.skipped.map { it.reason.substringBefore(':') })
+        assertEquals(listOf("no_match"), effective.skipped.map { it.code })
     }
 
     @Test

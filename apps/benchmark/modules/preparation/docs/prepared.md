@@ -13,7 +13,7 @@ What a run's preparation leaves: `skipped.yaml` and `prepared.yaml`, written by 
 
 ## skipped.yaml
 
-`schemaVersion: 1`; `skipped[]` of `{stage, provider, type, name, reason}`. Same record shape as config's `skipped` (stage `config`); preparation writes stage `preparation`.
+`schemaVersion: 2`; `skipped[]` of `{stage, provider?, type?, name?, caseId?, code, reason?}`: `caseId` when one case is meant, `code` the snake_case code, `reason` the detail after it. Same record as config's `skipped` (stage `config`, never a `caseId`); preparation writes stage `preparation`, the plan check `benchmark`, the end-to-end check `check`. A file of another version is refused (`unsupported_schema_version`).
 
 ## Case id
 

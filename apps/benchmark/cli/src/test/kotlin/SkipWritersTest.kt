@@ -7,65 +7,75 @@ import org.junit.Assert.assertThrows
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
-import io.github.junekim0007.cryptobench.settings.Skip as ConfigSkip
-import io.github.junekim0007.cryptobench.settings.Skip as PreparationSkip
+import io.github.junekim0007.cryptobench.settings.Skip
 
-/** Characterization: the same skips written by config (report.yaml) and preparation (skipped.yaml), and how each reads a skip without a stage. */
+/** The same skips written by config (report.yaml) and preparation (skipped.yaml) and read back; a record without a code or of schema 1 is refused by both. */
 class SkipWritersTest {
 
     @get:Rule
     val folder = TemporaryFolder()
 
-    private val fields = listOf(
-        listOf("P", "Cipher", "AES/GCM/NoPadding", "no_match: 'quoted' and: colon"),
-        listOf(null, "Mac", null, "path_not_applicable: x"),
-        listOf(null, null, null, "multi\nline"),
+    private val skips = listOf(
+        Skip("stage", "P", "Cipher", "AES/GCM/NoPadding", "no_match: 'quoted' and: colon"),
+        Skip("stage", null, "Mac", null, "path_not_applicable: x"),
+        Skip("stage", reason = "check_failed: multi\nline", caseId = "Mac_HmacSHA1_x"),
+        Skip("stage", reason = "bare_code"),
     )
 
     @Test
     fun bothWriteEachSkipAsTheSameFlowMapping() {
-        val config = YamlFiles().at(folder.root.resolve("c/report.yaml"), ReportDocument)
-            .write(Report(null, skipped = fields.map { (p, t, n, r) -> ConfigSkip("stage", p, t, n, r!!) })).readText()
-        val preparation = SkipFile(folder.newFolder("p"))
-            .write(fields.map { (p, t, n, r) -> PreparationSkip("stage", p, t, n, r!!) }).readText()
+        val report = YamlFiles().at(folder.root.resolve("c/report.yaml"), ReportDocument)
+        val config = report.write(Report(null, skipped = skips)).readText()
+        val skipFile = SkipFile(folder.newFolder("p"))
+        val preparation = skipFile.write(skips).readText()
         assertEquals(EXPECTED, "=== report.yaml\n$config=== skipped.yaml\n${preparation}end")
+        assertEquals(skips, report.read().skipped)
+        assertEquals(skips, skipFile.read())
     }
 
     @Test
-    fun todayConfigRefusesASkipWithoutAStageAndPreparationReadsItAsNull() {
-        val text = "schemaVersion: 1\nskipped:\n- {reason: r}\n"
-        val refused = assertThrows(IllegalArgumentException::class.java) {
-            YamlFiles().at(folder.newFile("report.yaml").apply { writeText(text) }, ReportDocument).read()
+    fun aRecordWithoutACodeOrOfTheOldSchemaIsRefusedByBoth() {
+        fun refusals(text: String): List<String?> {
+            val report = folder.newFolder().resolve("report.yaml").apply { writeText(text) }
+            val directory = folder.newFolder().apply { resolve("skipped.yaml").writeText(text) }
+            return listOf(assertThrows(IllegalArgumentException::class.java) { YamlFiles().at(report, ReportDocument).read() }.message,
+                          assertThrows(IllegalArgumentException::class.java) { SkipFile(directory).read() }.message)
         }
-        assertEquals("report.yaml: missing_field: stage", refused.message)
-        val directory = folder.newFolder("p")
-        directory.resolve("skipped.yaml").writeText(text)
-        assertEquals(listOf(PreparationSkip("null", reason = "r")), SkipFile(directory).read())
+        assertEquals(listOf("report.yaml: missing_field: skipped code", "missing_field: skipped code"),
+                     refusals("schemaVersion: 2\nskipped:\n- {stage: s, reason: r}\n"))
+        assertEquals(listOf("unsupported_schema_version: report.yaml: 1, this build reads 2", "unsupported_schema_version: skipped.yaml: 1, this build reads 2"),
+                     refusals("schemaVersion: 1\nskipped: []\n"))
     }
 
     private companion object {
         val EXPECTED = """
             === report.yaml
-            schemaVersion: 1
+            schemaVersion: 2
             warnings: []
             skipped:
-            - {stage: stage, provider: P, type: Cipher, name: AES/GCM/NoPadding, reason: 'no_match:
-                ''quoted'' and: colon'}
-            - {stage: stage, type: Mac, reason: 'path_not_applicable: x'}
+            - {stage: stage, provider: P, type: Cipher, name: AES/GCM/NoPadding, code: no_match,
+              reason: '''quoted'' and: colon'}
+            - {stage: stage, type: Mac, code: path_not_applicable, reason: x}
             - stage: stage
+              caseId: Mac_HmacSHA1_x
+              code: check_failed
               reason: |-
                 multi
                 line
+            - {stage: stage, code: bare_code}
             === skipped.yaml
-            schemaVersion: 1
+            schemaVersion: 2
             skipped:
-            - {stage: stage, provider: P, type: Cipher, name: AES/GCM/NoPadding, reason: 'no_match:
-                ''quoted'' and: colon'}
-            - {stage: stage, type: Mac, reason: 'path_not_applicable: x'}
+            - {stage: stage, provider: P, type: Cipher, name: AES/GCM/NoPadding, code: no_match,
+              reason: '''quoted'' and: colon'}
+            - {stage: stage, type: Mac, code: path_not_applicable, reason: x}
             - stage: stage
+              caseId: Mac_HmacSHA1_x
+              code: check_failed
               reason: |-
                 multi
                 line
+            - {stage: stage, code: bare_code}
             end
         """.trimIndent()
     }

@@ -29,7 +29,7 @@ Nothing here builds a call: the timed call is the `Invocation` preparation prove
 
 | rule | value |
 |---|---|
-| `runnable(cases, processRepetitions)` | the one rule, host (`BenchKt`, `CheckKt`) and device: refused cases left out with their refusal, added to `skipped.yaml` (stage `benchmark`, reason `<caseId>: <refusal>`); a run-wide refusal or no case left throws `RefusedPlanException` `refused_plan: ...` |
+| `runnable(cases, processRepetitions)` | the one rule, host (`BenchKt`, `CheckKt`) and device: refused cases left out with their refusal, added to `skipped.yaml` (stage `benchmark`, `caseId` and the refusal's `code`); a run-wide refusal or no case left throws `RefusedPlanException` `refused_plan: ...` |
 | `Refusal.toString` | `<caseId>: <reason>`; bare reason when run-wide |
 
 ## What one sample is

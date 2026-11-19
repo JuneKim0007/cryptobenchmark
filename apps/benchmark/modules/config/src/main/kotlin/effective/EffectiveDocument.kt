@@ -30,6 +30,7 @@ import io.github.junekim0007.cryptobench.config.layers.LayerStack
 import io.github.junekim0007.cryptobench.document.DocumentFields.string
 import io.github.junekim0007.cryptobench.config.yaml.DocumentHandler
 import io.github.junekim0007.cryptobench.config.yaml.ProviderTree
+import io.github.junekim0007.cryptobench.settings.Skip
 
 object EffectiveDocument : DocumentHandler<EffectiveConfig> {
 
@@ -92,7 +93,7 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
             analysis = optionalSection(document, ANALYSIS)?.let { AnalysisDocument.parse(it, ANALYSIS) } ?: AnalysisSettings(),
             providers = ProviderTree.parse(section(document, PROVIDERS), PROVIDERS, ::entryOf),
             warnings = optionalStrings(document, WARNINGS),
-            skipped = optionalSections(document, SKIPPED).map { SkipDocument.parse(it) },
+            skipped = optionalSections(document, SKIPPED).map(Skip::read),
             bundledProviders = ProvidersDocument.parseBundled(optionalSections(document, BUNDLED_PROVIDERS), BUNDLED_PROVIDERS),
         )
     }

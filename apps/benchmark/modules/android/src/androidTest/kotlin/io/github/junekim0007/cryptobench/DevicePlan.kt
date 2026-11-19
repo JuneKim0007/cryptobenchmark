@@ -57,7 +57,7 @@ object DevicePlan {
 
     fun <T> guarded(case: BenchmarkCase, block: () -> T): T? = plan.guarded(case, RunnablePlan.CHECK, RunnablePlan.CHECK_FAILED, block = block)
 
-    fun skipOf(case: BenchmarkCase): Skip? = plan.skipped.lastOrNull { it.reason.startsWith("${case.id}: ") }
+    fun skipOf(case: BenchmarkCase): Skip? = plan.skipped.lastOrNull { it.caseId == case.id }
 
     private fun energyCapability(): EnergyCapability? =
         File(directory, FileNames.ENERGY_CAPABILITY).takeIf { it.isFile }?.let { EnergyCapability.parse(it.readText()) }
