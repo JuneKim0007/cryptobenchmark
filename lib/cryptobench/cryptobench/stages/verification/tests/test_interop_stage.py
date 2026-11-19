@@ -66,3 +66,14 @@ def test_the_summary_names_every_pair_that_did_not_pass(tmp_path, capsys):
     interop_stage.summary(out)
     out = capsys.readouterr().out
     assert "1 oaep fail" in out and "gcm" not in out
+
+
+def test_the_host_interop_builds_the_cli_with_the_bundled_providers_and_names_the_effective_file(tmp_path, monkeypatch):
+    from cryptobench.shared.device import gradle_runner
+    effective = tmp_path / "effective.yaml"
+    effective.write_text(yaml.safe_dump({"bundledProviders": [{"artifact": "g:n:1", "create": "a.B"}]}))
+    seen = {}
+    monkeypatch.setattr(gradle_runner, "run", lambda arguments, *_a, **options: seen.update(options, arguments=arguments))
+    interop_stage.on_host(effective, "p.yaml", "t.yaml", "plan.yaml", "out.yaml", False, False)
+    assert seen["main_class"] == "InteropKt" and seen["properties"] == ["-PbundledArtifacts=g:n:1"]
+    assert seen["arguments"] == f"p.yaml t.yaml {effective} plan.yaml out.yaml"

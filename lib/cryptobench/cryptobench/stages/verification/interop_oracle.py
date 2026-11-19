@@ -6,6 +6,7 @@ from cryptobench.shared import paths
 from cryptobench.shared.device.adb import ONE_PASSED
 from cryptobench.shared.device.plan import push_plan
 from cryptobench.shared.document.document import read_yaml
+from cryptobench.shared.settings import bundled
 
 
 def stage_plan(plan, into):
@@ -19,7 +20,8 @@ def stage_plan(plan, into):
 
 def on_host(effective, capture, trial, plan, out, stacktrace, stream):
     """The pairs on this JVM, the effective file's bundled providers installed first, as CheckKt does."""
-    gradle_runner.run(f"{capture} {trial} {effective} {plan} {out}", stacktrace, stream, main_class="InteropKt")
+    gradle_runner.run(f"{capture} {trial} {effective} {plan} {out}", stacktrace, stream, main_class="InteropKt",
+                      properties=bundled.gradle_properties(bundled.recorded(effective)))
 
 
 def on_device(device, waits, effective, capture, trial, plan, out):
