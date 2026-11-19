@@ -34,11 +34,14 @@ class EnergySession:
                        f"{session}; kill $pids")
         self.device.shell(session)
 
+    def reading(self, config, local, busy=False):
+        remote = f"{TRACES}/{local.name}"
+        self.record(config, remote, busy=busy)
+        self.device.pull(remote, local)
+
     def preflight(self, idle_config, busy_config, idle, busy):
-        for config, local, loaded in ((idle_config, idle, False), (busy_config, busy, True)):
-            remote = f"{TRACES}/{local.name}"
-            self.record(config, remote, busy=loaded)
-            self.device.pull(remote, local)
+        self.reading(idle_config, idle)
+        self.reading(busy_config, busy, busy=True)
 
     def dry_pass(self, config, trace, calls, preparation, test_class="EnergyDryBenchmark"):
         """No Jetpack trace runs in this pass, so none kills the host session."""

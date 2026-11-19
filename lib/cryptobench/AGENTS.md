@@ -59,7 +59,7 @@ cryptobench/shared/device/clocks.py : per-core cpufreq over adb; clocks.yaml and
 cryptobench/shared/device/gradle_runner.py : runs one command of apps/benchmark/cli by its main class; filters its failure to the tool's own lines
 cryptobench/shared/device/identity.py : device id from a capture's runtime block
 cryptobench/shared/device/instrumentation.py : Instrumented, one instrumentation step's row (test class, clears before or after, pass rule, pulls); once() runs it, Failed when it did not pass; run() waits out a lost transport and runs it again
-cryptobench/shared/device/plan.py : the device plan: pushed and AOT-compiled, prepared and skipped pulled back, the skips recorded so far, per-run outputs cleared; a run's push with the suppressErrors warning, then the energy settle's files
+cryptobench/shared/device/plan.py : the device plan: pushed and AOT-compiled, prepared and skipped pulled back, the skips recorded so far, per-run outputs cleared; a run's push with the suppressErrors warning, then the energy pre-flight's files
 cryptobench/shared/device/probe.py : DeviceRow; adb transports classified ready or not with a coded fix, keyed by ro.serialno or emulator:<avd>, unstable_id otherwise; the --devices listing
 cryptobench/shared/device/reconnect.py : a lost adb transport: the bounded wait polling adb get-state, the step or case again, DeviceGone past the bound; Off for no wait
 cryptobench/shared/device/tests/ : pytest tests of the device listing and the alias file, from hand-written adb and getprop text
@@ -153,10 +153,10 @@ cryptobench/stages/measurement/energy/install.py : an energy source's packages i
 cryptobench/stages/measurement/energy/session.py : Perfetto sessions on the device: start, stop, pull
 cryptobench/stages/measurement/energy/sources/ : one adapter per energy.source on the host; how the host runs apps/benchmark-runner/energy
 cryptobench/stages/measurement/energy/steps.py : energy steps of a --device run: capture selection, the run's energy source
-cryptobench/stages/measurement/measuring.py : what a run's device sessions share: the Measuring context, the thermal gate's start, the androidx arguments of a session and a pass, timed hooks, ConvertKt, per-process files and core pins
+cryptobench/stages/measurement/measuring.py : what a run's device sessions share: the Measuring context, the thermal gate's start, the androidx arguments of a session and a pass, timed hooks, ConvertKt, per-process files and core pins; the energy pre-flight and the end idle reading with its reconversion
 cryptobench/stages/measurement/resume.py : the run's record; at a measuring run's publish the RedoPlan: the blocks of a stopped run with the same identity that stay in place, verified and content-checked, and the kept runs' failing cases launched again; the resumed, redo, identity_changed and block_unverified lines; the manifest's resumed: note
 cryptobench/stages/measurement/session/__init__.py : package of one device measuring session: processes, cases, passes, order, warm-up, hooks
-cryptobench/stages/measurement/session/blocks.py : run.resumeBlockRuns: a pass's runs in blocks, a recorded block kept (its redo runs launched again and its record rewritten), any other measured then recorded; the block record (identity, runId, runs, boot id, problems, relaunched, findings, files)
+cryptobench/stages/measurement/session/blocks.py : run.resumeBlockRuns: a pass's runs in blocks, a recorded block kept (its redo runs launched again and its record rewritten), any other measured then recorded; the block record (identity, runId, runs, boot id, problems, relaunched, findings, files); the digests of runs a host step rewrote refreshed
 cryptobench/stages/measurement/session/case_isolation.py : one case's instrumentation process and its pull, the device's case listing
 cryptobench/stages/measurement/session/clocks_hook.py : session hook: the clock state around every process and case into clocks.yaml
 cryptobench/stages/measurement/session/cooldown_hook.py : session hook: run.caseCooldownSeconds of host sleep between measured cases, one line per pass

@@ -10,7 +10,7 @@ from cryptobench.stages.measurement.session import clocks_hook, cooldown_hook, v
 import pipeline  # noqa: E402
 from cryptobench.stages.measurement import benchmark, resume  # noqa: E402
 from cryptobench.stages.discovery import discover  # noqa: E402
-from cryptobench.stages.measurement.session import skips  # noqa: E402
+from cryptobench.stages.measurement.session import blocks, skips  # noqa: E402
 from failure import reported  # noqa: E402
 from fake_phone import Energy, Phone, fake_tools  # noqa: E402
 from test_manifest import PROBE  # noqa: E402
@@ -87,6 +87,50 @@ def test_measured_capture_runs_inside_the_window_with_a_preflight_first(tmp_path
     closing = len(steps(phone)) - 1 - steps(phone)[::-1].index("pull traces")
     assert "window open" in steps(phone) and steps(phone)[closing:closing + 4] == ["pull traces", "window close", "joules", "convert"]
     assert files["energyCapability"] == results / "discovery/energy.yaml"
+
+
+def test_the_end_idle_reading_follows_the_last_pass_and_each_process_reads_its_energy_again(tmp_path, monkeypatch):
+    phone, _files, problems, _results = measured(tmp_path, monkeypatch, MEASURED | {"processRepetitions": 2})
+    tail = steps(phone)[steps(phone).index("idle end"):]
+    assert tail == ["idle end", "joules", "convert", "joules", "convert", "merge"] + ["merge passes"] * 3
+    assert steps(phone).index("idle end") > max(i for i, s in enumerate(steps(phone)) if s.startswith("instrument "))
+    assert problems == []
+
+
+def test_the_block_records_follow_the_energy_files_the_end_idle_rewrote(tmp_path, monkeypatch):
+    written = []
+
+    def joules(self, *paths):
+        self.phone.log.append("joules")
+        written.append(paths[-1])
+        paths[-1].write_text(json.dumps({"call": len(written)}))
+    monkeypatch.setattr(Energy, "joules", joules)
+    _phone, _files, problems, results = measured(tmp_path, monkeypatch, MEASURED | {"processRepetitions": 2})
+    folder = results / "benchmark/energy"
+    runs = [run for record in blocks.recorded(folder).values() for run in record["processes"]]
+    assert len(written) == 4 and len(runs) == 2 and problems == []
+    assert all(run["files"] == blocks.run_files(folder / run["folder"], folder) for run in runs)
+
+
+def test_an_end_idle_reading_that_fails_keeps_the_start_reading_and_says_so(tmp_path, monkeypatch):
+    def failed(_self, _session, _discovery):
+        raise EnergyError("apps/benchmark-runner/energy/preflight.py: no_rails: the end idle trace has no power rails")
+    monkeypatch.setattr(Energy, "idle_end", failed)
+    phone, _files, problems, _results = measured(tmp_path, monkeypatch, MEASURED)
+    assert problems == ["energy_failed: apps/benchmark-runner/energy/preflight.py: no_rails: the end idle trace has no power rails",
+                        "idle_start_only: no end idle reading; energy.json keeps the start reading alone"]
+    assert steps(phone).count("joules") == 1
+
+
+def test_a_source_that_subtracts_no_idle_takes_no_end_reading(tmp_path, monkeypatch):
+    monkeypatch.setattr(Energy, "idle_end", lambda _self, _session, _discovery: False)
+    phone, _files, problems, _results = measured(tmp_path, monkeypatch, MEASURED)
+    assert steps(phone).count("joules") == 1 and problems == []
+
+
+def test_a_run_without_energy_takes_no_idle_reading(tmp_path, monkeypatch):
+    phone, _files, _problems, _results = measured(tmp_path, monkeypatch, {})
+    assert "preflight" not in steps(phone) and "idle end" not in steps(phone)
 
 
 def test_an_energy_window_that_cannot_open_costs_the_process_its_energy_never_its_timing(tmp_path, monkeypatch):
@@ -184,7 +228,9 @@ def test_each_pass_is_its_own_session_and_every_metric_comes_from_its_pass(tmp_p
     # the fake phone's 3 samples are a 0.3 s window, short of 5 s: each energy case is launched once more with 3 x 1.5 x 5 / 0.3 samples
     assert named == ["timing:300", "timing:300", "energy:3", "energy:75", "energy:3", "energy:75", "allocation:100", "allocation:100"]
     assert steps(phone).count("window open") == 1 and steps(phone).index("window open") > steps(phone).index("instrument CryptoBenchmark b")
-    assert [c.split("--metrics=")[1].split(" --thermal")[0] for c in phone.converted] == ["TIME --samples=300", "TIME --uncleaned", "TIME,ALLOCATION --samples=100"]
+    # the energy pass converts again after the end idle reading, which follows the last pass
+    assert [c.split("--metrics=")[1].split(" --thermal")[0] for c in phone.converted] == ["TIME --samples=300", "TIME --uncleaned", "TIME,ALLOCATION --samples=100",
+                                                                                         "TIME --uncleaned"]
     merged = json.loads((results / "benchmark/benchmark.json").read_text())["cases"][0]["metrics"]
     assert merged == {"timeNs": {"runs": [1.0]}, "energyJ": {"runs": [2.0]}, "allocationCount": {"runs": [3.0]}}
     assert len(files["clocks"]) == 3 and files["clocks"][0] == results / "benchmark/timing/clocks.yaml"

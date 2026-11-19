@@ -10,19 +10,31 @@ MIN_POLLS = 20
 # Valid windows read about 7 MB traces; the four cases that lost rail data read 38 to 125 MB, flooded by memory counters.
 LARGE_TRACE_BYTES = 32 * 1024 * 1024
 # 2: source and kind
-SCHEMA_VERSION = 2
+# 3: idleBaseline and each window's idleJoules
+SCHEMA_VERSION = 3
 # discovery/energy.yaml, written by preflight.py and manafa_session.py, read here and by EnergyCapability.kt (timed)
-# 2: idleWindowSeconds and busyWindowSeconds
-CAPABILITY_VERSION = 2
+# 2: idleWindowSeconds and busyWindowSeconds; 3: idleBoottimeNs and the end reading
+CAPABILITY_VERSION = 3
 SOURCE = "rails"
 KIND = "measured"
+INTERPOLATED, START_ONLY = "interpolated", "idle_start_only"
 
 
 class NotMeasured(Exception):
     pass
 
 
-def window(rail_samples, start, end, idle_uj_per_ns, operations):
+def idle_of(capability):
+    """The microjoules idle draws over [start, end] BOOTTIME, from the line between the start and end readings, or the start alone."""
+    start = capability["idleMicrojoules"] / (capability["idleWindowSeconds"] * 1e9)
+    t0, t1 = capability["idleBoottimeNs"], capability.get("idleEndBoottimeNs")
+    if t0 is None or t1 is None or t1 <= t0:
+        return (lambda a, b: start * (b - a)), START_ONLY
+    end = capability["idleEndMicrojoules"] / (capability["idleEndWindowSeconds"] * 1e9)
+    return (lambda a, b: (start + (end - start) * ((a + b) / 2 - t0) / (t1 - t0)) * (b - a)), INTERPOLATED
+
+
+def window(rail_samples, start, end, idle, operations):
     if not rail_samples:
         raise NotMeasured("no_rails")
     try:
@@ -32,11 +44,13 @@ def window(rail_samples, start, end, idle_uj_per_ns, operations):
     except counters.EmptyWindow:
         raise NotMeasured("empty_window") from None
     gross_uj = sum(per_rail.values())
-    net_uj = gross_uj - idle_uj_per_ns * (end - start)
+    idle_uj = idle(start, end)
+    net_uj = gross_uj - idle_uj
     polls = min(counters.polls_inside(s, start, end) for s in rail_samples.values())
     return {
         "joules": gross_uj / 1e6,
         "netJoules": net_uj / 1e6,
+        "idleJoules": idle_uj / 1e6,
         "operations": operations,
         "joulesPerOperation": net_uj / 1e6 / operations if operations else None,
         "windowSeconds": (end - start) / 1e9,
@@ -48,7 +62,7 @@ def window(rail_samples, start, end, idle_uj_per_ns, operations):
 
 def not_measured(reason, operations):
     """The case's record when it has no window to read; manafa's judge reads the same notMeasured."""
-    return {"joules": None, "netJoules": None, "operations": operations, "joulesPerOperation": None,
+    return {"joules": None, "netJoules": None, "idleJoules": None, "operations": operations, "joulesPerOperation": None,
             "windowSeconds": None, "polls": 0, "shortWindow": False, "rails": {}, "notMeasured": reason}
 
 
@@ -190,11 +204,13 @@ def main(argv=None):
     capability = yaml.safe_load(pathlib.Path(a.capability).read_text())
     if capability.get("schemaVersion") != CAPABILITY_VERSION:
         raise SystemExit(f"unsupported_schema_version: energy.yaml: {capability.get('schemaVersion')}, this build reads {CAPABILITY_VERSION}")
-    idle = capability["idleMicrojoules"] / (capability["idleWindowSeconds"] * 1e9)
+    idle, baseline = idle_of(capability)
     cases = {c: judge(r, capability["railsResponsive"]) for c, r in read_cases(a, idle, Trace).items()}
-    document = {"schemaVersion": SCHEMA_VERSION, "source": SOURCE, "kind": KIND, "railsResponsive": capability["railsResponsive"], "cases": cases}
+    document = {"schemaVersion": SCHEMA_VERSION, "source": SOURCE, "kind": KIND, "railsResponsive": capability["railsResponsive"],
+                "idleBaseline": baseline, "cases": cases}
     pathlib.Path(a.out).write_text(json.dumps(document, indent=1))
     report_cases(cases)
+    print(f"idle:      {'interpolated between the start and end readings' if baseline == INTERPOLATED else 'the start reading alone (idle_start_only)'}")
     return 0
 
 

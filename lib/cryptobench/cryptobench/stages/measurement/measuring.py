@@ -3,6 +3,7 @@ import dataclasses, pathlib, time
 
 from cryptobench.shared.device import gradle_runner
 from cryptobench.shared.device.adb import NO_DEFAULT_PROFILER, Device
+from cryptobench.stages.measurement.energy import steps as energy_stage
 from cryptobench.stages.measurement.energy.session import EnergySession
 from cryptobench.shared.device import reconnect
 from cryptobench.stages.measurement.session import clocks_hook, cooldown_hook, dynamic_temperature, thermal_hook
@@ -87,8 +88,27 @@ def energy_preflight(options, source, session, discovery, files):
     started = time.monotonic()
     capability = source.preflight(session, discovery, options.energy_accept_unresponsive)
     files["energyCapability"] = capability
-    elapsed("energy pre-flight and settle", started)
+    elapsed("energy pre-flight", started)
     return capability
+
+
+def energy_end(run, redo):
+    """After the last pass: the end idle reading, then each process's energy again over the line between the two readings.
+    redo holds (pass, process folder, step) per process this run measured with an energy.json; returns {pass: the folders converted again}."""
+    started, ended = time.monotonic(), []
+    energy_stage.guarded(run.problems, lambda: ended.append(
+        run.reconnect.retried(lambda: run.source.idle_end(run.session, run.discovery), "the end idle reading")))
+    if not ended:
+        warn("idle_start_only: no end idle reading; energy.json keeps the start reading alone", run.problems)
+    if not ended or not ended[0]:
+        return {}
+    print(f"idle:      energy again for {len(redo)} process{'es' if len(redo) != 1 else ''} over the interpolated idle")
+    redone = {}
+    for one, into, step in redo:
+        step()
+        redone.setdefault(one, []).append(into)
+    elapsed("energy end idle", started)
+    return redone
 
 
 def record(files, into, captures, device):

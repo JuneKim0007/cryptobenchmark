@@ -46,6 +46,10 @@ class EnergyCapture(Hooks):
                 energy_stage.guarded(self.problems, lambda: print(f"traces:    {self.session.pull_traces(paths.Measurement(process.into).traces, fresh=False)} pulled"))
             if "dry" in self.captures:
                 self.dry_pass(process.into, guarded=self.timed)
+        self.joules(process)
+
+    def joules(self, process):
+        """energy.json from this process's traces; run again after the end idle reading."""
+        at = paths.Measurement(process.into)
         energy_stage.guarded(self.problems, lambda: self.source.joules(self.captures, paths.Discovery(self.discovery).energy, self.preparation,
-                                                                       process.data, paths.Measurement(process.into).traces, paths.Measurement(process.into).energy_dry,
-                                                                       paths.Measurement(process.into).energy))
+                                                                       process.data, at.traces, at.energy_dry, at.energy))

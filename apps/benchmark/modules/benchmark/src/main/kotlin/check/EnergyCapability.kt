@@ -26,7 +26,7 @@ data class EnergyCapability(
 
         fun parse(text: String): EnergyCapability {
             val document = CaseDocument.load(text)
-            SchemaVersion.require(document, 2, FileNames.ENERGY_CAPABILITY)
+            SchemaVersion.require(document, 3, FileNames.ENERGY_CAPABILITY)
             fun flag(key: String) = document[key] as? Boolean ?: throw IllegalArgumentException("missing_field: ${FileNames.ENERGY_CAPABILITY} $key")
             fun number(key: String) = (document[key] as? Number)?.toDouble() ?: throw IllegalArgumentException("missing_field: ${FileNames.ENERGY_CAPABILITY} $key")
             return EnergyCapability(flag("railsPresent"), flag("railsResponsive"), number("idleMicrojoules"),

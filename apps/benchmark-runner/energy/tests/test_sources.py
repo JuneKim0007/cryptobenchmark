@@ -6,7 +6,6 @@ import yaml
 
 import rails_run  # noqa: E402
 from cryptobench.stages.measurement.energy.sources import SOURCES
-from cryptobench.stages.measurement.energy.sources import rails_source as rails_module
 from cryptobench.stages.measurement.energy.sources.rails_source import RailsSource
 from cryptobench.stages.measurement.energy.sources.runner import Host, case_arguments
 from cryptobench.shared.errors.failures import EnergyError  # noqa: E402
@@ -19,7 +18,7 @@ def test_rails_preflight_and_energy_write_the_recorded_bytes(tmp_path, monkeypat
     rails_run.install_fake_trace(monkeypatch)
     assert rails_run.run_preflight(tmp_path) == (rails_run.FIXTURES / "rails_preflight.yaml").read_text()
     document = json.loads(rails_run.run_energy(tmp_path))
-    assert (document.pop("schemaVersion"), document.pop("source"), document.pop("kind")) == (2, "rails", "measured")
+    assert (document.pop("schemaVersion"), document.pop("source"), document.pop("kind")) == (3, "rails", "measured")
     assert json.dumps({"schemaVersion": 1} | document, indent=1) == GOLDEN.read_text()
 
 
@@ -35,7 +34,9 @@ def test_rails_records_the_idle_window_it_is_given_and_a_short_busy_one(tmp_path
         def preflight(self, *paths):
             sessions.append(paths)
 
-    monkeypatch.setattr(rails_module.time, "sleep", lambda seconds: calls.append(("sleep", seconds)))
+        def reading(self, *paths):
+            sessions.append(paths)
+
     source = RailsSource(Recording("py"), 120)
     capability = source.preflight(Session(), tmp_path, True)
     folder = tmp_path / "energy-preflight"
@@ -45,7 +46,11 @@ def test_rails_records_the_idle_window_it_is_given_and_a_short_busy_one(tmp_path
     assert "duration_ms: 120000" in (folder / "idle.pbtx").read_text()
     assert "duration_ms: 3000" in (folder / "busy.pbtx").read_text()
     assert calls == [("preflight.py", str(folder / "idle.pftrace"), str(folder / "busy.pftrace"), "120", "3", str(capability),
-                      "--accept-unresponsive"), ("sleep", 15)]
+                      "--accept-unresponsive")]
+    calls.clear()
+    assert source.idle_end(Session(), tmp_path) is True
+    assert sessions[-1] == (folder / "idle.pbtx", folder / "idle-end.pftrace")
+    assert calls == [("preflight.py", "--end", str(folder / "idle-end.pftrace"), "120", str(capability))]
     calls.clear()
     with source.window(tmp_path):
         pass

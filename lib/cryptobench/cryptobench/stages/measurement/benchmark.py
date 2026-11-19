@@ -17,7 +17,7 @@ from cryptobench.stages.measurement.session import blocks, case_isolation, energ
 from cryptobench.stages.measurement.session import measure as measure_session
 from cryptobench.stages.measurement.validation import expectation, report
 from cryptobench.stages.measurement import case_files
-from cryptobench.stages.measurement.measuring import (Measuring, convert, energy_preflight, gate_opened, pass_arguments, pull_pins, record, session_arguments,
+from cryptobench.stages.measurement.measuring import (Measuring, convert, energy_end, energy_preflight, gate_opened, pass_arguments, pull_pins, record, session_arguments,
                                                          singles, thermal_flag, timed_hooks)
 from cryptobench.shared.device.plan import pull_plan, push, recorded_skips
 from cryptobench.pipeline.took import elapsed
@@ -27,21 +27,33 @@ from cryptobench.shared.document.document import read_yaml
 OWN_LINES = ("run.passes", "run.thermalGate")
 
 
-def measure_on_device(run, one, captures, preparation, repetitions, folder, written, measured_blocks):
+def measure_on_device(run, one, captures, preparation, repetitions, folder, written, measured_blocks, redo):
     device, captures = run.device, one.captures(captures)
     timed = captures - {"dry"}
     gate = run.gate.session(one.label, one.gate)
     hooks = timed_hooks(run, one, gate) if timed else []
+    energy = None
     if captures - {"none"}:
         dry = lambda into, guarded: gate.hold("energy dry pass") and dry_pass(run.session, into, preparation, run.problems, guarded)
-        hooks.insert(0, energy_hook.EnergyCapture(run.source, run.session, captures, run.discovery, preparation, run.problems, dry, bool(timed)))
+        energy = energy_hook.EnergyCapture(run.source, run.session, captures, run.discovery, preparation, run.problems, dry, bool(timed))
+        hooks.insert(0, energy)
+
+    def conversion(process):
+        joules = paths.Measurement(process.into).energy
+        joined = f" {joules}" if "measured" in captures and joules.is_file() else ""
+        convert(run, f"{process.data} {paths.Preparation(preparation).prepared} {process.into}{joined}{one.convert_flags()}{thermal_flag(process)}")
+
+    def again(process):
+        energy.joules(process)
+        if timed:
+            conversion(process)
 
     def converted(process):
         if timed:
-            joules = paths.Measurement(process.into).energy
-            joined = f" {joules}" if "measured" in captures and joules.is_file() else ""
-            convert(run, f"{process.data} {paths.Preparation(preparation).prepared} {process.into}{joined}{one.convert_flags()}{thermal_flag(process)}")
+            conversion(process)
         held(process)
+        if energy is not None and paths.Measurement(process.into).energy.is_file():
+            redo.append((one, process.into, lambda: again(process)))
 
     def held(process):
         if timed:
@@ -128,9 +140,18 @@ def device_cases(run, document, plan_files, captures, benchmark, preparation, in
     run.reconnect.retried(lambda: push(run.device, run.options, plan_files, energy_step), "the plan push")
     run.reconnect.retried(lambda: warm_up(run, document, preparation), "the warm-up")
     boot = lambda: run.reconnect.retried(run.device.boot_id, "the boot id read")
-    measure_one = lambda one, folder, written: measure_on_device(run, one, captures, preparation, repetitions, folder, written,
-                                                                 in_blocks(one.folder(benchmark), one.name, boot))
-    return passes.run_all(chosen, repetitions, benchmark, measure_one, run.options), repetitions * len(chosen)
+    redo, pass_blocks = [], {}
+
+    def measure_one(one, folder, written):
+        pass_blocks[one] = in_blocks(one.folder(benchmark), one.name, boot)
+        measure_on_device(run, one, captures, preparation, repetitions, folder, written, pass_blocks[one], redo)
+
+    def finish():
+        redone = energy_end(run, redo)
+        for one, folders in redone.items():
+            blocks.refreshed(pass_blocks[one], folders)
+        return redone
+    return passes.run_all(chosen, repetitions, benchmark, measure_one, run.options, finish if energy else None), repetitions * len(chosen)
 
 
 def warm_up(run, document, preparation):

@@ -1,13 +1,11 @@
 """The rails source on the host: its pre-flight over Perfetto sessions, and energy.py after the run."""
-import contextlib, time
+import contextlib
 
 from .runner import case_arguments
 from cryptobench.shared import paths
 
 # The busy window only proves the rails respond to load; the idle window is run.energyIdleSeconds.
 BUSY_SECONDS = 3
-# The busy window spins every core; the first case must not start on that heat.
-SETTLE_SECONDS = 15
 RAILS_CONFIG = ('buffers { size_kb: 4096 }\n'
                 'data_sources { config { name: "android.power" android_power_config { battery_poll_ms: 100 collect_power_rails: true } } }\n'
                 'duration_ms: {millis}\n')
@@ -29,8 +27,14 @@ class RailsSource:
         capability = at.energy
         self.host.tool("preflight.py", at.idle_trace, at.busy_trace, self.idle_seconds, BUSY_SECONDS, capability,
                        *(["--accept-unresponsive"] if accept_unresponsive else []))
-        time.sleep(SETTLE_SECONDS)
         return capability
+
+    def idle_end(self, session, discovery):
+        """After the last pass: the same idle window again, added to energy.yaml; joules then read the line between the two."""
+        at = paths.Discovery(discovery)
+        session.reading(at.idle_rails_config, at.idle_end_trace)
+        self.host.tool("preflight.py", "--end", at.idle_end_trace, self.idle_seconds, at.energy)
+        return True
 
     def window(self, _folder):
         """The rails count on their own; only the run's traces are read."""

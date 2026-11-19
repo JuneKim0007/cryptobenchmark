@@ -1088,6 +1088,7 @@ codes:
   harness_other_device: {kind: error}
   hook_failed: {kind: notice}
   host_benchmark_not_set: {kind: notice}
+  idle_start_only: {kind: notice}
   identity_changed: {kind: notice}
   ignored_on_host: {kind: notice}
   input_preparation_failed: {kind: error}

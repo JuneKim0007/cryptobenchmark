@@ -1,11 +1,16 @@
 import json
 
 import pytest
+import yaml
 
 import energy, preflight, rails_run  # noqa: E402
 from rails import counters  # noqa: E402
 
 SAMPLES = [(0, 0.0), (100, 1000.0), (200, 3000.0)]
+
+
+def NO_IDLE(_start, _end):
+    return 0.0
 
 
 def test_interpolates_inside_a_poll_interval():
@@ -19,7 +24,7 @@ def test_refuses_a_window_outside_the_samples():
 
 
 def test_window_reports_joules_net_of_idle_and_per_operation():
-    r = energy.window({"a": SAMPLES, "b": SAMPLES}, 0, 200, idle_uj_per_ns=5.0, operations=4)
+    r = energy.window({"a": SAMPLES, "b": SAMPLES}, 0, 200, idle=lambda a, b: 5.0 * (b - a), operations=4)
     assert r["joules"] == pytest.approx(6000 / 1e6)
     assert r["netJoules"] == pytest.approx((6000 - 1000) / 1e6)
     assert r["joulesPerOperation"] == pytest.approx(5000 / 1e6 / 4)
@@ -63,8 +68,58 @@ def test_measured_and_dry_subtract_the_one_idle_rate_of_the_idle_window(tmp_path
 
 def test_an_energy_yaml_of_another_schema_is_refused(tmp_path, monkeypatch):
     rails_run.install_fake_trace(monkeypatch)
-    with pytest.raises(SystemExit, match="unsupported_schema_version: energy.yaml: 1, this build reads 2"):
-        energy_with(tmp_path, lambda text: text.replace("schemaVersion: 2", "schemaVersion: 1"))
+    with pytest.raises(SystemExit, match="unsupported_schema_version: energy.yaml: 2, this build reads 3"):
+        energy_with(tmp_path, lambda text: text.replace("schemaVersion: 3", "schemaVersion: 2"))
+
+
+START = {"idleMicrojoules": 3000.0, "idleWindowSeconds": 3.0, "idleBoottimeNs": 1000}
+END = {"idleEndMicrojoules": 6000.0, "idleEndWindowSeconds": 3.0, "idleEndBoottimeNs": 3000}
+
+
+def test_idle_is_the_line_between_the_start_and_end_readings_at_each_windows_midpoint():
+    idle, baseline = energy.idle_of(START | END)
+    assert baseline == "interpolated"
+    # 1e-6 uJ/ns at 1000 ns, 2e-6 at 3000 ns: the window 1500..2500 is centred on 2000, 1.5e-6 uJ/ns over 1000 ns
+    assert idle(1500, 2500) == pytest.approx(1.5e-3)
+    assert idle(1000, 1010) == pytest.approx(1e-6 * (1 + 5 / 2000) * 10)
+
+
+def test_without_an_end_reading_idle_is_the_start_reading_and_marked():
+    for capability in (START, START | END | {"idleEndBoottimeNs": None}, START | END | {"idleEndBoottimeNs": 1000}):
+        idle, baseline = energy.idle_of(capability)
+        assert baseline == "idle_start_only" and idle(1500, 2500) == pytest.approx(1e-3)
+
+
+def test_the_end_reading_joins_energy_yaml_with_its_time_and_the_drift(tmp_path, monkeypatch):
+    rails_run.install_fake_trace(monkeypatch)
+    rails_run.inputs(tmp_path)
+    rails_run.run_end(tmp_path)
+    document = yaml.safe_load((tmp_path / "energy.yaml").read_text())
+    assert (document["idleEndMicrojoules"], document["idleEndWindowSeconds"], document["idleEndBoottimeNs"]) == (19750.0, 3.0, 4950)
+    assert document["idleDriftPercent"] == pytest.approx((19750 / 3000 - 1) * 100)
+
+
+def test_an_end_trace_without_rails_is_refused_and_energy_yaml_is_kept(tmp_path, monkeypatch):
+    rails_run.install_fake_trace(monkeypatch)
+    rails_run.inputs(tmp_path)
+    before = (tmp_path / "energy.yaml").read_text()
+    with pytest.raises(SystemExit, match="no_rails"):
+        preflight.ended(yaml.safe_load(before), {}, 3.0)
+    assert (tmp_path / "energy.yaml").read_text() == before
+
+
+def test_measured_and_dry_read_the_same_interpolated_idle(tmp_path, monkeypatch):
+    rails_run.install_fake_trace(monkeypatch)
+    out = tmp_path / "energy.json"
+    arguments = rails_run.arguments(tmp_path, out)
+    rails_run.run_end(tmp_path)
+    energy.main(arguments)
+    document = json.loads(out.read_text())
+    assert document["idleBaseline"] == "interpolated"
+    idle, _ = energy.idle_of(yaml.safe_load((tmp_path / "energy.yaml").read_text()))
+    for case, (start, end) in (("m1", (1500, 5500)), ("d1", (2000, 7000))):
+        assert document["cases"][case]["idleJoules"] == pytest.approx(idle(start, end) / 1e6)
+        assert document["cases"][case]["joules"] - document["cases"][case]["netJoules"] == pytest.approx(idle(start, end) / 1e6)
 
 
 def phase(start, end):
@@ -94,7 +149,7 @@ def test_a_measured_window_is_moved_onto_the_rails_clock(tmp_path):
     prepared = tmp_path / "prepared.yaml"
     prepared.write_text("cases: [{id: c1, harness: {energy: {capture: measured}}}]\n")
     (tmp_path / "c1.trace").write_text("")
-    result = energy.measured_cases(data, prepared, tmp_path, 0.0, lambda path: SuspendedDeviceTrace())["c1"]
+    result = energy.measured_cases(data, prepared, tmp_path, NO_IDLE, lambda path: SuspendedDeviceTrace())["c1"]
     assert result["windowSeconds"] == pytest.approx(100 / 1e9) and result["joules"] == pytest.approx(100 / 1e6)
     assert result["clockOffsetNs"] == 1000
 
@@ -113,7 +168,7 @@ def test_a_phase_past_the_last_rail_sample_is_one_invalid_case_not_a_failed_run(
     prepared = tmp_path / "prepared.yaml"
     prepared.write_text("cases: [{id: c1, harness: {energy: {capture: measured}}}]\n")
     (tmp_path / "c1.trace").write_text("")
-    result = energy.measured_cases(data, prepared, tmp_path, 0.0, lambda path: RailsStopEarlyTrace())["c1"]
+    result = energy.measured_cases(data, prepared, tmp_path, NO_IDLE, lambda path: RailsStopEarlyTrace())["c1"]
     assert result["joulesPerOperation"] is None
     assert energy.judge(result, True)["invalid"] == ["window_uncovered"]
 
@@ -184,7 +239,7 @@ def test_one_bad_measured_case_is_its_own_invalid_reason_and_the_others_still_me
     if trace is not None:
         (tmp_path / "bad.trace").write_text("")
     traces = {"good.trace": SuspendedDeviceTrace(), "bad.trace": trace}
-    cases = energy.measured_cases(data, prepared, tmp_path, 0.0, lambda path: traces[path.name])
+    cases = energy.measured_cases(data, prepared, tmp_path, NO_IDLE, lambda path: traces[path.name])
     bad, good = (energy.judge(cases[c], True) for c in ("bad", "good"))
     assert bad["invalid"] == [reason] and bad["joulesPerOperation"] is None and bad["operations"] == 10
     assert good["joulesPerOperation"] is not None and good["operations"] == 20 and "notMeasured" not in good
@@ -196,13 +251,13 @@ def test_a_dry_marker_without_a_call_count_is_invalid_and_the_other_marker_measu
             return {"lost": (1000, 1200), "kept": (1000, 1200)}
     calls = tmp_path / "calls.yaml"
     calls.write_text("kept: 5\n")
-    cases = energy.dry_cases(tmp_path / "dry.pftrace", calls, 0.0, lambda path: Dry())
+    cases = energy.dry_cases(tmp_path / "dry.pftrace", calls, NO_IDLE, lambda path: Dry())
     assert energy.judge(cases["lost"], True)["invalid"] == ["no_call_count"]
     assert cases["kept"]["joulesPerOperation"] is not None
 
 
 def test_a_case_without_operations_is_never_valid():
-    result = energy.window({"r": SAMPLES}, 0, 200, 0.0, 0)
+    result = energy.window({"r": SAMPLES}, 0, 200, NO_IDLE, 0)
     assert result["joulesPerOperation"] is None
     assert energy.judge(result, True)["invalid"][0] == "no_operations"
 

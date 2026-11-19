@@ -51,8 +51,8 @@ class SchemaRefusalsTest {
             discovery CaptureDocument | unsupported_schema_version: probe: 99, this build reads 1
             discovery TrialDocument | unsupported_schema_version: trial: 99, this build reads 3
             discovery RequirementDocument | unsupported_schema_version: requirements: 99, this build reads 1
-            benchmark EnergyWindows | unsupported_schema_version: energy.json: 99, this build reads 2
-            benchmark EnergyCapability | unsupported_schema_version: energy.yaml: 99, this build reads 2
+            benchmark EnergyWindows | unsupported_schema_version: energy.json: 99, this build reads 3
+            benchmark EnergyCapability | unsupported_schema_version: energy.yaml: 99, this build reads 3
         """.trimIndent()
     }
 }

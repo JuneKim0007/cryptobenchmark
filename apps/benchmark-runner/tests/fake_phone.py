@@ -148,6 +148,10 @@ class Energy:
         capability.write_text("railsResponsive: true\n")
         return capability
 
+    def idle_end(self, _session, _discovery):
+        self.phone.log.append("idle end")
+        return True
+
     def window(self, _folder):
         @contextlib.contextmanager
         def around():

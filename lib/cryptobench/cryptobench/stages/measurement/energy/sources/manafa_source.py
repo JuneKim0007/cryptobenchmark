@@ -43,6 +43,10 @@ class ManafaSource:
         print(result.stdout.rstrip())
         return paths.Discovery(discovery).energy
 
+    def idle_end(self, _session, _discovery):
+        """manafa subtracts no idle: there is nothing to bracket."""
+        return False
+
     def window(self, folder):
         return ManafaWindow(self, paths.Measurement(pathlib.Path(folder).resolve()).manafa)
 

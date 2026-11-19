@@ -36,6 +36,7 @@ class Discovery(Section):
     busy_rails_config = property(lambda self: self.energy_preflight / "busy.pbtx")
     idle_trace = property(lambda self: self.energy_preflight / "idle.pftrace")
     busy_trace = property(lambda self: self.energy_preflight / "busy.pftrace")
+    idle_end_trace = property(lambda self: self.energy_preflight / "idle-end.pftrace")
     manafa = property(lambda self: self.energy_preflight / n.MANAFA)
 
     def captures(self) -> list[Path]:

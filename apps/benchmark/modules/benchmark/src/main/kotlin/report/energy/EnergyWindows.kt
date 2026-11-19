@@ -7,7 +7,7 @@ import io.github.junekim0007.cryptobench.files.FileNames
 
 object EnergyWindows {
 
-    private const val SCHEMA_VERSION = 2
+    private const val SCHEMA_VERSION = 3
 
     class Read(val samples: Map<String, MetricSamples>, val notJoined: Map<String, List<String>>)
 

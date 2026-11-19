@@ -1,8 +1,9 @@
-schemaVersion: 2
+schemaVersion: 3
 railsPresent: true
 railsResponsive: true
 idleMicrojoules: 19750.0
 busyMicrojoules: 59250.0
 idleWindowSeconds: 3.0
 busyWindowSeconds: 3.0
+idleBoottimeNs: 4950
 acceptUnresponsive: false

@@ -101,6 +101,16 @@ def write(blocks, block, span, runs, boot, problems):
     write_text(path, dump_yaml(record), durable=True, exclusive=True)
 
 
+def refreshed(blocks, folders):
+    """Runs whose files a host step rewrote after their record (the end idle reading's energy again): their records' digests follow, durably."""
+    for record in recorded(blocks.folder).values():
+        runs = [run for run in record["processes"] if blocks.folder / run["folder"] in folders]
+        for run in runs:
+            run["files"] = run_files(blocks.folder / run["folder"], blocks.folder)
+        if runs:
+            rewritten(blocks, record)
+
+
 def rewritten(blocks, record):
     """A kept block whose cases a restart launched again: its record replaced, durably, with the runs' new entries."""
     write_text(paths.Measurement(blocks.folder).block(record["block"]), dump_yaml(record), durable=True)

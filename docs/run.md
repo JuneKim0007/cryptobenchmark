@@ -105,7 +105,7 @@ python3 apps/benchmark-runner/explain.py [--results DIR] [--device-id ID]
 | install | `apps/benchmark/gradlew :android:installRelease :android:installReleaseAndroidTest`, plus `-PbundledArtifacts=<artifact>,...` when global.yaml has `providers.bundled` |
 | bundled providers | `DeviceProbe` gets `-e bundledProviders '<json>'`; after configure, `effective.yaml` `bundledProviders` must equal the built list, else `bundled_mismatch` |
 | plan and androidx output directories | by API level: `apps/benchmark/modules/android/docs/harness.md#device-directories` |
-| AOT compile | `cmd package compile -f -m speed` on both APKs, right after the plan push; with energy capture the rails pre-flight and its settle come after it, then `energy.yaml` is pushed, so dex2oat never runs inside the settle |
+| AOT compile | `cmd package compile -f -m speed` on both APKs, right after the plan push; with energy capture the rails pre-flight comes after it, then `energy.yaml` is pushed, so dex2oat never runs inside the idle window |
 | profiler | `-e androidx.benchmark.profiling.mode None` |
 | pull | whole plan directory into `discovery/` |
 

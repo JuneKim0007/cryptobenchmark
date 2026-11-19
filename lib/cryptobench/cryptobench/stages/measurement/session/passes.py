@@ -107,8 +107,9 @@ def duration(seconds):
     return (f"{hours}h " if hours else "") + f"{rest // 60}m {rest % 60:02d}s"
 
 
-def run_all(chosen, repetitions, root, measure_one, options):
-    """measure_one(pass, folder, written) runs one pass's session; returns the per-process files the manifest lists."""
+def run_all(chosen, repetitions, root, measure_one, options, finish=None):
+    """measure_one(pass, folder, written) runs one pass's session; finish(), after the last pass, returns the passes it converted again,
+    merged again here; returns the per-process files the manifest lists."""
     results = {}
     for one in chosen:
         started, into, written = time.monotonic(), one.folder(root), []
@@ -117,6 +118,9 @@ def run_all(chosen, repetitions, root, measure_one, options):
             merge_runs(into, written, options)
         results[one] = (paths.Measurement(into).json, written)
         print(f"pass:      {one.label}: {repetitions} process{'es' if repetitions > 1 else ''}, {duration(time.monotonic() - started)} on the device")
+    for one in finish() if finish else ():
+        if repetitions > 1 and results[one][1]:
+            merge_runs(one.folder(root), results[one][1], options)
     if chosen[0].name is None:
         return results[chosen[0]][1]
     return merged(results, root, repetitions, options)

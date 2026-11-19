@@ -36,27 +36,26 @@
 | `manafa` | `estimated` | `manafa` 0.4.14: `power_profile.xml`, cpufreq, batterystats | an idle session of `run.energyIdleSeconds` |
 
 - A run has one source; entries that differ fail with `energy_sources_differ`.
-- `lib/cryptobench/cryptobench/stages/measurement/energy/steps.py` picks the adapter; each adapter has `preflight`, `window` (around the device run) and `joules`.
+- `lib/cryptobench/cryptobench/stages/measurement/energy/steps.py` picks the adapter; each adapter has `preflight`, `idle_end`, `window` (around the device run) and `joules`.
 - `manafa` facts, its pre-flight and its reasons: [energy-manafa.md](energy-manafa.md).
 
 ## Pre-flight
 
 | step | value |
 |---|---|
-| windows | idle, then busy (one spin loop per core) |
-| window length | idle `run.energyIdleSeconds` (default 120, [config.md](../apps/benchmark/modules/config/docs/config.md)); busy 3 s (`BUSY_SECONDS` in `lib/cryptobench/cryptobench/stages/measurement/energy/sources/rails_source.py`) |
+| windows | after the plan push and the AOT compile (dex2oat): idle `run.energyIdleSeconds` (default 120, [config.md](../apps/benchmark/modules/config/docs/config.md)), then busy 3 s (`BUSY_SECONDS` in `lib/cryptobench/cryptobench/stages/measurement/energy/sources/rails_source.py`, one spin loop per core); rails: after the last pass, idle again (`idle-end.pftrace`); manafa subtracts no idle and takes no end reading |
 | source | Perfetto `android.power`, rails polled every 100 ms, 4096 KB buffer (`RAILS_CONFIG`) |
-| settle | 15 s sleep before the first case, after the plan push and the AOT compile (dex2oat), so the compile heat is not in it |
-| output | `discovery/energy.yaml`, traces in `discovery/energy-preflight/` |
-| delivery | `energy.yaml` is pushed with the plan |
+| heat | no sleep after the busy window; the thermal gate's hold is the only heat wait ([device-session.md](device-session.md#thermal-gate)) |
+| output | `discovery/energy.yaml`, traces in `discovery/energy-preflight/`; `energy.yaml` is pushed with the plan |
 
 | `energy.yaml` field | value |
 |---|---|
-| `schemaVersion` | 2 (`CAPABILITY_VERSION` in `apps/benchmark-runner/energy/energy.py`); another is `unsupported_schema_version` in `energy.py` and `EnergyCapability` |
+| `schemaVersion` | 3 (`CAPABILITY_VERSION` in `apps/benchmark-runner/energy/energy.py`); another is `unsupported_schema_version` in `energy.py` and `EnergyCapability` |
 | `railsPresent` | both windows have rails |
 | `railsResponsive` | present, idle > 0, busy power ≥ 1.10 × idle power in µJ/s (`RESPONSIVE` in `apps/benchmark-runner/energy/preflight.py`) |
-| `idleMicrojoules`, `busyMicrojoules` | window totals |
-| `idleWindowSeconds`, `busyWindowSeconds` | window lengths; idle power `idleMicrojoules / idleWindowSeconds` is subtracted from every `measured` and `dry` window |
+| `idleMicrojoules`, `busyMicrojoules`; `idleWindowSeconds`, `busyWindowSeconds` | window totals; lengths (start idle power is their ratio) |
+| `idleBoottimeNs`; `idleEnd{Microjoules,WindowSeconds,BoottimeNs}` | BOOTTIME midpoint of the start trace's rail samples (null without rails); the end reading, added by `preflight.py --end` |
+| `idleDriftPercent` | (end power − start power) / start power × 100; printed `idle:      start <w> W, end <w> W, <h> h apart, drift <±p>%` |
 | `acceptUnresponsive` | `--energy-accept-unresponsive` |
 
 | refusal (every energy case) | condition |
@@ -67,6 +66,9 @@
 
 - The refused cases are left out and listed in `skipped.yaml`, on the host and the device; every case refused throws `RefusedPlanException`.
 - A case whose `energy.source` is not `rails` reads no rail capability and gets none of these refusals.
+- Idle baseline: every `measured` and `dry` window subtracts the idle power on the BOOTTIME line between the start and end readings, at the window's midpoint, × its length. A run with no energy capture, and a `--bench` run, take no reading.
+- Each process's `energy.json` is first written from the start reading alone (`idleBaseline: idle_start_only`); after the end reading `energy.py`, `ConvertKt` and the merges run again for every process this run measured (`idle:      energy again for <n> processes …`), now `interpolated`, and their block records' `files` digests are rewritten; a block kept from an earlier run keeps its file.
+- No end reading (the run stopped first, the step failed, or `preflight.py --end` refused an end trace without rails with `no_rails`, `energy.yaml` unchanged): the files keep `idle_start_only`; a failed step adds `energy_failed: <message>` and `idle_start_only: …` to `manifest.yaml` `problems`.
 
 ## Traces
 
@@ -82,12 +84,13 @@
 
 ## Outputs
 
-`benchmark/energy.json`: top level `schemaVersion` 2, `source`, `kind` (`measured` for rails, `estimated` for manafa), `cases`; rails adds `railsResponsive`, manafa adds `powerProfile`.
+`benchmark/energy.json`: top level `schemaVersion` 3, `source`, `kind` (`measured` for rails, `estimated` for manafa), `cases`; rails adds `railsResponsive` and `idleBaseline` (`interpolated` or `idle_start_only`), manafa adds `powerProfile`.
 
 | case field | value |
 |---|---|
 | `joules` | gross energy over the window |
-| `netJoules` | gross − idle rate × window |
+| `netJoules` | gross − `idleJoules` |
+| `idleJoules` | rails: interpolated idle power at the window's midpoint × window length |
 | `operations` | see capture modes |
 | `joulesPerOperation` | net / operations |
 | `windowSeconds`, `polls`, `shortWindow`, `rails`, `capture`, `clockOffsetNs` | window facts |
@@ -114,14 +117,11 @@
 | `not_measured: <reason>` | manafa gave no number: [energy-manafa.md](energy-manafa.md#not-measured); the case-level reasons above reach manafa the same way |
 
 - A case without a window keeps `operations` and holds its reason in `notMeasured`; `joules`, `joulesPerOperation`, `windowSeconds` are null, `clockOffsetNs` is null when no trace was read.
-- One case's problem is that case's reason; `energy.py` exits 0 and writes every other case.
-- An energy step that fails as a whole (the source's window around a timed process, trace pull, dry pass beside a timed run, `energy.py` or manafa's answer) prints `warning: energy_failed: <message>`, adds the line to `manifest.yaml` `problems`, and leaves no `energy.json` for that process; `ConvertKt` still writes the timing.
-- `ConvertKt` joins valid `measured` cases into `benchmark.json` as `energyJ` (runs = [`joulesPerOperation`], iterations = `operations`, `source`, `kind`).
-- `MergeRunsKt` carries `source` and `kind`; processes with different ones fail with `energy_kinds_differ` or `energy_sources_differ`.
-- An `energy.json` of another `schemaVersion` is `unsupported` and joins nothing.
+- One case's problem is that case's reason; `energy.py` exits 0 and writes every other case. An energy step that fails as a whole (the source's window around a timed process, trace pull, dry pass beside a timed run, `energy.py` or manafa's answer) prints `warning: energy_failed: <message>`, adds the line to `manifest.yaml` `problems`, and leaves no `energy.json` for that process; `ConvertKt` still writes the timing.
+- `ConvertKt` joins valid `measured` cases into `benchmark.json` as `energyJ` (runs = [`joulesPerOperation`], iterations = `operations`, `source`, `kind`); `MergeRunsKt` carries `source` and `kind`; processes with different ones fail with `energy_kinds_differ` or `energy_sources_differ`.
 - An estimated run: `manifest.yaml` top-level `energy`, a closing line in `analysis/summary.md`, `(estimated)` on its `energyJ` chart.
 - Other `measured` cases print `energy_not_joined: <id>: <reasons>` (`unjudged` when no reason; `missing_field: joulesPerOperation`, `out_of_range: operations <n>` for a valid case without a usable number).
-- An `energy.json` `ConvertKt` cannot read prints `energy_not_joined: <file>: <message>`; the timing converts without energy.
+- An `energy.json` `ConvertKt` cannot read (another `schemaVersion` is `unsupported_schema_version`) prints `energy_not_joined: <file>: <message>`; the timing converts without energy.
 
 ## Files
 
@@ -131,7 +131,7 @@ apps/benchmark-runner/energy/energy.pbtx : Perfetto config for the dry host sess
 apps/benchmark-runner/energy/energy.py : rail traces to energy.json; the case windows both sources read
 apps/benchmark-runner/energy/manafa_estimate.py : joules per case window from a stopped EManafa, or not_measured
 apps/benchmark-runner/energy/manafa_session.py : the process holding one EManafa; the manafa pre-flight check
-apps/benchmark-runner/energy/preflight.py : idle and busy traces to energy.yaml
+apps/benchmark-runner/energy/preflight.py : idle and busy traces to energy.yaml; the end idle reading into it
 apps/benchmark-runner/energy/rails/ : cumulative counter arithmetic; trace queries for rails, markers, timed phases, clock offset
 apps/benchmark-runner/energy/requirements-manafa.txt : manafa, pinned; optional
 apps/benchmark-runner/energy/requirements.txt : perfetto, pyyaml
@@ -143,7 +143,7 @@ lib/cryptobench/cryptobench/stages/measurement/energy/steps.py : capture selecti
 
 | command | arguments |
 |---|---|
-| `preflight.py` | `<idle.pftrace> <busy.pftrace> <idle seconds> <busy seconds> <out energy.yaml> [--accept-unresponsive]` |
+| `preflight.py` | `<idle.pftrace> <busy.pftrace> <idle seconds> <busy seconds> <out energy.yaml> [--accept-unresponsive]`; `--end <idle-end.pftrace> <idle seconds> <energy.yaml>` adds the end reading |
 | `energy.py` | `--capability F -o OUT [--prepared --benchmark-data --traces] [--dry-trace --dry-calls]` |
 | `manafa_session.py` | `[--check <seconds> --capability <energy.yaml>]`, the source passing `run.energyIdleSeconds`; without them, stdin `stop`, then a JSON list of `energy.py`'s arguments |
 

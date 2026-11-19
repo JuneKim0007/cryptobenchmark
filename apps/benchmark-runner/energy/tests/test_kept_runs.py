@@ -5,6 +5,10 @@ import pytest
 
 import energy  # noqa: E402
 
+def NO_IDLE(_start, _end):
+    return 0.0
+
+
 SHAPE = json.loads((pathlib.Path(__file__).parent / "fixtures/thermal_sleep_phase.json").read_text())
 
 
@@ -33,7 +37,7 @@ def test_the_window_is_the_kept_runs_between_the_sleeps_and_the_case_is_flagged(
     prepared = tmp_path / "prepared.yaml"
     prepared.write_text("cases: [{id: c, harness: {energy: {capture: measured}}}]\n")
     (tmp_path / "c.trace").write_bytes(b"x" * 7)
-    result = energy.judge(energy.measured_cases(data, prepared, tmp_path, 0.0, lambda _path: RealShape())["c"], True)
+    result = energy.judge(energy.measured_cases(data, prepared, tmp_path, NO_IDLE, lambda _path: RealShape())["c"], True)
     assert result["windowSeconds"] == pytest.approx(56.43, abs=0.01)
     assert result["polls"] > 500 and result["valid"]
     assert result["heatSleepAfterKeptRuns"] is True and result["traceBytes"] == 7 and result["traceLarge"] is False

@@ -45,7 +45,7 @@ def clear_outputs(device, plan_files=()):
 
 
 def push(device, options, plan, energy=None):
-    """dex2oat runs in the AOT compile, so the energy settle comes after it, never before; energy.yaml follows the settle."""
+    """dex2oat runs in the AOT compile, so the idle reading comes after it, never before; energy.yaml follows the reading."""
     push_plan(device, *plan)
     if options.suppress_errors:
         warn(f"suppressErrors {options.suppress_errors}: these numbers are not comparable to an unsuppressed run")
