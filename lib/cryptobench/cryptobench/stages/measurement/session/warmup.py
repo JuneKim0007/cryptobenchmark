@@ -88,7 +88,6 @@ def once(device, test_class, arguments, selected, iterations, gate, left_out, sk
     warmed = [case for case in selected if case not in found]
     if not warmed:
         return None
-    heat = (f"hottest {before.hottest:.1f} C before, {after.hottest:.1f} C after" if before.hottest is not None and after.hottest is not None
-            else "temperature unavailable")
+    heat = thermal.extremes([before], [after], ("before", "after")) or "temperature unavailable"
     print(f"warm-up:   {len(warmed)} cases x {iterations} samples in {time.monotonic() - started:.0f}s, a pre-flight check, not measured; {heat}")
     return warmed

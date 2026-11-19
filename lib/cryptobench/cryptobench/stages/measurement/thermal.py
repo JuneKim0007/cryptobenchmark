@@ -6,7 +6,7 @@ from cryptobench.shared.device.adb import DeviceError, DeviceLost
 from cryptobench.shared.errors.line import one_line
 
 TEMPERATURE = re.compile(r"Temperature\{mValue=([^,]+), mType=(-?\d+), mName=([^,}]+), mStatus=-?\d+\}")
-SKIN_TYPE = 3   # android.hardware.thermal TemperatureType.SKIN
+CPU_TYPE, SKIN_TYPE = 0, 3   # android.hardware.thermal TemperatureType.CPU, .SKIN
 SIMULATED_HARDWARE = ("ranchu", "goldfish")
 LIVE = "hal"
 # only the headers and the skin lines cross adb; parse() still tells the live section from the cached one
@@ -26,17 +26,20 @@ class Reading:
     reason: str | None = None
     types: dict | None = None
 
-    @property
-    def hottest(self):
-        return max(self.sensors.values()) if self.sensors else None
+    def hottest_of(self, kind):
+        """(name, Celsius) of the hottest sensor of a HAL type read live; None when there is none."""
+        if self.source != LIVE or not self.sensors:
+            return None
+        found = [(celsius, name) for name, celsius in self.sensors.items() if (self.types or {}).get(name) == kind]
+        return max(found)[::-1] if found else None
 
     @property
     def skin(self):
-        """(name, Celsius) of the hottest skin-type sensor read live from the HAL; None when there is none."""
-        if self.source != LIVE or not self.sensors:
-            return None
-        found = [(celsius, name) for name, celsius in self.sensors.items() if (self.types or {}).get(name) == SKIN_TYPE]
-        return max(found)[::-1] if found else None
+        return self.hottest_of(SKIN_TYPE)
+
+    @property
+    def cpu(self):
+        return self.hottest_of(CPU_TYPE)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -76,6 +79,20 @@ def parse(text):
         if found:
             return Reading({name: value for name, value, _ in found}, status, source, types={name: kind for name, _, kind in found})
     return Reading(None, status, None, "no_temperatures: dumpsys thermalservice listed no sensor with a reading")
+
+
+def extremes(starts, ends, when):
+    """The gate's skin sensor, by name, and the CPU sensors: the hottest of each over the starts and the ends; None when neither was read."""
+    fields = []
+    for label, kind in (("skin", SKIN_TYPE), ("CPU", CPU_TYPE)):
+        sides = [[found for r in side if (found := r.hottest_of(kind))] for side in (starts, ends)]
+        if not all(sides):
+            fields.append(f"{label} unavailable")
+            continue
+        named = f"{label} {'/'.join(sorted({name for side in sides for name, _ in side}))}" if kind == SKIN_TYPE else label
+        start, end = (max(c for _, c in side) for side in sides)
+        fields.append(f"{named} {start:.1f} C {when[0]}, {end:.1f} C {when[1]}")
+    return None if all(f.endswith(" unavailable") for f in fields) else "; ".join(fields)
 
 
 def read(device):

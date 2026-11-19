@@ -7,7 +7,7 @@ order:     <tmp>/results/benchmark/order.txt
 case:      1 of 2 a ok
 case:      2 of 2 b ok
 clocks:    0 of 2 cases started or ended with a core capped below its maximum
-thermal:   measure: hottest 30.0 C at a case start, 30.0 C at an end; 0 pauses, 0 s paused; 0 cases ended throttled (status > 0)
+thermal:   measure: skin skin 30.0 C at a case start, 30.0 C at an end; CPU unavailable; 0 pauses, 0 s paused; 0 cases ended throttled (status > 0)
 gate:      measure: 0 of 2 runs waited, 0 s; 0 runs discarded; start limit 35.75-35.75 C
 cool-down: measure: 1 x 4 s = 4 s between cases
 pass:      measure: 1 process, <m s> on the device

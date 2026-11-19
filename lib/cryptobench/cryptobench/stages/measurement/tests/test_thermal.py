@@ -15,12 +15,20 @@ HAL Ready: false
 def test_the_hal_section_wins_and_sentinels_are_no_reading():
     text = CACHED_ONLY.replace("HAL Ready: false\n", "HAL Ready: true\nCurrent temperatures from HAL:\n\tTemperature{mValue=36.0, mType=0, mName=cpu0, mStatus=0}\n")
     reading = thermal.parse(text)
-    assert (reading.sensors, reading.status, reading.source) == ({"cpu0": 36.0}, 0, "hal")
+    assert (reading.sensors, reading.status, reading.source, reading.cpu) == ({"cpu0": 36.0}, 0, "hal", ("cpu0", 36.0))
+
+
+def test_extremes_name_the_skin_sensor_and_keep_the_cpu_apart():
+    hot = thermal.Reading({"thb_hda": 54.0, "cpu7": 41.5, "VIRTUAL-SKIN": 30.0}, 0, "hal", types={"thb_hda": 2, "cpu7": 0, "VIRTUAL-SKIN": 3})
+    cpu_only = thermal.Reading({"cpu7": 41.5}, 0, "hal", types={"cpu7": 0})
+    assert thermal.extremes([hot], [hot], ("before", "after")) == "skin VIRTUAL-SKIN 30.0 C before, 30.0 C after; CPU 41.5 C before, 41.5 C after"
+    assert thermal.extremes([cpu_only], [cpu_only], ("before", "after")) == "skin unavailable; CPU 41.5 C before, 41.5 C after"
+    assert thermal.extremes([thermal.parse(CACHED_ONLY)], [hot], ("before", "after")) is None
 
 
 def test_only_cached_values_are_used_and_marked_cached():
     reading = thermal.parse(CACHED_ONLY)
-    assert (reading.sensors, reading.source, reading.hottest) == ({"cpu0": 33.25}, "cached", 33.25)
+    assert (reading.sensors, reading.source, reading.cpu) == ({"cpu0": 33.25}, "cached", None)
 
 
 def test_no_sensor_is_null_with_a_reason():

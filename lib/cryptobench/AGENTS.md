@@ -179,7 +179,7 @@ cryptobench/stages/measurement/validation/expectation.py : what a run of one pas
 cryptobench/stages/measurement/validation/rejected.py : rejected/<UTC>/[<pass>/]process-<n>/<case>.json with why.yaml: an attempt that failed a rule
 cryptobench/stages/measurement/validation/report.py : validation.yaml: per run the last check_run result; the block end's checker
 cryptobench/stages/measurement/validation/rules.py : the one rules table (code, scope, severity, check), Finding, Result, RunFolder, check_case, check_run
-cryptobench/stages/measurement/thermal.py : device temperatures from dumpsys thermalservice: sensors by HAL name, status, sentinels skipped, unavailable as a reason
+cryptobench/stages/measurement/thermal.py : device temperatures from dumpsys thermalservice: sensors by HAL name, status, sentinels skipped, unavailable as a reason; the skin and CPU extremes a line prints
 cryptobench/stages/verification/__init__.py : package of the verification stage
 cryptobench/stages/verification/check.py : --check run: every planned case once through the real harness (host CheckKt, device EndToEndCheck under the dry run), check.yaml, its summary and failures, published beside a finished run or as a new device folder; discovery's steps passed in
 cryptobench/stages/verification/harness.py : --harness run: scope generation, ScopedInterop on the device, interop verdicts into checked/; discovery and the entry point's error reporting passed in

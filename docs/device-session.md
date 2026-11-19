@@ -71,7 +71,7 @@ Each entry's `variants`, else `run.variants` ([operations.md](../apps/benchmark/
 | section | `Current temperatures from HAL:` (queried when dumpsys runs); when absent or empty, `Cached temperatures:` with note `source: cached` |
 | unavailable | `start`, `end`, statuses null and the reason in `thermalNote`; the case is measured as ever |
 | files | `thermal.json` per process folder (`process` and `cases`; with the gate on also its `gate` baseline and each case's `gate`); `ConvertKt --thermal` puts each case's reading in `benchmark.json` ([results.md](results.md#benchmarkjson-case-fields)) |
-| per pass | `thermal:   <pass>: hottest <c> C at a case start, <c> C at an end; <n> pauses, <s> s paused; <n> cases ended throttled (status > 0)` |
+| per pass | `thermal:   <pass>: skin <sensor> <c> C at a case start, <c> C at an end; CPU <c> C at a case start, <c> C at an end; <n> pauses, <s> s paused; <n> cases ended throttled (status > 0)`; skin is the gate's reading (live type-3 sensors), CPU the hottest live type-0 sensor, each the maximum over the pass's cases; a side with no reading prints `skin unavailable` or `CPU unavailable`, both `temperature unavailable: <note>`; other sensor types are in `thermal.json` only |
 | cost | two `dumpsys` calls per case, under a second |
 | Jetpack's heat pause | `run.thermalThrottleSleepSeconds` passed as `-e androidx.benchmark.thermalThrottle.sleepDurationSeconds` to every measuring process; unset keeps Jetpack's 90 s |
 
@@ -119,7 +119,7 @@ Why: the phone's power controller lowers the CPU limit once skin reaches its own
 | cases | `jobs`: test-set rules, resolved by config to the entries they select; `[]` the plan's first `run.warmup.cases` (3); a case `skipped.yaml` holds as a final skip is left out, and a warm-up whose only failures are such skips prints `warm-up:   case_skipped: <id>: <code>` per case and counts the rest, or chooses again when none is left |
 | samples | `iterations` (10) per case, as `-e cryptobench.pass warmup`: no energy capture |
 | output | deleted on the device right after; never pulled, never converted, never in `benchmark.json` |
-| printed | `warm-up:   <n> cases x <i> samples in <s>s, a pre-flight check, not measured; hottest <c> C before, <c> C after` |
+| printed | `warm-up:   <n> cases x <i> samples in <s>s, a pre-flight check, not measured; skin <sensor> <c> C before, <c> C after; CPU <c> C before, <c> C after`, unavailable sides as per pass |
 | failure | `warning: WARM-UP FAILED, measuring anyway: <reason>`; the app is force-stopped and the session goes on |
 | off | `iterations: 0` |
 | cost | one process: about 2 s of start, the plan's preparation, and about 1 s per case at 10 samples |

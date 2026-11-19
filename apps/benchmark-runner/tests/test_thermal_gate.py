@@ -26,7 +26,7 @@ class Heat:
     def __init__(self, monkeypatch, start=30.0, rise=0.0, cooling=0.05, available=True, reason="ok", unreadable=()):
         self.celsius, self.rise, self.cooling, self.now, self.slept, self.launches, self.reads = start, rise, cooling, 0.0, [], [], 0
         self.unreadable = set(unreadable)
-        fake = types.SimpleNamespace(read=self.read, poll=self.read, capability=lambda _device: thermal.Capability(available, reason, ("skin",)))
+        fake = types.SimpleNamespace(read=self.read, poll=self.read, extremes=thermal.extremes, capability=lambda _device: thermal.Capability(available, reason, ("skin",)))
         monkeypatch.setattr(dynamic_temperature, "thermal", fake)
         monkeypatch.setattr(thermal_hook, "thermal", fake)
         monkeypatch.setattr(dynamic_temperature, "time", types.SimpleNamespace(monotonic=lambda: self.now, sleep=self.sleep))
