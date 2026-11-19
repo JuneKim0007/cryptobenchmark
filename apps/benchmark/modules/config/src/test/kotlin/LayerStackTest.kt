@@ -40,6 +40,27 @@ class LayerStackTest {
         assertEquals(null, merged.sources["run.passes.allocation.samples"])
     }
 
+    /** An overlay that writes run.passes replaces the whole block, its pass gates too; a pass gate leaf it does not write is the run gate's, named via it. */
+    @Test
+    fun aPassGateLeafItDoesNotWriteIsNamedFromTheRunGate() {
+        listOf("config_capture_example.yaml", "config_trial_example.yaml").forEach { File(example, it).copyTo(File(folder.root, it)) }
+        file("t.yaml", "schemaVersion: 1\n")
+        file("base.yaml", "schemaVersion: 1\nselection: {testSet: t.yaml}\nrun: {orderSeed: 1, thermalGate: {temperatureKeptCelsius: 36.0, pollMinutes: 2}, " +
+            "passes: {energy: {samples: 5, caseCooldownSeconds: 9}}}\n")
+        file("overlays/energy.yaml", "run: {passes: {energy: {samples: 7, thermalGate: {temperatureKeptCelsius: 35.0}}}}\n")
+        val composition = file("energy.yaml", "schemaVersion: 1\nlayers: [base.yaml, overlays/energy.yaml]\n")
+        val configuration = Configuration(folder.newFolder("out")).apply { inventory(File(folder.root, "config_capture_example.yaml"), File(folder.root, "config_trial_example.yaml")) }
+        val effective = YamlCodec.DOCUMENT.load(configuration.effective(composition).readText())
+        @Suppress("UNCHECKED_CAST")
+        val energy = (((effective["run"] as Map<String, Any>)["passes"]) as Map<String, Map<String, Any>>).getValue("energy")
+        assertEquals(null, energy["caseCooldownSeconds"])
+        @Suppress("UNCHECKED_CAST")
+        val settings = (effective["generatedFrom"] as Map<String, Any>)["settings"] as Map<String, String>
+        val gate = "run.passes.energy.thermalGate"
+        assertEquals(listOf("layer 2 overlays/energy.yaml", "layer 1 base.yaml via run.thermalGate", "default"),
+            listOf(settings["$gate.temperatureKeptCelsius"], settings["$gate.pollMinutes"], settings["$gate.discardLimit"]))
+    }
+
     @Test
     fun aLayerThatListsLayersAKeyTypoAndAMissingLayerAreRefusedByName() {
         file("inner.yaml", "layers: [x.yaml]\n")

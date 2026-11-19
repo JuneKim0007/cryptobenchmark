@@ -65,6 +65,7 @@ object RunDocument {
         expectKeys(document, RunKeys.ALL, path)
         val orderSeed = optionalNumber(document, ORDER_SEED)?.toLong() ?: throw IllegalArgumentException("missing_field: $path.$ORDER_SEED")
         val defaults = RunSettings(orderSeed = orderSeed)
+        val gate = optionalSection(document, THERMAL_GATE)?.let { ThermalGate.GATE.read(it, "$path.$THERMAL_GATE").resolved(ThermalGate.DEFAULTS, "$path.$THERMAL_GATE") }
         return RunSettings(
             inputSizes = optional(document, INPUT_SIZES, defaults.inputSizes, ::numbers),
             phases = optional(document, PHASES, defaults.phases, ::strings),
@@ -78,8 +79,8 @@ object RunDocument {
             resumeBlockRuns = optionalNumber(document, RESUME_BLOCK_RUNS)?.toInt() ?: defaults.resumeBlockRuns,
             orderSeed = orderSeed,
             warmup = optionalSection(document, WARMUP)?.let { warmup(it, "$path.$WARMUP") } ?: defaults.warmup,
-            thermalGate = optionalSection(document, THERMAL_GATE)?.let { ThermalGate.GATE.read(it, "$path.$THERMAL_GATE").resolved(ThermalGate.DEFAULTS, "$path.$THERMAL_GATE") },
-            passes = optionalSection(document, PASSES)?.let { passes(it, "$path.$PASSES") } ?: defaults.passes,
+            thermalGate = gate,
+            passes = optionalSection(document, PASSES)?.let { passes(it, "$path.$PASSES", gate) } ?: defaults.passes,
             harness = optionalSection(document, HARNESS)?.let { HarnessSettings.read(it, "$path.$HARNESS") } ?: HarnessSettings(),
         )
     }
@@ -92,7 +93,11 @@ object RunDocument {
             optionalNumber(document, CASES)?.toInt() ?: Warmup.CASES)
     }
 
-    private fun passes(document: Map<String, Any>, path: String): List<MeasurePass> = document.keys.map { name ->
-        MeasurePass.table(name).read(asSection(document.getValue(name), "$path.$name"), "$path.$name").resolved("$path.$name")
+    private fun passes(document: Map<String, Any>, path: String, gate: ThermalGate?): List<MeasurePass> = document.keys.map { name ->
+        MeasurePass.table(name).read(asSection(document.getValue(name), "$path.$name"), "$path.$name").resolved("$path.$name", gate)
     }
+
+    /** generatedFrom.settings: a pass's gate leaf it did not write came from the run's gate. */
+    fun inherited(run: RunSettings, path: String): Map<String, String> =
+        run.passes.filter { it.thermalGate != null }.associate { "$path.$PASSES.${it.name}.$THERMAL_GATE" to "$path.$THERMAL_GATE" }
 }

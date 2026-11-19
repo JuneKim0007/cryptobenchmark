@@ -6,6 +6,7 @@ import io.github.junekim0007.cryptobench.config.global.GlobalDocument
 import io.github.junekim0007.cryptobench.config.global.dto.AnalysisSettings
 import io.github.junekim0007.cryptobench.config.global.dto.BundledProvider
 import io.github.junekim0007.cryptobench.config.global.dto.MeasurePass
+import io.github.junekim0007.cryptobench.config.global.dto.StartMargin
 import io.github.junekim0007.cryptobench.config.global.dto.ThermalGate
 import io.github.junekim0007.cryptobench.config.global.dto.Warmup
 import io.github.junekim0007.cryptobench.document.YamlCodec
@@ -114,6 +115,43 @@ class GlobalDocumentTest {
             "run: {passes: {timing: {samples: 1}, allocation: {samples: 1}}}\n" to "pass_without_metric: run.passes.allocation",
             "run: {passes: {timing: {samples: 1, minWindowSeconds: 5}}}\n" to "not_supported: run.passes.timing.minWindowSeconds",
             "run: {passes: {energy: {samples: 1, minWindowSeconds: 0}}}\n" to "not_positive: run.passes.energy.minWindowSeconds",
+        ).forEach { (text, code) ->
+            val message = assertThrows(text, IllegalArgumentException::class.java) { run(text) }.message!!
+            assertTrue(message, message.startsWith(code))
+        }
+    }
+
+    /** A pass gate is merged key by key over the run's resolved gate; a pass that writes none inherits, and nothing is written for it. */
+    @Test
+    fun aPassGateOverridesTheRunGateKeyByKey() {
+        val text = "run: {thermalGate: {temperatureKeptCelsius: 36.0, cooldownMinutes: 4}, passes: {timing: {samples: 5}, " +
+            "energy: {samples: 5, caseCooldownSeconds: 5, thermalGate: {temperatureKeptCelsius: 35.0, startMargin: {initialCelsius: 0.5}}}}}\n"
+        val run = run(text)
+        val (timing, energy) = run.passes
+        assertEquals(null to null, timing.thermalGate to timing.caseCooldownSeconds)
+        val margin = StartMargin.DEFAULTS.copy(initialCelsius = 0.5)
+        assertEquals(run.thermalGate!!.copy(temperatureKeptCelsius = 35.0, startMargin = margin), energy.thermalGate)
+        assertEquals(4 to 5, energy.thermalGate!!.cooldownMinutes to energy.caseCooldownSeconds)
+        assertEquals(run, GlobalDocument.parse(codec.load(YamlCodec.DOCUMENT.dump(GlobalDocument.of(global(text))))).run)
+        @Suppress("UNCHECKED_CAST")
+        val passes = (GlobalDocument.of(global(text))["run"] as Map<String, Any>)["passes"] as Map<String, Map<String, Any>>
+        assertEquals(listOf(listOf("samples"), listOf("samples", "minWindowSeconds", "thermalGate", "caseCooldownSeconds")), passes.values.map { it.keys.toList() })
+        assertEquals(ThermalGate.GATE.names, (passes.getValue("energy")["thermalGate"] as Map<*, *>).keys.toList())
+    }
+
+    /** With no run gate the pass gate merges over the defaults, so it must name its kept temperature; null in a pass is absent. */
+    @Test
+    fun aPassGateWithoutARunGateNeedsItsKeptTemperature() {
+        val alone = run("run: {passes: {energy: {samples: 5, thermalGate: {temperatureKeptCelsius: 35.0}}}}\n")
+        assertEquals(null, alone.thermalGate)
+        assertEquals(ThermalGate.DEFAULTS.copy(temperatureKeptCelsius = 35.0), alone.passes.single().thermalGate)
+        assertEquals(null, run("run: {thermalGate: {temperatureKeptCelsius: 36.0}, passes: {energy: {samples: 5, thermalGate: null}}}\n").passes.single().thermalGate)
+        listOf(
+            "run: {passes: {energy: {samples: 5, thermalGate: {pollMinutes: 2}}}}\n" to "missing_field: run.passes.energy.thermalGate.temperatureKeptCelsius",
+            "run: {thermalGate: {temperatureKeptCelsius: 36.0, pollTerminateMinutes: 2}, passes: {energy: {samples: 5, thermalGate: {pollMinutes: 3}}}}\n" to
+                "invalid: run.passes.energy.thermalGate.pollTerminateMinutes 2, below pollMinutes 3",
+            "run: {passes: {energy: {samples: 5, thermalGate: {temperatureKeptCelsius: 35.0, margin: 1}}}}\n" to "unknown_keys: run.passes.energy.thermalGate [margin]",
+            "run: {passes: {energy: {samples: 5, caseCooldownSeconds: -1}}}\n" to "negative: run.passes.energy.caseCooldownSeconds -1",
         ).forEach { (text, code) ->
             val message = assertThrows(text, IllegalArgumentException::class.java) { run(text) }.message!!
             assertTrue(message, message.startsWith(code))

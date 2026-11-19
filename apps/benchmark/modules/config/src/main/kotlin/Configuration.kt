@@ -8,6 +8,7 @@ import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveConfig
 import io.github.junekim0007.cryptobench.config.effective.dto.Report
 import io.github.junekim0007.cryptobench.config.inventory.InventoryBuilder
 import io.github.junekim0007.cryptobench.config.inventory.InventoryDocument
+import io.github.junekim0007.cryptobench.config.global.RunDocument
 import io.github.junekim0007.cryptobench.config.layers.Provenance
 import io.github.junekim0007.cryptobench.config.source.CaptureSource
 import io.github.junekim0007.cryptobench.config.source.TrialSource
@@ -48,7 +49,7 @@ class Configuration(
         val facts = factsFile?.let(::readFacts) ?: Facts.UNKNOWN
         val built = effectiveBuilder.build(global, testSet, inventory, EffectiveBuilder.Files(globalFile.name, global.selection.testSet, inventoryFile.name), facts)
         val effective = built.copy(generatedFrom = built.generatedFrom.copy(layers = stack.layers,
-            settings = Provenance.settings(EffectiveDocument.settingsOf(built), stack)))
+            settings = Provenance.settings(EffectiveDocument.settingsOf(built), stack, RunDocument.inherited(built.run, "run"))))
         files.at(reportFile, ReportDocument).write(Report(effective.runId, effective.warnings, effective.skipped))
         return files.at(effectiveFile, EffectiveDocument).write(effective)
     }

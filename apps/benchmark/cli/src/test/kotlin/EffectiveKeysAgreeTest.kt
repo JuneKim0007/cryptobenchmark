@@ -41,7 +41,7 @@ class EffectiveKeysAgreeTest {
               processRepetitions: 1
               seed: 0
               orderSeed: 7
-              passes: {timing: {samples: 5}}
+              passes: {timing: {samples: 5, thermalGate: {pollMinutes: 2}, caseCooldownSeconds: 3}}
               thermalThrottleSleepSeconds: 1
               caseCooldownSeconds: 1
               warmup: {iterations: 1, jobs: []}

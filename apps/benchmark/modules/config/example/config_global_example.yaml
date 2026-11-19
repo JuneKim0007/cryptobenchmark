@@ -33,7 +33,11 @@ run:                                     # required: orderSeed; every other key 
   passes:                                # optional, default {} — one device session per pass, in this order
     timing: {samples: 50}                # required with two or more passes
     allocation: {samples: 10}            # needs ALLOCATION in metrics
-    energy: {samples: 100, minWindowSeconds: 5}   # minWindowSeconds: energy only, default 5
+    energy:                              # minWindowSeconds: energy only, default 5
+      samples: 100
+      minWindowSeconds: 5
+      thermalGate: {temperatureKeptCelsius: 35.0}   # optional, any pass: merged key by key over run.thermalGate; absent inherits it
+      caseCooldownSeconds: 5             # optional, any pass: replaces run.caseCooldownSeconds for this pass
   harness:                               # optional — unset keys take the harness's defaults
     iterations: 50
     profiling: StackSampling             # none | MethodTracing | StackSampling
