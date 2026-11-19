@@ -52,6 +52,7 @@ class SettingsTest {
         assertTrue(failure(mapOf("cpu" to mapOf("core" to "fast")))!!.startsWith("invalid: cpu.core fast"))
         assertTrue(failure(mapOf("cpu" to mapOf("core" to "big", "pin" to true)))!!.startsWith("unknown_keys: run.harness.cpu [pin]"))
         assertTrue(failure(mapOf("cpu" to mapOf("core" to 64)))!!.startsWith("invalid: cpu.core 64"))
+        assertTrue(failure(mapOf("cpu" to mapOf("core" to 7.5)))!!.startsWith("invalid: cpu.core 7.5"))
     }
 
     @Test

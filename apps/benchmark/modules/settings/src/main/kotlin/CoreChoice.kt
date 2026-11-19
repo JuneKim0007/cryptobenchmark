@@ -23,7 +23,7 @@ sealed interface CoreChoice {
         /** A number or a word; anything else is refused with its code. */
         fun read(value: Any, label: String): CoreChoice {
             val text = when (value) {
-                is Number -> value.toLong().toString()
+                is Number -> value.toDouble().takeIf { it % 1.0 == 0.0 }?.toLong()?.toString() ?: value.toString()
                 is String -> value
                 else -> throw Values.wrongType(label, "a number or a word", value)
             }
