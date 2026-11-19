@@ -2,46 +2,29 @@ import io.github.junekim0007.cryptobench.config.Configuration
 import io.github.junekim0007.cryptobench.files.FileNames
 import io.github.junekim0007.cryptobench.files.Folders
 import java.io.File
-import java.io.IOException
-import kotlin.system.exitProcess
 
 // ProbeKt cannot replace this: its --reuse compares a capture against the host JVM's runtime,
 // so a device capture is rejected. Configuration here is file-to-file.
-fun main(arguments: Array<String>) {
+fun main(arguments: Array<String>) = command(arguments,
+    "configure <probe_*.yaml> <trial_*.yaml> <configuration output directory> [<${FileNames.GLOBAL}>] [--facts=<facts.yaml>]",
+    { it.count { argument -> !argument.startsWith("--") } >= 3 }) {
     val paths = arguments.filterNot { it.startsWith("--") }
-    if (paths.size < 3) {
-        System.err.println("usage: configure <probe_*.yaml> <trial_*.yaml> <configuration output directory> [<${FileNames.GLOBAL}>] [--facts=<facts.yaml>]")
-        exitProcess(2)
-    }
     val captureFile = File(paths[0])
     val trialFile = File(paths[1])
     val configurationDirectory = File(paths[2])
     val globalFile = paths.getOrNull(3)?.let { File(it) } ?: committedGlobal()
     val factsFile = arguments.firstOrNull { it.startsWith("--facts=") }?.removePrefix("--facts=")?.let { File(it) }
-    for (required in listOf(captureFile, trialFile)) {
-        if (!required.isFile) {
-            System.err.println("error: missing_file: ${required.path}")
-            exitProcess(1)
-        }
+    for (required in listOf(captureFile, trialFile)) require(required.isFile) { "missing_file: ${required.path}" }
+    val configuration = Configuration(configurationDirectory.apply { mkdirs() })
+    val inventoryFile = configuration.inventory(captureFile, trialFile)
+    println(inventoryFile)
+    if (globalFile == null) {
+        System.err.println("warning: no ${Folders.CONFIG}/${FileNames.GLOBAL} found; ${FileNames.EFFECTIVE} not written")
+        return@command
     }
-    try {
-        val configuration = Configuration(configurationDirectory.apply { mkdirs() })
-        val inventoryFile = configuration.inventory(captureFile, trialFile)
-        println(inventoryFile)
-        if (globalFile == null) {
-            System.err.println("warning: no ${Folders.CONFIG}/${FileNames.GLOBAL} found; ${FileNames.EFFECTIVE} not written")
-            return
-        }
-        val effectiveFile = configuration.effective(globalFile, inventoryFile, factsFile)
-        println(effectiveFile)
-        val effective = configuration.readEffective(effectiveFile)
-        effective.warnings.forEach { System.err.println("warning: $it") }
-        effective.skipped.forEach { System.err.println("skipped: $it") }
-    } catch (expected: IllegalArgumentException) {
-        fail(expected)
-    } catch (expected: IllegalStateException) {
-        fail(expected)
-    } catch (expected: IOException) {
-        fail(expected)
-    }
+    val effectiveFile = configuration.effective(globalFile, inventoryFile, factsFile)
+    println(effectiveFile)
+    val effective = configuration.readEffective(effectiveFile)
+    effective.warnings.forEach { System.err.println("warning: $it") }
+    effective.skipped.forEach { System.err.println("skipped: $it") }
 }

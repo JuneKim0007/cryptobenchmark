@@ -3,17 +3,22 @@ import io.github.junekim0007.cryptobench.files.Folders
 import java.io.File
 import kotlin.system.exitProcess
 
-internal fun fail(error: Exception): Nothing {
-    System.err.println("error: ${error.message}")
-    exitProcess(1)
+// Every main's contract: arguments it cannot take are its usage line and exit 2; any Exception is one error line and exit 1, no stack trace.
+// An Error is not caught: it ends the JVM as it is (Check's finally still writes its records).
+internal fun command(arguments: Array<String>, usage: String, valid: (Array<String>) -> Boolean, block: () -> Unit) {
+    if (!valid(arguments)) {
+        System.err.println("usage: $usage")
+        exitProcess(USAGE)
+    }
+    try {
+        block()
+    } catch (error: Exception) {
+        System.err.println("error: ${error.message}")
+        exitProcess(1)
+    }
 }
 
-// A command's coded failure as one error line and exit 1; an Error is not caught here and ends the JVM as it is.
-internal fun command(block: () -> Unit) = try {
-    block()
-} catch (error: Exception) {
-    fail(error)
-}
+const val USAGE = 2
 
 internal fun committedGlobal(): File? =
     generateSequence(File("").absoluteFile) { it.parentFile }.map { File(File(it, Folders.CONFIG), FileNames.GLOBAL) }.firstOrNull { it.exists() }

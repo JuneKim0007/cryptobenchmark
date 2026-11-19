@@ -5,28 +5,15 @@ import io.github.junekim0007.cryptobench.files.Beside
 import io.github.junekim0007.cryptobench.files.FileNames
 import io.github.junekim0007.cryptobench.files.Folders
 import java.io.File
-import java.io.IOException
 import java.security.Security
-import kotlin.system.exitProcess
 
-fun main(arguments: Array<String>) {
+fun main(arguments: Array<String>) = command(arguments,
+    "probe <discovery output directory> [<configuration output directory>] [<${FileNames.GLOBAL}>] [--reuse]",
+    { it.any { argument -> !argument.startsWith("--") } }) {
     val paths = arguments.filterNot { it.startsWith("--") }
-    val reuse = arguments.contains("--reuse")
-    val discoveryDirectory = paths.getOrNull(0)?.let { File(it) } ?: run {
-        System.err.println("usage: probe <discovery output directory> [<configuration output directory>] [<${FileNames.GLOBAL}>] [--reuse]")
-        exitProcess(2)
-    }
+    val discoveryDirectory = File(paths[0])
     val configurationDirectory = paths.getOrNull(1)?.let { File(it) } ?: Beside.file(discoveryDirectory, Folders.CONFIGURATION)
-    val globalFile = paths.getOrNull(2)?.let { File(it) } ?: committedGlobal()
-    try {
-        run(discoveryDirectory, configurationDirectory, globalFile, reuse)
-    } catch (expected: IllegalArgumentException) {
-        fail(expected)
-    } catch (expected: IllegalStateException) {
-        fail(expected)
-    } catch (expected: IOException) {
-        fail(expected)
-    }
+    run(discoveryDirectory, configurationDirectory, paths.getOrNull(2)?.let { File(it) } ?: committedGlobal(), "--reuse" in arguments)
 }
 
 private fun run(discoveryDirectory: File, configurationDirectory: File, globalFile: File?, reuse: Boolean) {

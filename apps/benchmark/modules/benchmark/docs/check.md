@@ -33,4 +33,4 @@ Each verdict is `pass`, `fail` or `not_checkable` with a coded reason. A case pa
 
 ## Baseline and diff
 
-`CheckDiffKt <baseline check.yaml> <current check.yaml>` lists every case only in one file and every field that differs, and exits 1 on any. `generatedFrom` and `summary` are left out; no field holds a random value.
+`CheckDiffKt <baseline check.yaml> <current check.yaml>` lists every case only in one file and every field that differs, and exits 3 on any. `generatedFrom` and `summary` are left out; no field holds a random value.

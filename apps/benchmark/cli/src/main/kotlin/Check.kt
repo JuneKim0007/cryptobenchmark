@@ -12,8 +12,7 @@ import io.github.junekim0007.cryptobench.preparation.adapter.DiscoveryCapability
 import java.io.File
 
 // The end-to-end check on the host JVM: every prepared case once through HostHarness.ONCE, all in this one process; writes check.yaml.
-fun main(arguments: Array<String>) = command {
-    require(arguments.size == 5) { "usage: <capture> <trial> <${FileNames.EFFECTIVE}> <${FileNames.KNOWN_ANSWERS}> <output directory>" }
+fun main(arguments: Array<String>) = command(arguments, "<capture> <trial> <${FileNames.EFFECTIVE}> <${FileNames.KNOWN_ANSWERS}> <output directory>", { it.size == 5 }) {
     val (capture, trial, effective, knownAnswers, out) = arguments.map(::File)
     HostBundled.fromEffective(effective)
     val capability = DiscoveryCapability(capture, trial)

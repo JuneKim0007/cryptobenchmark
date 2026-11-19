@@ -2,19 +2,11 @@ import io.github.junekim0007.cryptobench.benchmark.report.BenchmarkJson
 import io.github.junekim0007.cryptobench.benchmark.report.Merge
 import io.github.junekim0007.cryptobench.files.FileNames
 import java.io.File
-import kotlin.system.exitProcess
 
-fun main(arguments: Array<String>) {
-    if (arguments.size < 2) {
-        System.err.println("usage: <output directory> <${FileNames.BENCHMARK_JSON}> [<${FileNames.BENCHMARK_JSON}> ...]")
-        exitProcess(2)
-    }
+fun main(arguments: Array<String>) = command(arguments, "<output directory> <${FileNames.BENCHMARK_JSON}> [<${FileNames.BENCHMARK_JSON}> ...]", { it.size >= 2 }) {
     val merged = Merge.merge(arguments.drop(1).map { File(it).readText() })
     merged.dropped.forEach { System.err.println(it) }
-    if (merged.rows.isEmpty()) {
-        System.err.println("error: nothing_merged: no case survived the merge of ${arguments.size - 1} processes")
-        exitProcess(1)
-    }
+    check(merged.rows.isNotEmpty()) { "nothing_merged: no case survived the merge of ${arguments.size - 1} processes" }
     val written = BenchmarkJson(File(arguments[0]).apply { mkdirs() }).write(merged.runtime, merged.rows)
     val first = merged.rows.firstOrNull()
     System.err.println(

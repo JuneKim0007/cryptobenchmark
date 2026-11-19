@@ -12,7 +12,7 @@ import java.io.File
 import java.lang.management.ManagementFactory
 
 // Every case prepared, then measured in turn; benchmark.json is rewritten as each case finishes, so a later failure, or this JVM's death, loses no earlier row.
-fun main(arguments: Array<String>) = command {
+fun main(arguments: Array<String>) = command(arguments, "<capture> <trial> <${FileNames.EFFECTIVE}> <benchmark output directory> <preparation directory>", { it.size == 5 }) {
     HostBundled.fromEffective(File(arguments[2]))
     val capture = CaptureDocument.parse(YamlCodec.CAPTURE.load(File(arguments[0]).readText()))
     val output = BenchmarkJson(File(arguments[3]).apply { mkdirs() })

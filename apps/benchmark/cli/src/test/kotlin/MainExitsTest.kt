@@ -5,7 +5,7 @@ import org.junit.rules.TemporaryFolder
 import java.io.File
 import java.util.concurrent.TimeUnit
 
-/** Characterization: every host main in its own JVM given no arguments, missing files and unreadable YAML; exit code and stderr's first line. */
+/** Every host main in its own JVM given no arguments, missing files and unreadable YAML: usage is exit 2, any failure one error line and exit 1, never a stack trace. */
 class MainExitsTest {
 
     @get:Rule
@@ -29,7 +29,7 @@ class MainExitsTest {
     private fun bad(name: String) = folder.root.resolve(name).apply { writeText("a: [unclosed\n") }.path
 
     @Test
-    fun todayEachMainEndsItsOwnWay() {
+    fun everyMainKeepsOneContract() {
         val out = folder.newFolder("out").path
         val table = listOf(
             run("BenchKt"),
@@ -62,43 +62,45 @@ class MainExitsTest {
             run("ProbeKt"),
             run("ProbeKt", folder.root.resolve("discovery").path, folder.root.resolve("configuration").path, missing("global.yaml")),
             run("ProbeKt", folder.root.resolve("discovery").path, folder.root.resolve("configuration").path, bad("global.yaml")),
+            run("RuntimeFieldsKt", "extra"),
         ).joinToString("\n")
         assertEquals(EXPECTED, table)
     }
 
     private companion object {
-        // main and argument count | exit code | stderr's first line, +trace when a stack trace follows
+        // main and argument count | exit code | stderr's first line, +trace if a stack trace followed
         val EXPECTED = """
-            BenchKt 0 args | exit 1 | error: Index 2 out of bounds for length 0
+            BenchKt 0 args | exit 2 | usage: <capture> <trial> <effective.yaml> <benchmark output directory> <preparation directory>
             BenchKt 5 args | exit 1 | error: <tmp>/missing/effective.yaml (No such file or directory)
             BenchKt 5 args | exit 1 | error: while parsing a flow sequence
-            CheckKt 0 args | exit 1 | error: usage: <capture> <trial> <effective.yaml> <known-answers.yaml> <output directory>
+            CheckKt 0 args | exit 2 | usage: <capture> <trial> <effective.yaml> <known-answers.yaml> <output directory>
             CheckKt 5 args | exit 1 | error: <tmp>/missing/effective.yaml (No such file or directory)
             CheckKt 5 args | exit 1 | error: while parsing a flow sequence
             CheckConfigKt 0 args | exit 2 | usage: checkconfig <global.yaml>...
             CheckConfigKt 1 args | exit 1 | error: missing_file: <tmp>/missing/global.yaml
             CheckConfigKt 1 args | exit 1 | error: unreadable_yaml: global.yaml: while parsing a flow sequence
             CheckDiffKt 0 args | exit 2 | usage: <baseline check.yaml> <current check.yaml>
-            CheckDiffKt 2 args | exit 1 | Exception in thread "main" java.lang.IllegalArgumentException: missing_file: <tmp>/missing/a.yaml +trace
-            CheckDiffKt 2 args | exit 1 | Exception in thread "main" java.lang.IllegalArgumentException: unreadable_yaml: a.yaml: while parsing a flow sequence +trace
+            CheckDiffKt 2 args | exit 1 | error: missing_file: <tmp>/missing/a.yaml
+            CheckDiffKt 2 args | exit 1 | error: unreadable_yaml: a.yaml: while parsing a flow sequence
             ConfigureKt 0 args | exit 2 | usage: configure <probe_*.yaml> <trial_*.yaml> <configuration output directory> [<global.yaml>] [--facts=<facts.yaml>]
             ConfigureKt 3 args | exit 1 | error: missing_file: <tmp>/missing/probe.yaml
             ConfigureKt 3 args | exit 1 | error: unreadable_yaml: probe.yaml: while parsing a flow sequence
             ConvertKt 0 args | exit 2 | usage: <benchmarkData.json> <prepared.yaml> <output directory> [energy.json] [--metrics=TIME,...] [--samples=n] [--thermal=thermal.json] [--uncleaned]
-            ConvertKt 3 args | exit 1 | Exception in thread "main" java.io.FileNotFoundException: <tmp>/missing/benchmarkData.json (No such file or directory) +trace
-            ConvertKt 3 args | exit 1 | Exception in thread "main" while parsing a flow sequence +trace
+            ConvertKt 3 args | exit 1 | error: <tmp>/missing/benchmarkData.json (No such file or directory)
+            ConvertKt 3 args | exit 1 | error: while parsing a flow sequence
             MergePassesKt 0 args | exit 2 | usage: <output directory> <base benchmark.json> [<metric key>=<benchmark.json> ...]
-            MergePassesKt 2 args | exit 1 | Exception in thread "main" java.io.FileNotFoundException: <tmp>/missing/benchmark.json (No such file or directory) +trace
-            MergePassesKt 2 args | exit 1 | Exception in thread "main" while parsing a flow sequence +trace
+            MergePassesKt 2 args | exit 1 | error: <tmp>/missing/benchmark.json (No such file or directory)
+            MergePassesKt 2 args | exit 1 | error: while parsing a flow sequence
             MergeRunsKt 0 args | exit 2 | usage: <output directory> <benchmark.json> [<benchmark.json> ...]
-            MergeRunsKt 2 args | exit 1 | Exception in thread "main" java.io.FileNotFoundException: <tmp>/missing/benchmark.json (No such file or directory) +trace
-            MergeRunsKt 2 args | exit 1 | Exception in thread "main" while parsing a flow sequence +trace
-            InteropKt 0 args | exit 1 | Exception in thread "main" java.lang.IllegalArgumentException: usage: <capture> <trial> <interop_plan.yaml> <interop.yaml> +trace
-            InteropKt 4 args | exit 1 | Exception in thread "main" java.lang.IllegalArgumentException: missing_file: <tmp>/missing/probe.yaml +trace
-            InteropKt 4 args | exit 1 | Exception in thread "main" java.lang.IllegalArgumentException: unreadable_yaml: probe.yaml: while parsing a flow sequence +trace
+            MergeRunsKt 2 args | exit 1 | error: <tmp>/missing/benchmark.json (No such file or directory)
+            MergeRunsKt 2 args | exit 1 | error: while parsing a flow sequence
+            InteropKt 0 args | exit 2 | usage: <capture> <trial> <interop_plan.yaml> <interop.yaml>
+            InteropKt 4 args | exit 1 | error: missing_file: <tmp>/missing/probe.yaml
+            InteropKt 4 args | exit 1 | error: unreadable_yaml: probe.yaml: while parsing a flow sequence
             ProbeKt 0 args | exit 2 | usage: probe <discovery output directory> [<configuration output directory>] [<global.yaml>] [--reuse]
             ProbeKt 3 args | exit 1 | error: missing_file: <tmp>/missing/global.yaml
             ProbeKt 3 args | exit 1 | error: unreadable_yaml: global.yaml: while parsing a flow sequence
+            RuntimeFieldsKt 1 args | exit 2 | usage: runtimefields (no arguments)
         """.trimIndent()
     }
 }

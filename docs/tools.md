@@ -11,18 +11,19 @@
 |---|---|---|
 | `ProbeKt` (default) | `apps/benchmark/gradlew -p apps/benchmark/cli run --args="<discovery dir> [<configuration dir>] [<global.yaml>] [--reuse]"` | prints capture, classes, trial, inventory, effective paths |
 | `ConfigureKt` | `... run -PmainClass=ConfigureKt --args="<probe> <trial> <configuration dir> [<global.yaml>] [--facts=<facts.yaml>]"` | inventory, effective |
-| `CheckConfigKt` | `... run -PmainClass=CheckConfigKt --args="<global.yaml>..."` | parses each file and its test set; prints `{global, testSet, bundled}` per file as YAML; a refusal is `error: <message>`, exit 1; nothing written |
+| `CheckConfigKt` | `... run -PmainClass=CheckConfigKt --args="<global.yaml>..."` | parses each file and its test set; prints `{global, testSet, bundled}` per file as YAML; nothing written |
 | `RuntimeFieldsKt` | `... run -PmainClass=RuntimeFieldsKt` | prints this JVM's runtime fields that the device id uses, as YAML |
 | `BenchKt` | `<capture> <trial> <effective.yaml> <output dir> <preparation dir>` | `prepared.yaml`, `skipped.yaml`; `benchmark.json` rewritten as each case finishes, a case that throws is a `skipped:` line and its skip (stage `benchmark`, `measure_failed`); prints the `benchmark.json` path |
 | `ConvertKt` | `<benchmarkData.json> <prepared.yaml> <output dir> [energy.json] [--metrics=TIME,...] [--samples=n] [--thermal=thermal.json] [--uncleaned]` | `benchmark.json` from androidx output; a pass's metrics and samples, each case's temperature; `--uncleaned` for the energy pass, the one pass with no collection between samples; `--metrics` alone reports that set instead of each case's own ([run.md](run.md#recover-a-metric-without-a-device)) |
 | `MergeRunsKt` | `<output dir> <benchmark.json>...` | merged `benchmark.json` |
 | `MergePassesKt` | `<output dir> <timing benchmark.json> [<metric key>=<benchmark.json> ...]` | one `benchmark.json`, each owned metric from its pass ([measure.md](../apps/benchmark/modules/benchmark/docs/measure.md#pass-merge)) |
 | `InteropKt` | `<capture> <trial> <interop_plan.yaml> <interop.yaml>` | `interop.yaml`; prints its path |
-| `CheckDiffKt` | `... run -PmainClass=CheckDiffKt --args="<baseline check.yaml> <current check.yaml>"` | a tool, no pipeline step calls it: every case only in one file and every field that differs ([check.md](../apps/benchmark/modules/benchmark/docs/check.md#baseline-and-diff)); exit 1 on any difference or unreadable file, 2 without two paths |
+| `CheckDiffKt` | `... run -PmainClass=CheckDiffKt --args="<baseline check.yaml> <current check.yaml>"` | a tool, no pipeline step calls it: every case only in one file and every field that differs ([check.md](../apps/benchmark/modules/benchmark/docs/check.md#baseline-and-diff)); exit 3 on any difference |
 
 - Main class comes from `-PmainClass`, default `ProbeKt`.
+- Every main (`Command.kt` `command`): arguments it cannot take print `usage: ...` and exit 2; any failure prints one `error: <message>` and exits 1, never a stack trace; an `Error` (out of memory) ends the JVM as it is.
 - `ProbeKt` and `ConfigureKt` fall back to the nearest `config/global.yaml` up the tree; none found gives a warning and no `effective.yaml`.
-- `ConfigureKt`: fewer than 3 paths exits 2; a missing input prints `error: missing_file`, exits 1; warnings print `warning: <w>`, skips `skipped: <s>` to stderr.
+- `ConfigureKt`: a missing input is `error: missing_file`; warnings print `warning: <w>`, skips `skipped: <s>` to stderr.
 - Compiles discovery, settings, config, preparation and benchmark sources; tests are discovery and config tests, plus `ProviderChoseContractTest`: every discovery `providerChose` key is a preparation `ResolvedParameters.KEYS` key or `fixedValueBytes`; `EffectiveKeysAgreeTest`: an effective.yaml with every key config writes reads through preparation without `unknown_keys`.
 - `apps/benchmark/gradlew -p apps/benchmark/cli test` excludes `*ExampleFilesTest` and writes captures to `build/capture`.
 - CI `.github/workflows/jca-contract.yml` job `probe`: that test on Java 17, 21, 25 (temurin), fail-fast off; uploads `build/capture/*.yaml` as `capture-java-<N>`.

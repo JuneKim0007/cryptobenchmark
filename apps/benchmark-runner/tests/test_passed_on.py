@@ -18,7 +18,7 @@ LITERAL = re.compile(r'"([a-z_]+:)[ "$]')
 EMITTED = {"error:", "usage:", "warning:", "skipped:", "reused:", "energy_not_joined:", "not_in_plan:", "no_metrics:", "not_converted:",
            "iterations_not_applied:", "allocation_runs_changed:", "not_merged:", "runtime_differs:"}
 # codes of exception messages: a main prints them after error:, never as their own line
-RAISED = {"missing_field:", "nothing_measured:", "nothing_prepared:", "unequal_samples:"}
+RAISED = {"missing_field:", "missing_file:", "nothing_converted:", "nothing_measured:", "nothing_merged:", "nothing_prepared:", "unequal_samples:"}
 
 
 def emitted():
