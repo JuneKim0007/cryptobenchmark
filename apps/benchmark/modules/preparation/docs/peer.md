@@ -1,11 +1,12 @@
 # peer
 
-`PeerEngine(capability).check(produced, consumer)`: whether another provider's engine, the consumer, takes a produced call's output. The end-to-end check's `crossProvider` oracle calls it once per peer provider; its capability gives the availability a key use needs. Code under `src/main/kotlin/peer/`; covered by `PeerRowsTest`, `KeyUseTest`, the cli `FailureClassifiersTest`.
+`PeerEngine(capability).check(produced, consumer)`: whether another provider's engine, the consumer, takes a produced call's output. The end-to-end check's `crossProvider` oracle calls it once per peer provider with every parameter the call used (`Travel.USED`); interop calls `produced(case, recipe, key, consumer, Travel.MESSAGE_BORNE)`, which runs the producer first; its capability gives the availability a key use needs. Code under `src/main/kotlin/peer/`, one file per class below plus `Outcome` (verdict and label), `OutputBytes` (a call's output as bytes), `ProducedCall`, `Consumer`, `Travel`, `PeerCase` (seed 0, input 16), `PeerRefusal`; covered by `PeerRowsTest`, `KeyUseTest`, the cli `FailureClassifiersTest`.
 
 ## Procedure
 
 | step | rule |
 |---|---|
+| produce | interop only: the producer's call once at its defaults; a failure `not_checkable` `producer_failed` |
 | row | the produced operation's row in `PeerEngine.ROWS`; none: `not_checkable` `no_peer_check` |
 | ready | the row's shape and input checks: `fail` `not_bytes`; `not_checkable` `no_engine_read_back`, `no_ciphertext_input`, `no_key_pair`, `no_signed_input`, `no_key` |
 | setup | the consumer's instance, the key rebuilt by `PeerKey` (Keys below), the parameters from `PeerParameters`, init |

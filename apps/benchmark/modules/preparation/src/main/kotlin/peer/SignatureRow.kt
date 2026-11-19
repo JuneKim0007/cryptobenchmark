@@ -10,6 +10,8 @@ import java.security.Signature
 /** Sign: the consumer verifies the call's signature with its public key. Verify: the consumer accepts the signature the call accepted. */
 internal object SignatureRow : ConsumingRow {
 
+    override val mode = PeerEngine.PRODUCE_CONSUME
+
     override fun ready(produced: ProducedCall): Outcome? {
         if (signs(produced) && OutputBytes.of(produced.output) == null) return Outcome.Fail("not_bytes: ${produced.output?.javaClass?.simpleName}")
         if (produced.prepared.key.keyPairsOrNull == null) return Outcome.NotCheckable("no_key_pair")
@@ -17,7 +19,7 @@ internal object SignatureRow : ConsumingRow {
         return null
     }
 
-    override fun setup(produced: ProducedCall, consumer: Consumer): () -> Any? {
+    override fun setup(produced: ProducedCall, consumer: Consumer, travel: Travel): () -> Any? {
         val prepared = produced.prepared
         val (message, signature) = if (signs(produced)) {
             CaseArguments.preparedMessage(prepared) to OutputBytes.of(produced.output)!!
@@ -26,7 +28,7 @@ internal object SignatureRow : ConsumingRow {
         }
         // parameters only when the case binds them: an engine may report defaults another provider refuses
         val reported = if (prepared.parameters == null) null else Attempt.of { (produced.engine as? Signature)?.parameters }.getOrNull()
-        val spec = PeerParameters.spec(PeerParameters.used(prepared, reported))
+        val spec = PeerParameters.spec(PeerParameters.used(prepared, reported, travel))
         val verifier = Signature.getInstance(consumer.algorithm, consumer.provider).apply {
             spec?.let { setParameter(it) }
             initVerify(PeerKey.of(prepared.key.keyPairsOrNull!!.first().public, consumer.provider) as PublicKey)

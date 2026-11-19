@@ -11,6 +11,8 @@ import javax.crypto.Mac
 /** Deterministic operations: the consumer recomputes the digest, MAC or agreed secret (first pair's private, last pair's public) from the call's key, parameters and input. */
 internal object RecomputeRow : ConsumingRow {
 
+    override val mode = PeerEngine.SAME_OUTPUT
+
     override fun ready(produced: ProducedCall): Outcome? {
         if (OutputBytes.of(produced.output) == null) return Outcome.Fail("not_bytes: ${produced.output?.javaClass?.simpleName}")
         val key = produced.prepared.key
@@ -21,7 +23,7 @@ internal object RecomputeRow : ConsumingRow {
         }
     }
 
-    override fun setup(produced: ProducedCall, consumer: Consumer): () -> Any? {
+    override fun setup(produced: ProducedCall, consumer: Consumer, travel: Travel): () -> Any? {
         val prepared = produced.prepared
         val message = CaseArguments.preparedMessage(prepared)
         val (provider, algorithm) = consumer
@@ -29,7 +31,7 @@ internal object RecomputeRow : ConsumingRow {
             Operation.COMPUTE_MAC -> {
                 val mac = Mac.getInstance(algorithm, provider)
                 val key = PeerKey.of(prepared.key.secretKeyOrNull!!, provider)
-                val spec = PeerParameters.spec(PeerParameters.used(prepared, null))
+                val spec = PeerParameters.spec(PeerParameters.used(prepared, null, travel))
                 mac.apply { if (spec == null) init(key) else init(key, spec) }
                 return { mac.doFinal(message) }
             }
@@ -38,7 +40,7 @@ internal object RecomputeRow : ConsumingRow {
                 val pairs = prepared.key.keyPairsOrNull!!
                 val private = PeerKey.of(pairs.first().private, provider) as PrivateKey
                 val public = PeerKey.of(pairs.last().public, provider) as PublicKey
-                val spec = PeerParameters.spec(PeerParameters.used(prepared, null))
+                val spec = PeerParameters.spec(PeerParameters.used(prepared, null, travel))
                 agreement.apply { if (spec == null) init(private) else init(private, spec) }
                 return { agreement.doPhase(public, true); agreement.generateSecret() }
             }

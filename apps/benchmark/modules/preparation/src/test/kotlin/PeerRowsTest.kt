@@ -12,6 +12,7 @@ import io.github.junekim0007.cryptobench.preparation.peer.Consumer
 import io.github.junekim0007.cryptobench.preparation.peer.Outcome
 import io.github.junekim0007.cryptobench.preparation.peer.PeerEngine
 import io.github.junekim0007.cryptobench.preparation.peer.ProducedCall
+import io.github.junekim0007.cryptobench.preparation.peer.Travel
 import io.github.junekim0007.cryptobench.preparation.port.Availability
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
@@ -48,7 +49,7 @@ class PeerRowsTest {
     private fun judged(prepared: PreparedCase, consumer: String, judgedAs: PreparedCase = prepared, output: (Any?) -> Any? = { it }): String {
         val invocation = Invocations.of(prepared)
         val produced = ProducedCall(judgedAs, invocation.engine, output(invocation.once()))
-        return when (val outcome = engine.check(produced, Consumer(consumer, judgedAs.case.algorithm))) {
+        return when (val outcome = engine.check(produced, Consumer(consumer, judgedAs.case.algorithm), Travel.USED)) {
             Outcome.Pass -> "pass"
             is Outcome.Fail -> "fail ${cut(outcome.reason)}"
             is Outcome.NotCheckable -> "not_checkable ${cut(outcome.reason)}"

@@ -1108,7 +1108,6 @@ codes:
   key_generation_failed: {kind: error}
   key_inside_provider: {kind: outcome}
   key_not_extractable: {kind: outcome}
-  key_or_parameters_rejected: {kind: outcome}
   key_parameters_and_key_sizes: {kind: error}
   key_refused: {kind: outcome}
   key_size_not_in_guide: {kind: error}
@@ -1234,7 +1233,6 @@ codes:
   orphan_vector: {kind: outcome}
   out_of_range: {kind: error}
   output_differs: {kind: outcome}
-  outputs_not_comparable: {kind: outcome}
   overlapping_edits: {kind: outcome}
   override_matches_nothing: {kind: notice}
   parameters_ignored: {kind: notice}

@@ -19,11 +19,11 @@ internal object PeerParameters {
         SPECS.firstNotNullOfOrNull { Attempt.of { reported.getParameterSpec(it) }.getOrNull() } ?: reported
 
     // null: the call used none. A spec drawn per call that the engine does not report cannot be recovered.
-    fun used(prepared: PreparedCase, reported: AlgorithmParameters?): Any? {
-        if (reported != null) return portable(reported)
+    fun used(prepared: PreparedCase, reported: AlgorithmParameters?, travel: Travel): Any? {
+        if (reported != null) return travel.carried(portable(reported))
         val bound = prepared.parameters ?: return null
         if (bound.varies) throw PeerRefusal("parameters_not_recoverable", "the engine reports none and the case draws them per call")
-        return bound.next()
+        return travel.carried(bound.next())
     }
 
     fun spec(used: Any?): AlgorithmParameterSpec? = when (used) {

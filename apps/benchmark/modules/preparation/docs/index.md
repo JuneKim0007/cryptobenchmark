@@ -30,7 +30,7 @@ apps/benchmark/modules/preparation/src/main/kotlin/inbound/InboundFile.kt : read
 apps/benchmark/modules/preparation/src/main/kotlin/input/CipherKeys.kt : picks the encrypt or decrypt key from KeyMaterial
 apps/benchmark/modules/preparation/src/main/kotlin/input/InputBytes.kt : seeded input bytes (java.util.Random(seed))
 apps/benchmark/modules/preparation/src/main/kotlin/input/OperationInput.kt : sealed case input: None, Message, Ciphertext, SignedMessage
-apps/benchmark/modules/preparation/src/main/kotlin/interop/ : cross-provider interop check: plan file, checks, verdicts, the plan run, interop.yaml
+apps/benchmark/modules/preparation/src/main/kotlin/interop/ : cross-provider interop check: plan file, each pair's two directions through the peer engine, verdicts, the plan run, interop.yaml
 apps/benchmark/modules/preparation/src/main/kotlin/key/generate/KeyInitializer.kt : KeyGenerator and KeyPairGenerator init
 apps/benchmark/modules/preparation/src/main/kotlin/key/generate/KeyMaterial.kt : sealed key material: None, Secret, Pairs
 apps/benchmark/modules/preparation/src/main/kotlin/key/generate/KeyMaterialGenerator.kt : builds KeyMaterial from a KeyRecipe; a second pair is the first one's jca PeerPair
@@ -78,22 +78,7 @@ apps/benchmark/modules/preparation/src/main/kotlin/parameter/resolve/KeyFields.k
 apps/benchmark/modules/preparation/src/main/kotlin/parameter/resolve/PerInitValue.kt : whether an IvParameterSpec value is an IV or a constant the provider fills in
 apps/benchmark/modules/preparation/src/main/kotlin/parameter/resolve/ResolvedParameters.kt : what the provider used after one call; key names
 apps/benchmark/modules/preparation/src/main/kotlin/parameter/resolve/SpecFields.kt : fields of reported parameters, by spec class
-apps/benchmark/modules/preparation/src/main/kotlin/peer/CipherRow.kt : encrypt: the consumer decrypts the ciphertext to the input; decrypt: the same ciphertext to the output
-apps/benchmark/modules/preparation/src/main/kotlin/peer/Consumer.kt : the provider that consumes a produced call's output and its algorithm name
-apps/benchmark/modules/preparation/src/main/kotlin/peer/KeyOutputRow.kt : a generated key judged by use: the producer runs its KeyUse once, the consumer takes that call through the use's row
-apps/benchmark/modules/preparation/src/main/kotlin/peer/KeyUse.kt : a generated key's use: in catalogue order the first cipher, signature, MAC or agreement entry of its key type both providers offer, with a timed operation
-apps/benchmark/modules/preparation/src/main/kotlin/peer/Outcome.kt : a peer check's verdict: Pass, Fail or NotCheckable with a coded reason, and its label
-apps/benchmark/modules/preparation/src/main/kotlin/peer/Outcomes.kt : the ordered table from a stage and an exception to a verdict and its code
-apps/benchmark/modules/preparation/src/main/kotlin/peer/OutputBytes.kt : a call's output as bytes where it has them (a key's encoding, a pair's public one) and their SHA-256
-apps/benchmark/modules/preparation/src/main/kotlin/peer/PeerCase.kt : the producer's case: seed 0, the key size and input size (default 16) where the operation takes them
-apps/benchmark/modules/preparation/src/main/kotlin/peer/PeerEngine.kt : the one peer procedure: the operation's row, its readiness, the consumer's setup and call, failures through Outcomes
-apps/benchmark/modules/preparation/src/main/kotlin/peer/PeerKey.kt : the call's key rebuilt from its encoding by the consumer's KeyFactory, else another installed provider's; key_not_extractable
-apps/benchmark/modules/preparation/src/main/kotlin/peer/PeerParameters.kt : the parameters the call used, from the engine's report or the case's fixed spec, in a form another provider takes
-apps/benchmark/modules/preparation/src/main/kotlin/peer/PeerRefusal.kt : what a consumer cannot take, with its code
-apps/benchmark/modules/preparation/src/main/kotlin/peer/PeerRow.kt : one operation's peer check: ready, setup, judge
-apps/benchmark/modules/preparation/src/main/kotlin/peer/ProducedCall.kt : the call a consumer judges: prepared case, read-back engine, output
-apps/benchmark/modules/preparation/src/main/kotlin/peer/RecomputeRow.kt : the consumer recomputes a digest, MAC or agreed secret from the same key, parameters and input
-apps/benchmark/modules/preparation/src/main/kotlin/peer/SignatureRow.kt : the consumer verifies the call's signature, or accepts what the call accepted
+apps/benchmark/modules/preparation/src/main/kotlin/peer/ : the peer engine one provider's output is checked by another through: verdict, outcomes table, rows, key use and rebuild, parameters that travel (apps/benchmark/modules/preparation/docs/peer.md)
 apps/benchmark/modules/preparation/src/main/kotlin/port/Availability.kt : Available or Unavailable(reason, registered)
 apps/benchmark/modules/preparation/src/main/kotlin/port/DeviceCapability.kt : device port: providers, check, measuredKeyAlgorithm, the captured API level
 apps/benchmark/modules/preparation/src/main/kotlin/prepare/CasePreparer.kt : one case: key, bind, input, one call, parameter read-back, a secure case's keystore spec, KeyInfo and delete; a failed step throws PreparationException with its code
@@ -129,7 +114,8 @@ apps/benchmark/modules/preparation/src/test/kotlin/ExampleFilesTest.kt : prepare
 apps/benchmark/modules/preparation/src/test/kotlin/FailureTextTest.kt : a provider's failure as preparation writes it: key encodings removed, identity hash dropped, within the cap
 apps/benchmark/modules/preparation/src/test/kotlin/GlobalReaderTest.kt : run and policy read tests
 apps/benchmark/modules/preparation/src/test/kotlin/InboundFileTest.kt : effective.yaml section and schema tests
-apps/benchmark/modules/preparation/src/test/kotlin/InteropOracleTest.kt : interop verdict and plan-file tests
+apps/benchmark/modules/preparation/src/test/kotlin/InteropFileGoldenTest.kt : interop.yaml's bytes for a small plan on the JDK's providers
+apps/benchmark/modules/preparation/src/test/kotlin/InteropOracleTest.kt : interop verdicts per type, generated keys by use, a refusing KeyFactory, the OAEP MGF1 finding, plan-file tests
 apps/benchmark/modules/preparation/src/test/kotlin/InvocationTest.kt : invocation repeatability, IV reuse, both variants, fresh IV under fixed
 apps/benchmark/modules/preparation/src/test/kotlin/KeyMaterialGeneratorTest.kt : key generation tests
 apps/benchmark/modules/preparation/src/test/kotlin/KeyPlannerTest.kt : key recipe planning tests

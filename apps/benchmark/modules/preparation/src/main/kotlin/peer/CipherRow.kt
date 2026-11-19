@@ -11,6 +11,8 @@ import javax.crypto.Cipher
 /** Encrypt: the consumer decrypts the ciphertext under the call's key and parameters to its input. Decrypt: the consumer decrypts the same ciphertext to the call's output. */
 internal object CipherRow : ConsumingRow {
 
+    override val mode = PeerEngine.PRODUCE_CONSUME
+
     override fun ready(produced: ProducedCall): Outcome? {
         if (OutputBytes.of(produced.output) == null) return Outcome.Fail("not_bytes: ${produced.output?.javaClass?.simpleName}")
         return when {
@@ -20,14 +22,14 @@ internal object CipherRow : ConsumingRow {
         }
     }
 
-    override fun setup(produced: ProducedCall, consumer: Consumer): () -> Any? {
+    override fun setup(produced: ProducedCall, consumer: Consumer, travel: Travel): () -> Any? {
         if (encrypts(produced)) {
-            val cipher = decrypting(produced, consumer, PeerParameters.used(produced.prepared, (produced.engine as Cipher).parameters))
+            val cipher = decrypting(produced, consumer, PeerParameters.used(produced.prepared, (produced.engine as Cipher).parameters, travel))
             val output = OutputBytes.of(produced.output)!!
             return { cipher.doFinal(output) }
         }
         val input = produced.prepared.input as OperationInput.Ciphertext
-        val cipher = decrypting(produced, consumer, input.spec ?: input.providerParameters?.let(PeerParameters::portable))
+        val cipher = decrypting(produced, consumer, travel.carried(input.spec ?: input.providerParameters?.let(PeerParameters::portable)))
         return { cipher.doFinal(input.bytes) }
     }
 

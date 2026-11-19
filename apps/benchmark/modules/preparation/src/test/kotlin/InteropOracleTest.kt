@@ -9,6 +9,7 @@ import io.github.junekim0007.cryptobench.preparation.interop.plan.Member
 import io.github.junekim0007.cryptobench.preparation.interop.report.InteropFile
 import io.github.junekim0007.cryptobench.preparation.interop.report.InteropVerdict
 import io.github.junekim0007.cryptobench.preparation.peer.Outcome
+import io.github.junekim0007.cryptobench.preparation.peer.PeerEngine
 import io.github.junekim0007.cryptobench.preparation.port.Availability
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
 import org.junit.Assert.assertEquals
@@ -19,7 +20,12 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.yaml.snakeyaml.Yaml
 import java.security.AlgorithmParameters
+import java.security.InvalidKeyException
 import java.security.Key
+import java.security.KeyFactorySpi
+import java.security.KeyPair
+import java.security.KeyPairGenerator
+import java.security.KeyPairGeneratorSpi
 import java.security.MessageDigestSpi
 import java.security.PrivateKey
 import java.security.Provider
@@ -29,6 +35,8 @@ import java.security.Security
 import java.security.Signature
 import java.security.SignatureSpi
 import java.security.spec.AlgorithmParameterSpec
+import java.security.spec.InvalidKeySpecException
+import java.security.spec.KeySpec
 import java.security.spec.MGF1ParameterSpec
 import java.security.spec.PSSParameterSpec
 import javax.crypto.Cipher
@@ -81,6 +89,32 @@ class FixedPss : SignatureSpi() {
 
     override fun engineInitVerify(key: PublicKey) { inner.setParameter(spec); inner.initVerify(key) }
     override fun engineInitSign(key: PrivateKey) { inner.setParameter(spec); inner.initSign(key) }
+    override fun engineUpdate(b: Byte) = inner.update(b)
+    override fun engineUpdate(b: ByteArray, off: Int, len: Int) = inner.update(b, off, len)
+    override fun engineSign(): ByteArray = inner.sign()
+    override fun engineVerify(sig: ByteArray): Boolean = inner.verify(sig)
+    @Deprecated("the JCA abstract member") override fun engineSetParameter(param: String?, value: Any?) = Unit
+    @Deprecated("the JCA abstract member") override fun engineGetParameter(param: String?): Any? = null
+}
+
+class SunEcPairs : KeyPairGeneratorSpi() {
+    private val inner = KeyPairGenerator.getInstance("EC", "SunEC")
+    override fun initialize(keysize: Int, random: SecureRandom?) = inner.initialize(keysize, random)
+    override fun initialize(params: AlgorithmParameterSpec?, random: SecureRandom?) = inner.initialize(params, random)
+    override fun generateKeyPair(): KeyPair = inner.generateKeyPair()
+}
+
+class RefusingKeyFactory : KeyFactorySpi() {
+    override fun engineGeneratePublic(keySpec: KeySpec?): PublicKey = throw InvalidKeySpecException("refused")
+    override fun engineGeneratePrivate(keySpec: KeySpec?): PrivateKey = throw InvalidKeySpecException("refused")
+    override fun <T : KeySpec?> engineGetKeySpec(key: Key?, keySpec: Class<T>?): T = throw InvalidKeySpecException("refused")
+    override fun engineTranslateKey(key: Key?): Key = throw InvalidKeyException("refused")
+}
+
+class SunEcSha256 : SignatureSpi() {
+    private val inner = Signature.getInstance("SHA256withECDSA", "SunEC")
+    override fun engineInitVerify(key: PublicKey) = inner.initVerify(key)
+    override fun engineInitSign(key: PrivateKey) = inner.initSign(key)
     override fun engineUpdate(b: Byte) = inner.update(b)
     override fun engineUpdate(b: ByteArray, off: Int, len: Int) = inner.update(b, off, len)
     override fun engineSign(): ByteArray = inner.sign()
@@ -154,7 +188,7 @@ class InteropOracleTest {
         val v = withFakeOaep {
             oracle.check(InteropPair(1, "g", Member("Cipher", name, "SunJCE"), Member("Cipher", name, "FakeOaep"), 2048, null))
         }
-        assertEquals(Outcome.FAIL to InteropVerdict.PRODUCE_CONSUME, v.result to v.mode)
+        assertEquals(Outcome.FAIL to PeerEngine.PRODUCE_CONSUME, v.result to v.mode)
         assertEquals("fail" to "fail", v.aToB.label to v.bToA.label)
     }
 
@@ -186,18 +220,35 @@ class InteropOracleTest {
     }
 
     @Test
-    fun generatedKeysAndUnregisteredMembersAreNotCheckable() {
-        val keys = oracle.check(pair("KeyGenerator", "SunJCE", "AES", "AES", 128))
-        assertEquals(Outcome.NOT_CHECKABLE, keys.result)
-        assertTrue(keys.reason, keys.reason.contains("outputs_not_comparable"))
+    fun aGeneratedKeyTheConsumersKeyFactoryRefusesFails() {
+        val fake = object : Provider("RejectingEc", "1", "EC keys it generates, a KeyFactory refusing every encoding") {
+            init {
+                put("KeyPairGenerator.EC", SunEcPairs::class.java.name)
+                put("KeyFactory.EC", RefusingKeyFactory::class.java.name)
+                put("Signature.SHA256withECDSA", SunEcSha256::class.java.name)
+            }
+        }
+        Security.addProvider(fake)
+        try {
+            val v = oracle.check(InteropPair(1, "g", Member("KeyPairGenerator", "EC", "SunEC"), Member("KeyPairGenerator", "EC", fake.name), 256, null))
+            assertEquals("fail/produce_consume", "${v.result}/${v.mode}")
+            assertEquals("fail" to "pass", v.aToB.label to v.bToA.label)
+            assertTrue(v.reason, v.reason.startsWith("aToB: peer_key_rejected: InvalidKeySpecException"))
+        } finally {
+            Security.removeProvider(fake.name)
+        }
+    }
+
+    @Test
+    fun anUnregisteredMemberIsNotCheckable() {
         val ghost = oracle.check(pair("Cipher", "SunJCE", "AES/GCM/NoPadding", "NOPE/GCM/NoPadding"))
-        assertEquals(Outcome.NOT_CHECKABLE to InteropVerdict.NONE, ghost.result to ghost.mode)
+        assertEquals(Outcome.NOT_CHECKABLE to PeerEngine.NONE, ghost.result to ghost.mode)
         assertTrue(ghost.reason.contains("not_registered"))
     }
 
-    // Characterization: interop of key generators and agreements on the JDK's own providers, as a table of verdict, mode and reasons cut to their codes.
+    // Generated keys are judged by their catalogue use; agreements recompute the secret. Verdict, mode and reasons cut to their codes.
     @Test
-    fun keyGeneratorsAndAgreementsAsTheyInteropToday() {
+    fun keyGeneratorsByUseAndAgreementsByRecompute() {
         fun shown(p: InteropPair) = oracle.check(p).let { v -> "${v.result}/${v.mode} ${v.reason.split("; ").joinToString("; ") { it.split(": ").take(2).joinToString(": ") }}".trim() }
         val table = listOf(
             "AES key" to shown(pair("KeyGenerator", "SunJCE", "AES", "AES", 128)),
@@ -207,9 +258,9 @@ class InteropOracleTest {
             "DH" to shown(pair("KeyAgreement", "SunJCE", "DH", "DH", 2048)),
         )
         assertEquals(listOf(
-            "AES key" to "not_checkable/same_output aToB: outputs_not_comparable; bToA: outputs_not_comparable",
-            "EC key pair" to "not_checkable/same_output aToB: outputs_not_comparable; bToA: outputs_not_comparable",
-            "RSA key pair" to "not_checkable/same_output aToB: outputs_not_comparable; bToA: outputs_not_comparable",
+            "AES key" to "pass/produce_consume",
+            "EC key pair" to "pass/produce_consume",
+            "RSA key pair" to "pass/produce_consume",
             "ECDH" to "pass/same_output",
             "DH" to "pass/same_output",
         ), table)

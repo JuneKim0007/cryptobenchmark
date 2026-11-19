@@ -1,6 +1,9 @@
 package io.github.junekim0007.cryptobench.preparation.peer
 
 import io.github.junekim0007.cryptobench.jca.failure.Attempt
+import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterial
+import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
+import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
 
@@ -9,17 +12,21 @@ class PeerEngine(capability: DeviceCapability) {
 
     private val uses = KeyUse(capability)
 
-    fun check(produced: ProducedCall, consumer: Consumer): Outcome {
+    // the producer's own call first: a pair's member that cannot make its output is producer_failed
+    fun produced(case: BenchmarkCase, recipe: KeyRecipe, key: KeyMaterial, consumer: Consumer, travel: Travel): Outcome =
+        check(Attempt.of { ProducedCall.of(case, recipe, key) }.getOrElse { return Outcomes.of(Stage.PRODUCE, it) }, consumer, travel)
+
+    fun check(produced: ProducedCall, consumer: Consumer, travel: Travel): Outcome {
         val operation = produced.prepared.case.operation
         val row = ROWS[operation] ?: return Outcome.NotCheckable("no_peer_check: $operation")
         row.ready(produced)?.let { return it }
         return when (row) {
-            is ConsumingRow -> consumed(row, produced, consumer, Stage.SETUP)
-            KeyOutputRow -> used(produced, consumer)
+            is ConsumingRow -> consumed(row, produced, consumer, travel, Stage.SETUP)
+            KeyOutputRow -> used(produced, consumer, travel)
         }
     }
 
-    private fun used(produced: ProducedCall, consumer: Consumer): Outcome {
+    private fun used(produced: ProducedCall, consumer: Consumer, travel: Travel): Outcome {
         val algorithm = KeyOutputRow.algorithm(produced.output)
         val producer = produced.prepared.case.provider
         val use = uses.of(algorithm, producer, consumer.provider)
@@ -27,11 +34,11 @@ class PeerEngine(capability: DeviceCapability) {
         val call = Attempt.of { KeyOutputRow.used(produced, use) }.getOrElse { return Outcomes.of(Stage.PRODUCE, it) }
         val row = ROWS.getValue(use.operation) as ConsumingRow
         row.ready(call)?.let { return it }
-        return consumed(row, call, Consumer(consumer.provider, use.algorithm), Stage.OUTPUT_KEY_SETUP)
+        return consumed(row, call, Consumer(consumer.provider, use.algorithm), travel, Stage.OUTPUT_KEY_SETUP)
     }
 
-    private fun consumed(row: ConsumingRow, produced: ProducedCall, consumer: Consumer, setup: Stage): Outcome {
-        val consume = Attempt.of { row.setup(produced, consumer) }.getOrElse { return Outcomes.of(setup, it) }
+    private fun consumed(row: ConsumingRow, produced: ProducedCall, consumer: Consumer, travel: Travel, setup: Stage): Outcome {
+        val consume = Attempt.of { row.setup(produced, consumer, travel) }.getOrElse { return Outcomes.of(setup, it) }
         val consumed = Attempt.of { consume() }.getOrElse { return Outcomes.of(Stage.CONSUME, it) }
         return row.judge(produced, consumed)
     }
@@ -50,6 +57,12 @@ class PeerEngine(capability: DeviceCapability) {
             Operation.GENERATE_KEY_PAIR to KeyOutputRow,
         )
 
+        const val PRODUCE_CONSUME = "produce_consume"
+        const val SAME_OUTPUT = "same_output"
+        const val NONE = "none"
+
         fun checks(operation: Operation): Boolean = operation in ROWS
+
+        fun modeOf(operation: Operation): String = ROWS[operation]?.mode ?: NONE
     }
 }

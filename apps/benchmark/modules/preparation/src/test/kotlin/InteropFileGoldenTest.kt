@@ -64,8 +64,9 @@ class InteropFileGoldenTest {
               result: fail
               mode: same_output
               directions: {aToB: fail, bToA: fail}
-              reason: 'aToB: outputs differ for the same key and input; bToA: outputs differ for
-                the same key and input'
+              reason: 'aToB: peer_differs: the peer computes other bytes from the same key, parameters
+                and input; bToA: peer_differs: the peer computes other bytes from the same key,
+                parameters and input'
             - id: 3
               group: g
               a: {type: Mac, algorithm: HmacSHA256, provider: SunJCE}
@@ -89,8 +90,8 @@ class InteropFileGoldenTest {
               result: fail
               mode: produce_consume
               directions: {aToB: fail, bToA: fail}
-              reason: 'aToB: IllegalStateException: verify_failed; bToA: IllegalStateException:
-                verify_failed'
+              reason: 'aToB: peer_rejects: the peer does not verify the case''s signature; bToA:
+                peer_rejects: the peer does not verify the case''s signature'
             - id: 6
               group: g
               a: {type: Cipher, algorithm: AES/GCM/NoPadding, provider: SunJCE}

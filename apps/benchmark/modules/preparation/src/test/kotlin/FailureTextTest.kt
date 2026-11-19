@@ -1,7 +1,8 @@
 package io.github.junekim0007.cryptobench.preparation
 
-import io.github.junekim0007.cryptobench.preparation.interop.check.CrossCheck
 import io.github.junekim0007.cryptobench.preparation.peer.Outcome
+import io.github.junekim0007.cryptobench.preparation.peer.Outcomes
+import io.github.junekim0007.cryptobench.preparation.peer.Stage
 import io.github.junekim0007.cryptobench.preparation.shared.FailureText
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -37,9 +38,9 @@ class FailureTextTest {
     }
 
     @Test
-    fun anInteropReasonIsScrubbed() {
-        val outcome = CrossCheck.classify(InvalidKeyException("key=${ENCODINGS.first()}")) as Outcome.NotCheckable
-        assertEquals("key_or_parameters_rejected: InvalidKeyException: key=<removed>", outcome.reason)
+    fun aPeerReasonIsScrubbed() {
+        val outcome = Outcomes.of(Stage.SETUP, InvalidKeyException("key=${ENCODINGS.first()}")) as Outcome.NotCheckable
+        assertEquals("peer_key_rejected: InvalidKeyException: key=<removed>", outcome.reason)
     }
 
     private companion object {

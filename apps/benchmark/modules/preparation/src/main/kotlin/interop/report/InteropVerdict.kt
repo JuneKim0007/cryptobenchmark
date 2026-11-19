@@ -18,10 +18,4 @@ data class InteropVerdict(val pair: InteropPair, val mode: String, val aToB: Out
             Outcome.Pass -> null
         }
     }.joinToString("; ")
-
-    companion object {
-        const val PRODUCE_CONSUME = "produce_consume"
-        const val SAME_OUTPUT = "same_output"
-        const val NONE = "none"
-    }
 }

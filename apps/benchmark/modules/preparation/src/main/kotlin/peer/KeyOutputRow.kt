@@ -11,6 +11,8 @@ import javax.crypto.SecretKey
 /** A generated key is judged by use: the producer runs the key's catalogue use once with it, and the consumer takes that call through the use's row. */
 internal object KeyOutputRow : PeerRow {
 
+    override val mode = PeerEngine.PRODUCE_CONSUME
+
     override fun ready(produced: ProducedCall): Outcome? =
         if (produced.output is SecretKey || produced.output is KeyPair) null else Outcome.Fail("not_a_key: ${produced.output?.javaClass?.simpleName}")
 
