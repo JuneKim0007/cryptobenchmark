@@ -10,7 +10,7 @@
 | row | the produced operation's row in `PeerEngine.ROWS`; none: `not_checkable` `no_peer_check` |
 | ready | the row's shape and input checks: `fail` `not_bytes`; `not_checkable` `no_engine_read_back`, `no_ciphertext_input`, `no_key_pair`, `no_signed_input`, `no_key` |
 | setup | the consumer's instance, the key rebuilt by `PeerKey` (Keys below), the parameters from `PeerParameters`, init |
-| consume | the consumer's call; its result judged by the row: `fail` `peer_differs`, `peer_rejects`; else `pass` |
+| consume | the consumer's call and the row's judgement of its result, inside one `Attempt` (a judge that throws fails as consume): `fail` `peer_differs`, `peer_rejects`; else `pass` |
 | failure | an Exception or LinkageError of setup or consume goes through the `Outcomes` table; any other Error escapes |
 
 ## Outcomes

@@ -49,8 +49,7 @@ class PeerEngine(capability: DeviceCapability) {
 
     private fun consumed(row: ConsumingRow, produced: ProducedCall, consumer: Consumer, travel: Travel, setup: Stage): Outcome {
         val consume = Attempt.of { row.setup(produced, consumer, travel) }.getOrElse { return Outcomes.of(setup, it) }
-        val consumed = Attempt.of { consume() }.getOrElse { return Outcomes.of(Stage.CONSUME, it) }
-        return row.judge(produced, consumed)
+        return Attempt.of { row.judge(produced, consume()) }.getOrElse { Outcomes.of(Stage.CONSUME, it) }
     }
 
     companion object {
