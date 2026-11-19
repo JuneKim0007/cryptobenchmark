@@ -1,5 +1,6 @@
 schemaVersion: 2
 warnings: ['not_supported: run.harness.cpu: facts_unknown: no facts.yaml for this
     run', 'secure_path_unavailable: secure asked by 3 entries; the hardware-isolated
-    key path runs KeyGenerator, KeyPairGenerator only']
+    key path runs KeyGenerator, KeyPairGenerator only', 'shadowed_setting: run.harness.iterations
+    is unused while run.passes sets the samples of a --device run']
 skipped: []

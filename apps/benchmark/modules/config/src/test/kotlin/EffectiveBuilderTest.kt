@@ -4,6 +4,8 @@ import io.github.junekim0007.cryptobench.settings.OnFailure
 import io.github.junekim0007.cryptobench.config.effective.EffectiveBuilder
 import io.github.junekim0007.cryptobench.settings.StoppedOnFailureException
 import io.github.junekim0007.cryptobench.config.global.GlobalDocument
+import io.github.junekim0007.cryptobench.config.global.dto.GlobalConfig
+import io.github.junekim0007.cryptobench.config.global.dto.MeasurePass
 import io.github.junekim0007.cryptobench.config.global.dto.Policy
 import io.github.junekim0007.cryptobench.config.global.dto.Warmup
 import io.github.junekim0007.cryptobench.config.inventory.InventoryBuilder
@@ -139,6 +141,16 @@ class EffectiveBuilderTest {
     private fun withRunCpu(cpu: CpuSettings) = global.copy(run = global.run.copy(harness = global.run.harness.copy(cpu = cpu)))
 
     private fun entryCpu(cpu: CpuSettings) = testSet.copy(overrides = testSet.overrides + Override(Rule(type = "MessageDigest"), harness = HarnessSettings(cpu = cpu)))
+
+    @Test
+    fun runPassesShadowEveryAuthoredIterationsAndNothingWithoutPasses() {
+        val counted = global.copy(run = global.run.copy(harness = global.run.harness.copy(iterations = 20)))
+        val overridden = testSet.copy(overrides = testSet.overrides + Override(Rule(type = "MessageDigest"), harness = HarnessSettings(iterations = 5)))
+        fun shadowed(run: GlobalConfig) = EffectiveBuilder().build(run, overridden, inventory, names).warnings.filter { it.startsWith("shadowed_setting:") }
+        assertEquals(emptyList<String>(), shadowed(counted))
+        val passes = shadowed(counted.copy(run = counted.run.copy(passes = listOf(MeasurePass(MeasurePass.TIMING, 50)))))
+        assertEquals(listOf("run.harness.iterations", "overrides[${overridden.overrides.lastIndex}].set.harness.iterations"), passes.map { it.removePrefix("shadowed_setting: ").substringBefore(" is unused") })
+    }
 
     @Test
     fun aSupportedSettingIsKeptWithBigResolvedToACore() {

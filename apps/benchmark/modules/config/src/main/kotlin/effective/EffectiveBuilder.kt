@@ -46,7 +46,8 @@ class EffectiveBuilder {
                 runUnsupported.map { it.toString() } + entries.warnings + warmupWarnings +
                 entries.dropped.map { (typePath, count) -> VariantLabels.notApplicable("${typePath.first} ($count ${if (count == 1) "entry" else "entries"})",
                     EngineCatalog.rows.applicable(typePath.first), listOf(typePath.second)) } +
-                listOfNotNull(entries.secureAsked.takeIf { it > 0 }?.let { Variants.secureUnavailable("$it entries") }),
+                listOfNotNull(entries.secureAsked.takeIf { it > 0 }?.let { Variants.secureUnavailable("$it entries") }) +
+                ShadowedSettings.of(global, testSet),
             analysis = global.analysis,
             bundledProviders = global.providers.bundled,
         )
