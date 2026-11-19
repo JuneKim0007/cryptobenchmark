@@ -33,8 +33,7 @@ python3 apps/cli/facade.py --settings settings.yaml                   # benchmar
 
 ## Recommended settings
 
-- **Set `run.thermalGate` on a phone.** A phone's power controller can lower the CPU speed while the CPU still reports as locked, so numbers shift with no error or status change. On a Pixel 10 the fastest core drops from 3.78 to 3.40 GHz at a skin temperature near 36 °C. The gate starts a run only below a limit, discards a run that ends too hot, and moves the start limit by itself as the session heats up.
-- **Find `temperatureKeptCelsius` for each device.** Only the start limit adapts. The kept temperature is a property of the device, and 36.0 was measured on a Pixel 10 only.
+- **Set `run.thermalGate` on a phone, and find its temperature for your device.** A hot phone slows its CPU without reporting it, so numbers shift silently. `temperatureKeptCelsius` 36.0 is where a Pixel 10 slows down; other devices may differ.
 - **Give very short algorithms more runs.** A case contains runs and a run contains iters. Fast hashes and MACs vary more from run to run than slow operations do, and more iters do not fix that: the extra launches do. `run.processRepetitions` sets one count for every case.
 - **Use airplane mode.** Background radio work adds noise.
 
