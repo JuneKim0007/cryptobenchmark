@@ -103,6 +103,7 @@ class InteropOracleTest {
         }
         override fun measuredKey(provider: String, type: String, algorithm: String): KeyCandidate? = when {
             algorithm == PSS_NAME || type == "Signature" -> KeyCandidate(algorithm.substringAfter("with").substringBefore('/').replace("ECDSA", "EC"))
+            type == "KeyAgreement" -> KeyCandidate(if (algorithm == "ECDH") "EC" else algorithm)
             else -> KeyCandidate(algorithm.substringBefore('/'))
         }
     }
@@ -191,6 +192,26 @@ class InteropOracleTest {
         val ghost = oracle.check(pair("Cipher", "SunJCE", "AES/GCM/NoPadding", "NOPE/GCM/NoPadding"))
         assertEquals(InteropVerdict.NOT_CHECKABLE to InteropVerdict.NONE, ghost.result to ghost.mode)
         assertTrue(ghost.reason.contains("not_registered"))
+    }
+
+    // Characterization: interop of key generators and agreements on the JDK's own providers, as a table of verdict, mode and reasons cut to their codes.
+    @Test
+    fun keyGeneratorsAndAgreementsAsTheyInteropToday() {
+        fun shown(p: InteropPair) = oracle.check(p).let { v -> "${v.result}/${v.mode} ${v.reason.split("; ").joinToString("; ") { it.split(": ").take(2).joinToString(": ") }}".trim() }
+        val table = listOf(
+            "AES key" to shown(pair("KeyGenerator", "SunJCE", "AES", "AES", 128)),
+            "EC key pair" to shown(pair("KeyPairGenerator", "SunEC", "EC", "EC", 256)),
+            "RSA key pair" to shown(pair("KeyPairGenerator", "SunRsaSign", "RSA", "RSA", 2048)),
+            "ECDH" to shown(pair("KeyAgreement", "SunEC", "ECDH", "ECDH", 256)),
+            "DH" to shown(pair("KeyAgreement", "SunJCE", "DH", "DH", 2048)),
+        )
+        assertEquals(listOf(
+            "AES key" to "not_checkable/same_output aToB: outputs_not_comparable; bToA: outputs_not_comparable",
+            "EC key pair" to "not_checkable/same_output aToB: outputs_not_comparable; bToA: outputs_not_comparable",
+            "RSA key pair" to "not_checkable/same_output aToB: outputs_not_comparable; bToA: outputs_not_comparable",
+            "ECDH" to "pass/same_output",
+            "DH" to "pass/same_output",
+        ), table)
     }
 
     @Test
