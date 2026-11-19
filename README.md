@@ -6,11 +6,6 @@
 
 Measures the JCA cryptographic primitives a JVM or an Android device provides: what is registered, what runs, and how fast.
 
-```mermaid
-flowchart LR
-    D[discovery] -- capture, trial --> C[config] -- effective --> P[preparation] --> B[benchmark] --> A[analysis]
-```
-
 ## Setup
 
 ```
