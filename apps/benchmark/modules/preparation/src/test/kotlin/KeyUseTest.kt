@@ -1,5 +1,7 @@
 package io.github.junekim0007.cryptobench.preparation
 
+import io.github.junekim0007.cryptobench.document.catalogue.CatalogueOverlays
+import io.github.junekim0007.cryptobench.document.catalogue.FamilyCatalogue
 import io.github.junekim0007.cryptobench.preparation.peer.KeyUse
 import io.github.junekim0007.cryptobench.preparation.port.Availability
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
@@ -48,7 +50,7 @@ class KeyUseTest {
             if (provider == "Q" && algorithm == "AES/OnlyP") Availability.Unavailable("not_registered") else Availability.Available
     }
 
-    private val uses = KeyUse(capability, KeyUse.parse(listOf(cipher, rest)))
+    private val uses = KeyUse(capability, FamilyCatalogue.parse(listOf(cipher, rest)))
 
     private fun picked(keyAlgorithm: String, consumer: String = "Q") =
         uses.of(keyAlgorithm, "P", consumer)?.let { "${it.type}|${it.algorithm} ${it.operation}" }
@@ -64,7 +66,41 @@ class KeyUseTest {
 
     @Test
     fun macWordsMapToTheTypesOperation() {
-        val macOnly = KeyUse(capability, KeyUse.parse(listOf(rest)))
+        val macOnly = KeyUse(capability, FamilyCatalogue.parse(listOf(rest)))
         assertEquals("COMPUTE_MAC", macOnly.of("AES", "P", "Q")?.operation?.name)
+    }
+
+    @Test
+    fun aDeviationSetsTheKeyTypeOnTheBuildsItNames() {
+        val builds = """
+            schemaVersion: 1
+            builds:
+              "P @ jdk-25": {name: P}
+              "Q @ jdk-25": {name: Q}
+        """.trimIndent()
+        val deviations = """
+            schemaVersion: 1
+            deviations:
+              d:
+                builds: [P, Q]
+                names: [Cipher|PBE]
+                set: {key.type: AES}
+        """.trimIndent()
+        val pbe = """
+            schemaVersion: 1
+            family: cipher.secret
+            algorithms:
+              Cipher|PBE:
+                key: {type: PBE, origin: app, source: measured}
+                operations: {value: [encrypt, decrypt], source: measured}
+                providers: {}
+        """.trimIndent()
+        val overlays = CatalogueOverlays.parse(builds, deviations)
+        val jdk = object : DeviceCapability by capability {
+            override val platform = "jdk-25"
+        }
+        assertEquals("ENCRYPT", KeyUse(jdk, FamilyCatalogue.parse(listOf(pbe), overlays)).of("AES", "P", "Q")?.operation?.name)
+        assertNull(KeyUse(jdk, FamilyCatalogue.parse(listOf(pbe), overlays)).of("PBE", "P", "Q"))
+        assertNull(KeyUse(jdk, FamilyCatalogue.parse(listOf(pbe))).of("AES", "P", "Q"))
     }
 }

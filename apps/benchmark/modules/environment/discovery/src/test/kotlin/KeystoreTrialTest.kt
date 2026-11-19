@@ -8,6 +8,7 @@ import io.github.junekim0007.cryptobench.discovery.contract.RequirementReport
 import io.github.junekim0007.cryptobench.discovery.contract.RuntimeInfo
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceEntry
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceRequirement
+import io.github.junekim0007.cryptobench.document.catalogue.FamilyCatalogue
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -110,7 +111,8 @@ class KeystoreTrialTest {
     @Test
     fun theBundledCatalogueBlocksParse() {
         val root = generateSequence(File("").absoluteFile) { it.parentFile }.first { File(it, "algorithms/setup-catalog.yaml").isFile }
-        assertEquals(KeystoreCatalogue.FILES.map { File(root, "algorithms/$it").readText() }, KeystoreCatalogue.FILES.map { KeystoreCatalogue::class.java.getResource(it)!!.readText() })
+        val files = KeystoreCatalogue.FAMILIES.map(FamilyCatalogue::file) + listOf(FamilyCatalogue.PROVIDER_BUILDS, FamilyCatalogue.DEVIATIONS)
+        assertEquals(files.map { File(root, "algorithms/$it").readText() }, files.map(FamilyCatalogue::resource))
         val parsed = KeystoreCatalogue.bundled
         val rsa = parsed.of("KeyPairGenerator", listOf("rsa"))!!
         assertEquals(listOf(2048, 3072, 4096), rsa.keySizes)

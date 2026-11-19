@@ -2,7 +2,7 @@ package io.github.junekim0007.cryptobench.discovery.trial.keystore
 
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceKey
 import io.github.junekim0007.cryptobench.document.DocumentFields
-import io.github.junekim0007.cryptobench.document.YamlCodec
+import io.github.junekim0007.cryptobench.document.catalogue.FamilyCatalogue
 
 /** The generator catalogues' keystore blocks: the builder authorizations, and the key sizes or curves the trial generates. */
 internal class KeystoreCatalogue(private val blocks: Map<Pair<String, String>, Block>) {
@@ -14,25 +14,19 @@ internal class KeystoreCatalogue(private val blocks: Map<Pair<String, String>, B
 
     companion object {
 
-        val FILES = listOf("keygen.none_catalogue.yaml", "keypairgen.none_catalogue.yaml")
+        val FAMILIES = listOf("keygen.none", "keypairgen.none")
         private const val KEYSTORE = "keystore"
         private const val TRIAL_KEY_SIZES = "trialKeySizes"
         private const val TRIAL_CURVES = "trialCurves"
         private val LEAVES = setOf("source", "url", TRIAL_KEY_SIZES, TRIAL_CURVES)
 
-        val bundled: KeystoreCatalogue by lazy {
-            parse(FILES.map { name ->
-                KeystoreCatalogue::class.java.getResource(name)?.readText() ?: throw IllegalStateException("missing_resource: $name is not beside ${KeystoreCatalogue::class.java.name}")
-            })
-        }
+        val bundled: KeystoreCatalogue by lazy { of(FamilyCatalogue.bundled(FAMILIES)) }
 
-        fun parse(texts: List<String>): KeystoreCatalogue = KeystoreCatalogue(texts.flatMap { text ->
-            DocumentFields.section(YamlCodec.DOCUMENT.load(text), "algorithms").mapNotNull { (id, row) ->
-                val block = DocumentFields.optionalSection(DocumentFields.asSection(row, id), KEYSTORE) ?: return@mapNotNull null
-                val type = id.substringBefore('|')
-                (ServiceKey.fold(type) to ServiceKey.fold(id.substringAfter('|'))) to Block(block.filterKeys { it !in LEAVES },
-                    DocumentFields.optionalNumbers(block, TRIAL_KEY_SIZES), DocumentFields.optionalStrings(block, TRIAL_CURVES))
-            }
+        fun of(catalogue: FamilyCatalogue): KeystoreCatalogue = KeystoreCatalogue(catalogue.entries.mapNotNull { entry ->
+            @Suppress("UNCHECKED_CAST")
+            val block = entry.section(KEYSTORE) as Map<String, Any>? ?: return@mapNotNull null
+            (ServiceKey.fold(entry.type) to ServiceKey.fold(entry.name)) to Block(block.filterKeys { it !in LEAVES },
+                DocumentFields.optionalNumbers(block, TRIAL_KEY_SIZES), DocumentFields.optionalStrings(block, TRIAL_CURVES))
         }.toMap())
     }
 }

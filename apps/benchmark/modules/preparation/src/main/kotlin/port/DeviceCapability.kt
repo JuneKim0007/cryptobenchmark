@@ -12,4 +12,7 @@ interface DeviceCapability {
 
     // the captured Android API level; null on a JVM
     val sdkInt: Int? get() = null
+
+    // the guide's build platform: android-<sdk>, jdk-<major>
+    val platform: String? get() = sdkInt?.let { "android-$it" }
 }

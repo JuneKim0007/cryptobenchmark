@@ -16,3 +16,5 @@ dependencies {
     implementation libs.snakeyaml
     testImplementation 'junit:junit:4.13.2'
 }
+
+apply from: '../../gradle/guide-resources.gradle'

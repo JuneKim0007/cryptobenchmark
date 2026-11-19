@@ -38,6 +38,9 @@ object CaptureFile {
                 },
             )
         },
-        sdkInt = (sectionOrEmpty(document, "runtime")["sdkInt"] as? Number)?.toInt()?.takeIf { it > 0 },
+        sdkInt = sdkInt(document),
+        platform = sdkInt(document)?.let { "android-$it" } ?: sectionOrEmpty(document, "runtime")["javaVersion"]?.toString()?.substringBefore('.')?.takeIf { it.isNotEmpty() }?.let { "jdk-$it" },
     )
+
+    private fun sdkInt(document: Map<String, Any>): Int? = (sectionOrEmpty(document, "runtime")["sdkInt"] as? Number)?.toInt()?.takeIf { it > 0 }
 }

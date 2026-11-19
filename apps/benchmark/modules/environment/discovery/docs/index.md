@@ -3,7 +3,7 @@
 ```
 apps/benchmark/modules/environment/discovery/.gitignore : ignores /build
 apps/benchmark/modules/environment/discovery/README.md : module summary and link to this index
-apps/benchmark/modules/environment/discovery/build.gradle : Kotlin/JVM 17 library; api :jca; :files (and its test fixtures) and :document; the keystore trial's catalogues through gradle/guide-resources.gradle
+apps/benchmark/modules/environment/discovery/build.gradle : Kotlin/JVM 17 library; api :jca; :files (and its test fixtures) and :document; reads the keystore trial's catalogues through :document's catalogue/FamilyCatalogue
 apps/benchmark/modules/environment/discovery/docs/index.md : this map
 apps/benchmark/modules/environment/discovery/docs/keystore.md : the keystore trial: rows, StrongBox, refusal codes, cost
 apps/benchmark/modules/environment/discovery/docs/probe.md : probe, trial and reuse behaviour
@@ -50,7 +50,7 @@ apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/DefaultRunTri
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/TransformationSet.kt : every declared mode x padding of a Cipher service
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/TrialRunner.kt : level 1: instantiate each captured service
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/call/ : per-type default calls, their registry, default keys, key names and key bits
-apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/keystore/KeystoreCatalogue.kt : the generator catalogues' keystore blocks: authorizations, trial key sizes and curves
+apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/keystore/KeystoreCatalogue.kt : the generator catalogues' keystore blocks, read through document's FamilyCatalogue: authorizations, trial key sizes and curves
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/keystore/KeystoreMaker.kt : what the keystore trial needs of a runtime: classes, StrongBox feature, generate, sweep, delete
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/keystore/KeystoreTrial.kt : level 4: one key per keystore-born generator, size or curve and hardware path, coded refusals
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/keystore/ReflectiveKeystore.kt : KeyGenParameterSpec by reflection, the provider's KeyStore, the StrongBox feature

@@ -4,7 +4,7 @@ Level 4 of the trial ([probe.md](probe.md)): whether a keystore provider makes e
 
 | rule | value |
 |---|---|
-| generators | `KeyGenerator` and `KeyPairGenerator` records labelled `keystore_born_key`, matched case-folded by name or a captured alias to a catalogue entry with a `keystore` block (`algorithms/keygen.none_catalogue.yaml`, `algorithms/keypairgen.none_catalogue.yaml`, bundled beside `KeystoreCatalogue`) |
+| generators | `KeyGenerator` and `KeyPairGenerator` records labelled `keystore_born_key`, matched case-folded by name or a captured alias to a catalogue entry with a `keystore` block (`algorithms/keygen.none_catalogue.yaml`, `algorithms/keypairgen.none_catalogue.yaml`, read through `:document`'s `FamilyCatalogue`) |
 | rows | each `trialKeySizes` value (`setKeySize`), else each `trialCurves` value (`ECGenParameterSpec`), else one row with the block alone; each on `tee`, then `strongbox` |
 | spec | `KeyGenParameterSpec.Builder(alias, purposes)` built by reflection as preparation's `KeystoreSpec` builds it; `setIsStrongBoxBacked(true)` on `strongbox` |
 | alias | `cryptobench-trial-<n>`, fresh per row; deleted after each row; leftovers with that prefix swept before a provider's first row (preparation's sweep of `cryptobench-` also removes them) |

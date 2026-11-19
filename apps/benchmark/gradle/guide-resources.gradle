@@ -1,18 +1,21 @@
 // Puts the implementation guide's catalogues on the classpath of the build that applies this; the one place that knows where they are.
 def guide = new File(buildscript.sourceFile.parentFile.parentFile.parentFile.parentFile, 'algorithms')
-// discovery's keystore trial reads its catalogues beside its class: in discovery's own build (:discovery in tools/module-isolation) and the cli build that compiles its sources
-def keystoreTrial = project.path in [':environment:discovery', ':discovery', ':']
-// discovery carries nothing else: the APK merges every module's resources, so a file two modules carry collides
-def keystoreTrialOnly = project.path in [':environment:discovery', ':discovery']
+// the family catalogues, their overlays and groups sit beside document's catalogue/FamilyCatalogue, read by discovery and preparation;
+// the root build's modules are jars the APK merges, so a file two of them carry collides: there only :document carries them
+def rootBuild = rootProject.name == 'cryptobenchmark'
+def catalogues = rootBuild ? project.path == ':document' : project.path in [':discovery', ':preparation', ':benchmark', ':']
+// the rest is preparation's and config's; discovery and document carry nothing else
+def guideTables = !(project.path in [':environment:discovery', ':discovery', ':document'])
 tasks.matching { it.name == 'processResources' }.configureEach {
-    if (keystoreTrial) {
-        from(guide) { include 'keygen.none_catalogue.yaml', 'keypairgen.none_catalogue.yaml'; into 'io/github/junekim0007/cryptobench/discovery/trial/keystore' }
+    if (catalogues) {
+        from(guide) {
+            include 'keygen.none_catalogue.yaml', 'keypairgen.none_catalogue.yaml', 'cipher.secret_catalogue.yaml', 'cipher.pair_catalogue.yaml', 'signature.pair_catalogue.yaml', 'mac.secret_catalogue.yaml', 'agreement.peer_catalogue.yaml', 'provider-builds.yaml', 'deviations.yaml', 'groups.yaml'
+            into 'io/github/junekim0007/cryptobench/document/catalogue'
+        }
     }
-    if (keystoreTrialOnly) return
+    if (!guideTables) return
     from(guide) { include 'algorithm-names.yaml', 'setup-catalog.yaml' }
     // preparation's operation/SetupCatalog and engine/EngineTypes (timed) read their catalogues beside their classes
     from(guide) { include 'setup-catalog.yaml'; into 'io/github/junekim0007/cryptobench/preparation/operation' }
     from(guide) { include 'engine-operations.yaml'; into 'io/github/junekim0007/cryptobench/preparation/engine' }
-    // preparation's peer/KeyUse reads the use families' catalogues beside its class
-    from(guide) { include 'cipher.secret_catalogue.yaml', 'cipher.pair_catalogue.yaml', 'signature.pair_catalogue.yaml', 'mac.secret_catalogue.yaml', 'agreement.peer_catalogue.yaml'; into 'io/github/junekim0007/cryptobench/preparation/peer' }
 }

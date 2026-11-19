@@ -53,8 +53,9 @@ First matching rule wins. Stages: produce (the producer's own call), setup over 
 
 | rule | value |
 |---|---|
-| catalogues | `algorithms/cipher.secret_catalogue.yaml`, `cipher.pair`, `signature.pair`, `mac.secret`, `agreement.peer`, in that order, entries in file order |
-| entry | the first whose `key.type` equals the key's algorithm, case folded, and whose type and name the capability reports Available on both providers |
+| catalogues | `algorithms/cipher.secret_catalogue.yaml`, `cipher.pair`, `signature.pair`, `mac.secret`, `agreement.peer`, in that order, entries in file order, read through document's `FamilyCatalogue` |
+| build view | each entry as each provider's build sees it: `deviations.yaml` and provider-wide behaviours applied as the Python reader does; the build is the provider's on the capture's platform (`android-<sdk>`, `jdk-<major>`), else the nearest at or below, else its latest |
+| entry | the first whose `key.type`, on both builds, equals the key's algorithm, case folded, and whose type and name the capability reports Available on both providers |
 | operation | the first of the entry's `operations` words that begins the name of an operation `engine-operations.yaml` times for its type (`computeMac` COMPUTE_MAC, `agree` AGREE_KEY); `wrap` has none |
 | none | `not_checkable` `no_key_use` |
 | case | seed 0, input 16, no bound parameters |

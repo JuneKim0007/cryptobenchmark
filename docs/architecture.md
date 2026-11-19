@@ -85,7 +85,7 @@ config/global.yaml + config/testsets/*.yaml
 | `architecture` | tests only: the module subprojects' compiled classes against `tools/module-isolation/layers.yaml` | archunit 1.5.1, snakeyaml 2.3, junit 4.13.2 (test) |
 
 - `:settings` and `:android` are not subprojects.
-- guide resources (`apps/benchmark/gradle/guide-resources.gradle`): `algorithms/algorithm-names.yaml` and `algorithms/setup-catalog.yaml` at the classpath root, `setup-catalog.yaml` beside preparation's `operation/SetupCatalog` `engine-operations.yaml` beside its `engine/EngineTypes` and the cipher, signature, MAC and agreement catalogues beside its `peer/KeyUse`, in every build that compiles config or preparation (root, isolation, cli); perf-repair packages a copy of the names file its tests compare with it.
+- guide resources (`apps/benchmark/gradle/guide-resources.gradle`): `algorithms/algorithm-names.yaml` and `algorithms/setup-catalog.yaml` at the classpath root, `setup-catalog.yaml` beside preparation's `operation/SetupCatalog` `engine-operations.yaml` beside its `engine/EngineTypes`, in every build that compiles config or preparation (root, isolation, cli); the seven family catalogues discovery and preparation read, `provider-builds.yaml`, `deviations.yaml` and `groups.yaml` beside document's `catalogue/FamilyCatalogue`, carried by `:document` alone in the root build (the APK merges module jars) and by each reading module in the isolation and cli builds; perf-repair packages a copy of the names file its tests compare with it.
 - Tests run with `workingDir` = the module directory.
 - `-Dexamples.update` is forwarded to tests.
 - CI: `.github/workflows/modules.yml` runs `../../apps/benchmark/gradlew -p . :<m>:test` per subproject on Java 17.
