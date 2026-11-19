@@ -14,10 +14,11 @@ object RunKeys {
     const val WARMUP = "warmup"
     const val THERMAL_GATE = "thermalGate"
     const val LAUNCH_RETRIES = "launchRetries"
+    const val ENERGY_IDLE = "energyIdleSeconds"
     const val RESUME_BLOCK_RUNS = "resumeBlockRuns"
     const val ORDER_SEED = "orderSeed"
     const val HARNESS = "harness"
 
     val ALL = listOf(INPUT_SIZES, PHASES, METRICS, VARIANTS, PROCESS_REPETITIONS, SEED, PASSES, THROTTLE_SLEEP, CASE_COOLDOWN, WARMUP,
-                     THERMAL_GATE, LAUNCH_RETRIES, RESUME_BLOCK_RUNS, ORDER_SEED, HARNESS)
+                     THERMAL_GATE, LAUNCH_RETRIES, ENERGY_IDLE, RESUME_BLOCK_RUNS, ORDER_SEED, HARNESS)
 }

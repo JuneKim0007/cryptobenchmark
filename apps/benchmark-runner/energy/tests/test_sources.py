@@ -23,7 +23,7 @@ def test_rails_preflight_and_energy_write_the_recorded_bytes(tmp_path, monkeypat
     assert json.dumps({"schemaVersion": 1} | document, indent=1) == GOLDEN.read_text()
 
 
-def test_rails_calls_its_tools_with_the_arguments_it_always_had(tmp_path, monkeypatch):
+def test_rails_records_the_idle_window_it_is_given_and_a_short_busy_one(tmp_path, monkeypatch):
     calls = []
     sessions = []
 
@@ -36,14 +36,15 @@ def test_rails_calls_its_tools_with_the_arguments_it_always_had(tmp_path, monkey
             sessions.append(paths)
 
     monkeypatch.setattr(rails_module.time, "sleep", lambda seconds: calls.append(("sleep", seconds)))
-    source = RailsSource(Recording("py"))
+    source = RailsSource(Recording("py"), 120)
     capability = source.preflight(Session(), tmp_path, True)
     folder = tmp_path / "energy-preflight"
     assert capability == tmp_path / "energy.yaml"
-    assert sessions == [(folder / "rails.pbtx", folder / "idle.pftrace", folder / "busy.pftrace")]
-    assert "battery_poll_ms: 100 collect_power_rails: true" in (folder / "rails.pbtx").read_text()
-    assert "duration_ms: 3000" in (folder / "rails.pbtx").read_text()
-    assert calls == [("preflight.py", str(folder / "idle.pftrace"), str(folder / "busy.pftrace"), "3", str(capability),
+    assert sessions == [(folder / "idle.pbtx", folder / "busy.pbtx", folder / "idle.pftrace", folder / "busy.pftrace")]
+    assert "battery_poll_ms: 100 collect_power_rails: true" in (folder / "idle.pbtx").read_text()
+    assert "duration_ms: 120000" in (folder / "idle.pbtx").read_text()
+    assert "duration_ms: 3000" in (folder / "busy.pbtx").read_text()
+    assert calls == [("preflight.py", str(folder / "idle.pftrace"), str(folder / "busy.pftrace"), "120", "3", str(capability),
                       "--accept-unresponsive"), ("sleep", 15)]
     calls.clear()
     with source.window(tmp_path):
@@ -58,10 +59,10 @@ def test_a_run_without_dry_passes_no_dry_calls():
     assert "--dry-calls" not in case_arguments({"measured"}, "c", pathlib.Path("s"), "d", pathlib.Path("t"), pathlib.Path("calls"), "o")
 
 
-def manafa(monkeypatch, behaviour="", on_path=True):
+def manafa(monkeypatch, behaviour="", on_path=True, idle_seconds=0):
     monkeypatch.setenv("FAKE_MANAFA", behaviour)
     monkeypatch.setenv("PYTHONPATH", os.pathsep.join([str(FAKE)] if on_path else []))
-    return SOURCES["manafa"](Host(sys.executable))
+    return SOURCES["manafa"](Host(sys.executable), idle_seconds)
 
 
 def run_window(source, folder):
@@ -85,9 +86,9 @@ def test_a_missing_manafa_is_one_coded_line(tmp_path, monkeypatch):
 
 
 def test_the_check_reports_what_it_got_and_never_reads_rails(tmp_path, monkeypatch, capsys):
-    monkeypatch.setattr("cryptobench.stages.measurement.energy.sources.manafa_source.PREFLIGHT_SECONDS", 0)
-    capability = manafa(monkeypatch).preflight(None, tmp_path, False)
+    capability = manafa(monkeypatch, idle_seconds=0.02).preflight(None, tmp_path, False)
     document = yaml.safe_load(capability.read_text())
+    assert document["idleWindowSeconds"] == 0.02
     assert (document["source"], document["kind"], document["started"], document["usable"]) == ("manafa", "estimated", True, True)
     assert document["cpuFrequencyEvents"] == 2 and document["batteryStatsEvents"] == 1 and document["joules"] > 0
     assert "railsPresent" not in document
@@ -99,7 +100,6 @@ def test_the_check_reports_what_it_got_and_never_reads_rails(tmp_path, monkeypat
     ("stop=fails", "manafa_stop_failed: unable to pull trace file"), ("consumption=fails", "consumption_failed: no samples"),
     ("consumption=zero", "no_estimate: 0.0")])
 def test_a_check_that_got_no_number_refuses_with_a_code(tmp_path, monkeypatch, behaviour, reason):
-    monkeypatch.setattr("cryptobench.stages.measurement.energy.sources.manafa_source.PREFLIGHT_SECONDS", 0)
     with pytest.raises(EnergyError) as refused:
         manafa(monkeypatch, behaviour).preflight(None, tmp_path, False)
     assert str(refused.value) == f"manafa_cannot_start: {reason}"

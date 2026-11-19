@@ -10,9 +10,9 @@ from cryptobench.stages.measurement.energy.sources.runner import Host
 from cryptobench.shared.errors.failures import EnergyError
 
 
-def source(view, python, stacktrace=False):
-    """view: effective_view.EnergyView."""
-    return SOURCES[view.source](Host(python, stacktrace, paths.platform_tools(), timeouts.SECONDS["energy"]))
+def source(view, python, idle_seconds, stacktrace=False):
+    """view: effective_view.EnergyView; idle_seconds: RunView.energy_idle_seconds."""
+    return SOURCES[view.source](Host(python, stacktrace, paths.platform_tools(), timeouts.SECONDS["energy"]), idle_seconds)
 
 
 def guarded(problems, step):

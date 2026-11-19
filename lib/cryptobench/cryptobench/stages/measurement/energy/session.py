@@ -34,8 +34,8 @@ class EnergySession:
                        f"{session}; kill $pids")
         self.device.shell(session)
 
-    def preflight(self, config, idle, busy):
-        for local, loaded in ((idle, False), (busy, True)):
+    def preflight(self, idle_config, busy_config, idle, busy):
+        for config, local, loaded in ((idle_config, idle, False), (busy_config, busy, True)):
             remote = f"{TRACES}/{local.name}"
             self.record(config, remote, busy=loaded)
             self.device.pull(remote, local)

@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-import energy, preflight  # noqa: E402
+import energy, preflight, rails_run  # noqa: E402
 from rails import counters  # noqa: E402
 
 SAMPLES = [(0, 0.0), (100, 1000.0), (200, 3000.0)]
@@ -29,16 +29,42 @@ def test_window_reports_joules_net_of_idle_and_per_operation():
 def test_rails_that_do_not_respond_to_load_are_flagged():
     flat = {"r": [(0, 0.0), (10, 1500.0)]}
     hot = {"r": [(0, 0.0), (10, 6000.0)]}
-    assert not preflight.capability(flat, flat, 2, False)["railsResponsive"]
-    assert preflight.capability(flat, hot, 2, False)["railsResponsive"]
-    assert not preflight.capability({}, {}, 2, False)["railsPresent"]
+    assert not preflight.capability(flat, flat, 2, 2, False)["railsResponsive"]
+    assert preflight.capability(flat, hot, 2, 2, False)["railsResponsive"]
+    assert not preflight.capability({}, {}, 2, 2, False)["railsPresent"]
 
 
-def test_a_case_is_valid_only_when_every_check_holds():
-    good = {"shortWindow": False, "netJoules": 1.0, "operations": 4, "joulesPerOperation": 0.25}
-    assert energy.judge(dict(good), True)["valid"]
-    bad = energy.judge({"shortWindow": True, "netJoules": -1.0, "operations": 4, "joulesPerOperation": -0.25}, False)
-    assert bad["invalid"] == ["rails_unresponsive", "short_window", "net_not_positive"]
+def test_responsiveness_compares_power_when_the_windows_differ():
+    idle = {"r": [(0, 0.0), (10, 40000.0)]}
+    busy = {"r": [(0, 0.0), (10, 6000.0)]}
+    assert preflight.capability(idle, busy, 40, 3, False)["railsResponsive"]
+    assert not preflight.capability(idle, busy, 40, 6, False)["railsResponsive"]
+    document = preflight.capability(idle, busy, 40, 3, False)
+    assert (document["idleWindowSeconds"], document["busyWindowSeconds"]) == (40, 3)
+
+
+def energy_with(folder, edit):
+    out = folder / "energy.json"
+    arguments = rails_run.arguments(folder, out)
+    capability = folder / "energy.yaml"
+    capability.write_text(edit(capability.read_text()))
+    energy.main(arguments)
+    return json.loads(out.read_text())["cases"]
+
+
+def test_measured_and_dry_subtract_the_one_idle_rate_of_the_idle_window(tmp_path, monkeypatch):
+    rails_run.install_fake_trace(monkeypatch)
+    narrow = energy_with(tmp_path, lambda text: text)
+    wide = energy_with(tmp_path, lambda text: text.replace("idleWindowSeconds: 3.0", "idleWindowSeconds: 6.0").replace("busyWindowSeconds: 3.0", "busyWindowSeconds: 1.0"))
+    for case in ("m1", "d1"):
+        idle = narrow[case]["joules"] - narrow[case]["netJoules"]
+        assert wide[case]["joules"] - wide[case]["netJoules"] == pytest.approx(idle / 2)
+
+
+def test_an_energy_yaml_of_another_schema_is_refused(tmp_path, monkeypatch):
+    rails_run.install_fake_trace(monkeypatch)
+    with pytest.raises(SystemExit, match="unsupported_schema_version: energy.yaml: 1, this build reads 2"):
+        energy_with(tmp_path, lambda text: text.replace("schemaVersion: 2", "schemaVersion: 1"))
 
 
 def phase(start, end):

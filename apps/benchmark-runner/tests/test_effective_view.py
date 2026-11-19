@@ -35,6 +35,7 @@ class EffectiveView(unittest.TestCase):
             "run.processRepetitions": lambda: RunView({}).process_repetitions,
             "run.resumeBlockRuns": lambda: RunView({"run": {}}).resume_block_runs,
             "run.caseCooldownSeconds": lambda: passes.pass_views(RunView({"run": {"metrics": ["TIME"]}}), {"none"}),
+            "run.energyIdleSeconds": lambda: RunView({"run": {}}).energy_idle_seconds,
             "run.warmup.iterations": lambda: warmup.settings({"run": {"warmup": {"jobs": [], "cases": 3}}}),
             "run.warmup.jobs": lambda: warmup.settings({"run": {"warmup": {"iterations": 1, "cases": 3}}}),
             "run.warmup.cases": lambda: warmup.settings({"run": {"warmup": {"iterations": 1, "jobs": []}}}),
@@ -53,6 +54,14 @@ class EffectiveView(unittest.TestCase):
             with self.subTest(runs), contextlib.redirect_stderr(stderr), self.assertRaises(SystemExit), reported():
                 RunView({"run": {"resumeBlockRuns": runs}}).resume_block_runs
             self.assertEqual(f"error: not_positive: run.resumeBlockRuns {runs}\n", stderr.getvalue())
+
+    def test_an_idle_baseline_below_one_second_is_refused_as_kotlin_refuses_it(self):
+        self.assertEqual(120, RunView({"run": {"energyIdleSeconds": 120}}).energy_idle_seconds)
+        for seconds in (0, -1, 1.5):
+            stderr = io.StringIO()
+            with self.subTest(seconds), contextlib.redirect_stderr(stderr), self.assertRaises(SystemExit), reported():
+                RunView({"run": {"energyIdleSeconds": seconds}}).energy_idle_seconds
+            self.assertEqual(f"error: not_positive: run.energyIdleSeconds {seconds}\n", stderr.getvalue())
 
     def test_an_order_seed_is_required_and_a_hand_edited_one_not_whole_is_refused(self):
         with self.assertRaisesRegex(CommandError, "^missing_field: run.orderSeed in effective.yaml$"):
@@ -94,9 +103,11 @@ class EffectiveView(unittest.TestCase):
         self.assertEqual({"latency": "ms", "throughput": "MB/s"}, AnalysisView({}).units)
 
     def test_the_host_ignores_only_the_keys_set_to_other_than_the_default(self):
-        document = {"run": {"caseCooldownSeconds": 0, "launchRetries": 4, "orderSeed": 1, "warmup": {"iterations": 10, "jobs": [], "cases": 5},
+        document = {"run": {"caseCooldownSeconds": 0, "launchRetries": 4, "energyIdleSeconds": 120, "orderSeed": 1, "warmup": {"iterations": 10, "jobs": [], "cases": 5},
                             "processRepetitions": 3, "harness": {"profiling": "none"}}}
         self.assertEqual(["run.launchRetries", "run.warmup.cases", "run.harness.profiling"], effective_view.ignored_on_host(document))
+        document["run"]["energyIdleSeconds"] = 30
+        self.assertIn("run.energyIdleSeconds", effective_view.ignored_on_host(document))
 
 
 if __name__ == "__main__":

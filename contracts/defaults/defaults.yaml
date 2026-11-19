@@ -9,6 +9,7 @@ run:
   seed: 0
   caseCooldownSeconds: 0
   launchRetries: 2
+  energyIdleSeconds: 120
   resumeBlockRuns: 10
   warmup:
     iterations: 10

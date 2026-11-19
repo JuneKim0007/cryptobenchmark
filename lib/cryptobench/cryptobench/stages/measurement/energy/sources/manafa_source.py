@@ -6,7 +6,6 @@ from cryptobench.shared.errors.failures import EnergyError
 from .runner import TOOLS, case_arguments
 
 SESSION = TOOLS / "manafa_session.py"
-PREFLIGHT_SECONDS = 3
 LOG = "manafa.log"
 CANNOT_START = "manafa_cannot_start"
 
@@ -20,8 +19,8 @@ class ManafaSource:
     MODULE = "manafa"
     REQUIREMENTS = ("requirements.txt", "requirements-manafa.txt")
 
-    def __init__(self, host):
-        self.host = host
+    def __init__(self, host, idle_seconds):
+        self.host, self.idle_seconds = host, idle_seconds
         self.process = None
 
     def python(self):
@@ -33,7 +32,7 @@ class ManafaSource:
         folder.mkdir(exist_ok=True)
         capability = paths.Discovery(discovery).energy.resolve()
         try:
-            result = subprocess.run([self.python(), str(SESSION), "--check", str(PREFLIGHT_SECONDS), "--capability", str(capability)],
+            result = subprocess.run([self.python(), str(SESSION), "--check", str(self.idle_seconds), "--capability", str(capability)],
                                     capture_output=True, text=True, cwd=folder, env=self.host.adb_environment(), timeout=self.host.timeout)
         except subprocess.TimeoutExpired:
             raise self.host.expired("manafa pre-flight") from None

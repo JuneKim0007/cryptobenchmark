@@ -71,7 +71,7 @@ def check(seconds, capability):
         raise
     time.sleep(seconds)
     reading, reason = estimate.probe(em, stopped(em))
-    document = base | {"started": True, "usable": reason is None, "reason": reason, "windowSeconds": seconds,
+    document = base | {"started": True, "usable": reason is None, "reason": reason, "idleWindowSeconds": seconds,
                        "powerProfile": profile_of(em)} | reading
     out.write_text(yaml.safe_dump(document, sort_keys=False))
     if reason:

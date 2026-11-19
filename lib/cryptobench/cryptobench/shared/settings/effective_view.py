@@ -78,6 +78,7 @@ KEYS = (
     ("run", "throttle_sleep", "run.thermalThrottleSleepSeconds", found, False),
     (None, None, "run.caseCooldownSeconds", required, False),
     ("run", "launch_retries", "run.launchRetries", required, False),
+    ("run", "energy_idle_seconds", "run.energyIdleSeconds", _positive, False),
     ("run", "warmup_iterations", "run.warmup.iterations", required, False),
     ("run", "warmup_jobs", "run.warmup.jobs", required, False),
     ("run", "warmup_cases", "run.warmup.cases", required, False),

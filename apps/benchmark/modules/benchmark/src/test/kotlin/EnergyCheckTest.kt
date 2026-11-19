@@ -29,7 +29,7 @@ class EnergyCheckTest {
     private fun PlanCheck.check(cases: List<BenchmarkCase>) = check(cases, 1)
 
     private fun capability(responsive: Boolean, accept: Boolean = false, present: Boolean = true) =
-        EnergyCapability(present, responsive, 1500.0, 1500.0, 2.0, accept)
+        EnergyCapability(present, responsive, 1500.0, 1500.0, 2.0, 2.0, accept)
 
     private fun reasons(capture: String?, capability: EnergyCapability?) =
         PlanCheck(HostHarness.METRICS, installed) { capability }.check(run(capture)).map { it.reason.substringBefore(':') }
@@ -58,9 +58,9 @@ class EnergyCheckTest {
 
     @Test
     fun theCapabilityFileIsReadWhole() {
-        val text = "schemaVersion: 1\nrailsPresent: true\nrailsResponsive: false\nidleMicrojoules: 30000\n" +
-            "busyMicrojoules: 30000\nwindowSeconds: 2\nacceptUnresponsive: true\n"
-        assertEquals(EnergyCapability(true, false, 30000.0, 30000.0, 2.0, true), EnergyCapability.parse(text))
+        val text = "schemaVersion: 2\nrailsPresent: true\nrailsResponsive: false\nidleMicrojoules: 30000\n" +
+            "busyMicrojoules: 3000\nidleWindowSeconds: 20\nbusyWindowSeconds: 2\nacceptUnresponsive: true\n"
+        assertEquals(EnergyCapability(true, false, 30000.0, 3000.0, 20.0, 2.0, true), EnergyCapability.parse(text))
     }
 
     @Test

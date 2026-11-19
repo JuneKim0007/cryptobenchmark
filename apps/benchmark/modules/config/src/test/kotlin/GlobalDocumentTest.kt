@@ -48,6 +48,7 @@ class GlobalDocumentTest {
         assertEquals(listOf("fixed", "notFixed", "secure"), run.variants)
         assertEquals(Warmup(10, emptyList()), run.warmup)
         assertEquals(emptyList<MeasurePass>(), run.passes)
+        assertEquals(120, run.energyIdleSeconds)
         assertEquals(10, run.resumeBlockRuns)
     }
 
@@ -59,11 +60,13 @@ class GlobalDocumentTest {
               variants: [notFixed]
               thermalThrottleSleepSeconds: 30
               caseCooldownSeconds: 20
+              energyIdleSeconds: 60
               resumeBlockRuns: 1
               warmup: {iterations: 0, jobs: [{type: MessageDigest, name: SHA-256}], cases: 2}
               passes: {timing: {samples: 3}, allocation: {samples: 2}}
         """.trimIndent() + "\n")
         assertEquals(listOf(MeasurePass("timing", 3), MeasurePass("allocation", 2)), written.passes)
+        assertEquals(60, written.energyIdleSeconds)
         assertEquals(1, written.resumeBlockRuns)
         assertEquals(2, written.warmup.cases)
         assertEquals(written, GlobalDocument.parse(codec.load(YamlCodec.DOCUMENT.dump(GlobalDocument.of(global("").copy(run = written))))).run)
@@ -99,6 +102,8 @@ class GlobalDocumentTest {
             "run: {isolation: case}\n" to "unknown_keys: run [isolation]",
             "run: {thermalThrottleSleepSeconds: -1}\n" to "negative: thermalThrottleSleepSeconds",
             "run: {caseCooldownSeconds: -1}\n" to "negative: caseCooldownSeconds",
+            "run: {energyIdleSeconds: 0}\n" to "not_positive: energyIdleSeconds",
+            "run: {energyIdleSeconds: -5}\n" to "not_positive: energyIdleSeconds",
             "run: {resumeBlockRuns: 0}\n" to "not_positive: resumeBlockRuns 0",
             "run: {warmup: {iterations: -1}}\n" to "negative: run.warmup.iterations",
             "run: {warmup: {cases: 0}}\n" to "not_positive: run.warmup.cases 0",

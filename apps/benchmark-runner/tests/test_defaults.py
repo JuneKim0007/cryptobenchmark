@@ -5,6 +5,7 @@ from cryptobench.shared.settings import defaults, energy_capture
 def test_a_key_with_a_default_reads_it_and_one_without_reads_none():
     assert defaults.at("run.metrics") == ["TIME"]
     assert defaults.at("run.launchRetries") == 2
+    assert defaults.at("run.energyIdleSeconds") == 120
     assert defaults.at("run.orderSeed") is None
     assert defaults.at("run.thermalGate.discardLimit") == 5
     assert defaults.at("run.thermalGate.temperatureKeptCelsius") is None

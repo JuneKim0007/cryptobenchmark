@@ -24,6 +24,8 @@ data class RunSettings(
     val thermalGate: ThermalGate? = null,
     // a run of a case that failed for a reason other than heat is launched this many more times, then the next case goes on
     val launchRetries: Int = LAUNCH_RETRIES,
+    // the energy pre-flight's idle trace, whose mean power is subtracted from every energy window
+    val energyIdleSeconds: Int = ENERGY_IDLE_SECONDS,
     // host only: a rerun of a stopped run keeps its finished blocks of this many consecutive runs
     val resumeBlockRuns: Int = RESUME_BLOCK_RUNS,
     // each process, device or host, shuffles the items from (orderSeed, repetition); every run names it
@@ -48,11 +50,13 @@ data class RunSettings(
         require(thermalThrottleSleepSeconds == null || thermalThrottleSleepSeconds >= 0) { "negative: thermalThrottleSleepSeconds $thermalThrottleSleepSeconds" }
         require(caseCooldownSeconds >= 0) { "negative: caseCooldownSeconds $caseCooldownSeconds" }
         require(launchRetries >= 0) { "negative: launchRetries $launchRetries" }
+        require(energyIdleSeconds >= 1) { "not_positive: energyIdleSeconds $energyIdleSeconds" }
         require(resumeBlockRuns >= 1) { "not_positive: resumeBlockRuns $resumeBlockRuns" }
     }
 
     companion object {
         const val LAUNCH_RETRIES = 2
+        const val ENERGY_IDLE_SECONDS = 120
         const val RESUME_BLOCK_RUNS = 10
     }
 }

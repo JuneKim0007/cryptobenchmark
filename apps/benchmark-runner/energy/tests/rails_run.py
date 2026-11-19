@@ -44,8 +44,8 @@ def inputs(folder):
     (folder / "m2.trace").write_text("")
     (folder / "dry.pftrace").write_text("")
     (folder / "calls.yaml").write_text("d1: 77\n")
-    (folder / "energy.yaml").write_text("schemaVersion: 1\nrailsPresent: true\nrailsResponsive: true\nidleMicrojoules: 3000.0\n"
-                                        "busyMicrojoules: 9000.0\nwindowSeconds: 3.0\nacceptUnresponsive: false\n")
+    (folder / "energy.yaml").write_text("schemaVersion: 2\nrailsPresent: true\nrailsResponsive: true\nidleMicrojoules: 3000.0\n"
+                                        "busyMicrojoules: 9000.0\nidleWindowSeconds: 3.0\nbusyWindowSeconds: 3.0\nacceptUnresponsive: false\n")
 
 
 def arguments(folder, out):
@@ -63,5 +63,5 @@ def run_energy(folder):
 
 def run_preflight(folder):
     out = folder / "preflight.yaml"
-    preflight.main([str(folder / "idle.pftrace"), str(folder / "busy.pftrace"), "3", str(out)])
+    preflight.main([str(folder / "idle.pftrace"), str(folder / "busy.pftrace"), "3", "3", str(out)])
     return out.read_text()

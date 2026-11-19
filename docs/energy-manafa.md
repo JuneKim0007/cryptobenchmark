@@ -20,13 +20,13 @@ The `energy.source: manafa` adapter. Shared capture modes and `energy.json`: [en
 
 ## Pre-flight
 
-`energy.source: manafa` pre-flight: a 3 s session, stopped and read back; `discovery/energy.yaml` records it. The host fails with `manafa_cannot_start: <reason>` when it gives no number.
+`energy.source: manafa` pre-flight: a session of `run.energyIdleSeconds` (default 120), stopped and read back; `discovery/energy.yaml` records it. The host fails with `manafa_cannot_start: <reason>` when it gives no number.
 
 | manafa `energy.yaml` field | value |
 |---|---|
-| `schemaVersion`, `source`, `kind` | 1, `manafa`, `estimated` |
+| `schemaVersion`, `source`, `kind` | 2, `manafa`, `estimated` |
 | `started`, `usable`, `reason` | the session started; it gave a number; why not |
-| `cpuFrequencyEvents`, `batteryStatsEvents`, `joules`, `windowSeconds` | what the session read |
+| `cpuFrequencyEvents`, `batteryStatsEvents`, `joules`, `idleWindowSeconds` | what the session read |
 | `powerProfile` | file name of the profile manafa used |
 
 ## Not measured

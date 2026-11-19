@@ -15,6 +15,7 @@ DATA, NOT_DATA = "data", "not_data"
 RUN_KEYS = {
     "inputSizes": (DATA, None), "phases": (DATA, None), "metrics": (DATA, None), "variants": (DATA, None), "processRepetitions": (DATA, None),
     "seed": (DATA, None), "orderSeed": (DATA, None), "caseCooldownSeconds": (DATA, None), "launchRetries": (DATA, None), "warmup": (DATA, None),
+    "energyIdleSeconds": (DATA, None),
     "passes": (DATA, "one pass measures every metric"), "thermalThrottleSleepSeconds": (DATA, "Jetpack's own sleep"),
     "thermalGate": (DATA, "no gate"), "harness": (DATA, "the harness defaults"),
     "resumeBlockRuns": (NOT_DATA, "how a rerun keeps blocks, not what a run measures"),

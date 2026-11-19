@@ -45,6 +45,7 @@ A composition of layers: [layers.md](layers.md).
 | | `caseCooldownSeconds` | `0` | `>= 0`, else `negative`; `--device`: host sleep before every measured case but a session's first ([device-session.md](../../../../../docs/device-session.md#cool-down-and-frequency-caps)) |
 | | `thermalGate` | absent: off | keys in `example/config_global_example.yaml`; `temperatureKeptCelsius` required (`missing_field`), every other key merged key by key over its default (`ThermalGate.DEFAULTS`, in defaults.yaml) and written in full; minutes, limits and retries whole numbers (`not_whole: <key> <value> at <path>`) |
 | | `launchRetries` | `2` | extra launches of a run that failed for a reason other than heat or a final preparation skip ([device-session.md](../../../../../docs/device-session.md#thermal-gate)) |
+| | `energyIdleSeconds` | `120` | `>= 1`, else `not_positive`; `--device` with energy: the pre-flight's idle window, whose mean power every energy window subtracts; part of a run's identity ([energy.md](../../../../../docs/energy.md#pre-flight)) |
 | | `resumeBlockRuns` | `10` | `>= 1`, else `not_positive`; host only: a rerun of a stopped run with the same identity keeps its finished blocks of this many consecutive runs ([results.md](../../../../../docs/results.md#resuming-a-stopped-run)) |
 | | `orderSeed` | required: absent is `missing_field: run.orderSeed`, every run, a host's too | a whole number; `--device` and `--bench`: each process shuffles the items with `Random("<seed>:<repetition>")`, an item's variants kept adjacent ([device-session.md](../../../../../docs/device-session.md)); part of a run's identity ([results.md](../../../../../docs/results.md#resuming-a-stopped-run)) |
 | | `harness` | empty | key table in `apps/benchmark/modules/settings/docs/settings.md`; energy keys in `docs/energy.md` |
@@ -69,7 +70,7 @@ run:
     energy: {samples: 100, thermalGate: {startMargin: {initialCelsius: 0.5}}, caseCooldownSeconds: 5}   # 36.0 C, 3 min, margin 0.5
 ```
 
-Defaults are `contracts/defaults/defaults.yaml`, which `DefaultsDocument` writes and the Python readers read. A `--bench` run ignores `passes`, `thermalThrottleSleepSeconds`, `warmup`, `caseCooldownSeconds`, `thermalGate`, `launchRetries` and `harness.warmupIterations`, `profiling`, `cpu`: each set to other than its default is one `ignored_on_host: <key> is set` warning, or its own line for `passes` and `thermalGate` (the `host` column of `lib/cryptobench/cryptobench/shared/settings/effective_view.py` KEYS).
+Defaults are `contracts/defaults/defaults.yaml`, which `DefaultsDocument` writes and the Python readers read. A `--bench` run ignores `passes`, `thermalThrottleSleepSeconds`, `warmup`, `caseCooldownSeconds`, `thermalGate`, `launchRetries`, `energyIdleSeconds` and `harness.warmupIterations`, `profiling`, `cpu`: each set to other than its default is one `ignored_on_host: <key> is set` warning, or its own line for `passes` and `thermalGate` (the `host` column of `lib/cryptobench/cryptobench/shared/settings/effective_view.py` KEYS).
 
 `onFailure` governs selected primitives that cannot run. A broken authored file (parse, `schemaVersion`, unknown section or key) always stops.
 

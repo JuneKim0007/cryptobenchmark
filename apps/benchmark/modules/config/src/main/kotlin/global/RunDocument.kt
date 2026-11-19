@@ -5,6 +5,7 @@ import io.github.junekim0007.cryptobench.settings.EnergySettings
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
 import io.github.junekim0007.cryptobench.settings.RunKeys
 import io.github.junekim0007.cryptobench.settings.RunKeys.CASE_COOLDOWN
+import io.github.junekim0007.cryptobench.settings.RunKeys.ENERGY_IDLE
 import io.github.junekim0007.cryptobench.settings.RunKeys.HARNESS
 import io.github.junekim0007.cryptobench.settings.RunKeys.INPUT_SIZES
 import io.github.junekim0007.cryptobench.settings.RunKeys.LAUNCH_RETRIES
@@ -50,6 +51,7 @@ object RunDocument {
         run.thermalThrottleSleepSeconds?.let { put(THROTTLE_SLEEP, it) }
         put(CASE_COOLDOWN, run.caseCooldownSeconds)
         put(LAUNCH_RETRIES, run.launchRetries)
+        put(ENERGY_IDLE, run.energyIdleSeconds)
         put(RESUME_BLOCK_RUNS, run.resumeBlockRuns)
         put(ORDER_SEED, run.orderSeed)
         put(WARMUP, linkedMapOf<String, Any>(ITERATIONS to run.warmup.iterations, JOBS to run.warmup.jobs.map { RuleDocument.of(it) }, CASES to run.warmup.cases))
@@ -76,6 +78,7 @@ object RunDocument {
             thermalThrottleSleepSeconds = optionalNumber(document, THROTTLE_SLEEP)?.toInt(),
             caseCooldownSeconds = optionalNumber(document, CASE_COOLDOWN)?.toInt() ?: defaults.caseCooldownSeconds,
             launchRetries = optionalNumber(document, LAUNCH_RETRIES)?.toInt() ?: defaults.launchRetries,
+            energyIdleSeconds = optionalNumber(document, ENERGY_IDLE)?.toInt() ?: defaults.energyIdleSeconds,
             resumeBlockRuns = optionalNumber(document, RESUME_BLOCK_RUNS)?.toInt() ?: defaults.resumeBlockRuns,
             orderSeed = orderSeed,
             warmup = optionalSection(document, WARMUP)?.let { warmup(it, "$path.$WARMUP") } ?: defaults.warmup,

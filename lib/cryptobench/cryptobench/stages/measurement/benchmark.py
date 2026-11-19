@@ -98,7 +98,7 @@ def measure_cases(options, device, results, found, problems, require_energy, rec
     if device:
         waits = reconnect.Reconnect.of(device, options)
         print(waits.line())
-        source = energy_stage.source(energy, options.energy_python, options.stacktrace)
+        source = energy_stage.source(energy, options.energy_python, view.energy_idle_seconds, options.stacktrace)
         run = Measuring(device, EnergySession(device, waits), source, options, discovery, files, problems, order,
                         view.throttle_sleep, gate_opened(device, document, problems, waits), view.launch_retries, waits, results, record)
         try:

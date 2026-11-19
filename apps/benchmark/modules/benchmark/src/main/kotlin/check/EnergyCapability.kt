@@ -10,14 +10,15 @@ data class EnergyCapability(
     val railsResponsive: Boolean,
     val idleMicrojoules: Double,
     val busyMicrojoules: Double,
-    val windowSeconds: Double,
+    val idleWindowSeconds: Double,
+    val busyWindowSeconds: Double,
     val acceptUnresponsive: Boolean,
 ) {
 
     fun refusal(): String? = when {
         !railsPresent -> "no_power_rails: the device reports no power rails"
         !railsResponsive && !acceptUnresponsive ->
-            "rails_unresponsive: idle ${idleMicrojoules} uJ, busy ${busyMicrojoules} uJ over ${windowSeconds} s"
+            "rails_unresponsive: idle ${idleMicrojoules} uJ over ${idleWindowSeconds} s, busy ${busyMicrojoules} uJ over ${busyWindowSeconds} s"
         else -> null
     }
 
@@ -25,11 +26,12 @@ data class EnergyCapability(
 
         fun parse(text: String): EnergyCapability {
             val document = CaseDocument.load(text)
-            SchemaVersion.require(document, 1, FileNames.ENERGY_CAPABILITY)
+            SchemaVersion.require(document, 2, FileNames.ENERGY_CAPABILITY)
             fun flag(key: String) = document[key] as? Boolean ?: throw IllegalArgumentException("missing_field: ${FileNames.ENERGY_CAPABILITY} $key")
             fun number(key: String) = (document[key] as? Number)?.toDouble() ?: throw IllegalArgumentException("missing_field: ${FileNames.ENERGY_CAPABILITY} $key")
             return EnergyCapability(flag("railsPresent"), flag("railsResponsive"), number("idleMicrojoules"),
-                                    number("busyMicrojoules"), number("windowSeconds"), flag("acceptUnresponsive"))
+                                    number("busyMicrojoules"), number("idleWindowSeconds"), number("busyWindowSeconds"),
+                                    flag("acceptUnresponsive"))
         }
     }
 }

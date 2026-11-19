@@ -33,7 +33,7 @@
 | `energy.source` | kind | joules from | pre-flight |
 |---|---|---|---|
 | `rails` (default) | `measured` | Perfetto power rails | below |
-| `manafa` | `estimated` | `manafa` 0.4.14: `power_profile.xml`, cpufreq, batterystats | a short session |
+| `manafa` | `estimated` | `manafa` 0.4.14: `power_profile.xml`, cpufreq, batterystats | an idle session of `run.energyIdleSeconds` |
 
 - A run has one source; entries that differ fail with `energy_sources_differ`.
 - `lib/cryptobench/cryptobench/stages/measurement/energy/steps.py` picks the adapter; each adapter has `preflight`, `window` (around the device run) and `joules`.
@@ -44,7 +44,7 @@
 | step | value |
 |---|---|
 | windows | idle, then busy (one spin loop per core) |
-| window length | 3 s each (`PREFLIGHT_SECONDS` in `lib/cryptobench/cryptobench/stages/measurement/energy/sources/rails_source.py`, and in `manafa_source.py` beside it) |
+| window length | idle `run.energyIdleSeconds` (default 120, [config.md](../apps/benchmark/modules/config/docs/config.md)); busy 3 s (`BUSY_SECONDS` in `lib/cryptobench/cryptobench/stages/measurement/energy/sources/rails_source.py`) |
 | source | Perfetto `android.power`, rails polled every 100 ms, 4096 KB buffer (`RAILS_CONFIG`) |
 | settle | 15 s sleep before the first case, after the plan push and the AOT compile (dex2oat), so the compile heat is not in it |
 | output | `discovery/energy.yaml`, traces in `discovery/energy-preflight/` |
@@ -52,18 +52,18 @@
 
 | `energy.yaml` field | value |
 |---|---|
-| `schemaVersion` | 1 |
+| `schemaVersion` | 2 (`CAPABILITY_VERSION` in `apps/benchmark-runner/energy/energy.py`); another is `unsupported_schema_version` in `energy.py` and `EnergyCapability` |
 | `railsPresent` | both windows have rails |
-| `railsResponsive` | present, idle > 0, busy ≥ 1.10 × idle (`RESPONSIVE` in `apps/benchmark-runner/energy/preflight.py`) |
+| `railsResponsive` | present, idle > 0, busy power ≥ 1.10 × idle power in µJ/s (`RESPONSIVE` in `apps/benchmark-runner/energy/preflight.py`) |
 | `idleMicrojoules`, `busyMicrojoules` | window totals |
-| `windowSeconds` | pre-flight window length |
+| `idleWindowSeconds`, `busyWindowSeconds` | window lengths; idle power `idleMicrojoules / idleWindowSeconds` is subtracted from every `measured` and `dry` window |
 | `acceptUnresponsive` | `--energy-accept-unresponsive` |
 
 | refusal (every energy case) | condition |
 |---|---|
 | `energy_capability_unknown` | no `energy.yaml` in the device directory |
 | `no_power_rails` | `railsPresent` false |
-| `rails_unresponsive: idle <x> uJ, busy <y> uJ over <s> s` | `railsResponsive` false and not `acceptUnresponsive` |
+| `rails_unresponsive: idle <x> uJ over <s> s, busy <y> uJ over <t> s` | `railsResponsive` false and not `acceptUnresponsive` |
 
 - The refused cases are left out and listed in `skipped.yaml`, on the host and the device; every case refused throws `RefusedPlanException`.
 - A case whose `energy.source` is not `rails` reads no rail capability and gets none of these refusals.
@@ -143,8 +143,8 @@ lib/cryptobench/cryptobench/stages/measurement/energy/steps.py : capture selecti
 
 | command | arguments |
 |---|---|
-| `preflight.py` | `<idle.pftrace> <busy.pftrace> <window seconds> <out energy.yaml> [--accept-unresponsive]` |
+| `preflight.py` | `<idle.pftrace> <busy.pftrace> <idle seconds> <busy seconds> <out energy.yaml> [--accept-unresponsive]` |
 | `energy.py` | `--capability F -o OUT [--prepared --benchmark-data --traces] [--dry-trace --dry-calls]` |
-| `manafa_session.py` | `[--check <seconds> --capability <energy.yaml>]`; without them, stdin `stop`, then a JSON list of `energy.py`'s arguments |
+| `manafa_session.py` | `[--check <seconds> --capability <energy.yaml>]`, the source passing `run.energyIdleSeconds`; without them, stdin `stop`, then a JSON list of `energy.py`'s arguments |
 
 - Without `--energy-python`, a run whose interpreter lacks the source's module (`perfetto`, `manafa`) installs `energy/requirements.txt` (+ `requirements-manafa.txt` for manafa) on first use into `$XDG_CACHE_HOME/cryptobench/energy/<source>-<digest>/` (default `~/.cache`) and runs the source there; a changed requirements file is a new folder; a failed install is `energy_install_failed: <source>: <pip's last line>` and leaves nothing; an explicit `--energy-python` without the module is `missing_dependency: <module> in --energy-python <python>`.

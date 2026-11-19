@@ -64,7 +64,7 @@ Paths relative to the device folder.
 | `manifest.yaml` | run index | every run |
 | `discovery/` | `probe_<stamp>.yaml`, `trial_<stamp>.yaml`, `requirements_<stamp>.yaml` | every run |
 | `discovery/` | `facts.yaml`; the whole device plan directory | `--device` |
-| `discovery/` | `energy.yaml`, `energy-preflight/{rails.pbtx,idle.pftrace,busy.pftrace}` (rails), `energy-preflight/` power profile (manafa) | energy capture |
+| `discovery/` | `energy.yaml`, `energy-preflight/{idle.pbtx,busy.pbtx,idle.pftrace,busy.pftrace}` (rails), `energy-preflight/` power profile (manafa) | energy capture |
 | `configuration/` | `inventory.yaml`, `effective.yaml`, `report.yaml` | every run |
 | `preparation/` | `prepared.yaml`, `skipped.yaml` | `--bench`, `--device` |
 | `benchmark/` | `benchmark.json` | `--bench`, `--device`, at least one case not `dry` |

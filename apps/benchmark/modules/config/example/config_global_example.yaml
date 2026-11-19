@@ -29,6 +29,7 @@ run:                                     # required: orderSeed; every other key 
       cleanRunsToRecover: 10             # optional, default 10: this many clean runs in a row narrow the margin...
       recoveryCelsius: 0.05              # optional, default 0.05: ...by this much, never below initialCelsius
   launchRetries: 2                       # optional, default 2: a run that failed for a reason other than heat is launched this many more times
+  energyIdleSeconds: 120                 # optional, default 120: the energy pre-flight's idle trace, whose mean power every energy window subtracts
   resumeBlockRuns: 10                    # optional, default 10: a rerun of a stopped run keeps its finished blocks of this many consecutive runs
   passes:                                # optional, default {} — one device session per pass, in this order
     timing: {samples: 50}                # required with two or more passes

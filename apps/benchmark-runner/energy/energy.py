@@ -12,7 +12,8 @@ LARGE_TRACE_BYTES = 32 * 1024 * 1024
 # 2: source and kind
 SCHEMA_VERSION = 2
 # discovery/energy.yaml, written by preflight.py and manafa_session.py, read here and by EnergyCapability.kt (timed)
-CAPABILITY_VERSION = 1
+# 2: idleWindowSeconds and busyWindowSeconds
+CAPABILITY_VERSION = 2
 SOURCE = "rails"
 KIND = "measured"
 
@@ -187,7 +188,9 @@ def main(argv=None):
     from rails.trace import Trace
 
     capability = yaml.safe_load(pathlib.Path(a.capability).read_text())
-    idle = capability["idleMicrojoules"] / (capability["windowSeconds"] * 1e9)
+    if capability.get("schemaVersion") != CAPABILITY_VERSION:
+        raise SystemExit(f"unsupported_schema_version: energy.yaml: {capability.get('schemaVersion')}, this build reads {CAPABILITY_VERSION}")
+    idle = capability["idleMicrojoules"] / (capability["idleWindowSeconds"] * 1e9)
     cases = {c: judge(r, capability["railsResponsive"]) for c, r in read_cases(a, idle, Trace).items()}
     document = {"schemaVersion": SCHEMA_VERSION, "source": SOURCE, "kind": KIND, "railsResponsive": capability["railsResponsive"], "cases": cases}
     pathlib.Path(a.out).write_text(json.dumps(document, indent=1))
