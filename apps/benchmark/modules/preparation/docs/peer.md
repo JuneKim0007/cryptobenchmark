@@ -55,7 +55,8 @@ First matching rule wins. Stages: produce (the producer's own call), setup over 
 |---|---|
 | catalogues | `algorithms/cipher.secret_catalogue.yaml`, `cipher.pair`, `signature.pair`, `mac.secret`, `agreement.peer`, in that order, entries in file order, read through document's `FamilyCatalogue` |
 | build view | each entry as each provider's build sees it: `deviations.yaml` and provider-wide behaviours applied as the Python reader does; the build is the provider's on the capture's platform (`android-<sdk>`, `jdk-<major>`), else the nearest at or below, else its latest |
-| entry | the first whose `key.type`, on both builds, equals the key's algorithm, case folded, and whose type and name the capability reports Available on both providers |
+| key type | the generator's own entry in `keygen.none` or `keypairgen.none` (`KeyGenerator\|HmacSHA256` gives `HMAC`), its `key.type` on the producer's build; if no use has that type, the key's algorithm name (`getAlgorithm`) |
+| entry | the first whose `key.type`, on both builds, equals the key type, case folded, and whose type and name the capability reports Available on both providers |
 | operation | the first of the entry's `operations` words that begins the name of an operation `engine-operations.yaml` times for its type (`computeMac` COMPUTE_MAC, `agree` AGREE_KEY); `wrap` has none |
-| none | `not_checkable` `no_key_use` |
+| none | `not_checkable` `no_key_use`, naming the key types tried (a generator whose type no use has, such as `KeyPairGenerator\|XDH`, `EdDSA` or `ECDSA`) |
 | case | seed 0, input 16, no bound parameters |

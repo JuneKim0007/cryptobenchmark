@@ -103,4 +103,27 @@ class KeyUseTest {
         assertNull(KeyUse(jdk, FamilyCatalogue.parse(listOf(pbe), overlays)).of("PBE", "P", "Q"))
         assertNull(KeyUse(jdk, FamilyCatalogue.parse(listOf(pbe))).of("AES", "P", "Q"))
     }
+
+    // the shipped catalogues: every provider registers everything, no build (the base entries)
+    private val shipped = KeyUse(capability)
+
+    private fun generated(generator: String, name: String, keyAlgorithm: String) =
+        shipped.of(generator, name, keyAlgorithm, "P", "Q").let { "${it.keyTypes.joinToString()} -> ${it.use}" }
+
+    @Test
+    fun theGeneratorsOwnEntryGivesTheKeyType() {
+        assertEquals("HMAC, HmacSHA256 -> Mac|HMACDSTU7564-256 COMPUTE_MAC", generated("KeyGenerator", "HmacSHA256", "HmacSHA256"))
+        assertEquals("Ed25519, EdDSA -> Signature|Ed25519 SIGN", generated("KeyPairGenerator", "Ed25519", "EdDSA"))
+        assertEquals("X25519, XDH -> Cipher|XIES ENCRYPT", generated("KeyPairGenerator", "X25519", "XDH"))
+        assertEquals("X448, XDH -> KeyAgreement|X448 AGREE_KEY", generated("KeyPairGenerator", "x448", "XDH"))
+    }
+
+    @Test
+    fun aKeyNamedOtherwiseThanItsGeneratorsType() {
+        assertEquals("EC, ECDSA -> Cipher|ECIES ENCRYPT", generated("KeyPairGenerator", "EC", "ECDSA"))
+        assertEquals("ECDSA -> null", generated("KeyPairGenerator", "ECDSA", "ECDSA"))
+        assertEquals("XDH -> null", generated("KeyPairGenerator", "XDH", "XDH"))
+        assertEquals("EdDSA -> null", generated("KeyPairGenerator", "EdDSA", "EdDSA"))
+        assertEquals("AES -> Cipher|AES ENCRYPT", generated("KeyGenerator", "Uncatalogued", "AES"))
+    }
 }

@@ -27,10 +27,10 @@ class PeerEngine(capability: DeviceCapability) {
     }
 
     private fun used(produced: ProducedCall, consumer: Consumer, travel: Travel): Outcome {
-        val algorithm = KeyOutputRow.algorithm(produced.output)
-        val producer = produced.prepared.case.provider
-        val use = uses.of(algorithm, producer, consumer.provider)
-            ?: return Outcome.NotCheckable("no_key_use: no catalogue use of the $algorithm key that both $producer and ${consumer.provider} offer")
+        val case = produced.prepared.case
+        val found = uses.of(case.type, case.algorithm, KeyOutputRow.algorithm(produced.output), case.provider, consumer.provider)
+        val use = found.use ?: return Outcome.NotCheckable("no_key_use: no ${KeyUse.FAMILIES.joinToString()} entry of key.type ${found.keyTypes.joinToString(" or ")} " +
+            "is Available on both ${case.provider} and ${consumer.provider} with a timed operation")
         val call = Attempt.of { KeyOutputRow.used(produced, use) }.getOrElse { return Outcomes.of(Stage.PRODUCE, it) }
         val row = ROWS.getValue(use.operation) as ConsumingRow
         row.ready(call)?.let { return it }

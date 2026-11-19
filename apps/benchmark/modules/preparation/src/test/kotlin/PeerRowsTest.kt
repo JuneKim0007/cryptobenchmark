@@ -128,7 +128,7 @@ class PeerRowsTest {
         )
         assertEquals(listOf(
             "key pair" to "pass",
-            "key pair, consumer without a use" to "not_checkable no_key_use: no catalogue use of the EC key that both SunEC and SunJCE offer",
+            "key pair, consumer without a use" to "not_checkable no_key_use: no cipher.secret, cipher.pair, signature.pair, mac.secret, agreement.peer entry of key.type EC is Available on both SunEC and SunJCE with a timed operation",
             "secret key" to "pass",
             "dh key pair, agreed" to "pass",
             "output not a key" to "fail not_a_key: Integer",

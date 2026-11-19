@@ -7,16 +7,27 @@ import io.github.junekim0007.cryptobench.preparation.port.Availability
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
 import java.util.Locale
 
-/** A generated key's use: in catalogue order, the first use-family entry whose key type, as each provider's build sees it, is the key's algorithm, Available on both providers, with an operation the harness times. */
+/** A generated key's use: its key type from the generator's own entry, else the key's name; in catalogue order the first entry of that type, as each provider's build sees it, Available on both, with an operation the harness times. */
 internal class KeyUse(private val capability: DeviceCapability, private val catalogue: FamilyCatalogue = bundled) {
 
-    class Use(val type: String, val algorithm: String, val operation: Operation)
+    class Use(val type: String, val algorithm: String, val operation: Operation) {
+        override fun toString() = "$type|$algorithm $operation"
+    }
 
-    fun of(keyAlgorithm: String, producer: String, consumer: String): Use? {
+    class Found(val use: Use?, val keyTypes: List<String>)
+
+    fun of(generator: String, generatorAlgorithm: String, keyAlgorithm: String, producer: String, consumer: String): Found {
+        val ownType = catalogue.of(generator, generatorAlgorithm)?.takeIf { it.family in GENERATORS }
+            ?.let { keyType(it, catalogue.build(producer, capability.platform)) }
+        val keyTypes = listOfNotNull(ownType, keyAlgorithm).distinctBy { it.uppercase(Locale.ROOT) }
+        return Found(keyTypes.firstNotNullOfOrNull { of(it, producer, consumer) }, keyTypes)
+    }
+
+    fun of(keyType: String, producer: String, consumer: String): Use? {
         val builds = listOf(producer, consumer).map { catalogue.build(it, capability.platform) }
         return catalogue.entries.asSequence()
             .filter { it.family in FAMILIES }
-            .filter { entry -> builds.all { keyType(entry, it).equals(keyAlgorithm, ignoreCase = true) } }
+            .filter { entry -> builds.all { keyType(entry, it).equals(keyType, ignoreCase = true) } }
             .filter { entry -> listOf(producer, consumer).all { capability.check(it, entry.type, entry.name) == Availability.Available } }
             .firstNotNullOfOrNull { entry -> operation(entry)?.let { Use(entry.type, entry.name, it) } }
     }
@@ -33,7 +44,8 @@ internal class KeyUse(private val capability: DeviceCapability, private val cata
     companion object {
 
         val FAMILIES = listOf("cipher.secret", "cipher.pair", "signature.pair", "mac.secret", "agreement.peer")
+        val GENERATORS = listOf("keygen.none", "keypairgen.none")
 
-        private val bundled: FamilyCatalogue by lazy { FamilyCatalogue.bundled(FAMILIES) }
+        private val bundled: FamilyCatalogue by lazy { FamilyCatalogue.bundled(FAMILIES + GENERATORS) }
     }
 }
