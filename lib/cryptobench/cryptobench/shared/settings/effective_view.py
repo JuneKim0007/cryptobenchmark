@@ -1,6 +1,7 @@
 """Reading effective.yaml the way a run needs it: one KEY table, the typed views it gives, and what the run noticed joined back from report.yaml."""
 import dataclasses, pathlib
 
+from cryptobench.shared.results import skipped
 from cryptobench.shared.errors.failures import CommandError, EnergyError
 from cryptobench.shared import paths
 from cryptobench.shared.document.document import read_yaml
@@ -11,7 +12,7 @@ def read(effective_file):
     effective = pathlib.Path(effective_file)
     document = read_yaml(effective)
     report_file = paths.Configuration(effective.parent).report
-    report = (read_yaml(report_file)) if report_file.is_file() else {}
+    report = skipped.REPORT_DOC.check(read_yaml(report_file), report_file) if report_file.is_file() else {}
     return {
         "document": document,
         "warnings": report.get("warnings") or [],

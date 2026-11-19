@@ -43,8 +43,7 @@ configure(subprojects.filter { it.name in moduleDirectories }) {
         sourceSets["test"].kotlin.setSrcDirs(listOf(File(moduleDirectory, "src/test/kotlin")))
     }
 
-    val resourceDirectories = listOfNotNull(File(moduleDirectory, "src/main/resources"),
-        rootDir.resolve(moduleDirectories.getValue("preparation")).resolve("src/main/resources").takeIf { name == "benchmark" })
+    val resourceDirectories = listOf(File(moduleDirectory, "src/main/resources"))
     if (name in listOf("config", "preparation", "benchmark", "discovery")) apply(from = rootDir.resolve("../../apps/benchmark/gradle/guide-resources.gradle"))
     extensions.configure<SourceSetContainer> {
         named("main") { resources.setSrcDirs(resourceDirectories) }

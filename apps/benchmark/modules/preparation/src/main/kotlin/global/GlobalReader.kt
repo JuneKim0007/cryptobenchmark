@@ -27,13 +27,13 @@ object GlobalReader {
     }
 
     private fun settings(inbound: InboundDocument) = GlobalSettings(
-        inputSizes = numbers(inbound.run, "inputSizes"),
-        phases = Phase.read(strings(inbound.run, "phases"), "run.phases"),
-        metrics = Metric.read(strings(inbound.run, "metrics"), "run.metrics"),
-        processRepetitions = number(inbound.run, "processRepetitions").toInt(),
-        seed = number(inbound.run, "seed").toLong(),
+        inputSizes = numbers(inbound.run, RunKeys.INPUT_SIZES),
+        phases = Phase.read(strings(inbound.run, RunKeys.PHASES), "run.phases"),
+        metrics = Metric.read(strings(inbound.run, RunKeys.METRICS), "run.metrics"),
+        processRepetitions = number(inbound.run, RunKeys.PROCESS_REPETITIONS).toInt(),
+        seed = number(inbound.run, RunKeys.SEED).toLong(),
         onFailure = choice<OnFailure>("onFailure", string(inbound.policy, "onFailure")),
-        harness = HarnessSettings.read(sectionOrEmpty(inbound.run, "harness"), "run.harness"),
-        variants = strings(inbound.run, "variants").map(Variant::of),
+        harness = HarnessSettings.read(sectionOrEmpty(inbound.run, RunKeys.HARNESS), "run.harness"),
+        variants = strings(inbound.run, RunKeys.VARIANTS).map(Variant::of),
     )
 }

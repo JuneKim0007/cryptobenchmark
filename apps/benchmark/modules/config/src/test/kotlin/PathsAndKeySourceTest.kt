@@ -208,7 +208,7 @@ class PathsAndKeySourceTest {
         val effective = EffectiveBuilder().build(GlobalDocument.parse(codec.load(Fixtures.seeded("schemaVersion: 1\nselection: {testSet: t.yaml}\n"))),
             TestSetDocument.parse(codec.load("schemaVersion: 1\ndescription: d\ninclude:\n- {type: KEM}\n- {type: MessageDigest}\n")), withKem, names)
         assertEquals(setOf("SUN"), effective.providers.keys)
-        assertEquals(listOf("path_not_applicable: SunJCE.KEM.DHKEM applies [], [fixed, notFixed, secure] dropped"), effective.skipped.map { it.reason })
+        assertEquals(listOf("not_in_catalogue: KEM has no row in setup-catalog.yaml"), effective.skipped.map { it.reason })
     }
 
     @Test

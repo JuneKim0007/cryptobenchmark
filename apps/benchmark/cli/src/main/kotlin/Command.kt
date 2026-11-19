@@ -13,7 +13,7 @@ internal fun command(arguments: Array<String>, usage: String, valid: (Array<Stri
     try {
         block()
     } catch (error: Exception) {
-        System.err.println("error: ${error.message}")
+        System.err.println("error: ${error.message ?: error.javaClass.name}")
         exitProcess(1)
     }
 }

@@ -18,9 +18,9 @@ internal class SetupCatalog(document: Map<String, Any>) {
 
     // hasIv is asked only for a cipher transformation without a mode
     fun perCall(case: BenchmarkCase, hasIv: () -> Boolean = { false }): PerCall {
+        val row = DocumentFields.asSection(rows.row(case.type) ?: throw IllegalArgumentException(EngineRows.notInCatalogue(case.type)), "engines.${case.type}")
         if (single(case.type)) return PerCall.OPERATION
         if (case.variant == Variant.NOT_FIXED) return PerCall.INSTANCE_INIT_AND_OPERATION
-        val row = DocumentFields.asSection(rows.row(case.type) ?: throw IllegalArgumentException(EngineRows.notInCatalogue(case.type)), "engines.${case.type}")
         val fixed = DocumentFields.string(row, FIXED)
         if (fixed == BY_SUFFIX) return bySuffix(row, case.algorithm.uppercase(Locale.ROOT))
         if (fixed != BY_MODE) return PerCall.of(fixed)

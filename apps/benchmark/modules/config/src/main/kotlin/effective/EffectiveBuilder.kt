@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.config.effective
 
+import io.github.junekim0007.cryptobench.settings.EngineRows
 import io.github.junekim0007.cryptobench.settings.StoppedOnFailureException
 import io.github.junekim0007.cryptobench.settings.OnFailure
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveConfig
@@ -136,6 +137,7 @@ class EffectiveBuilder {
 
     private fun notRunnable(located: Inventory.Located, key: String, asked: List<String>): String {
         val subject = "${located.provider}.${located.type}.$key"
+        if (EngineCatalog.rows.row(located.type) == null) return EngineRows.notInCatalogue(located.type)
         val applies = EngineCatalog.rows.applicable(located.type)
         val dropped = asked - applies.toSet()
         return if (dropped == listOf(Variants.SECURE) && applies.isNotEmpty()) Variants.secureUnavailable("$subject alone")

@@ -1317,13 +1317,11 @@ codes:
   unparseable_signature: {kind: outcome}
   unreadable_yaml: {kind: error}
   unsupported: {kind: error}
-  unsupported_capture_schema: {kind: error}
   unsupported_expression: {kind: outcome}
   unsupported_kind: {kind: outcome}
   unsupported_language: {kind: outcome}
   unsupported_operation: {kind: error}
   unsupported_parameter: {kind: outcome}
-  unsupported_schema: {kind: error}
   unused_setting: {kind: notice}
   usage: {kind: error}
   vararg_parameter: {kind: outcome}

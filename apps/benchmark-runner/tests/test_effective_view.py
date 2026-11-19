@@ -19,9 +19,9 @@ class EffectiveView(unittest.TestCase):
 
     def test_what_the_run_noticed_is_joined_back_from_the_report(self):
         self.effective.write_text("run: {processRepetitions: 3}\nproviders: {P: {Cipher: {AES: {}, DES: {}}}}\n")
-        (self.dir / "report.yaml").write_text("warnings: [typo]\nskipped: [{reason: no_match}]\n")
+        (self.dir / "report.yaml").write_text("schemaVersion: 2\nwarnings: [typo]\nskipped: [{stage: config, code: no_match}]\n")
         view = effective_view.read(self.effective)
-        self.assertEqual((["typo"], [{"reason": "no_match"}]), (view["warnings"], view["skipped"]))
+        self.assertEqual((["typo"], [{"stage": "config", "code": "no_match"}]), (view["warnings"], view["skipped"]))
         self.assertEqual(2, effective_view.entry_count(view["document"]))
         self.assertEqual(3, RunView(view["document"]).process_repetitions)
 

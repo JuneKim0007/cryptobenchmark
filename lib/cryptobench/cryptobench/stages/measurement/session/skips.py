@@ -9,7 +9,7 @@ FINAL_KINDS = ("outcome", "error")
 
 def coded(record):
     """(case, code) when the record names a case and its code is a final kind; else None."""
-    case, code = record.get("caseId"), record.get("code")
+    case, code = (record or {}).get("caseId"), (record or {}).get("code")
     return (case, code) if case and (codes().get(code) or {}).get("kind") in FINAL_KINDS else None
 
 

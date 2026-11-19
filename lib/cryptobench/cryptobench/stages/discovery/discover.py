@@ -1,5 +1,6 @@
 """Discover and configure: the probe, ConfigureKt or ProbeKt, effective.yaml, and the device folder the capture names."""
 import pathlib, shutil, time
+from cryptobench.shared.results import skipped
 from dataclasses import dataclass
 
 from cryptobench.shared.settings import effective_view
@@ -22,7 +23,7 @@ def summary(effective):
     for warning in view["warnings"]:
         warn(warning)
     for skip in view["skipped"]:
-        print(f"skipped: {skip.get('provider', '*')} {skip.get('type', '*')} {skip.get('name', '*')}: {skip['reason']}")
+        print(f"skipped: {skipped.line(skip)}")
     print(f"effective: {effective_view.entry_count(view['document'])} entries, {len(view['skipped'])} skipped")
 
 

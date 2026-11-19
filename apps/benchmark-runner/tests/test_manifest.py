@@ -123,7 +123,7 @@ def test_a_capture_of_another_schema_writes_no_manifest():
         try:
             written(results, "device", files)
         except CaptureError as error:
-            assert "unsupported_capture_schema: 2" in str(error) and not (results / "manifest.yaml").exists()
+            assert "unsupported_schema_version: capture: 2, this build reads 1" in str(error) and not (results / "manifest.yaml").exists()
         else:
             raise AssertionError("expected unsupported_capture_schema")
 

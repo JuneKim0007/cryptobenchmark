@@ -5,16 +5,19 @@ from dataclasses import dataclass
 
 from cryptobench.stages.verification.scope import languages as scope_languages
 from cryptobench.shared.document.document import DocumentKind, read_yaml
+from cryptobench.shared.errors.input_error import InputError
 
 SCOPE_KEYS = {"id", "language", "function", "before", "after", "imports", "inputs", "current", "option", "dependencies", "notMeasurable", "inverse", "upgrade"}
 ID = re.compile(r"^[0-9a-f]{12}$")
 SCHEMA_VERSION = 6
-HARNESS_DOC = DocumentKind("harness", SCHEMA_VERSION)
 INPUT_SOURCES = ("app", "run")
 
 
-class HarnessError(Exception):
+class HarnessError(InputError):
     pass
+
+
+HARNESS_DOC = DocumentKind("harness", SCHEMA_VERSION, HarnessError)
 
 
 @dataclass(frozen=True)
@@ -47,8 +50,7 @@ def read(path):
     if not path.is_file():
         raise HarnessError(f"missing_file: {path} (--harness)")
     document = read_yaml(path)
-    if not HARNESS_DOC.accepts(document.get("schemaVersion")):
-        raise HarnessError(f"unsupported_schema: {path} schemaVersion {document.get('schemaVersion')}, expected {SCHEMA_VERSION}")
+    HARNESS_DOC.check(document, path)
     if not document.get("app"):
         raise HarnessError(f"missing_field: {path} app")
     scopes = tuple(scope(entry, index, path.parent) for index, entry in enumerate(document.get("scopes") or []))
