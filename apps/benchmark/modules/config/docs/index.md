@@ -44,7 +44,7 @@ apps/benchmark/modules/config/src/main/kotlin/global/RunDocument.kt : run sectio
 apps/benchmark/modules/config/src/main/kotlin/global/dto/AnalysisSettings.kt : analysis defaults and validation: charts, dir, statistic, display units
 apps/benchmark/modules/config/src/main/kotlin/global/dto/BundledProvider.kt : one bundled provider and its validation: artifact, create, alias
 apps/benchmark/modules/config/src/main/kotlin/global/dto/GlobalConfig.kt : global model
-apps/benchmark/modules/config/src/main/kotlin/global/dto/MeasurePass.kt : one run.passes entry: name timing, energy or allocation, samples >= 1; energy's minWindowSeconds, default 5
+apps/benchmark/modules/config/src/main/kotlin/global/dto/MeasurePass.kt : one run.passes entry and its key table (Section): name timing, energy or allocation, samples >= 1; energy's minWindowSeconds, default 5
 apps/benchmark/modules/config/src/main/kotlin/global/dto/Policy.kt : policy.onFailure, the :settings OnFailure
 apps/benchmark/modules/config/src/main/kotlin/global/dto/ProviderSources.kt : providers section model; no duplicate artifact or alias
 apps/benchmark/modules/config/src/main/kotlin/global/dto/RunSettings.kt : run defaults and validation
