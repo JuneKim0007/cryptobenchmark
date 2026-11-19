@@ -108,9 +108,9 @@ class RunFolder:
 
     @functools.cached_property
     def order(self):
-        """The cases the process launched; None for a host run, which keeps no per-case files."""
+        """The cases the process launched; None for a host run, whose order.txt has no cases/ beside it."""
         order = paths.Measurement(self.folder).order
-        return order.read_text().split() if order.is_file() else None
+        return order.read_text().split() if order.is_file() and paths.Measurement(self.folder).cases.is_dir() else None
 
     def gave_up(self, case):
         return any(line.startswith(GAVE_UP) and f" {case}:" in line for line in self.problems)
