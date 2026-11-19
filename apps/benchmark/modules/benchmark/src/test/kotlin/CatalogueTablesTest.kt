@@ -1,13 +1,13 @@
 package io.github.junekim0007.cryptobench.benchmark
 
 import io.github.junekim0007.cryptobench.benchmark.verify.oracle.ContractOracle
-import io.github.junekim0007.cryptobench.benchmark.verify.oracle.CrossProviderOracle
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
+import io.github.junekim0007.cryptobench.preparation.peer.PeerEngine
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.yaml.snakeyaml.Yaml
 
-/** Every operation of every setup-catalog type has its row in the check's operation-keyed tables: CrossProviderOracle.CHECKS and ContractOracle.PROPERTIES. */
+/** Every operation of every setup-catalog type has its row in the check's operation-keyed tables: PeerEngine.ROWS and ContractOracle.PROPERTIES. */
 class CatalogueTablesTest {
 
     @Suppress("UNCHECKED_CAST")
@@ -24,7 +24,7 @@ class CatalogueTablesTest {
 
     @Test
     fun everyCatalogueOperationHasAPeerCheckAndContractProperties() {
-        assertEquals(emptyList<Operation>(), operations - keys(CrossProviderOracle::class.java, "CHECKS"))
+        assertEquals(emptyList<Operation>(), operations - keys(PeerEngine::class.java, "ROWS"))
         assertEquals(emptyList<Operation>(), operations - keys(ContractOracle::class.java, "PROPERTIES"))
     }
 }

@@ -28,13 +28,6 @@ benchmark.verify.oracle.contract.SignProperties -> preparation.key.generate.KeyM
 benchmark.verify.oracle.contract.SignProperties -> preparation.parameter.bind.BoundParameters
 benchmark.verify.oracle.contract.VerifyProperties -> preparation.input.OperationInput
 benchmark.verify.oracle.contract.VerifyProperties -> preparation.key.generate.KeyMaterial
-benchmark.verify.oracle.cross.CipherPeer -> preparation.input.CipherKeys
-benchmark.verify.oracle.cross.CipherPeer -> preparation.input.OperationInput
-benchmark.verify.oracle.cross.PeerParameters -> preparation.parameter.bind.BoundParameters
-benchmark.verify.oracle.cross.RecomputePeer -> preparation.input.OperationInput
-benchmark.verify.oracle.cross.RecomputePeer -> preparation.key.generate.KeyMaterial
-benchmark.verify.oracle.cross.SignaturePeer -> preparation.input.OperationInput
-benchmark.verify.oracle.cross.SignaturePeer -> preparation.key.generate.KeyMaterial
 benchmark.verify.record.CaseRecord -> preparation.measurement.Variant
 benchmark.verify.record.CaseRecord -> preparation.operation.PerCall
 config.effective.EffectiveBuilder -> settings.Section

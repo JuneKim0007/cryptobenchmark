@@ -2,12 +2,13 @@ import io.github.junekim0007.cryptobench.benchmark.run.OneCall
 import io.github.junekim0007.cryptobench.benchmark.verify.known.KnownAnswer
 import io.github.junekim0007.cryptobench.benchmark.verify.oracle.CheckedCall
 import io.github.junekim0007.cryptobench.benchmark.verify.oracle.KnownAnswerOracle
-import io.github.junekim0007.cryptobench.benchmark.verify.oracle.cross.PeerRefusal
-import io.github.junekim0007.cryptobench.benchmark.verify.oracle.cross.PeerRun
 import io.github.junekim0007.cryptobench.preparation.input.InputBytes
 import io.github.junekim0007.cryptobench.preparation.input.OperationInput
 import io.github.junekim0007.cryptobench.preparation.interop.check.CrossCheck
 import io.github.junekim0007.cryptobench.preparation.peer.Outcome
+import io.github.junekim0007.cryptobench.preparation.peer.Outcomes
+import io.github.junekim0007.cryptobench.preparation.peer.PeerRefusal
+import io.github.junekim0007.cryptobench.preparation.peer.Stage
 import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterial
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
@@ -27,7 +28,7 @@ import javax.crypto.BadPaddingException
 import javax.crypto.IllegalBlockSizeException
 import javax.crypto.NoSuchPaddingException
 
-/** Characterization: one exception, four entry points that classify it (interop CrossCheck, cross-provider setup and judge, known answer); today's codes. */
+/** Characterization: one exception, four entry points that classify it (interop CrossCheck, peer setup and consume, known answer); today's codes. */
 class FailureClassifiersTest {
 
     private val thrown: List<Exception> = listOf(
@@ -60,8 +61,8 @@ class FailureClassifiersTest {
             listOf(
                 failure.javaClass.simpleName,
                 shown(CrossCheck.classify(failure)),
-                shown(PeerRun.of<Unit>({ throw failure }) { Outcome.Pass }),
-                shown(PeerRun.of({ Unit }) { throw failure }),
+                shown(Outcomes.of(Stage.SETUP, failure)),
+                shown(Outcomes.of(Stage.CONSUME, failure)),
                 shown(knownAnswer(failure)),
             ).joinToString(" | ")
         }
@@ -69,7 +70,7 @@ class FailureClassifiersTest {
     }
 
     private companion object {
-        // exception | CrossCheck.classify | PeerRun setup | PeerRun judge | KnownAnswerOracle
+        // exception | CrossCheck.classify | peer SETUP | peer CONSUME | KnownAnswerOracle
         val EXPECTED = """
             InvalidKeyException | not_checkable key_or_parameters_rejected: InvalidKeyException: m | not_checkable peer_key_rejected: InvalidKeyException: m | fail peer_refused: InvalidKeyException: m | not_checkable raw_material_refused: InvalidKeyException: m
             InvalidAlgorithmParameterException | not_checkable key_or_parameters_rejected: InvalidAlgorithmParameterException: m | not_checkable peer_parameters_rejected: InvalidAlgorithmParameterException: m | fail peer_refused: InvalidAlgorithmParameterException: m | not_checkable raw_material_refused: InvalidAlgorithmParameterException: m

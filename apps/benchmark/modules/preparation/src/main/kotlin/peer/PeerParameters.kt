@@ -1,4 +1,4 @@
-package io.github.junekim0007.cryptobench.benchmark.verify.oracle.cross
+package io.github.junekim0007.cryptobench.preparation.peer
 
 import io.github.junekim0007.cryptobench.jca.failure.Attempt
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase

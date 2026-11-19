@@ -1,4 +1,4 @@
-package io.github.junekim0007.cryptobench.benchmark.verify.oracle.cross
+package io.github.junekim0007.cryptobench.preparation.peer
 
 import io.github.junekim0007.cryptobench.jca.failure.Attempt
 import java.security.Key
@@ -12,7 +12,7 @@ import java.security.spec.X509EncodedKeySpec
 import javax.crypto.SecretKey
 import javax.crypto.spec.SecretKeySpec
 
-/** The case's key in the peer's own representation: rebuilt by the peer's KeyFactory from its standard encoding, a secret from its raw bytes. */
+/** The call's key in the consumer's own representation: rebuilt by its KeyFactory from its standard encoding, a secret from its raw bytes. */
 internal object PeerKey {
 
     private const val REJECTED = "peer_key_rejected"

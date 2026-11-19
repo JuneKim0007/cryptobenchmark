@@ -47,7 +47,7 @@ apps/benchmark/modules/benchmark/src/main/kotlin/verify/known/KnownAnswerFile.kt
 apps/benchmark/modules/benchmark/src/main/kotlin/verify/known/RawMaterial.kt : check mode only: a case with the vector's raw key, fixed parameters and input
 apps/benchmark/modules/benchmark/src/main/kotlin/verify/observe/ObservedCall.kt : what one call did (steps, a new engine or not, inits per call, IV, key origin), read before and after it
 apps/benchmark/modules/benchmark/src/main/kotlin/verify/oracle/ContractOracle.kt : the operation's contract properties over the output
-apps/benchmark/modules/benchmark/src/main/kotlin/verify/oracle/CrossProviderOracle.kt : every other provider of the case's service checks the call's own output; the peer check per operation
+apps/benchmark/modules/benchmark/src/main/kotlin/verify/oracle/CrossProviderOracle.kt : every other provider of the case's service checks the call's own output through preparation's PeerEngine; the verdicts joined per peer
 apps/benchmark/modules/benchmark/src/main/kotlin/verify/oracle/KnownAnswerOracle.kt : the case's invocation over a vector, its output against the source
 apps/benchmark/modules/benchmark/src/main/kotlin/verify/oracle/NonceOracle.kt : encrypt that re-inits with a drawn IV shows a new IV each call
 apps/benchmark/modules/benchmark/src/main/kotlin/verify/oracle/Oracle.kt : Oracle, CheckedCall, Judgement
@@ -61,13 +61,6 @@ apps/benchmark/modules/benchmark/src/main/kotlin/verify/oracle/contract/Properti
 apps/benchmark/modules/benchmark/src/main/kotlin/verify/oracle/contract/SignProperties.kt : the provider verifies its signature and refuses it over a changed message
 apps/benchmark/modules/benchmark/src/main/kotlin/verify/oracle/contract/Tamper.kt : a changed ciphertext refused where a tag length was read back
 apps/benchmark/modules/benchmark/src/main/kotlin/verify/oracle/contract/VerifyProperties.kt : verify was true in the call; a changed signature is refused
-apps/benchmark/modules/benchmark/src/main/kotlin/verify/oracle/cross/CipherPeer.kt : the peer decrypts the case's ciphertext to its input, or the same ciphertext to its output
-apps/benchmark/modules/benchmark/src/main/kotlin/verify/oracle/cross/KeyOutputPeer.kt : the peer's KeyFactory rebuilds a generated key pair, the public half to the same encoding
-apps/benchmark/modules/benchmark/src/main/kotlin/verify/oracle/cross/PeerCheck.kt : PeerCheck, PeerRefusal; setup the peer refuses is not_checkable, a refused or contradicted output fails
-apps/benchmark/modules/benchmark/src/main/kotlin/verify/oracle/cross/PeerKey.kt : the case's key rebuilt by the peer's KeyFactory from its encoding; peer_key_rejected
-apps/benchmark/modules/benchmark/src/main/kotlin/verify/oracle/cross/PeerParameters.kt : the parameters the call used, from the engine's report or the case's fixed spec, in a form another provider takes
-apps/benchmark/modules/benchmark/src/main/kotlin/verify/oracle/cross/RecomputePeer.kt : the peer recomputes a digest, MAC or agreed secret from the same key, parameters and input
-apps/benchmark/modules/benchmark/src/main/kotlin/verify/oracle/cross/SignaturePeer.kt : the peer verifies the case's signature, or accepts what the case accepted
 apps/benchmark/modules/benchmark/src/main/kotlin/verify/record/CaseRecord.kt : one case of check.yaml: plan, observed, outcome, verdicts, digest; not-run cases with their reason
 apps/benchmark/modules/benchmark/src/main/kotlin/verify/record/CheckFile.kt : writes and reads check.yaml with its summary
 apps/benchmark/modules/benchmark/src/main/kotlin/verify/record/RecordDiff.kt : two check.yaml case lists to every difference

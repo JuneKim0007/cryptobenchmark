@@ -7,6 +7,7 @@ apps/benchmark/modules/preparation/build.gradle : Kotlin/JVM 17 library; snakeya
 apps/benchmark/modules/preparation/docs/index.md : this map
 apps/benchmark/modules/preparation/docs/interop.md : cross-provider interop check
 apps/benchmark/modules/preparation/docs/operations.md : operation consumption, timed calls, inputs, keys, parameter trees
+apps/benchmark/modules/preparation/docs/peer.md : the peer engine: procedure, outcomes table, rows
 apps/benchmark/modules/preparation/docs/prepare.md : stages, inputs, selections, resolution, failures
 apps/benchmark/modules/preparation/docs/prepared.md : prepared.yaml, skipped.yaml and the case id
 apps/benchmark/modules/preparation/example/preparation_capture_example.yaml : example discovery capture input (SUN, SunJCE)
@@ -77,8 +78,20 @@ apps/benchmark/modules/preparation/src/main/kotlin/parameter/resolve/KeyFields.k
 apps/benchmark/modules/preparation/src/main/kotlin/parameter/resolve/PerInitValue.kt : whether an IvParameterSpec value is an IV or a constant the provider fills in
 apps/benchmark/modules/preparation/src/main/kotlin/parameter/resolve/ResolvedParameters.kt : what the provider used after one call; key names
 apps/benchmark/modules/preparation/src/main/kotlin/parameter/resolve/SpecFields.kt : fields of reported parameters, by spec class
+apps/benchmark/modules/preparation/src/main/kotlin/peer/CipherRow.kt : encrypt: the consumer decrypts the ciphertext to the input; decrypt: the same ciphertext to the output
+apps/benchmark/modules/preparation/src/main/kotlin/peer/Consumer.kt : the provider that consumes a produced call's output and its algorithm name
+apps/benchmark/modules/preparation/src/main/kotlin/peer/KeyOutputRow.kt : a generated key pair rebuilt by the consumer's KeyFactory, the public half to the same encoding
 apps/benchmark/modules/preparation/src/main/kotlin/peer/Outcome.kt : a peer check's verdict: Pass, Fail or NotCheckable with a coded reason, and its label
+apps/benchmark/modules/preparation/src/main/kotlin/peer/Outcomes.kt : the ordered table from a stage and an exception to a verdict and its code
 apps/benchmark/modules/preparation/src/main/kotlin/peer/OutputBytes.kt : a call's output as bytes where it has them (a key's encoding, a pair's public one) and their SHA-256
+apps/benchmark/modules/preparation/src/main/kotlin/peer/PeerEngine.kt : the one peer procedure: the operation's row, its readiness, the consumer's setup and call, failures through Outcomes
+apps/benchmark/modules/preparation/src/main/kotlin/peer/PeerKey.kt : the call's key rebuilt by the consumer's KeyFactory from its encoding; peer_key_rejected
+apps/benchmark/modules/preparation/src/main/kotlin/peer/PeerParameters.kt : the parameters the call used, from the engine's report or the case's fixed spec, in a form another provider takes
+apps/benchmark/modules/preparation/src/main/kotlin/peer/PeerRefusal.kt : what a consumer cannot take, with its code
+apps/benchmark/modules/preparation/src/main/kotlin/peer/PeerRow.kt : one operation's peer check: ready, setup, judge
+apps/benchmark/modules/preparation/src/main/kotlin/peer/ProducedCall.kt : the call a consumer judges: prepared case, read-back engine, output
+apps/benchmark/modules/preparation/src/main/kotlin/peer/RecomputeRow.kt : the consumer recomputes a digest, MAC or agreed secret from the same key, parameters and input
+apps/benchmark/modules/preparation/src/main/kotlin/peer/SignatureRow.kt : the consumer verifies the call's signature, or accepts what the call accepted
 apps/benchmark/modules/preparation/src/main/kotlin/port/Availability.kt : Available or Unavailable(reason, registered)
 apps/benchmark/modules/preparation/src/main/kotlin/port/DeviceCapability.kt : device port: providers, check, measuredKeyAlgorithm, the captured API level
 apps/benchmark/modules/preparation/src/main/kotlin/prepare/CasePreparer.kt : one case: key, bind, input, one call, parameter read-back, a secure case's keystore spec, KeyInfo and delete; a failed step throws PreparationException with its code
@@ -121,6 +134,7 @@ apps/benchmark/modules/preparation/src/test/kotlin/KeyPlannerTest.kt : key recip
 apps/benchmark/modules/preparation/src/test/kotlin/OperationContractTest.kt : per-operation consumption contract tests
 apps/benchmark/modules/preparation/src/test/kotlin/OperationInputTest.kt : per-operation input tests
 apps/benchmark/modules/preparation/src/test/kotlin/ParameterBinderTest.kt : parameter tree binding tests
+apps/benchmark/modules/preparation/src/test/kotlin/PeerRowsTest.kt : each peer row over a call on the JDK's providers: pass, refused, differs, not ready, consumer unavailable
 apps/benchmark/modules/preparation/src/test/kotlin/PreparationFixture.kt : shared preparation test fixtures
 apps/benchmark/modules/preparation/src/test/kotlin/PreparationPolicyTest.kt : onFailure policy tests
 apps/benchmark/modules/preparation/src/test/kotlin/PreparedCaseTest.kt : prepared-case tests
