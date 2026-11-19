@@ -14,9 +14,10 @@ data class Facts(
 
     companion object {
         val UNKNOWN = Facts()
+        // checked by its reader, config's Configuration
+        const val SCHEMA_VERSION = 1
 
         fun read(document: Map<String, Any?>): Facts {
-            require(document["schemaVersion"] == 1) { "unsupported: facts.yaml schemaVersion ${document["schemaVersion"]}" }
             val cores = section(document, "cpu")?.get("cores")?.let { listed ->
                 (listed as? List<*> ?: throw wrongType("cpu.cores", "a list")).mapIndexed { i, raw ->
                     val core = raw as? Map<*, *> ?: throw wrongType("cpu.cores[$i]", "a mapping")

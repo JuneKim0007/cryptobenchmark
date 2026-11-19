@@ -16,7 +16,7 @@ object CheckFile {
         "cases" to records.map { it.toMap() },
     ))
 
-    fun cases(file: File): List<Map<String, Any>> = DocumentFields.sections(DocumentFile.read(file, "check", SCHEMA), "cases")
+    fun cases(file: File): List<Map<String, Any>> = DocumentFields.sections(DocumentFile.read(file, SCHEMA), "cases")
 
     private fun summary(records: List<CaseRecord>): Map<String, Any> {
         val oracles = LinkedHashMap<String, MutableMap<String, Int>>()

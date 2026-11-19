@@ -34,7 +34,7 @@ modules:
         global.GlobalSettings, global.OnFailure, shared.FailureText, shared.DocumentFile]
       settings: [HarnessSettings, EnergySettings, CpuSettings, Metric]
       files: all
-      document: [DocumentFields]
+      document: [DocumentFields, SchemaVersion]
 
 # The one file that may name each androidx entry point: a second config or loop would bypass the collection between samples.
 owned:
@@ -58,7 +58,7 @@ consumers:
       jca: [failure.Attempt]
       files: all
       discovery: [Discovery, bundled.BundledInstaller, bundled.BundledProviders, bundled.ProviderFactory, write.ProbeDirectory]
-      document: [YamlCodec]
+      document: [YamlCodec, YamlLine]
   cli:
     sources: apps/benchmark/cli/src/main/kotlin
     uses:

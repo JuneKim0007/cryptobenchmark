@@ -1,6 +1,7 @@
 package io.github.junekim0007.cryptobench
 
 import android.util.Log
+import io.github.junekim0007.cryptobench.document.YamlLine.quoted
 import io.github.junekim0007.cryptobench.files.FileNames
 import io.github.junekim0007.cryptobench.settings.CpuSettings
 import java.io.File
@@ -16,6 +17,4 @@ object CorePins {
         }
         File(DevicePlan.directory, FileNames.CPU_PINS).appendText("${quoted(caseId)}: {requested: ${cpu.core}, required: ${cpu.isRequired}, $result}\n")
     }
-
-    private fun quoted(text: String): String = "\"" + text.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
 }

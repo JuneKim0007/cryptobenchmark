@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.config.layers
 
+import io.github.junekim0007.cryptobench.document.SchemaVersion
 import io.github.junekim0007.cryptobench.config.global.GlobalDocument
 import io.github.junekim0007.cryptobench.document.YamlCodec
 import io.github.junekim0007.cryptobench.files.Beside
@@ -27,10 +28,7 @@ object LayerStack {
 
     fun read(file: File): Merged {
         val own = load(file, file.name)
-        val version = own[SCHEMA_VERSION] as? Number ?: throw IllegalArgumentException("missing_field: ${file.name}: $SCHEMA_VERSION")
-        require(version.toInt() == GlobalDocument.schemaVersion) {
-            "unsupported_schema_version: ${file.name}: $version, this build reads ${GlobalDocument.schemaVersion}"
-        }
+        SchemaVersion.require(own, GlobalDocument.schemaVersion, file.name)
         val listed = own[LAYERS] ?: return merged(listOf(Layer(file.name, sha256(file)) to own - SCHEMA_VERSION))
         val names = (listed as? List<*>)?.map { it as? String ?: throw IllegalArgumentException("wrong_type: ${file.name}: $LAYERS, expected a list of paths") }
             ?: throw IllegalArgumentException("wrong_type: ${file.name}: $LAYERS, expected a list of paths")
@@ -40,9 +38,7 @@ object LayerStack {
             require(layerFile.isFile) { "missing_file: ${layerFile.path} (${file.name} $LAYERS)" }
             val layer = load(layerFile, name)
             require(LAYERS !in layer) { "nested_layers: $name lists $LAYERS; only the composition ${file.name} lists layers" }
-            (layer[SCHEMA_VERSION] as? Number)?.let {
-                require(it.toInt() == GlobalDocument.schemaVersion) { "unsupported_schema_version: $name: $it, this build reads ${GlobalDocument.schemaVersion}" }
-            }
+            if (SCHEMA_VERSION in layer) SchemaVersion.require(layer, GlobalDocument.schemaVersion, name)
             Layer(name, sha256(layerFile)) to layer - SCHEMA_VERSION
         }
         return merged(layers + (Layer(file.name, sha256(file)) to own - SCHEMA_VERSION - LAYERS))

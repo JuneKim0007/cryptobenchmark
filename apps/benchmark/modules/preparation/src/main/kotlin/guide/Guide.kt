@@ -44,14 +44,13 @@ class Guide(private val items: Map<String, Map<String, Any>>) {
 
     companion object {
 
-        private const val SCHEMA_NAME = "guide"
         private const val SUPPORTED_SCHEMA_VERSION = 1
 
         fun beside(effectiveFile: File): Guide = read(Beside.file(effectiveFile, FileNames.GUIDE))
 
         fun read(file: File): Guide {
             val items = LinkedHashMap<String, Map<String, Any>>()
-            val document = DocumentFile.read(file, SCHEMA_NAME, SUPPORTED_SCHEMA_VERSION)
+            val document = DocumentFile.read(file, SUPPORTED_SCHEMA_VERSION)
             for ((provider, types) in DocumentFields.sectionOrEmpty(document, "items")) for ((type, names) in DocumentFields.asSection(types, provider)) {
                 for ((name, item) in DocumentFields.asSection(names, "$provider.$type")) items["$provider/$type/$name"] = DocumentFields.asSection(item, "$provider.$type.$name")
             }

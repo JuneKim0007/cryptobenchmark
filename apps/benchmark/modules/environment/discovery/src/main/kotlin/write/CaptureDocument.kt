@@ -1,5 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery.write
 
+import io.github.junekim0007.cryptobench.files.StampedName
+import io.github.junekim0007.cryptobench.document.SchemaVersion
 import io.github.junekim0007.cryptobench.discovery.contract.CapturedEnvironment
 import io.github.junekim0007.cryptobench.discovery.contract.ProviderEntry
 import io.github.junekim0007.cryptobench.discovery.contract.ProviderOrigin
@@ -58,10 +60,8 @@ object CaptureDocument {
     )
 
     fun parse(document: Map<String, Any>): CapturedEnvironment {
+        SchemaVersion.require(document, CapturedEnvironment.SCHEMA_VERSION, StampedName.PROBE)
         val schemaVersion = number(document, SCHEMA_VERSION).toInt()
-        require(schemaVersion == CapturedEnvironment.SCHEMA_VERSION) {
-            "unsupported_schema_version: $schemaVersion, this build reads ${CapturedEnvironment.SCHEMA_VERSION}"
-        }
         return CapturedEnvironment(
             runtime = runtimeEntry(section(document, RUNTIME)),
             providers = sections(document, PROVIDERS).map { providerEntry(it) },

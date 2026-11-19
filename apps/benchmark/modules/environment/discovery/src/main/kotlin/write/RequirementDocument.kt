@@ -1,5 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery.write
 
+import io.github.junekim0007.cryptobench.files.StampedName
+import io.github.junekim0007.cryptobench.document.SchemaVersion
 import io.github.junekim0007.cryptobench.discovery.contract.KeyCacheStats
 import io.github.junekim0007.cryptobench.discovery.contract.RequirementReport
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceRequirement
@@ -53,10 +55,8 @@ object RequirementDocument {
     )
 
     fun parse(document: Map<String, Any>): RequirementReport {
+        SchemaVersion.require(document, RequirementReport.SCHEMA_VERSION, StampedName.REQUIREMENTS)
         val schemaVersion = number(document, SCHEMA_VERSION).toInt()
-        require(schemaVersion == RequirementReport.SCHEMA_VERSION) {
-            "unsupported_schema_version: $schemaVersion, this build reads ${RequirementReport.SCHEMA_VERSION}"
-        }
         val cache = section(document, KEY_CACHE)
         return RequirementReport(
             capturedAtMillis = number(document, CAPTURED_AT_MILLIS).toLong(),

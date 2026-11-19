@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.config
 
+import io.github.junekim0007.cryptobench.document.SchemaVersion
 import io.github.junekim0007.cryptobench.config.effective.EffectiveBuilder
 import io.github.junekim0007.cryptobench.config.effective.EffectiveDocument
 import io.github.junekim0007.cryptobench.config.effective.ReportDocument
@@ -63,7 +64,7 @@ class Configuration(
     private fun readFacts(file: File): Facts {
         require(file.isFile) { "missing_file: ${file.path} (--facts)" }
         return try {
-            Facts.read(YamlCodec.DOCUMENT.load(file.readText()))
+            Facts.read(YamlCodec.DOCUMENT.load(file.readText()).also { SchemaVersion.require(it, Facts.SCHEMA_VERSION, file.name) })
         } catch (malformed: RuntimeException) {
             if (malformed is IllegalArgumentException) throw malformed
             throw IllegalArgumentException("unreadable_yaml: ${file.path}: ${malformed.message}", malformed)

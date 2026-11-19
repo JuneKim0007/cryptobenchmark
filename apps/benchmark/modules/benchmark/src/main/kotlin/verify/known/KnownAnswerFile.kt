@@ -15,7 +15,7 @@ object KnownAnswerFile {
     private const val HEX = "hex"
     private const val PREFIX = "prefix"
 
-    fun read(file: File): List<KnownAnswer> = parse(DocumentFile.read(file, "known_answers", 1))
+    fun read(file: File): List<KnownAnswer> = parse(DocumentFile.read(file, 1))
 
     fun parse(document: Map<String, Any>): List<KnownAnswer> =
         DocumentFields.sections(document, "vectors").mapIndexed { index, vector ->

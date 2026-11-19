@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.benchmark.report.energy
 
+import io.github.junekim0007.cryptobench.document.SchemaVersion
 import io.github.junekim0007.cryptobench.benchmark.report.CaseDocument
 import io.github.junekim0007.cryptobench.benchmark.report.MetricSamples
 import io.github.junekim0007.cryptobench.files.FileNames
@@ -12,7 +13,7 @@ object EnergyWindows {
 
     fun read(energyText: String): Read {
         val document = CaseDocument.load(energyText)
-        require(document["schemaVersion"] == SCHEMA_VERSION) { "unsupported: ${FileNames.ENERGY_JSON} schemaVersion ${document["schemaVersion"]}" }
+        SchemaVersion.require(document, SCHEMA_VERSION, FileNames.ENERGY_JSON)
         val source = document["source"]?.toString() ?: throw IllegalArgumentException("missing_field: ${FileNames.ENERGY_JSON} source")
         val kind = document["kind"]?.toString() ?: throw IllegalArgumentException("missing_field: ${FileNames.ENERGY_JSON} kind")
         val samples = LinkedHashMap<String, MetricSamples>()

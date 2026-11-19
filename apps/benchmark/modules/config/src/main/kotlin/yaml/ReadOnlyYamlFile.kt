@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.config.yaml
 
+import io.github.junekim0007.cryptobench.document.SchemaVersion
 import io.github.junekim0007.cryptobench.document.YamlCodec
 import org.yaml.snakeyaml.error.YAMLException
 import java.io.File
@@ -19,10 +20,7 @@ class ReadOnlyYamlFile<T> internal constructor(
         } catch (failure: YAMLException) {
             throw IllegalArgumentException("unreadable_yaml: ${file.name}: ${failure.message}", failure)
         }
-        val version = document[SCHEMA_VERSION] as? Number ?: throw IllegalArgumentException("missing_field: ${file.name}: $SCHEMA_VERSION")
-        require(version.toInt() == reader.schemaVersion) {
-            "unsupported_schema_version: ${file.name}: $version, this build reads ${reader.schemaVersion}"
-        }
+        SchemaVersion.require(document, reader.schemaVersion, file.name)
         return try {
             reader.parse(document)
         } catch (failure: IllegalArgumentException) {

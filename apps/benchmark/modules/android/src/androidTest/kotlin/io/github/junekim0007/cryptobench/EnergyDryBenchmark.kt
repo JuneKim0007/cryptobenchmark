@@ -2,6 +2,7 @@ package io.github.junekim0007.cryptobench
 
 import io.github.junekim0007.cryptobench.benchmark.run.compose.CaseRuns
 import io.github.junekim0007.cryptobench.benchmark.run.CaseSettings
+import io.github.junekim0007.cryptobench.document.YamlLine
 import io.github.junekim0007.cryptobench.files.FileNames
 import io.github.junekim0007.cryptobench.preparation.operation.Invocations
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
@@ -18,7 +19,7 @@ class EnergyDryBenchmark(private val caseId: String, private val case: Benchmark
         val energy = CaseSettings.of(case).energy
         val prepared = DevicePlan.prepared(case) ?: error("not_prepared: ${DevicePlan.skipOf(case)}")
         val calls = CaseRuns.dry(caseId, energy, TraceWindowMarker, Invocations.of(prepared)).run()
-        File(DevicePlan.directory, FileNames.ENERGY_DRY).appendText("\"$caseId\": $calls\n")
+        File(DevicePlan.directory, FileNames.ENERGY_DRY).appendText("${YamlLine.quoted(caseId)}: $calls\n")
     }
 
     companion object {

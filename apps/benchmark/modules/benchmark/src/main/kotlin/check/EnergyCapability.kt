@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.benchmark.check
 
+import io.github.junekim0007.cryptobench.document.SchemaVersion
 import io.github.junekim0007.cryptobench.benchmark.report.CaseDocument
 import io.github.junekim0007.cryptobench.files.FileNames
 
@@ -24,7 +25,7 @@ data class EnergyCapability(
 
         fun parse(text: String): EnergyCapability {
             val document = CaseDocument.load(text)
-            require(document["schemaVersion"] == 1) { "unsupported: ${FileNames.ENERGY_CAPABILITY} schemaVersion ${document["schemaVersion"]}" }
+            SchemaVersion.require(document, 1, FileNames.ENERGY_CAPABILITY)
             fun flag(key: String) = document[key] as? Boolean ?: throw IllegalArgumentException("missing_field: ${FileNames.ENERGY_CAPABILITY} $key")
             fun number(key: String) = (document[key] as? Number)?.toDouble() ?: throw IllegalArgumentException("missing_field: ${FileNames.ENERGY_CAPABILITY} $key")
             return EnergyCapability(flag("railsPresent"), flag("railsResponsive"), number("idleMicrojoules"),

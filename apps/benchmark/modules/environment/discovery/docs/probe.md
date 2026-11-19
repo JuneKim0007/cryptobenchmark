@@ -106,7 +106,7 @@ Errors are `BundledProviderException` with a `code`. The preparation and perf-re
 |---|---|
 | names | `probe_<utc>.yaml`, `trial_<utc>.yaml`, `requirements_<utc>.yaml` |
 | stamp | `yyyyMMdd'T'HHmmss'Z'`, UTC, from `capturedAtMillis`: on a device the host's time, passed as the instrumentation argument `hostMillis` |
-| create | `ProbeDirectory.create` makes the directory and writes `CREATE_NEW` |
+| create | `ProbeDirectory.create` writes through `:document` `AtomicFile` with `replace = false`: a temporary file renamed into place, an existing name refused |
 | existing name | `FileAlreadyExistsException`: `probe_exists: a capture is never overwritten; probe again after a second, or remove the file` |
 | newest | greatest file name matching `<prefix>_\d{8}T\d{6}Z.yaml` |
 | YAML | block style, indent 2, a new `Yaml` per call |

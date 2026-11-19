@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.config.names
 
+import io.github.junekim0007.cryptobench.document.SchemaVersion
 import io.github.junekim0007.cryptobench.config.names.dto.Canonical
 import io.github.junekim0007.cryptobench.document.YamlCodec
 import io.github.junekim0007.cryptobench.files.FileNames
@@ -72,7 +73,7 @@ class AlgorithmNames private constructor(
 
         @Suppress("UNCHECKED_CAST")
         fun parse(document: Map<String, Any>): AlgorithmNames {
-            require(document["schemaVersion"] == SCHEMA_VERSION) { "names_schema: schemaVersion ${document["schemaVersion"]} is not $SCHEMA_VERSION" }
+            SchemaVersion.require(document, SCHEMA_VERSION, FileNames.ALGORITHM_NAMES)
             val names = (document["names"] as Map<String, Map<String, List<String>?>>).mapValues { (_, spellings) -> folded(spellings) }
             val sized = (document["sized"] as Map<String, Map<String, Map<String, Any>>>? ?: emptyMap()).mapValues { (_, rows) ->
                 rows.entries.associate { (spelling, row) -> fold(spelling) to Canonical(row["name"] as String, row["keySize"] as Int) }

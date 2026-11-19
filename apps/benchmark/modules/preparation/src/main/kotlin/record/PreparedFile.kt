@@ -20,7 +20,7 @@ class PreparedFile(private val directory: File) {
     fun failed(id: String): File = edited(id) { null }
 
     private fun edited(id: String, entry: () -> Map<String, Any>?): File {
-        val document = LinkedHashMap(DocumentFile.read(file, "prepared", PreparedDocument.SCHEMA_VERSION))
+        val document = LinkedHashMap(DocumentFile.read(file, PreparedDocument.SCHEMA_VERSION))
         document["cases"] = DocumentFields.sections(document, "cases").mapNotNull { case -> if (case["id"] == id) entry() else case }
         return DocumentFile.write(file, document)
     }

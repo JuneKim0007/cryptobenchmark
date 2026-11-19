@@ -1,5 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery.write
 
+import io.github.junekim0007.cryptobench.files.StampedName
+import io.github.junekim0007.cryptobench.document.SchemaVersion
 import io.github.junekim0007.cryptobench.discovery.contract.DefaultRunOutcome
 import io.github.junekim0007.cryptobench.discovery.contract.KeystoreRow
 import io.github.junekim0007.cryptobench.discovery.contract.KeystoreSection
@@ -67,10 +69,8 @@ object TrialDocument {
     }
 
     fun parse(document: Map<String, Any>): TrialReport {
+        SchemaVersion.require(document, TrialReport.SCHEMA_VERSION, StampedName.TRIAL)
         val schemaVersion = number(document, SCHEMA_VERSION).toInt()
-        require(schemaVersion == TrialReport.SCHEMA_VERSION) {
-            "unsupported_schema_version: $schemaVersion, this build reads ${TrialReport.SCHEMA_VERSION}"
-        }
         return TrialReport(
             capturedAtMillis = number(document, CAPTURED_AT_MILLIS).toLong(),
             services = sections(document, SERVICES).map { serviceEntry(it) },

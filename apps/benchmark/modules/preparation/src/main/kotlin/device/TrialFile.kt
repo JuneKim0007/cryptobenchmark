@@ -17,13 +17,12 @@ object TrialFile {
 
     const val SUPPORTED_SCHEMA_VERSION = 3
 
-    private const val SCHEMA_NAME = "trial"
 
     fun read(file: File): TrialledDevice =
-        device(DocumentFile.read(file, SCHEMA_NAME, SUPPORTED_SCHEMA_VERSION))
+        device(DocumentFile.read(file, SUPPORTED_SCHEMA_VERSION))
 
     fun read(fileName: String, text: String): TrialledDevice =
-        device(DocumentFile.read(fileName, text, SCHEMA_NAME, SUPPORTED_SCHEMA_VERSION))
+        device(DocumentFile.read(fileName, text, SUPPORTED_SCHEMA_VERSION))
 
     private fun device(document: Map<String, Any>): TrialledDevice = TrialledDevice(
         capturedAtMillis = number(document, "capturedAtMillis").toLong(),

@@ -98,7 +98,7 @@ class PreparedFileTest {
         val record = PreparedFile(directory)
         record.file.writeText("schemaVersion: 2\ncases: []\n")
         val refused = assertThrows(IllegalArgumentException::class.java) { record.failed("x") }.message
-        assertEquals("unsupported_prepared_schema: prepared.yaml: 2, this build reads 3", refused)
+        assertEquals("unsupported_schema_version: prepared.yaml: 2, this build reads 3", refused)
     }
 
     /** The run id travels from the effective file, so a prepared file can be matched to the capture it came from. */

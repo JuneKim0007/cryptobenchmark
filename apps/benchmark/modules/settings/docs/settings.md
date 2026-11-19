@@ -78,7 +78,7 @@ Written by `lib/cryptobench/cryptobench/stages/discovery/facts.py` into the disc
 
 | field | value |
 |---|---|
-| `schemaVersion` | `1`; other: `unsupported: facts.yaml schemaVersion <v>` |
+| `schemaVersion` | `1`, checked by config's reader (`Facts.SCHEMA_VERSION`); other: `unsupported_schema_version: facts.yaml: <v>, this build reads 1` |
 | `os.sdkInt` | int |
 | `rooted` | bool; recorded, not read by `Facts` |
 | `cpu.cores[]` | `{core, online, maxKhz}`; `maxKhz` = `cpuinfo_max_freq` |

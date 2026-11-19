@@ -9,16 +9,15 @@ object InboundFile {
 
     const val SUPPORTED_SCHEMA_VERSION = 2
 
-    private const val SCHEMA_NAME = "config"
 
     // Every key :config writes; preparation reads run, policy, providers and runId.
     private val KEYS = listOf("schemaVersion", "generatedFrom", "runId", "run", "policy", "analysis", "bundledProviders", "providers", "warnings", "skipped")
 
     fun read(file: File): InboundDocument =
-        inbound(file.name, DocumentFile.read(file, SCHEMA_NAME, SUPPORTED_SCHEMA_VERSION))
+        inbound(file.name, DocumentFile.read(file, SUPPORTED_SCHEMA_VERSION))
 
     fun read(fileName: String, text: String): InboundDocument =
-        inbound(fileName, DocumentFile.read(fileName, text, SCHEMA_NAME, SUPPORTED_SCHEMA_VERSION))
+        inbound(fileName, DocumentFile.read(fileName, text, SUPPORTED_SCHEMA_VERSION))
 
     private fun inbound(fileName: String, document: Map<String, Any>): InboundDocument {
         expectKeys(document, KEYS, fileName)

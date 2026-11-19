@@ -8,7 +8,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 
-/** Characterization: the bytes of the host-reachable YAML writers and what each does with a stale `.partial` beside its file.
+/** The bytes of the host-reachable YAML writers, and that each writes through :document AtomicFile.
  * Not reachable on the host (androidTest only): ScopeInteropFile, CorePins, EnergyDryBenchmark, ScopeInputs. */
 class DocumentWritersTest {
 
@@ -35,14 +35,13 @@ class DocumentWritersTest {
     }
 
     @Test
-    fun todayYamlFileTakesAStaleFixedPartialAndDocumentFileLeavesItsOwnAlone() {
+    fun bothWritersLeaveAStalePartialAloneAndLeaveNoneOfTheirOwn() {
         val stale = folder.newFile("report.yaml.partial").apply { writeText("stale") }
         YamlFiles().at(folder.root.resolve("report.yaml"), ReportDocument).write(Report(null))
-        assertEquals(false, stale.exists())
         val other = folder.newFile(".document.yaml.123.partial").apply { writeText("stale") }
         DocumentFile.write(folder.root.resolve("document.yaml"), awkward)
-        assertEquals("stale", other.readText())
-        assertEquals(listOf(".document.yaml.123.partial", "document.yaml", "report.yaml"), folder.root.list()!!.sorted())
+        assertEquals(listOf("stale", "stale"), listOf(stale.readText(), other.readText()))
+        assertEquals(listOf(".document.yaml.123.partial", "document.yaml", "report.yaml", "report.yaml.partial"), folder.root.list()!!.sorted())
     }
 
     private companion object {

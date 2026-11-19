@@ -83,11 +83,11 @@ class DiscoveryCapabilityTest {
     fun eachInboundFileRefusesAVersionThisBuildDoesNotRead() {
         fun refusal(block: () -> Any) = assertThrows(IllegalArgumentException::class.java) { block() }.message
         assertEquals(
-            "unsupported_capture_schema: probe.yaml: 99, this build reads ${CaptureFile.SUPPORTED_SCHEMA_VERSION}",
+            "unsupported_schema_version: probe.yaml: 99, this build reads ${CaptureFile.SUPPORTED_SCHEMA_VERSION}",
             refusal { CaptureFile.read("probe.yaml", "schemaVersion: 99\n") },
         )
         assertEquals(
-            "unsupported_trial_schema: trial.yaml: 99, this build reads ${TrialFile.SUPPORTED_SCHEMA_VERSION}",
+            "unsupported_schema_version: trial.yaml: 99, this build reads ${TrialFile.SUPPORTED_SCHEMA_VERSION}",
             refusal { TrialFile.read("trial.yaml", "schemaVersion: 99\n") },
         )
         assertEquals("missing_file: nowhere.yaml", refusal { CaptureFile.read(File("nowhere.yaml")) })

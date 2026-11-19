@@ -21,7 +21,7 @@ class ParityFixturesTest {
 
     @Test
     fun theKnownAnswersPythonWroteReadToTheirStatedValueAndVectors() {
-        assertEquals(stated("known-answers"), DocumentFile.read(File(parity, "known-answers.yaml"), "known_answers", 1))
+        assertEquals(stated("known-answers"), DocumentFile.read(File(parity, "known-answers.yaml"), 1))
         val vectors = KnownAnswerFile.read(File(parity, "known-answers.yaml"))
         assertEquals(listOf("sha256-abc", "hmac-sha256-rfc4231-case2", "aes128-gcm-cavp-encryptextiv-pt256-count0", "aes128-kw-rfc3394-4.1"), vectors.map { it.id })
         assertEquals(listOf("AESWrap", "AES/KW/NoPadding"), vectors.last().algorithms)

@@ -29,7 +29,7 @@ class SkipFile(private val directory: File) {
     fun added(skip: Skip): File = write(read() + skip)
 
     fun read(): List<Skip> =
-        DocumentFields.sections(DocumentFile.read(file, "skipped", SCHEMA_VERSION), "skipped").map { entry ->
+        DocumentFields.sections(DocumentFile.read(file, SCHEMA_VERSION), "skipped").map { entry ->
             Skip(entry["stage"].toString(), entry["provider"]?.toString(), entry["type"]?.toString(), entry["name"]?.toString(), entry["reason"].toString())
         }
 

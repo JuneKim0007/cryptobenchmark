@@ -15,7 +15,7 @@ object InteropPlanFile {
     private val PAIR_KEYS = listOf("id", "group", "a", "b", "keySize", "inputSize")
     private val MEMBER_KEYS = listOf("type", "algorithm", "provider")
 
-    fun read(file: File): List<InteropPair> = parse(DocumentFile.read(file, "interop_plan", 1))
+    fun read(file: File): List<InteropPair> = parse(DocumentFile.read(file, 1))
 
     fun parse(document: Map<String, Any>): List<InteropPair> =
         sections(document, "pairs").mapIndexed { index, pair ->
