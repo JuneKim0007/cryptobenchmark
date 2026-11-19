@@ -56,6 +56,9 @@ class MainExitsTest {
             run("MergeRunsKt"),
             run("MergeRunsKt", out, missing("benchmark.json")),
             run("MergeRunsKt", out, bad("benchmark.json")),
+            run("ListCasesKt"),
+            run("ListCasesKt", missing("probe.yaml"), missing("trial.yaml"), missing("effective.yaml"), out),
+            run("ListCasesKt", bad("probe.yaml"), bad("trial.yaml"), bad("effective.yaml"), out),
             run("InteropKt"),
             run("InteropKt", missing("probe.yaml"), missing("trial.yaml"), missing("effective.yaml"), missing("interop_plan.yaml"), missing("interop.yaml")),
             run("InteropKt", bad("probe.yaml"), bad("trial.yaml"), bad("effective.yaml"), bad("interop_plan.yaml"), out),
@@ -94,6 +97,9 @@ class MainExitsTest {
             MergeRunsKt 0 args | exit 2 | usage: <output directory> <benchmark.json> [<benchmark.json> ...]
             MergeRunsKt 2 args | exit 1 | error: <tmp>/missing/benchmark.json (No such file or directory)
             MergeRunsKt 2 args | exit 1 | error: while parsing a flow sequence
+            ListCasesKt 0 args | exit 2 | usage: <capture> <trial> <effective.yaml> <preparation directory>
+            ListCasesKt 4 args | exit 1 | error: <tmp>/missing/effective.yaml (No such file or directory)
+            ListCasesKt 4 args | exit 1 | error: while parsing a flow sequence
             InteropKt 0 args | exit 2 | usage: <capture> <trial> <effective.yaml> <interop_plan.yaml> <interop.yaml>
             InteropKt 5 args | exit 1 | error: <tmp>/missing/effective.yaml (No such file or directory)
             InteropKt 5 args | exit 1 | error: while parsing a flow sequence

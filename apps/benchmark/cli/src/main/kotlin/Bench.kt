@@ -1,4 +1,3 @@
-import io.github.junekim0007.cryptobench.benchmark.check.PlanCheck
 import io.github.junekim0007.cryptobench.benchmark.check.RunnablePlan
 import io.github.junekim0007.cryptobench.benchmark.report.BenchmarkJson
 import io.github.junekim0007.cryptobench.benchmark.report.ResultRow
@@ -6,18 +5,15 @@ import io.github.junekim0007.cryptobench.benchmark.run.HostHarness
 import io.github.junekim0007.cryptobench.discovery.write.CaptureDocument
 import io.github.junekim0007.cryptobench.document.YamlCodec
 import io.github.junekim0007.cryptobench.files.FileNames
-import io.github.junekim0007.cryptobench.preparation.Preparation
-import io.github.junekim0007.cryptobench.preparation.adapter.DiscoveryCapability
 import java.io.File
 import java.lang.management.ManagementFactory
 
 // Every case prepared, then measured in turn; benchmark.json is rewritten as each case finishes, so a later failure, or this JVM's death, loses no earlier row.
 fun main(arguments: Array<String>) = command(arguments, "<capture> <trial> <${FileNames.EFFECTIVE}> <benchmark output directory> <preparation directory>", { it.size == 5 }) {
-    HostBundled.fromEffective(File(arguments[2]))
+    val preparationDirectory = File(arguments[4])
+    val plan = hostPlan(File(arguments[0]), File(arguments[1]), File(arguments[2]), preparationDirectory.apply { mkdirs() })
     val capture = CaptureDocument.parse(YamlCodec.CAPTURE.load(File(arguments[0]).readText()))
     val output = BenchmarkJson(File(arguments[3]).apply { mkdirs() })
-    val preparationDirectory = File(arguments[4]).apply { mkdirs() }
-    val plan = RunnablePlan(Preparation(DiscoveryCapability(File(arguments[0]), File(arguments[1]))), PlanCheck(HostHarness.METRICS), preparationDirectory)
     val runnable = plan.preparedAll(File(arguments[2]))
     System.err.println("prepared=${runnable.size} skipped=${plan.skipped.size}")
 
