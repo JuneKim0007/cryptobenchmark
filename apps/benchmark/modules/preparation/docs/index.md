@@ -80,10 +80,12 @@ apps/benchmark/modules/preparation/src/main/kotlin/parameter/resolve/ResolvedPar
 apps/benchmark/modules/preparation/src/main/kotlin/parameter/resolve/SpecFields.kt : fields of reported parameters, by spec class
 apps/benchmark/modules/preparation/src/main/kotlin/peer/CipherRow.kt : encrypt: the consumer decrypts the ciphertext to the input; decrypt: the same ciphertext to the output
 apps/benchmark/modules/preparation/src/main/kotlin/peer/Consumer.kt : the provider that consumes a produced call's output and its algorithm name
-apps/benchmark/modules/preparation/src/main/kotlin/peer/KeyOutputRow.kt : a generated key pair rebuilt by the consumer's KeyFactory, the public half to the same encoding
+apps/benchmark/modules/preparation/src/main/kotlin/peer/KeyOutputRow.kt : a generated key judged by use: the producer runs its KeyUse once, the consumer takes that call through the use's row
+apps/benchmark/modules/preparation/src/main/kotlin/peer/KeyUse.kt : a generated key's use: in catalogue order the first cipher, signature, MAC or agreement entry of its key type both providers offer, with a timed operation
 apps/benchmark/modules/preparation/src/main/kotlin/peer/Outcome.kt : a peer check's verdict: Pass, Fail or NotCheckable with a coded reason, and its label
 apps/benchmark/modules/preparation/src/main/kotlin/peer/Outcomes.kt : the ordered table from a stage and an exception to a verdict and its code
 apps/benchmark/modules/preparation/src/main/kotlin/peer/OutputBytes.kt : a call's output as bytes where it has them (a key's encoding, a pair's public one) and their SHA-256
+apps/benchmark/modules/preparation/src/main/kotlin/peer/PeerCase.kt : the producer's case: seed 0, the key size and input size (default 16) where the operation takes them
 apps/benchmark/modules/preparation/src/main/kotlin/peer/PeerEngine.kt : the one peer procedure: the operation's row, its readiness, the consumer's setup and call, failures through Outcomes
 apps/benchmark/modules/preparation/src/main/kotlin/peer/PeerKey.kt : the call's key rebuilt from its encoding by the consumer's KeyFactory, else another installed provider's; key_not_extractable
 apps/benchmark/modules/preparation/src/main/kotlin/peer/PeerParameters.kt : the parameters the call used, from the engine's report or the case's fixed spec, in a form another provider takes
@@ -131,6 +133,7 @@ apps/benchmark/modules/preparation/src/test/kotlin/InteropOracleTest.kt : intero
 apps/benchmark/modules/preparation/src/test/kotlin/InvocationTest.kt : invocation repeatability, IV reuse, both variants, fresh IV under fixed
 apps/benchmark/modules/preparation/src/test/kotlin/KeyMaterialGeneratorTest.kt : key generation tests
 apps/benchmark/modules/preparation/src/test/kotlin/KeyPlannerTest.kt : key recipe planning tests
+apps/benchmark/modules/preparation/src/test/kotlin/KeyUseTest.kt : a key use from a small catalogue: order, folded key type, both providers, the operation from the entry's words
 apps/benchmark/modules/preparation/src/test/kotlin/OperationContractTest.kt : per-operation consumption contract tests
 apps/benchmark/modules/preparation/src/test/kotlin/OperationInputTest.kt : per-operation input tests
 apps/benchmark/modules/preparation/src/test/kotlin/ParameterBinderTest.kt : parameter tree binding tests

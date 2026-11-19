@@ -13,4 +13,6 @@ tasks.matching { it.name == 'processResources' }.configureEach {
     // preparation's operation/SetupCatalog and engine/EngineTypes (timed) read their catalogues beside their classes
     from(guide) { include 'setup-catalog.yaml'; into 'io/github/junekim0007/cryptobench/preparation/operation' }
     from(guide) { include 'engine-operations.yaml'; into 'io/github/junekim0007/cryptobench/preparation/engine' }
+    // preparation's peer/KeyUse reads the use families' catalogues beside its class
+    from(guide) { include 'cipher.secret_catalogue.yaml', 'cipher.pair_catalogue.yaml', 'signature.pair_catalogue.yaml', 'mac.secret_catalogue.yaml', 'agreement.peer_catalogue.yaml'; into 'io/github/junekim0007/cryptobench/preparation/peer' }
 }

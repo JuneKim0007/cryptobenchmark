@@ -2,11 +2,11 @@ package io.github.junekim0007.cryptobench.preparation.interop
 
 import io.github.junekim0007.cryptobench.preparation.engine.EngineTypes
 import io.github.junekim0007.cryptobench.preparation.interop.check.CrossCheck
-import io.github.junekim0007.cryptobench.preparation.interop.check.PairCases
 import io.github.junekim0007.cryptobench.preparation.interop.plan.InteropPair
 import io.github.junekim0007.cryptobench.preparation.interop.plan.Member
 import io.github.junekim0007.cryptobench.preparation.interop.report.InteropVerdict
 import io.github.junekim0007.cryptobench.preparation.peer.Outcome
+import io.github.junekim0007.cryptobench.preparation.peer.PeerCase
 import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterialGenerator
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyPlanner
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
@@ -41,8 +41,8 @@ class InteropOracle(
     }
 
     private fun direction(first: Member, second: Member, operation: Operation, pair: InteropPair, produce: Boolean): Outcome {
-        val one = PairCases.of(first, operation, pair)
-        val other = PairCases.of(second, operation, pair)
+        val one = PeerCase.of(first.type, first.algorithm, first.provider, operation, pair.keySize, pair.inputSize)
+        val other = PeerCase.of(second.type, second.algorithm, second.provider, operation, pair.keySize, pair.inputSize)
         val recipe = planner.plan(one)
         if (recipe is KeyRecipe.Unavailable) return Outcome.NotCheckable("no_key: ${recipe.reason}")
         val key = Attempt.of { generator.generate(recipe) }

@@ -1,6 +1,6 @@
 # peer
 
-`PeerEngine.check(produced, consumer)`: whether another provider's engine, the consumer, takes a produced call's output. The end-to-end check's `crossProvider` oracle calls it once per peer provider. Code under `src/main/kotlin/peer/`; covered by `PeerRowsTest`, the cli `FailureClassifiersTest`.
+`PeerEngine(capability).check(produced, consumer)`: whether another provider's engine, the consumer, takes a produced call's output. The end-to-end check's `crossProvider` oracle calls it once per peer provider; its capability gives the availability a key use needs. Code under `src/main/kotlin/peer/`; covered by `PeerRowsTest`, `KeyUseTest`, the cli `FailureClassifiersTest`.
 
 ## Procedure
 
@@ -46,4 +46,14 @@ First matching rule wins. Stages: produce (the producer's own call), setup over 
 | `CipherRow` | ENCRYPT, DECRYPT | decrypts the ciphertext to the input, or the same ciphertext to the output |
 | `SignatureRow` | SIGN, VERIFY | verifies the signature with the rebuilt public key; parameters only when the case binds them |
 | `RecomputeRow` | DIGEST, COMPUTE_MAC, AGREE_KEY | recomputes the bytes; an agreement from the first pair's private and the last pair's public key |
-| `KeyOutputRow` | GENERATE_KEY, GENERATE_KEY_PAIR | rebuilds a key pair, the public half to the same encoding; a secret key `not_checkable` `no_peer_check` |
+| `KeyOutputRow` | GENERATE_KEY, GENERATE_KEY_PAIR | the output must be a secret key or key pair (`fail` `not_a_key`); the producer runs the key's use once with it (an agreement with the jca `PeerPair` as the other party), and the consumer takes that call through the use's row; its key setup is the output-key stage |
+
+## Key use
+
+| rule | value |
+|---|---|
+| catalogues | `algorithms/cipher.secret_catalogue.yaml`, `cipher.pair`, `signature.pair`, `mac.secret`, `agreement.peer`, in that order, entries in file order |
+| entry | the first whose `key.type` equals the key's algorithm, case folded, and whose type and name the capability reports Available on both providers |
+| operation | the first of the entry's `operations` words that begins the name of an operation `engine-operations.yaml` times for its type (`computeMac` COMPUTE_MAC, `agree` AGREE_KEY); `wrap` has none |
+| none | `not_checkable` `no_key_use` |
+| case | seed 0, input 16, no bound parameters |

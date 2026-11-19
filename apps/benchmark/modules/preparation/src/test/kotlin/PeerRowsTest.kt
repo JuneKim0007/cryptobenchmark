@@ -12,11 +12,14 @@ import io.github.junekim0007.cryptobench.preparation.peer.Consumer
 import io.github.junekim0007.cryptobench.preparation.peer.Outcome
 import io.github.junekim0007.cryptobench.preparation.peer.PeerEngine
 import io.github.junekim0007.cryptobench.preparation.peer.ProducedCall
+import io.github.junekim0007.cryptobench.preparation.port.Availability
+import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.security.KeyPair
 import java.security.KeyPairGenerator
+import java.security.Security
 import java.security.Signature
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -25,6 +28,14 @@ import javax.crypto.KeyGenerator
 class PeerRowsTest {
 
     private val message = InputBytes.of(0, 16)
+
+    private val jvm = object : DeviceCapability {
+        override fun providers(): List<String> = Security.getProviders().map { it.name }
+        override fun check(provider: String, type: String, algorithm: String): Availability =
+            if (Security.getProvider(provider)?.getService(type, algorithm) != null) Availability.Available else Availability.Unavailable("not_registered")
+    }
+
+    private val engine = PeerEngine(jvm)
 
     private fun pair(algorithm: String, provider: String, bits: Int): KeyPair =
         KeyPairGenerator.getInstance(algorithm, provider).apply { initialize(bits) }.generateKeyPair()
@@ -37,7 +48,7 @@ class PeerRowsTest {
     private fun judged(prepared: PreparedCase, consumer: String, judgedAs: PreparedCase = prepared, output: (Any?) -> Any? = { it }): String {
         val invocation = Invocations.of(prepared)
         val produced = ProducedCall(judgedAs, invocation.engine, output(invocation.once()))
-        return when (val outcome = PeerEngine.check(produced, Consumer(consumer, judgedAs.case.algorithm))) {
+        return when (val outcome = engine.check(produced, Consumer(consumer, judgedAs.case.algorithm))) {
             Outcome.Pass -> "pass"
             is Outcome.Fail -> "fail ${cut(outcome.reason)}"
             is Outcome.NotCheckable -> "not_checkable ${cut(outcome.reason)}"
@@ -106,15 +117,20 @@ class PeerRowsTest {
     fun keyOutputRow() {
         val pairCase = prepared("KeyPairGenerator", "EC", "SunEC", Operation.GENERATE_KEY_PAIR, KeyMaterial.None, OperationInput.None, KeyRecipe.Pair("EC", 256, "SunEC"))
         val secretCase = prepared("KeyGenerator", "AES", "SunJCE", Operation.GENERATE_KEY, KeyMaterial.None, OperationInput.None, KeyRecipe.Secret("AES", 128, "SunJCE"))
+        val dhCase = prepared("KeyPairGenerator", "DH", "SunJCE", Operation.GENERATE_KEY_PAIR, KeyMaterial.None, OperationInput.None, KeyRecipe.Pair("DH", 2048, "SunJCE"))
         val table = listOf(
             "key pair" to judged(pairCase, "SunEC"),
-            "key pair, consumer without the KeyFactory" to judged(pairCase, "SunJCE"),
+            "key pair, consumer without a use" to judged(pairCase, "SunJCE"),
             "secret key" to judged(secretCase, "SunJCE"),
+            "dh key pair, agreed" to judged(dhCase, "SunJCE"),
+            "output not a key" to judged(secretCase, "SunJCE", output = { 7 }),
         )
         assertEquals(listOf(
             "key pair" to "pass",
-            "key pair, consumer without the KeyFactory" to "pass",
-            "secret key" to "not_checkable no_peer_check: a generated secret key has nothing a peer recomputes",
+            "key pair, consumer without a use" to "not_checkable no_key_use: no catalogue use of the EC key that both SunEC and SunJCE offer",
+            "secret key" to "pass",
+            "dh key pair, agreed" to "pass",
+            "output not a key" to "fail not_a_key: Integer",
         ), table)
     }
 

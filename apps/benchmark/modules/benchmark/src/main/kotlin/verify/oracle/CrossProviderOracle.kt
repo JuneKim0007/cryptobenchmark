@@ -12,13 +12,15 @@ class CrossProviderOracle(private val capability: DeviceCapability) : Oracle {
 
     override val name = "crossProvider"
 
+    private val engine = PeerEngine(capability)
+
     override fun judge(call: CheckedCall): Judgement {
         val case = call.prepared.case
         if (!PeerEngine.checks(case.operation)) return Judgement(Outcome.NotCheckable("no_peer_check: ${case.operation}"))
         val peers = capability.providers().filter { it != case.provider && capability.check(it, case.type, case.algorithm) == Availability.Available }
         if (peers.isEmpty()) return Judgement(Outcome.NotCheckable("no_peer_provider: ${case.type}.${case.algorithm}"))
         val produced = ProducedCall(call.prepared, call.invocation.engine, call.output)
-        val byPeer = peers.associateWith { peer -> PeerEngine.check(produced, Consumer(peer, case.algorithm)) }
+        val byPeer = peers.associateWith { peer -> engine.check(produced, Consumer(peer, case.algorithm)) }
         val outcome = when {
             byPeer.values.any { it is Outcome.Fail } -> Outcome.Fail(reasons(byPeer) { it is Outcome.Fail })
             byPeer.values.any { it == Outcome.Pass } -> Outcome.Pass

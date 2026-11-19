@@ -8,7 +8,7 @@ import java.security.PublicKey
 import java.security.Signature
 
 /** Sign: the consumer verifies the call's signature with its public key. Verify: the consumer accepts the signature the call accepted. */
-internal object SignatureRow : PeerRow {
+internal object SignatureRow : ConsumingRow {
 
     override fun ready(produced: ProducedCall): Outcome? {
         if (signs(produced) && OutputBytes.of(produced.output) == null) return Outcome.Fail("not_bytes: ${produced.output?.javaClass?.simpleName}")

@@ -9,7 +9,7 @@ import javax.crypto.KeyAgreement
 import javax.crypto.Mac
 
 /** Deterministic operations: the consumer recomputes the digest, MAC or agreed secret (first pair's private, last pair's public) from the call's key, parameters and input. */
-internal object RecomputeRow : PeerRow {
+internal object RecomputeRow : ConsumingRow {
 
     override fun ready(produced: ProducedCall): Outcome? {
         if (OutputBytes.of(produced.output) == null) return Outcome.Fail("not_bytes: ${produced.output?.javaClass?.simpleName}")

@@ -1169,6 +1169,7 @@ codes:
   no_key_generator: {kind: error}
   no_key_pair: {kind: outcome}
   no_key_pairs: {kind: outcome}
+  no_key_use: {kind: outcome}
   no_known_vector_applied: {kind: notice}
   no_match: {kind: outcome}
   no_measured_key: {kind: error}

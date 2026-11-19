@@ -9,7 +9,7 @@ import java.security.spec.AlgorithmParameterSpec
 import javax.crypto.Cipher
 
 /** Encrypt: the consumer decrypts the ciphertext under the call's key and parameters to its input. Decrypt: the consumer decrypts the same ciphertext to the call's output. */
-internal object CipherRow : PeerRow {
+internal object CipherRow : ConsumingRow {
 
     override fun ready(produced: ProducedCall): Outcome? {
         if (OutputBytes.of(produced.output) == null) return Outcome.Fail("not_bytes: ${produced.output?.javaClass?.simpleName}")

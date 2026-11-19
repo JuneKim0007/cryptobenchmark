@@ -2,30 +2,54 @@ package io.github.junekim0007.cryptobench.preparation.peer
 
 import io.github.junekim0007.cryptobench.jca.failure.Attempt
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
+import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
 
-/** One procedure for every peer check: the operation's row, what the call must hold, the consumer's setup and call, each failure through [Outcomes]. */
-object PeerEngine {
+/** One procedure for every peer check: the operation's row, what the call must hold, a generated key's use, the consumer's setup and call, each failure through [Outcomes]. */
+class PeerEngine(capability: DeviceCapability) {
 
-    private val ROWS: Map<Operation, PeerRow> = mapOf(
-        Operation.ENCRYPT to CipherRow,
-        Operation.DECRYPT to CipherRow,
-        Operation.SIGN to SignatureRow,
-        Operation.VERIFY to SignatureRow,
-        Operation.DIGEST to RecomputeRow,
-        Operation.COMPUTE_MAC to RecomputeRow,
-        Operation.AGREE_KEY to RecomputeRow,
-        Operation.GENERATE_KEY to KeyOutputRow,
-        Operation.GENERATE_KEY_PAIR to KeyOutputRow,
-    )
-
-    fun checks(operation: Operation): Boolean = operation in ROWS
+    private val uses = KeyUse(capability)
 
     fun check(produced: ProducedCall, consumer: Consumer): Outcome {
         val operation = produced.prepared.case.operation
         val row = ROWS[operation] ?: return Outcome.NotCheckable("no_peer_check: $operation")
         row.ready(produced)?.let { return it }
-        val consume = Attempt.of { row.setup(produced, consumer) }.getOrElse { return Outcomes.of(Stage.SETUP, it) }
+        return when (row) {
+            is ConsumingRow -> consumed(row, produced, consumer, Stage.SETUP)
+            KeyOutputRow -> used(produced, consumer)
+        }
+    }
+
+    private fun used(produced: ProducedCall, consumer: Consumer): Outcome {
+        val algorithm = KeyOutputRow.algorithm(produced.output)
+        val producer = produced.prepared.case.provider
+        val use = uses.of(algorithm, producer, consumer.provider)
+            ?: return Outcome.NotCheckable("no_key_use: no catalogue use of the $algorithm key that both $producer and ${consumer.provider} offer")
+        val call = Attempt.of { KeyOutputRow.used(produced, use) }.getOrElse { return Outcomes.of(Stage.PRODUCE, it) }
+        val row = ROWS.getValue(use.operation) as ConsumingRow
+        row.ready(call)?.let { return it }
+        return consumed(row, call, Consumer(consumer.provider, use.algorithm), Stage.OUTPUT_KEY_SETUP)
+    }
+
+    private fun consumed(row: ConsumingRow, produced: ProducedCall, consumer: Consumer, setup: Stage): Outcome {
+        val consume = Attempt.of { row.setup(produced, consumer) }.getOrElse { return Outcomes.of(setup, it) }
         val consumed = Attempt.of { consume() }.getOrElse { return Outcomes.of(Stage.CONSUME, it) }
         return row.judge(produced, consumed)
+    }
+
+    companion object {
+
+        private val ROWS: Map<Operation, PeerRow> = mapOf(
+            Operation.ENCRYPT to CipherRow,
+            Operation.DECRYPT to CipherRow,
+            Operation.SIGN to SignatureRow,
+            Operation.VERIFY to SignatureRow,
+            Operation.DIGEST to RecomputeRow,
+            Operation.COMPUTE_MAC to RecomputeRow,
+            Operation.AGREE_KEY to RecomputeRow,
+            Operation.GENERATE_KEY to KeyOutputRow,
+            Operation.GENERATE_KEY_PAIR to KeyOutputRow,
+        )
+
+        fun checks(operation: Operation): Boolean = operation in ROWS
     }
 }
