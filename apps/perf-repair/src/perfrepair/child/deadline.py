@@ -32,4 +32,16 @@ class Deadline:
             self.timer.cancel()
         # its own session no longer gets the terminal's Ctrl-C, so a caller that dies takes the child with it
         if kind is not None:
+            # nobody reads the pipes now: a child writing past the pipe buffer while it stops would block until SIGKILL
+            for pipe in (self.process.stdout, self.process.stderr):
+                if pipe is not None:
+                    threading.Thread(target=_drain, args=(pipe,), daemon=True).start()
             child.stop(self.process, self.grace)
+
+
+def _drain(pipe) -> None:
+    try:
+        while pipe.read(65536):
+            pass
+    except (OSError, ValueError):
+        pass

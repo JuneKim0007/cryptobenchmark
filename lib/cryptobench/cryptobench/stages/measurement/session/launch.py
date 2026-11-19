@@ -50,12 +50,16 @@ def run_of_case(device, plan, process, case, hooks, pulled):
 def attempts(device, plan, process, case, hooks, pulled, short):
     """None, or the case's failure line. Heat discards the run and measures it again; a lost device is waited for and the same case held and
     launched again; a case the device's preparation skipped with a final code is case_skipped, never launched again; an attempt that fails
-    a rule (validation/rules.py) moves to rejected/ and, like any other failure, is retried, then the next case goes on. Every launch
-    again is one process.relaunched entry; short takes the bytes of a window launched again for being short."""
+    a rule (validation/rules.py), ends hot or unreadable, or loses the device moves to rejected/; a rule failure, like any other, is
+    retried, then the next case goes on. Every launch again is one process.relaunched entry; short takes the bytes of a window launched
+    again for being short."""
     gate, retries, discards, attempt = plan.gate, plan.retries, 0, 0
     # a short energy window is launched once more with more samples, outside the retries
     arguments, relaunched = plan.arguments, None
     again = lambda code: process.relaunched.append({"case": case, "attempt": attempt, "code": code})
+    run = rejected.run_of(plan.unit, process.into, process.repetition)
+    aside = lambda code, detail: rejected.moved(plan.unit, rules.Result(run, case, pulled), attempt,
+                                                [rules.Finding(code, rules.CASE, run, case, detail, rules.FAIL)])
     while True:
         attempt += 1
         try:
@@ -66,21 +70,21 @@ def attempts(device, plan, process, case, hooks, pulled, short):
             failure = hooked_case(process, case, hooks, lambda: case_isolation.launch_case(device, plan.test_class, arguments, case, pulled))
             verdict = gate.verdict(case, process.end_reading) if not failure else eq.IGNORED
         except DeviceLost as lost:
-            pulled.unlink(missing_ok=True)
+            aside("device_lost", one_line(lost))
             again("device_lost")
             plan.reconnect.back(lost, f"the hold and launch of {case}")
             continue
         if verdict == dynamic_temperature.UNREADABLE:
-            pulled.unlink(missing_ok=True)
+            aside("temperature_unreadable", "no skin reading after the run")
             return f"case_failed: {case}: temperature_unreadable after the run"
         if verdict == eq.HOT:
-            pulled.unlink(missing_ok=True)
+            aside("temperature_discarded", "the run ended at or above the kept temperature")
             discards += 1
             if discards >= gate.discard_limit:
                 return gate.discard_limit_reached(case)
             again("temperature_discarded")
             continue
-        result = rules.Result(rejected.run_of(plan.unit, process.into, process.repetition), case, pulled, relaunched)
+        result = rules.Result(run, case, pulled, relaunched)
         findings = [] if failure else rules.check_case(result, plan.expectation.planned(paths.RunTree(plan.unit).preparation.prepared))
         failed = rules.failed(findings)
         if not failure and not failed:

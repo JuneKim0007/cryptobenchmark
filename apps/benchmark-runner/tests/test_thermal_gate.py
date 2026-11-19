@@ -4,6 +4,7 @@ import json, re, types
 import pytest
 
 from cryptobench.shared import paths  # noqa: E402
+from cryptobench.shared.document.document import read_yaml  # noqa: E402
 from cryptobench.shared.errors.failures import CommandError  # noqa: E402
 from cryptobench.shared.errors.glossary import codes  # noqa: E402
 from cryptobench.stages.measurement import benchmark  # noqa: E402
@@ -218,3 +219,11 @@ def test_the_discard_limit_vocabulary_is_the_one_config_validates():
     named = re.search(r"val ON_DISCARD_LIMIT = listOf\((.*)\)", kotlin).group(1)
     listed = [{"NEXT_CASE": "nextCase"}.get(word.strip(), word.strip().strip('"')) for word in named.split(",")]
     assert listed == list(codes()["temperature_discard_limit"]["values"])
+
+
+def test_a_run_ending_hot_moves_to_rejected_with_its_why(tmp_path, monkeypatch):
+    Heat(monkeypatch, start=35.7, rise=0.4, cooling=0.05)
+    _phone, _files, _problems, results = measured(tmp_path, monkeypatch, CASE)
+    whys = [read_yaml(why) for why in paths.RunTree(results).rejected.rglob(paths.WHY)]
+    assert [(w["case"], w["findings"][0]["code"]) for w in whys] == [("a", "temperature_discarded")]
+    assert (next(paths.RunTree(results).rejected.rglob(paths.WHY)).parent / "a.json").is_file()

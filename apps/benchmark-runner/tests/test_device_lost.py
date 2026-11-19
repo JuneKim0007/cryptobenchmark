@@ -4,7 +4,9 @@ import json, time, types
 
 import pytest
 
+from cryptobench.shared import paths
 from cryptobench.shared.device import timeouts
+from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.device import adb as device_module
 from fake_phone import Phone
 from test_device_benchmark_flow import OPTIONS, measured
@@ -118,3 +120,9 @@ def test_a_cut_instrumentation_with_the_device_gone_is_device_lost_not_a_failed_
     monkeypatch.setattr(timeouts, "run", lambda _step, command, **_o: answers["instrument" if "instrument" in command else "get-state"])
     with pytest.raises(device_module.DeviceLost, match="device_lost: adb get-state after am instrument CryptoBenchmark: no answer"):
         device.instrument("CryptoBenchmark", "-e", "case", "a", step="case")
+
+
+def test_the_lost_attempt_is_kept_in_rejected_with_its_why(tmp_path, monkeypatch):
+    _phone, (_p, _files, _problems, results) = lost_run(tmp_path, monkeypatch, polls=3)
+    whys = [read_yaml(why) for why in paths.RunTree(results).rejected.rglob(paths.WHY)]
+    assert [(w["case"], w["attempt"], w["findings"][0]["code"]) for w in whys] == [("b", 1, "device_lost")]

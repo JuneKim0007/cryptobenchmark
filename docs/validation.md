@@ -14,6 +14,7 @@ Every pulled `cases/<id>.json` is held against one rules table (`lib/cryptobench
 
 - A fail: the attempt's file moves to `rejected/<UTC>/[<pass>/]process-<n>/<id>.json` beside `why.yaml` (`schemaVersion`, `case`, `run`, `attempt`, `findings`), the line is `case_failed: <id>: <code>: <detail>`, and the case is retried as a failed launch (`launchRetries`); the main tree holds only files that passed.
 - Every launch again is one `{case, attempt, code}` in the process's `relaunched` of its block record: a fail's code, a failed launch's code (`case_failed` when it carries none), `device_lost`, `temperature_discarded`, `short_window`.
+- An attempt that ends hot (`temperature_discarded`) or unreadable (`temperature_unreadable`), or loses the device (`device_lost`), moves to `rejected/` the same way, its `why.yaml` holding one finding with that code; `why.yaml` alone when no file was pulled.
 
 ## Run rules
 

@@ -1,4 +1,4 @@
-"""rejected/<UTC>/[<pass>/]process-<n>/<case>.json with why.yaml: an attempt that failed a rule, kept as evidence; nothing prunes it."""
+"""rejected/<UTC>/[<pass>/]process-<n>/<case>.json with why.yaml: an attempt set aside (a failed rule, a hot or unreadable end, a lost device), kept as evidence; nothing prunes it."""
 from cryptobench.shared import paths
 from cryptobench.shared.document.document import DocumentKind
 from cryptobench.shared.document.dump import dump_yaml
