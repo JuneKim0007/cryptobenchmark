@@ -149,3 +149,12 @@ def test_the_energy_pass_rows_note_a_kept_short_window_and_an_uncovered_window(t
     found = [(f.code, f.scope, f.case, f.severity) for f in rules.check_run(run, expectation.Expectation("energy", 3, 5))]
     assert found == [("short_window", "pass", "a", "note"), ("window_uncovered", "pass", "b", "note")]
     assert rules.check_run(run, expectation.Expectation("timing", 3)) == []
+
+
+def test_a_host_process_folder_without_case_files_is_held_only_against_its_record(tmp_path):
+    into = tmp_path / "benchmark/process-1"
+    into.mkdir(parents=True)
+    (into / "benchmark.json").write_text("{}")
+    from cryptobench.stages.measurement.session import blocks
+    run = rules.RunFolder(tmp_path, into, into.parent, 1, (), blocks.run_files(into, into.parent))
+    assert (run.order, rules.check_run(run, SINGLE)) == (None, [])

@@ -59,3 +59,20 @@ def test_a_host_rerun_keeps_the_recorded_blocks_and_benches_only_the_rest(tmp_pa
     assert benched == ["process-1", "process-2", "stop", "process-3"]
     assert [p.parent.name for p in written] == ["process-1", "process-2", "process-3"]
     assert sorted(p.name for p in (tmp_path / "blocks").iterdir()) == ["block-1.yaml", "block-2.yaml", "block-3.yaml"]
+
+
+def test_each_repetition_is_one_bench_jvm_given_its_folder_and_the_bundled_providers(tmp_path, monkeypatch):
+    calls = []
+
+    def bench(arguments, *_options, main_class, properties, **_keywords):
+        calls.append((main_class, arguments, properties))
+        into = pathlib.Path(arguments.split()[3])
+        into.mkdir(parents=True, exist_ok=True)
+        (into / "benchmark.json").write_text(json.dumps({"runtime": {}, "cases": [{"id": "a"}]}))
+        return []
+    monkeypatch.setattr(benchmark.gradle_runner, "run", bench)
+    monkeypatch.setattr(benchmark.passes, "merge_runs", lambda *_arguments: None)
+    document = {"run": {"processRepetitions": 2, "orderSeed": 1}, "bundledProviders": [{"artifact": "g:a:1", "create": "P"}]}
+    benchmark.host_cases(OPTIONS, document, "c", "t", "e", tmp_path, tmp_path / "prep", {}, [], blocks.Blocks(tmp_path, 1, 2, {}, None, lambda _e: [], {}))
+    assert calls == [("BenchKt", f"c t e {tmp_path / 'process-1'} {tmp_path / 'prep'}", ["-PbundledArtifacts=g:a:1"]),
+                     ("BenchKt", f"c t e {tmp_path / 'process-2'} {tmp_path / 'prep'}", ["-PbundledArtifacts=g:a:1"])]
