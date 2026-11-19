@@ -5,7 +5,7 @@ import io.github.junekim0007.cryptobench.benchmark.verify.oracle.cross.KeyOutput
 import io.github.junekim0007.cryptobench.benchmark.verify.oracle.cross.PeerCheck
 import io.github.junekim0007.cryptobench.benchmark.verify.oracle.cross.RecomputePeer
 import io.github.junekim0007.cryptobench.benchmark.verify.oracle.cross.SignaturePeer
-import io.github.junekim0007.cryptobench.preparation.interop.report.Outcome
+import io.github.junekim0007.cryptobench.preparation.peer.Outcome
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.port.Availability
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability

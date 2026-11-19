@@ -3,7 +3,7 @@ package io.github.junekim0007.cryptobench.benchmark.verify.oracle.cross
 import io.github.junekim0007.cryptobench.benchmark.verify.OutputBytes
 import io.github.junekim0007.cryptobench.benchmark.verify.oracle.CheckedCall
 import io.github.junekim0007.cryptobench.preparation.input.OperationInput
-import io.github.junekim0007.cryptobench.preparation.interop.report.Outcome
+import io.github.junekim0007.cryptobench.preparation.peer.Outcome
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import java.security.MessageDigest
 import java.security.PrivateKey

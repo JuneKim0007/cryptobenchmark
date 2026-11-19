@@ -1,7 +1,7 @@
 package io.github.junekim0007.cryptobench.benchmark.verify.oracle
 
 import io.github.junekim0007.cryptobench.benchmark.verify.observe.ObservedCall
-import io.github.junekim0007.cryptobench.preparation.interop.report.Outcome
+import io.github.junekim0007.cryptobench.preparation.peer.Outcome
 import io.github.junekim0007.cryptobench.preparation.operation.PerCall
 
 /** The observed call against today's plan: exactly one harness call, and the steps it made are the ones perCall plans. */

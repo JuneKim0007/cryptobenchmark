@@ -10,7 +10,7 @@ import io.github.junekim0007.cryptobench.benchmark.verify.oracle.ContractOracle
 import io.github.junekim0007.cryptobench.benchmark.verify.oracle.CrossProviderOracle
 import io.github.junekim0007.cryptobench.benchmark.verify.oracle.KnownAnswerOracle
 import io.github.junekim0007.cryptobench.benchmark.verify.oracle.Oracle
-import io.github.junekim0007.cryptobench.preparation.interop.report.Outcome
+import io.github.junekim0007.cryptobench.preparation.peer.Outcome
 import io.github.junekim0007.cryptobench.preparation.operation.Invocations
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
 import org.junit.Assert.assertEquals

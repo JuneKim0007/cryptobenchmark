@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.benchmark.verify.oracle.contract
 
-import io.github.junekim0007.cryptobench.preparation.interop.report.Outcome
+import io.github.junekim0007.cryptobench.preparation.peer.Outcome
 import io.github.junekim0007.cryptobench.preparation.parameter.resolve.ResolvedParameters
 import java.security.GeneralSecurityException
 

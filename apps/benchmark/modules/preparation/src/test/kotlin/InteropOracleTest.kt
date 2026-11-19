@@ -8,6 +8,7 @@ import io.github.junekim0007.cryptobench.preparation.interop.plan.InteropPlanFil
 import io.github.junekim0007.cryptobench.preparation.interop.plan.Member
 import io.github.junekim0007.cryptobench.preparation.interop.report.InteropFile
 import io.github.junekim0007.cryptobench.preparation.interop.report.InteropVerdict
+import io.github.junekim0007.cryptobench.preparation.peer.Outcome
 import io.github.junekim0007.cryptobench.preparation.port.Availability
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
 import org.junit.Assert.assertEquals
@@ -143,7 +144,7 @@ class InteropOracleTest {
         assertEquals("pass/produce_consume",
                      verdict(pair("Cipher", "SunJCE", "RSA/ECB/OAEPPadding", "RSA/ECB/OAEPWithSHA-1AndMGF1Padding", 2048)))
         val other = oracle.check(pair("Cipher", "SunJCE", "RSA/ECB/OAEPPadding", "RSA/ECB/OAEPWithSHA-256AndMGF1Padding", 2048))
-        assertEquals(InteropVerdict.FAIL, other.result)
+        assertEquals(Outcome.FAIL, other.result)
         assertTrue(other.reason, other.reason.contains("BadPaddingException"))
     }
 
@@ -153,7 +154,7 @@ class InteropOracleTest {
         val v = withFakeOaep {
             oracle.check(InteropPair(1, "g", Member("Cipher", name, "SunJCE"), Member("Cipher", name, "FakeOaep"), 2048, null))
         }
-        assertEquals(InteropVerdict.FAIL to InteropVerdict.PRODUCE_CONSUME, v.result to v.mode)
+        assertEquals(Outcome.FAIL to InteropVerdict.PRODUCE_CONSUME, v.result to v.mode)
         assertEquals("fail" to "fail", v.aToB.label to v.bToA.label)
     }
 
@@ -187,10 +188,10 @@ class InteropOracleTest {
     @Test
     fun generatedKeysAndUnregisteredMembersAreNotCheckable() {
         val keys = oracle.check(pair("KeyGenerator", "SunJCE", "AES", "AES", 128))
-        assertEquals(InteropVerdict.NOT_CHECKABLE, keys.result)
+        assertEquals(Outcome.NOT_CHECKABLE, keys.result)
         assertTrue(keys.reason, keys.reason.contains("outputs_not_comparable"))
         val ghost = oracle.check(pair("Cipher", "SunJCE", "AES/GCM/NoPadding", "NOPE/GCM/NoPadding"))
-        assertEquals(InteropVerdict.NOT_CHECKABLE to InteropVerdict.NONE, ghost.result to ghost.mode)
+        assertEquals(Outcome.NOT_CHECKABLE to InteropVerdict.NONE, ghost.result to ghost.mode)
         assertTrue(ghost.reason.contains("not_registered"))
     }
 
@@ -222,7 +223,7 @@ class InteropOracleTest {
         Security.addProvider(fake)
         try {
             val unlinked = oracle.check(InteropPair(1, "g", Member("MessageDigest", "SHA-256", "SUN"), Member("MessageDigest", "SHA-256", "Throwing"), null, 16))
-            assertEquals(InteropVerdict.NOT_CHECKABLE, unlinked.result)
+            assertEquals(Outcome.NOT_CHECKABLE, unlinked.result)
             assertTrue(unlinked.reason, unlinked.reason.contains("NoClassDefFoundError"))
             assertThrows(OutOfMemoryError::class.java) {
                 oracle.check(InteropPair(2, "g", Member("MessageDigest", "SHA-512", "SUN"), Member("MessageDigest", "SHA-512", "Throwing"), null, 16))

@@ -14,7 +14,7 @@ import io.github.junekim0007.cryptobench.benchmark.verify.oracle.Oracle
 import io.github.junekim0007.cryptobench.benchmark.verify.oracle.PlanOracle
 import io.github.junekim0007.cryptobench.benchmark.verify.record.CaseRecord
 import io.github.junekim0007.cryptobench.jca.failure.Attempt
-import io.github.junekim0007.cryptobench.preparation.interop.report.Outcome
+import io.github.junekim0007.cryptobench.preparation.peer.Outcome
 import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterial
 import io.github.junekim0007.cryptobench.preparation.operation.Invocation
 import io.github.junekim0007.cryptobench.preparation.operation.Invocations

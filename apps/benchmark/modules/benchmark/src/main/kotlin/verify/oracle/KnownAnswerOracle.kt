@@ -5,7 +5,7 @@ import io.github.junekim0007.cryptobench.benchmark.run.OutputHook
 import io.github.junekim0007.cryptobench.benchmark.verify.OutputBytes
 import io.github.junekim0007.cryptobench.benchmark.verify.known.KnownAnswer
 import io.github.junekim0007.cryptobench.benchmark.verify.known.RawMaterial
-import io.github.junekim0007.cryptobench.preparation.interop.report.Outcome
+import io.github.junekim0007.cryptobench.preparation.peer.Outcome
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.operation.Invocations
 import io.github.junekim0007.cryptobench.preparation.parameter.bind.BindException

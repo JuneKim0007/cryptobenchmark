@@ -3,7 +3,7 @@ package io.github.junekim0007.cryptobench.benchmark.verify.record
 import io.github.junekim0007.cryptobench.benchmark.check.RunnablePlan
 import io.github.junekim0007.cryptobench.benchmark.verify.observe.ObservedCall
 import io.github.junekim0007.cryptobench.benchmark.verify.oracle.Judgement
-import io.github.junekim0007.cryptobench.preparation.interop.report.Outcome
+import io.github.junekim0007.cryptobench.preparation.peer.Outcome
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
 import io.github.junekim0007.cryptobench.settings.Skip
 import io.github.junekim0007.cryptobench.preparation.shared.FailureText

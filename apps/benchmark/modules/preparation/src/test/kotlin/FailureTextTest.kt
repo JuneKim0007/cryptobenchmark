@@ -1,7 +1,7 @@
 package io.github.junekim0007.cryptobench.preparation
 
 import io.github.junekim0007.cryptobench.preparation.interop.check.CrossCheck
-import io.github.junekim0007.cryptobench.preparation.interop.report.Outcome
+import io.github.junekim0007.cryptobench.preparation.peer.Outcome
 import io.github.junekim0007.cryptobench.preparation.shared.FailureText
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

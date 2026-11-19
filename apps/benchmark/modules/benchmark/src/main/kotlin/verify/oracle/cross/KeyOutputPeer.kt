@@ -1,7 +1,7 @@
 package io.github.junekim0007.cryptobench.benchmark.verify.oracle.cross
 
 import io.github.junekim0007.cryptobench.benchmark.verify.oracle.CheckedCall
-import io.github.junekim0007.cryptobench.preparation.interop.report.Outcome
+import io.github.junekim0007.cryptobench.preparation.peer.Outcome
 import java.security.KeyPair
 
 /** A generated key pair: the peer's KeyFactory rebuilds both halves, the public one to the same encoding. A secret key has no peer recomputation. */

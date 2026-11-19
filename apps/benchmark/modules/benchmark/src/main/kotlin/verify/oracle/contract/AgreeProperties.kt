@@ -2,7 +2,7 @@ package io.github.junekim0007.cryptobench.benchmark.verify.oracle.contract
 
 import io.github.junekim0007.cryptobench.benchmark.verify.oracle.CheckedCall
 import io.github.junekim0007.cryptobench.jca.failure.Attempt
-import io.github.junekim0007.cryptobench.preparation.interop.report.Outcome
+import io.github.junekim0007.cryptobench.preparation.peer.Outcome
 import javax.crypto.KeyAgreement
 
 /** Key agreement: the peer, from its own private key and the case's public key, derives the same secret. */

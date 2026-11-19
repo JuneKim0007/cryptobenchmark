@@ -4,7 +4,7 @@ import io.github.junekim0007.cryptobench.benchmark.verify.oracle.CheckedCall
 import io.github.junekim0007.cryptobench.jca.failure.Attempt
 import io.github.junekim0007.cryptobench.preparation.input.CipherKeys
 import io.github.junekim0007.cryptobench.preparation.input.OperationInput
-import io.github.junekim0007.cryptobench.preparation.interop.report.Outcome
+import io.github.junekim0007.cryptobench.preparation.peer.Outcome
 import javax.crypto.Cipher
 
 /** Encrypt: the output fits the engine's own size bound, the same provider's decrypt under its reported parameters recovers the input, a tag refuses tampering. */

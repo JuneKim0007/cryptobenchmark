@@ -6,7 +6,7 @@ import io.github.junekim0007.cryptobench.preparation.interop.check.PairCases
 import io.github.junekim0007.cryptobench.preparation.interop.plan.InteropPair
 import io.github.junekim0007.cryptobench.preparation.interop.plan.Member
 import io.github.junekim0007.cryptobench.preparation.interop.report.InteropVerdict
-import io.github.junekim0007.cryptobench.preparation.interop.report.Outcome
+import io.github.junekim0007.cryptobench.preparation.peer.Outcome
 import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterialGenerator
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyPlanner
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe

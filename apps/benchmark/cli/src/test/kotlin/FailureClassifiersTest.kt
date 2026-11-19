@@ -7,7 +7,7 @@ import io.github.junekim0007.cryptobench.benchmark.verify.oracle.cross.PeerRun
 import io.github.junekim0007.cryptobench.preparation.input.InputBytes
 import io.github.junekim0007.cryptobench.preparation.input.OperationInput
 import io.github.junekim0007.cryptobench.preparation.interop.check.CrossCheck
-import io.github.junekim0007.cryptobench.preparation.interop.report.Outcome
+import io.github.junekim0007.cryptobench.preparation.peer.Outcome
 import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterial
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase

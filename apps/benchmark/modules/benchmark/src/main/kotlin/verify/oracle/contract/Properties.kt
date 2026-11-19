@@ -1,7 +1,7 @@
 package io.github.junekim0007.cryptobench.benchmark.verify.oracle.contract
 
 import io.github.junekim0007.cryptobench.benchmark.verify.oracle.CheckedCall
-import io.github.junekim0007.cryptobench.preparation.interop.report.Outcome
+import io.github.junekim0007.cryptobench.preparation.peer.Outcome
 
 /** The JCA contract properties one operation's output must hold, each named with its verdict. */
 fun interface Properties {

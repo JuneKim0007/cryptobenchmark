@@ -1,7 +1,7 @@
 package io.github.junekim0007.cryptobench.benchmark.verify.oracle
 
 import io.github.junekim0007.cryptobench.benchmark.verify.observe.ObservedCall
-import io.github.junekim0007.cryptobench.preparation.interop.report.Outcome
+import io.github.junekim0007.cryptobench.preparation.peer.Outcome
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.parameter.resolve.ResolvedParameters
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase

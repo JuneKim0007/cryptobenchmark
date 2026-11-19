@@ -8,7 +8,7 @@ import io.github.junekim0007.cryptobench.benchmark.verify.oracle.contract.KeyOut
 import io.github.junekim0007.cryptobench.benchmark.verify.oracle.contract.Properties
 import io.github.junekim0007.cryptobench.benchmark.verify.oracle.contract.SignProperties
 import io.github.junekim0007.cryptobench.benchmark.verify.oracle.contract.VerifyProperties
-import io.github.junekim0007.cryptobench.preparation.interop.report.Outcome
+import io.github.junekim0007.cryptobench.preparation.peer.Outcome
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 
 /** The operation's contract properties over the call's own output; any failed property fails it, all unprovable leaves it not_checkable. */
