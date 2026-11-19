@@ -32,7 +32,7 @@ class CrossProviderOracleTest {
     }
 
     @Test
-    fun aKeyThePeerCannotRebuildIsNotCheckableWithItsCode() {
+    fun aKeyWithoutAnEncodingIsNotCheckableAsNotExtractable() {
         val prepared = CheckFixture.mac()
         val real = prepared.key.secretKeyOrNull!!
         val sealed = object : SecretKey {
@@ -41,6 +41,6 @@ class CrossProviderOracleTest {
             override fun getEncoded(): ByteArray? = null
         }
         val outcome = judged(prepared, prepared.copy(key = KeyMaterial.Secret(sealed)))
-        assertTrue(outcome.toString(), outcome is Outcome.NotCheckable && outcome.reason.startsWith("${PeerProvider.NAME}: peer_key_rejected: "))
+        assertTrue(outcome.toString(), outcome is Outcome.NotCheckable && outcome.reason.startsWith("${PeerProvider.NAME}: key_not_extractable: "))
     }
 }

@@ -28,7 +28,7 @@ import javax.crypto.BadPaddingException
 import javax.crypto.IllegalBlockSizeException
 import javax.crypto.NoSuchPaddingException
 
-/** Characterization: one exception, four entry points that classify it (interop CrossCheck, peer setup and consume, known answer); today's codes. */
+/** Characterization: one exception, six entry points that classify it (interop CrossCheck, peer produce, setup with an input or an output key, consume, known answer); today's codes. */
 class FailureClassifiersTest {
 
     private val thrown: List<Exception> = listOf(
@@ -61,7 +61,9 @@ class FailureClassifiersTest {
             listOf(
                 failure.javaClass.simpleName,
                 shown(CrossCheck.classify(failure)),
+                shown(Outcomes.of(Stage.PRODUCE, failure)),
                 shown(Outcomes.of(Stage.SETUP, failure)),
+                shown(Outcomes.of(Stage.OUTPUT_KEY_SETUP, failure)),
                 shown(Outcomes.of(Stage.CONSUME, failure)),
                 shown(knownAnswer(failure)),
             ).joinToString(" | ")
@@ -70,23 +72,23 @@ class FailureClassifiersTest {
     }
 
     private companion object {
-        // exception | CrossCheck.classify | peer SETUP | peer CONSUME | KnownAnswerOracle
+        // exception | CrossCheck.classify | peer PRODUCE | SETUP (input key) | SETUP (output key) | CONSUME | KnownAnswerOracle
         val EXPECTED = """
-            InvalidKeyException | not_checkable key_or_parameters_rejected: InvalidKeyException: m | not_checkable peer_key_rejected: InvalidKeyException: m | fail peer_refused: InvalidKeyException: m | not_checkable raw_material_refused: InvalidKeyException: m
-            InvalidAlgorithmParameterException | not_checkable key_or_parameters_rejected: InvalidAlgorithmParameterException: m | not_checkable peer_parameters_rejected: InvalidAlgorithmParameterException: m | fail peer_refused: InvalidAlgorithmParameterException: m | not_checkable raw_material_refused: InvalidAlgorithmParameterException: m
-            ClassCastException | not_checkable key_or_parameters_rejected: ClassCastException: m | not_checkable peer_setup_failed: ClassCastException: m | not_checkable peer_error: ClassCastException: m | fail call_failed: ClassCastException: m
-            BadPaddingException | fail BadPaddingException: m | not_checkable peer_setup_failed: BadPaddingException: m | fail peer_refused: BadPaddingException: m | fail call_failed: BadPaddingException: m
-            IllegalBlockSizeException | fail IllegalBlockSizeException: m | not_checkable peer_setup_failed: IllegalBlockSizeException: m | fail peer_refused: IllegalBlockSizeException: m | fail call_failed: IllegalBlockSizeException: m
-            SignatureException | fail SignatureException: m | not_checkable peer_setup_failed: SignatureException: m | fail peer_refused: SignatureException: m | fail call_failed: SignatureException: m
-            IllegalStateException | fail IllegalStateException: verify_failed | not_checkable peer_setup_failed: IllegalStateException: verify_failed | not_checkable peer_error: IllegalStateException: verify_failed | fail call_failed: IllegalStateException: verify_failed
-            IllegalStateException | not_checkable error: IllegalStateException: m | not_checkable peer_setup_failed: IllegalStateException: m | not_checkable peer_error: IllegalStateException: m | fail call_failed: IllegalStateException: m
-            NoSuchAlgorithmException | not_checkable error: NoSuchAlgorithmException: m | not_checkable peer_unavailable: NoSuchAlgorithmException: m | fail peer_refused: NoSuchAlgorithmException: m | fail call_failed: NoSuchAlgorithmException: m
-            NoSuchPaddingException | not_checkable error: NoSuchPaddingException: m | not_checkable peer_unavailable: NoSuchPaddingException: m | fail peer_refused: NoSuchPaddingException: m | fail call_failed: NoSuchPaddingException: m
-            InvalidKeySpecException | not_checkable error: InvalidKeySpecException: m | not_checkable peer_setup_failed: InvalidKeySpecException: m | fail peer_refused: InvalidKeySpecException: m | not_checkable raw_material_refused: InvalidKeySpecException: m
-            GeneralSecurityException | not_checkable error: GeneralSecurityException: m | not_checkable peer_setup_failed: GeneralSecurityException: m | fail peer_refused: GeneralSecurityException: m | fail call_failed: GeneralSecurityException: m
-            BindException | not_checkable error: BindException: bind_failed: p: m | not_checkable peer_setup_failed: BindException: bind_failed: p: m | not_checkable peer_error: BindException: bind_failed: p: m | not_checkable raw_material_refused: BindException: bind_failed: p: m
-            PeerRefusal | not_checkable error: PeerRefusal: m | not_checkable peer_code: m | not_checkable peer_error: PeerRefusal: m | fail call_failed: PeerRefusal: m
-            RuntimeException | not_checkable error: RuntimeException: m | not_checkable peer_setup_failed: RuntimeException: m | not_checkable peer_error: RuntimeException: m | fail call_failed: RuntimeException: m
+            InvalidKeyException | not_checkable key_or_parameters_rejected: InvalidKeyException: m | not_checkable producer_failed: InvalidKeyException: m | not_checkable peer_key_rejected: InvalidKeyException: m | fail peer_key_rejected: InvalidKeyException: m | fail peer_refused: InvalidKeyException: m | not_checkable raw_material_refused: InvalidKeyException: m
+            InvalidAlgorithmParameterException | not_checkable key_or_parameters_rejected: InvalidAlgorithmParameterException: m | not_checkable producer_failed: InvalidAlgorithmParameterException: m | not_checkable peer_parameters_rejected: InvalidAlgorithmParameterException: m | not_checkable peer_parameters_rejected: InvalidAlgorithmParameterException: m | fail peer_refused: InvalidAlgorithmParameterException: m | not_checkable raw_material_refused: InvalidAlgorithmParameterException: m
+            ClassCastException | not_checkable key_or_parameters_rejected: ClassCastException: m | not_checkable producer_failed: ClassCastException: m | not_checkable peer_setup_failed: ClassCastException: m | not_checkable peer_setup_failed: ClassCastException: m | not_checkable peer_error: ClassCastException: m | fail call_failed: ClassCastException: m
+            BadPaddingException | fail BadPaddingException: m | not_checkable producer_failed: BadPaddingException: m | not_checkable peer_setup_failed: BadPaddingException: m | not_checkable peer_setup_failed: BadPaddingException: m | fail peer_refused: BadPaddingException: m | fail call_failed: BadPaddingException: m
+            IllegalBlockSizeException | fail IllegalBlockSizeException: m | not_checkable producer_failed: IllegalBlockSizeException: m | not_checkable peer_setup_failed: IllegalBlockSizeException: m | not_checkable peer_setup_failed: IllegalBlockSizeException: m | fail peer_refused: IllegalBlockSizeException: m | fail call_failed: IllegalBlockSizeException: m
+            SignatureException | fail SignatureException: m | not_checkable producer_failed: SignatureException: m | not_checkable peer_setup_failed: SignatureException: m | not_checkable peer_setup_failed: SignatureException: m | fail peer_refused: SignatureException: m | fail call_failed: SignatureException: m
+            IllegalStateException | fail IllegalStateException: verify_failed | not_checkable producer_failed: IllegalStateException: verify_failed | not_checkable peer_setup_failed: IllegalStateException: verify_failed | not_checkable peer_setup_failed: IllegalStateException: verify_failed | not_checkable peer_error: IllegalStateException: verify_failed | fail call_failed: IllegalStateException: verify_failed
+            IllegalStateException | not_checkable error: IllegalStateException: m | not_checkable producer_failed: IllegalStateException: m | not_checkable peer_setup_failed: IllegalStateException: m | not_checkable peer_setup_failed: IllegalStateException: m | not_checkable peer_error: IllegalStateException: m | fail call_failed: IllegalStateException: m
+            NoSuchAlgorithmException | not_checkable error: NoSuchAlgorithmException: m | not_checkable producer_failed: NoSuchAlgorithmException: m | not_checkable peer_unavailable: NoSuchAlgorithmException: m | not_checkable peer_unavailable: NoSuchAlgorithmException: m | not_checkable peer_unavailable: NoSuchAlgorithmException: m | fail call_failed: NoSuchAlgorithmException: m
+            NoSuchPaddingException | not_checkable error: NoSuchPaddingException: m | not_checkable producer_failed: NoSuchPaddingException: m | not_checkable peer_unavailable: NoSuchPaddingException: m | not_checkable peer_unavailable: NoSuchPaddingException: m | not_checkable peer_unavailable: NoSuchPaddingException: m | fail call_failed: NoSuchPaddingException: m
+            InvalidKeySpecException | not_checkable error: InvalidKeySpecException: m | not_checkable producer_failed: InvalidKeySpecException: m | not_checkable peer_key_rejected: InvalidKeySpecException: m | fail peer_key_rejected: InvalidKeySpecException: m | fail peer_refused: InvalidKeySpecException: m | not_checkable raw_material_refused: InvalidKeySpecException: m
+            GeneralSecurityException | not_checkable error: GeneralSecurityException: m | not_checkable producer_failed: GeneralSecurityException: m | not_checkable peer_setup_failed: GeneralSecurityException: m | not_checkable peer_setup_failed: GeneralSecurityException: m | fail peer_refused: GeneralSecurityException: m | fail call_failed: GeneralSecurityException: m
+            BindException | not_checkable error: BindException: bind_failed: p: m | not_checkable producer_failed: BindException: bind_failed: p: m | not_checkable peer_setup_failed: BindException: bind_failed: p: m | not_checkable peer_setup_failed: BindException: bind_failed: p: m | not_checkable peer_error: BindException: bind_failed: p: m | not_checkable raw_material_refused: BindException: bind_failed: p: m
+            PeerRefusal | not_checkable error: PeerRefusal: m | not_checkable producer_failed: PeerRefusal: m | not_checkable peer_code: m | not_checkable peer_code: m | not_checkable peer_code: m | fail call_failed: PeerRefusal: m
+            RuntimeException | not_checkable error: RuntimeException: m | not_checkable producer_failed: RuntimeException: m | not_checkable peer_setup_failed: RuntimeException: m | not_checkable peer_setup_failed: RuntimeException: m | not_checkable peer_error: RuntimeException: m | fail call_failed: RuntimeException: m
         """.trimIndent()
     }
 }

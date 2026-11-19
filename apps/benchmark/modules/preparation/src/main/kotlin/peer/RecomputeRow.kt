@@ -27,17 +27,19 @@ internal object RecomputeRow : PeerRow {
         val (provider, algorithm) = consumer
         when (prepared.case.operation) {
             Operation.COMPUTE_MAC -> {
+                val mac = Mac.getInstance(algorithm, provider)
                 val key = PeerKey.of(prepared.key.secretKeyOrNull!!, provider)
                 val spec = PeerParameters.spec(PeerParameters.used(prepared, null))
-                val mac = Mac.getInstance(algorithm, provider).apply { if (spec == null) init(key) else init(key, spec) }
+                mac.apply { if (spec == null) init(key) else init(key, spec) }
                 return { mac.doFinal(message) }
             }
             Operation.AGREE_KEY -> {
+                val agreement = KeyAgreement.getInstance(algorithm, provider)
                 val pairs = prepared.key.keyPairsOrNull!!
                 val private = PeerKey.of(pairs.first().private, provider) as PrivateKey
                 val public = PeerKey.of(pairs.last().public, provider) as PublicKey
                 val spec = PeerParameters.spec(PeerParameters.used(prepared, null))
-                val agreement = KeyAgreement.getInstance(algorithm, provider).apply { if (spec == null) init(private) else init(private, spec) }
+                agreement.apply { if (spec == null) init(private) else init(private, spec) }
                 return { agreement.doPhase(public, true); agreement.generateSecret() }
             }
             else -> {

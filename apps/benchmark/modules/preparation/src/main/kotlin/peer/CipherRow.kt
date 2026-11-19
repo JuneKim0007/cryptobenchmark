@@ -41,8 +41,9 @@ internal object CipherRow : PeerRow {
     private fun encrypts(produced: ProducedCall) = produced.prepared.case.operation == Operation.ENCRYPT
 
     private fun decrypting(produced: ProducedCall, consumer: Consumer, parameters: Any?): Cipher {
+        val cipher = Cipher.getInstance(consumer.algorithm, consumer.provider)
         val key = PeerKey.of(CipherKeys.decrypting(produced.prepared.key), consumer.provider)
-        return Cipher.getInstance(consumer.algorithm, consumer.provider).apply {
+        return cipher.apply {
             when (parameters) {
                 null -> init(Cipher.DECRYPT_MODE, key)
                 is AlgorithmParameterSpec -> init(Cipher.DECRYPT_MODE, key, parameters)

@@ -113,7 +113,7 @@ class PeerRowsTest {
         )
         assertEquals(listOf(
             "key pair" to "pass",
-            "key pair, consumer without the KeyFactory" to "not_checkable peer_key_rejected: no KeyFactory of SunJCE rebuilds the EC PKCS#8 encoding",
+            "key pair, consumer without the KeyFactory" to "pass",
             "secret key" to "not_checkable no_peer_check: a generated secret key has nothing a peer recomputes",
         ), table)
     }
@@ -133,7 +133,7 @@ class PeerRowsTest {
             "ecdh" to "pass",
             "ecdh, flipped output" to "fail peer_differs: the peer computes other bytes from the same key, parameters and input",
             "dh" to "pass",
-            "ecdh, consumer without ECDH" to "not_checkable peer_key_rejected: no KeyFactory of SunJCE rebuilds the EC PKCS#8 encoding",
+            "ecdh, consumer without ECDH" to "not_checkable peer_unavailable: NoSuchAlgorithmException",
         ), table)
     }
 }

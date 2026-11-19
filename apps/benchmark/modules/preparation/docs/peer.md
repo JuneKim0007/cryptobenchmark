@@ -8,21 +8,36 @@
 |---|---|
 | row | the produced operation's row in `PeerEngine.ROWS`; none: `not_checkable` `no_peer_check` |
 | ready | the row's shape and input checks: `fail` `not_bytes`; `not_checkable` `no_engine_read_back`, `no_ciphertext_input`, `no_key_pair`, `no_signed_input`, `no_key` |
-| setup | the consumer's instance, the key rebuilt by `PeerKey`, the parameters from `PeerParameters`, init |
+| setup | the consumer's instance, the key rebuilt by `PeerKey` (Keys below), the parameters from `PeerParameters`, init |
 | consume | the consumer's call; its result judged by the row: `fail` `peer_differs`, `peer_rejects`; else `pass` |
 | failure | an Exception or LinkageError of setup or consume goes through the `Outcomes` table; any other Error escapes |
 
 ## Outcomes
 
+First matching rule wins. Stages: produce (the producer's own call), setup over an input key, setup over the output key a generator produced, consume.
+
 | stage | exception | verdict |
 |---|---|---|
-| setup | `PeerRefusal` | `not_checkable` with its code |
-| setup | `InvalidKeyException` | `not_checkable` `peer_key_rejected` |
+| produce | any | `not_checkable` `producer_failed` |
+| setup, output key | `PeerRefusal` `peer_key_rejected`, `InvalidKeyException`, `InvalidKeySpecException` | `fail` `peer_key_rejected` |
+| setup, consume | `PeerRefusal` | `not_checkable` with its code |
+| setup | `NoSuchAlgorithmException`, `NoSuchPaddingException`, `NoSuchProviderException` | `not_checkable` `peer_unavailable` |
+| setup | `InvalidKeyException`, `InvalidKeySpecException` | `not_checkable` `peer_key_rejected` |
 | setup | `InvalidAlgorithmParameterException` | `not_checkable` `peer_parameters_rejected` |
-| setup | `NoSuchAlgorithmException`, `NoSuchPaddingException` | `not_checkable` `peer_unavailable` |
 | setup | any other | `not_checkable` `peer_setup_failed` |
+| consume | `NoSuchAlgorithmException`, `NoSuchPaddingException`, `NoSuchProviderException` | `not_checkable` `peer_unavailable` |
 | consume | `GeneralSecurityException` | `fail` `peer_refused` |
 | consume | any other | `not_checkable` `peer_error` |
+
+## Keys
+
+| rule | value |
+|---|---|
+| order | the consumer's instance first, then its key |
+| secret key | raw bytes as a `SecretKeySpec` |
+| public, private key | X.509 or PKCS#8 encoding through the consumer's KeyFactory under the key's name; its refusal is the consumer's |
+| no factory under that name | the consumer's other KeyFactories by sorted name, then the first installed provider's under the key's name that rebuilds it; none: `PeerRefusal` `peer_unavailable` |
+| no encoding | `PeerRefusal` `key_not_extractable` |
 
 ## Rows
 

@@ -85,7 +85,7 @@ apps/benchmark/modules/preparation/src/main/kotlin/peer/Outcome.kt : a peer chec
 apps/benchmark/modules/preparation/src/main/kotlin/peer/Outcomes.kt : the ordered table from a stage and an exception to a verdict and its code
 apps/benchmark/modules/preparation/src/main/kotlin/peer/OutputBytes.kt : a call's output as bytes where it has them (a key's encoding, a pair's public one) and their SHA-256
 apps/benchmark/modules/preparation/src/main/kotlin/peer/PeerEngine.kt : the one peer procedure: the operation's row, its readiness, the consumer's setup and call, failures through Outcomes
-apps/benchmark/modules/preparation/src/main/kotlin/peer/PeerKey.kt : the call's key rebuilt by the consumer's KeyFactory from its encoding; peer_key_rejected
+apps/benchmark/modules/preparation/src/main/kotlin/peer/PeerKey.kt : the call's key rebuilt from its encoding by the consumer's KeyFactory, else another installed provider's; key_not_extractable
 apps/benchmark/modules/preparation/src/main/kotlin/peer/PeerParameters.kt : the parameters the call used, from the engine's report or the case's fixed spec, in a form another provider takes
 apps/benchmark/modules/preparation/src/main/kotlin/peer/PeerRefusal.kt : what a consumer cannot take, with its code
 apps/benchmark/modules/preparation/src/main/kotlin/peer/PeerRow.kt : one operation's peer check: ready, setup, judge
