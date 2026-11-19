@@ -2,6 +2,7 @@ package io.github.junekim0007.cryptobench.preparation
 
 import io.github.junekim0007.cryptobench.document.catalogue.CatalogueOverlays
 import io.github.junekim0007.cryptobench.document.catalogue.FamilyCatalogue
+import io.github.junekim0007.cryptobench.document.catalogue.GroupExemplars
 import io.github.junekim0007.cryptobench.preparation.peer.KeyUse
 import io.github.junekim0007.cryptobench.preparation.port.Availability
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
@@ -9,7 +10,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
 
-/** A generated key's use from a small catalogue: catalogue order, key type folded, Available on both providers, the type's timed operation from the entry's words. */
+/** A generated key's use from a small catalogue and the shipped ones: catalogue order, key type folded, Available on both providers, the type's timed operation from the entry's words. */
 class KeyUseTest {
 
     private val cipher = """
@@ -104,7 +105,7 @@ class KeyUseTest {
         assertNull(KeyUse(jdk, FamilyCatalogue.parse(listOf(pbe))).of("AES", "P", "Q"))
     }
 
-    // the shipped catalogues: every provider registers everything, no build (the base entries)
+    // the shipped catalogues: every provider registers everything, no build (the base entries); groups.yaml's exemplars first
     private val shipped = KeyUse(capability)
 
     private fun generated(generator: String, name: String, keyAlgorithm: String) =
@@ -112,9 +113,9 @@ class KeyUseTest {
 
     @Test
     fun theGeneratorsOwnEntryGivesTheKeyType() {
-        assertEquals("HMAC, HmacSHA256 -> Mac|HMACDSTU7564-256 COMPUTE_MAC", generated("KeyGenerator", "HmacSHA256", "HmacSHA256"))
+        assertEquals("HMAC, HmacSHA256 -> Mac|HmacSHA256 COMPUTE_MAC", generated("KeyGenerator", "HmacSHA256", "HmacSHA256"))
         assertEquals("Ed25519, EdDSA -> Signature|Ed25519 SIGN", generated("KeyPairGenerator", "Ed25519", "EdDSA"))
-        assertEquals("X25519, XDH -> Cipher|XIES ENCRYPT", generated("KeyPairGenerator", "X25519", "XDH"))
+        assertEquals("X25519, XDH -> KeyAgreement|X25519 AGREE_KEY", generated("KeyPairGenerator", "X25519", "XDH"))
         assertEquals("X448, XDH -> KeyAgreement|X448 AGREE_KEY", generated("KeyPairGenerator", "x448", "XDH"))
     }
 
@@ -124,6 +125,17 @@ class KeyUseTest {
         assertEquals("ECDSA -> null", generated("KeyPairGenerator", "ECDSA", "ECDSA"))
         assertEquals("XDH -> null", generated("KeyPairGenerator", "XDH", "XDH"))
         assertEquals("EdDSA -> null", generated("KeyPairGenerator", "EdDSA", "EdDSA"))
-        assertEquals("AES -> Cipher|AES ENCRYPT", generated("KeyGenerator", "Uncatalogued", "AES"))
+        assertEquals("AES -> Cipher|AES/GCM/NoPadding ENCRYPT", generated("KeyGenerator", "Uncatalogued", "AES"))
+    }
+
+    @Test
+    fun anExemplarOneProviderLacksFallsToTheNextThenToCatalogueOrder() {
+        val noIes = object : DeviceCapability by capability {
+            override fun check(provider: String, type: String, algorithm: String): Availability =
+                if (provider == "Q" && (algorithm == "ECIES" || algorithm == "SHA256withECDSA")) Availability.Unavailable("not_registered") else Availability.Available
+        }
+        assertEquals("Cipher|ECIES ENCRYPT", shipped.of("EC", "P", "Q").toString())
+        assertEquals("Cipher|SM2 ENCRYPT", KeyUse(noIes).of("EC", "P", "Q").toString())
+        assertEquals("Cipher|XIES ENCRYPT", KeyUse(noIes, exemplars = GroupExemplars.parse("schemaVersion: 3\ngroups: {}")).of("X25519", "P", "Q").toString())
     }
 }
