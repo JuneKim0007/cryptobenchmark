@@ -33,7 +33,7 @@ config/global.yaml + config/testsets/*.yaml
 | `:jca` | `apps/benchmark/modules/jca` | none | none |
 | `:document` | `apps/benchmark/modules/document` | none | snakeyaml 2.3 |
 | `:environment:discovery` | `apps/benchmark/modules/environment/discovery` | `api :jca`, `implementation :files`, `implementation :document` | none |
-| `:settings` | `apps/benchmark/modules/settings` | none | none |
+| `:settings` | `apps/benchmark/modules/settings` | `api :files` | none |
 | `:config` | `apps/benchmark/modules/config` | `implementation :settings`, `implementation :files`, `implementation :document` | snakeyaml 2.3 |
 | `:preparation` | `apps/benchmark/modules/preparation` | `api :settings`, `api :jca`, `implementation :files`, `implementation :document` | snakeyaml 2.3 |
 | `:benchmark` | `apps/benchmark/modules/benchmark` | `api :preparation`, `implementation :files`, `implementation :document` | snakeyaml 2.3 |

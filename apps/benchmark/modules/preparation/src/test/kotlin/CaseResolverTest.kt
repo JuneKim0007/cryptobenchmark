@@ -163,6 +163,14 @@ class CaseResolverTest {
         assertEquals(listOf("path_not_applicable"), notFixed.rejections.map { it.reason.substringBefore(':') })
     }
 
+    /** A type setup-catalog.yaml lacks has no path to measure: a skip, never a guessed one. */
+    @Test
+    fun aTypeTheCatalogueLacksIsNotInCatalogue() {
+        val kem = resolver.resolve(request(Selection("KEM", "ML-KEM-768", provider = "AndroidOpenSSL")))
+        assertEquals(emptyList<String>(), kem.cases.map { it.id })
+        assertEquals(listOf("not_in_catalogue: KEM has no row in setup-catalog.yaml"), kem.rejections.map { it.reason })
+    }
+
     @Test
     fun aKeySourceOnAnEntryThatTakesNoKeyIsUnused() {
         val digest = Selection("MessageDigest", "SHA-256", provider = "AndroidOpenSSL", keySource = KeySource(provider = "BC"))

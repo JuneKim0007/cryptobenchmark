@@ -1,5 +1,5 @@
 # Per JCA engine type: the paths it applies (`variants`, default [fixed, notFixed]), the key it generates (`generates`), and what a fixed call still does per call (operation | initAndOperation, or byMode / bySuffix choosing one); notFixed is getInstance + init + operation.
-# Source: each engine's JCA API contract; read by config entry/EnginePaths and preparation operation/SetupCatalog; documented in apps/benchmark/modules/preparation/docs/operations.md#variants.
+# Source: each engine's JCA API contract; read by settings EngineRows (config entry/EngineCatalog, preparation operation/SetupCatalog load it); documented in apps/benchmark/modules/preparation/docs/operations.md#variants.
 schemaVersion: 1
 engines:
   MessageDigest: {fixed: operation, contract: "digest() resets the digest for further use"}

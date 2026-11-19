@@ -48,11 +48,10 @@ class SetupCatalogTest {
         val both = listOf(Variant.FIXED, Variant.NOT_FIXED)
         assertEquals(both to emptyList<Variant>(), catalog.paths("Cipher", both))
         assertEquals(listOf(Variant.NOT_FIXED) to emptyList<Variant>(), catalog.paths("Mac", listOf(Variant.NOT_FIXED)))
-        for (generator in listOf("KeyGenerator", "KeyPairGenerator", "Unregistered")) {
+        for (generator in listOf("KeyGenerator", "KeyPairGenerator")) {
             assertEquals(listOf(Variant.FIXED) to listOf(Variant.NOT_FIXED), catalog.paths(generator, both))
-            assertEquals(listOf("fixed", "secure"), catalog.applicable(generator))
         }
-        assertEquals(listOf("fixed", "notFixed"), catalog.applicable("Signature"))
+        assertEquals(emptyList<Variant>() to both, catalog.paths("Unregistered", both))
         assertEquals(PerCall.OPERATION, perCall("KeyGenerator", "AES", Variant.NOT_FIXED))
     }
 
@@ -67,26 +66,10 @@ class SetupCatalogTest {
     }
 
     /** A row's `variants` names its paths; anything but distinct known names is refused, never guessed. */
+    /** A row whose variants hold no notFixed makes its instance once: the call is the operation alone. */
     @Test
-    fun aRowsVariantsListIsItsPaths() {
-        fun row(variants: Any) = SetupCatalog(mapOf("schemaVersion" to 1, "engines" to mapOf("Mac" to mapOf("fixed" to "operation", "variants" to variants))))
-        assertEquals(listOf("fixed"), row(listOf("fixed")).applicable("Mac"))
-        assertEquals(PerCall.OPERATION, row(listOf("fixed")).perCall(BenchmarkCase("Mac", "HmacSHA256", "P", Operation.TYPE_DEFAULT, variant = Variant.NOT_FIXED)))
-        for (bad in listOf(emptyList<String>(), listOf("fast"), listOf("fixed", "fixed"))) {
-            val refused = assertThrows(IllegalArgumentException::class.java) { row(bad).applicable("Mac") }
-            assertTrue(refused.message!!, refused.message!!.startsWith("invalid: setup-catalog.yaml engines.Mac.variants"))
-        }
-    }
-
-    /** The generator of each key kind is the one row naming it; none or two is refused, never guessed. */
-    @Test
-    fun eachKeyKindHasExactlyOneGeneratorRow() {
-        assertEquals("KeyGenerator", catalog.generator(SetupCatalog.SECRET_KEY))
-        assertEquals("KeyPairGenerator", catalog.generator(SetupCatalog.KEY_PAIR))
-        fun rows(vararg types: String) = SetupCatalog(mapOf("schemaVersion" to 1, "engines" to types.associateWith { mapOf("generates" to "keyPair") }))
-        for (bad in listOf(rows(), rows("A", "B"))) {
-            val refused = assertThrows(IllegalArgumentException::class.java) { bad.generator(SetupCatalog.KEY_PAIR) }
-            assertTrue(refused.message!!, refused.message!!.startsWith("invalid: setup-catalog.yaml engines name"))
-        }
+    fun aRowWithoutNotFixedTimesTheOperationAlone() {
+        val row = SetupCatalog(mapOf("schemaVersion" to 1, "engines" to mapOf("Mac" to mapOf("fixed" to "operation", "variants" to listOf("fixed")))))
+        assertEquals(PerCall.OPERATION, row.perCall(BenchmarkCase("Mac", "HmacSHA256", "P", Operation.TYPE_DEFAULT, variant = Variant.NOT_FIXED)))
     }
 }

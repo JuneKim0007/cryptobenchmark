@@ -2,7 +2,6 @@ package io.github.junekim0007.cryptobench.config
 
 import io.github.junekim0007.cryptobench.config.effective.EffectiveBuilder
 import io.github.junekim0007.cryptobench.config.effective.EffectiveDocument
-import io.github.junekim0007.cryptobench.config.entry.EnginePaths
 import io.github.junekim0007.cryptobench.config.global.GlobalDocument
 import io.github.junekim0007.cryptobench.config.inventory.InventoryBuilder
 import io.github.junekim0007.cryptobench.config.inventory.InventoryDocument
@@ -86,19 +85,6 @@ class PathsAndKeySourceTest {
         assertEquals(listOf("fixed"), effective.providers.getValue("SunJCE").getValue("KeyGenerator").getValue("AES").variants)
         assertEquals(listOf("path_not_applicable: SunJCE.KeyGenerator.AES@n applies [fixed, secure], [notFixed] dropped"), effective.skipped.map { it.reason })
         assertEquals(listOf("path_not_applicable: KeyGenerator (1 entry) applies [fixed, secure], [notFixed] dropped"), effective.warnings)
-    }
-
-    @Test
-    fun aTypeTheCatalogueLacksAppliesNoPath() {
-        val paths = EnginePaths(codec.load("schemaVersion: 1\nengines:\n  Mac: {fixed: operation}\n  KeyGenerator: {variants: [fixed, secure], generates: secretKey}\n"))
-        assertEquals(emptyList<String>(), paths.applicable("KEM"))
-        assertEquals(listOf("fixed", "notFixed"), paths.applicable("mac"))
-        assertEquals(listOf("KeyGenerator"), paths.generators)
-        assertEquals(listOf("KeyGenerator"), paths.taking("secure"))
-        val refused = assertThrows(IllegalArgumentException::class.java) {
-            EnginePaths(codec.load("schemaVersion: 1\nengines:\n  Mac: {variants: [fixed, fixed]}\n")).applicable("Mac")
-        }
-        assertEquals("invalid: /setup-catalog.yaml engines.Mac.variants [fixed, fixed], distinct names of [fixed, notFixed, secure]", refused.message)
     }
 
     @Test

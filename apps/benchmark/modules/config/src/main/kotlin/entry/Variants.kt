@@ -25,8 +25,8 @@ object Variants {
     fun valid(values: List<String>): Boolean = values.all { it in NAMES } && values.distinct().size == values.size
 
     /** The asked paths the type's catalogue row applies. */
-    fun runnable(asked: List<String>, type: String): List<String> = asked.filter { it in EnginePaths.catalog.applicable(type) }
+    fun runnable(asked: List<String>, type: String): List<String> = asked.filter { it in EngineCatalog.rows.applicable(type) }
 
     fun secureUnavailable(subject: String): String =
-        "secure_path_unavailable: $SECURE asked by $subject; the hardware-isolated key path runs ${EnginePaths.catalog.taking(SECURE).joinToString()} only"
+        "secure_path_unavailable: $SECURE asked by $subject; the hardware-isolated key path runs ${EngineCatalog.rows.taking(SECURE).joinToString()} only"
 }

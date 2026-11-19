@@ -1227,6 +1227,7 @@ codes:
   not_dry: {kind: error}
   not_finite: {kind: error}
   not_hex: {kind: outcome}
+  not_in_catalogue: {kind: outcome}
   not_in_guide: {kind: error}
   # E11: Kotlin convert drops the row (JetpackResults.kt); perf-repair: a run-log status (device/measured_check.py)
   not_in_plan: {kind: notice}

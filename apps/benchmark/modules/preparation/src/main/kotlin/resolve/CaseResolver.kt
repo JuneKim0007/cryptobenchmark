@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation.resolve
 
+import io.github.junekim0007.cryptobench.settings.EngineRows
 import io.github.junekim0007.cryptobench.files.VariantLabels
 import io.github.junekim0007.cryptobench.preparation.engine.EngineTypes
 import io.github.junekim0007.cryptobench.preparation.key.secure.KeystoreSpec
@@ -30,6 +31,10 @@ class CaseResolver(
                 rejections += Rejection(selection, null, problem)
                 continue
             }
+            if (SetupCatalog.standard.rows.row(selection.type) == null) {
+                rejections += Rejection(selection, null, EngineRows.notInCatalogue(selection.type))
+                continue
+            }
             val asked = selection.variants ?: request.global.variants
             val (applicable, dropped) = SetupCatalog.standard.paths(selection.type, asked)
             val secureRefusal = secureRefusal(selection, applicable).takeIf { Variant.SECURE in applicable }
@@ -40,7 +45,7 @@ class CaseResolver(
             }
             if (variants.isEmpty()) {
                 if (secureRefusal == null) rejections += Rejection(selection, null,
-                    VariantLabels.notApplicable(subject(selection), SetupCatalog.standard.applicable(selection.type), dropped.map { it.label }))
+                    VariantLabels.notApplicable(subject(selection), SetupCatalog.standard.rows.applicable(selection.type), dropped.map { it.label }))
                 continue
             }
             if (selection.keySource.backing != null && Variant.SECURE !in variants) {

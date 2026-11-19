@@ -7,7 +7,7 @@ import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveEntry
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveSource
 import io.github.junekim0007.cryptobench.config.effective.dto.EntryOrigin
 import io.github.junekim0007.cryptobench.settings.Skip
-import io.github.junekim0007.cryptobench.config.entry.EnginePaths
+import io.github.junekim0007.cryptobench.config.entry.EngineCatalog
 import io.github.junekim0007.cryptobench.config.entry.KeySource
 import io.github.junekim0007.cryptobench.config.entry.Variants
 import io.github.junekim0007.cryptobench.config.global.dto.GlobalConfig
@@ -45,7 +45,7 @@ class EffectiveBuilder {
             warnings = inventory.warnings + global.notices + testSet.notices + warnings(excludes, included, testSet.overrides, groups) +
                 runUnsupported.map { it.toString() } + entries.warnings + warmupWarnings +
                 entries.dropped.map { (typePath, count) -> VariantLabels.notApplicable("${typePath.first} ($count ${if (count == 1) "entry" else "entries"})",
-                    EnginePaths.catalog.applicable(typePath.first), listOf(typePath.second)) } +
+                    EngineCatalog.rows.applicable(typePath.first), listOf(typePath.second)) } +
                 listOfNotNull(entries.secureAsked.takeIf { it > 0 }?.let { Variants.secureUnavailable("$it entries") }),
             analysis = global.analysis,
             bundledProviders = global.providers.bundled,
@@ -69,7 +69,7 @@ class EffectiveBuilder {
     private fun runnableGroups(testSet: TestSet, located: Inventory.Located, resolver: OverrideResolver, runVariants: List<String>): List<String?> {
         val names = groupsOf(testSet, located)
         if (located.entry.runs) return names
-        if (Variants.SECURE !in EnginePaths.catalog.applicable(located.type)) return emptyList()
+        if (Variants.SECURE !in EngineCatalog.rows.applicable(located.type)) return emptyList()
         return names.filter { Variants.SECURE in resolver.resolve(located, it).variants.ifEmpty { runVariants } }
     }
 
@@ -135,7 +135,7 @@ class EffectiveBuilder {
 
     private fun notRunnable(located: Inventory.Located, key: String, asked: List<String>): String {
         val subject = "${located.provider}.${located.type}.$key"
-        val applies = EnginePaths.catalog.applicable(located.type)
+        val applies = EngineCatalog.rows.applicable(located.type)
         val dropped = asked - applies.toSet()
         return if (dropped == listOf(Variants.SECURE) && applies.isNotEmpty()) Variants.secureUnavailable("$subject alone")
             else VariantLabels.notApplicable(subject, applies, dropped)

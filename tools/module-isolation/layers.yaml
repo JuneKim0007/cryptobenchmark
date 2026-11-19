@@ -14,16 +14,17 @@ modules:
       files: all
       document: all
   settings:
-    uses: {}
+    uses:
+      files: [FileNames, VariantLabels]
   config:
     uses:
-      settings: [EnergySettings, Facts, HarnessSettings, Metric, OnFailure, Phase, RunKeys, Skip, StoppedOnFailureException, Unsupported]
+      settings: [EnergySettings, EngineRows, Facts, HarnessSettings, Metric, OnFailure, Phase, RunKeys, Skip, StoppedOnFailureException, Unsupported]
       files: all
       document: all
   preparation:
     uses:
       jca: [failure.Attempt, failure.ErrorText, reflect.Reflect]
-      settings: [HarnessSettings, Metric, OnFailure, Phase, RunKeys, Skip, StoppedOnFailureException]
+      settings: [EngineRows, HarnessSettings, Metric, OnFailure, Phase, RunKeys, Skip, StoppedOnFailureException]
       files: all
       document: all
   benchmark:

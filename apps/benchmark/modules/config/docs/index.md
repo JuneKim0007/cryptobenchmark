@@ -30,7 +30,7 @@ apps/benchmark/modules/config/src/main/kotlin/effective/dto/EffectiveEntry.kt : 
 apps/benchmark/modules/config/src/main/kotlin/effective/dto/EffectiveSource.kt : generatedFrom of effective.yaml, with the layers and each setting's source
 apps/benchmark/modules/config/src/main/kotlin/effective/dto/EntryOrigin.kt : the test-set file and includes that selected an effective entry
 apps/benchmark/modules/config/src/main/kotlin/effective/dto/Report.kt : run id, warnings and skips of one effective build
-apps/benchmark/modules/config/src/main/kotlin/entry/EnginePaths.kt : setup-catalog.yaml's rows as config reads them: the paths a type applies, the generator types
+apps/benchmark/modules/config/src/main/kotlin/entry/EngineCatalog.kt : setup-catalog.yaml from the classpath root as EngineRows, read once
 apps/benchmark/modules/config/src/main/kotlin/entry/EntryKeys.kt : per-primitive key names shared by test-set overrides and effective entries
 apps/benchmark/modules/config/src/main/kotlin/entry/KeySource.kt : a key's written algorithm and provider checked against the inventory's generators, its backing against tee and strongbox
 apps/benchmark/modules/config/src/main/kotlin/entry/Variants.kt : variants names, the [fixed] fallback and its notice, the asked paths a type runs, the secure_path_unavailable text

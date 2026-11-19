@@ -1,7 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation.operation
 
-import io.github.junekim0007.cryptobench.files.FileNames
-import io.github.junekim0007.cryptobench.preparation.engine.EngineTypeName
+import io.github.junekim0007.cryptobench.settings.EngineRows
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.measurement.Variant
 import io.github.junekim0007.cryptobench.document.DocumentFields
@@ -11,37 +10,17 @@ import java.util.Locale
 /** setup-catalog.yaml: per engine type, cipher mode or name suffix, what a fixed call still does; notFixed always makes the instance per call. */
 internal class SetupCatalog(document: Map<String, Any>) {
 
-    private val rows: Map<String, Map<String, Any>> = DocumentFields.section(document, "engines")
-        .entries.associate { (type, row) -> type to DocumentFields.asSection(row, "engines.$type") }
-
-    private val engines: Map<String, Map<String, Any>> = rows.mapKeys { EngineTypeName.fold(it.key) }
-
-    private val generators: Map<String, List<String>> = rows.entries
-        .mapNotNull { (type, row) -> row[GENERATES]?.let { it.toString() to type } }
-        .groupBy({ it.first }, { it.second })
-
-    /** The engine type whose row generates [kind] (SECRET_KEY, KEY_PAIR). */
-    fun generator(kind: String): String = generators[kind]?.singleOrNull()
-        ?: throw IllegalArgumentException("invalid: $RESOURCE engines name ${generators[kind] ?: "no type"} with $GENERATES: $kind, exactly one wanted")
+    val rows = EngineRows(document)
 
     /** The asked paths this type's row applies, then the asked ones it does not. */
     fun paths(type: String, asked: List<Variant>): Pair<List<Variant>, List<Variant>> =
-        asked.partition { it.label in applicable(type) }
-
-    // a row's `variants` list (key generation: fixed and secure); a row without one: fixed and notFixed; a type the catalog lacks: fixed and secure
-    fun applicable(type: String): List<String> {
-        val row = engines[EngineTypeName.fold(type)] ?: return GENERATION
-        if (VARIANTS !in row) return OPERATION
-        val paths = DocumentFields.strings(row, VARIANTS)
-        require(paths.isNotEmpty() && paths.all { it in PATHS } && paths.distinct() == paths) { "invalid: $RESOURCE engines.$type.$VARIANTS $paths, distinct names of $PATHS" }
-        return paths
-    }
+        asked.partition { it.label in rows.applicable(type) }
 
     // hasIv is asked only for a cipher transformation without a mode
     fun perCall(case: BenchmarkCase, hasIv: () -> Boolean = { false }): PerCall {
         if (single(case.type)) return PerCall.OPERATION
         if (case.variant == Variant.NOT_FIXED) return PerCall.INSTANCE_INIT_AND_OPERATION
-        val row = engines.getValue(EngineTypeName.fold(case.type))
+        val row = DocumentFields.asSection(rows.row(case.type) ?: throw IllegalArgumentException(EngineRows.notInCatalogue(case.type)), "engines.${case.type}")
         val fixed = DocumentFields.string(row, FIXED)
         if (fixed == BY_SUFFIX) return bySuffix(row, case.algorithm.uppercase(Locale.ROOT))
         if (fixed != BY_MODE) return PerCall.of(fixed)
@@ -62,21 +41,14 @@ internal class SetupCatalog(document: Map<String, Any>) {
     }
 
     // a type with no notFixed path makes its instance once: the call is the operation alone
-    private fun single(type: String): Boolean = Variant.NOT_FIXED.label !in applicable(type)
+    private fun single(type: String): Boolean = Variant.NOT_FIXED.label !in rows.applicable(type)
 
     companion object {
 
         private const val FIXED = "fixed"
-        private const val VARIANTS = "variants"
-        private const val GENERATES = "generates"
-        const val SECRET_KEY = "secretKey"
-        const val KEY_PAIR = "keyPair"
-        private val PATHS = Variant.entries.map { it.label }
-        private val GENERATION = listOf(Variant.FIXED.label, Variant.SECURE.label)
-        private val OPERATION = listOf(Variant.FIXED.label, Variant.NOT_FIXED.label)
         private const val BY_MODE = "byMode"
         private const val BY_SUFFIX = "bySuffix"
-        const val RESOURCE = FileNames.SETUP_CATALOG
+        const val RESOURCE = EngineRows.RESOURCE
 
         val standard: SetupCatalog by lazy {
             val text = SetupCatalog::class.java.getResourceAsStream(RESOURCE)?.use { it.readBytes().toString(Charsets.UTF_8) }
