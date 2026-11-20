@@ -8,7 +8,7 @@ import io.github.junekim0007.cryptobench.preparation.port.Availability
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
 import java.util.Locale
 
-/** A generated key's use: its key type from the generator's own entry, else the key's name; the families' exemplars, then catalogue order, each by type (Signature, Cipher, Mac, KeyAgreement), the first entry of that key type, as each provider's build sees it, Available on both, with an operation the harness times. */
+/** A generated key's use: its key type from the generator's own entry, else the key's name, each read through the names file's keyTypes; the families' exemplars, then catalogue order, each by type (Signature, Cipher, Mac, KeyAgreement), the first entry of that key type, as each provider's build sees it, Available on both, with an operation the harness times. */
 internal class KeyUse(
     private val capability: DeviceCapability,
     private val catalogue: FamilyCatalogue = bundled,
@@ -24,16 +24,17 @@ internal class KeyUse(
     fun of(generator: String, generatorAlgorithm: String, keyAlgorithm: String, producer: String, consumer: String): Found {
         val ownType = catalogue.of(generator, generatorAlgorithm)?.takeIf { it.family in GENERATORS }
             ?.let { keyType(it, catalogue.build(producer, capability.platform)) }
-        val keyTypes = listOfNotNull(ownType, keyAlgorithm).distinctBy { it.uppercase(Locale.ROOT) }
+        val keyTypes = listOfNotNull(ownType, keyAlgorithm).map { catalogue.names.keyType(it).name }.distinctBy { it.uppercase(Locale.ROOT) }
         return Found(keyTypes.firstNotNullOfOrNull { of(it, producer, consumer) }, keyTypes)
     }
 
     fun of(keyType: String, producer: String, consumer: String): Use? {
+        val wanted = catalogue.names.keyType(keyType).name
         val builds = listOf(producer, consumer).map { catalogue.build(it, capability.platform) }
         val preferred = FAMILIES.flatMap(exemplars::of).mapNotNull { id -> catalogue.of(id.substringBefore('|'), id.substringAfter('|')) }
         return listOf(preferred, catalogue.entries).asSequence().flatMap { tier -> TYPES.flatMap { type -> tier.filter { it.type == type } } }
             .filter { it.family in FAMILIES }
-            .filter { entry -> builds.all { keyType(entry, it).equals(keyType, ignoreCase = true) } }
+            .filter { entry -> builds.all { keyType(entry, it)?.let(catalogue.names::keyType)?.name.equals(wanted, ignoreCase = true) } }
             .filter { entry -> listOf(producer, consumer).all { capability.check(it, entry.type, entry.name) == Availability.Available } }
             .firstNotNullOfOrNull { entry -> operation(entry)?.let { Use(entry.type, entry.name, it) } }
     }

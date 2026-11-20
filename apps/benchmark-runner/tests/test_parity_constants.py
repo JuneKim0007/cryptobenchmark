@@ -175,7 +175,7 @@ def test_schema_versions_across_the_boundary():
         (energy.SCHEMA_VERSION, number("benchmark/src/main/kotlin/report/energy/EnergyWindows.kt", "SCHEMA_VERSION")),
         (preflight.capability({}, {}, 1, 1, False)["schemaVersion"], capability_version()),
         (manafa_written_version(), capability_version()),
-        (names.SCHEMA_VERSION, number("config/src/main/kotlin/names/AlgorithmNames.kt", "SCHEMA_VERSION")),
+        (names.SCHEMA_VERSION, number("document/src/main/kotlin/names/AlgorithmNames.kt", "SCHEMA_VERSION")),
         (facts.FACTS_DOC.version, number("settings/src/main/kotlin/Facts.kt", "SCHEMA_VERSION")),
         (skipped.SKIPPED_DOC.version, number("preparation/src/main/kotlin/report/SkipFile.kt", "SCHEMA_VERSION")),
         (skipped.REPORT_DOC.version, int(kotlin("config/src/main/kotlin/effective/ReportDocument.kt", r"override val schemaVersion: Int = (\d+)"))),

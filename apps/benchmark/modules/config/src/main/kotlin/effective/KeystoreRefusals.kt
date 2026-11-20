@@ -3,7 +3,7 @@ package io.github.junekim0007.cryptobench.config.effective
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveEntry
 import io.github.junekim0007.cryptobench.config.entry.KeySource
 import io.github.junekim0007.cryptobench.config.inventory.dto.Inventory
-import io.github.junekim0007.cryptobench.config.names.AlgorithmNames
+import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 
 /** A secure entry against the keystore trial: the key sizes it keeps, and the trial's coded refusal of each row it refused. A row the trial lacks keeps its size. */
 object KeystoreRefusals {

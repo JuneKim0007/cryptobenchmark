@@ -57,7 +57,7 @@ CONTRACT = {
     ENERGY_CAPABILITY: "FileNames.ENERGY_CAPABILITY", ENERGY_JSON: "FileNames.ENERGY_JSON", ENERGY_DRY: "FileNames.ENERGY_DRY",
     INVENTORY: "FileNames.INVENTORY", EFFECTIVE: "FileNames.EFFECTIVE", CONFIG_REPORT: "FileNames.CONFIG_REPORT", GUIDE: "FileNames.GUIDE",
     PREPARED: "FileNames.PREPARED", SKIPPED: "FileNames.SKIPPED", INTEROP_RESULT: "FileNames.INTEROP_RESULT", INTEROP_PLAN: "FileNames.INTEROP_PLAN",
-    CPU_PINS: "FileNames.CPU_PINS", SCOPED_INTEROP: "FileNames.SCOPED_INTEROP", ALGORITHM_NAMES: "FileNames.ALGORITHM_NAMES",
+    CPU_PINS: "FileNames.CPU_PINS", SCOPED_INTEROP: "FileNames.SCOPED_INTEROP",
     ENGINE_OPERATIONS: "FileNames.ENGINE_OPERATIONS", SETUP_CATALOG: "FileNames.SETUP_CATALOG",
 }
 # Shared too, but ordinary words or an authored name other tools also spell: compared with Kotlin, not banned as Python literals.

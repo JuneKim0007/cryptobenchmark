@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.config.testset.dto
 
-import io.github.junekim0007.cryptobench.config.names.AlgorithmNames
+import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 
 data class Rule(
     val provider: String? = null,

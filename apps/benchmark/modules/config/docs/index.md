@@ -58,8 +58,6 @@ apps/benchmark/modules/config/src/main/kotlin/inventory/dto/InventoryEntry.kt : 
 apps/benchmark/modules/config/src/main/kotlin/inventory/dto/InventorySource.kt : inventory provenance
 apps/benchmark/modules/config/src/main/kotlin/layers/LayerStack.kt : a composition's layers merged by MERGE_RULES with each leaf's layer; a plain file is a stack of one; nested layers refused
 apps/benchmark/modules/config/src/main/kotlin/layers/Provenance.kt : generatedFrom.settings from the written sections and the stack; a parse failure named with its layer
-apps/benchmark/modules/config/src/main/kotlin/names/AlgorithmNames.kt : algorithm-names.yaml reader: canonical name and key size, rule name match, identifier fold
-apps/benchmark/modules/config/src/main/kotlin/names/dto/Canonical.kt : canonical name, key-size constraint, catalogued or not
 apps/benchmark/modules/config/src/main/kotlin/source/CaptureSource.kt : reads a discovery capture file as CaptureView
 apps/benchmark/modules/config/src/main/kotlin/source/CaptureView.kt : capture fields config uses: time, runtime, provider order, each service's aliases
 apps/benchmark/modules/config/src/main/kotlin/source/KeystoreRow.kt : one keystore trial row: provider, type, algorithm, backing, size or curve, supported or the coded error
@@ -77,7 +75,7 @@ apps/benchmark/modules/config/src/main/kotlin/yaml/ProviderTree.kt : provider to
 apps/benchmark/modules/config/src/main/kotlin/yaml/ReadOnlyYamlFile.kt : read with missing, parse and schemaVersion checks
 apps/benchmark/modules/config/src/main/kotlin/yaml/YamlFile.kt : stamped schemaVersion, written through :document AtomicFile
 apps/benchmark/modules/config/src/main/kotlin/yaml/YamlFiles.kt : factory for YamlFile and ReadOnlyYamlFile
-apps/benchmark/modules/config/src/test/kotlin/AlgorithmNamesTest.kt : the cases shared with perf-repair, every catalogued spelling, inventory duplicates, rule names
+apps/benchmark/modules/config/src/test/kotlin/AlgorithmNamesTest.kt : document's AlgorithmNames: the cases shared with perf-repair, every catalogued spelling, key types, linkage refusals, inventory duplicates, rule names
 apps/benchmark/modules/config/src/test/kotlin/AuthoredFilesTest.kt : a typo key or a bad providers.bundled stops the parse-only read
 apps/benchmark/modules/config/src/test/kotlin/CommittedConfigTest.kt : committed config/ files parse
 apps/benchmark/modules/config/src/test/kotlin/ConfigurationTest.kt : facade tests

@@ -36,7 +36,7 @@ cryptobench/shared/catalogue/grouping.py : Family, Item (key: what a record name
 cryptobench/shared/catalogue/groups.py : reader of groups.yaml, checked whole: one group per family by id, contract rows from each member's catalogue contract, a row at each key contract
 cryptobench/shared/catalogue/guide_items.py : guide_items: what the guide says for one effective.yaml's items at this device's builds
 cryptobench/shared/catalogue/interchange.py : reader of interchange.yaml: engines, rules by canonical name; a component outside its splits is refused
-cryptobench/shared/catalogue/names.py : the names reader: Canonical (name, keySize, known), engine types (what detection scans), fold, same_engine, key formats, name_conflict, key_or_spelling (a conflict keys by its spelling)
+cryptobench/shared/catalogue/names.py : the names reader: Canonical (name, keySize, known), engine types (what detection scans), fold, same_engine, key formats, key types, linkage refusals (sized and named, OID. split), name_conflict, key_or_spelling (a conflict keys by its spelling)
 cryptobench/shared/catalogue/overrides.py : a provider override's path in an entry, and one build's differences applied to a copy
 cryptobench/shared/catalogue/provider_builds.py : reads provider-builds.yaml; a build key from what a probe records; a name resolves to one key or is provider_build_unknown
 cryptobench/shared/catalogue/recipes.py : reads recipes.yaml, checked whole: one form per recipe, every word and each role's make and lives against the glossary, typed arguments, nested recipes present; the roles a recipe passes

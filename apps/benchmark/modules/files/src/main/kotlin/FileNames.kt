@@ -19,7 +19,6 @@ object FileNames {
     const val INTEROP_RESULT = "interop.yaml"
     const val SCOPED_INTEROP = "scoped-interop.yaml"
     const val CPU_PINS = "cpu-pins.yaml"
-    const val ALGORITHM_NAMES = "algorithm-names.yaml"
     const val ENGINE_OPERATIONS = "engine-operations.yaml"
     const val SETUP_CATALOG = "setup-catalog.yaml"
 }

@@ -3,9 +3,9 @@ package io.github.junekim0007.cryptobench.config.inventory
 import io.github.junekim0007.cryptobench.config.inventory.dto.Inventory
 import io.github.junekim0007.cryptobench.config.inventory.dto.InventoryEntry
 import io.github.junekim0007.cryptobench.config.inventory.dto.InventorySource
-import io.github.junekim0007.cryptobench.config.names.AlgorithmNames
 import io.github.junekim0007.cryptobench.config.source.CaptureView
 import io.github.junekim0007.cryptobench.config.source.TrialView
+import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 
 class InventoryBuilder {
 

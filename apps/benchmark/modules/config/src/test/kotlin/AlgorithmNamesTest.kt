@@ -3,10 +3,10 @@ package io.github.junekim0007.cryptobench.config
 import io.github.junekim0007.cryptobench.config.inventory.dto.Inventory
 import io.github.junekim0007.cryptobench.config.inventory.dto.InventoryEntry
 import io.github.junekim0007.cryptobench.config.inventory.dto.InventorySource
-import io.github.junekim0007.cryptobench.config.names.AlgorithmNames
-import io.github.junekim0007.cryptobench.config.names.dto.Canonical
 import io.github.junekim0007.cryptobench.config.testset.dto.Rule
 import io.github.junekim0007.cryptobench.document.YamlCodec
+import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
+import io.github.junekim0007.cryptobench.document.names.dto.Canonical
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
@@ -43,7 +43,7 @@ class AlgorithmNamesTest {
     @Suppress("UNCHECKED_CAST")
     @Test
     fun everyCataloguedSpellingResolvesToItsCanonicalName() {
-        val text = AlgorithmNames::class.java.getResource(AlgorithmNames.RESOURCE)!!.readText()
+        val text = AlgorithmNames::class.java.getResource(AlgorithmNames.FILE)!!.readText()
         val catalog = YamlCodec.DOCUMENT.load(text)["names"] as Map<String, Map<String, List<String>?>>
         for ((type, spellings) in catalog) {
             for ((canonical, aliases) in spellings) {

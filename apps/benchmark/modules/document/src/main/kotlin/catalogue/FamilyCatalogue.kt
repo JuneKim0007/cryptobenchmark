@@ -2,10 +2,11 @@ package io.github.junekim0007.cryptobench.document.catalogue
 
 import io.github.junekim0007.cryptobench.document.DocumentFields
 import io.github.junekim0007.cryptobench.document.YamlCodec
+import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 import java.util.Locale
 
-/** algorithms/<family>_catalogue.yaml read whole: each entry by type and name, its fields as one provider build runs it, the entry's own providers section over [CatalogueOverlays] as the guide's reader applies them. */
-class FamilyCatalogue(val entries: List<Entry>, private val overlays: CatalogueOverlays = CatalogueOverlays.NONE) {
+/** algorithms/<family>_catalogue.yaml read whole: each entry by type and any spelling of its name, its fields as one provider build runs it, the entry's own providers section over [CatalogueOverlays] as the guide's reader applies them. */
+class FamilyCatalogue(val entries: List<Entry>, private val overlays: CatalogueOverlays = CatalogueOverlays.NONE, val names: AlgorithmNames = AlgorithmNames.catalog) {
 
     class Entry(val family: String, val type: String, val name: String, private val fields: Map<String, Any?>, private val builds: Map<String, Map<String, Any?>>) {
 
@@ -25,7 +26,7 @@ class FamilyCatalogue(val entries: List<Entry>, private val overlays: CatalogueO
 
     private val byId = entries.associateBy { fold(it.id) }
 
-    fun of(type: String, name: String): Entry? = byId[fold("$type|$name")]
+    fun of(type: String, name: String): Entry? = byId[fold("$type|${names.canonical(type, name).name}")]
 
     /** The build a provider runs as on this platform, whose view [Entry.fields] gives; null: the base entry. */
     fun build(provider: String, platform: String?): String? = overlays.build(provider, platform)

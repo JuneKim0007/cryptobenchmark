@@ -1,9 +1,8 @@
-package io.github.junekim0007.cryptobench.config.names
+package io.github.junekim0007.cryptobench.document.names
 
 import io.github.junekim0007.cryptobench.document.SchemaVersion
-import io.github.junekim0007.cryptobench.config.names.dto.Canonical
 import io.github.junekim0007.cryptobench.document.YamlCodec
-import io.github.junekim0007.cryptobench.files.FileNames
+import io.github.junekim0007.cryptobench.document.names.dto.Canonical
 import java.util.Locale
 
 class AlgorithmNames private constructor(
@@ -65,13 +64,13 @@ class AlgorithmNames private constructor(
 
     companion object {
 
-        const val RESOURCE = "/" + FileNames.ALGORITHM_NAMES
+        const val FILE = "algorithm-names.yaml"
         private const val SCHEMA_VERSION = 1
         private const val OID_PREFIX = "OID."
 
         val catalog: AlgorithmNames by lazy {
-            val text = AlgorithmNames::class.java.getResource(RESOURCE)?.readText()
-                ?: throw IllegalStateException("names_catalog_missing: $RESOURCE is not on the classpath")
+            val text = AlgorithmNames::class.java.getResource(FILE)?.readText()
+                ?: throw IllegalStateException("names_catalog_missing: $FILE is not beside ${AlgorithmNames::class.java.name}")
             parse(YamlCodec.DOCUMENT.load(text))
         }
 
@@ -79,7 +78,7 @@ class AlgorithmNames private constructor(
 
         @Suppress("UNCHECKED_CAST")
         fun parse(document: Map<String, Any>): AlgorithmNames {
-            SchemaVersion.require(document, SCHEMA_VERSION, FileNames.ALGORITHM_NAMES)
+            SchemaVersion.require(document, SCHEMA_VERSION, FILE)
             val names = (document["names"] as Map<String, Map<String, List<String>?>>).mapValues { (_, spellings) -> folded(spellings) }
             val sized = (document["sized"] as Map<String, Map<String, Map<String, Any>>>? ?: emptyMap()).mapValues { (_, rows) ->
                 rows.entries.associate { (spelling, row) -> fold(spelling) to Canonical(row["name"] as String, row["keySize"] as Int) }

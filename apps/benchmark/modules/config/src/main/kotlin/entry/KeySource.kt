@@ -1,7 +1,7 @@
 package io.github.junekim0007.cryptobench.config.entry
 
 import io.github.junekim0007.cryptobench.config.inventory.dto.Inventory
-import io.github.junekim0007.cryptobench.config.names.AlgorithmNames
+import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 
 /** An entry key's algorithm, provider and backing, beside its spec: written ones checked; neither algorithm nor provider written leaves the measured key. */
 object KeySource {

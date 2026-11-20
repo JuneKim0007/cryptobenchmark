@@ -61,6 +61,7 @@ class KeyUseTest {
         assertEquals("Cipher|AES ENCRYPT", picked("AES"))
         assertEquals("Cipher|AES/OnlyP ENCRYPT", picked("AES", consumer = "P"))
         assertEquals("KeyAgreement|ECDH AGREE_KEY", picked("ec"))
+        assertEquals("KeyAgreement|ECDH AGREE_KEY", picked("ECDSA"))
         assertNull(picked("HmacSHA256"))
         assertNull(picked("RSA"))
     }
@@ -117,12 +118,13 @@ class KeyUseTest {
         assertEquals("Ed25519, EdDSA -> Signature|Ed25519 SIGN", generated("KeyPairGenerator", "Ed25519", "EdDSA"))
         assertEquals("X25519, XDH -> KeyAgreement|X25519 AGREE_KEY", generated("KeyPairGenerator", "X25519", "XDH"))
         assertEquals("X448, XDH -> KeyAgreement|X448 AGREE_KEY", generated("KeyPairGenerator", "x448", "XDH"))
+        assertEquals("X25519, XDH -> KeyAgreement|X25519 AGREE_KEY", generated("KeyPairGenerator", "OID.1.3.101.110", "XDH"))
     }
 
     @Test
     fun aKeyNamedOtherwiseThanItsGeneratorsType() {
-        assertEquals("EC, ECDSA -> Signature|SHA256withECDSA SIGN", generated("KeyPairGenerator", "EC", "ECDSA"))
-        assertEquals("EC, ECDSA -> Signature|SHA256withECDSA SIGN", generated("KeyPairGenerator", "ECDSA", "ECDSA"))
+        assertEquals("EC -> Signature|SHA256withECDSA SIGN", generated("KeyPairGenerator", "EC", "ECDSA"))
+        assertEquals("EC -> Signature|SHA256withECDSA SIGN", generated("KeyPairGenerator", "ECDSA", "ECDSA"))
         assertEquals("X25519, XDH -> KeyAgreement|X25519 AGREE_KEY", generated("KeyPairGenerator", "XDH", "XDH"))
         assertEquals("Ed25519, EdDSA -> Signature|Ed25519 SIGN", generated("KeyPairGenerator", "EdDSA", "EdDSA"))
         assertEquals("XWING -> null", generated("KeyPairGenerator", "XWING", "XWING"))
