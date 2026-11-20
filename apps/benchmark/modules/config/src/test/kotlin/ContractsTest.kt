@@ -83,6 +83,7 @@ class ContractsTest {
         assertEquals(Canonical("DESede"), names.canonical("Cipher", "tripledes"))
         assertEquals(Canonical("AES", 256), names.canonical("Cipher", "AES_256"))
         assertEquals(Canonical("NotAnAlgorithm", null, false), names.canonical("Cipher", "NotAnAlgorithm"))
+        assertEquals(Canonical("EC"), names.keyType("ecdsa"))
     }
 
     // an update run writes the examples and their .json; only a plain run checks them

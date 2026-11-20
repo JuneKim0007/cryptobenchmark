@@ -10,6 +10,7 @@ class AlgorithmNames private constructor(
     private val names: Map<String, Map<String, String>>,
     private val sized: Map<String, Map<String, Canonical>>,
     private val transformations: Map<String, Transformation>,
+    private val keyTypes: Map<String, String>,
 ) {
 
     private class Transformation(
@@ -26,6 +27,9 @@ class AlgorithmNames private constructor(
         }
         return transformation(type, name)
     }
+
+    /** The key type a Key.getAlgorithm() spelling or a catalogue key.type names. */
+    fun keyType(name: String): Canonical = keyTypes[fold(name)]?.let { Canonical(it) } ?: Canonical(name, null, false)
 
     fun key(type: String, name: String): Pair<String, Int?> = canonical(type, name).let { fold(it.name) to it.keySize }
 
@@ -89,7 +93,7 @@ class AlgorithmNames private constructor(
                 )
             }
             checkLinks(names, sized)
-            return AlgorithmNames(names, sized, transformations)
+            return AlgorithmNames(names, sized, transformations, folded(document["keyTypes"] as Map<String, List<String>?>? ?: emptyMap()))
         }
 
         // a spelling is sized or named, never both; an OID. spelling names what its bare OID names

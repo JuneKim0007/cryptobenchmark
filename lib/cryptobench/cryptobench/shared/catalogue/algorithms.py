@@ -361,14 +361,27 @@ def _accepts(raw: dict, size: int) -> bool:
     return option is not None and size in (option.get("accepted") or [size])
 
 
+def _key_types(e: Entry) -> set[str]:
+    builds = [b.get("key.type") for b in (e.raw.get("providers") or {}).values() if isinstance(b, dict)]
+    return {t for t in [(e.raw.get("key") or {}).get("type"), *builds] if isinstance(t, str)}
+
+
+def _key_type_problem(names: Names, key_type: str) -> str | None:
+    found = names.key_type(key_type)
+    if key_type == KEY_NONE or (found.known and found.name == key_type):
+        return None
+    return f"key.type {key_type} is not a keyTypes name" + (f", the names file gives {found.name}" if found.known else "")
+
+
 def _linkage_problems(entries: list[Entry], names: Names, engine_types: set[str]) -> list[str]:
-    """Each id is its own canonical name; each sized spelling of a catalogued type links to an entry that takes its size."""
+    """Each id is its own canonical name and each key.type a keyTypes name on every build (deviations already overlaid); each sized spelling of a catalogued type links to an entry that takes its size."""
     by_id = {fold(e.id): e for e in entries}
     problems = []
     for e in (e for e in entries if split_id(e.id)):
         found = names.catalogued(e.type, e.canonical)
         if not found.known or found.name != e.canonical or found.keySize is not None:
             problems.append(f"{e.id}: id not canonical, the names file gives {found.name} keySize {found.keySize}")
+        problems += [f"{e.id}: {p}" for p in (_key_type_problem(names, t) for t in sorted(_key_types(e))) if p]
     for t in sorted(engine_types):
         for spelling, sized in sorted(names.sized.get(t, {}).items()):
             entry = by_id.get(fold(algorithm_id(t, sized.name)))

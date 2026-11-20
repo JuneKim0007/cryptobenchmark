@@ -36,7 +36,7 @@ algorithm:
       inferred: Reasoned only; no run or citation backs it yet.
   url: {means: The citation of a sourced value., format: url}
   key:
-    type: {means: The key algorithm the call accepts; for a pair the name a KeyPairGenerator takes., format: text}
+    type: {means: 'The key type the call accepts: a `keyTypes` name of algorithm-names.yaml, or none when the call takes no key.', format: text}
     bytes: {means: Accepted secret key lengths in bytes, each listed., format: number}
     origin:
       means: Where the key comes from.
@@ -450,4 +450,5 @@ names:
     paddings: {means: The paddings a transformation may name., format: text}
     paddingSynonyms: {means: 'Per algorithm, a padding spelling and the padding it is.', format: text}
     modeSynonyms: {means: 'Per algorithm, a mode spelling and the mode it is.', format: text}
+  keyTypes: {means: 'Per key type, the spellings Key.getAlgorithm() returns for it.', format: text}
   keyFormats: {means: The key encodings a key's format may name., format: text}

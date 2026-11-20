@@ -95,11 +95,12 @@ def test_the_facts_writer_writes_the_shared_facts(tmp_path, monkeypatch):
 def test_the_names_file_passes_the_python_reader_and_resolves_as_kotlin_resolves_it():
     assert NAMES_DOC.read(paths.repo().algorithms / paths.ALGORITHM_NAMES)["schemaVersion"] == 1
     names = Names.load(paths.repo().algorithms / paths.ALGORITHM_NAMES)
-    # the same four lookups AlgorithmNames answers in the config module's ContractsTest
+    # the same five lookups AlgorithmNames answers in the config module's ContractsTest
     assert names.canonical("MessageDigest", "sha") == Canonical("SHA-1")
     assert names.canonical("Cipher", "tripledes") == Canonical("DESede")
     assert names.canonical("Cipher", "AES_256") == Canonical("AES", 256)
     assert names.canonical("Cipher", "NotAnAlgorithm") == Canonical("NotAnAlgorithm", None, False)
+    assert names.key_type("ecdsa") == Canonical("EC")
 
 
 def test_a_fixture_parses_the_same_through_parse_yaml_and_read_yaml():

@@ -83,6 +83,7 @@ class Names:
     sized: dict[str, dict[str, Canonical]]
     transformations: dict[str, Transformation]
     key_formats: dict[str, str]
+    key_types: dict[str, str] = field(default_factory=dict)
     probe: dict[tuple[str, str], Canonical] = field(default_factory=dict)
     conflicts: dict[tuple[str, str], str] = field(default_factory=dict)
 
@@ -102,7 +103,8 @@ class Names:
                                                _folded({p: [] for p in v["paddings"]}),
                                                _synonyms(v.get("paddingSynonyms")), _synonyms(v.get("modeSynonyms")))
                              for t, v in (doc.get("transformations") or {}).items()},
-            key_formats=_folded({f: [] for f in doc.get("keyFormats") or []}))
+            key_formats=_folded({f: [] for f in doc.get("keyFormats") or []}),
+            key_types=_folded(doc.get("keyTypes") or {}))
 
     @property
     def engine_types(self) -> set[str]:
@@ -133,6 +135,11 @@ class Names:
 
     def key_format(self, name: str) -> Canonical:
         hit = self.key_formats.get(fold(name))
+        return Canonical(hit) if hit else Canonical(name, None, False)
+
+    def key_type(self, name: str) -> Canonical:
+        """The key type a Key.getAlgorithm() spelling or a catalogue key.type names."""
+        hit = self.key_types.get(fold(name))
         return Canonical(hit) if hit else Canonical(name, None, False)
 
     def _single(self, engine_type: str, name: str) -> Canonical:

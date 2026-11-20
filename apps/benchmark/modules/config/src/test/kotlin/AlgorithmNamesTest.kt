@@ -73,6 +73,18 @@ class AlgorithmNamesTest {
     }
 
     @Test
+    fun aKeyAlgorithmSpellingNamesItsKeyTypeAndACurveFamilyStaysApart() {
+        assertEquals(Canonical("EC"), names.keyType("ecdsa"))
+        assertEquals(Canonical("DH"), names.keyType("DiffieHellman"))
+        assertEquals(Canonical("X25519"), names.keyType("X25519"))
+        assertEquals(Canonical("XDH", null, false), names.keyType("XDH"))
+        val error = assertThrows(IllegalArgumentException::class.java) {
+            AlgorithmNames.parse(YamlCodec.DOCUMENT.load("schemaVersion: 1\nnames: {}\nkeyTypes:\n  EC: [ECDSA]\n  ECDSA: []\n"))
+        }
+        assertTrue(error.message!!, error.message!!.startsWith("names_catalog_duplicate:"))
+    }
+
+    @Test
     fun anInventoryRefusesTwoSpellingsOfOneNameButKeepsKeySizesApart() {
         val source = InventorySource("capture.yaml", "trial.yaml", emptyMap())
         fun inventory(vararg names: String) = Inventory(source, mapOf("P" to mapOf("MessageDigest" to names.associateWith { InventoryEntry(runs = true) })))

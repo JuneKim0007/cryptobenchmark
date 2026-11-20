@@ -1,5 +1,6 @@
 import copy
 import json
+import re
 import shutil
 from pathlib import Path
 
@@ -120,6 +121,18 @@ def _fact(name: str, **values):
 def test_a_bad_entry_is_refused_with_its_reason(tmp_path, file, mutate, code):
     with pytest.raises(AlgorithmsError, match=code):
         load(_copy(tmp_path, file, mutate))
+
+
+ECDSA = "Signature|SHA256withECDSA"
+
+
+@pytest.mark.parametrize("mutate,code", [
+    (lambda d: d["algorithms"][ECDSA]["key"].update(type="ECDSA"), "key.type ECDSA is not a keyTypes name, the names file gives EC"),
+    (lambda d: d["algorithms"][ECDSA]["providers"].update({"BC @ jdk-25": {"key.type": "Ecc"}}), "key.type Ecc is not a keyTypes name"),
+])
+def test_a_key_type_outside_the_key_types_of_the_names_file_is_refused(tmp_path, mutate, code):
+    with pytest.raises(AlgorithmsError, match=f"{re.escape(ECDSA)}: {code}"):
+        load(_copy(tmp_path, "signature.pair_catalogue.yaml", mutate))
 
 
 def _names(change):
