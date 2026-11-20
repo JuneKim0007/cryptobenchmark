@@ -59,5 +59,5 @@ First matching rule wins. Stages: produce (the producer's own call), setup over 
 | entry | the first whose `key.type`, on both builds, equals the key type, case folded, and whose type and name the capability reports Available on both providers; first `algorithms/groups.yaml`'s exemplars of those families, then, only if none fits, catalogue order, each by type Signature, Cipher, Mac, KeyAgreement (an EC key: `Signature\|SHA256withECDSA`; X25519: `KeyAgreement\|X25519`) |
 | operation | the first of the entry's `operations` words that begins the name of an operation `engine-operations.yaml` times for its type (`computeMac` COMPUTE_MAC, `agree` AGREE_KEY); `wrap` has none |
 | reason | a `fail` or `not_checkable` by use ends `(use <type>\|<name> <OPERATION>)`; a `pass` by use carries `use <type>\|<name> <OPERATION>` |
-| none | `not_checkable` `no_key_use`, naming the key types tried (a generator whose type no use has, such as `KeyPairGenerator\|XDH`, `EdDSA` or `ECDSA`) |
+| none | `not_checkable` `no_key_use`, naming the key types tried (a generator whose type no use has, such as `KeyPairGenerator\|XWING`) |
 | case | seed 0, input 16, no bound parameters |

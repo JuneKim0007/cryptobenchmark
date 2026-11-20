@@ -122,9 +122,10 @@ class KeyUseTest {
     @Test
     fun aKeyNamedOtherwiseThanItsGeneratorsType() {
         assertEquals("EC, ECDSA -> Signature|SHA256withECDSA SIGN", generated("KeyPairGenerator", "EC", "ECDSA"))
-        assertEquals("ECDSA -> null", generated("KeyPairGenerator", "ECDSA", "ECDSA"))
-        assertEquals("XDH -> null", generated("KeyPairGenerator", "XDH", "XDH"))
-        assertEquals("EdDSA -> null", generated("KeyPairGenerator", "EdDSA", "EdDSA"))
+        assertEquals("EC, ECDSA -> Signature|SHA256withECDSA SIGN", generated("KeyPairGenerator", "ECDSA", "ECDSA"))
+        assertEquals("X25519, XDH -> KeyAgreement|X25519 AGREE_KEY", generated("KeyPairGenerator", "XDH", "XDH"))
+        assertEquals("Ed25519, EdDSA -> Signature|Ed25519 SIGN", generated("KeyPairGenerator", "EdDSA", "EdDSA"))
+        assertEquals("XWING -> null", generated("KeyPairGenerator", "XWING", "XWING"))
         assertEquals("AES -> Cipher|AES/GCM/NoPadding ENCRYPT", generated("KeyGenerator", "Uncatalogued", "AES"))
     }
 

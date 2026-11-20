@@ -231,7 +231,8 @@ def test_a_base_and_a_build_differ_only_where_a_kept_fix_says_so_never_by_count(
                     standard = path == "conditions.deterministic" and e.raw["conditions"]["deterministic"]["source"] == "sourced"
                     password_alias = e.canonical.startswith("PBEWithHmac") and ("AndroidOpenSSL" in build or "BundledConscrypt" in build)
                     reset = path.startswith("lifecycle.reset.") and over[path]["source"] == "measured"
-                    if not (keystore or standard or password_alias or reset):
+                    made_key = path == "key.type" and e.raw["key"]["source"] == "measured"
+                    if not (keystore or standard or password_alias or reset or made_key):
                         differing.add((e.id, build, path))
     assert differing == set()
 

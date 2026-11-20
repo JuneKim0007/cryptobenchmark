@@ -31,7 +31,7 @@ The type facts of each entry in `../../algorithms/<family>_catalogue.yaml` ([alg
 | `nonceRequired` | `none`, `unpredictable` (a fresh random IV each call), `unique` (never repeated under one key) |
 | `parameters` | the shape of the parameter object the call passes: `none`, `iv`, `gcm`, ... |
 | `outputBytes` | bytes, null when it varies |
-| `keyType` | the key the call takes, `none` without one |
+| `keyType` | the key the call takes, for a generator the key it makes (its catalogue `key.type`), `none` without one; two generators of one key type differ in `key` `same`, not a re-key |
 | `strengthBits` | bits, `{key: <map>}` read at the key size, `{key, cap}` for the lower of the two, null unknown; SP 800-57 Part 1 r5 Tables 2 and 3 |
 | `minSdk` | the first Android API level of the open-ended range on the reference page; null: check the device |
 

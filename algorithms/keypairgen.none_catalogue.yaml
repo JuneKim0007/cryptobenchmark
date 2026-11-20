@@ -18,7 +18,7 @@ algorithms:
     - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/java/security/KeyPairGenerator'}
     providers: {}
   KeyPairGenerator|DILITHIUM:
-    key: {type: DILITHIUM, origin: none, source: measured}
+    key: {type: DILITHIUM3, origin: none, source: measured}
     required: []
     optional: []
     conditions:
@@ -130,7 +130,7 @@ algorithms:
       BundledBC @ org.bouncycastle:bcprov-jdk18on:1.79: {optional.curve.default: 239}
       SunEC @ jdk-25: {optional.curve.default: 384}
   KeyPairGenerator|ECDH:
-    key: {type: ECDH, origin: none, source: measured}
+    key: {type: EC, origin: none, source: measured}
     required: []
     optional:
     - {name: curve, default: 239, affects: [security], source: measured}
@@ -146,7 +146,7 @@ algorithms:
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
   KeyPairGenerator|ECDHC:
-    key: {type: ECDHC, origin: none, source: measured}
+    key: {type: EC, origin: none, source: measured}
     required: []
     optional:
     - {name: curve, default: 239, affects: [security], source: measured}
@@ -162,7 +162,7 @@ algorithms:
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
   KeyPairGenerator|ECDSA:
-    key: {type: ECDSA, origin: none, source: measured}
+    key: {type: EC, origin: none, source: measured}
     required: []
     optional:
     - {name: curve, default: 239, affects: [security], source: measured}
@@ -212,7 +212,7 @@ algorithms:
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
   KeyPairGenerator|ECMQV:
-    key: {type: ECMQV, origin: none, source: measured}
+    key: {type: EC, origin: none, source: measured}
     required: []
     optional:
     - {name: curve, default: 239, affects: [security], source: measured}
@@ -259,7 +259,7 @@ algorithms:
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
   KeyPairGenerator|EdDSA:
-    key: {type: EdDSA, origin: none, source: measured}
+    key: {type: Ed25519, origin: none, source: measured}
     required: []
     optional:
     - {name: keySize, affects: [security], source: inferred}
@@ -291,7 +291,7 @@ algorithms:
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
   KeyPairGenerator|FALCON:
-    key: {type: FALCON, origin: none, source: measured}
+    key: {type: FALCON-512, origin: none, source: measured}
     required: []
     optional: []
     conditions:
@@ -396,7 +396,7 @@ algorithms:
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
   KeyPairGenerator|HASH-ML-DSA:
-    key: {type: HASH-ML-DSA, origin: none, source: measured}
+    key: {type: ML-DSA-87-WITH-SHA512, origin: none, source: measured}
     required: []
     optional: []
     conditions:
@@ -411,7 +411,7 @@ algorithms:
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
   KeyPairGenerator|HASH-SLH-DSA:
-    key: {type: HASH-SLH-DSA, origin: none, source: measured}
+    key: {type: SLH-DSA-SHA2-128F-WITH-SHA256, origin: none, source: measured}
     required: []
     optional: []
     conditions:
@@ -441,7 +441,7 @@ algorithms:
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
   KeyPairGenerator|ML-DSA:
-    key: {type: ML-DSA, origin: none, source: measured}
+    key: {type: ML-DSA-87, origin: none, source: measured}
     required: []
     optional: []
     conditions:
@@ -454,7 +454,8 @@ algorithms:
     sourcedOnly:
     - {fact: strengthBits, value: null, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
-    providers: {}
+    providers:
+      SUN @ jdk-25: {key.type: ML-DSA-65}
   KeyPairGenerator|ML-DSA-44:
     key: {type: ML-DSA-44, origin: none, source: measured}
     required: []
@@ -851,7 +852,7 @@ algorithms:
       BC @ jdk-25: {optional.keySize.default: 2048}
       BundledBC @ org.bouncycastle:bcprov-jdk18on:1.79: {optional.keySize.default: 2048}
   KeyPairGenerator|SLH-DSA:
-    key: {type: SLH-DSA, origin: none, source: measured}
+    key: {type: SLH-DSA-SHA2-128F, origin: none, source: measured}
     required: []
     optional: []
     conditions:
@@ -1226,7 +1227,7 @@ algorithms:
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
   KeyPairGenerator|SM2:
-    key: {type: SM2, origin: none, source: measured}
+    key: {type: EC, origin: none, source: measured}
     required: []
     optional:
     - {name: curve, default: 239, affects: [security], source: measured}
@@ -1467,7 +1468,7 @@ algorithms:
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
   KeyPairGenerator|XDH:
-    key: {type: XDH, origin: none, source: measured}
+    key: {type: X25519, origin: none, source: measured}
     required: []
     optional:
     - {name: keySize, affects: [security], source: inferred}

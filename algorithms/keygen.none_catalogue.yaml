@@ -23,7 +23,7 @@ algorithms:
       BundledBC @ org.bouncycastle:bcprov-jdk18on:1.79: {conditions.output.bits: 192, optional.keySize.default: 192}
       SunJCE @ jdk-25: {conditions.output.bits: 256, optional.keySize.default: 256}
   KeyGenerator|AES-GMAC:
-    key: {type: AES-GMAC, origin: none, source: measured}
+    key: {type: AES, origin: none, source: measured}
     required: []
     optional:
     - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
@@ -39,7 +39,7 @@ algorithms:
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
   KeyGenerator|AESWRAP:
-    key: {type: AESWRAP, origin: none, source: measured}
+    key: {type: AES, origin: none, source: measured}
     required: []
     optional:
     - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 192, affects: [security], source: measured}
@@ -55,7 +55,7 @@ algorithms:
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
   KeyGenerator|AESWRAPPAD:
-    key: {type: AESWRAPPAD, origin: none, source: measured}
+    key: {type: AES, origin: none, source: measured}
     required: []
     optional:
     - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 192, affects: [security], source: measured}
@@ -103,7 +103,7 @@ algorithms:
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
   KeyGenerator|ARIA-GMAC:
-    key: {type: ARIA-GMAC, origin: none, source: measured}
+    key: {type: ARIA, origin: none, source: measured}
     required: []
     optional:
     - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
@@ -152,7 +152,7 @@ algorithms:
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
   KeyGenerator|CAMELLIA-GMAC:
-    key: {type: CAMELLIA-GMAC, origin: none, source: measured}
+    key: {type: CAMELLIA, origin: none, source: measured}
     required: []
     optional:
     - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
@@ -200,7 +200,7 @@ algorithms:
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
   KeyGenerator|CAST6-GMAC:
-    key: {type: CAST6-GMAC, origin: none, source: measured}
+    key: {type: CAST6, origin: none, source: measured}
     required: []
     optional:
     - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
@@ -283,7 +283,7 @@ algorithms:
     - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/javax/crypto/KeyGenerator'}
     providers: {}
   KeyGenerator|DESEDEWRAP:
-    key: {type: DESEDEWRAP, origin: none, source: measured}
+    key: {type: DESede, origin: none, source: measured}
     required: []
     optional:
     - {name: keySize, accepted: [112, 128, 168, 192], default: 192, affects: [security], source: measured}
@@ -1263,7 +1263,7 @@ algorithms:
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
   KeyGenerator|NOEKEON-GMAC:
-    key: {type: NOEKEON-GMAC, origin: none, source: measured}
+    key: {type: NOEKEON, origin: none, source: measured}
     required: []
     optional:
     - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
@@ -1536,7 +1536,7 @@ algorithms:
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
   KeyGenerator|RC6-GMAC:
-    key: {type: RC6-GMAC, origin: none, source: measured}
+    key: {type: RC6, origin: none, source: measured}
     required: []
     optional:
     - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
@@ -1584,7 +1584,7 @@ algorithms:
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
   KeyGenerator|SEED-CMAC:
-    key: {type: SEED-CMAC, origin: none, source: measured}
+    key: {type: SEED, origin: none, source: measured}
     required: []
     optional:
     - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
@@ -1600,7 +1600,7 @@ algorithms:
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
   KeyGenerator|SEED-GMAC:
-    key: {type: SEED-GMAC, origin: none, source: measured}
+    key: {type: SEED, origin: none, source: measured}
     required: []
     optional:
     - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
@@ -1632,7 +1632,7 @@ algorithms:
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
   KeyGenerator|SERPENT-GMAC:
-    key: {type: SERPENT-GMAC, origin: none, source: measured}
+    key: {type: Serpent, origin: none, source: measured}
     required: []
     optional:
     - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 192, affects: [security], source: measured}
@@ -1680,7 +1680,7 @@ algorithms:
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
   KeyGenerator|SIPHASH128:
-    key: {type: SIPHASH128, origin: none, source: measured}
+    key: {type: SipHash, origin: none, source: measured}
     required: []
     optional:
     - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
@@ -1936,7 +1936,7 @@ algorithms:
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
   KeyGenerator|SM4-CMAC:
-    key: {type: SM4-CMAC, origin: none, source: measured}
+    key: {type: SM4, origin: none, source: measured}
     required: []
     optional:
     - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
@@ -1952,7 +1952,7 @@ algorithms:
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
   KeyGenerator|SM4-GMAC:
-    key: {type: SM4-GMAC, origin: none, source: measured}
+    key: {type: SM4, origin: none, source: measured}
     required: []
     optional:
     - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 128, affects: [security], source: measured}
@@ -2128,7 +2128,7 @@ algorithms:
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
   KeyGenerator|TNEPRES-GMAC:
-    key: {type: TNEPRES-GMAC, origin: none, source: measured}
+    key: {type: Tnepres, origin: none, source: measured}
     required: []
     optional:
     - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 192, affects: [security], source: measured}
@@ -2160,7 +2160,7 @@ algorithms:
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
   KeyGenerator|Twofish-GMAC:
-    key: {type: Twofish-GMAC, origin: none, source: measured}
+    key: {type: Twofish, origin: none, source: measured}
     required: []
     optional:
     - {name: keySize, accepted: [56, 64, 80, 112, 128, 160, 168, 192, 224, 256, 384, 512], default: 256, affects: [security], source: measured}
