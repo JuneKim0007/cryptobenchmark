@@ -119,7 +119,7 @@ cryptobench/shared/settings/energy_capture.py : a node's energy capture and sour
 cryptobench/shared/stats/__init__.py : package of the benchmark's calculations, with no I/O: descriptive statistics, the run count's equations, tests across processes, display units
 cryptobench/shared/stats/descriptive.py : one definition of each per-case statistic: mean, sample SD, CoV, interpolated quantiles, IQR, QCD; which one leads
 cryptobench/shared/stats/equations.py : every calculation the run count uses, and the median's binomial ranks; no I/O
-cryptobench/shared/stats/inference.py : over one value per process: Shapiro-Wilk, QQ r², Mann-Whitney, Cliff's delta, bootstrap ratio of medians, drift between thirds; no I/O
+cryptobench/shared/stats/inference.py : over one value per process: Shapiro-Wilk, QQ r and its seeded critical value, Mann-Whitney, Cliff's delta, bootstrap ratio of medians, drift between thirds; no I/O
 cryptobench/shared/stats/units.py : DisplayUnits: nanoseconds per call in the chosen latency and throughput units; significant-figure numbers
 cryptobench/shared/stop/__init__.py : package of the terminator: the code table and terminate(); how a child process is stopped
 cryptobench/shared/stop/child.py : stop(process, grace, poll): SIGTERM to the child's group, up to grace seconds, SIGKILL to the group, wait (a Ctrl-C during the grace kills at once); PIPELINE_GRACE_SECONDS 120; stop_like_ctrl_c(): SIGTERM and SIGHUP raise KeyboardInterrupt

@@ -98,7 +98,9 @@ python3 apps/benchmark-runner/analysis/credibility.py <out dir> <benchmark.json 
 - Unit of repetition: the process; each contributes one value per case and metric: the median of its `timeNs` runs, its `energyJ` J/op.
 - Samples are never pooled across processes: within-process samples are correlated, so pooling overstates n.
 - Per case and metric: n; median; 95% distribution-free interval of the median from Binomial(n, 1/2) order statistics (n=50: ranks 18-33, n=36: 12-25) with its exact coverage; CoV across processes; median within-process CoV.
-- Normality, alpha 0.05: Shapiro-Wilk p (Royston AS R94) and QQ r², the squared correlation of the sorted values with Blom normal scores, across processes; within a process (8 samples or more): median QQ r² and the share of processes Shapiro-Wilk rejects.
+- Normality, alpha 0.05: Shapiro-Wilk p (Royston AS R94) and QQ r, the probability-plot correlation of the sorted values with Blom normal scores, pass when r reaches its 5% critical value; n < 8 reads "not meaningful".
+- QQ critical value: the 5% quantile of r over 20000 normal samples of that n, seed 1975 (Filliben's construction of the NIST PPCC table), cached per n.
+- Within a process (8 samples or more): median QQ r, the share of processes whose QQ r fails, and the share Shapiro-Wilk rejects.
 - Steady state per process: median of the last third over the first third of its samples, and a Mann-Whitney p between them; a process drifts above 5% with p < 0.05; a case is flagged when more than 20% of its processes drift.
 - Per fixed/notFixed pair of one id: median ratio notFixed/fixed with a 95% percentile bootstrap interval resampling each side's processes (10000 resamples, seed in the output); Mann-Whitney U two-sided p (normal approximation, tie and continuity corrected); Cliff's delta with Romano's labels (negligible < 0.147, small < 0.33, medium < 0.474, large).
 - Calculations: `lib/cryptobench/cryptobench/shared/stats/inference.py` and `median_ranks` in `equations.py`.

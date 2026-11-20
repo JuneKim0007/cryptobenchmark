@@ -176,9 +176,9 @@ def stability(rows, out, limit):
 
 
 def qq_lines(case_id, panels, out):
-    """One normal Q-Q panel per (metric, values, score): the sorted values against their normal scores as a line, and the line through the quartiles."""
+    """One normal Q-Q panel per (metric, values, r, critical r): the sorted values against their normal scores as a line, and the line through the quartiles."""
     fig, axes = plt.subplots(1, len(panels), figsize=(4.2 * len(panels), 3.8), squeeze=False)
-    for ax, (metric, values, score) in zip(axes[0], panels):
+    for ax, (metric, values, score, critical) in zip(axes[0], panels):
         ordered, scores = sorted(values), normal_scores(len(values))
         ax.plot(scores, ordered, color=CALM_COLOR, label="values")
         q1, q3 = ordered[len(ordered) // 4], ordered[(3 * len(ordered)) // 4]
@@ -187,7 +187,7 @@ def qq_lines(case_id, panels, out):
         ax.plot([scores[0], scores[-1]], [q1 + slope * (scores[0] - z1), q1 + slope * (scores[-1] - z1)], color=NOISY_COLOR, linestyle="--", label="normal")
         ax.set_xlabel("normal score")
         ax.set_ylabel(f"{metric} per process")
-        ax.set_title(f"{metric}: n={len(values)}, QQ r² {'-' if score is None else f'{score:.3f}'}", fontsize=8)
+        ax.set_title(f"{metric}: n={len(values)}, QQ r {score:.4f} {'pass' if score >= critical else 'fail'} (5% critical {critical:.4f})", fontsize=8)
         ax.grid(alpha=.3)
         ax.legend(fontsize=7, loc="upper left")
     fig.suptitle(case_id, fontsize=8)

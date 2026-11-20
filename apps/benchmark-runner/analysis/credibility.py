@@ -37,6 +37,8 @@ def case_row(case_id, samples, metric):
     low, high, coverage = median_ranks(n)
     shapiro = inference.shapiro_wilk(values)
     within = [s for s in samples if len(s) >= MIN_WITHIN_NORMALITY]
+    qq = inference.qq_test(values)
+    within_qq = [q for q in map(inference.qq_test, within) if q]
     within_shapiro = [t for t in map(inference.shapiro_wilk, within) if t]
     drifts = [d for d in map(inference.drift, samples) if d]
     drifting = [d for d in drifts if d[1] < inference.ALPHA and abs(d[0] - 1) > DRIFT_RATIO]
@@ -46,8 +48,9 @@ def case_row(case_id, samples, metric):
         "cov": descriptive.summarize(values)["cov"],
         "withinCov": _median([descriptive.summarize(s)["cov"] for s in samples if len(s) > 1]),
         "shapiroW": shapiro and shapiro[0], "shapiroP": shapiro and shapiro[1],
-        "normal": None if shapiro is None else shapiro[1] >= inference.ALPHA, "qq": inference.qq_score(values),
-        "withinQq": _median([q for q in map(inference.qq_score, within) if q is not None]),
+        "normal": None if shapiro is None else shapiro[1] >= inference.ALPHA, "qq": qq and qq[0], "qqCritical": qq and qq[1], "qqPass": qq and qq[2],
+        "withinQq": _median([q[0] for q in within_qq]),
+        "withinQqFail": sum(not q[2] for q in within_qq) / len(within_qq) if within_qq else None,
         "withinNonNormal": sum(p < inference.ALPHA for _, p in within_shapiro) / len(within_shapiro) if within_shapiro else None,
         "driftChecked": len(drifts), "drifting": len(drifting), "driftRatio": _median([d[0] for d in drifts]),
         "driftFlag": bool(drifts) and len(drifting) / len(drifts) > DRIFT_SHARE,
@@ -107,25 +110,32 @@ def _share(x):
     return NO_VALUE if x is None else f"{x:.0%}"
 
 
+def _qq(r):
+    if r["qq"] is None:
+        return f"n < {inference.QQ_MIN}: not meaningful | {NO_VALUE} | {NO_VALUE}" if r["n"] < inference.QQ_MIN else f"{NO_VALUE} | {NO_VALUE} | {NO_VALUE}"
+    return f"{r['qq']:.4f} | {r['qqCritical']:.4f} | {'pass' if r['qqPass'] else 'fail'}"
+
+
 def _pct(x):
     return NO_VALUE if x is None else f"{x:.1%}"
 
 
 def markdown(rows, pairs):
     lines = [f"One value per process per case (its median sample; energy is one J/op per process). Bootstrap: seed {inference.BOOTSTRAP_SEED}, "
-             f"{inference.BOOTSTRAP_RESAMPLES} resamples of processes. Normal at alpha {inference.ALPHA}.", "",
+             f"{inference.BOOTSTRAP_RESAMPLES} resamples of processes. Normal at alpha {inference.ALPHA}. "
+             f"QQ r is the probability-plot correlation; its 5% critical value for each n is the 5% quantile of r over {inference.QQ_CRITICAL_DRAWS} seeded normal samples.", "",
              "## Across processes", "",
-             "| case | metric | n | median | 95% CI | ranks | coverage | CoV | within CoV (median) | Shapiro-Wilk p | normal | QQ r² |",
-             "|---|---|---|---|---|---|---|---|---|---|---|---|"]
+             "| case | metric | n | median | 95% CI | ranks | coverage | CoV | within CoV (median) | Shapiro-Wilk p | normal | QQ r | QQ 5% critical | QQ |",
+             "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
     lines += [f"| {r['case']} | {r['metric']} ({r['unit']}) | {r['n']} | {_n(r['median'])} | {_n(r['ciLow'])} - {_n(r['ciHigh'])} | "
               f"{r['ranks'][0]}-{r['ranks'][1]} | {r['coverage']:.3f} | {_pct(r['cov'])} | {_pct(r['withinCov'])} | "
-              f"{_p(r['shapiroP'])} | {NO_VALUE if r['normal'] is None else 'yes' if r['normal'] else 'no'} | {_p(r['qq'])} |" for r in rows]
+              f"{_p(r['shapiroP'])} | {NO_VALUE if r['normal'] is None else 'yes' if r['normal'] else 'no'} | {_qq(r)} |" for r in rows]
     lines += ["", "## Within a process", "",
               f"Drift: median of the last third over the first third of a process's samples; a process drifts above {DRIFT_RATIO:.0%} with Mann-Whitney p < {inference.ALPHA}; "
               f"a case is flagged above {DRIFT_SHARE:.0%} of its processes.", "",
-              "| case | metric | QQ r² (median) | non-normal processes | processes checked | drifting | last/first (median) | flagged |",
-              "|---|---|---|---|---|---|---|---|"]
-    lines += [f"| {r['case']} | {r['metric']} | {_p(r['withinQq'])} | {_share(r['withinNonNormal'])} | {r['driftChecked']} | {r['drifting']} | "
+              "| case | metric | QQ r (median) | QQ fails | non-normal processes | processes checked | drifting | last/first (median) | flagged |",
+              "|---|---|---|---|---|---|---|---|---|"]
+    lines += [f"| {r['case']} | {r['metric']} | {_p(r['withinQq'])} | {_share(r['withinQqFail'])} | {_share(r['withinNonNormal'])} | {r['driftChecked']} | {r['drifting']} | "
               f"{_p(r['driftRatio'])} | {'yes' if r['driftFlag'] else 'no'} |" for r in rows]
     lines += ["", "## notFixed against fixed", "",
               "| pair | metric | n fixed / notFixed | median ratio notFixed/fixed | 95% CI | Mann-Whitney p | Cliff's delta | magnitude |",
@@ -144,8 +154,8 @@ def write(out, process_files):
                                                    "cases": rows, "pairs": pairs}, indent=1) + "\n")
     import chart_draw
     for case_id in cases:
-        panels = [(r["metric"], [statistics.median(s) for s in _samples(cases[case_id], r["metric"])], r["qq"])
-                  for r in rows if r["case"] == case_id and r["n"] >= 3]
+        panels = [(r["metric"], [statistics.median(s) for s in _samples(cases[case_id], r["metric"])], r["qq"], r["qqCritical"])
+                  for r in rows if r["case"] == case_id and r["n"] >= inference.QQ_MIN]
         if panels:
             chart_draw.qq_lines(case_id, panels, out)
     return rows, pairs

@@ -4,11 +4,15 @@ from __future__ import annotations
 import math
 import random
 import statistics
+from functools import lru_cache
 
 NORMAL = statistics.NormalDist()
 ALPHA = 0.05
 BOOTSTRAP_RESAMPLES = 10_000
 BOOTSTRAP_SEED = 20261120
+QQ_MIN = 8
+QQ_CRITICAL_DRAWS = 20_000
+QQ_CRITICAL_SEED = 1975
 # Romano et al. (2006) thresholds on |Cliff's delta|
 CLIFF_LABELS = ((0.147, "negligible"), (0.33, "small"), (0.474, "medium"), (math.inf, "large"))
 
@@ -23,10 +27,27 @@ def normal_scores(n: int) -> list[float]:
 
 
 def qq_score(values: list[float]) -> float | None:
-    """Squared correlation of the sorted values with their normal scores: 1 is a straight Q-Q line; None below 3 values or with no spread."""
+    """Probability-plot r: the correlation of the sorted values with their normal scores, 1 a straight Q-Q line; None below 3 values or with no spread."""
     if len(values) < 3 or max(values) == min(values):
         return None
-    return statistics.correlation(sorted(values), normal_scores(len(values))) ** 2
+    return max(0.0, statistics.correlation(sorted(values), normal_scores(len(values))))
+
+
+@lru_cache(maxsize=None)
+def qq_critical(n: int, alpha: float = ALPHA, draws: int = QQ_CRITICAL_DRAWS, seed: int = QQ_CRITICAL_SEED) -> float:
+    """The alpha quantile of qq_score over seeded normal samples of size n, Filliben's construction of the PPCC table."""
+    rng, scores = random.Random(seed * 100_003 + n), normal_scores(n)
+    rs = sorted(statistics.correlation(sorted(rng.gauss(0, 1) for _ in range(n)), scores) for _ in range(draws))
+    return rs[int(alpha * draws)]
+
+
+def qq_test(values: list[float]) -> tuple[float, float, bool] | None:
+    """(r, its critical value at ALPHA, whether r reaches it); None below QQ_MIN values, where the score is not meaningful."""
+    r = qq_score(values)
+    if len(values) < QQ_MIN or r is None:
+        return None
+    critical = qq_critical(len(values))
+    return r, critical, r >= critical
 
 
 def shapiro_wilk(values: list[float]) -> tuple[float, float] | None:

@@ -76,3 +76,16 @@ def test_one_process_still_writes_a_row_without_tests(tmp_path):
     _, rows, _ = credibility.build(processes(tmp_path)[:1])
     row = rows_by(rows, "a_fixed", "timeNs")
     assert row["n"] == 1 and row["shapiroP"] is None and row["qq"] is None
+
+
+def test_too_few_processes_say_the_qq_score_is_not_meaningful(tmp_path):
+    out = tmp_path / "out"
+    credibility.write(out, processes(tmp_path)[:5])
+    assert "n < 8: not meaningful" in (out / "credibility.md").read_text()
+    assert not (out / "qq").exists()
+
+
+def test_each_row_carries_r_its_critical_value_and_a_verdict(tmp_path):
+    _, rows, _ = credibility.build(processes(tmp_path))
+    row = rows_by(rows, "a_fixed", "timeNs")
+    assert row["qqCritical"] == inference.qq_critical(PROCESSES) and row["qqPass"] == (row["qq"] >= row["qqCritical"])

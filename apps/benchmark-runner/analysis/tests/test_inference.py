@@ -20,8 +20,26 @@ def test_shapiro_wilk_has_no_answer_without_spread_or_with_too_few_values():
 
 def test_the_qq_score_is_one_on_a_straight_line_and_lower_for_a_skewed_sample():
     assert abs(inference.qq_score([3 + 2 * z for z in inference.normal_scores(40)]) - 1) < 1e-12
-    skewed = [2.0 ** i for i in range(40)]
-    assert inference.qq_score(skewed) < 0.6
+    assert inference.qq_score([2.0 ** i for i in range(40)]) < 0.8
+
+
+def test_the_critical_value_at_50_agrees_with_the_nist_ppcc_table():
+    assert abs(inference.qq_critical(50) - 0.9761) < 0.002
+    assert inference.qq_critical(20) < inference.qq_critical(50) < inference.qq_critical(100)
+
+
+def test_a_normal_sample_of_50_passes_in_most_seeds_and_a_lognormal_one_fails():
+    def passes(seed, draw):
+        rng = random.Random(seed)
+        return inference.qq_test([draw(rng) for _ in range(50)])[2]
+    normal = [passes(s, lambda rng: rng.gauss(0, 1)) for s in range(200)]
+    lognormal = [passes(s, lambda rng: rng.lognormvariate(0, 1)) for s in range(200)]
+    assert sum(normal) / 200 >= 0.9 and sum(lognormal) / 200 <= 0.1
+
+
+def test_below_eight_values_the_qq_test_has_no_verdict():
+    assert inference.qq_test([1.0, 2.0, 4.0, 3.0, 9.0, 5.0, 6.0]) is None
+    assert inference.qq_test([1.0, 2.0, 4.0, 3.0, 9.0, 5.0, 6.0, 7.0]) is not None
 
 
 def test_mann_whitney_tells_a_shift_apart_and_not_a_copy():
