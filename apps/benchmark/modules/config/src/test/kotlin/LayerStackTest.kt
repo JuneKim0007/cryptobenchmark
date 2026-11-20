@@ -85,6 +85,7 @@ class LayerStackTest {
         assertEquals(read(plain.effectiveFile) - "generatedFrom", read(composed.effectiveFile) - "generatedFrom")
         @Suppress("UNCHECKED_CAST")
         val settings = (read(composed.effectiveFile)["generatedFrom"] as Map<String, Any>)["settings"] as Map<String, String>
-        assertEquals(listOf("layer 1 config_global_example.yaml", "default"), listOf(settings["run.seed"], settings["run.variants"]))
+        assertEquals(listOf("layer 1 config_global_example.yaml", "layer 1 config_global_example.yaml via run.thermalGate"),
+            listOf(settings["run.seed"], settings["run.passes.energy.thermalGate.cooldownMinutes"]))
     }
 }

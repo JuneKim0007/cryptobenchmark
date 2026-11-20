@@ -4,11 +4,13 @@ schemaVersion: 1                         # required
 selection:                               # required
   testSet: config_testset_example.yaml   # required — relative to this file
   exclude: []                            # optional, default [] — e.g. {provider: SunJCE} to drop one provider
+  knownVectors: vectors                  # optional — a folder of <family>.yaml known answers --check reads beside the packaged ones, relative to this file
 
 run:                                     # required: orderSeed; every other key falls back to its default
   inputSizes: [1024]                     # optional, default [1024] — bytes per call
   phases: [WARM]                         # optional, default [WARM] — WARM
   metrics: [TIME, ALLOCATION]            # optional, default [TIME] — TIME | ALLOCATION
+  variants: [fixed, notFixed]            # optional, default [fixed, notFixed, secure] — the execution paths every entry inherits
   processRepetitions: 1                  # optional, default 1
   seed: 42                               # optional, default 0
   orderSeed: 20261115                    # required — each process, device or host, shuffles the case order from (orderSeed, repetition)
@@ -30,35 +32,47 @@ run:                                     # required: orderSeed; every other key 
       recoveryCelsius: 0.05              # optional, default 0.05: ...by this much, never below initialCelsius
   launchRetries: 2                       # optional, default 2: a run that failed for a reason other than heat is launched this many more times
   energyIdleSeconds: 120                 # optional, default 120: the energy pre-flight's idle trace, whose mean power every energy window subtracts
+  thermalThrottleSleepSeconds: 90        # optional, unset keeps Jetpack's default; --device only
+  caseCooldownSeconds: 0                 # optional, default 0: --device host sleep before every measured case but a session's first
+  warmup:                                # optional; --device only — warm-up before the measured cases
+    iterations: 10                       # optional, default 10; 0 turns warm-up off
+    jobs: [{provider: SUN, type: MessageDigest, name: SHA-256}]   # optional, default [] — test-set rules; [] warms the plan's first cases
+    cases: 3                             # optional, default 3: the first cases warmed when jobs is []
   resumeBlockRuns: 10                    # optional, default 10: a rerun of a stopped run keeps its finished blocks of this many consecutive runs
   passes:                                # optional, default {} — one device session per pass, in this order
     timing: {samples: 50}                # required with two or more passes
     allocation: {samples: 10}            # needs ALLOCATION in metrics
     energy:                              # minWindowSeconds: energy only, default 5
-      samples: 100
-      minWindowSeconds: 5
+      samples: 100                       # required in every pass
+      minWindowSeconds: 5                # optional, default 5 — the shortest energy window
       thermalGate:                       # optional, any pass: this pass's gate, merged key by key over run.thermalGate; absent inherits it
         temperatureKeptCelsius: 35.0     # this pass discards at 35.0; every key not written here keeps run.thermalGate's value
         startMargin: {initialCelsius: 0.5}   # nested keys merge too: dynamic, backoffFactor, ... stay run.thermalGate's
       caseCooldownSeconds: 5             # optional, any pass: replaces run.caseCooldownSeconds for this pass; the device adds no rest of its own
   harness:                               # optional — unset keys take the harness's defaults
-    iterations: 50
+    iterations: 50                       # optional — measured calls per sample
+    warmupIterations: 5                  # optional, >= 1; unset lets androidx decide
     profiling: StackSampling             # none | MethodTracing | StackSampling
-    energy: {capture: dry, source: manafa}   # capture none | measured | dry; source rails | manafa, unset rails
+    energy:                              # optional — unset keys take their defaults
+      capture: dry                       # optional, default none — none | measured | dry
+      source: manafa                     # optional, default rails — rails | manafa
+      windowSeconds: 10                  # optional, default 10: seconds of one energy window
+      warmupSeconds: 2                   # optional, default 2: seconds run before a window opens
+      cooldownSeconds: 5                 # optional, default 5: sleep after each dry window
     cpu: {core: big, required: false}    # needs the device's facts; without them a warning and the block is dropped
 
 policy:                                  # optional
   onFailure: skip                        # optional, default skip — stop | skip
 
-# analysis:                              # optional — how results are summarised and drawn
-#   charts: [iqrBars, throughput, latency, stability]   # optional, default all four
-#   dir: results/chart/<run-id>          # optional, default <device folder>/chart/<run-id>
-#   statistic:
-#     headline: auto                     # optional, default auto — auto | median | mean
-#     meanUpToCovPercent: 5              # optional, default 5 — auto: mean while CoV <= this, else median
-#   units:                               # optional — display only; results stay ns/op
-#     latency: ms                        # optional, default ms — ms | us | ns
-#     throughput: MB/s                   # optional, default MB/s — MB/s | MiB/s | ops/s
+analysis:                                # optional — how results are summarised and drawn
+  charts: [iqrBars, throughput, latency, stability]   # optional, default all four
+  dir: results/chart/<run-id>            # optional, default <device folder>/chart/<run-id>
+  statistic:                             # optional — the statistic a summary leads with
+    headline: auto                       # optional, default auto — auto | median | mean
+    meanUpToCovPercent: 5                # optional, default 5 — auto: mean while CoV <= this, else median
+  units:                                 # optional — display only; results stay ns/op
+    latency: ms                          # optional, default ms — ms | us | ns
+    throughput: MB/s                     # optional, default MB/s — MB/s | MiB/s | ops/s
 
 providers:                               # optional — providers the app ships, appended after the platform's
   bundled:                               # optional, default [] — each built into the APK and installed before the probe

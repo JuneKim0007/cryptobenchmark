@@ -11,5 +11,5 @@ apps/benchmark/modules/files/src/main/kotlin/StampedName.kt : discovery's stampe
 apps/benchmark/modules/files/src/main/kotlin/VariantLabels.kt : the execution path labels, the last part of a case id; python's CONTRACT_PARTS must agree; the one path_not_applicable text
 apps/benchmark/modules/files/src/test/kotlin/BesideTest.kt : beside and authored rules
 apps/benchmark/modules/files/src/test/kotlin/StampedNameTest.kt : stamp format, prefix recognition, pairing
-apps/benchmark/modules/files/src/testFixtures/kotlin/ContractsFolder.kt : the contracts/ folder above the working directory and its subfolders, for the module tests that read them
+apps/benchmark/modules/files/src/testFixtures/kotlin/ContractsFolder.kt : the contracts/ folder above the working directory, its subfolders and the module examples, for the module tests that read them
 ```

@@ -10,10 +10,10 @@ apps/benchmark/modules/config/docs/index.md : this map
 apps/benchmark/modules/config/docs/layers.md : compositions: layers, merge rules, refusals, provenance
 apps/benchmark/modules/config/example/config_capture_example.yaml : example input capture
 apps/benchmark/modules/config/example/config_effective_example.yaml : expected effective output
-apps/benchmark/modules/config/example/config_global_example.yaml : example input global settings
+apps/benchmark/modules/config/example/config_global_example.yaml : example input global settings; writes every key the global reader accepts, each with its comment
 apps/benchmark/modules/config/example/config_inventory_example.yaml : expected inventory output
 apps/benchmark/modules/config/example/config_report_example.yaml : expected report output
-apps/benchmark/modules/config/example/config_testset_example.yaml : example input test set
+apps/benchmark/modules/config/example/config_testset_example.yaml : example input test set; writes every key the test-set reader accepts, each with its comment
 apps/benchmark/modules/config/example/config_trial_example.yaml : example input trial
 apps/benchmark/modules/config/src/main/kotlin/AuthoredFiles.kt : a global.yaml or composition, merged, and its test set through their parsers; nothing else read or written
 apps/benchmark/modules/config/src/main/kotlin/Configuration.kt : facade: inventory, effective with its report, readEffective
@@ -87,6 +87,7 @@ apps/benchmark/modules/config/src/test/kotlin/DocumentFixture.kt : built documen
 apps/benchmark/modules/config/src/test/kotlin/DocumentRoundTripTest.kt : every document round-trips; schemaVersion stamp and check
 apps/benchmark/modules/config/src/test/kotlin/EffectiveBuilderTest.kt : selection, policy and facts tests
 apps/benchmark/modules/config/src/test/kotlin/EffectiveConfigTest.kt : run id tests
+apps/benchmark/modules/config/src/test/kotlin/ExampleCoverageTest.kt : every key the global and test-set readers accept is in an example with a comment on its line; keys found by probing each mapping with an unknown key
 apps/benchmark/modules/config/src/test/kotlin/ExampleFilesTest.kt : example inputs must produce the committed outputs
 apps/benchmark/modules/config/src/test/kotlin/Fixtures.kt : shared test fixtures
 apps/benchmark/modules/config/src/test/kotlin/GlobalDocumentTest.kt : global.yaml analysis section tests

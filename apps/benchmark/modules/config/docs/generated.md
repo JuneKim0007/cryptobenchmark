@@ -116,4 +116,4 @@ An entry is checked as `run.harness` merged with its own harness. When the run s
 
 ## Example
 
-`example/` holds capture, trial, global and test set inputs and the expected inventory, effective and report outputs. `ExampleFilesTest` compares them; `apps/benchmark/gradlew -p apps/benchmark :config:test -Dexamples.update` rewrites the outputs.
+`example/` holds capture, trial, global and test set inputs and the expected inventory, effective and report outputs. `ExampleFilesTest` compares them; `apps/benchmark/gradlew -p apps/benchmark :config:test -Dexamples.update` rewrites the outputs. The global and test-set examples are the user guide: `ExampleCoverageTest` fails when a key either reader accepts is missing from them or has no comment on its line.

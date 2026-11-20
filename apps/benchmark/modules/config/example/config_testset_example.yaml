@@ -4,15 +4,21 @@ description: three primitives from the example capture, one of each shape   # op
 
 include:                                 # optional — empty selects every primitive the inventory can run
   # a rule needs at least one of provider | type | name; each part is optional; name accepts *
-  - {type: MessageDigest, name: SHA-256}
-  - {type: Mac, name: HmacSHA256}
-  - {type: Cipher, name: AES/GCM/NoPadding}
+  - {provider: SUN, type: MessageDigest, name: SHA-256}   # provider: only this provider's primitive
+  - {type: Mac, name: HmacSHA256, group: short, variants: [fixed]}   # group: an entry HmacSHA256@short; variants: this include's paths
+  - {type: Cipher, name: AES/GCM/NoPadding}              # type and name: every provider's AES/GCM/NoPadding
 
-# exclude: []                            # optional, default [] — same rule shape; exclude always wins
+exclude: []                              # optional, default [] — same rule shape; exclude always wins
 
 overrides:                               # optional
   - match: {type: Cipher, name: "AES/*"} # required — a rule; precedence in docs/config.md
     set: {keySizes: [128, 256]}          # required — every key inside is optional:
-                                         #   keySizes, inputSizes, key, parameters, operations, harness
-  - match: {type: Cipher, name: AES/GCM/NoPadding}
-    set: {parameters: {class: javax.crypto.spec.GCMParameterSpec, arguments: [128, fresh(12)]}}
+                                         #   keySizes, inputSizes, key, parameters, operations, variants, harness
+  - match: {type: Cipher, name: AES/GCM/NoPadding}   # the later and more specific override wins
+    set: {parameters: {class: javax.crypto.spec.GCMParameterSpec, arguments: [128, fresh(12)]}, operations: [ENCRYPT, DECRYPT]}   # parameters: a tree passed to preparation; operations: these only
+  - match: {provider: SunJCE, type: Mac, name: HmacSHA256, group: short}   # group: that group's entry only
+    set:                                 # every key below is optional
+      inputSizes: [64]                   # replaces run.inputSizes for these entries
+      key: {algorithm: HmacSHA256, provider: same}   # the key's generator and its provider
+      variants: [fixed, notFixed]        # beats the include's variants
+      harness: {iterations: 20, profiling: none}   # merged key by key over run.harness
