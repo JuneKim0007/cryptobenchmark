@@ -62,8 +62,7 @@ A composition of layers: [layers.md](layers.md).
 | | `bundled[].alias` | unset | non-blank, no whitespace; the name the provider is registered under; required on the device when its own name is already installed |
 
 ```yaml
-# a pass's own gate and cool-down, key by key over the run's; every key: example/config_global_example.yaml
-run:
+run:   # a pass's own gate and cool-down, key by key over the run's; every key: example/config_global_example.yaml
   thermalGate: {temperatureKeptCelsius: 36.0, cooldownMinutes: 3}
   passes:
     timing: {samples: 50}                                   # holds under run.thermalGate
