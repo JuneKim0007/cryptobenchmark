@@ -44,7 +44,7 @@
 |---|---|
 | windows | after the plan push and the AOT compile (dex2oat): idle `run.energyIdleSeconds` (default 120, [config.md](../apps/benchmark/modules/config/docs/config.md)), then busy 3 s (`BUSY_SECONDS` in `lib/cryptobench/cryptobench/stages/measurement/energy/sources/rails_source.py`, one spin loop per core); rails: after the last pass, idle again (`idle-end.pftrace`); manafa subtracts no idle and takes no end reading |
 | source | Perfetto `android.power`, rails polled every 100 ms, 4096 KB buffer (`RAILS_CONFIG`) |
-| heat | each idle reading (start and end) first holds behind the thermal gate the cases use (`run.thermalGate`, its session `energy idle`; no other wait); no sleep after the busy window ([device-session.md](device-session.md#thermal-gate)) |
+| heat | each idle reading (start and end) first holds behind the energy pass's thermal gate (`run.passes.energy.thermalGate` when :config wrote one, else `run.thermalGate`; its session `energy idle`; no other wait); no sleep after the busy window ([device-session.md](device-session.md#thermal-gate)) |
 | output | `discovery/energy.yaml`, traces in `discovery/energy-preflight/`; `energy.yaml` is pushed with the plan |
 
 | `energy.yaml` field | value |

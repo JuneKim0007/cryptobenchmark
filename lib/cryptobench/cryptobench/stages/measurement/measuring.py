@@ -92,10 +92,10 @@ def skin(device):
     return {"sensor": reading[0], "celsius": reading[1]} if reading else None
 
 
-def idle_held(run, reading):
-    """An idle reading waits behind the thermal gate the cases use; the skin temperature at its start and end goes to energy.yaml."""
+def idle_held(run, reading, gate):
+    """An idle reading waits behind the energy pass's gate scope (passes.Pass.gate); the skin temperature at its start and end goes to energy.yaml."""
     def held(record):
-        run.gate.session(IDLE_GATE).hold(reading)
+        run.gate.session(IDLE_GATE, gate).hold(reading)
         start = skin(run.device)
         record()
         return {"start": start, "end": skin(run.device)}
@@ -109,23 +109,23 @@ def idle_span(problems, capability, key, reading):
         warn(f"idle_span_short: {reading}: rail samples span {span:.1f} of {seconds} s; idle power is over the span", problems)
 
 
-def energy_preflight(run):
+def energy_preflight(run, gate):
     started = time.monotonic()
-    capability = run.source.preflight(run.session, run.discovery, run.options.energy_accept_unresponsive, idle_held(run, START_IDLE))
+    capability = run.source.preflight(run.session, run.discovery, run.options.energy_accept_unresponsive, idle_held(run, START_IDLE, gate))
     run.files["energyCapability"] = capability
     idle_span(run.problems, capability, "idle", START_IDLE)
     elapsed("energy pre-flight", started)
     return capability
 
 
-def energy_end(run, redo):
+def energy_end(run, redo, gate):
     """After the last pass: the end idle reading, then each process's energy again over the line between the two readings.
     redo holds (pass, process folder, step) per process this run measured with an energy.json; a step writes into the process's staging folder
     and returns (staged, kept) file pairs, swapped in only once every step succeeded. Returns {pass: the folders converted again}.
     Any failure leaves every energy.json on the start reading (idle_start_only), recorded, and the run goes on."""
     started = time.monotonic()
     try:
-        ended = run.reconnect.retried(lambda: run.source.idle_end(run.session, run.discovery, idle_held(run, END_IDLE)), "the end idle reading")
+        ended = run.reconnect.retried(lambda: run.source.idle_end(run.session, run.discovery, idle_held(run, END_IDLE, gate)), "the end idle reading")
     except Exception as error:  # hours of measured data stand on the start reading rather than stop here
         warn(f"energy_failed: {END_IDLE}: {one_line(error) or type(error).__name__}", run.problems)
         warn("idle_start_only: no end idle reading; energy.json keeps the start reading alone", run.problems)

@@ -138,8 +138,8 @@ def device_cases(run, document, plan_files, captures, benchmark, preparation, in
     """Every pass of the run on the device; the per-process files for the manifest and how many processes ran. in_blocks(pass folder, pass name,
     boot) is a pass's blocks.Blocks."""
     chosen, repetitions = passes.pass_views(RunView(document), captures), RunView(document).process_repetitions
-    energy = any(one.captures(captures) - {"none"} for one in chosen)
-    energy_step = (lambda: energy_preflight(run)) if energy else None
+    energy = next((one for one in chosen if one.captures(captures) - {"none"}), None)
+    energy_step = (lambda: energy_preflight(run, energy.gate)) if energy else None
     run.reconnect.retried(lambda: push(run.device, run.options, plan_files, energy_step), "the plan push")
     run.reconnect.retried(lambda: warm_up(run, document, preparation), "the warm-up")
     boot = lambda: run.reconnect.retried(run.device.boot_id, "the boot id read")
@@ -150,7 +150,7 @@ def device_cases(run, document, plan_files, captures, benchmark, preparation, in
         measure_on_device(run, one, captures, preparation, repetitions, folder, written, pass_blocks[one], redo)
 
     def finish():
-        redone = energy_end(run, redo)
+        redone = energy_end(run, redo, energy.gate)
         for one, folders in redone.items():
             blocks.refreshed(pass_blocks[one], folders)
         return redone

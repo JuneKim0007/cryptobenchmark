@@ -262,3 +262,13 @@ def test_each_idle_reading_waits_behind_the_gate_and_stamps_the_skin(tmp_path, m
     start, end = phone.energy.skins
     assert start["start"]["sensor"] == "skin" and start["start"]["celsius"] <= 35.75
     assert end["start"]["celsius"] <= 35.75 and end["end"]["sensor"] == "skin"
+
+
+def test_the_idle_readings_hold_under_the_energy_pass_gate(tmp_path, monkeypatch):
+    from test_device_benchmark_flow import MEASURED
+    heat = Heat(monkeypatch, start=38.0, cooling=0.05)
+    passes = {**MEASURED["passes"], "energy": {**MEASURED["passes"]["energy"], "thermalGate": GATE}}
+    phone, _files, problems, _results = measured(tmp_path, monkeypatch, MEASURED | {"thermalGate": GATE | {"temperatureKeptCelsius": 40.0}, "passes": passes})
+    assert heat.slept[0] == 180 and problems == []
+    start, end = phone.energy.skins
+    assert start["start"]["celsius"] <= 35.75 and end["start"]["celsius"] <= 35.75
