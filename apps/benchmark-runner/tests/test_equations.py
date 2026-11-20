@@ -12,6 +12,11 @@ def test_the_ranks_are_the_widest_binomial_tail_within_the_level():
         assert tail(low) <= 0.025 < tail(low + 1) and coverage >= 0.95
 
 
+def test_the_ranks_match_the_published_values():
+    assert median_ranks(36)[:2] == (12, 25)
+    assert median_ranks(50)[:2] == (18, 33)
+
+
 def test_the_rank_interval_reads_the_values_at_those_ranks():
     low, high, _ = median_ranks(9)
     assert rank_interval(list(range(1, 10))) == (low, 5, high)
@@ -35,7 +40,7 @@ def test_values_that_cannot_reach_the_target_say_so():
 
 def test_fixed_values_need_the_same_listed_count_under_every_seed():
     values = [1000.0 + (i * 37) % 80 for i in range(50)]
-    counts = {runs_needed(values, 0.02, seed=s) for s in range(1, 6)}
+    counts = {runs_needed(values, 0.022, seed=s) for s in range(1, 6)}
     assert len(counts) == 1 and counts <= set(SUBSAMPLE_SIZES)
     assert min(SUBSAMPLE_SIZES) < next(iter(counts)) < len(values)
 

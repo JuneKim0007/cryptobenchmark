@@ -1,3 +1,4 @@
+import math
 import random
 
 from cryptobench.shared.stats import inference
@@ -46,8 +47,22 @@ def test_mann_whitney_tells_a_shift_apart_and_not_a_copy():
     rng = random.Random(2)
     a = [rng.gauss(100, 1) for _ in range(36)]
     assert inference.mann_whitney(a, [v + 5 for v in a])[1] < 1e-6
-    u, p = inference.mann_whitney(a, list(a))
-    assert u == 36 * 36 / 2 and p == 1.0
+    u, p, method = inference.mann_whitney(a, list(a))
+    assert u == 36 * 36 / 2 and p == 1.0 and method == inference.NORMAL_APPROX
+
+
+def test_mann_whitney_is_exact_for_small_samples_without_ties():
+    assert inference.mann_whitney([1, 2, 3], [4, 5, 6]) == (0.0, 2 / 20, inference.EXACT)
+    assert inference.mann_whitney(list(range(8)), list(range(8, 16)))[1:] == (2 / 12870, inference.EXACT)
+    assert inference.mann_whitney([1, 3, 5, 7], [2, 4, 6, 8]) == (6.0, 2 * 24 / 70, inference.EXACT)
+    side = inference.EXACT_MAX
+    assert sum(inference._u_counts(side, side)) == math.comb(2 * side, side)
+
+
+def test_mann_whitney_falls_back_to_the_normal_approximation_on_ties_or_large_sides():
+    assert inference.mann_whitney([1, 2, 2], [3, 4, 5])[2] == inference.NORMAL_APPROX
+    big = inference.EXACT_MAX + 1
+    assert inference.mann_whitney(list(range(big)), list(range(big, 2 * big)))[2] == inference.NORMAL_APPROX
 
 
 def test_cliffs_delta_counts_pairs_and_takes_romano_labels():
@@ -71,9 +86,15 @@ def test_the_ratio_interval_holds_a_known_ratio_and_repeats_under_its_seed():
 def test_drift_compares_the_first_and_last_thirds_in_order():
     rng = random.Random(4)
     ramp = [100 * (1 + 0.3 * i / 99) + rng.gauss(0, 0.5) for i in range(100)]
-    ratio, p = inference.drift(ramp)
-    assert ratio > 1.15 and p < 1e-6
+    ratio, p, method = inference.drift(ramp)
+    assert ratio > 1.15 and p < 1e-6 and method == inference.NORMAL_APPROX
     flat = [rng.gauss(100, 1) for _ in range(100)]
     assert abs(inference.drift(flat)[0] - 1) < 0.01
     assert inference.drift([1.0] * 5) is None
+
+
+def test_drift_gives_no_p_for_thirds_under_eight():
+    ratio, p, method = inference.drift([100.0 + i for i in range(23)])
+    assert ratio > 1 and p is None and method is None
+    assert inference.drift([100.0 + i for i in range(24)])[1:] == (2 / 12870, inference.EXACT)
 

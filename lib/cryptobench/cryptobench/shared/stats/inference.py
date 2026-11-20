@@ -1,4 +1,5 @@
-"""Tests and intervals over one value per process: normality, rank tests, effect size and a bootstrap of a ratio of medians."""
+"""Tests and intervals over a list of values, one per process or one process's own samples: normality, rank tests, effect size,
+a bootstrap of a ratio of medians and drift between thirds."""
 from __future__ import annotations
 
 import math
@@ -13,6 +14,9 @@ BOOTSTRAP_SEED = 20261120
 QQ_MIN = 8
 QQ_CRITICAL_DRAWS = 20_000
 QQ_CRITICAL_SEED = 1975
+EXACT_MAX = 25          # Mann-Whitney is exact when both sides are at most this size and nothing ties
+DRIFT_MIN_TEST = 8      # thirds smaller than this get a ratio but no p
+EXACT, NORMAL_APPROX = "exact", "normal"
 # Romano et al. (2006) thresholds on |Cliff's delta|
 CLIFF_LABELS = ((0.147, "negligible"), (0.33, "small"), (0.474, "medium"), (math.inf, "large"))
 
@@ -35,7 +39,7 @@ def qq_score(values: list[float]) -> float | None:
 
 @lru_cache(maxsize=None)
 def qq_critical(n: int, alpha: float = ALPHA, draws: int = QQ_CRITICAL_DRAWS, seed: int = QQ_CRITICAL_SEED) -> float:
-    """The alpha quantile of qq_score over seeded normal samples of size n, Filliben's construction of the PPCC table."""
+    """The alpha quantile of qq_score over seeded normal samples of size n, Filliben-style PPCC table built on Blom scores."""
     rng, scores = random.Random(seed * 100_003 + n), normal_scores(n)
     rs = sorted(statistics.correlation(sorted(rng.gauss(0, 1) for _ in range(n)), scores) for _ in range(draws))
     return rs[int(alpha * draws)]
@@ -102,8 +106,18 @@ def _ranks(values):
     return ranks
 
 
-def mann_whitney(a: list[float], b: list[float]) -> tuple[float, float] | None:
-    """U of a and the two-sided p by the normal approximation with tie and continuity corrections; None when a side is empty or all values tie."""
+@lru_cache(maxsize=None)
+def _u_counts(m: int, n: int) -> tuple[int, ...]:
+    """How many orderings of m and n distinct values give each U, U counting pairs where the m side is larger."""
+    if not m or not n:
+        return (1,)
+    top_m, top_n = _u_counts(m - 1, n), _u_counts(m, n - 1)
+    return tuple((top_m[u - n] if 0 <= u - n < len(top_m) else 0) + (top_n[u] if u < len(top_n) else 0) for u in range(m * n + 1))
+
+
+def mann_whitney(a: list[float], b: list[float]) -> tuple[float, float, str] | None:
+    """U of a, the two-sided p and how it was found: exact without ties when both sides are at most EXACT_MAX, otherwise the
+    normal approximation with tie and continuity corrections; None when a side is empty or all values tie."""
     n1, n2 = len(a), len(b)
     if not n1 or not n2:
         return None
@@ -111,12 +125,17 @@ def mann_whitney(a: list[float], b: list[float]) -> tuple[float, float] | None:
     ranks = _ranks(pooled)
     u = sum(ranks[:n1]) - n1 * (n1 + 1) / 2
     n = n1 + n2
-    ties = sum(t ** 3 - t for t in _tie_sizes(pooled))
+    tie_sizes = _tie_sizes(pooled)
+    if not tie_sizes and max(n1, n2) <= EXACT_MAX:
+        counts, k = _u_counts(n1, n2), round(u)
+        tail = min(sum(counts[:k + 1]), sum(counts[k:]))
+        return u, min(1.0, 2 * tail / math.comb(n, n1)), EXACT
+    ties = sum(t ** 3 - t for t in tie_sizes)
     variance = n1 * n2 / 12 * ((n + 1) - ties / (n * (n - 1)))
     if variance <= 0:
         return None
     z = max(abs(u - n1 * n2 / 2) - 0.5, 0.0) / math.sqrt(variance)
-    return u, min(1.0, 2 * (1 - NORMAL.cdf(z)))
+    return u, min(1.0, 2 * (1 - NORMAL.cdf(z))), NORMAL_APPROX
 
 
 def _tie_sizes(values):
@@ -150,13 +169,15 @@ def ratio_of_medians(base: list[float], other: list[float], resamples: int = BOO
             draws[math.ceil((1 - tail) * len(draws)) - 1])
 
 
-def drift(samples: list[float]) -> tuple[float, float] | None:
-    """median(last third) / median(first third) of one process's samples in order, and the Mann-Whitney p between the thirds."""
+def drift(samples: list[float]) -> tuple[float, float | None, str | None] | None:
+    """median(last third) / median(first third) of one process's samples in order, and the Mann-Whitney p between the thirds
+    and its method, both None for thirds under DRIFT_MIN_TEST."""
     third = len(samples) // 3
     if third < 2:
         return None
     first, last = samples[:third], samples[-third:]
-    test = mann_whitney(first, last)
-    if not statistics.median(first) or test is None:
+    if not statistics.median(first):
         return None
-    return statistics.median(last) / statistics.median(first), test[1]
+    ratio = statistics.median(last) / statistics.median(first)
+    test = mann_whitney(first, last) if third >= DRIFT_MIN_TEST else None
+    return ratio, test and test[1], test and test[2]

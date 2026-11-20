@@ -41,7 +41,8 @@ def case_row(case_id, samples, metric):
     within_qq = [q for q in map(inference.qq_test, within) if q]
     within_shapiro = [t for t in map(inference.shapiro_wilk, within) if t]
     drifts = [d for d in map(inference.drift, samples) if d]
-    drifting = [d for d in drifts if d[1] < inference.ALPHA and abs(d[0] - 1) > DRIFT_RATIO]
+    tested = [d for d in drifts if d[1] is not None]
+    drifting = [d for d in tested if d[1] < inference.ALPHA and abs(d[0] - 1) > DRIFT_RATIO]
     return {
         "case": case_id, "metric": metric, "unit": METRICS[metric], "n": n, "median": statistics.median(values),
         "ciLow": ordered[low - 1], "ciHigh": ordered[high - 1], "ranks": [low, high], "coverage": coverage,
@@ -52,8 +53,9 @@ def case_row(case_id, samples, metric):
         "withinQq": _median([q[0] for q in within_qq]),
         "withinQqFail": sum(not q[2] for q in within_qq) / len(within_qq) if within_qq else None,
         "withinNonNormal": sum(p < inference.ALPHA for _, p in within_shapiro) / len(within_shapiro) if within_shapiro else None,
-        "driftChecked": len(drifts), "drifting": len(drifting), "driftRatio": _median([d[0] for d in drifts]),
-        "driftFlag": bool(drifts) and len(drifting) / len(drifts) > DRIFT_SHARE,
+        "driftChecked": len(tested), "drifting": len(drifting), "driftRatio": _median([d[0] for d in drifts]),
+        "driftTests": {m: sum(d[2] == m for d in tested) for m in (inference.EXACT, inference.NORMAL_APPROX)},
+        "driftFlag": bool(tested) and len(drifting) / len(tested) > DRIFT_SHARE,
     }
 
 
@@ -70,7 +72,8 @@ def pair_row(key, fixed, not_fixed, metric):
     return {
         "pair": key, "metric": metric, "nFixed": len(a), "nNotFixed": len(b),
         "ratio": ratio and ratio[0], "ratioLow": ratio and ratio[1], "ratioHigh": ratio and ratio[2],
-        "mannWhitneyU": test and test[0], "mannWhitneyP": test and test[1], "cliffsDelta": delta, "magnitude": magnitude,
+        "mannWhitneyU": test and test[0], "mannWhitneyP": test and test[1],
+        "mannWhitneyMethod": test and test[2], "cliffsDelta": delta, "magnitude": magnitude,
     }
 
 
@@ -132,16 +135,18 @@ def markdown(rows, pairs):
               f"{_p(r['shapiroP'])} | {NO_VALUE if r['normal'] is None else 'yes' if r['normal'] else 'no'} | {_qq(r)} |" for r in rows]
     lines += ["", "## Within a process", "",
               f"Drift: median of the last third over the first third of a process's samples; a process drifts above {DRIFT_RATIO:.0%} with Mann-Whitney p < {inference.ALPHA}; "
-              f"a case is flagged above {DRIFT_SHARE:.0%} of its processes.", "",
-              "| case | metric | QQ r (median) | QQ fails | non-normal processes | processes checked | drifting | last/first (median) | flagged |",
-              "|---|---|---|---|---|---|---|---|---|"]
-    lines += [f"| {r['case']} | {r['metric']} | {_p(r['withinQq'])} | {_share(r['withinQqFail'])} | {_share(r['withinNonNormal'])} | {r['driftChecked']} | {r['drifting']} | "
+              f"a case is flagged above {DRIFT_SHARE:.0%} of its processes. Thirds under {inference.DRIFT_MIN_TEST} samples get no p and are not checked. "
+              f"Mann-Whitney is exact with no ties and both sides at most {inference.EXACT_MAX}, otherwise normal with continuity correction.", "",
+              "| case | metric | QQ r (median) | QQ fails | non-normal processes | processes checked | exact / normal | drifting | last/first (median) | flagged |",
+              "|---|---|---|---|---|---|---|---|---|---|"]
+    lines += [f"| {r['case']} | {r['metric']} | {_p(r['withinQq'])} | {_share(r['withinQqFail'])} | {_share(r['withinNonNormal'])} | {r['driftChecked']} | "
+              f"{r['driftTests'][inference.EXACT]} / {r['driftTests'][inference.NORMAL_APPROX]} | {r['drifting']} | "
               f"{_p(r['driftRatio'])} | {'yes' if r['driftFlag'] else 'no'} |" for r in rows]
     lines += ["", "## notFixed against fixed", "",
-              "| pair | metric | n fixed / notFixed | median ratio notFixed/fixed | 95% CI | Mann-Whitney p | Cliff's delta | magnitude |",
-              "|---|---|---|---|---|---|---|---|"]
+              "| pair | metric | n fixed / notFixed | median ratio notFixed/fixed | 95% CI | Mann-Whitney p | method | Cliff's delta | magnitude |",
+              "|---|---|---|---|---|---|---|---|---|"]
     lines += [f"| {p['pair']} | {p['metric']} | {p['nFixed']} / {p['nNotFixed']} | {_r(p['ratio'])} | {_r(p['ratioLow'])} - {_r(p['ratioHigh'])} | "
-              f"{_p(p['mannWhitneyP'])} | {p['cliffsDelta']:+.3f} | {p['magnitude']} |" for p in pairs]
+              f"{_p(p['mannWhitneyP'])} | {p['mannWhitneyMethod'] or NO_VALUE} | {p['cliffsDelta']:+.3f} | {p['magnitude']} |" for p in pairs]
     return "\n".join(lines) + "\n"
 
 
