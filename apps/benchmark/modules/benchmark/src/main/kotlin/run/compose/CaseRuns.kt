@@ -11,10 +11,9 @@ import io.github.junekim0007.cryptobench.preparation.operation.Invocation
 
 object CaseRuns {
 
-    fun timed(caseId: String, energy: Energy, timed: CaseRun): CaseRun = when (energy.capture) {
-        Energy.Capture.NONE -> timed
-        Energy.Capture.MEASURED -> Cooldown(timed, energy.cooldownMillis)
-        Energy.Capture.DRY -> throw IllegalArgumentException("not_timed: $caseId is a dry energy case")
+    fun timed(caseId: String, energy: Energy, timed: CaseRun): CaseRun {
+        require(energy.capture != Energy.Capture.DRY) { "not_timed: $caseId is a dry energy case" }
+        return timed
     }
 
     fun dry(caseId: String, energy: Energy, marker: WindowMarker, invocation: Invocation): CaseRun {

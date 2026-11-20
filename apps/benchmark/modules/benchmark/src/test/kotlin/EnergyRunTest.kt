@@ -36,17 +36,17 @@ class EnergyRunTest {
     }
 
     @Test
-    fun withoutEnergyTheTimedRunIsUntouched() {
+    fun aTimedRunIsUntouchedWithOrWithoutEnergy() {
         assertSame(timed, CaseRuns.timed("c", Energy.NONE, timed))
+        assertSame(timed, CaseRuns.timed("m", Energy.of(EnergySettings(capture = "measured")), timed))
     }
 
     @Test
-    fun aMeasuredRunIsCooledDownAfterJetpack() {
+    fun aDryRunIsCooledDownAfterItsWindow() {
         val events = mutableListOf<String>()
-        val run = Cooldown(CaseRun { events += "jetpack"; null }, 3000) { events += "sleep $it" }
-        run.run()
-        assertEquals(listOf("jetpack", "sleep 3000"), events)
-        assertTrue(CaseRuns.timed("m", Energy.of(EnergySettings(capture = "measured")), timed) is Cooldown)
+        Cooldown(CaseRun { events += "window"; null }, 3000) { events += "sleep $it" }.run()
+        assertEquals(listOf("window", "sleep 3000"), events)
+        assertTrue(CaseRuns.dry("d", Energy(Energy.Capture.DRY, 1, 1, 0), Recorder(), Invocation({ null })) is Cooldown)
     }
 
     @Test

@@ -5,7 +5,7 @@
 | `harness.energy.capture` | run | window | operations |
 |---|---|---|---|
 | `none` (default) | Jetpack timed run only | none | none |
-| `measured` | Jetpack timed run, then cooldown | the kept runs: the `Benchmark Time` slice's children from its last `measurement 0` to the last `measurement <n>` after it, whatever heat sleeps lie around them | `repeatIterations` × runs |
+| `measured` | Jetpack timed run; its rest is the host's: the thermal gate and `caseCooldownSeconds` | the kept runs: the `Benchmark Time` slice's children from its last `measurement 0` to the last `measurement <n>` after it, whatever heat sleeps lie around them | `repeatIterations` × runs |
 | `dry` | `EnergyDryBenchmark`: Cooldown(Rewarm(EnergyWindow(TimedLoop for `windowSeconds`))) | atrace slice `energy:<caseId>` | calls from `energy-dry.yaml` |
 
 - Energy runs only with `--device`; any other capture without it fails.
@@ -22,7 +22,7 @@
 | `energy.capture` | `none`, `measured`, `dry` | `none` |
 | `energy.windowSeconds` | ≥1; `dry` only | 10 |
 | `energy.warmupSeconds` | ≥1 | 2 |
-| `energy.cooldownSeconds` | ≥0 | 5 |
+| `energy.cooldownSeconds` | ≥0; `dry` only (its cases share one process and one gate hold) | 5 |
 | `energy.source` | `rails`, `manafa` | `rails` |
 
 - Keys sit under `harness` in `global.yaml` `run` or a test-set override; precedence: `apps/benchmark/modules/config/docs/config.md`. Defaults: `EnergySettings.DEFAULTS`, written to `contracts/defaults/defaults.yaml`; `Energy.of` merges a case's keys over them key by key.
