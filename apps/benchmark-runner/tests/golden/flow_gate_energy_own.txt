@@ -18,7 +18,7 @@ traces:    b: 0 pulled, 2 expected
 case:      2 of 2 b ok
 clocks:    0 of 2 cases started or ended with a core capped below its maximum
 traces:    0 pulled
-thermal:   energy pass: hottest 27.3 C at a case start, 27.5 C at an end; 0 pauses, 0 s paused; 0 cases ended throttled (status > 0)
+thermal:   energy pass: skin skin 27.3 C at a case start, 27.5 C at an end; CPU unavailable; 0 pauses, 0 s paused; 0 cases ended throttled (status > 0)
 gate:      energy pass: 1 of 4 runs waited, 180 s; 0 runs discarded; start limit 34.75-34.75 C
 cool-down: energy pass: 3 x 4 s = 12 s between cases
 pass:      energy pass: 1 process, <m s> on the device
@@ -28,7 +28,7 @@ order:     <tmp>/results/benchmark/timing/order.txt
 case:      1 of 2 a ok
 case:      2 of 2 b ok
 clocks:    0 of 2 cases started or ended with a core capped below its maximum
-thermal:   timing pass: hottest 27.7 C at a case start, 27.9 C at an end; 0 pauses, 0 s paused; 0 cases ended throttled (status > 0)
+thermal:   timing pass: skin skin 27.7 C at a case start, 27.9 C at an end; CPU unavailable; 0 pauses, 0 s paused; 0 cases ended throttled (status > 0)
 gate:      timing pass: 0 of 2 runs waited, 0 s; 0 runs discarded; start limit 35.75-35.75 C
 pass:      timing pass: 1 process, <m s> on the device
 wrote:     <tmp>/results/preparation/prepared.yaml
