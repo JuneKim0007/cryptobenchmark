@@ -10,7 +10,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
 
-/** A generated key's use from a small catalogue and the shipped ones: by type Signature, Cipher, Mac, KeyAgreement, exemplars then catalogue order, key type folded, Available on both providers, the type's timed operation from the entry's words. */
+/** A generated key's use from a small catalogue and the shipped ones: exemplars then catalogue order, each by type Signature, Cipher, Mac, KeyAgreement, key type folded, Available on both providers, the type's timed operation from the entry's words. */
 class KeyUseTest {
 
     private val cipher = """
@@ -115,7 +115,7 @@ class KeyUseTest {
     fun theGeneratorsOwnEntryGivesTheKeyType() {
         assertEquals("HMAC, HmacSHA256 -> Mac|HmacSHA256 COMPUTE_MAC", generated("KeyGenerator", "HmacSHA256", "HmacSHA256"))
         assertEquals("Ed25519, EdDSA -> Signature|Ed25519 SIGN", generated("KeyPairGenerator", "Ed25519", "EdDSA"))
-        assertEquals("X25519, XDH -> Cipher|XIES ENCRYPT", generated("KeyPairGenerator", "X25519", "XDH"))
+        assertEquals("X25519, XDH -> KeyAgreement|X25519 AGREE_KEY", generated("KeyPairGenerator", "X25519", "XDH"))
         assertEquals("X448, XDH -> KeyAgreement|X448 AGREE_KEY", generated("KeyPairGenerator", "x448", "XDH"))
     }
 
@@ -134,13 +134,20 @@ class KeyUseTest {
     }
 
     @Test
-    fun byTypeSignatureCipherMacKeyAgreementExemplarsFirstWithinAType() {
+    fun exemplarsAcrossTypesInOrderSignatureCipherMacKeyAgreement() {
         assertEquals("Signature|SHA256withECDSA SIGN", shipped.of("EC", "P", "Q").toString())
         assertEquals("Signature|SHA256withRSA/PSS SIGN", shipped.of("RSA", "P", "Q").toString())
         assertEquals("Cipher|ECIES ENCRYPT", KeyUse(lacking("Signature")).of("EC", "P", "Q").toString())
         assertEquals("Cipher|SM2 ENCRYPT", KeyUse(lacking("Signature", "ECIES")).of("EC", "P", "Q").toString())
         assertEquals("KeyAgreement|ECDH AGREE_KEY", KeyUse(lacking("Signature", "Cipher")).of("EC", "P", "Q").toString())
-        assertEquals("Signature|NONEwithECDSA SIGN", KeyUse(lacking("SHA256withECDSA")).of("EC", "P", "Q").toString())
-        assertEquals("Cipher|XIES ENCRYPT", shipped.of("X25519", "P", "Q").toString())
+        assertEquals("KeyAgreement|X25519 AGREE_KEY", shipped.of("X25519", "P", "Q").toString())
+        assertEquals("Cipher|ECIES ENCRYPT", KeyUse(lacking("SHA256withECDSA")).of("EC", "P", "Q").toString())
+        assertEquals("Cipher|RSA/ECB/PKCS1Padding ENCRYPT", KeyUse(lacking("SHA256withRSA/PSS")).of("RSA", "P", "Q").toString())
+    }
+
+    @Test
+    fun catalogueOrderByTypeOnlyWhenNoExemplarFits() {
+        assertEquals("Cipher|XIES ENCRYPT", KeyUse(capability, exemplars = GroupExemplars.parse("schemaVersion: 3\ngroups: {}")).of("X25519", "P", "Q").toString())
+        assertEquals("Signature|NONEwithECDSA SIGN", KeyUse(lacking("SHA256withECDSA", "ECIES", "SM2", "ECDH")).of("EC", "P", "Q").toString())
     }
 }

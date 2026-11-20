@@ -8,7 +8,7 @@ import io.github.junekim0007.cryptobench.preparation.port.Availability
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
 import java.util.Locale
 
-/** A generated key's use: its key type from the generator's own entry, else the key's name; by type (Signature, Cipher, Mac, KeyAgreement), the families' exemplars then catalogue order, the first entry of that key type, as each provider's build sees it, Available on both, with an operation the harness times. */
+/** A generated key's use: its key type from the generator's own entry, else the key's name; the families' exemplars, then catalogue order, each by type (Signature, Cipher, Mac, KeyAgreement), the first entry of that key type, as each provider's build sees it, Available on both, with an operation the harness times. */
 internal class KeyUse(
     private val capability: DeviceCapability,
     private val catalogue: FamilyCatalogue = bundled,
@@ -31,7 +31,7 @@ internal class KeyUse(
     fun of(keyType: String, producer: String, consumer: String): Use? {
         val builds = listOf(producer, consumer).map { catalogue.build(it, capability.platform) }
         val preferred = FAMILIES.flatMap(exemplars::of).mapNotNull { id -> catalogue.of(id.substringBefore('|'), id.substringAfter('|')) }
-        return TYPES.asSequence().flatMap { type -> (preferred + catalogue.entries).filter { it.type == type } }
+        return listOf(preferred, catalogue.entries).asSequence().flatMap { tier -> TYPES.flatMap { type -> tier.filter { it.type == type } } }
             .filter { it.family in FAMILIES }
             .filter { entry -> builds.all { keyType(entry, it).equals(keyType, ignoreCase = true) } }
             .filter { entry -> listOf(producer, consumer).all { capability.check(it, entry.type, entry.name) == Availability.Available } }
