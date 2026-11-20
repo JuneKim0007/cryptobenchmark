@@ -22,7 +22,7 @@ Primitive and provider catalogue: `docs/cryptography/primitives.md`.
 
 ## global.yaml
 
-`selection.knownVectors` (optional): a folder of `<family>.yaml` known answers read by `--check` beside the packaged ones, relative to the global file; a missing folder stops the run.
+`selection.knownVectors` (optional): a folder of `<family>.yaml` known answers read by `--check` beside the packaged ones, relative to the global file; a missing folder stops the run. A user vector needs no catalogue link: it reaches every case it matches by type, algorithm or an alias, operation and key size, and one that matches no case of the run is an `orphan_vector` warning.
 
 `schemaVersion: 1`. Sections `selection` and `run` (required: `run.orderSeed`), `policy`, `analysis`, `providers`; any other top key fails `unknown_section`; an unknown key fails `unknown_keys`.
 

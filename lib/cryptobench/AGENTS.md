@@ -43,7 +43,7 @@ cryptobench/shared/catalogue/recipes.py : reads recipes.yaml, checked whole: one
 cryptobench/shared/catalogue/reinit.py : whether init runs before every use of an operation, from one build's view of an entry
 cryptobench/shared/catalogue/signature.py : Signature and its components, known, convention or unknown; decided, assumed, identity, differing
 cryptobench/shared/catalogue/types.py : TypeRow: an algorithm's output kind, Properties, Strength, minSdk and their sources
-cryptobench/shared/catalogue/vectors.py : known answers: read and checked whole, filled per provider for one run, --check's coverage lines
+cryptobench/shared/catalogue/vectors.py : known answers: read and checked whole, user vectors matched to cases by name, filled per provider for one run, --check's coverage lines
 cryptobench/shared/catalogue/views.py : what an agent is shown: one entry with only its provider build's overrides (view_for), the groups' ids, descriptions and exemplars (list_groups), one group's members a page at a time (get_group)
 cryptobench/shared/document/__init__.py : package of the YAML document reader and writer and the JSON document writer
 cryptobench/shared/document/append.py : append_line, one whole line appended, a newline first after a line a crash cut

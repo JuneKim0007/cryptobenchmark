@@ -45,8 +45,34 @@ def test_a_malformed_vector_stops_naming_the_field(tmp_path):
         vectors.load(folder(other, VECTOR, name="made.up.yaml"))
 
 
-def test_a_user_vector_no_entry_names_is_a_warning(tmp_path):
-    assert vectors.checked(vectors.load(folder(tmp_path, VECTOR))) == ["orphan_vector: mine is named by no guide entry"]
+SHA256 = {"id": "mine-sha256", "source": "s", "type": "MessageDigest", "algorithm": "SHA256", "operations": ["DIGEST"], "input": "616263",
+          "output": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"}
+ECB = {"id": "mine-ecb", "source": "s", "type": "Cipher", "algorithm": "AES/ECB/NoPadding", "operations": ["ENCRYPT", "DECRYPT"],
+       "key": {"algorithm": "AES", "secret": "2b7e151628aed2a6abf7158809cf4f3c"}, "input": "6bc1bee22e409f96e93d7e117393172a", "output": "3ad77bb40d7a3660a89ecaf32466ef97"}
+
+
+def user_fill(tmp_path, effective, *entries, name):
+    document, warnings = vectors.filled(effective, "jdk-25", folder(tmp_path, *entries, name=name))
+    return [v for v in document["vectors"] if v["origin"] == "user"], warnings
+
+
+def test_a_user_vector_no_entry_names_is_no_guide_warning(tmp_path):
+    assert vectors.checked(vectors.load(folder(tmp_path, VECTOR))) == []
+
+
+def test_a_user_vector_reaches_the_case_its_name_or_alias_matches(tmp_path):
+    got, warnings = user_fill(tmp_path, {"providers": {"SUN": {"MessageDigest": {"SHA-256": {}}}}}, SHA256, name="digest.none.yaml")
+    assert [(v["id"], v["provider"], v["algorithm"]) for v in got] == [("mine-sha256", "SUN", "SHA-256")]
+    assert warnings == []
+
+
+def test_a_user_vector_of_another_key_size_or_operation_matches_no_case(tmp_path):
+    effective = {"providers": {"SunJCE": {"Cipher": {"AES/ECB/NOPADDING": {"keySizes": [256]}}}}}
+    got, warnings = user_fill(tmp_path, effective, ECB, {**ECB, "id": "mine-sign", "key": {"algorithm": "AES", "secret": "00" * 32}, "operations": ["SIGN"]}, name="cipher.secret.yaml")
+    assert got == []
+    assert warnings == [f"orphan_vector: {i} matches no case of this run by type, name or alias, operation and key size" for i in ("mine-ecb", "mine-sign")]
+    got, warnings = user_fill(tmp_path, {"providers": {"SunJCE": {"Cipher": {"AES/ECB/NOPADDING": {"keySizes": [128, 256]}}}}}, ECB, name="cipher.secret.yaml")
+    assert [v["id"] for v in got] == ["mine-ecb"] and warnings == []
 
 
 def fills(platform, provider="AndroidOpenSSL"):
@@ -69,3 +95,9 @@ def test_a_counter_1_provider_runs_the_counter_1_vector_only():
 def test_a_run_with_no_compared_vector_says_so():
     _, compared = vectors.coverage([{"case": {"type": "MessageDigest", "algorithm": "MD5"}, "oracles": {"knownAnswer": {"verdict": "not_checkable", "reason": "no_vector: x"}}}])
     assert not compared
+
+
+def test_a_user_sign_vector_on_a_randomized_signature_stops(tmp_path):
+    ecdsa = {"id": "mine-ecdsa", "source": "s", "type": "Signature", "algorithm": "SHA256withECDSA", "operations": ["SIGN", "VERIFY"], "input": "00", "output": "00"}
+    with pytest.raises(InputError, match="vector_on_randomized_operation: mine-ecdsa"):
+        user_fill(tmp_path, {"providers": {"SunEC": {"Signature": {"SHA256withECDSA": {}}}}}, ecdsa, name="signature.pair.yaml")
