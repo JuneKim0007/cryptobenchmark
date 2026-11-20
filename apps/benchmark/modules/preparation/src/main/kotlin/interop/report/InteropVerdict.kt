@@ -7,7 +7,7 @@ data class InteropVerdict(val pair: InteropPair, val mode: String, val aToB: Out
 
     val result: String get() = when {
         aToB is Outcome.Fail || bToA is Outcome.Fail -> Outcome.FAIL
-        aToB == Outcome.Pass && bToA == Outcome.Pass -> Outcome.PASS
+        aToB is Outcome.Pass && bToA is Outcome.Pass -> Outcome.PASS
         else -> Outcome.NOT_CHECKABLE
     }
 
@@ -15,7 +15,7 @@ data class InteropVerdict(val pair: InteropPair, val mode: String, val aToB: Out
         when (outcome) {
             is Outcome.Fail -> "$side: ${outcome.reason}"
             is Outcome.NotCheckable -> "$side: ${outcome.reason}"
-            Outcome.Pass -> null
+            is Outcome.Pass -> outcome.detail?.let { "$side: $it" }
         }
     }.joinToString("; ")
 }

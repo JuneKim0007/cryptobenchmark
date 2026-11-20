@@ -35,6 +35,7 @@ class InteropFileGoldenTest {
             member("Cipher", "AES/GCM/NoPadding", "SunJCE") to member("Cipher", "AES/GCM/NoPadding", "SunJCE"),
             member("Signature", "SHA256withECDSA", "SunEC") to member("Signature", "SHA384withECDSA", "SunEC"),
             member("Cipher", "AES/GCM/NoPadding", "SunJCE") to member("Cipher", "AES/GCM/NoPadding", "Missing"),
+            member("KeyPairGenerator", "EC", "SunEC") to member("KeyPairGenerator", "EC", "SunEC"),
         )
         val plan = folder.newFile("interop_plan.yaml").apply {
             writeText("schemaVersion: 1\npairs:\n" + pairs.mapIndexed { i, (a, b) -> "- {id: ${i + 1}, group: g, a: $a, b: $b}\n" }.joinToString(""))
@@ -101,6 +102,15 @@ class InteropFileGoldenTest {
               directions: {aToB: not_checkable, bToA: not_checkable}
               reason: 'aToB: not_registered: Cipher|AES/GCM/NoPadding|Missing: not_registered;
                 bToA: not_registered: Cipher|AES/GCM/NoPadding|Missing: not_registered'
+            - id: 7
+              group: g
+              a: {type: KeyPairGenerator, algorithm: EC, provider: SunEC}
+              b: {type: KeyPairGenerator, algorithm: EC, provider: SunEC}
+              result: pass
+              mode: produce_consume
+              directions: {aToB: pass, bToA: pass}
+              reason: 'aToB: use Signature|SHA256withECDSA SIGN; bToA: use Signature|SHA256withECDSA
+                SIGN'
 
         """.trimIndent()
     }

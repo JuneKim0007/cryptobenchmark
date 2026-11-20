@@ -258,9 +258,9 @@ class InteropOracleTest {
             "DH" to shown(pair("KeyAgreement", "SunJCE", "DH", "DH", 2048)),
         )
         assertEquals(listOf(
-            "AES key" to "pass/produce_consume",
-            "EC key pair" to "pass/produce_consume",
-            "RSA key pair" to "pass/produce_consume",
+            "AES key" to "pass/produce_consume aToB: use Cipher|AES/GCM/NoPadding ENCRYPT; bToA: use Cipher|AES/GCM/NoPadding ENCRYPT",
+            "EC key pair" to "pass/produce_consume aToB: use Signature|SHA256withECDSA SIGN; bToA: use Signature|SHA256withECDSA SIGN",
+            "RSA key pair" to "pass/produce_consume aToB: use Signature|MD2withRSA SIGN; bToA: use Signature|MD2withRSA SIGN",
             "ECDH" to "pass/same_output",
             "DH" to "pass/same_output",
         ), table)

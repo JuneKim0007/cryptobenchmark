@@ -46,4 +46,4 @@ Schema `interop_plan` v1, written by perf-repair (`apps/perf-repair/docs/groupin
 | `generatedFrom` | `plan`, `capture` file names |
 | `pairs[]` | `{id, group, a, b, result, mode, directions: {aToB, bToA}, reason}`; `a`, `b` as in the plan |
 | `result`, direction labels | `pass`, `fail`, `not_checkable` |
-| `reason` | `aToB: ...; bToA: ...` for each direction that did not pass; empty on `pass` |
+| `reason` | `aToB: ...; bToA: ...` for each direction that did not pass, or passed by a generated key's use (`use Signature\|SHA256withECDSA SIGN`); else empty |

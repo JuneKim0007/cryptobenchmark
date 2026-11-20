@@ -45,7 +45,7 @@ class FailureClassifiersTest {
         byteArrayOf(0x61, 0x62, 0x63), ByteArray(32), prefixOnly = false)
 
     private fun shown(outcome: Outcome): String = when (outcome) {
-        Outcome.Pass -> "pass"
+        is Outcome.Pass -> "pass"
         is Outcome.Fail -> "fail ${outcome.reason}"
         is Outcome.NotCheckable -> "not_checkable ${outcome.reason}"
     }

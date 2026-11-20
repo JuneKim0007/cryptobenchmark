@@ -1,6 +1,6 @@
 # peer
 
-`PeerEngine(capability).check(produced, consumer)`: whether another provider's engine, the consumer, takes a produced call's output. The end-to-end check's `crossProvider` oracle calls it once per peer provider with every parameter the call used (`Travel.USED`); interop calls `produced(case, recipe, key, consumer, Travel.MESSAGE_BORNE)`, which runs the producer first; its capability gives the availability a key use needs. Code under `src/main/kotlin/peer/`, one file per class below plus `Outcome` (verdict and label), `OutputBytes` (a call's output as bytes), `ProducedCall`, `Consumer`, `Travel`, `PeerCase` (seed 0, input 16), `PeerRefusal`; covered by `PeerRowsTest`, `KeyUseTest`, the cli `FailureClassifiersTest`.
+`PeerEngine(capability).check(produced, consumer)`: whether another provider's engine, the consumer, takes a produced call's output. The end-to-end check's `crossProvider` oracle calls it once per peer provider with every parameter the call used (`Travel.USED`); interop calls `produced(case, recipe, key, consumer, Travel.MESSAGE_BORNE)`, which runs the producer first; its capability gives the availability a key use needs. Code under `src/main/kotlin/peer/`, one file per class below plus `Outcome` (verdict and label; a pass by use names it), `OutputBytes` (a call's output as bytes), `ProducedCall`, `Consumer`, `Travel`, `PeerCase` (seed 0, input 16), `PeerRefusal`; covered by `PeerRowsTest`, `KeyUseTest`, the cli `FailureClassifiersTest`.
 
 ## Procedure
 
@@ -53,11 +53,11 @@ First matching rule wins. Stages: produce (the producer's own call), setup over 
 
 | rule | value |
 |---|---|
-| catalogues | `algorithms/cipher.secret_catalogue.yaml`, `cipher.pair`, `signature.pair`, `mac.secret`, `agreement.peer`, in that order, entries in file order, read through document's `FamilyCatalogue` |
+| catalogues | `algorithms/cipher.secret_catalogue.yaml`, `cipher.pair`, `signature.pair`, `mac.secret`, `agreement.peer`, entries in file order, read through document's `FamilyCatalogue` |
 | build view | each entry as each provider's build sees it: `deviations.yaml` and provider-wide behaviours applied as the Python reader does; the build is the provider's on the capture's platform (`android-<sdk>`, `jdk-<major>`), else the nearest at or below, else its latest |
 | key type | the generator's own entry in `keygen.none` or `keypairgen.none` (`KeyGenerator\|HmacSHA256` gives `HMAC`), its `key.type` on the producer's build; if no use has that type, the key's algorithm name (`getAlgorithm`) |
-| entry | the first whose `key.type`, on both builds, equals the key type, case folded, and whose type and name the capability reports Available on both providers: first among `algorithms/groups.yaml`'s exemplars of those families, in that order, then in catalogue order |
+| entry | the first whose `key.type`, on both builds, equals the key type, case folded, and whose type and name the capability reports Available on both providers; by type Signature, Cipher, Mac, KeyAgreement, within a type first `algorithms/groups.yaml`'s exemplars of those families, then catalogue order (an EC key: `Signature\|SHA256withECDSA`) |
 | operation | the first of the entry's `operations` words that begins the name of an operation `engine-operations.yaml` times for its type (`computeMac` COMPUTE_MAC, `agree` AGREE_KEY); `wrap` has none |
-| reason | a `fail` or `not_checkable` by use ends `(use <type>\|<name> <OPERATION>)`; a `pass` carries no reason |
+| reason | a `fail` or `not_checkable` by use ends `(use <type>\|<name> <OPERATION>)`; a `pass` by use carries `use <type>\|<name> <OPERATION>` |
 | none | `not_checkable` `no_key_use`, naming the key types tried (a generator whose type no use has, such as `KeyPairGenerator\|XDH`, `EdDSA` or `ECDSA`) |
 | case | seed 0, input 16, no bound parameters |

@@ -10,7 +10,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
 
-/** A generated key's use from a small catalogue and the shipped ones: catalogue order, key type folded, Available on both providers, the type's timed operation from the entry's words. */
+/** A generated key's use from a small catalogue and the shipped ones: by type Signature, Cipher, Mac, KeyAgreement, exemplars then catalogue order, key type folded, Available on both providers, the type's timed operation from the entry's words. */
 class KeyUseTest {
 
     private val cipher = """
@@ -115,27 +115,32 @@ class KeyUseTest {
     fun theGeneratorsOwnEntryGivesTheKeyType() {
         assertEquals("HMAC, HmacSHA256 -> Mac|HmacSHA256 COMPUTE_MAC", generated("KeyGenerator", "HmacSHA256", "HmacSHA256"))
         assertEquals("Ed25519, EdDSA -> Signature|Ed25519 SIGN", generated("KeyPairGenerator", "Ed25519", "EdDSA"))
-        assertEquals("X25519, XDH -> KeyAgreement|X25519 AGREE_KEY", generated("KeyPairGenerator", "X25519", "XDH"))
+        assertEquals("X25519, XDH -> Cipher|XIES ENCRYPT", generated("KeyPairGenerator", "X25519", "XDH"))
         assertEquals("X448, XDH -> KeyAgreement|X448 AGREE_KEY", generated("KeyPairGenerator", "x448", "XDH"))
     }
 
     @Test
     fun aKeyNamedOtherwiseThanItsGeneratorsType() {
-        assertEquals("EC, ECDSA -> Cipher|ECIES ENCRYPT", generated("KeyPairGenerator", "EC", "ECDSA"))
+        assertEquals("EC, ECDSA -> Signature|SHA256withECDSA SIGN", generated("KeyPairGenerator", "EC", "ECDSA"))
         assertEquals("ECDSA -> null", generated("KeyPairGenerator", "ECDSA", "ECDSA"))
         assertEquals("XDH -> null", generated("KeyPairGenerator", "XDH", "XDH"))
         assertEquals("EdDSA -> null", generated("KeyPairGenerator", "EdDSA", "EdDSA"))
         assertEquals("AES -> Cipher|AES/GCM/NoPadding ENCRYPT", generated("KeyGenerator", "Uncatalogued", "AES"))
     }
 
+    private fun lacking(vararg names: String) = object : DeviceCapability by capability {
+        override fun check(provider: String, type: String, algorithm: String): Availability =
+            if (provider == "Q" && (type in names || algorithm in names)) Availability.Unavailable("not_registered") else Availability.Available
+    }
+
     @Test
-    fun anExemplarOneProviderLacksFallsToTheNextThenToCatalogueOrder() {
-        val noIes = object : DeviceCapability by capability {
-            override fun check(provider: String, type: String, algorithm: String): Availability =
-                if (provider == "Q" && (algorithm == "ECIES" || algorithm == "SHA256withECDSA")) Availability.Unavailable("not_registered") else Availability.Available
-        }
-        assertEquals("Cipher|ECIES ENCRYPT", shipped.of("EC", "P", "Q").toString())
-        assertEquals("Cipher|SM2 ENCRYPT", KeyUse(noIes).of("EC", "P", "Q").toString())
-        assertEquals("Cipher|XIES ENCRYPT", KeyUse(noIes, exemplars = GroupExemplars.parse("schemaVersion: 3\ngroups: {}")).of("X25519", "P", "Q").toString())
+    fun byTypeSignatureCipherMacKeyAgreementExemplarsFirstWithinAType() {
+        assertEquals("Signature|SHA256withECDSA SIGN", shipped.of("EC", "P", "Q").toString())
+        assertEquals("Signature|SHA256withRSA/PSS SIGN", shipped.of("RSA", "P", "Q").toString())
+        assertEquals("Cipher|ECIES ENCRYPT", KeyUse(lacking("Signature")).of("EC", "P", "Q").toString())
+        assertEquals("Cipher|SM2 ENCRYPT", KeyUse(lacking("Signature", "ECIES")).of("EC", "P", "Q").toString())
+        assertEquals("KeyAgreement|ECDH AGREE_KEY", KeyUse(lacking("Signature", "Cipher")).of("EC", "P", "Q").toString())
+        assertEquals("Signature|NONEwithECDSA SIGN", KeyUse(lacking("SHA256withECDSA")).of("EC", "P", "Q").toString())
+        assertEquals("Cipher|XIES ENCRYPT", shipped.of("X25519", "P", "Q").toString())
     }
 }

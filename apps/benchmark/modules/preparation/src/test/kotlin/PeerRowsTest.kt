@@ -50,7 +50,7 @@ class PeerRowsTest {
         val invocation = Invocations.of(prepared)
         val produced = ProducedCall(judgedAs, invocation.engine, output(invocation.once()))
         return when (val outcome = engine.check(produced, Consumer(consumer, judgedAs.case.algorithm), Travel.USED)) {
-            Outcome.Pass -> "pass"
+            is Outcome.Pass -> "pass"
             is Outcome.Fail -> "fail ${cut(outcome.reason)}"
             is Outcome.NotCheckable -> "not_checkable ${cut(outcome.reason)}"
         }

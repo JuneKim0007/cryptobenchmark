@@ -23,7 +23,7 @@ class ContractOracle : Oracle {
         val failed = verdicts.filterValues { it is Outcome.Fail }
         val outcome = when {
             failed.isNotEmpty() -> Outcome.Fail(failed.entries.joinToString("; ") { (name, verdict) -> "$name: ${(verdict as Outcome.Fail).reason}" })
-            verdicts.values.any { it == Outcome.Pass } -> Outcome.Pass
+            verdicts.values.any { it is Outcome.Pass } -> Outcome.Pass
             else -> Outcome.NotCheckable(verdicts.values.joinToString("; ") { (it as Outcome.NotCheckable).reason })
         }
         return Judgement(outcome, mapOf("properties" to verdicts.mapValuesTo(LinkedHashMap()) { (_, verdict) -> verdict.label }))

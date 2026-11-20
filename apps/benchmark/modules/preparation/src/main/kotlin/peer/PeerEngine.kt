@@ -33,7 +33,7 @@ class PeerEngine(capability: DeviceCapability) {
             "is Available on both ${case.provider} and ${consumer.provider} with a timed operation")
         return judgedBy(use, produced, consumer, travel).let {
             when (it) {
-                Outcome.Pass -> it
+                is Outcome.Pass -> Outcome.Pass("use $use")
                 is Outcome.Fail -> Outcome.Fail("${it.reason} (use $use)")
                 is Outcome.NotCheckable -> Outcome.NotCheckable("${it.reason} (use $use)")
             }

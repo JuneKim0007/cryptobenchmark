@@ -24,7 +24,7 @@ class CrossProviderOracle(private val capability: DeviceCapability) : Oracle {
         val byPeer = peers.associateWith { peer -> engine.check(produced, Consumer(peer, case.algorithm), Travel.USED) }
         val outcome = when {
             byPeer.values.any { it is Outcome.Fail } -> Outcome.Fail(reasons(byPeer) { it is Outcome.Fail })
-            byPeer.values.any { it == Outcome.Pass } -> Outcome.Pass
+            byPeer.values.any { it is Outcome.Pass } -> Outcome.Pass
             else -> Outcome.NotCheckable(reasons(byPeer) { it is Outcome.NotCheckable })
         }
         return Judgement(outcome, mapOf("peers" to byPeer.mapValuesTo(LinkedHashMap()) { (_, verdict) -> verdict.label }))

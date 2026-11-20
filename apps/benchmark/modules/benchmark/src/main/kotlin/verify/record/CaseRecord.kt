@@ -76,7 +76,7 @@ class CaseRecord(
             when (val outcome = judgement.outcome) {
                 is Outcome.Fail -> put("reason", FailureText.stable(outcome.reason))
                 is Outcome.NotCheckable -> put("reason", FailureText.stable(outcome.reason))
-                Outcome.Pass -> Unit
+                is Outcome.Pass -> Unit
             }
             putAll(judgement.details)
         }
