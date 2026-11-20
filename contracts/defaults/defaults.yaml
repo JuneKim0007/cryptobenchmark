@@ -25,7 +25,8 @@ run:
     startMargin: {dynamic: true, initialCelsius: 0.25, backoffFactor: 2.0, maximumCelsius: 3.0,
       cleanRunsToRecover: 10, recoveryCelsius: 0.05}
   harness:
-    energy: {capture: none, source: rails}
+    energy: {capture: none, windowSeconds: 10, warmupSeconds: 2, cooldownSeconds: 5,
+      source: rails}
 analysis:
   statistic: {headline: auto, meanUpToCovPercent: 5.0}
   charts: [iqrBars, throughput, latency, stability]

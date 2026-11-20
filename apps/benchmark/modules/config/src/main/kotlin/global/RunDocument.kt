@@ -59,7 +59,7 @@ object RunDocument {
 
     /** What of() writes for a run that sets nothing, with the gate's and the energy keys' defaults a block without them gets; orderSeed has none. */
     fun defaults(): Map<String, Any> = of(RunSettings(orderSeed = 0L, thermalGate = ThermalGate.DEFAULTS)) - ORDER_SEED +
-        (HARNESS to HarnessSettings.write(HarnessSettings(energy = EnergySettings(capture = EnergySettings.CAPTURES.first(), source = EnergySettings.RAILS))))
+        (HARNESS to HarnessSettings.write(HarnessSettings(energy = EnergySettings.DEFAULTS)))
 
     fun parse(document: Map<String, Any>, path: String): RunSettings {
         expectKeys(document, RunKeys.ALL, path)

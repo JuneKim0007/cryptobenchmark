@@ -17,7 +17,7 @@ data class EnergySettings(
 
     val isEmpty: Boolean get() = this == EnergySettings()
 
-    val needsRails: Boolean get() = source == null || source == RAILS
+    val needsRails: Boolean get() = (source ?: DEFAULTS.source) == RAILS
 
     fun mergedWith(later: EnergySettings?): EnergySettings = ENERGY.merged(this, later)
 
@@ -27,6 +27,9 @@ data class EnergySettings(
         const val RAILS = "rails"
 
         val SOURCES: List<String> = listOf(RAILS, "manafa")
+
+        // The value of each key a config leaves out; a window under ~20 rail polls (250 ms each in Jetpack's trace) loses a few percent to edge interpolation.
+        val DEFAULTS = EnergySettings(capture = CAPTURES.first(), windowSeconds = 10, warmupSeconds = 2, cooldownSeconds = 5, source = RAILS)
 
         val ENERGY: Section<EnergySettings> = Section(EnergySettings(), "energy.") {
             listOf(

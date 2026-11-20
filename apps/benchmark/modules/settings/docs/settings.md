@@ -4,7 +4,7 @@ The harness key table read by config, preparation and benchmark. Each YAML setti
 
 ## Harness keys
 
-All keys are unset by default (null, empty `energy`).
+All keys are unset by default (null, empty `energy`); the values an unset `energy.*` key runs with are `EnergySettings.DEFAULTS`.
 
 | key | value |
 |---|---|
@@ -15,7 +15,7 @@ All keys are unset by default (null, empty `energy`).
 | `energy.windowSeconds` | int `>= 1` |
 | `energy.warmupSeconds` | int `>= 1` |
 | `energy.cooldownSeconds` | int `>= 0` |
-| `energy.source` | `rails`, `manafa`; unset means `rails` |
+| `energy.source` | `rails`, `manafa` |
 | `cpu.core` | core index `0..63` or `big`, as a number or a word |
 | `cpu.required` | bool |
 
