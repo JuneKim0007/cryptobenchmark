@@ -1,7 +1,6 @@
 # config
 
 ```
-apps/benchmark/modules/config/.gitignore : ignores /build
 apps/benchmark/modules/config/README.md : module summary and link to this index
 apps/benchmark/modules/config/build.gradle : Kotlin/JVM 17 library; snakeyaml 2.3, :settings, :files (and its test fixtures) and :document; passes examples.update to tests
 apps/benchmark/modules/config/docs/config.md : authored files: global.yaml, test sets, rules, overrides, groups
@@ -99,5 +98,5 @@ apps/benchmark/modules/config/src/test/kotlin/OverrideResolverTest.kt : override
 apps/benchmark/modules/config/src/test/kotlin/PathsAndKeySourceTest.kt : variants precedence, fallback, notFixed and secure notices, a trial-failed generator on the secure path, a written key source and backing checked
 apps/benchmark/modules/config/src/test/kotlin/RuleTest.kt : rule matching tests
 apps/benchmark/modules/config/src/test/kotlin/WarmupJobsTest.kt : warm-up jobs resolved to entries; nothing selected turns it off
-apps/benchmark/modules/config/src/test/resources/algorithm-names-cases.yaml : name cases both readers resolve alike; owned here, perf-repair keeps a copy its tests compare
+apps/benchmark/modules/config/src/test/resources/algorithm-names-cases.yaml : name cases both readers resolve alike; perf-repair's tests/test_names.py reads it here
 ```

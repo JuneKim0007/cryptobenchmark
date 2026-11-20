@@ -1,7 +1,6 @@
 # document
 
 ```
-apps/benchmark/modules/document/.gitignore : ignores /build
 apps/benchmark/modules/document/README.md : module summary and link to this index
 apps/benchmark/modules/document/build.gradle : Kotlin/JVM 17 library; snakeyaml 2.3; in the root build it alone carries the family catalogues, provider-builds.yaml, deviations.yaml and groups.yaml beside catalogue/FamilyCatalogue through gradle/guide-resources.gradle
 apps/benchmark/modules/document/docs/index.md : this map

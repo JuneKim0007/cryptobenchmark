@@ -3,9 +3,9 @@ import pathlib
 
 RUNNER = pathlib.Path(__file__).resolve().parents[2] / "apps/benchmark-runner"
 # failure.py: the entry points' error line, imported before dependencies.py knows cryptobench imports
-ENTRY_POINTS = {"pipeline.py", "dependencies.py", "explain.py", "scope_generate.py", "failure.py"}
+ENTRY_POINTS = {"pipeline.py", "dependencies.py", "explain.py", "failure.py"}
 # energy/ runs under --energy-python, analysis/ as subprocesses by path
-BY_PATH = {"energy", "analysis", "demo.sh"}
+BY_PATH = {"energy", "analysis"}
 
 
 def test_the_runner_holds_only_entry_points_and_scripts_run_by_path():

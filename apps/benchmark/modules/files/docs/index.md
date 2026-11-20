@@ -1,7 +1,6 @@
 # files
 
 ```
-apps/benchmark/modules/files/.gitignore : ignores /build
 apps/benchmark/modules/files/README.md : module summary and link to this index
 apps/benchmark/modules/files/build.gradle : Kotlin/JVM 17 library with test fixtures; no project or library dependency
 apps/benchmark/modules/files/docs/index.md : this map

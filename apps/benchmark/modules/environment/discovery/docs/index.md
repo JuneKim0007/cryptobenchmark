@@ -1,7 +1,6 @@
 # discovery
 
 ```
-apps/benchmark/modules/environment/discovery/.gitignore : ignores /build
 apps/benchmark/modules/environment/discovery/README.md : module summary and link to this index
 apps/benchmark/modules/environment/discovery/build.gradle : Kotlin/JVM 17 library; api :jca; :files (and its test fixtures) and :document; reads the keystore trial's catalogues through :document's catalogue/FamilyCatalogue
 apps/benchmark/modules/environment/discovery/docs/index.md : this map

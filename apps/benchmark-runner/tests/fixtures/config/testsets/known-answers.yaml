@@ -1,4 +1,4 @@
-# Schema and which keys are optional: see default_predefined.yaml.
+# Schema and which keys are optional: see config/testsets/default_predefined.yaml.
 schemaVersion: 1                 # required
 description: every primitive the end-to-end check holds a known-answer vector for (algorithms/vectors)
 

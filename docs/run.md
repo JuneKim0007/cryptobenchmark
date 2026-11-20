@@ -84,20 +84,6 @@ python3 apps/benchmark-runner/explain.py [--results DIR] [--device-id ID]
 - Ends with the entry count and the test set.
 - A root with several device folders needs `--device-id`, else `several_device_results`.
 
-## apps/benchmark-runner/demo.sh
-
-| flag | effect |
-|---|---|
-| none | `config/global-quick.yaml` (11 test-set entries, about 30 s), `results/demo/<device_id>`, `--discovery overwrite` |
-| `--warm` | compile both tools, exit |
-| `--fast` | `config/global-demo.yaml`: `testsets/smoke.yaml` (3 entries), `inputSizes [1024]`, about 8 s |
-| `--reuse` | `--discovery reuse` |
-| `--config FILE` | another `global.yaml` |
-| `--results DIR` | another results root |
-| `-h`, `--help` | usage |
-
-- Runs `pipeline.py --bench --stream`, then prints the head of `results/demo/<device_id>/analysis/summary.md`.
-
 ## Device run
 
 | step | command or path |

@@ -34,8 +34,6 @@ python3 apps/benchmark-runner/pipeline.py --device --harness <harness.yaml>
 | interop check | `ScopedInterop`, one process: installs the bundled providers, calls each variant, writes `scoped-interop.yaml` |
 | bundled providers | the `ScopedInterop` process installs `effective.yaml`'s `bundledProviders` first |
 
-`python3 apps/benchmark-runner/scope_generate.py <harness.yaml> <out>` runs generate and compile alone and leaves the sources in place.
-
 ## Wrappers
 
 | item | value |

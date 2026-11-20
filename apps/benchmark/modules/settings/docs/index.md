@@ -1,7 +1,6 @@
 # settings
 
 ```
-apps/benchmark/modules/settings/.gitignore : ignores /build
 apps/benchmark/modules/settings/README.md : module summary and link to this index
 apps/benchmark/modules/settings/build.gradle : Kotlin/JVM 17 library; depends on :files only
 apps/benchmark/modules/settings/docs/index.md : this map

@@ -1,7 +1,6 @@
 # jca
 
 ```
-apps/benchmark/modules/jca/.gitignore : ignores /build
 apps/benchmark/modules/jca/README.md : module summary and link to this index
 apps/benchmark/modules/jca/build.gradle : Kotlin/JVM 17 library; no project or library dependency
 apps/benchmark/modules/jca/docs/index.md : this map

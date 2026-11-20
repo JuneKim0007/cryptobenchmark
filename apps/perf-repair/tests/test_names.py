@@ -6,13 +6,7 @@ import yaml
 from cryptobench.shared.catalogue.names import CATALOG, Canonical, Names, NamesError
 from perfrepair.data_handler.inbound.probe import Probe
 
-CASES = Path(__file__).parent / "fixtures" / "algorithm-names-cases.yaml"
-CONFIG = Path(__file__).resolve().parents[2] / "benchmark/modules/config/src"
-
-
-def test_the_shared_cases_are_the_benchmark_s_file():
-    owned = CONFIG / "test/resources/algorithm-names-cases.yaml"
-    assert CASES.read_bytes() == owned.read_bytes(), f"{CASES} differs from {owned}, which the benchmark owns: copy it over"
+CASES = Path(__file__).resolve().parents[2] / "benchmark/modules/config/src/test/resources/algorithm-names-cases.yaml"
 
 
 @pytest.fixture(scope="module")

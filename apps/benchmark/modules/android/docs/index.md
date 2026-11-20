@@ -1,12 +1,10 @@
 # android
 
 ```
-apps/benchmark/modules/android/.gitignore : ignores /build
 apps/benchmark/modules/android/build.gradle : app module: SDK, NDK and CMake versions, androidx benchmark dependencies, -PbundledArtifacts implementation dependencies, release test build type
 apps/benchmark/modules/android/docs/harness.md : instrumentation harness, device plan, core pinning
 apps/benchmark/modules/android/docs/index.md : this map
 apps/benchmark/modules/android/docs/scoped.md : scoped interop check: generated scopes, original against patched
-apps/benchmark/modules/android/src/androidTest/java/.gitignore : ignores the generated scoped/ sources
 apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/Bundled.kt : installs the bundledProviders of a pushed effective.yaml into the process
 apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/CaseFilter.kt : the `case` argument: one id or an ordered comma list; absent keeps every case
 apps/benchmark/modules/android/src/androidTest/kotlin/io/github/junekim0007/cryptobench/CleaningCapture.kt : a forced GC and finalization between samples, the pause and GC counts reported beside the time

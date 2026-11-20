@@ -43,7 +43,7 @@ def test_the_digest_of_a_fixed_tree_is_this_value(tmp_path):
 
 
 def test_the_harness_code_is_these_patterns_each_matching_files():
-    assert code_digest.CODE == ("lib/cryptobench/cryptobench/stages/verification/scope/*.py", "apps/benchmark-runner/scope_generate.py",
+    assert code_digest.CODE == ("lib/cryptobench/cryptobench/stages/verification/scope/*.py",
                                 "apps/benchmark/modules/android/src/androidTest/**/Scope*.kt")
     root = code_digest.paths.code_root()
     assert all(sorted(root.glob(pattern)) for pattern in code_digest.CODE)

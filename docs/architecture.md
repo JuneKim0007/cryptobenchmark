@@ -57,17 +57,16 @@ config/global.yaml + config/testsets/*.yaml
 |---|---|---|
 | `:document`, `:environment:discovery`, `:settings`, `:config`, `:preparation`, `:benchmark` | Kotlin | `src/main/kotlin/`, package root folders omitted |
 | `:android` | Kotlin main (`Affinity.kt`), C (`src/main/cpp/affinity.c`, `CMakeLists.txt`), Kotlin androidTest | full package folders |
-| `apps/benchmark-runner/` | Python 3 | the entry points `pipeline.py`, `dependencies.py`, `explain.py`, `scope_generate.py` and their error line `failure.py`; every other module they import is in `lib/cryptobench` (`tools/tests/test_runner_layout.py`) |
+| `apps/benchmark-runner/` | Python 3 | the entry points `pipeline.py`, `dependencies.py`, `explain.py` and their error line `failure.py`; every other module they import is in `lib/cryptobench` (`tools/tests/test_runner_layout.py`) |
 | `lib/cryptobench/cryptobench/` | Python 3 | `shared/` components, `pipeline/` the stage framework, `stages/<stage>/` one package per stage: configuration, discovery, measurement, analysis, verification |
 | `apps/benchmark-runner/energy/`, `apps/benchmark-runner/analysis/*.py` | Python 3 | flat |
-| `apps/benchmark-runner/demo.sh` | bash | |
 
 - No `.java` source is tracked under `apps/benchmark/modules/`.
 - A stage imports no other stage and `shared/` imports no stage; the routes in `pipeline.py` compose the stages, passing a step in where it runs inside another stage's staging or rollback (`tools/tests/test_lib_layers.py`).
 
 ## Example files
 
-- `apps/benchmark/modules/<m>/example/<module>_<responsibility>_example.(yaml|json)` exist for discovery, config, preparation, benchmark.
+- `apps/benchmark/modules/<m>/example/<module>_<responsibility>_example.(yaml|json)` exist for config, preparation, benchmark.
 - `:settings` has no `example/`.
 
 ## Isolation build
@@ -85,7 +84,7 @@ config/global.yaml + config/testsets/*.yaml
 | `architecture` | tests only: the module subprojects' compiled classes against `tools/module-isolation/layers.yaml` | archunit 1.5.1, snakeyaml 2.3, junit 4.13.2 (test) |
 
 - `:settings` and `:android` are not subprojects.
-- guide resources (`apps/benchmark/gradle/guide-resources.gradle`): `algorithms/algorithm-names.yaml` and `algorithms/setup-catalog.yaml` at the classpath root, `setup-catalog.yaml` beside preparation's `operation/SetupCatalog` `engine-operations.yaml` beside its `engine/EngineTypes`, in every build that compiles config or preparation (root, isolation, cli); the seven family catalogues discovery and preparation read, `provider-builds.yaml`, `deviations.yaml` and `groups.yaml` beside document's `catalogue/FamilyCatalogue`, carried by `:document` alone in the root build (the APK merges module jars) and by each reading module in the isolation and cli builds; perf-repair packages a copy of the names file its tests compare with it.
+- guide resources (`apps/benchmark/gradle/guide-resources.gradle`): `algorithms/algorithm-names.yaml` and `algorithms/setup-catalog.yaml` at the classpath root, `setup-catalog.yaml` beside preparation's `operation/SetupCatalog` `engine-operations.yaml` beside its `engine/EngineTypes`, in every build that compiles config or preparation (root, isolation, cli); the seven family catalogues discovery and preparation read, `provider-builds.yaml`, `deviations.yaml` and `groups.yaml` beside document's `catalogue/FamilyCatalogue`, carried by `:document` alone in the root build (the APK merges module jars) and by each reading module in the isolation and cli builds.
 - Tests run with `workingDir` = the module directory.
 - `-Dexamples.update` is forwarded to tests.
 - CI: `.github/workflows/modules.yml` runs `../../apps/benchmark/gradlew -p . :<m>:test` per subproject on Java 17.
@@ -95,4 +94,4 @@ config/global.yaml + config/testsets/*.yaml
 
 - `apps/benchmark/cli` and each `tools/*` Gradle check are standalone Gradle projects that compile module sources by path.
 - None is included in `apps/benchmark/settings.gradle`.
-- Pipeline, demo and CI run each of them through `apps/benchmark/gradlew -p <dir>`.
+- Pipeline and CI run each of them through `apps/benchmark/gradlew -p <dir>`.

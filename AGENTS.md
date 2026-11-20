@@ -45,13 +45,11 @@ AGENTS.md : agent router
 README.md : project entry page
 algorithms/ : the implementation guide: one catalogue per family, recipes, deviations, names, builds; map in lib/cryptobench/AGENTS.md
 apps/benchmark-runner/analysis/ : analysis of a benchmark.json, run by path: summary, charts, statistics
-apps/benchmark-runner/demo.sh : one-command host demo run into results/demo/<device_id>
 apps/benchmark-runner/dependencies.py : the host modules a run needs, checked at its start, cryptobench from this checkout; a missing one is one coded line and exit 1
 apps/benchmark-runner/energy/ : the energy scripts --energy-python runs: rails and manafa readings, pre-flight, joules per case, the capture rule
 apps/benchmark-runner/explain.py : tool, not a pipeline step: each resolved setting of a run and the file it came from
 apps/benchmark-runner/failure.py : one error line and exit; reported(), a CommandError as that line, around an entry point's main and passed into harness_run
 apps/benchmark-runner/pipeline.py : run driver: stop signals as Ctrl-C, options and refusals, ROUTES (the first set option's stage runs on one StageContext, the plain run last; the routes compose the stages; a route that holds the device locks the phone by serial), one coded failure line; --probe (discover and configure only), --identify (device id, input and harness code digests, nothing written), --devices (adb's transports classified, before any config), --check-session (a session's plan, nothing run), --audit (a campaign's results read, audit.yaml written, before any config), --session (a session's targets as workers), --per-suite
-apps/benchmark-runner/scope_generate.py : generate and compile a harness's scopes alone, sources left in place
 apps/benchmark-runner/tests/ : pytest and standalone tests for apps/benchmark-runner/
 apps/benchmark/build.gradle : root buildscript: Android Gradle plugin and Kotlin plugin versions
 apps/benchmark/cli/ : the host commands: probe, configure, parse-only check, bench, end-to-end check and its diff, convert, merges, interop; JCA contract tests
