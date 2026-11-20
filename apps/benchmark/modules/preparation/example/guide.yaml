@@ -3,9 +3,24 @@ schemaVersion: 1
 items:
   SUN:
     MessageDigest:
-      SHA-256: {}
+      SHA-256:
+        build: SUN @ jdk-25
+        exactBuild: false
   SunJCE:
     Cipher:
-      AES/GCM/NoPadding: {}
+      AES/GCM/NoPadding:
+        build: SunJCE @ jdk-25
+        exactBuild: false
+        parameters:
+          class: javax.crypto.spec.GCMParameterSpec
+          arguments:
+          - 128
+          - fresh(12)
+        keySizes:
+        - 128
+        - 192
+        - 256
     Mac:
-      HmacSHA256: {}
+      HmacSHA256:
+        build: SunJCE @ jdk-25
+        exactBuild: false

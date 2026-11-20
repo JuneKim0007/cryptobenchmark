@@ -81,7 +81,7 @@ apps/benchmark/modules/config/src/test/kotlin/AlgorithmNamesTest.kt : the cases 
 apps/benchmark/modules/config/src/test/kotlin/AuthoredFilesTest.kt : a typo key or a bad providers.bundled stops the parse-only read
 apps/benchmark/modules/config/src/test/kotlin/CommittedConfigTest.kt : committed config/ files parse
 apps/benchmark/modules/config/src/test/kotlin/ConfigurationTest.kt : facade tests
-apps/benchmark/modules/config/src/test/kotlin/ContractsTest.kt : contracts/ global, effective, facts, algorithm-names and scalars read to their .json values; the duplicate-key refusal and exponent read
+apps/benchmark/modules/config/src/test/kotlin/ContractsTest.kt : config's global and effective examples, tests/contracts/ facts and scalars read to their .json values; algorithm-names.yaml resolves as Python resolves it; the duplicate-key refusal and exponent read
 apps/benchmark/modules/config/src/test/kotlin/DefaultsFileTest.kt : lib/cryptobench/cryptobench/shared/settings/defaults.yaml is what DefaultsDocument writes; -Dexamples.update rewrites it
 apps/benchmark/modules/config/src/test/kotlin/DocumentFixture.kt : built documents shared by the schema tests
 apps/benchmark/modules/config/src/test/kotlin/DocumentRoundTripTest.kt : every document round-trips; schemaVersion stamp and check

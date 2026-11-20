@@ -13,24 +13,26 @@ import org.yaml.snakeyaml.constructor.DuplicateKeyException
 import org.yaml.snakeyaml.constructor.SafeConstructor
 import java.io.File
 
-/** contracts/documents: the guide Python writes and the effective file :config writes read through preparation's codec to the values their .json hold. */
+/** tests/contracts/documents: preparation's example guide, as Python writes it, and config's example effective read through preparation's codec to the values their .json hold. */
 class ContractsTest {
 
+    private val guide = ContractsFolder.example("preparation", "guide.yaml")
+    private val effective = ContractsFolder.example("config", "config_effective_example.yaml")
 
     private fun stated(name: String): Map<String, Any> = Yaml(SafeConstructor(LoaderOptions())).load(File(ContractsFolder.documents, "$name.json").readText())
 
-    private fun read(folder: File, name: String): Map<String, Any> = YamlCodec.DOCUMENT.load(File(folder, "$name.yaml").readText())
+    private fun read(file: File): Map<String, Any> = YamlCodec.DOCUMENT.load(file.readText())
 
     @Test
     fun theGuideAndEffectiveReadToTheirStatedValues() {
-        assertEquals(stated("guide"), read(ContractsFolder.documents, "guide"))
-        assertEquals(stated("effective"), read(ContractsFolder.documents, "effective"))
-        Guide.read(File(ContractsFolder.documents, "guide.yaml"))
-        InboundFile.read(File(ContractsFolder.documents, "effective.yaml"))
+        assertEquals(stated("guide"), read(guide))
+        assertEquals(stated("config_effective_example"), read(effective))
+        Guide.read(guide)
+        InboundFile.read(effective)
     }
 
     @Test
     fun currentBehaviourADuplicateKeyIsRefused() {
-        assertThrows(DuplicateKeyException::class.java) { read(ContractsFolder.yamlCodec, "duplicate-key") }
+        assertThrows(DuplicateKeyException::class.java) { read(File(ContractsFolder.yamlCodec, "duplicate-key.yaml")) }
     }
 }

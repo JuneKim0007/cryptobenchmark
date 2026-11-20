@@ -1,4 +1,4 @@
-"""thermal.json as the session hooks write it, byte for byte; contracts/runner/thermal.json is the file the Kotlin reader test reads too."""
+"""thermal.json as the session hooks write it, byte for byte; tests/contracts/runner/thermal.json is the file the Kotlin reader test reads too."""
 import json, pathlib
 
 import fake_phone

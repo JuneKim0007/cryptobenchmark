@@ -6,7 +6,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.io.File
 
-/** contracts/yaml-codec/duplicate-key.yaml through discovery's codec, which also reads the config-owned effective.yaml in cli and androidTest. */
+/** tests/contracts/yaml-codec/duplicate-key.yaml through discovery's codec, which also reads the config-owned effective.yaml in cli and androidTest. */
 class ContractsTest {
 
 

@@ -70,7 +70,7 @@ apps/benchmark/modules/benchmark/src/test/kotlin/CaseRecordTest.kt : not-run ids
 apps/benchmark/modules/benchmark/src/test/kotlin/CaseSettingsTest.kt : HarnessSettings to CaseSettings tests
 apps/benchmark/modules/benchmark/src/test/kotlin/CheckFixture.kt : JDK prepared cases, a capability without peers and one with PeerProvider for the check tests
 apps/benchmark/modules/benchmark/src/test/kotlin/CheckModeTest.kt : the output hook absent from every timed path; ONCE hands one output
-apps/benchmark/modules/benchmark/src/test/kotlin/ContractsTest.kt : contracts/ known answers and the Python-written thermal.json read into vectors and case rows; CaseDocument keeps a duplicate key's last value
+apps/benchmark/modules/benchmark/src/test/kotlin/ContractsTest.kt : tests/contracts/ known answers and the Python-written thermal.json read into vectors and case rows; CaseDocument keeps a duplicate key's last value
 apps/benchmark/modules/benchmark/src/test/kotlin/CorruptedOutputTest.kt : knownAnswer, crossProvider and contract each fail an output with one flipped byte, also through CaseCheck; the honest call passes them
 apps/benchmark/modules/benchmark/src/test/kotlin/CrossProviderOracleTest.kt : the peer recomputes the call's own output; a key without an encoding is key_not_extractable
 apps/benchmark/modules/benchmark/src/test/kotlin/DigestPropertiesTest.kt : a Mac random by bug fails the repeat with fixed or per-call parameters; a nonce-keyed one passes

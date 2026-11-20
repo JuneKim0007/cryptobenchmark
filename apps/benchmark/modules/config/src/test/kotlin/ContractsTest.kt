@@ -17,19 +17,24 @@ import org.yaml.snakeyaml.constructor.DuplicateKeyException
 import org.yaml.snakeyaml.constructor.SafeConstructor
 import java.io.File
 
-/** contracts/: each shared YAML reads through :config's codec to the value its .json holds, as apps/benchmark-runner/tests/test_contracts.py reads it. */
+/** tests/contracts/: each shared YAML (config's examples, the facts fixture, the codec cases) reads through :config's codec to the value its .json holds, as apps/benchmark-runner/tests/test_contracts.py reads it. */
 class ContractsTest {
 
     private val codec = YamlCodec.DOCUMENT
 
+    private val global = ContractsFolder.example("config", "config_global_example.yaml")
+    private val effective = ContractsFolder.example("config", "config_effective_example.yaml")
+
     private fun stated(folder: File, name: String): Map<String, Any> = Yaml(SafeConstructor(LoaderOptions())).load(File(folder, "$name.json").readText())
 
-    private fun read(folder: File, name: String): Map<String, Any> = codec.load(File(folder, "$name.yaml").readText())
+    private fun read(folder: File, name: String): Map<String, Any> = read(File(folder, "$name.yaml"))
+
+    private fun read(file: File): Map<String, Any> = codec.load(file.readText())
 
     @Test
     fun eachFixtureReadsToItsStatedValue() {
-        for (name in listOf("global", "effective", "facts", "algorithm-names")) {
-            assertEquals(name, stated(ContractsFolder.documents, name), read(ContractsFolder.documents, name))
+        for (file in listOf(global, effective, File(ContractsFolder.documents, "facts.yaml"))) {
+            assertEquals(file.name, stated(ContractsFolder.documents, file.nameWithoutExtension), read(file))
         }
         assertEquals(stated(ContractsFolder.yamlCodec, "scalars"), read(ContractsFolder.yamlCodec, "scalars") - "exponentNoDot")
     }
@@ -57,9 +62,9 @@ class ContractsTest {
     @Test
     fun theAuthoredAndGeneratedFixturesPassTheirReaders() {
         val files = YamlFiles()
-        files.at(File(ContractsFolder.documents, "global.yaml"), GlobalDocument).read()
-        files.at(File(ContractsFolder.documents, "effective.yaml"), EffectiveDocument).read()
-        assertEquals(File(ContractsFolder.documents, "effective.yaml").readText(), codec.dump(read(ContractsFolder.documents, "effective")))
+        files.at(global, GlobalDocument).read()
+        files.at(effective, EffectiveDocument).read()
+        assertEquals(effective.readText(), codec.dump(read(effective)))
     }
 
     @Test
@@ -69,11 +74,11 @@ class ContractsTest {
     }
 
     @Test
-    fun theNamesFixtureResolvesAsPythonResolvesIt() {
-        val names = AlgorithmNames.parse(read(ContractsFolder.documents, "algorithm-names"))
+    fun theNamesFileResolvesAsPythonResolvesIt() {
+        val names = AlgorithmNames.catalog
         assertEquals(Canonical("SHA-1"), names.canonical("MessageDigest", "sha"))
         assertEquals(Canonical("DESede"), names.canonical("Cipher", "tripledes"))
         assertEquals(Canonical("AES", 256), names.canonical("Cipher", "AES_256"))
-        assertEquals(Canonical("ChaCha20", null, false), names.canonical("Cipher", "ChaCha20"))
+        assertEquals(Canonical("NotAnAlgorithm", null, false), names.canonical("Cipher", "NotAnAlgorithm"))
     }
 }

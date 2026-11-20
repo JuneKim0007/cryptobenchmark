@@ -12,7 +12,7 @@ import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.SafeConstructor
 import java.io.File
 
-/** contracts/: the known answers Python writes, and the thermal.json apps/benchmark-runner/tests/test_thermal_document.py pins byte for byte, as this module reads them. */
+/** tests/contracts/: the known answers Python writes, and the thermal.json apps/benchmark-runner/tests/test_thermal_document.py pins byte for byte, as this module reads them. */
 class ContractsTest {
 
 

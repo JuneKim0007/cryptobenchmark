@@ -90,7 +90,7 @@ apps/benchmark/modules/environment/discovery/src/test/kotlin/BlockBytesTest.kt :
 apps/benchmark/modules/environment/discovery/src/test/kotlin/BundledInstallerTest.kt : installer tests: reflection, append position, name clash, alias wrapper
 apps/benchmark/modules/environment/discovery/src/test/kotlin/BundledProvidersTest.kt : bundled list reading and spec validation
 apps/benchmark/modules/environment/discovery/src/test/kotlin/CaptureDocumentTest.kt : capture schema tests
-apps/benchmark/modules/environment/discovery/src/test/kotlin/ContractsTest.kt : contracts/yaml-codec/duplicate-key.yaml keeps its last value through this codec
+apps/benchmark/modules/environment/discovery/src/test/kotlin/ContractsTest.kt : tests/contracts/yaml-codec/duplicate-key.yaml keeps its last value through this codec
 apps/benchmark/modules/environment/discovery/src/test/kotlin/DefaultRunTrialTest.kt : default runs against the live JVM
 apps/benchmark/modules/environment/discovery/src/test/kotlin/GeneratorKeysTest.kt : triedKeys: each size with its own key, a refusal, a pair asked no size above its default
 apps/benchmark/modules/environment/discovery/src/test/kotlin/JcaContractTest.kt : JCA-surface drift checks on the running JVM

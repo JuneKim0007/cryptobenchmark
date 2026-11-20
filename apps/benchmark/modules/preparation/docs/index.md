@@ -104,7 +104,7 @@ apps/benchmark/modules/preparation/src/test/kotlin/BoundParametersTest.kt : cycl
 apps/benchmark/modules/preparation/src/test/kotlin/CaseResolverTest.kt : expansion and rejection tests
 apps/benchmark/modules/preparation/src/test/kotlin/ChartGroupTest.kt : chart group tests
 apps/benchmark/modules/preparation/src/test/kotlin/CipherCallTest.kt : CipherCall per-call init, instance and refusal tests
-apps/benchmark/modules/preparation/src/test/kotlin/ContractsTest.kt : contracts/ guide and effective read to their .json values and accepted by Guide and InboundFile; the duplicate-key refusal
+apps/benchmark/modules/preparation/src/test/kotlin/ContractsTest.kt : preparation's example guide and config's example effective read to their tests/contracts/ .json values and accepted by Guide and InboundFile; the duplicate-key refusal
 apps/benchmark/modules/preparation/src/test/kotlin/DiscoveryCapabilityTest.kt : capture and trial availability tests
 apps/benchmark/modules/preparation/src/test/kotlin/EffectiveFixture.kt : effective.yaml test fixture builder
 apps/benchmark/modules/preparation/src/test/kotlin/EngineCallTest.kt : what each PerCall makes, inits and operates per call; the trace's engine and inits; again() with the last call's parameters; no check-only state in the timed call

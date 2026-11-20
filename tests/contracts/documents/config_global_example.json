@@ -1,0 +1,125 @@
+{
+ "schemaVersion": 1,
+ "selection": {
+  "testSet": "config_testset_example.yaml",
+  "exclude": [],
+  "knownVectors": "vectors"
+ },
+ "run": {
+  "inputSizes": [
+   1024
+  ],
+  "phases": [
+   "WARM"
+  ],
+  "metrics": [
+   "TIME",
+   "ALLOCATION"
+  ],
+  "variants": [
+   "fixed",
+   "notFixed"
+  ],
+  "processRepetitions": 1,
+  "seed": 42,
+  "orderSeed": 20261115,
+  "thermalGate": {
+   "temperatureKeptCelsius": 36.0,
+   "cooldownMinutes": 3,
+   "pollMinutes": 1,
+   "pollTerminateMinutes": 30,
+   "discardLimit": 5,
+   "onDiscardLimit": "nextCase",
+   "readRetries": 2,
+   "readRetrySeconds": 1,
+   "startMargin": {
+    "dynamic": true,
+    "initialCelsius": 0.25,
+    "backoffFactor": 2,
+    "maximumCelsius": 3.0,
+    "cleanRunsToRecover": 10,
+    "recoveryCelsius": 0.05
+   }
+  },
+  "launchRetries": 2,
+  "energyIdleSeconds": 120,
+  "thermalThrottleSleepSeconds": 90,
+  "caseCooldownSeconds": 0,
+  "warmup": {
+   "iterations": 10,
+   "jobs": [
+    {
+     "provider": "SUN",
+     "type": "MessageDigest",
+     "name": "SHA-256"
+    }
+   ],
+   "cases": 3
+  },
+  "resumeBlockRuns": 10,
+  "passes": {
+   "timing": {
+    "samples": 50
+   },
+   "allocation": {
+    "samples": 10
+   },
+   "energy": {
+    "samples": 100,
+    "minWindowSeconds": 5,
+    "thermalGate": {
+     "temperatureKeptCelsius": 35.0,
+     "startMargin": {
+      "initialCelsius": 0.5
+     }
+    },
+    "caseCooldownSeconds": 5
+   }
+  },
+  "harness": {
+   "iterations": 50,
+   "warmupIterations": 5,
+   "profiling": "StackSampling",
+   "energy": {
+    "capture": "dry",
+    "source": "manafa",
+    "windowSeconds": 10,
+    "warmupSeconds": 2,
+    "cooldownSeconds": 5
+   },
+   "cpu": {
+    "core": "big",
+    "required": false
+   }
+  }
+ },
+ "policy": {
+  "onFailure": "skip"
+ },
+ "analysis": {
+  "charts": [
+   "iqrBars",
+   "throughput",
+   "latency",
+   "stability"
+  ],
+  "dir": "results/chart/<run-id>",
+  "statistic": {
+   "headline": "auto",
+   "meanUpToCovPercent": 5
+  },
+  "units": {
+   "latency": "ms",
+   "throughput": "MB/s"
+  }
+ },
+ "providers": {
+  "bundled": [
+   {
+    "artifact": "org.example:crypto-provider:1.0",
+    "create": "org.example.crypto.ExampleProvider#newProvider",
+    "alias": "ExampleBundled"
+   }
+  ]
+ }
+}

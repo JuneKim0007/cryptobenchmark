@@ -75,13 +75,13 @@ apps/cli/facade/tree.py : the resolved tree: nodes, direction rule, printed line
 apps/cli/tests/ : pytest for the facade
 apps/perf-repair/ : cryptobenchmark results to crypto replacements applied per call site, compiled and interop-checked on a phone
 config/ : authored run configuration: global settings and test sets
-contracts/ : files both languages' tests read: documents/, each YAML document with the .json value both must read; yaml-codec/, scalar and string cases and a duplicate-key file; runner/thermal.json as the runner writes it
 docs/ : cross-module fact docs
 docs/contributing/ : directive guides
 lib/cryptobench/ : the Python library the runner and perf-repair share: shared components, the stage framework, the run's stages; map in its AGENTS.md
 pytest.ini : the Python apps' source folders, and the test folders other tests import, on the test path for pytest from the repository root
 requirements.txt : every host Python dependency
 settings.example.yaml : template for `settings.yaml`, the facade's root index
+tests/contracts/ : fixtures both languages' tests read: documents/, the .json value each must read a module example (config global and effective, preparation guide) to, and the facts and known-answers Python writes with theirs; yaml-codec/, scalar and string cases and a duplicate-key file; runner/thermal.json as the runner writes it
 tools/android-api-check/ : compiles jca, document, discovery, settings, preparation, benchmark against android.jar without the JDK
 tools/dead-code-allow.txt : vulture findings the dead-code check keeps, each with its reason
 tools/dead_code.py : dead-code check: vulture minus the allowlist; local only, fails without vulture
