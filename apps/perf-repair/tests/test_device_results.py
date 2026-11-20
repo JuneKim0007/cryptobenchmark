@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+from cryptobench.shared import paths
 from cryptobench.shared.paths import RunTree
 from perfrepair.app.facts.path_id import app_id, path_id, unit_id
 from perfrepair.config.args import add_config_arg, load_settings
@@ -111,7 +112,7 @@ def test_a_stopped_benchmark_with_a_partial_manifest_is_neither_a_device_nor_dev
 def test_a_temporary_folder_warns_once_and_another_does_not(tmp_path, caplog):
     _warn_if_temp(tmp_path)
     _warn_if_temp(tmp_path)
-    _warn_if_temp(Path.home() / "capstone" / "runs" / "x")
+    _warn_if_temp(paths.code_root() / "results" / "x")
     [message] = caplog.messages
     assert message.startswith(f"results_in_temp: {tmp_path} ")
 

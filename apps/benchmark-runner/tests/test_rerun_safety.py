@@ -10,9 +10,8 @@ from cryptobench.shared.errors.input_error import InputError
 from cryptobench.shared import paths
 from cryptobench.stages.discovery import discover
 from cryptobench.stages.verification import check
-from fake_phone import Phone
+from fake_phone import PROBE, Phone
 import test_device_benchmark_flow as flow
-from test_manifest import PROBE
 
 FLAGS = {"probe": False, "identify": False, "devices": False, "check_session": None, "audit": None, "session": None, "per_suite": False, "interop": None, "harness": None, "check": False, "bench": False, "device": True, "config": None,
          "discovery": "overwrite"}

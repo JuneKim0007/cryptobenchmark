@@ -1,4 +1,4 @@
-"""Characterisation test for analyze.py and the summary charts.py writes: pins current output; -u accepts it as the new golden."""
+"""analyze.py and the summary charts.py writes against their goldens; run by path with -u to accept the current output as the new golden."""
 import json
 import pathlib
 import subprocess
@@ -99,6 +99,10 @@ def fixture_shape() -> list:
     if not any(len(case["metrics"]["timeNs"]["runs"]) > 1 for case in cases):
         problems.append("fixture has no multi-run case, so CoV is untested")
     return problems
+
+
+def test_the_output_matches_the_goldens():
+    assert fixture_shape() + failures(update=False) == []
 
 
 def main() -> int:

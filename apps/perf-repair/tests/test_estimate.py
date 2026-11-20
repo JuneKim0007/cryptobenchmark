@@ -51,9 +51,10 @@ def test_resampling_by_process_widens_what_concatenated_runs_hide():
     assert by_process < concatenated - 0.1 and by_process < 0.8
 
 
-def test_the_bootstrap_is_deterministic():
-    assert p_improve(BEFORE, AFTER) == p_improve(BEFORE, AFTER)
-    assert median_interval(BEFORE) == median_interval(BEFORE)
+def test_the_bootstrap_gives_its_known_values_and_a_seed_moves_them_only_slightly():
+    assert p_improve(BEFORE, AFTER) == 0.671
+    assert p_improve(BEFORE, AFTER, seed=2) == pytest.approx(0.671, abs=0.05) and p_improve(BEFORE, AFTER, seed=2) != 0.671
+    assert median_interval(BEFORE) == pytest.approx((90.1219485, 112.1196755))
 
 
 def test_the_interval_is_honest_about_small_samples():

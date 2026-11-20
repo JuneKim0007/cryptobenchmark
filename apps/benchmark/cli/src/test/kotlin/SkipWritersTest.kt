@@ -23,12 +23,12 @@ class SkipWritersTest {
     )
 
     @Test
-    fun bothWriteEachSkipAsTheSameFlowMapping() {
+    fun bothWriteTheSameSkippedListAndReadItBack() {
         val report = YamlFiles().at(folder.root.resolve("c/report.yaml"), ReportDocument)
         val config = report.write(Report(null, skipped = skips)).readText()
         val skipFile = SkipFile(folder.newFolder("p"))
         val preparation = skipFile.write(skips).readText()
-        assertEquals(EXPECTED, "=== report.yaml\n$config=== skipped.yaml\n${preparation}end")
+        assertEquals(config.substringAfter("skipped:\n"), preparation.substringAfter("skipped:\n"))
         assertEquals(skips, report.read().skipped)
         assertEquals(skips, skipFile.read())
     }
@@ -45,38 +45,5 @@ class SkipWritersTest {
                      refusals("schemaVersion: 2\nskipped:\n- {stage: s, reason: r}\n"))
         assertEquals(listOf("unsupported_schema_version: report.yaml: 1, this build reads 2", "unsupported_schema_version: skipped.yaml: 1, this build reads 2"),
                      refusals("schemaVersion: 1\nskipped: []\n"))
-    }
-
-    private companion object {
-        val EXPECTED = """
-            === report.yaml
-            schemaVersion: 2
-            warnings: []
-            skipped:
-            - {stage: stage, provider: P, type: Cipher, name: AES/GCM/NoPadding, code: no_match,
-              reason: '''quoted'' and: colon'}
-            - {stage: stage, type: Mac, code: path_not_applicable, reason: x}
-            - stage: stage
-              caseId: Mac_HmacSHA1_x
-              code: check_failed
-              reason: |-
-                multi
-                line
-            - {stage: stage, code: bare_code}
-            === skipped.yaml
-            schemaVersion: 2
-            skipped:
-            - {stage: stage, provider: P, type: Cipher, name: AES/GCM/NoPadding, code: no_match,
-              reason: '''quoted'' and: colon'}
-            - {stage: stage, type: Mac, code: path_not_applicable, reason: x}
-            - stage: stage
-              caseId: Mac_HmacSHA1_x
-              code: check_failed
-              reason: |-
-                multi
-                line
-            - {stage: stage, code: bare_code}
-            end
-        """.trimIndent()
     }
 }

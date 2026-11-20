@@ -1,4 +1,4 @@
-"""Characterization (Py-P6): through shared/stop/child.py, a worker that ignores SIGTERM is SIGKILLed with its group once the stop grace has passed; the row reads stopped with
+"""Through shared/stop/child.py, a worker that ignores SIGTERM is SIGKILLed with its group once the stop grace has passed; the row reads stopped with
 the exit -9 as its line."""
 import io, sys
 

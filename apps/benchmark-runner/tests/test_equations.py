@@ -23,6 +23,6 @@ def test_values_that_cannot_reach_the_target_say_so():
     assert runs_needed([1000.0, 1300.0] * 20, 0.02) is None
 
 
-def test_the_same_values_and_seed_give_the_same_count():
+def test_fixed_values_need_the_same_count_under_two_seeds():
     values = [1000.0 + (i * 37) % 80 for i in range(50)]
-    assert runs_needed(values, 0.02, seed=7) == runs_needed(values, 0.02, seed=7)
+    assert {runs_needed(values, 0.02, seed=s) for s in (7, 8)} == {30}

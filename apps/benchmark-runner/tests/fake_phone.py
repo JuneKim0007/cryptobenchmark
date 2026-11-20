@@ -9,6 +9,14 @@ from cryptobench.shared.device import adb as device_module  # noqa: E402
 from cryptobench.shared.device import gradle_runner  # noqa: E402
 from cryptobench.shared.device import timeouts  # noqa: E402
 
+# the probe capture the phone reports: its runtime and providers
+RUNTIME = {"model": "probed", "sdkInt": 36, "fingerprint": "a/b/c:16/X/1:user/release-keys"}
+PROBE = {"schemaVersion": 1, "runtime": RUNTIME, "providers": [
+    {"name": "second", "precedence": 2, "services": [{"type": "t", "algorithm": "a"}]},
+    {"name": "first", "precedence": 1, "services": [{"type": "t", "algorithm": "a"}, {"type": "t", "algorithm": "b"}]},
+    {"name": "empty", "precedence": 3, "services": []},
+]}
+
 OK = types.SimpleNamespace(returncode=0, stdout="", stderr="")
 MISSING = types.SimpleNamespace(returncode=1, stdout="", stderr="not found")
 CRASHED = "INSTRUMENTATION_RESULT: shortMsg=Process crashed.\nINSTRUMENTATION_CODE: 0\n"

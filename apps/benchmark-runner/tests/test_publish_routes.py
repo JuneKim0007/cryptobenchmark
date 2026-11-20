@@ -1,4 +1,4 @@
-"""Characterization (Py-P2): what --interop and --check publish through publish_unit, beside a finished run and into a new folder, on the host and the fake phone;
+"""What --interop and --check publish through publish_unit, beside a finished run and into a new folder, on the host and the fake phone;
 the tree, the manifest and the route's stdout against golden/publish_*.txt. UPDATE_GOLDEN=1 rewrites them."""
 import os, pathlib, re
 
@@ -103,7 +103,7 @@ ROUTES = {f.__name__: f for f in (interop_device_new, interop_device_beside, int
 
 
 @pytest.mark.parametrize("name", ROUTES)
-def test_today_publish_tree_manifest_and_stdout(name, tmp_path, monkeypatch, capsys):
+def test_publish_tree_manifest_and_stdout(name, tmp_path, monkeypatch, capsys):
     rerun = routed(tmp_path, monkeypatch)
     ROUTES[name](rerun)
     matches(name, snapshot(rerun, tmp_path, capsys.readouterr().out))
@@ -127,7 +127,7 @@ def test_interop_and_check_print_one_results_line(tmp_path, monkeypatch, capsys)
     assert [line for line in capsys.readouterr().out.splitlines() if line.startswith("results:")] == [f"results:   {rerun.device}"]
 
 
-def test_today_interop_into_a_new_folder_writes_no_guide(tmp_path, monkeypatch):
+def test_interop_into_a_new_folder_writes_no_guide(tmp_path, monkeypatch):
     rerun = routed(tmp_path, monkeypatch)
     rerun(interop=str(rerun.plan))
     files = yaml.safe_load(paths.RunTree(rerun.device).manifest.read_text())["files"]

@@ -1,4 +1,4 @@
-"""Characterization (Py-P12): the orchestrator's Worker.outcome and perf-repair's pipeline readers over transcripts the runner printed under the
+"""The orchestrator's Worker.outcome and perf-repair's pipeline readers over transcripts the runner printed under the
 fakes, stdout and stderr in one stream as a worker's log and perf-repair's pipe receive them."""
 import collections, io, pathlib, signal, sys, types
 
@@ -12,7 +12,7 @@ from cryptobench.shared.errors.failures import EnergyError
 from fake_phone import Energy
 from perfrepair.data_handler.outbound import benchmark_runner
 from perfrepair.device.delta_estimate import _whole_run_took
-from test_char_publish_routes import routed
+from test_publish_routes import routed
 from test_device_benchmark_flow import MEASURED
 from test_rerun_safety import stopped_at
 
@@ -67,7 +67,7 @@ def energy_refused(monkeypatch):
     monkeypatch.setattr(Energy, "window", refused)
 
 
-def test_today_a_finished_measured_run(tmp_path, monkeypatch):
+def test_a_finished_measured_run(tmp_path, monkeypatch):
     rerun = routed(tmp_path, monkeypatch)
     lines, code = transcript(rerun, monkeypatch)
     assert code == 0 and outcome(tmp_path, lines, code) == Outcome("finished", None, str(rerun.device))
@@ -82,9 +82,9 @@ def test_interop_gives_the_worker_its_results_line(tmp_path, monkeypatch):
     assert streamed(lines) == rerun.device / "manifest.yaml"
 
 
-def test_today_a_check_with_failures_reads_its_coded_line(tmp_path, monkeypatch):
+def test_a_check_with_failures_reads_its_coded_line(tmp_path, monkeypatch):
     rerun = routed(tmp_path, monkeypatch)
-    monkeypatch.setattr("test_char_publish_routes.CHECKED", "summary: {cases: 1, outcomes: {fail: 1}, oracles: {}}\ncases: [{id: a, outcome: fail, reason: r}]\n")
+    monkeypatch.setattr("test_publish_routes.CHECKED", "summary: {cases: 1, outcomes: {fail: 1}, oracles: {}}\ncases: [{id: a, outcome: fail, reason: r}]\n")
     lines, code = transcript(rerun, monkeypatch, check=True)
     assert code == 1 and lines[-1].startswith("error: check_failed: 1 cases failed or errored, see ")
     found = outcome(tmp_path, lines, code)
@@ -111,7 +111,7 @@ def test_a_run_killed_after_a_survived_energy_step_is_not_blamed_on_it(tmp_path,
     assert "energy_failed" not in failed_line(lines[:-3], -signal.SIGKILL)
 
 
-def test_today_a_stopped_run_prints_no_error_line_and_its_last_wrote_line_is_the_partial_manifest(tmp_path, monkeypatch):
+def test_a_stopped_run_prints_no_error_line_and_its_last_wrote_line_is_the_partial_manifest(tmp_path, monkeypatch):
     rerun = routed(tmp_path, monkeypatch)
     stopped_at(rerun.phone, monkeypatch, "b", KeyboardInterrupt())
     lines, code = transcript(rerun, monkeypatch)
@@ -120,7 +120,7 @@ def test_today_a_stopped_run_prints_no_error_line_and_its_last_wrote_line_is_the
     assert streamed(lines) == rerun.device / "manifest.yaml"
 
 
-def test_today_a_device_error_is_the_last_error_line_for_both_readers(tmp_path, monkeypatch):
+def test_a_device_error_is_the_last_error_line_for_both_readers(tmp_path, monkeypatch):
     from cryptobench.shared.device.adb import DeviceError
     rerun = routed(tmp_path, monkeypatch)
     stopped_at(rerun.phone, monkeypatch, "b", DeviceError("adb shell: closed by the test"))

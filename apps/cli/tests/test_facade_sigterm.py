@@ -1,5 +1,5 @@
-"""Characterization (Py-P6), changed: the facade turns SIGTERM into Ctrl-C and runs its guide child in a session of its own; a SIGTERM to the
-facade stops the child's group, then the facade ends as on Ctrl-C. Before, the child shared the facade's group and was left running."""
+"""The facade turns SIGTERM into Ctrl-C and runs its guide child in a session of its own; a SIGTERM to the
+facade stops the child's group, then the facade ends as on Ctrl-C."""
 import os, pathlib, signal, subprocess, sys, textwrap, time
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]

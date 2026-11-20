@@ -17,8 +17,8 @@
 - python: a change under `apps/benchmark-runner/`, `apps/cli/`, `lib/cryptobench/` or `tools/` passes `python3 -m pytest apps/benchmark-runner/tests apps/benchmark-runner/energy/tests apps/benchmark-runner/analysis/tests apps/cli/tests tools/tests lib/cryptobench/cryptobench`.
 - layering: a change under `lib/cryptobench/` passes `python3 -m pytest tools/tests/test_lib_layers.py`; its `RULES` table says what each package must not import.
 - error codes: a coded message added or changed in Python or a Kotlin main source passes `python3 -m pytest tools/tests/test_error_codes.py`; a new code gets its entry in `lib/cryptobench/cryptobench/shared/errors/codes.yaml`.
-- python: a change to `lib/cryptobench/cryptobench/shared/results/`, `lib/cryptobench/cryptobench/shared/device/identity.py` or `lib/cryptobench/cryptobench/shared/device/capture.py` passes `python3 apps/benchmark-runner/tests/test_manifest.py`.
-- analysis: a change to `apps/benchmark-runner/analysis/*.py` passes `python3 apps/benchmark-runner/analysis/tests/test_analyze.py`; `-u` rewrites `apps/benchmark-runner/analysis/tests/golden_summary.md` and `golden_chart_summary.md`.
+- python: a change to `lib/cryptobench/cryptobench/shared/results/`, `lib/cryptobench/cryptobench/shared/device/identity.py` or `lib/cryptobench/cryptobench/shared/device/capture.py` passes `python3 -m pytest apps/benchmark-runner/tests/test_manifest.py`.
+- analysis: a change to `apps/benchmark-runner/analysis/*.py` passes `python3 -m pytest apps/benchmark-runner/analysis/tests/test_analyze.py`; `python3 apps/benchmark-runner/analysis/tests/test_analyze.py -u` rewrites `apps/benchmark-runner/analysis/tests/golden_summary.md` and `golden_chart_summary.md`.
 - perf-repair: a change under `apps/perf-repair/` passes `make -C apps/perf-repair check`.
 - docs: a change to any guide or doc passes `python3 tools/docs_lint.py`.
 - ci: a Gradle or Python test command added here gets its step in `.github/workflows/tests.yml`.

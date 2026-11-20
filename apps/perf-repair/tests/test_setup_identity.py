@@ -1,4 +1,4 @@
-"""Py-P5: which manifest and run-folder fields the delta merge's setup fingerprint compares and which it leaves to the run record (manifest run:,
+"""Which manifest and run-folder fields the delta merge's setup fingerprint compares and which it leaves to the run record (manifest run:,
 run_changes), and that a changed code digest from --identify reruns the benchmark stage."""
 import pytest
 import yaml
@@ -37,7 +37,7 @@ FIELDS = [
 
 
 @pytest.mark.parametrize("name, edit, named", FIELDS, ids=[f[0] for f in FIELDS])
-def test_today_setup_fingerprint_compares_these_fields_and_ignores_the_rest(device, name, edit, named):  # noqa: F811
+def test_setup_fingerprint_compares_these_fields_and_ignores_the_rest(device, name, edit, named):  # noqa: F811
     stored = fingerprint(device)
     edit(device)
     assert [line.split(":")[0] for line in differing(stored, fingerprint(device))] == named
@@ -49,7 +49,7 @@ def test_setup_fingerprint_leaves_code_build_facts_suppress_errors_and_the_run_b
     assert {"deviceId", "mode", "bundled", "processes", "energy"} <= keys
 
 
-def test_today_provider_setup_drops_run_prepared_processes_and_energy(device):  # noqa: F811
+def test_provider_setup_drops_run_prepared_processes_and_energy(device):  # noqa: F811
     assert not [k for k in provider_setup(device) if k.startswith(("run.", "prepared.")) or k in ("processes", "energy")]
 
 

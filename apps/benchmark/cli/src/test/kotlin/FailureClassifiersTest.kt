@@ -27,7 +27,7 @@ import javax.crypto.BadPaddingException
 import javax.crypto.IllegalBlockSizeException
 import javax.crypto.NoSuchPaddingException
 
-/** Characterization: one exception, five entry points that classify it (peer produce, setup with an input or an output key, consume, known answer); the codes each gives. */
+/** One exception, five entry points that classify it (peer produce, setup with an input or an output key, consume, known answer); the codes each gives. */
 class FailureClassifiersTest {
 
     private val thrown: List<Exception> = listOf(
@@ -55,7 +55,7 @@ class FailureClassifiersTest {
             .judge(CheckedCall(prepared, Invocations.of(prepared), null)).outcome
 
     @Test
-    fun todayEachEntryPointCodesTheSameExceptionItsOwnWay() {
+    fun eachEntryPointCodesTheSameExceptionItsOwnWay() {
         val table = thrown.joinToString("\n") { failure ->
             listOf(
                 failure.javaClass.simpleName,

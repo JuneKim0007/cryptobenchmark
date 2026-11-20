@@ -14,7 +14,7 @@ import io.github.junekim0007.cryptobench.settings.HarnessSettings
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-/** Characterization: the host harness reads only harness.iterations; the other harness keys change nothing it samples. */
+/** The host harness reads only harness.iterations; the other harness keys change nothing it samples. */
 class HostHarnessSettingsTest {
 
     private val quick = HostHarness(warmupNanos = 1_000_000L, runNanos = 500_000L, runs = 3, collectionCount = { 0L })
@@ -25,7 +25,7 @@ class HostHarnessSettingsTest {
     )).time.runs.size
 
     @Test
-    fun todayHostIgnoresWarmupIterationsCpuAndProfiling() {
+    fun theHostIgnoresWarmupIterationsCpuAndProfiling() {
         val ignored = HarnessSettings(warmupIterations = 50, profiling = "MethodTracing", cpu = CpuSettings(CoreChoice.Index(0), true))
         assertEquals(listOf(3, 3, 4, 4), listOf(
             samples(HarnessSettings()), samples(ignored), samples(HarnessSettings(iterations = 4)), samples(ignored.copy(iterations = 4)),

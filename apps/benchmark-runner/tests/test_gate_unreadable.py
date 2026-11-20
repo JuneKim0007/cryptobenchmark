@@ -1,4 +1,4 @@
-"""Py-P4 (decision 39.4): the thermal gate's hold returns False on an unreadable temperature; the case launch skips the case, the warm-up and the
+"""The thermal gate's hold returns False on an unreadable temperature; the case launch skips the case, the warm-up and the
 energy dry pass are skipped."""
 from cryptobench.stages.measurement import benchmark
 from cryptobench.stages.measurement.session import dynamic_temperature, warmup

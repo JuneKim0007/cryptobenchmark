@@ -5,6 +5,7 @@ import pathlib
 import pytest
 import yaml
 
+from cryptobench.shared import paths  # noqa: E402
 from cryptobench.shared.results import manifest  # noqa: E402
 from cryptobench.stages.verification import harness  # noqa: E402
 from failure import fail, reported  # noqa: E402
@@ -150,7 +151,7 @@ def test_a_root_with_no_finished_run_says_so(tmp_path, capsys):
 def test_a_temporary_root_warns_and_any_other_does_not(tmp_path, capsys):
     layout.warn_if_temp(tmp_path)
     assert capsys.readouterr().out.startswith("warning: results_in_temp: ")
-    layout.warn_if_temp(pathlib.Path.home() / "capstone/runs/x")
+    layout.warn_if_temp(paths.code_root() / "results" / "x")
     assert capsys.readouterr().out == ""
 
 

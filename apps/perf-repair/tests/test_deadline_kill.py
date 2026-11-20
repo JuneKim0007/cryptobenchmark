@@ -1,5 +1,5 @@
-"""Characterization (Py-P6), changed: a pipeline past its timeout gets SIGTERM with its group and writes its partial manifest; one deaf to it is
-SIGKILLed once the grace has passed. Before, it was SIGKILLed at once and wrote none."""
+"""A pipeline past its timeout gets SIGTERM with its group and writes its partial manifest; one deaf to it is
+SIGKILLed once the grace has passed."""
 import time
 
 import pytest

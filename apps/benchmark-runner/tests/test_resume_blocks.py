@@ -9,8 +9,7 @@ import test_rerun_safety
 from cryptobench.shared import paths
 from cryptobench.shared.results import identity, run_record
 from cryptobench.stages.measurement.session import variant_order
-from fake_phone import Energy, Phone
-from test_manifest import PROBE
+from fake_phone import PROBE, Energy, Phone
 from test_device_benchmark_flow import MEASURED
 from test_rerun_safety import Rerun, manifest_of
 

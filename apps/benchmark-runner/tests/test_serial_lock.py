@@ -1,6 +1,5 @@
-"""Characterization (Py-P7), changed: a device run locks its phone by serial, whatever its results root; a second run on that phone is refused
-device_busy before it writes anything; the results-root lock nests inside. A blank serial gets an unstable_id notice and no phone lock. Before,
-the only lock was the results root's, so two roots on one serial both ran."""
+"""A device run locks its phone by serial, whatever its results root; a second run on that phone is refused
+device_busy before it writes anything; the results-root lock nests inside. A blank serial gets an unstable_id notice and no phone lock."""
 import os, pathlib, subprocess, sys, types
 
 import pytest

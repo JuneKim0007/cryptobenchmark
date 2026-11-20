@@ -3,7 +3,7 @@ import yaml
 
 from cryptobench.shared.results.manifest import manifest
 from test_device_benchmark_flow import DUMP, MEASURED, measured
-from test_manifest import PROBE
+from fake_phone import PROBE
 
 COMMON = ["benchmark/benchmark.json", "configuration/effective.yaml", "discovery/probe_1.yaml", "discovery/trial_1.yaml", "global.yaml",
           "manifest.yaml", "preparation/prepared.yaml", "preparation/skipped.yaml", "validation.yaml"]

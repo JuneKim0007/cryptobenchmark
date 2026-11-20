@@ -1,4 +1,4 @@
-"""Characterization (Py-P3): each instrumentation site's device calls in order against golden/instrumentation_*.txt (UPDATE_GOLDEN=1 rewrites them),
+"""Each instrumentation site's device calls in order against golden/instrumentation_*.txt (UPDATE_GOLDEN=1 rewrites them),
 a transport lost mid-step on the probe, check, interop, harness and energy dry pass waited out, and the probe's pass rule."""
 import os, pathlib, re, types
 
@@ -11,7 +11,7 @@ from cryptobench.shared.device.reconnect import Reconnect
 from cryptobench.stages.discovery.probe import probe
 from cryptobench.stages.measurement.energy.session import EnergySession
 from cryptobench.stages.verification import check, harness, interop_oracle
-from test_char_publish_routes import RoutePhone, routed
+from test_publish_routes import RoutePhone, routed
 
 GOLDEN = pathlib.Path(__file__).with_name("golden")
 RECORDED = ("run", "shell", "instrument", "pull", "pull_optional", "push_files", "force_stop")
@@ -89,7 +89,7 @@ SITES = {f.__name__[5:]: f for f in (site_probe, site_check, site_interop, site_
 
 
 @pytest.mark.parametrize("name", SITES)
-def test_today_device_calls_of_one_site(name, tmp_path):
+def test_device_calls_of_one_site(name, tmp_path):
     phone = Recording(tmp_path, cases=("a",))
     SITES[name](phone, tmp_path)
     matches(name, phone.calls, tmp_path)
@@ -101,7 +101,7 @@ FLOWS = {
 
 
 @pytest.mark.parametrize("name", FLOWS)
-def test_today_device_calls_of_a_measuring_session(name, tmp_path, monkeypatch):
+def test_device_calls_of_a_measuring_session(name, tmp_path, monkeypatch):
     phone = Recording(tmp_path)
     flow.measured(tmp_path, monkeypatch, FLOWS[name], phone=phone)
     matches(name, phone.calls, tmp_path)

@@ -1,6 +1,8 @@
 """The lines perf-repair reads from the runner, printed by the real producers and read by perf-repair's own readers."""
 import collections, io, json, re, time, types
 
+import pytest
+
 import failure
 import pipeline
 from cryptobench.pipeline import took
@@ -24,10 +26,8 @@ def test_the_labels_keep_one_column():
 
 def test_failure_prints_the_error_label_without_importing_cryptobench(capsys):
     # dependencies.py reports a missing cryptobench through failure.py, so it keeps its own copy
-    try:
+    with pytest.raises(SystemExit):
         failure.fail("x")
-    except SystemExit:
-        pass
     assert capsys.readouterr().err == stdout.line(stdout.ERROR, "x") + "\n"
 
 

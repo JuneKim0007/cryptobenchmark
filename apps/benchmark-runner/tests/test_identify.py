@@ -1,4 +1,4 @@
-"""Py-P5: the one --identify line against golden/identify_device.txt (UPDATE_GOLDEN=1 rewrites it); the harness and code digests are normalised,
+"""The one --identify line against golden/identify_device.txt (UPDATE_GOLDEN=1 rewrites it); the harness and code digests are normalised,
 everything else is pinned, so a key added or dropped shows."""
 import json, os, pathlib, types
 

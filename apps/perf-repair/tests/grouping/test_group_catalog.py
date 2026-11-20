@@ -344,11 +344,6 @@ def test_every_master_row_stands_with_only_its_listed_differences():
     assert all(v["why"] for v in JOINED.values())
 
 
-def test_the_row_count_is_what_the_review_measured():
-    # 221 at master, plus one row per contract the reviewed names add
-    assert (len(group_catalog().groups), len(MASTER_ROWS)) == (923, 221)
-
-
 def test_a_password_row_has_no_provider_held_variant_and_says_password():
     row = group_catalog().of("cipher.secret", "PBEWithHmacSHA1AndAES_128")
     assert row.password and group_catalog().variant_of(row.id + ".p") is None

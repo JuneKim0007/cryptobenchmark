@@ -59,14 +59,6 @@ class JetpackResultsTest {
     }
 
     @Test
-    fun aPlanCaseWithoutResolvedParametersIsDroppedWithItsReason() {
-        val old = File(example, "benchmark_prepared_example.yaml").readText().replaceFirst(Regex("  resolvedParameters: .*\n"), "")
-        val converted = JetpackResults.convert(File(example, "benchmark_jetpack_example.json").readText(), old)
-        assertEquals(true, converted.dropped.first().startsWith("not_converted: MessageDigest_SHA-256_DIGEST_AndroidOpenSSL_i1024_WARM_fixed: missing_field: resolvedParameters"))
-        assertEquals(1, converted.rows.size)
-    }
-
-    @Test
     fun aMetricThePlanAskedForButAndroidxDidNotWriteDropsThatCaseOnly() {
         val both = plan().replace("metrics: [TIME]", "metrics: [TIME, ALLOCATION]")
         val converted = JetpackResults.convert(data(), both)

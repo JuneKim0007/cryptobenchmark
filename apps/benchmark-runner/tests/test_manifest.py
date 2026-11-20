@@ -1,24 +1,16 @@
-"""python3 apps/benchmark-runner/tests/test_manifest.py"""
+"""The manifest a run writes: its fields, its bytes against the goldens, and its device identity."""
 import json
 import pathlib
-import sys
 import tempfile
 
 import yaml
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from cryptobench.shared.device.capture import CaptureError  # noqa: E402
 from cryptobench.shared.device.identity import DeviceIdError, device_id  # noqa: E402
 from cryptobench.shared.results import manifest as manifest_module  # noqa: E402
 from cryptobench.shared.results.manifest import manifest  # noqa: E402
 from cryptobench.shared.results import run_inputs  # noqa: E402
-
-RUNTIME = {"model": "probed", "sdkInt": 36, "fingerprint": "a/b/c:16/X/1:user/release-keys"}
-PROBE = {"schemaVersion": 1, "runtime": RUNTIME, "providers": [
-    {"name": "second", "precedence": 2, "services": [{"type": "t", "algorithm": "a"}]},
-    {"name": "first", "precedence": 1, "services": [{"type": "t", "algorithm": "a"}, {"type": "t", "algorithm": "b"}]},
-    {"name": "empty", "precedence": 3, "services": []},
-]}
+from fake_phone import PROBE, RUNTIME  # noqa: E402
 
 
 def layout(results, measured):
@@ -215,9 +207,3 @@ def test_the_manifest_is_written_owner_only_as_mkstemp_leaves_it():
         written(results, "host", layout(results, measured=False))
         assert stat.S_IMODE((results / "manifest.yaml").stat().st_mode) == 0o600
 
-
-if __name__ == "__main__":
-    tests = [value for name, value in sorted(globals().items()) if name.startswith("test_")]
-    for test in tests:
-        test()
-    print(f"ok: {len(tests)} tests")

@@ -100,6 +100,9 @@ class GlobalDocumentTest {
     fun aBadRunSettingIsRefusedByItsCode() {
         listOf(
             "run: {isolation: case}\n" to "unknown_keys: run [isolation]",
+            "run: {phases: [COLD]}\n" to "unknown_phase: COLD, one of [WARM]",
+            "run: {inputSizes: [64, 64]}\n" to "duplicate: inputSizes [64, 64]",
+            "run: {processRepetitions: 0}\n" to "not_positive: processRepetitions 0",
             "run: {thermalThrottleSleepSeconds: -1}\n" to "negative: thermalThrottleSleepSeconds",
             "run: {caseCooldownSeconds: -1}\n" to "negative: caseCooldownSeconds",
             "run: {energyIdleSeconds: 0}\n" to "not_positive: energyIdleSeconds",

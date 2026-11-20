@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation
 
+import io.github.junekim0007.cryptobench.preparation.input.OperationInput
 import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterial
 import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterialGenerator
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
@@ -16,6 +17,7 @@ import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertSame
+import org.junit.Assert.assertThrows
 import javax.crypto.Cipher
 import javax.crypto.MacSpi
 import javax.crypto.spec.IvParameterSpec
@@ -169,8 +171,12 @@ class InvocationTest {
         Security.addProvider(provider)
         try {
             val drawn = ParameterBinder().bind(mapOf("class" to "javax.crypto.spec.IvParameterSpec", "arguments" to listOf("fresh(16)")), "parameters")
-            val invocation = Invocations.of(prepared("Signature", "SPEC-BOUND", provider.name, Operation.VERIFY, key = ec, parameters = drawn))
-            repeat(3) { invocation.perIteration() }
+            val signed = prepared("Signature", "SPEC-BOUND", provider.name, Operation.VERIFY, key = ec, parameters = drawn)
+            val invocation = Invocations.of(signed)
+            repeat(3) { assertEquals(true, invocation.perIteration()) }
+            val message = signed.input as OperationInput.SignedMessage
+            val otherSpec = signed.copy(input = OperationInput.SignedMessage(message.message, message.signature, IvParameterSpec(ByteArray(16) { 1 })))
+            assertEquals("verify_failed", assertThrows(IllegalStateException::class.java) { Invocations.of(otherSpec).perIteration() }.message)
         } finally {
             Security.removeProvider(provider.name)
         }

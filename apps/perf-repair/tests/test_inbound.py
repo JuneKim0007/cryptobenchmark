@@ -100,7 +100,7 @@ def test_measurements_are_keyed_by_row_and_kept_apart_from_rows(results):
     assert "allocationCount" not in measurements["g_slow"]
 
 
-def test_a_case_carries_its_variant_and_one_without_is_the_legacy_notfixed(tmp_path, run, prepared):
+def test_a_case_carries_its_given_variant_and_none_is_refused(tmp_path, run, prepared):
     doc = json.loads(run[2]("benchmark").read_text())
     doc["cases"][0]["variant"] = "fixed"
     path = tmp_path / "benchmark.json"

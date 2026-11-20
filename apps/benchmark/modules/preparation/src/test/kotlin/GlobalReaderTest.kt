@@ -17,6 +17,12 @@ class GlobalReaderTest {
             assertThrows(IllegalArgumentException::class.java) { global(EffectiveFixture.TEXT.replace("onFailure: skip", "onFailure: retry")) }.message!!.substringBefore(':'))
     }
 
+    @Test
+    fun anUnknownPhaseIsRefused() {
+        assertEquals("unknown_phase: COLD, one of [WARM]",
+            assertThrows(IllegalArgumentException::class.java) { global(EffectiveFixture.TEXT.replace("  phases: [WARM]\n", "  phases: [COLD]\n")) }.message)
+    }
+
     /** A typo in run or policy, or a key no run has (isolation), is refused as :config refuses it. */
     @Test
     fun anUnknownRunOrPolicyKeyIsRefused() {

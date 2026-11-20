@@ -1,4 +1,4 @@
-"""Py-P8: the runner's manifest() read by perf-repair's BenchmarkManifest gives back every field as written; the delta merge writes through it."""
+"""The runner's manifest() read by perf-repair's BenchmarkManifest gives back every field as written; the delta merge writes through it."""
 import json
 from pathlib import Path
 
