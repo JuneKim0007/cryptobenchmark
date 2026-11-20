@@ -1,13 +1,13 @@
 device:    a lost adb transport is waited for up to 60 min, adb get-state every 10 s
 gate:      TEMPERATURE GATE SET: kept 36.0 C on skin; a run starts at or below 35.75 C, is discarded if it ends at or above 36.0 C
 gate:      TEMPERATURE GATE SET for run.passes.energy.thermalGate: kept 35.0 C on skin; a run starts at or below 34.75 C, is discarded if it ends at or above 35.0 C
-took:      energy pre-flight and settle in <s>s
+gate:      the start idle reading: 35.7 C, start limit 34.75 C => waiting 3 minutes to cool down, then polling every 1 min
+gate:      the start idle reading: passed at 26.7 C after 180 s
+took:      energy pre-flight in <s>s
 warm-up:   off (run.warmup.iterations 0)
 measure:   CryptoBenchmark on the device; --stream shows each case
 measure:   one process per case (2 cases)
 order:     <tmp>/results/benchmark/energy/order.txt
-gate:      a: 35.7 C, start limit 34.75 C => waiting 3 minutes to cool down, then polling every 1 min
-gate:      a: passed at 26.7 C after 180 s
 traces:    a: 0 pulled, 1 expected
 window:    a: 0.30 s below 5 s; launching again with 75 samples
 traces:    a: 0 pulled, 1 expected
@@ -19,7 +19,7 @@ case:      2 of 2 b ok
 clocks:    0 of 2 cases started or ended with a core capped below its maximum
 traces:    0 pulled
 thermal:   energy pass: skin skin 27.3 C at a case start, 27.5 C at an end; CPU unavailable; 0 pauses, 0 s paused; 0 cases ended throttled (status > 0)
-gate:      energy pass: 1 of 4 runs waited, 180 s; 0 runs discarded; start limit 34.75-34.75 C
+gate:      energy pass: 0 of 4 runs waited, 0 s; 0 runs discarded; start limit 34.75-34.75 C
 cool-down: energy pass: 3 x 4 s = 12 s between cases
 pass:      energy pass: 1 process, <m s> on the device
 measure:   CryptoBenchmark on the device; --stream shows each case
@@ -31,5 +31,7 @@ clocks:    0 of 2 cases started or ended with a core capped below its maximum
 thermal:   timing pass: skin skin 27.7 C at a case start, 27.9 C at an end; CPU unavailable; 0 pauses, 0 s paused; 0 cases ended throttled (status > 0)
 gate:      timing pass: 0 of 2 runs waited, 0 s; 0 runs discarded; start limit 35.75-35.75 C
 pass:      timing pass: 1 process, <m s> on the device
+idle:      energy again for 1 process over the interpolated idle
+took:      energy end idle in <s>s
 wrote:     <tmp>/results/preparation/prepared.yaml
 took:      prepare and measure in <s>s
