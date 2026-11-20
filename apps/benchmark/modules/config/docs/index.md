@@ -24,7 +24,7 @@ apps/benchmark/modules/config/src/main/kotlin/effective/KeystoreRefusals.kt : a 
 apps/benchmark/modules/config/src/main/kotlin/effective/LocatedMatch.kt : Rule.matches(Inventory.Located)
 apps/benchmark/modules/config/src/main/kotlin/effective/OverrideResolver.kt : merges applicable overrides into one EffectiveEntry; variants from overrides, includes, then the run
 apps/benchmark/modules/config/src/main/kotlin/effective/ReportDocument.kt : report.yaml schema
-apps/benchmark/modules/config/src/main/kotlin/effective/ShadowedSettings.kt : with run.passes set, one shadowed_setting warning per authored run or override harness.iterations
+apps/benchmark/modules/config/src/main/kotlin/effective/ShadowedSettings.kt : with run.passes set, one shadowed_setting warning per authored run or override harness.iterations; one per authored harness.energy.cooldownSeconds on a measured capture
 apps/benchmark/modules/config/src/main/kotlin/effective/WarmupJobs.kt : run.warmup.jobs resolved to the effective entries they select
 apps/benchmark/modules/config/src/main/kotlin/effective/dto/EffectiveConfig.kt : effective model; rejects an empty selection; run id from the capture name
 apps/benchmark/modules/config/src/main/kotlin/effective/dto/EffectiveEntry.kt : one selected primitive's settings

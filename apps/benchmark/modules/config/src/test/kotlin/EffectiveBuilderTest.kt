@@ -2,6 +2,7 @@ package io.github.junekim0007.cryptobench.config
 
 import io.github.junekim0007.cryptobench.settings.OnFailure
 import io.github.junekim0007.cryptobench.config.effective.EffectiveBuilder
+import io.github.junekim0007.cryptobench.config.effective.ShadowedSettings
 import io.github.junekim0007.cryptobench.settings.StoppedOnFailureException
 import io.github.junekim0007.cryptobench.config.global.GlobalDocument
 import io.github.junekim0007.cryptobench.config.global.dto.GlobalConfig
@@ -20,6 +21,7 @@ import io.github.junekim0007.cryptobench.config.yaml.YamlFiles
 import io.github.junekim0007.cryptobench.document.YamlCodec
 import io.github.junekim0007.cryptobench.settings.CoreChoice
 import io.github.junekim0007.cryptobench.settings.CpuSettings
+import io.github.junekim0007.cryptobench.settings.EnergySettings
 import io.github.junekim0007.cryptobench.settings.Facts
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
 import org.junit.Assert.assertEquals
@@ -150,6 +152,20 @@ class EffectiveBuilderTest {
         assertEquals(emptyList<String>(), shadowed(counted))
         val passes = shadowed(counted.copy(run = counted.run.copy(passes = listOf(MeasurePass(MeasurePass.TIMING, 50)))))
         assertEquals(listOf("run.harness.iterations", "overrides[${overridden.overrides.lastIndex}].set.harness.iterations"), passes.map { it.removePrefix("shadowed_setting: ").substringBefore(" is unused") })
+    }
+
+    @Test
+    fun anEnergyCooldownOnAMeasuredCaptureIsShadowedAndOnADryOneIsNot() {
+        fun withRun(energy: EnergySettings) = global.copy(run = global.run.copy(harness = global.run.harness.copy(energy = energy)))
+        fun withOverride(energy: EnergySettings) = testSet.copy(overrides = testSet.overrides + Override(Rule(type = "MessageDigest"), harness = HarnessSettings(energy = energy)))
+        fun paths(run: GlobalConfig, set: TestSet) = ShadowedSettings.of(run, set).filter { "energy" in it }.map { it.removePrefix("shadowed_setting: ").substringBefore(" is unused") }
+        val measured = withRun(EnergySettings(capture = "measured", cooldownSeconds = 5))
+        assertEquals(listOf("run.harness.energy.cooldownSeconds"), paths(measured, testSet))
+        assertEquals(emptyList<String>(), paths(withRun(EnergySettings(capture = "dry", cooldownSeconds = 5)), testSet))
+        assertEquals(emptyList<String>(), paths(measured, withOverride(EnergySettings(capture = "dry"))))
+        val last = testSet.overrides.size
+        assertEquals(listOf("overrides[$last].set.harness.energy.cooldownSeconds"), paths(withRun(EnergySettings(capture = "measured")), withOverride(EnergySettings(cooldownSeconds = 3))))
+        assertEquals(emptyList<String>(), paths(withRun(EnergySettings(capture = "measured")), withOverride(EnergySettings(capture = "dry", cooldownSeconds = 3))))
     }
 
     @Test

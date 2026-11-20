@@ -21,7 +21,7 @@
 | `energy.capture` | `none`, `measured`, `dry` | `none` |
 | `energy.windowSeconds` | ≥1; `dry` only | 10 |
 | `energy.warmupSeconds` | ≥1 | 2 |
-| `energy.cooldownSeconds` | ≥0; `dry` only (its cases share one process and one gate hold) | 5 |
+| `energy.cooldownSeconds` | ≥0; `dry` only (its cases share one process and one gate hold); set on a `measured` capture it is a `shadowed_setting` warning | 5 |
 | `energy.source` | `rails`, `manafa` | `rails` |
 
 - Keys sit under `harness` in `global.yaml` `run` or a test-set override; precedence: `apps/benchmark/modules/config/docs/config.md`. Defaults: `EnergySettings.DEFAULTS`, written to `contracts/defaults/defaults.yaml`; `Energy.of` merges a case's keys over them key by key.

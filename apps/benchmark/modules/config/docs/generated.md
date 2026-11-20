@@ -97,7 +97,7 @@ An entry is checked as `run.harness` merged with its own harness. When the run s
 | key | holds |
 |---|---|
 | `runId` | as in `effective.yaml` |
-| `warnings` | the inventory's `warnings`, `variants_fallback:` of global.yaml then of the test set, `exclude_matches_nothing: <rule>`, `override_matches_nothing: <rule>`, run-level and entry-level `not_supported:`, then one `path_not_applicable:` per type and dropped path one `secure_path_unavailable:` (entries asking `secure` of a type whose row lacks it), then with `run.passes` one `shadowed_setting: <path> is unused while run.passes sets the samples of a --device run` per `run.harness.iterations` or `overrides[<i>].set.harness.iterations` |
+| `warnings` | the inventory's `warnings`, `variants_fallback:` of global.yaml then of the test set, `exclude_matches_nothing: <rule>`, `override_matches_nothing: <rule>`, run-level and entry-level `not_supported:`, then one `path_not_applicable:` per type and dropped path one `secure_path_unavailable:` (entries asking `secure` of a type whose row lacks it), then with `run.passes` one `shadowed_setting: <path> is unused while run.passes sets the samples of a --device run` per `run.harness.iterations` or `overrides[<i>].set.harness.iterations`, then one `shadowed_setting: <path> is unused by a measured capture; the cool-down applies to dry only` per `run.harness.energy.cooldownSeconds` or `overrides[<i>].set.harness.energy.cooldownSeconds` whose capture is `measured` (the run's only when no override sets `dry`) |
 | `skipped` | `{stage, provider?, type?, name?, code, reason?}`; preparation writes the same record ([prepared.md](../../preparation/docs/prepared.md#skippedyaml)) |
 
 ## Errors and writes
