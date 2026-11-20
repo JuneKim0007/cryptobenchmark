@@ -62,6 +62,17 @@ class AlgorithmNamesTest {
     }
 
     @Test
+    fun aSpellingSizedAndNamedOrAnOidApartFromItsBareFormIsRefused() {
+        for ((body, code) in listOf(
+            "names:\n  Cipher:\n    AES: [AES_128]\nsized:\n  Cipher:\n    AES_128: {name: AES, keySize: 128}\n" to "names_catalog_duplicate: Cipher AES_128 is sized and named",
+            "names:\n  KeyPairGenerator:\n    XDH: [1.3.101.110]\n    X25519: [OID.1.3.101.110]\n" to "names_oid_split: KeyPairGenerator OID.1.3.101.110",
+        )) {
+            val error = assertThrows(IllegalArgumentException::class.java) { AlgorithmNames.parse(YamlCodec.DOCUMENT.load("schemaVersion: 1\n$body")) }
+            assertTrue(error.message!!, code in error.message!!)
+        }
+    }
+
+    @Test
     fun anInventoryRefusesTwoSpellingsOfOneNameButKeepsKeySizesApart() {
         val source = InventorySource("capture.yaml", "trial.yaml", emptyMap())
         fun inventory(vararg names: String) = Inventory(source, mapOf("P" to mapOf("MessageDigest" to names.associateWith { InventoryEntry(runs = true) })))

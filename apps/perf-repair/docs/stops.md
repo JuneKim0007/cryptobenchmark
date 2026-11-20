@@ -105,6 +105,7 @@ Exit: what `failure.py` returns for the code; argparse refusals exit 2 before an
 | `interchange_component` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
 | `interchange_key` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
 | `names_catalog_duplicate` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
+| `names_oid_split` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
 | `names_schema` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
 | `groups_invalid` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |
 | `screening_shape` | `stop` | fixed: the input is unusable | 1 | fix the catalog file the message names |

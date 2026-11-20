@@ -212,6 +212,10 @@ def load(path: Path = CATALOG, families: Families | None = None, names: Names | 
             rows += _rows(family, engine_type, raw["algorithms"], catalogue)
     both = {fold(algorithm_id(families.by_id[g.family].type, n)) for g in groups for n in g.algorithms} & {fold(i) for i in unidentified}
     problems += [f"{i}: listed in a family and in {UNIDENTIFIED}" for i in sorted(both)]
+    held = {fold(i) for i in unidentified} | {fold(e.id) for e in catalogue.entries}
+    problems += [f"{algorithm_id(t, c)}: names-file canonical with no catalogue entry, not in {UNIDENTIFIED}"
+                 for t in sorted({f.type for f in families.all}) for c in sorted(set(names.names.get(t, {}).values()))
+                 if fold(algorithm_id(t, c)) not in held]
     repeated = [gid for gid, n in Counter(r.id for r in rows).items() if n > 1]
     problems += [f"{gid}: row id listed twice" for gid in repeated]
     if problems:

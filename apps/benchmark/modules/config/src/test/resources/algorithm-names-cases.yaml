@@ -61,3 +61,10 @@ cases:
 - {type: KeyPairGenerator, name: ml-kem-768, canonical: ML-KEM-768, keySize: null, known: true}
 - {type: KeyPairGenerator, name: ML-DSA, canonical: ML-DSA, keySize: null, known: true}
 - {type: KeyGenerator, name: SunTls12Prf, canonical: SunTls12Prf, keySize: null, known: true}
+- {type: Cipher, name: ELGAMAL/NONE/PKCS1PADDING, canonical: ELGAMAL/NONE/PKCS1PADDING, keySize: null, known: false}
+- {type: Cipher, name: ELGAMAL, canonical: ELGAMAL/NONE/NoPadding, keySize: null, known: true}
+- {type: Cipher, name: 1.2.410.200046.1.1.37, canonical: ARIA/CCM/NoPadding, keySize: null, known: true}
+- {type: Cipher, name: OID.1.2.410.200046.1.1.39, canonical: ARIA/CCM/NoPadding, keySize: null, known: true}
+- {type: KeyPairGenerator, name: 1.3.101.110, canonical: X25519, keySize: null, known: true}
+- {type: KeyPairGenerator, name: OID.1.3.101.110, canonical: X25519, keySize: null, known: true}
+- {type: KeyPairGenerator, name: 1.3.101.112, canonical: Ed25519, keySize: null, known: true}

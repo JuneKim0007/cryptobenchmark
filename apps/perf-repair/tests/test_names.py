@@ -34,6 +34,17 @@ def test_a_spelling_under_two_canonical_names_is_refused(tmp_path):
         Names.load(path)
 
 
+@pytest.mark.parametrize("body,code", [
+    ("names:\n  Cipher:\n    AES: [AES_128]\nsized:\n  Cipher:\n    AES_128: {name: AES, keySize: 128}\n", "names_catalog_duplicate: Cipher AES_128 is sized and named"),
+    ("names:\n  KeyPairGenerator:\n    XDH: [1.3.101.110]\n    X25519: [OID.1.3.101.110]\n", "names_oid_split: KeyPairGenerator OID.1.3.101.110"),
+])
+def test_a_spelling_sized_and_named_or_an_oid_apart_from_its_bare_form_is_refused(tmp_path, body, code):
+    path = tmp_path / "names.yaml"
+    path.write_text("schemaVersion: 1\n" + body)
+    with pytest.raises(NamesError, match=code):
+        Names.load(path)
+
+
 def _probe(*services):
     return Probe({"providers": [{"name": p, "services": [{"type": t, "algorithm": a, "aliases": al}]}
                                               for p, t, a, al in services]})

@@ -12,7 +12,7 @@ from .types import NO_NONCE, NO_PARAMETERS, OUTPUT_KINDS
 from .deviations import CATALOG as DEVIATIONS, Deviations, load as load_deviations
 from .families import Families
 from .glossary import directions_of, goes_to
-from .names import fold
+from .names import Names, fold
 from .overrides import ROW_SECTIONS, override_parent, row_override
 from .provider_builds import provider_builds
 from .recipes import CATALOG as RECIPES, Recipes, load as load_recipes
@@ -353,12 +353,37 @@ def _catalogue(path: Path, family: str, common: Common, recipes: Recipes, deviat
     return entries, problems
 
 
-def load(directory: Path = DIRECTORY, families: Families | None = None) -> Algorithms:
+def _accepts(raw: dict, size: int) -> bool:
+    key_bytes = (raw.get("key") or {}).get("bytes")
+    if key_bytes is not None:
+        return size % 8 == 0 and size // 8 in key_bytes
+    option = next((o for o in raw.get("optional") or [] if o.get("name") == "keySize"), None)
+    return option is not None and size in (option.get("accepted") or [size])
+
+
+def _linkage_problems(entries: list[Entry], names: Names, engine_types: set[str]) -> list[str]:
+    """Each id is its own canonical name; each sized spelling of a catalogued type links to an entry that takes its size."""
+    by_id = {fold(e.id): e for e in entries}
+    problems = []
+    for e in (e for e in entries if split_id(e.id)):
+        found = names.catalogued(e.type, e.canonical)
+        if not found.known or found.name != e.canonical or found.keySize is not None:
+            problems.append(f"{e.id}: id not canonical, the names file gives {found.name} keySize {found.keySize}")
+    for t in sorted(engine_types):
+        for spelling, sized in sorted(names.sized.get(t, {}).items()):
+            entry = by_id.get(fold(algorithm_id(t, sized.name)))
+            if entry is None or not _accepts(entry.raw, sized.keySize):
+                problems.append(f"{t} {spelling}: sized {algorithm_id(t, sized.name)} keySize {sized.keySize} is no entry that accepts it")
+    return problems
+
+
+def load(directory: Path = DIRECTORY, families: Families | None = None, names: Names | None = None) -> Algorithms:
     directory = Path(directory)
     common, problems = _common(directory / COMMON.name)
     recipes = load_recipes(directory / RECIPES.name)
     deviations = load_deviations(directory / DEVIATIONS.name, provider_builds())
-    known = {f.id for f in (families or Families.load()).all}
+    families = families or Families.load()
+    known = {f.id for f in families.all}
     files = {p.name[:-len(SUFFIX)]: p for p in sorted(directory.glob("*" + SUFFIX))}
     problems += [f"{f}{SUFFIX}: not a family of families.yaml" for f in files if f not in known]
     problems += [f"{f}: no {f}{SUFFIX}" for f in known if f not in files]
@@ -368,6 +393,8 @@ def load(directory: Path = DIRECTORY, families: Families | None = None) -> Algor
         entries += found
         problems += more
     problems += deviations.problems({fold(e.id) for e in entries})
+    problems += _linkage_problems(entries, names or Names.load(directory / paths.ALGORITHM_NAMES),
+                                  {f.type for f in families.all if f.id in files})
     if problems:
         raise AlgorithmsError(f"{INVALID}: " + "; ".join(problems))
     return Algorithms(tuple(entries), common)

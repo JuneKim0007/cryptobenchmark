@@ -12,6 +12,7 @@ from .glossary import names_problems
 CATALOG = paths.repo().algorithms / paths.ALGORITHM_NAMES
 SCHEMA_VERSION = 1
 NAME_CONFLICT = "name_conflict"
+OID_PREFIX = "OID."
 
 
 def fold(name: str) -> str:
@@ -58,6 +59,20 @@ def _folded(spellings: dict[str, list[str]]) -> dict[str, str]:
     return table
 
 
+def _check_links(names: dict[str, dict[str, str]], sized: dict[str, dict[str, "Canonical"]]) -> None:
+    """A spelling is sized or named, never both; an OID. spelling names what its bare OID names."""
+    both = [f"{t} {s} is sized and named" for t, rows in sized.items() for s in rows if s in names.get(t, {})]
+    if both:
+        raise NamesError("names_catalog_duplicate: " + "; ".join(both))
+    split = []
+    for t in sorted(set(names) | set(sized)):
+        target = {s: (c, None) for s, c in names.get(t, {}).items()} | {s: (c.name, c.keySize) for s, c in sized.get(t, {}).items()}
+        split += [f"{t} {s} is {target[s]}, {s[len(OID_PREFIX):]} is {target[s[len(OID_PREFIX):]]}"
+                  for s in target if s.startswith(OID_PREFIX) and target.get(s[len(OID_PREFIX):], target[s]) != target[s]]
+    if split:
+        raise NamesError("names_oid_split: " + "; ".join(split))
+
+
 def _synonyms(table: dict[str, dict[str, str]]) -> dict[str, dict[str, str]]:
     return {fold(alg): {fold(k): v for k, v in pairs.items()} for alg, pairs in (table or {}).items()}
 
@@ -77,10 +92,12 @@ class Names:
         problems = names_problems(doc)
         if problems:
             raise NamesError(f"names_schema: {path}: " + "; ".join(problems))
+        names = {t: _folded(spellings) for t, spellings in doc["names"].items()}
+        sized = {t: {fold(s): Canonical(v["name"], v["keySize"]) for s, v in rows.items()} for t, rows in (doc.get("sized") or {}).items()}
+        _check_links(names, sized)
         return cls(
-            names={t: _folded(spellings) for t, spellings in doc["names"].items()},
-            sized={t: {fold(s): Canonical(v["name"], v["keySize"]) for s, v in rows.items()}
-                   for t, rows in (doc.get("sized") or {}).items()},
+            names=names,
+            sized=sized,
             transformations={t: Transformation(_folded({m: [] for m in v["modes"]}),
                                                _folded({p: [] for p in v["paddings"]}),
                                                _synonyms(v.get("paddingSynonyms")), _synonyms(v.get("modeSynonyms")))
@@ -133,6 +150,7 @@ class Names:
         alg = fold(base.name)
         mode = t.mode_synonyms.get(alg, {}).get(fold(parts[1])) or t.modes.get(fold(parts[1]))
         padding = t.padding_synonyms.get(alg, {}).get(fold(parts[2])) or t.paddings.get(fold(parts[2]))
-        if not base.known or mode is None or padding is None:
+        # a base that is itself a whole transformation (ELGAMAL -> ELGAMAL/NONE/NoPadding) composes nothing
+        if not base.known or "/" in base.name or mode is None or padding is None:
             return Canonical(name, None, False)
         return Canonical(f"{base.name}/{mode}/{padding}", base.keySize)

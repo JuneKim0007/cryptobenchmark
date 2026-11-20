@@ -692,6 +692,14 @@ codes:
       exit: 1
       next: "fix the catalog file the message names"
       why: "the input is unusable"
+  names_oid_split:
+    kind: error
+    default: stop
+    stops:
+      settable: []
+      exit: 1
+      next: "fix the catalog file the message names"
+      why: "the input is unusable"
   names_schema:
     kind: error
     default: stop

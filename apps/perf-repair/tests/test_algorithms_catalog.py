@@ -122,6 +122,21 @@ def test_a_bad_entry_is_refused_with_its_reason(tmp_path, file, mutate, code):
         load(_copy(tmp_path, file, mutate))
 
 
+def _names(change):
+    return lambda d: change(d["names"], d["sized"])
+
+
+@pytest.mark.parametrize("mutate,code", [
+    (_names(lambda n, s: s["Cipher"]["AES_128"].update(keySize=136)), "Cipher AES_128: sized Cipher\\|AES keySize 136 is no entry that accepts it"),
+    (_names(lambda n, s: s["KeyGenerator"].update({"AES-GMAC_8": {"name": "AES-GMAC", "keySize": 8}})),
+     "sized KeyGenerator\\|AES-GMAC keySize 8"),
+    (_names(lambda n, s: n["MessageDigest"].update({"md5": n["MessageDigest"].pop("MD5")})), "MessageDigest\\|MD5: id not canonical"),
+])
+def test_a_names_file_that_links_past_the_catalogues_is_refused(tmp_path, mutate, code):
+    with pytest.raises(AlgorithmsError, match=code):
+        load(_copy(tmp_path, "algorithm-names.yaml", mutate))
+
+
 def test_a_stray_catalogue_a_missing_one_and_an_old_schema_are_refused(tmp_path):
     target = _copy(tmp_path, "common.yaml", lambda d: None)
     (target / "digest.none_catalogue.yaml").rename(target / "digest.other_catalogue.yaml")

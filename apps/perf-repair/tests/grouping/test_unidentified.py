@@ -27,12 +27,12 @@ TRIAL = {"services": [{"provider": "P", "type": "Cipher", "algorithm": NAME, "in
 
 @pytest.fixture
 def catalogs(tmp_path):
-    """Copies of the names, groups and catalogues: the name is known to none of them yet."""
+    """Copies of the names and catalogues; the names copy holds the name, so a groups load must place it."""
     names = yaml.safe_load(NAMES_CATALOG.read_text())
     names["names"]["Cipher"][NAME] = []
-    names_path = tmp_path / "names.yaml"
-    names_path.write_text(yaml.safe_dump(names))
     shutil.copytree(DIRECTORY, tmp_path / "algorithms")
+    names_path = tmp_path / "algorithms" / NAMES_CATALOG.name
+    names_path.write_text(yaml.safe_dump(names))
     return tmp_path, Names.load(names_path)
 
 
@@ -50,7 +50,7 @@ def _catalog(tmp_path, family: str, entry: dict | None):
 
 
 def _names(tmp_path) -> Names:
-    return Names.load(tmp_path / "names.yaml")
+    return Names.load(tmp_path / "algorithms" / NAMES_CATALOG.name)
 
 
 ENTRY = {"required": [], "optional": [], "conditions": {}, "lifecycle": {"reset": {"forward": {"value": "afterInit", "source": "inferred"}, "reverse": {"value": "afterInit", "source": "inferred"}}}, "operations": {"value": ["encrypt", "decrypt"], "source": "inferred"}, "sourcedOnly": [], "providers": {},
@@ -66,8 +66,8 @@ def _run(catalog, names, monkeypatch):
     return items[0], profiles, verdicts
 
 
-def test_a_name_in_no_list_and_without_evidence_is_unidentified_and_asked(catalogs, monkeypatch):
-    tmp_path, names = catalogs
+def test_a_name_in_no_list_and_without_evidence_is_unidentified_and_asked(monkeypatch):
+    names = Names.load()
     item, profiles, verdicts = _run(load(CATALOG, FAMILIES, names), names, monkeypatch)
     assert (item.family, profiles[item.id].keyKind, profiles[item.id].keyKindFrom) == (UNIDENTIFIED, "unknown", "none")
     assert not identified(item, verdicts)
@@ -101,3 +101,9 @@ def test_one_id_in_a_family_and_in_unidentified_is_refused(tmp_path):
 def test_the_group_exists_and_holds_nothing_for_now():
     assert load(CATALOG).unidentified == ()
     assert yaml.safe_load(CATALOG.read_text())["groups"][UNIDENTIFIED] == {"exemplars": [], "algorithms": []}
+
+
+def test_a_name_in_neither_a_catalogue_nor_unidentified_is_refused(catalogs):
+    tmp_path, names = catalogs
+    with pytest.raises(GroupsError, match=r"Cipher\|MOVED-ALG: names-file canonical with no catalogue entry, not in unidentified"):
+        load(CATALOG, FAMILIES, names, load_catalogues(tmp_path / "algorithms", FAMILIES))

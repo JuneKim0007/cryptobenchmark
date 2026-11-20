@@ -52,7 +52,8 @@ class AlgorithmNames private constructor(
         val algorithm = fold(base.name)
         val mode = rules.modeSynonyms[algorithm]?.get(fold(parts[1])) ?: rules.modes[fold(parts[1])]
         val padding = rules.paddingSynonyms[algorithm]?.get(fold(parts[2])) ?: rules.paddings[fold(parts[2])]
-        if (!base.known || mode == null || padding == null) {
+        // a base that is itself a whole transformation (ELGAMAL -> ELGAMAL/NONE/NoPadding) composes nothing
+        if (!base.known || '/' in base.name || mode == null || padding == null) {
             return Canonical(name, null, false)
         }
         return Canonical("${base.name}/$mode/$padding", base.keySize)
@@ -62,6 +63,7 @@ class AlgorithmNames private constructor(
 
         const val RESOURCE = "/" + FileNames.ALGORITHM_NAMES
         private const val SCHEMA_VERSION = 1
+        private const val OID_PREFIX = "OID."
 
         val catalog: AlgorithmNames by lazy {
             val text = AlgorithmNames::class.java.getResource(RESOURCE)?.readText()
@@ -86,7 +88,20 @@ class AlgorithmNames private constructor(
                     synonyms(rules["modeSynonyms"] as Map<String, Map<String, String>>?),
                 )
             }
+            checkLinks(names, sized)
             return AlgorithmNames(names, sized, transformations)
+        }
+
+        // a spelling is sized or named, never both; an OID. spelling names what its bare OID names
+        private fun checkLinks(names: Map<String, Map<String, String>>, sized: Map<String, Map<String, Canonical>>) {
+            val both = sized.flatMap { (type, rows) -> rows.keys.filter { it in names[type].orEmpty() }.map { "$type $it is sized and named" } }
+            require(both.isEmpty()) { "names_catalog_duplicate: " + both.joinToString("; ") }
+            val split = (names.keys + sized.keys).sorted().flatMap { type ->
+                val target = names[type].orEmpty().mapValues { (_, c) -> c to null } + sized[type].orEmpty().mapValues { (_, c) -> c.name to c.keySize }
+                target.filter { (s, t) -> s.startsWith(OID_PREFIX) && (target[s.removePrefix(OID_PREFIX)] ?: t) != t }
+                    .map { (s, t) -> "$type $s is $t, ${s.removePrefix(OID_PREFIX)} is ${target[s.removePrefix(OID_PREFIX)]}" }
+            }
+            require(split.isEmpty()) { "names_oid_split: " + split.joinToString("; ") }
         }
 
         private fun folded(spellings: Map<String, List<String>?>): Map<String, String> {
