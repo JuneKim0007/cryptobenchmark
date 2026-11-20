@@ -21,10 +21,6 @@ jobs:
         run: python3 -m pytest apps/benchmark-runner/tests apps/benchmark-runner/energy/tests apps/benchmark-runner/analysis/tests apps/cli/tests tools/tests lib/cryptobench/cryptobench
       - name: paths check
         run: python3 tools/paths_check.py
-      - name: standalone
-        run: |
-          python3 apps/benchmark-runner/tests/test_manifest.py
-          python3 apps/benchmark-runner/analysis/tests/test_analyze.py
 
   root-build:
     runs-on: ubuntu-latest

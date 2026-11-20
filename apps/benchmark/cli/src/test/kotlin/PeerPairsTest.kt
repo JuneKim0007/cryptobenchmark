@@ -14,7 +14,7 @@ import javax.crypto.KeyAgreement
 import javax.crypto.interfaces.DHPublicKey
 
 /** An agreement case's two pairs as KeyMaterialGenerator makes them (count = 2, the second through PeerPair): they share parameters and agree.
- * BC runs only with -PbundledArtifacts=org.bouncycastle:bcprov-jdk18on:<version> on the cli build. */
+ * BC runs only with -PbundledArtifacts=org.bouncycastle:bcprov-jdk18on:<version> on the cli build, as .github/workflows/jca-contract.yml does. */
 class PeerPairsTest {
 
     private data class Observed(val sameParameters: Boolean, val agrees: Boolean)

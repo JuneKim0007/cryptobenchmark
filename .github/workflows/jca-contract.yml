@@ -26,6 +26,9 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       - run: ../gradlew -p . test --no-daemon
         working-directory: apps/benchmark/cli
+      # PeerPairsTest's BouncyCastle half runs only with BC on the classpath
+      - run: ../gradlew -p . test --tests PeerPairsTest -PbundledArtifacts=org.bouncycastle:bcprov-jdk18on:1.87 --no-daemon
+        working-directory: apps/benchmark/cli
       - uses: actions/upload-artifact@v4
         if: always()
         with:
