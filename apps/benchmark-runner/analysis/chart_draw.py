@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 from chart_model import op_slug, short, size_label, variant  # noqa: E402
 from cryptobench.shared import paths
+from cryptobench.shared.stats.inference import normal_scores
 
 NOISY_COLOR, CALM_COLOR = "#e07a1f", "#57068c"
 
@@ -171,4 +172,28 @@ def stability(rows, out, limit):
                        bbox=dict(boxstyle="round", facecolor="#fde9c8", edgecolor="#8a4b00"))
     path = paths.Analysis(out).stability
     plt.legend(); plt.grid(axis="y", alpha=.3); plt.tight_layout(); plt.savefig(path, dpi=140); plt.close()
+    return path
+
+
+def qq_lines(case_id, panels, out):
+    """One normal Q-Q panel per (metric, values, score): the sorted values against their normal scores as a line, and the line through the quartiles."""
+    fig, axes = plt.subplots(1, len(panels), figsize=(4.2 * len(panels), 3.8), squeeze=False)
+    for ax, (metric, values, score) in zip(axes[0], panels):
+        ordered, scores = sorted(values), normal_scores(len(values))
+        ax.plot(scores, ordered, color=CALM_COLOR, label="values")
+        q1, q3 = ordered[len(ordered) // 4], ordered[(3 * len(ordered)) // 4]
+        z1, z3 = scores[len(ordered) // 4], scores[(3 * len(ordered)) // 4]
+        slope = (q3 - q1) / (z3 - z1) if z3 != z1 else 0.0
+        ax.plot([scores[0], scores[-1]], [q1 + slope * (scores[0] - z1), q1 + slope * (scores[-1] - z1)], color=NOISY_COLOR, linestyle="--", label="normal")
+        ax.set_xlabel("normal score")
+        ax.set_ylabel(f"{metric} per process")
+        ax.set_title(f"{metric}: n={len(values)}, QQ r² {'-' if score is None else f'{score:.3f}'}", fontsize=8)
+        ax.grid(alpha=.3)
+        ax.legend(fontsize=7, loc="upper left")
+    fig.suptitle(case_id, fontsize=8)
+    fig.tight_layout()
+    path = paths.Analysis(out).qq_plot(case_id)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path, dpi=110)
+    plt.close(fig)
     return path

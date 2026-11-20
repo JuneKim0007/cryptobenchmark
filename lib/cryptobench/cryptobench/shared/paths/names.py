@@ -25,6 +25,7 @@ CHECK_RESULT = "check.yaml"
 INTEROP_PLAN, INTEROP_RESULT = "interop_plan.yaml", "interop.yaml"
 SCOPED_PLAN_NAME, SCOPED_INTEROP, SCOPED_PLAN_FAILED = "scoped-plan.yaml", "scoped-interop.yaml", "scoped-plan.failed.yaml"
 RUN_COUNTS_MD = "run-counts.md"
+CREDIBILITY_MD, CREDIBILITY_JSON, QQ_PLOTS = "credibility.md", "credibility.json", "qq"
 SUMMARY_MD, THROUGHPUT_CHART, LATENCY_CHART, STABILITY_CHART = "summary.md", "throughput.png", "latency.png", "stability.png"
 CHART_DATA = "chart-data.json"
 # the execution paths a case runs, the last part of its id (preparation's Variant)

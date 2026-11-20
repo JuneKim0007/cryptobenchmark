@@ -1,10 +1,20 @@
 """The run count's calculations, each rule on its own."""
-from cryptobench.shared.stats.equations import SUBSAMPLE_SIZES, half_width, rank_interval, runs_needed
+import math
+
+from cryptobench.shared.stats.equations import SUBSAMPLE_SIZES, half_width, median_ranks, rank_interval, runs_needed
 
 
-def test_the_rank_interval_uses_the_published_ranks():
-    # n=9: ranks floor((9-1.96*3)/2)=1 and ceil(1+(9+1.96*3)/2)=9
-    assert rank_interval(list(range(1, 10))) == (1, 5, 9)
+def test_the_ranks_are_the_widest_binomial_tail_within_the_level():
+    for n in range(6, 120):
+        low, high, coverage = median_ranks(n)
+        tail = lambda r: sum(math.comb(n, k) for k in range(r)) / 2 ** n
+        assert high == n + 1 - low and coverage == 1 - 2 * tail(low)
+        assert tail(low) <= 0.025 < tail(low + 1) and coverage >= 0.95
+
+
+def test_the_rank_interval_reads_the_values_at_those_ranks():
+    low, high, _ = median_ranks(9)
+    assert rank_interval(list(range(1, 10))) == (low, 5, high)
 
 
 def test_the_interval_stays_inside_the_data_when_n_is_small():

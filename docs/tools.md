@@ -88,6 +88,21 @@ python3 apps/benchmark-runner/analysis/charts.py <benchmark.json> <prepared.yaml
 | `chart_draw.py` | matplotlib drawing for both scripts |
 | `chart_report.py` | `summary.md`, `chart-data*.json`, `manifest.yaml` |
 
+### credibility.py
+
+```
+python3 apps/benchmark-runner/analysis/credibility.py <out dir> <benchmark.json of each process>...
+```
+
+- Writes `credibility.md`, `credibility.json` and `qq/<case>.png` (a line Q-Q plot per case, one panel per metric).
+- Unit of repetition: the process; each contributes one value per case and metric: the median of its `timeNs` runs, its `energyJ` J/op.
+- Samples are never pooled across processes: within-process samples are correlated, so pooling overstates n.
+- Per case and metric: n; median; 95% distribution-free interval of the median from Binomial(n, 1/2) order statistics (n=50: ranks 18-33, n=36: 12-25) with its exact coverage; CoV across processes; median within-process CoV.
+- Normality, alpha 0.05: Shapiro-Wilk p (Royston AS R94) and QQ r², the squared correlation of the sorted values with Blom normal scores, across processes; within a process (8 samples or more): median QQ r² and the share of processes Shapiro-Wilk rejects.
+- Steady state per process: median of the last third over the first third of its samples, and a Mann-Whitney p between them; a process drifts above 5% with p < 0.05; a case is flagged when more than 20% of its processes drift.
+- Per fixed/notFixed pair of one id: median ratio notFixed/fixed with a 95% percentile bootstrap interval resampling each side's processes (10000 resamples, seed in the output); Mann-Whitney U two-sided p (normal approximation, tie and continuity corrected); Cliff's delta with Romano's labels (negligible < 0.147, small < 0.33, medium < 0.474, large).
+- Calculations: `lib/cryptobench/cryptobench/shared/stats/inference.py` and `median_ranks` in `equations.py`.
+
 ### outliers.py
 
 - A run is an outlier at Z = 3.0 sample SDs from the mean of the other runs.

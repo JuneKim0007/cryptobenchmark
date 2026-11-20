@@ -89,12 +89,17 @@ class Measurement(Section):
 class Analysis(Section):
     summary = property(lambda self: self.root / n.SUMMARY_MD)
     run_counts = property(lambda self: self.root / n.RUN_COUNTS_MD)
+    credibility = property(lambda self: self.root / n.CREDIBILITY_MD)
+    credibility_data = property(lambda self: self.root / n.CREDIBILITY_JSON)
     throughput = property(lambda self: self.root / n.THROUGHPUT_CHART)
     latency = property(lambda self: self.root / n.LATENCY_CHART)
     stability = property(lambda self: self.root / n.STABILITY_CHART)
 
     def metric_against_time(self, metric: str) -> Path:
         return self.root / f"{metric}-vs-time.png"
+
+    def qq_plot(self, case: str) -> Path:
+        return self.root / n.QQ_PLOTS / f"{case}.png"
 
 
 class Charts(Section):

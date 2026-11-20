@@ -3,6 +3,7 @@
 | function | module | rule | callers |
 |---|---|---|---|
 | `load(benchmark_file, prepared_file, effective_file)` | `apps/benchmark-runner/analysis/chart_input.py` | - | analyze, charts |
+| `process_cases(process_files)` | `apps/benchmark-runner/analysis/chart_input.py` | Each case id with its case from every process file, in file order; a merged file loses which process ran what. | credibility, run_counts |
 | `settings(effective)` | `apps/benchmark-runner/analysis/chart_input.py` | - | analyze, charts |
 | `count_metrics(raw_cases)` | `apps/benchmark-runner/analysis/chart_model.py` | The metrics a run carries besides timeNs, in the order first seen; only those with at least one run. | analyze, charts |
 | `short(algorithm)` | `apps/benchmark-runner/analysis/chart_model.py` | `re.sub('(PKCS5Padding\|NoPadding\|AndMGF1Padding\|/ECB)', '', algorithm).strip('-/')` | chart_draw, chart_report |
@@ -82,7 +83,8 @@
 | `required(document, path)` | `lib/cryptobench/cryptobench/shared/settings/effective_view.py` | The value at a dotted path :config always writes; its absence is the coded missing_field, never a KeyError. | cryptobench.shared.results.run_record, cryptobench.stages.measurement.session.passes, explain |
 | `capture(node, default)` | `lib/cryptobench/cryptobench/shared/settings/energy_capture.py` | `_energy(node).get('capture', default)` | cryptobench.shared.settings.effective_view, cryptobench.stages.analysis.not_measured, dependencies |
 | `source(node, default)` | `lib/cryptobench/cryptobench/shared/settings/energy_capture.py` | `_energy(node).get('source', default)` | cryptobench.shared.settings.effective_view, dependencies |
-| `summarize(runs)` | `lib/cryptobench/cryptobench/shared/stats/descriptive.py` | - | analyze, chart_model, cryptobench.stages.measurement.validation.audit |
+| `summarize(runs)` | `lib/cryptobench/cryptobench/shared/stats/descriptive.py` | - | analyze, chart_model, credibility, cryptobench.stages.measurement.validation.audit |
+| `number(x, missing)` | `lib/cryptobench/cryptobench/shared/stats/units.py` | Significant figures, so a sub-unit value never rounds to 0 (64 B AES-CBC is 0.000662 ms). | analyze, credibility |
 | `stop_like_ctrl_c()` | `lib/cryptobench/cryptobench/shared/stop/child.py` | kill and a closed terminal raise KeyboardInterrupt, so the process stops its children and records a partial run. | facade.py, pipeline |
 | `global_config(argument)` | `lib/cryptobench/cryptobench/stages/configuration/global_file.py` | - | dependencies, pipeline |
 | `requirements(capture)` | `lib/cryptobench/cryptobench/stages/discovery/capture_files.py` | The requirements written with this capture; absent only in a folder a test wrote. | cryptobench.stages.discovery.discover, cryptobench.stages.discovery.probe_store |

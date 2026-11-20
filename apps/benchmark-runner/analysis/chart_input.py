@@ -19,6 +19,15 @@ def load(benchmark_file, prepared_file, effective_file):
     return cases, groups, _yaml(effective_file)
 
 
+def process_cases(process_files):
+    """Each case id with its case from every process file, in file order; a merged file loses which process ran what."""
+    cases = {}
+    for file in process_files:
+        for case in json.loads(pathlib.Path(file).read_text())["cases"]:
+            cases.setdefault(case["id"], []).append(case)
+    return cases
+
+
 def settings(effective):
     view = AnalysisView(effective)
     return {

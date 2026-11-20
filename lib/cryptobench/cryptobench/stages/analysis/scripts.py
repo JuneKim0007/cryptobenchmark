@@ -18,8 +18,10 @@ def analyse(results, files, effective, preparation, benchmark, written, repetiti
     data, prepared = str(paths.Measurement(benchmark).json), str(paths.Preparation(preparation).prepared)
     # charts only show a benchmark already paid for: a failure warns, the first ends them, and the run keeps its files
     analysis = str(paths.RunTree(results).analysis.root)
+    processes = list(map(str, written if repetitions > 1 else [data]))
     failed = (drawing_failed("analysis/analyze.py", data, analysis, str(effective), prepared)
-              or drawing_failed("analysis/run_counts.py", analysis, *map(str, written if repetitions > 1 else [data]))
+              or drawing_failed("analysis/run_counts.py", analysis, *processes)
+              or drawing_failed("analysis/credibility.py", analysis, *processes)
               or drawing_failed("analysis/charts.py", data, prepared, str(effective), str(results)))
     if failed:
         warn(f"charts_failed: {failed}")

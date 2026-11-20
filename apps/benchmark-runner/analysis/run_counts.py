@@ -2,13 +2,12 @@
 
     run_counts.py <out dir> <benchmark.json of each process>...
 """
-import json
 import pathlib
 import sys
 
+from chart_input import process_cases
+from chart_model import TIME
 from cryptobench.shared import paths
-
-TIME = "timeNs"
 
 
 def spread(values):
@@ -19,11 +18,10 @@ def spread(values):
 def rows(process_files):
     """(case, runs kept, iters per run, calls per iter, runs discarded for heat, seconds waited for temperature), one per case."""
     cases = {}
-    for file in process_files:
-        for case in json.loads(pathlib.Path(file).read_text())["cases"]:
-            samples = (case.get("metrics") or {}).get(TIME)
-            if samples:
-                cases.setdefault(case["id"], []).append((samples, case.get("gate") or {}))
+    for case_id, per_process in process_cases(process_files).items():
+        runs = [(c["metrics"][TIME], c.get("gate") or {}) for c in per_process if (c.get("metrics") or {}).get(TIME)]
+        if runs:
+            cases[case_id] = runs
     return [(case, len(runs), spread([len(s["runs"]) for s, _ in runs]), spread([s["iterations"] for s, _ in runs]),
              sum(g.get("discards", 0) for _, g in runs), round(sum(g.get("waitedSeconds", 0.0) for _, g in runs), 1))
             for case, runs in sorted(cases.items())]
