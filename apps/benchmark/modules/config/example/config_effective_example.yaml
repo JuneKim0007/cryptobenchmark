@@ -9,7 +9,7 @@ generatedFrom:
     defaultKeySizeProperty: '', fingerprint: '', javaVendor: Eclipse Adoptium, javaRuntimeVersion: 17.0.11+9,
     osName: Linux, osArch: x86_64}
   layers:
-  - {path: config_global_example.yaml, sha256: 915e69f030f5e572d3474bc3230e2c2dbfb50da583ed598a9cf989113cc37b0e}
+  - {path: config_global_example.yaml, sha256: ef162ca457d0d2c0d650b8148b6eb2957146a59e8385764a2ace04306b9c7436}
   settings: {run.inputSizes: layer 1 config_global_example.yaml, run.phases: layer
       1 config_global_example.yaml, run.metrics: layer 1 config_global_example.yaml,
     run.variants: default, run.processRepetitions: layer 1 config_global_example.yaml,
@@ -40,7 +40,7 @@ generatedFrom:
       1 config_global_example.yaml via run.thermalGate, run.passes.energy.thermalGate.readRetrySeconds: layer
       1 config_global_example.yaml via run.thermalGate, run.passes.energy.thermalGate.startMargin.dynamic: layer
       1 config_global_example.yaml via run.thermalGate, run.passes.energy.thermalGate.startMargin.initialCelsius: layer
-      1 config_global_example.yaml via run.thermalGate, run.passes.energy.thermalGate.startMargin.backoffFactor: layer
+      1 config_global_example.yaml, run.passes.energy.thermalGate.startMargin.backoffFactor: layer
       1 config_global_example.yaml via run.thermalGate, run.passes.energy.thermalGate.startMargin.maximumCelsius: layer
       1 config_global_example.yaml via run.thermalGate, run.passes.energy.thermalGate.startMargin.cleanRunsToRecover: layer
       1 config_global_example.yaml via run.thermalGate, run.passes.energy.thermalGate.startMargin.recoveryCelsius: layer
@@ -95,7 +95,7 @@ run:
         onDiscardLimit: nextCase
         readRetries: 2
         readRetrySeconds: 1
-        startMargin: {dynamic: true, initialCelsius: 0.25, backoffFactor: 2.0, maximumCelsius: 3.0,
+        startMargin: {dynamic: true, initialCelsius: 0.5, backoffFactor: 2.0, maximumCelsius: 3.0,
           cleanRunsToRecover: 10, recoveryCelsius: 0.05}
       caseCooldownSeconds: 5
   harness:

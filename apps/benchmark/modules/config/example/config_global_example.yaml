@@ -36,8 +36,10 @@ run:                                     # required: orderSeed; every other key 
     energy:                              # minWindowSeconds: energy only, default 5
       samples: 100
       minWindowSeconds: 5
-      thermalGate: {temperatureKeptCelsius: 35.0}   # optional, any pass: merged key by key over run.thermalGate; absent inherits it
-      caseCooldownSeconds: 5             # optional, any pass: replaces run.caseCooldownSeconds for this pass
+      thermalGate:                       # optional, any pass: this pass's gate, merged key by key over run.thermalGate; absent inherits it
+        temperatureKeptCelsius: 35.0     # this pass discards at 35.0; every key not written here keeps run.thermalGate's value
+        startMargin: {initialCelsius: 0.5}   # nested keys merge too: dynamic, backoffFactor, ... stay run.thermalGate's
+      caseCooldownSeconds: 5             # optional, any pass: replaces run.caseCooldownSeconds for this pass; the device adds no rest of its own
   harness:                               # optional — unset keys take the harness's defaults
     iterations: 50
     profiling: StackSampling             # none | MethodTracing | StackSampling

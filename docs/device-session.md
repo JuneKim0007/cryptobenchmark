@@ -81,7 +81,7 @@ Each entry's `variants`, else `run.variants` ([operations.md](../apps/benchmark/
 
 | rule | value |
 |---|---|
-| cool-down | `run.caseCooldownSeconds` (0), or the pass's own `run.passes.<p>.caseCooldownSeconds` when :config wrote one: the host sleeps before every measured case but each session's first, before the case's temperature and clocks are read |
+| cool-down | `run.caseCooldownSeconds` (0), or the pass's own `run.passes.<p>.caseCooldownSeconds` when :config wrote one: the host sleeps before every measured case but each session's first, before the case's temperature and clocks are read; the device adds no rest to a measured case (`harness.energy.cooldownSeconds` is the dry pass's, [energy.md](energy.md#config-keys)) |
 | printed | `cool-down: <pass>: <n> x <s> s = <t> s between cases` per pass when set |
 | with the gate | the cool-down sleeps first, with the gate, the hold comes first ([Thermal gate](#thermal-gate)) |
 | cost | `(cases - 1) x seconds` per pass; at 20 s and 50 cases about 16 min a pass |
@@ -95,7 +95,7 @@ Why: the phone's power controller lowers the CPU limit once skin reaches its own
 
 | step | rule |
 |---|---|
-| on | `run.thermalGate` or a `run.passes.<p>.thermalGate` set; a `--device` run only |
+| on | `run.thermalGate` or a `run.passes.<p>.thermalGate` set; a `--device` run only. One gate (`dynamic_temperature.py`) for every pass, energy included: a pass that needs other values overrides keys of the same gate, never a second path |
 | scope | a pass holds under `run.passes.<p>.thermalGate` when :config wrote one (merged key by key over `run.thermalGate`), else under `run.thermalGate`; the warm-up holds under `run.thermalGate`; a scope the run does not set is off. `effective_view.scoped` selects, never merges. One `TEMPERATURE GATE SET[ for <scope>]: ...` line per scope |
 | startup | once, before the build: `lib/cryptobench/cryptobench/stages/measurement/thermal.py` `capability`: live type-3 (SKIN) sensors, or one reason. Anything else prints `TEMPERATURE SET BUT DEVICE CAN'T POLL` and the run goes on |
 | start limit | `temperatureKeptCelsius` minus the start margin. `lib/cryptobench/cryptobench/stages/measurement/session/dynamic_temperature.py` is the facade; the arithmetic is in `lib/cryptobench/cryptobench/stages/measurement/start_margin.py` |

@@ -60,6 +60,15 @@ A composition of layers: [layers.md](layers.md).
 | | `bundled[].create` | required | `fully.qualified.Class` (public no-argument constructor) or `fully.qualified.Class#staticFactory`; else `invalid_create` |
 | | `bundled[].alias` | unset | non-blank, no whitespace; the name the provider is registered under; required on the device when its own name is already installed |
 
+```yaml
+# a pass's own gate and cool-down, key by key over the run's; every key: example/config_global_example.yaml
+run:
+  thermalGate: {temperatureKeptCelsius: 36.0, cooldownMinutes: 3}
+  passes:
+    timing: {samples: 50}                                   # holds under run.thermalGate
+    energy: {samples: 100, thermalGate: {startMargin: {initialCelsius: 0.5}}, caseCooldownSeconds: 5}   # 36.0 C, 3 min, margin 0.5
+```
+
 Defaults are `contracts/defaults/defaults.yaml`, which `DefaultsDocument` writes and the Python readers read. A `--bench` run ignores `passes`, `thermalThrottleSleepSeconds`, `warmup`, `caseCooldownSeconds`, `thermalGate`, `launchRetries` and `harness.warmupIterations`, `profiling`, `cpu`: each set to other than its default is one `ignored_on_host: <key> is set` warning, or its own line for `passes` and `thermalGate` (the `host` column of `lib/cryptobench/cryptobench/shared/settings/effective_view.py` KEYS).
 
 `onFailure` governs selected primitives that cannot run. A broken authored file (parse, `schemaVersion`, unknown section or key) always stops.
