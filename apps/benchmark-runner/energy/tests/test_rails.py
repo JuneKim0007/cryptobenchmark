@@ -39,13 +39,23 @@ def test_rails_that_do_not_respond_to_load_are_flagged():
     assert not preflight.capability({}, {}, 2, 2, False)["railsPresent"]
 
 
-def test_responsiveness_compares_power_when_the_windows_differ():
-    idle = {"r": [(0, 0.0), (10, 40000.0)]}
-    busy = {"r": [(0, 0.0), (10, 6000.0)]}
-    assert preflight.capability(idle, busy, 40, 3, False)["railsResponsive"]
-    assert not preflight.capability(idle, busy, 40, 6, False)["railsResponsive"]
-    document = preflight.capability(idle, busy, 40, 3, False)
-    assert (document["idleWindowSeconds"], document["busyWindowSeconds"]) == (40, 3)
+def spanning(seconds, microjoules):
+    return {"r": [(0, 0.0), (int(seconds * 1e9), microjoules)]}
+
+
+def test_responsiveness_compares_power_over_the_spans_the_samples_cover():
+    idle = spanning(40, 40000.0)
+    assert preflight.capability(idle, spanning(3, 6000.0), 40, 3, False)["railsResponsive"]
+    assert not preflight.capability(idle, spanning(6, 6000.0), 40, 3, False)["railsResponsive"]
+    document = preflight.capability(idle, spanning(3, 6000.0), 40, 3, False)
+    assert (document["idleWindowSeconds"], document["busyWindowSeconds"], document["idleSpanSeconds"]) == (40, 3, 40.0)
+    assert document["idleMicrowatts"] == pytest.approx(1000.0)
+
+
+def test_idle_power_is_over_the_sampled_span_not_the_configured_length():
+    document = preflight.capability(spanning(100, 50000.0), spanning(3, 9e6), 120, 3, False, {"start": None, "end": None})
+    assert (document["idleSpanSeconds"], document["idleMicrowatts"]) == (100.0, 500.0)
+    assert document["idleSkin"] == {"start": None, "end": None}
 
 
 def energy_with(folder, edit):
@@ -57,10 +67,10 @@ def energy_with(folder, edit):
     return json.loads(out.read_text())["cases"]
 
 
-def test_measured_and_dry_subtract_the_one_idle_rate_of_the_idle_window(tmp_path, monkeypatch):
+def test_measured_and_dry_subtract_the_one_idle_power_of_the_idle_window(tmp_path, monkeypatch):
     rails_run.install_fake_trace(monkeypatch)
     narrow = energy_with(tmp_path, lambda text: text)
-    wide = energy_with(tmp_path, lambda text: text.replace("idleWindowSeconds: 3.0", "idleWindowSeconds: 6.0").replace("busyWindowSeconds: 3.0", "busyWindowSeconds: 1.0"))
+    wide = energy_with(tmp_path, lambda text: text.replace("idleMicrowatts: 1000.0", "idleMicrowatts: 500.0"))
     for case in ("m1", "d1"):
         idle = narrow[case]["joules"] - narrow[case]["netJoules"]
         assert wide[case]["joules"] - wide[case]["netJoules"] == pytest.approx(idle / 2)
@@ -72,8 +82,8 @@ def test_an_energy_yaml_of_another_schema_is_refused(tmp_path, monkeypatch):
         energy_with(tmp_path, lambda text: text.replace("schemaVersion: 3", "schemaVersion: 2"))
 
 
-START = {"idleMicrojoules": 3000.0, "idleWindowSeconds": 3.0, "idleBoottimeNs": 1000}
-END = {"idleEndMicrojoules": 6000.0, "idleEndWindowSeconds": 3.0, "idleEndBoottimeNs": 3000}
+START = {"idleMicrowatts": 1000.0, "idleBoottimeNs": 1000}
+END = {"idleEndMicrowatts": 2000.0, "idleEndBoottimeNs": 3000}
 
 
 def test_idle_is_the_line_between_the_start_and_end_readings_at_each_windows_midpoint():
@@ -90,13 +100,19 @@ def test_without_an_end_reading_idle_is_the_start_reading_and_marked():
         assert baseline == "idle_start_only" and idle(1500, 2500) == pytest.approx(1e-3)
 
 
-def test_the_end_reading_joins_energy_yaml_with_its_time_and_the_drift(tmp_path, monkeypatch):
+def test_the_end_reading_joins_energy_yaml_with_its_time_the_drift_and_the_skin(tmp_path, monkeypatch, capsys):
     rails_run.install_fake_trace(monkeypatch)
     rails_run.inputs(tmp_path)
-    rails_run.run_end(tmp_path)
+    skin = {"start": {"sensor": "VIRTUAL-SKIN", "celsius": 31.5}, "end": {"sensor": "VIRTUAL-SKIN", "celsius": 31.9}}
+    rails_run.run_end(tmp_path, skin=("--skin", json.dumps(skin)))
     document = yaml.safe_load((tmp_path / "energy.yaml").read_text())
     assert (document["idleEndMicrojoules"], document["idleEndWindowSeconds"], document["idleEndBoottimeNs"]) == (19750.0, 3.0, 4950)
-    assert document["idleDriftPercent"] == pytest.approx((19750 / 3000 - 1) * 100)
+    # the fake rails span 1000..8900 ns: the power is over that span, not over the 3 s asked for
+    assert document["idleEndSpanSeconds"] == pytest.approx(7.9e-6)
+    assert document["idleEndMicrowatts"] == pytest.approx(19750 / 7.9e-6)
+    assert document["idleDriftPercent"] == pytest.approx((19750 / 7.9e-6 / 1000 - 1) * 100)
+    assert document["idleEndSkin"] == skin
+    assert "skin 31.5 C -> 31.9 C (VIRTUAL-SKIN)" in capsys.readouterr().out
 
 
 def test_an_end_trace_without_rails_is_refused_and_energy_yaml_is_kept(tmp_path, monkeypatch):

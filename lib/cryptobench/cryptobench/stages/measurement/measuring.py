@@ -1,20 +1,23 @@
 """What every device session of a run shares: its context, hooks, conversion and the files it records."""
-import dataclasses, pathlib, time
+import dataclasses, pathlib, shutil, time
 
 from cryptobench.shared.device import gradle_runner
 from cryptobench.shared.device.adb import NO_DEFAULT_PROFILER, Device
-from cryptobench.stages.measurement.energy import steps as energy_stage
 from cryptobench.stages.measurement.energy.session import EnergySession
 from cryptobench.shared.device import reconnect
+from cryptobench.stages.measurement import thermal
 from cryptobench.stages.measurement.session import clocks_hook, cooldown_hook, dynamic_temperature, thermal_hook
 from cryptobench.pipeline.took import elapsed
 from cryptobench.shared.log.warn import warn
+from cryptobench.shared.errors.line import one_line
 from cryptobench.shared import paths
 from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.document.dump import dump_yaml
 from cryptobench.shared.document.write import write_text
 
 THROTTLE_SLEEP = "androidx.benchmark.thermalThrottle.sleepDurationSeconds"
+IDLE_GATE, START_IDLE, END_IDLE = "energy idle", "the start idle reading", "the end idle reading"
+SPAN_SHARE = 0.9  # an idle trace whose samples span less of its configured length is recorded
 
 
 @dataclasses.dataclass(frozen=True)
@@ -40,11 +43,11 @@ class Measuring:
     record: dict
 
 
-def convert(run, arguments):
-    """ConvertKt on one process; a case that did not get the samples it asked for is a problem the manifest records."""
+def convert(run, arguments, problems=None):
+    """ConvertKt on one process; a case that did not get the samples it asked for is a problem the manifest records (problems, when given, instead)."""
     notices = []
     gradle_runner.run(arguments, run.options.stacktrace, run.options.stream, main_class="ConvertKt", notices=notices)
-    run.problems.extend(line for line in notices if line.startswith("iterations_not_applied:"))
+    (run.problems if problems is None else problems).extend(line for line in notices if line.startswith("iterations_not_applied:"))
 
 
 def gate_opened(device, document, problems, waits):
@@ -84,29 +87,73 @@ def thermal_flag(process):
     return f" --thermal={reading}" if reading.is_file() else ""
 
 
-def energy_preflight(options, source, session, discovery, files):
+def skin(device):
+    reading = thermal.poll(device).skin
+    return {"sensor": reading[0], "celsius": reading[1]} if reading else None
+
+
+def idle_held(run, reading):
+    """An idle reading waits behind the thermal gate the cases use; the skin temperature at its start and end goes to energy.yaml."""
+    def held(record):
+        run.gate.session(IDLE_GATE).hold(reading)
+        start = skin(run.device)
+        record()
+        return {"start": start, "end": skin(run.device)}
+    return held
+
+
+def idle_span(problems, capability, key, reading):
+    document = read_yaml(capability) or {}
+    span, seconds = document.get(f"{key}SpanSeconds"), document.get(f"{key}WindowSeconds")
+    if span is not None and span < SPAN_SHARE * seconds:
+        warn(f"idle_span_short: {reading}: rail samples span {span:.1f} of {seconds} s; idle power is over the span", problems)
+
+
+def energy_preflight(run):
     started = time.monotonic()
-    capability = source.preflight(session, discovery, options.energy_accept_unresponsive)
-    files["energyCapability"] = capability
+    capability = run.source.preflight(run.session, run.discovery, run.options.energy_accept_unresponsive, idle_held(run, START_IDLE))
+    run.files["energyCapability"] = capability
+    idle_span(run.problems, capability, "idle", START_IDLE)
     elapsed("energy pre-flight", started)
     return capability
 
 
 def energy_end(run, redo):
     """After the last pass: the end idle reading, then each process's energy again over the line between the two readings.
-    redo holds (pass, process folder, step) per process this run measured with an energy.json; returns {pass: the folders converted again}."""
-    started, ended = time.monotonic(), []
-    energy_stage.guarded(run.problems, lambda: ended.append(
-        run.reconnect.retried(lambda: run.source.idle_end(run.session, run.discovery), "the end idle reading")))
-    if not ended:
+    redo holds (pass, process folder, step) per process this run measured with an energy.json; a step writes into the process's staging folder
+    and returns (staged, kept) file pairs, swapped in only once every step succeeded. Returns {pass: the folders converted again}.
+    Any failure leaves every energy.json on the start reading (idle_start_only), recorded, and the run goes on."""
+    started = time.monotonic()
+    try:
+        ended = run.reconnect.retried(lambda: run.source.idle_end(run.session, run.discovery, idle_held(run, END_IDLE)), "the end idle reading")
+    except Exception as error:  # hours of measured data stand on the start reading rather than stop here
+        warn(f"energy_failed: {END_IDLE}: {one_line(error) or type(error).__name__}", run.problems)
         warn("idle_start_only: no end idle reading; energy.json keeps the start reading alone", run.problems)
-    if not ended or not ended[0]:
         return {}
+    if not ended:
+        return {}
+    idle_span(run.problems, paths.Discovery(run.discovery).energy, "idleEnd", END_IDLE)
     print(f"idle:      energy again for {len(redo)} process{'es' if len(redo) != 1 else ''} over the interpolated idle")
-    redone = {}
-    for one, into, step in redo:
-        step()
-        redone.setdefault(one, []).append(into)
+    swaps, redone = [], {}
+    try:
+        for one, into, step in redo:
+            staging = paths.Measurement(into).redo
+            shutil.rmtree(staging, ignore_errors=True)
+            staging.mkdir(parents=True)
+            swaps += step()
+            if missing := [str(staged) for staged, _ in swaps if not staged.is_file()]:
+                raise FileNotFoundError(f"missing_file: {', '.join(missing)}")
+            redone.setdefault(one, []).append(into)
+    except Exception as error:  # one process failing leaves none redone: the run never mixes the two baselines
+        warn(f"energy_failed: energy again: {one_line(error) or type(error).__name__}", run.problems)
+        warn("idle_start_only: energy again failed; every energy.json keeps the start reading alone", run.problems)
+        return {}
+    else:
+        for staged, kept in swaps:
+            staged.replace(kept)
+    finally:
+        for _, into, _ in redo:
+            shutil.rmtree(paths.Measurement(into).redo, ignore_errors=True)
     elapsed("energy end idle", started)
     return redone
 

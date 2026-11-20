@@ -12,8 +12,7 @@
 - `measured`: the window is Jetpack's timed phase; the case's samples (`iterations`, or the energy pass's `samples`) set its length; `windowSeconds` does not apply. After each passing energy launch the host estimates the window as `repeatIterations` × Σ `timeNs.runs` of the pulled file; below `run.passes.energy.minWindowSeconds` (default 5) the case is launched once more with ⌈samples × 1.5 × minimum / window⌉ samples, its pulled file replaced, outside `launchRetries`; still short, or a relaunch that fails every retry, is one `short_window` warning and the case keeps its last short result (`lib/cryptobench/cryptobench/stages/measurement/session/window.py`). Each process writes `energy-samples.yaml`: `minWindowSeconds` and per case `samples`, `windowSeconds`, `relaunched {samples, windowSeconds}`, `shortWindow`; the energy pass converts without `--samples`. `dry` is refused with `run.passes` (`not_supported`, [device-session.md](device-session.md#passes)).
 - A case's `harness.energy.capture` overrides the run's (`apps/benchmark-runner/energy/capture.py`; the runner reads the same rule from `lib/cryptobench/cryptobench/shared/settings/energy_capture.py`); their defaults equal `contracts/defaults/defaults.yaml` (`test_defaults.py`).
 - A `dry` case passed to the timed run fails with `not_timed`; `measured` cases run in `CryptoBenchmark`, `dry` cases in `EnergyDryBenchmark`, one test per case.
-- The `energy:<caseId>` marker closes on failure; labels over 127 chars fail with `too_long`.
-- Dry calls are appended to `energy-dry.yaml` as `"<id>": <calls>`. A case's `afterCall` (a `secure` case deleting its key) runs after each call inside either window, so its energy counts in the case's.
+- The `energy:<caseId>` marker closes on failure; labels over 127 chars fail with `too_long`. Dry calls are appended to `energy-dry.yaml` as `"<id>": <calls>`. A case's `afterCall` (a `secure` case deleting its key) runs after each call inside either window, so its energy counts in the case's.
 
 ## Config keys
 
@@ -45,7 +44,7 @@
 |---|---|
 | windows | after the plan push and the AOT compile (dex2oat): idle `run.energyIdleSeconds` (default 120, [config.md](../apps/benchmark/modules/config/docs/config.md)), then busy 3 s (`BUSY_SECONDS` in `lib/cryptobench/cryptobench/stages/measurement/energy/sources/rails_source.py`, one spin loop per core); rails: after the last pass, idle again (`idle-end.pftrace`); manafa subtracts no idle and takes no end reading |
 | source | Perfetto `android.power`, rails polled every 100 ms, 4096 KB buffer (`RAILS_CONFIG`) |
-| heat | no sleep after the busy window; the thermal gate's hold is the only heat wait ([device-session.md](device-session.md#thermal-gate)) |
+| heat | each idle reading (start and end) first holds behind the thermal gate the cases use (`run.thermalGate`, its session `energy idle`; no other wait); no sleep after the busy window ([device-session.md](device-session.md#thermal-gate)) |
 | output | `discovery/energy.yaml`, traces in `discovery/energy-preflight/`; `energy.yaml` is pushed with the plan |
 
 | `energy.yaml` field | value |
@@ -53,9 +52,11 @@
 | `schemaVersion` | 3 (`CAPABILITY_VERSION` in `apps/benchmark-runner/energy/energy.py`); another is `unsupported_schema_version` in `energy.py` and `EnergyCapability` |
 | `railsPresent` | both windows have rails |
 | `railsResponsive` | present, idle > 0, busy power ≥ 1.10 × idle power in µJ/s (`RESPONSIVE` in `apps/benchmark-runner/energy/preflight.py`) |
-| `idleMicrojoules`, `busyMicrojoules`; `idleWindowSeconds`, `busyWindowSeconds` | window totals; lengths (start idle power is their ratio) |
-| `idleBoottimeNs`; `idleEnd{Microjoules,WindowSeconds,BoottimeNs}` | BOOTTIME midpoint of the start trace's rail samples (null without rails); the end reading, added by `preflight.py --end` |
-| `idleDriftPercent` | (end power − start power) / start power × 100; printed `idle:      start <w> W, end <w> W, <h> h apart, drift <±p>%` |
+| `idleMicrojoules`, `busyMicrojoules`; `idleWindowSeconds`, `busyWindowSeconds` | window totals; configured lengths |
+| `idleSpanSeconds`, `idleMicrowatts` | the span the idle trace's rail samples cover; idle power = `idleMicrojoules` / that span (0 without one); a span under 90% of `idleWindowSeconds` adds `idle_span_short: <reading>: rail samples span <s> of <t> s; idle power is over the span` to `problems` |
+| `idleSkin`, `idleEndSkin` | `{start, end}`: the skin temperature (`{sensor, celsius}`, null unread) when the idle reading began and ended; printed on the `rails:` and `idle:` lines (`skin <c> C -> <c> C (<sensor>)`) |
+| `idleBoottimeNs`; `idleEnd{Microjoules,WindowSeconds,SpanSeconds,Microwatts,BoottimeNs}` | BOOTTIME midpoint of the start trace's rail samples (null without rails); the end reading, added by `preflight.py --end` |
+| `idleDriftPercent` | (`idleEndMicrowatts` − `idleMicrowatts`) / `idleMicrowatts` × 100; printed `idle:      start <w> W, end <w> W, <h> h apart, drift <±p>%; end <s> of <t> s, skin …` |
 | `acceptUnresponsive` | `--energy-accept-unresponsive` |
 
 | refusal (every energy case) | condition |
@@ -64,11 +65,10 @@
 | `no_power_rails` | `railsPresent` false |
 | `rails_unresponsive: idle <x> uJ over <s> s, busy <y> uJ over <t> s` | `railsResponsive` false and not `acceptUnresponsive` |
 
-- The refused cases are left out and listed in `skipped.yaml`, on the host and the device; every case refused throws `RefusedPlanException`.
-- A case whose `energy.source` is not `rails` reads no rail capability and gets none of these refusals.
-- Idle baseline: every `measured` and `dry` window subtracts the idle power on the BOOTTIME line between the start and end readings, at the window's midpoint, × its length. A run with no energy capture, and a `--bench` run, take no reading.
-- Each process's `energy.json` is first written from the start reading alone (`idleBaseline: idle_start_only`); after the end reading `energy.py`, `ConvertKt` and the merges run again for every process this run measured (`idle:      energy again for <n> processes …`), now `interpolated`, and their block records' `files` digests are rewritten; a block kept from an earlier run keeps its file.
-- No end reading (the run stopped first, the step failed, or `preflight.py --end` refused an end trace without rails with `no_rails`, `energy.yaml` unchanged): the files keep `idle_start_only`; a failed step adds `energy_failed: <message>` and `idle_start_only: …` to `manifest.yaml` `problems`.
+- The refused cases are left out and listed in `skipped.yaml`, on the host and the device; every case refused throws `RefusedPlanException`. A case whose `energy.source` is not `rails` reads no rail capability and gets none of these refusals.
+- Idle baseline: every `measured` and `dry` window subtracts the idle power on the BOOTTIME line between `idleMicrowatts` and `idleEndMicrowatts`, at the window's midpoint, × its length. A run with no energy capture, and a `--bench` run, take no reading.
+- Each process's `energy.json` is first written from the start reading alone (`idleBaseline: idle_start_only`); after the end reading `energy.py` and `ConvertKt` run again for every process this run measured (`idle:      energy again for <n> processes …`), each into the process's `energy-redo/`; only once every process succeeded are the staged `energy.json` and `benchmark.json` moved over the old ones (now `interpolated`), their block records' `files` digests rewritten and the merges run again. `energy-redo/` is removed either way. Any process failing its redo leaves every process as the start reading wrote it (`energy_failed: energy again: <message>`, `idle_start_only: energy again failed; …`): a run never mixes the two baselines. A resumed run interpolates only the processes it measured: a kept block's processes keep their `energy.json` (its energy and the idle it subtracted, from the run that measured them, `idle_start_only` for a run that stopped). A kept run that captured energy and fails a check is measured again whole, never by case, so no earlier trace meets this run's idle line ([results.md](results.md#resuming-a-stopped-run)).
+- No end reading (the run stopped first; any failure before or during it, a lost device (`DeviceLost` waited out to `DeviceGone`) and a thermal gate timeout included; `preflight.py --end` refusing an end trace without rails with `no_rails`, `energy.yaml` unchanged): the run goes on with every process's measured data and `idle_start_only`; `problems` gets `energy_failed: the end idle reading: <message>` and `idle_start_only: no end idle reading; …`.
 
 ## Traces
 
@@ -84,7 +84,7 @@
 
 ## Outputs
 
-`benchmark/energy.json`: top level `schemaVersion` 3, `source`, `kind` (`measured` for rails, `estimated` for manafa), `cases`; rails adds `railsResponsive` and `idleBaseline` (`interpolated` or `idle_start_only`), manafa adds `powerProfile`.
+`benchmark/energy.json`: top level `schemaVersion` 3, `source`, `kind` (`measured` for rails, `estimated` for manafa), `cases`; rails adds `railsResponsive` and `idleBaseline` (`interpolated` or `idle_start_only`), manafa adds `powerProfile`. `ConvertKt` copies `idleBaseline` onto each case's `energyJ` in `benchmark.json` ([results.md](results.md)).
 
 | case field | value |
 |---|---|
@@ -118,7 +118,7 @@
 
 - A case without a window keeps `operations` and holds its reason in `notMeasured`; `joules`, `joulesPerOperation`, `windowSeconds` are null, `clockOffsetNs` is null when no trace was read.
 - One case's problem is that case's reason; `energy.py` exits 0 and writes every other case. An energy step that fails as a whole (the source's window around a timed process, trace pull, dry pass beside a timed run, `energy.py` or manafa's answer) prints `warning: energy_failed: <message>`, adds the line to `manifest.yaml` `problems`, and leaves no `energy.json` for that process; `ConvertKt` still writes the timing.
-- `ConvertKt` joins valid `measured` cases into `benchmark.json` as `energyJ` (runs = [`joulesPerOperation`], iterations = `operations`, `source`, `kind`); `MergeRunsKt` carries `source` and `kind`; processes with different ones fail with `energy_kinds_differ` or `energy_sources_differ`.
+- `ConvertKt` joins valid `measured` cases into `benchmark.json` as `energyJ` (runs = [`joulesPerOperation`], iterations = `operations`, `source`, `kind`); `MergeRunsKt` carries `source`, `kind` and `idleBaseline`; processes with different `source` or `kind` fail with `energy_kinds_differ` or `energy_sources_differ`, different `idleBaseline` merge as `mixed`.
 - An estimated run: `manifest.yaml` top-level `energy`, a closing line in `analysis/summary.md`, `(estimated)` on its `energyJ` chart.
 - Other `measured` cases print `energy_not_joined: <id>: <reasons>` (`unjudged` when no reason; `missing_field: joulesPerOperation`, `out_of_range: operations <n>` for a valid case without a usable number).
 - An `energy.json` `ConvertKt` cannot read (another `schemaVersion` is `unsupported_schema_version`) prints `energy_not_joined: <file>: <message>`; the timing converts without energy.
@@ -143,7 +143,7 @@ lib/cryptobench/cryptobench/stages/measurement/energy/steps.py : capture selecti
 
 | command | arguments |
 |---|---|
-| `preflight.py` | `<idle.pftrace> <busy.pftrace> <idle seconds> <busy seconds> <out energy.yaml> [--accept-unresponsive]`; `--end <idle-end.pftrace> <idle seconds> <energy.yaml>` adds the end reading |
+| `preflight.py` | `<idle.pftrace> <busy.pftrace> <idle seconds> <busy seconds> <out energy.yaml> [--accept-unresponsive] [--skin <json>]`; `--end <idle-end.pftrace> <idle seconds> <energy.yaml> [--skin <json>]` adds the end reading |
 | `energy.py` | `--capability F -o OUT [--prepared --benchmark-data --traces] [--dry-trace --dry-calls]` |
 | `manafa_session.py` | `[--check <seconds> --capability <energy.yaml>]`, the source passing `run.energyIdleSeconds`; without them, stdin `stop`, then a JSON list of `energy.py`'s arguments |
 

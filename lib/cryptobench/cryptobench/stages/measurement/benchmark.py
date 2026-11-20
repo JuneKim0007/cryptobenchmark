@@ -38,19 +38,22 @@ def measure_on_device(run, one, captures, preparation, repetitions, folder, writ
         energy = energy_hook.EnergyCapture(run.source, run.session, captures, run.discovery, preparation, run.problems, dry, bool(timed))
         hooks.insert(0, energy)
 
-    def conversion(process):
-        joules = paths.Measurement(process.into).energy
+    def conversion(process, joules, into, problems=None):
         joined = f" {joules}" if "measured" in captures and joules.is_file() else ""
-        convert(run, f"{process.data} {paths.Preparation(preparation).prepared} {process.into}{joined}{one.convert_flags()}{thermal_flag(process)}")
+        convert(run, f"{process.data} {paths.Preparation(preparation).prepared} {into}{joined}{one.convert_flags()}{thermal_flag(process)}", problems)
 
     def again(process):
-        energy.joules(process)
-        if timed:
-            conversion(process)
+        """Into the staging folder; energy_end swaps the files in once every process succeeded."""
+        at, staged = paths.Measurement(process.into), paths.Measurement(paths.Measurement(process.into).redo)
+        energy.written(process, staged.energy)
+        if not timed:
+            return [(staged.energy, at.energy)]
+        conversion(process, staged.energy, staged.root, problems=[])
+        return [(staged.energy, at.energy), (staged.json, at.json)]
 
     def converted(process):
         if timed:
-            conversion(process)
+            conversion(process, paths.Measurement(process.into).energy, process.into)
         held(process)
         if energy is not None and paths.Measurement(process.into).energy.is_file():
             redo.append((one, process.into, lambda: again(process)))
@@ -136,7 +139,7 @@ def device_cases(run, document, plan_files, captures, benchmark, preparation, in
     boot) is a pass's blocks.Blocks."""
     chosen, repetitions = passes.pass_views(RunView(document), captures), RunView(document).process_repetitions
     energy = any(one.captures(captures) - {"none"} for one in chosen)
-    energy_step = (lambda: energy_preflight(run.options, run.source, run.session, run.discovery, run.files)) if energy else None
+    energy_step = (lambda: energy_preflight(run)) if energy else None
     run.reconnect.retried(lambda: push(run.device, run.options, plan_files, energy_step), "the plan push")
     run.reconnect.retried(lambda: warm_up(run, document, preparation), "the warm-up")
     boot = lambda: run.reconnect.retried(run.device.boot_id, "the boot id read")

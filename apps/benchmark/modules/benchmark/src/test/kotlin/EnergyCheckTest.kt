@@ -14,6 +14,7 @@ import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
 
@@ -84,6 +85,20 @@ class EnergyCheckTest {
         val refused = Merge.merge(listOf(text, other))
         assertEquals(listOf("not_merged: c: energy_kinds_differ: estimated and measured"), refused.dropped)
         assertEquals(emptyList<String>(), refused.rows.map { it.id })
+    }
+
+    @Test
+    fun theIdleBaselineReachesEachCaseAndAMixOfProcessesIsMarked() {
+        fun energy(baseline: String) = """{"schemaVersion": 3, "source": "rails", "kind": "measured", "idleBaseline": "$baseline", "cases": {
+            "c": {"capture": "measured", "valid": true, "joulesPerOperation": 2.5e-6, "operations": 4}}}"""
+        fun text(baseline: String) = BenchmarkJson(File(".")).text(emptyMap(), listOf(ResultRow("c", "T", "A", "P", "OP", null, null, null,
+            mapOf(MetricSamples.TIME to MetricSamples(listOf(9.0), 1), MetricSamples.ENERGY to EnergyWindows.read(energy(baseline)).samples.getValue("c")),
+            emptyMap())))
+        val interpolated = text("interpolated")
+        assertTrue(interpolated.contains("\"idleBaseline\": \"interpolated\""))
+        fun merged(vararg texts: String) = Merge.merge(texts.toList()).rows.single().metrics.getValue(MetricSamples.ENERGY).idleBaseline
+        assertEquals("interpolated", merged(interpolated, interpolated))
+        assertEquals(MetricSamples.MIXED_BASELINE, merged(interpolated, text("idle_start_only")))
     }
 
     @Test

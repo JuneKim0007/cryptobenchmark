@@ -39,10 +39,6 @@ class EnergySession:
         self.record(config, remote, busy=busy)
         self.device.pull(remote, local)
 
-    def preflight(self, idle_config, busy_config, idle, busy):
-        self.reading(idle_config, idle)
-        self.reading(busy_config, busy, busy=True)
-
     def dry_pass(self, config, trace, calls, preparation, test_class="EnergyDryBenchmark"):
         """No Jetpack trace runs in this pass, so none kills the host session."""
         remote, dry = f"{TRACES}/{trace.name}", f"{self.device.files}/{paths.ENERGY_DRY}"

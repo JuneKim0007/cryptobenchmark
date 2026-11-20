@@ -27,7 +27,8 @@ class ManafaSource:
         # the process runs in its own folder; a venv's python is a symlink that must not be resolved
         return str(pathlib.Path(self.host.python).absolute()) if "/" in self.host.python else self.host.python
 
-    def preflight(self, _session, discovery, _accept_unresponsive):
+    def preflight(self, _session, discovery, _accept_unresponsive, _held):
+        """A capability check, not an idle baseline: manafa subtracts no idle, so the reading is not held."""
         folder = paths.Discovery(discovery).energy_preflight
         folder.mkdir(exist_ok=True)
         capability = paths.Discovery(discovery).energy.resolve()
@@ -43,7 +44,7 @@ class ManafaSource:
         print(result.stdout.rstrip())
         return paths.Discovery(discovery).energy
 
-    def idle_end(self, _session, _discovery):
+    def idle_end(self, _session, _discovery, _held):
         """manafa subtracts no idle: there is nothing to bracket."""
         return False
 

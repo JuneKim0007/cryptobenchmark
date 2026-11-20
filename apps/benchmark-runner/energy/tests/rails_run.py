@@ -45,7 +45,8 @@ def inputs(folder):
     (folder / "dry.pftrace").write_text("")
     (folder / "calls.yaml").write_text("d1: 77\n")
     (folder / "energy.yaml").write_text("schemaVersion: 3\nrailsPresent: true\nrailsResponsive: true\nidleMicrojoules: 3000.0\n"
-                                        "busyMicrojoules: 9000.0\nidleWindowSeconds: 3.0\nbusyWindowSeconds: 3.0\nidleBoottimeNs: 1000\n"
+                                        "busyMicrojoules: 9000.0\nidleWindowSeconds: 3.0\nbusyWindowSeconds: 3.0\nidleSpanSeconds: 3.0\n"
+                                        "idleMicrowatts: 1000.0\nidleBoottimeNs: 1000\nidleSkin: null\n"
                                         "acceptUnresponsive: false\n")
 
 
@@ -62,8 +63,8 @@ def run_energy(folder):
     return out.read_text()
 
 
-def run_end(folder, seconds="3"):
-    preflight.main(["--end", str(folder / "idle-end.pftrace"), seconds, str(folder / "energy.yaml")])
+def run_end(folder, seconds="3", skin=()):
+    preflight.main(["--end", str(folder / "idle-end.pftrace"), seconds, str(folder / "energy.yaml"), *skin])
 
 
 def run_preflight(folder):

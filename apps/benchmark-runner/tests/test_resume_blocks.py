@@ -9,8 +9,9 @@ import test_rerun_safety
 from cryptobench.shared import paths
 from cryptobench.shared.results import identity, run_record
 from cryptobench.stages.measurement.session import variant_order
-from fake_phone import Phone
+from fake_phone import Energy, Phone
 from test_manifest import PROBE
+from test_device_benchmark_flow import MEASURED
 from test_rerun_safety import Rerun, manifest_of
 
 
@@ -377,3 +378,52 @@ def test_block_end_records_each_runs_findings_and_validation_yaml_holds_the_last
     assert [run["findings"] for run in record(rerun.device, 1)["processes"]] == [[], []]
     validation = yaml.safe_load(paths.RunTree(rerun.device).validation.read_text())
     assert validation == {"schemaVersion": 1, "runs": {f"process-{n}": {"checkedBy": "block_end", "fails": 0, "findings": []} for n in (1, 2, 3)}}
+
+
+ENERGY_THREE = MEASURED | {"processRepetitions": 3, "resumeBlockRuns": 1}
+
+
+def invocations(monkeypatch):
+    """energy.json per invocation: the start reading's, or the redo's after the end reading; each case names the invocation that read it."""
+    count = [0]
+    preflight = Energy.preflight
+
+    def counted(self, *arguments):
+        count[0] += 1
+        return preflight(self, *arguments)
+
+    def joules(self, *paths_given):
+        self.phone.log.append("joules")
+        out, redo = paths_given[-1], "energy-redo" in str(paths_given[-1])
+        out.write_text(json.dumps({"idleBaseline": "interpolated" if redo else "idle_start_only", "cases": {c: {"by": count[0]} for c in ("a", "b")}}))
+    monkeypatch.setattr(Energy, "preflight", counted)
+    monkeypatch.setattr(Energy, "joules", joules)
+
+
+def energy_of(rerun, process):
+    return json.loads((paths.RunTree(rerun.device).benchmark.root / f"energy/process-{process}/energy.json").read_text())
+
+
+def test_a_resume_reads_energy_again_only_for_the_processes_it_measured_and_kept_ones_keep_their_energy_and_idle(tmp_path, monkeypatch):
+    invocations(monkeypatch)
+    rerun = Rerun(tmp_path, monkeypatch)
+    stopped(rerun, ENERGY_THREE, launch=4 * 2 + 1)
+    kept = [energy_of(rerun, n) for n in (1, 2)]
+    rerun(ENERGY_THREE)
+    assert [energy_of(rerun, n) for n in (1, 2)] == kept and kept[0]["idleBaseline"] == "idle_start_only"
+    assert energy_of(rerun, 3) == {"idleBaseline": "interpolated", "cases": {"a": {"by": 2}, "b": {"by": 2}}}
+    assert "idle_start_only" not in " ".join(manifest_of(rerun.device).get("problems") or [])
+
+
+def test_a_kept_energy_run_failing_one_case_is_measured_again_whole_so_no_earlier_trace_meets_this_invocations_line(tmp_path, monkeypatch, capsys):
+    invocations(monkeypatch)
+    rerun = Rerun(tmp_path, monkeypatch)
+    stopped(rerun, ENERGY_THREE, launch=4 * 3 + 1)
+    kept = energy_of(rerun, 1)
+    paths.RunTree(rerun.device).benchmark.root.joinpath("energy/process-2/cases/a.json").write_text("{}")
+    capsys.readouterr()
+    rerun(ENERGY_THREE)
+    assert "resumed:   energy pass: kept block 1 (run 1), restarting at run 2" in lines(capsys, "resumed:")
+    assert energy_of(rerun, 1) == kept and kept["idleBaseline"] == "idle_start_only"
+    for process in (2, 3):
+        assert energy_of(rerun, process) == {"idleBaseline": "interpolated", "cases": {"a": {"by": 2}, "b": {"by": 2}}}

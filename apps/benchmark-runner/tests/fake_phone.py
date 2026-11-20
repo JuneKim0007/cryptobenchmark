@@ -39,7 +39,7 @@ class Phone(device_module.Device):
         # case id -> the skipped.yaml record DevicePlan writes when its preparation refuses the case
         self.refuse, self.skips = dict(refuse or {}), []
         self.written, self.log, self.ran, self.arguments, self.converted = [], [], [], [], []
-        self.thermal, self.notices, self.boot = thermal, [], "boot-1"
+        self.thermal, self.notices, self.boot, self.convert_fails = thermal, [], "boot-1", None
         # the cryptobench.samples the last launch asked for; androidx gives exactly that many
         self.samples = 1
 
@@ -140,16 +140,19 @@ class Energy:
     """A rails source with no rails: logs the window and joules, writes nothing."""
 
     def __init__(self, phone):
-        self.phone = phone
+        self.phone, self.skins, self.written = phone, [], 0
+        phone.energy = self
 
-    def preflight(self, _session, discovery, _accept):
+    def preflight(self, _session, discovery, _accept, held):
         self.phone.log.append("preflight")
+        self.skins.append(held(lambda: None))
         capability = discovery / "energy.yaml"
         capability.write_text("railsResponsive: true\n")
         return capability
 
-    def idle_end(self, _session, _discovery):
+    def idle_end(self, _session, _discovery, held):
         self.phone.log.append("idle end")
+        self.skins.append(held(lambda: None))
         return True
 
     def window(self, _folder):
@@ -163,7 +166,8 @@ class Energy:
     def joules(self, *paths):
         self.phone.log.append("joules")
         if paths and isinstance(paths[-1], pathlib.Path):
-            paths[-1].write_text("{}")
+            self.written += 1
+            paths[-1].write_text(json.dumps({"written": self.written}))
 
 
 def fake_convert(phone, arguments, words, notices):
@@ -206,8 +210,12 @@ def fake_merge_runs(phone, words):
 
 def fake_tools(monkeypatch, phone):
     """ConvertKt, MergePassesKt and MergeRunsKt: the same files as the real tools, from the fake data."""
-    def run(arguments, _stacktrace, _stream=False, *, main_class, notices=None):
+    def run(arguments, _stacktrace, _stream=False, *, main_class, notices=None, failed=gradle_runner._stop):
         words = arguments.split()
+        if main_class == "ConvertKt" and phone.convert_fails and phone.convert_fails(words):
+            phone.log.append("convert failed")
+            failed("nothing_converted: no benchmark gave a row")
+            return []
         if main_class == "ConvertKt":
             fake_convert(phone, arguments, words, notices)
         elif main_class == "MergePassesKt":

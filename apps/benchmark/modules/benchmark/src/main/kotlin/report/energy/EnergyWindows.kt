@@ -16,6 +16,7 @@ object EnergyWindows {
         SchemaVersion.require(document, SCHEMA_VERSION, FileNames.ENERGY_JSON)
         val source = document["source"]?.toString() ?: throw IllegalArgumentException("missing_field: ${FileNames.ENERGY_JSON} source")
         val kind = document["kind"]?.toString() ?: throw IllegalArgumentException("missing_field: ${FileNames.ENERGY_JSON} kind")
+        val baseline = document["idleBaseline"]?.toString()
         val samples = LinkedHashMap<String, MetricSamples>()
         val notJoined = LinkedHashMap<String, List<String>>()
         for ((id, value) in CaseDocument.optionalSection(document["cases"]).orEmpty()) {
@@ -31,7 +32,7 @@ object EnergyWindows {
                 continue
             }
             val operations = (case["operations"] as Number).toInt()
-            samples[id] = MetricSamples(listOf((case["joulesPerOperation"] as Number).toDouble()), operations, source = source, kind = kind)
+            samples[id] = MetricSamples(listOf((case["joulesPerOperation"] as Number).toDouble()), operations, source = source, kind = kind, idleBaseline = baseline)
         }
         return Read(samples, notJoined)
     }

@@ -32,7 +32,7 @@ internal object CaseDocument {
             val runs = optionalSamples(mapping["runs"])
             if (runs.isNotEmpty()) {
                 metrics[metric] = MetricSamples(runs, iterations(mapping["iterations"]), reportedStats(optionalSection(mapping["reported"])),
-                    mapping["source"]?.toString(), mapping["kind"]?.toString())
+                    mapping["source"]?.toString(), mapping["kind"]?.toString(), mapping["idleBaseline"]?.toString())
             }
         }
         return metrics

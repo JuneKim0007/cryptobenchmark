@@ -71,6 +71,7 @@ class Measurement(Section):
     cases = property(lambda self: self.root / n.CASES)
     order = property(lambda self: self.root / n.ORDER)
     blocks = property(lambda self: self.root / n.BLOCKS)
+    redo = property(lambda self: self.root / n.ENERGY_REDO)  # energy again after the end idle reading, staged before the swap
 
     def process(self, repetition: int) -> Measurement:
         return Measurement(self.root / n.PROCESS_FORM.format(repetition))

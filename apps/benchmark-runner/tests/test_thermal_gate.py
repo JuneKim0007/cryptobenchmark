@@ -7,7 +7,7 @@ from cryptobench.shared import paths  # noqa: E402
 from cryptobench.shared.document.document import read_yaml  # noqa: E402
 from cryptobench.shared.errors.failures import CommandError  # noqa: E402
 from cryptobench.shared.errors.glossary import codes  # noqa: E402
-from cryptobench.stages.measurement import benchmark  # noqa: E402
+from cryptobench.stages.measurement import benchmark, measuring  # noqa: E402
 from cryptobench.stages.measurement import thermal  # noqa: E402
 from cryptobench.shared.device.adb import DeviceError  # noqa: E402
 from cryptobench.stages.measurement.session import blocks, dynamic_temperature, thermal_hook  # noqa: E402
@@ -29,6 +29,7 @@ class Heat:
         fake = types.SimpleNamespace(read=self.read, poll=self.read, extremes=thermal.extremes, capability=lambda _device: thermal.Capability(available, reason, ("skin",)))
         monkeypatch.setattr(dynamic_temperature, "thermal", fake)
         monkeypatch.setattr(thermal_hook, "thermal", fake)
+        monkeypatch.setattr(measuring, "thermal", fake)
         monkeypatch.setattr(dynamic_temperature, "time", types.SimpleNamespace(monotonic=lambda: self.now, sleep=self.sleep))
         original = Phone.instrument
 
@@ -251,3 +252,13 @@ def test_a_run_ending_hot_moves_to_rejected_with_its_why(tmp_path, monkeypatch):
     whys = [read_yaml(why) for why in paths.RunTree(results).rejected.rglob(paths.WHY)]
     assert [(w["case"], w["findings"][0]["code"]) for w in whys] == [("a", "temperature_discarded")]
     assert (next(paths.RunTree(results).rejected.rglob(paths.WHY)).parent / "a.json").is_file()
+
+
+def test_each_idle_reading_waits_behind_the_gate_and_stamps_the_skin(tmp_path, monkeypatch):
+    from test_device_benchmark_flow import MEASURED
+    heat = Heat(monkeypatch, start=45.0, cooling=0.05)
+    phone, _files, problems, _results = measured(tmp_path, monkeypatch, MEASURED | {"thermalGate": GATE})
+    assert heat.slept[0] == 180 and problems == []
+    start, end = phone.energy.skins
+    assert start["start"]["sensor"] == "skin" and start["start"]["celsius"] <= 35.75
+    assert end["start"]["celsius"] <= 35.75 and end["end"]["sensor"] == "skin"

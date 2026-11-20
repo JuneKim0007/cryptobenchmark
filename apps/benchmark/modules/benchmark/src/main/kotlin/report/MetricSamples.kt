@@ -6,6 +6,7 @@ data class MetricSamples(
     val reported: ReportedStats? = null,
     val source: String? = null,
     val kind: String? = null,
+    val idleBaseline: String? = null,
 ) {
 
     init {
@@ -17,7 +18,8 @@ data class MetricSamples(
     fun mergedWith(later: MetricSamples): MetricSamples {
         require(kind == later.kind) { "energy_kinds_differ: $kind and ${later.kind}" }
         require(source == later.source) { "energy_sources_differ: $source and ${later.source}" }
-        return MetricSamples(runs + later.runs, iterations, source = source, kind = kind)
+        val baseline = if (idleBaseline == later.idleBaseline) idleBaseline else MIXED_BASELINE
+        return MetricSamples(runs + later.runs, iterations, source = source, kind = kind, idleBaseline = baseline)
     }
 
     companion object {
@@ -38,5 +40,8 @@ data class MetricSamples(
 
         // From apps/benchmark-runner/energy, not from Jetpack: one run per window, with its source and kind.
         const val ENERGY = "energyJ"
+
+        // Processes whose energy.json subtracted different idle baselines (interpolated, idle_start_only): pooled, and marked.
+        const val MIXED_BASELINE = "mixed"
     }
 }

@@ -6,7 +6,8 @@ import yaml
 
 from cryptobench.shared.device.adb import DeviceError  # noqa: E402
 from cryptobench.shared.errors.failures import EnergyError  # noqa: E402
-from cryptobench.stages.measurement.session import clocks_hook, cooldown_hook, variant_order  # noqa: E402
+from cryptobench.shared.device import reconnect  # noqa: E402
+from cryptobench.stages.measurement.session import clocks_hook, cooldown_hook, dynamic_temperature, variant_order  # noqa: E402
 import pipeline  # noqa: E402
 from cryptobench.stages.measurement import benchmark, resume  # noqa: E402
 from cryptobench.stages.discovery import discover  # noqa: E402
@@ -113,17 +114,61 @@ def test_the_block_records_follow_the_energy_files_the_end_idle_rewrote(tmp_path
 
 
 def test_an_end_idle_reading_that_fails_keeps_the_start_reading_and_says_so(tmp_path, monkeypatch):
-    def failed(_self, _session, _discovery):
+    def failed(_self, _session, _discovery, _held):
         raise EnergyError("apps/benchmark-runner/energy/preflight.py: no_rails: the end idle trace has no power rails")
     monkeypatch.setattr(Energy, "idle_end", failed)
     phone, _files, problems, _results = measured(tmp_path, monkeypatch, MEASURED)
-    assert problems == ["energy_failed: apps/benchmark-runner/energy/preflight.py: no_rails: the end idle trace has no power rails",
+    assert problems == ["energy_failed: the end idle reading: apps/benchmark-runner/energy/preflight.py: no_rails: the end idle trace has no power rails",
                         "idle_start_only: no end idle reading; energy.json keeps the start reading alone"]
     assert steps(phone).count("joules") == 1
 
 
+@pytest.mark.parametrize("lost", [reconnect.DeviceGone("adb: device offline; not back after 3600 s; phase stopped"),
+                                  dynamic_temperature.Terminated("temperature_gate_timeout: the end idle reading: energy idle: still above")])
+def test_a_device_lost_before_the_end_reading_keeps_every_process_on_the_start_reading(tmp_path, monkeypatch, lost):
+    def gone(_self, _session, _discovery, _held):
+        raise lost
+    monkeypatch.setattr(Energy, "idle_end", gone)
+    phone, _files, problems, results = measured(tmp_path, monkeypatch, MEASURED | {"processRepetitions": 2})
+    assert problems == [f"energy_failed: the end idle reading: {lost}", "idle_start_only: no end idle reading; energy.json keeps the start reading alone"]
+    assert steps(phone).count("joules") == 2 and steps(phone)[-3:] == ["merge passes"] * 3
+    for process in (1, 2):
+        assert (results / f"benchmark/energy/process-{process}/energy.json").is_file()
+    assert (results / "benchmark/benchmark.json").is_file()
+
+
+def test_a_conversion_that_fails_mid_redo_leaves_every_process_as_the_start_reading_wrote_it(tmp_path, monkeypatch):
+    phone = Phone(tmp_path)
+    phone.convert_fails = lambda words: "energy-redo" in words[2] and "process-2" in words[2]
+    before = {}
+
+    def idle_end(self, _session, _discovery, held):
+        held(lambda: None)
+        for process in (1, 2):
+            folder = tmp_path / f"results/benchmark/energy/process-{process}"
+            before[process] = ((folder / "energy.json").read_text(), (folder / "benchmark.json").read_text())
+        return True
+    monkeypatch.setattr(Energy, "idle_end", idle_end)
+    phone, _files, problems, results = measured(tmp_path, monkeypatch, MEASURED | {"processRepetitions": 2}, phone=phone)
+    assert problems == ["energy_failed: energy again: nothing_converted: no benchmark gave a row",
+                        "idle_start_only: energy again failed; every energy.json keeps the start reading alone"]
+    assert steps(phone)[steps(phone).index("convert failed") - 3:][:4] == ["joules", "convert", "joules", "convert failed"]
+    for process in (1, 2):
+        folder = results / f"benchmark/energy/process-{process}"
+        assert ((folder / "energy.json").read_text(), (folder / "benchmark.json").read_text()) == before[process]
+        assert not (folder / "energy-redo").exists()
+
+
+def test_a_redo_that_succeeds_swaps_in_every_staged_file_and_clears_the_staging(tmp_path, monkeypatch):
+    phone, _files, problems, results = measured(tmp_path, monkeypatch, MEASURED | {"processRepetitions": 2})
+    assert problems == [] and phone.energy.skins == [{"start": None, "end": None}] * 2
+    written = [json.loads((results / f"benchmark/energy/process-{p}/energy.json").read_text())["written"] for p in (1, 2)]
+    assert written == [3, 4]
+    assert not any(results.rglob("energy-redo"))
+
+
 def test_a_source_that_subtracts_no_idle_takes_no_end_reading(tmp_path, monkeypatch):
-    monkeypatch.setattr(Energy, "idle_end", lambda _self, _session, _discovery: False)
+    monkeypatch.setattr(Energy, "idle_end", lambda _self, _session, _discovery, _held: False)
     phone, _files, problems, _results = measured(tmp_path, monkeypatch, MEASURED)
     assert steps(phone).count("joules") == 1 and problems == []
 

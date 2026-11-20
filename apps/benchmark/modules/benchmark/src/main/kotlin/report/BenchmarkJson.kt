@@ -36,7 +36,8 @@ class BenchmarkJson(private val directory: File) {
         "${quoted(metric)}: {\"iterations\": ${samples.iterations}, \"runs\": [${samples.runs.joinToString(", ")}]${reported(samples.reported)}${origin(samples)}}"
 
     private fun origin(samples: MetricSamples): String =
-        if (samples.kind == null) "" else ", \"source\": ${quoted(samples.source)}, \"kind\": ${quoted(samples.kind)}"
+        (if (samples.kind == null) "" else ", \"source\": ${quoted(samples.source)}, \"kind\": ${quoted(samples.kind)}") +
+            (if (samples.idleBaseline == null) "" else ", \"idleBaseline\": ${quoted(samples.idleBaseline)}")
 
     private fun reported(stats: ReportedStats?): String =
         if (stats == null) "" else ", \"reported\": {\"minimum\": ${stats.minimum}, \"maximum\": ${stats.maximum}, \"median\": ${stats.median}, \"coefficientOfVariation\": ${stats.coefficientOfVariation}}"

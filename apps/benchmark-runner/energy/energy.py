@@ -26,11 +26,11 @@ class NotMeasured(Exception):
 
 def idle_of(capability):
     """The microjoules idle draws over [start, end] BOOTTIME, from the line between the start and end readings, or the start alone."""
-    start = capability["idleMicrojoules"] / (capability["idleWindowSeconds"] * 1e9)
+    start = capability["idleMicrowatts"] / 1e9
     t0, t1 = capability["idleBoottimeNs"], capability.get("idleEndBoottimeNs")
     if t0 is None or t1 is None or t1 <= t0:
         return (lambda a, b: start * (b - a)), START_ONLY
-    end = capability["idleEndMicrojoules"] / (capability["idleEndWindowSeconds"] * 1e9)
+    end = capability["idleEndMicrowatts"] / 1e9
     return (lambda a, b: (start + (end - start) * ((a + b) / 2 - t0) / (t1 - t0)) * (b - a)), INTERPOLATED
 
 

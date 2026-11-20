@@ -5,5 +5,8 @@ idleMicrojoules: 19750.0
 busyMicrojoules: 59250.0
 idleWindowSeconds: 3.0
 busyWindowSeconds: 3.0
+idleSpanSeconds: 7.9e-06
+idleMicrowatts: 2500000000.0
 idleBoottimeNs: 4950
+idleSkin: null
 acceptUnresponsive: false

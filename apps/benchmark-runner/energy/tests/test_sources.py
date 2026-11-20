@@ -31,26 +31,30 @@ def test_rails_records_the_idle_window_it_is_given_and_a_short_busy_one(tmp_path
             calls.append((script, *map(str, arguments)))
 
     class Session:
-        def preflight(self, *paths):
-            sessions.append(paths)
+        def reading(self, *paths, busy=False):
+            sessions.append((*paths, busy))
 
-        def reading(self, *paths):
-            sessions.append(paths)
+    skin = {"start": {"sensor": "VIRTUAL-SKIN", "celsius": 30.0}, "end": None}
+
+    def held(record):
+        sessions.append("held")
+        record()
+        return skin
 
     source = RailsSource(Recording("py"), 120)
-    capability = source.preflight(Session(), tmp_path, True)
+    capability = source.preflight(Session(), tmp_path, True, held)
     folder = tmp_path / "energy-preflight"
     assert capability == tmp_path / "energy.yaml"
-    assert sessions == [(folder / "idle.pbtx", folder / "busy.pbtx", folder / "idle.pftrace", folder / "busy.pftrace")]
+    assert sessions == ["held", (folder / "idle.pbtx", folder / "idle.pftrace", False), (folder / "busy.pbtx", folder / "busy.pftrace", True)]
     assert "battery_poll_ms: 100 collect_power_rails: true" in (folder / "idle.pbtx").read_text()
     assert "duration_ms: 120000" in (folder / "idle.pbtx").read_text()
     assert "duration_ms: 3000" in (folder / "busy.pbtx").read_text()
     assert calls == [("preflight.py", str(folder / "idle.pftrace"), str(folder / "busy.pftrace"), "120", "3", str(capability),
-                      "--accept-unresponsive")]
+                      "--accept-unresponsive", "--skin", json.dumps(skin))]
     calls.clear()
-    assert source.idle_end(Session(), tmp_path) is True
-    assert sessions[-1] == (folder / "idle.pbtx", folder / "idle-end.pftrace")
-    assert calls == [("preflight.py", "--end", str(folder / "idle-end.pftrace"), "120", str(capability))]
+    assert source.idle_end(Session(), tmp_path, held) is True
+    assert sessions[-2:] == ["held", (folder / "idle.pbtx", folder / "idle-end.pftrace", False)]
+    assert calls == [("preflight.py", "--end", str(folder / "idle-end.pftrace"), "120", str(capability), "--skin", json.dumps(skin))]
     calls.clear()
     with source.window(tmp_path):
         pass
@@ -85,15 +89,15 @@ def test_a_missing_manafa_is_one_coded_line(tmp_path, monkeypatch):
         source.window(tmp_path).__enter__()
     assert str(window.value).startswith("manafa_missing: ") and "requirements-manafa.txt" in str(window.value) and "\n" not in str(window.value)
     with pytest.raises(EnergyError) as check:
-        source.preflight(None, tmp_path, False)
+        source.preflight(None, tmp_path, False, None)
     assert str(check.value).startswith("manafa_missing: ")
     assert yaml.safe_load((tmp_path / "energy.yaml").read_text())["started"] is False
 
 
 def test_the_check_reports_what_it_got_and_never_reads_rails(tmp_path, monkeypatch, capsys):
-    capability = manafa(monkeypatch, idle_seconds=0.02).preflight(None, tmp_path, False)
+    capability = manafa(monkeypatch, idle_seconds=0.02).preflight(None, tmp_path, False, None)
     document = yaml.safe_load(capability.read_text())
-    assert document["idleWindowSeconds"] == 0.02
+    assert (document["schemaVersion"], document["idleWindowSeconds"]) == (3, 0.02)
     assert (document["source"], document["kind"], document["started"], document["usable"]) == ("manafa", "estimated", True, True)
     assert document["cpuFrequencyEvents"] == 2 and document["batteryStatsEvents"] == 1 and document["joules"] > 0
     assert "railsPresent" not in document
@@ -106,7 +110,7 @@ def test_the_check_reports_what_it_got_and_never_reads_rails(tmp_path, monkeypat
     ("consumption=zero", "no_estimate: 0.0")])
 def test_a_check_that_got_no_number_refuses_with_a_code(tmp_path, monkeypatch, behaviour, reason):
     with pytest.raises(EnergyError) as refused:
-        manafa(monkeypatch, behaviour).preflight(None, tmp_path, False)
+        manafa(monkeypatch, behaviour).preflight(None, tmp_path, False, None)
     assert str(refused.value) == f"manafa_cannot_start: {reason}"
 
 

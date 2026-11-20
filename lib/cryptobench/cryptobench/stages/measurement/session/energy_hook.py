@@ -49,7 +49,9 @@ class EnergyCapture(Hooks):
         self.joules(process)
 
     def joules(self, process):
-        """energy.json from this process's traces; run again after the end idle reading."""
+        energy_stage.guarded(self.problems, lambda: self.written(process, paths.Measurement(process.into).energy))
+
+    def written(self, process, out):
+        """energy.json from this process's traces into out; run again, unguarded, after the end idle reading."""
         at = paths.Measurement(process.into)
-        energy_stage.guarded(self.problems, lambda: self.source.joules(self.captures, paths.Discovery(self.discovery).energy, self.preparation,
-                                                                       process.data, at.traces, at.energy_dry, at.energy))
+        self.source.joules(self.captures, paths.Discovery(self.discovery).energy, self.preparation, process.data, at.traces, at.energy_dry, out)
