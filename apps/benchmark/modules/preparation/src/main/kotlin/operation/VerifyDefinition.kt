@@ -42,7 +42,7 @@ internal object VerifyDefinition : OperationDefinition {
             signature.initVerify(public)
         }, { signature ->
             signature.update(input.message)
-            check(signature.verify(input.signature)) { "verify_failed" }
+            signature.verify(input.signature).also { check(it) { "verify_failed" } }
         })
         return call.invocation(setup.perCall(prepared.case), readBack = true)
     }

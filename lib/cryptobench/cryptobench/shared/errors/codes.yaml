@@ -1337,6 +1337,7 @@ codes:
   verify_failed: {kind: error}
   verify_false: {kind: outcome}
   verify_needs_a_key_pair: {kind: error}
+  verify_verdict_differs: {kind: outcome}
   verify_without_signature: {kind: error}
   warmup_job_matches_nothing: {kind: notice}
   warmup_near_cap: {kind: notice}

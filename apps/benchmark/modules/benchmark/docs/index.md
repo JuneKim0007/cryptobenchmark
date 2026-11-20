@@ -81,6 +81,7 @@ apps/benchmark/modules/benchmark/src/test/kotlin/FakeMacProvider.kt : a test pro
 apps/benchmark/modules/benchmark/src/test/kotlin/HostHarnessTest.kt : host loop tests
 apps/benchmark/modules/benchmark/src/test/kotlin/JetpackResultsTest.kt : Jetpack conversion tests over example/
 apps/benchmark/modules/benchmark/src/test/kotlin/KnownAnswerFileTest.kt : the vector catalogue: sources, matching, hex, unknown fields
+apps/benchmark/modules/benchmark/src/test/kotlin/KnownAnswerVerifyTest.kt : a verify known answer passes on the source's verdict only
 apps/benchmark/modules/benchmark/src/test/kotlin/MergeTest.kt : per-process merge tests
 apps/benchmark/modules/benchmark/src/test/kotlin/PassMergeTest.kt : per-pass merge tests
 apps/benchmark/modules/benchmark/src/test/kotlin/PeerProvider.kt : a test provider delegating SHA-256 and HmacSHA256 to the JDK's, the cross-provider peer

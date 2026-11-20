@@ -48,7 +48,10 @@ class KnownAnswerOracle(private val vectors: List<KnownAnswer>, private val call
         val fixed = vector.parameters?.let { RawMaterial.fixedBytes(it) }.orEmpty()
         val used = (invocation.engine as? Cipher)?.iv
         if (used != null && fixed.isNotEmpty() && fixed.none { it.contentEquals(used) }) return Judgement(Outcome.Fail("vector_iv_not_used"), cited)
-        if (case.operation == Operation.VERIFY) return Judgement(Outcome.Pass, cited)
+        if (case.operation == Operation.VERIFY) {
+            val verdict = hook.outputs.lastOrNull()
+            return Judgement(if (verdict == VALID) Outcome.Pass else Outcome.Fail("verify_verdict_differs: the call returned $verdict, the source gives $VALID"), cited)
+        }
         val expected = if (case.operation == Operation.DECRYPT) vector.input else vector.output
         val got = OutputBytes.of(hook.outputs.lastOrNull()) ?: return Judgement(Outcome.Fail("no_bytes: the call returned ${hook.outputs.lastOrNull()?.javaClass?.simpleName}"), cited)
         val compared = if (vector.prefixOnly && got.size >= expected.size) got.copyOf(expected.size) else got
@@ -57,5 +60,7 @@ class KnownAnswerOracle(private val vectors: List<KnownAnswer>, private val call
 
     private companion object {
         const val USER = "user"
+        // the vector format carries valid signatures only
+        const val VALID = true
     }
 }
