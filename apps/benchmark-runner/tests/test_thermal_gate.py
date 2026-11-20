@@ -51,6 +51,10 @@ class Heat:
         self.celsius -= seconds * self.cooling
 
 
+def gate_with(gate):
+    return dynamic_temperature.Gate(None, {dynamic_temperature.RUN_GATE: dynamic_temperature.Settings.of({"run": {"thermalGate": gate}})}, ("skin",), [])
+
+
 def gate_of(results, case):
     return json.loads((results / "benchmark/thermal.json").read_text())["cases"][case].get("gate")
 
@@ -146,6 +150,26 @@ def test_a_host_run_says_it_cannot_poll_once(tmp_path, monkeypatch, capsys):
     assert capsys.readouterr().out.count("TEMPERATURE SET BUT DEVICE CAN'T POLL: host_runtime") == 1
 
 
+def test_a_host_run_with_only_a_pass_gate_says_it_cannot_poll_once(tmp_path, monkeypatch, capsys):
+    document = {"run": {**RUN, "passes": {"timing": {"samples": 3, "thermalGate": GATE}}}, "bundledProviders": []}
+    monkeypatch.setattr(benchmark.gradle_runner, "run", lambda *_a, **_k: [])
+    monkeypatch.setattr(benchmark, "record", lambda *_a, **_k: None)
+    benchmark.host_cases(types.SimpleNamespace(stacktrace=False, stream=False), document, "c", "t", "e", tmp_path / "b", tmp_path / "p", {}, [],
+                         blocks.Blocks(tmp_path / "b", 10, 1, {}, None, lambda _entry: [], {}), lambda _repetition, cases: cases)
+    assert capsys.readouterr().out.count("TEMPERATURE SET BUT DEVICE CAN'T POLL: host_runtime") == 1
+
+
+def test_each_gate_scope_opens_with_its_own_line_and_an_unset_scope_is_off(monkeypatch, capsys):
+    Heat(monkeypatch)
+    own = {**GATE, "temperatureKeptCelsius": 35.0}
+    gate = dynamic_temperature.opened(None, {"run": {"passes": {"energy": {"samples": 2, "thermalGate": own}, "timing": {"samples": 2}}}}, [])
+    out = capsys.readouterr().out
+    assert "TEMPERATURE GATE SET for run.passes.energy.thermalGate: kept 35.0 C" in out and out.count("TEMPERATURE GATE SET") == 1
+    assert isinstance(gate.session("warm-up"), dynamic_temperature.Off)
+    session = gate.session("energy", "run.passes.energy.thermalGate")
+    assert session.settings.kept == 35.0 and session.history.document["from"] == "run.passes.energy.thermalGate"
+
+
 def test_the_skin_reading_ignores_the_cached_section_and_other_types():
     live = thermal.Reading({"skin": 36.2, "BIG": 50.0}, 0, "hal", types={"skin": 3, "BIG": 0})
     assert live.skin == ("skin", 36.2) and thermal.Reading({"skin": 36.2}, 0, "cached", types={"skin": 3}).skin is None
@@ -169,7 +193,7 @@ def test_a_simulated_device_cannot_poll():
 
 def test_a_reading_from_an_earlier_hold_is_never_a_later_runs_start(monkeypatch):
     heat = Heat(monkeypatch)
-    session = dynamic_temperature.Gate(None, dynamic_temperature.Settings.of({"run": {"thermalGate": GATE}}), ("skin",), []).session("timing")
+    session = gate_with(GATE).session("timing")
     assert session.hold("warm-up")
     heat.celsius = 45.0
     assert session.hold("first case")
@@ -178,14 +202,14 @@ def test_a_reading_from_an_earlier_hold_is_never_a_later_runs_start(monkeypatch)
 
 def test_the_wait_line_names_the_configured_polling_interval(monkeypatch, capsys):
     heat = Heat(monkeypatch, start=45.0)
-    session = dynamic_temperature.Gate(None, dynamic_temperature.Settings.of({"run": {"thermalGate": {**GATE, "pollMinutes": 2}}}), ("skin",), []).session("timing")
+    session = gate_with({**GATE, "pollMinutes": 2}).session("timing")
     assert session.hold("case") and heat.slept[0] == 180
     assert "then polling every 2 min" in capsys.readouterr().out
 
 
 def test_each_process_reports_only_its_own_waits_and_discards(monkeypatch):
     heat = Heat(monkeypatch)
-    session = dynamic_temperature.Gate(None, dynamic_temperature.Settings.of({"run": {"thermalGate": GATE}}), ("skin",), []).session("timing")
+    session = gate_with(GATE).session("timing")
     assert session.hold("c")
     heat.celsius = 40.0
     assert session.verdict("c") == "hot"

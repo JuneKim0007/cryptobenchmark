@@ -67,7 +67,8 @@ def _defaulted(document, path):
     return defaults.at(path) if value is None else value
 
 
-# view, field, dotted path, read, honoured by a --bench run; a row with no view is read only for the host check
+# view, field, dotted path, read, honoured by a --bench run; a row with no view is read only for the host check; a gate row's path is under
+# the gate scoped() selects
 KEYS = (
     ("run", "metrics", "run.metrics", _listed, True),
     ("run", "process_repetitions", "run.processRepetitions", required, True),
@@ -75,30 +76,30 @@ KEYS = (
     ("run", "order_seed", "run.orderSeed", _whole, True),
     # None keeps Jetpack's own sleep; RunSettings already refused a negative value
     ("run", "throttle_sleep", "run.thermalThrottleSleepSeconds", found, False),
-    ("run", "case_cooldown", "run.caseCooldownSeconds", required, False),
+    (None, None, "run.caseCooldownSeconds", required, False),
     ("run", "launch_retries", "run.launchRetries", required, False),
     ("run", "warmup_iterations", "run.warmup.iterations", required, False),
     ("run", "warmup_jobs", "run.warmup.jobs", required, False),
     ("run", "warmup_cases", "run.warmup.cases", required, False),
-    ("run", "thermal_gate", "run.thermalGate", found, False),
+    (None, None, "run.thermalGate", found, False),
     ("run", "passes", "run.passes", found, False),
     (None, None, "run.harness.warmupIterations", found, False),
     (None, None, "run.harness.profiling", found, False),
     (None, None, "run.harness.cpu", found, False),
-    ("gate", "kept", "run.thermalGate.temperatureKeptCelsius", required, False),
-    ("gate", "cooldown_minutes", "run.thermalGate.cooldownMinutes", required, False),
-    ("gate", "poll_minutes", "run.thermalGate.pollMinutes", required, False),
-    ("gate", "terminate_minutes", "run.thermalGate.pollTerminateMinutes", required, False),
-    ("gate", "discard_limit", "run.thermalGate.discardLimit", required, False),
-    ("gate", "on_discard_limit", "run.thermalGate.onDiscardLimit", required, False),
-    ("gate", "read_retries", "run.thermalGate.readRetries", required, False),
-    ("gate", "read_retry_seconds", "run.thermalGate.readRetrySeconds", required, False),
-    ("gate", "initial", "run.thermalGate.startMargin.initialCelsius", required, False),
-    ("gate", "dynamic", "run.thermalGate.startMargin.dynamic", required, False),
-    ("gate", "backoff", "run.thermalGate.startMargin.backoffFactor", required, False),
-    ("gate", "maximum", "run.thermalGate.startMargin.maximumCelsius", required, False),
-    ("gate", "clean_runs", "run.thermalGate.startMargin.cleanRunsToRecover", required, False),
-    ("gate", "recovery", "run.thermalGate.startMargin.recoveryCelsius", required, False),
+    ("gate", "kept", "temperatureKeptCelsius", required, False),
+    ("gate", "cooldown_minutes", "cooldownMinutes", required, False),
+    ("gate", "poll_minutes", "pollMinutes", required, False),
+    ("gate", "terminate_minutes", "pollTerminateMinutes", required, False),
+    ("gate", "discard_limit", "discardLimit", required, False),
+    ("gate", "on_discard_limit", "onDiscardLimit", required, False),
+    ("gate", "read_retries", "readRetries", required, False),
+    ("gate", "read_retry_seconds", "readRetrySeconds", required, False),
+    ("gate", "initial", "startMargin.initialCelsius", required, False),
+    ("gate", "dynamic", "startMargin.dynamic", required, False),
+    ("gate", "backoff", "startMargin.backoffFactor", required, False),
+    ("gate", "maximum", "startMargin.maximumCelsius", required, False),
+    ("gate", "clean_runs", "startMargin.cleanRunsToRecover", required, False),
+    ("gate", "recovery", "startMargin.recoveryCelsius", required, False),
     ("analysis", "charts", "analysis.charts", _defaulted, True),
     ("analysis", "dir", "analysis.dir", found, True),
     ("analysis", "headline", "analysis.statistic.headline", _defaulted, True),
@@ -106,27 +107,43 @@ KEYS = (
     ("analysis", "units", "analysis.units", _defaulted, True),
 )
 ROWS = {(view, field): (path, reading) for view, field, path, reading, _ in KEYS if view}
+RUN_GATE = "run.thermalGate"
+
+
+def scoped(document, pass_name, key):
+    """The dotted path a pass reads key at: run.passes.<pass>.<key> when :config wrote it there, else run.<key>; it selects, never merges."""
+    own = f"run.passes.{pass_name}.{key}"
+    return own if pass_name and found(document, own) is not None else f"run.{key}"
+
+
+def gate_scopes(document):
+    """Every gate this run sets, the run's first: a gate is on when one of them is."""
+    passes = found(document, "run.passes") or {}
+    return [base for base in [RUN_GATE] + [f"run.passes.{name}.thermalGate" for name in passes] if found(document, base) is not None]
 
 
 @dataclasses.dataclass(frozen=True)
 class _View:
-    """A view's attributes are its KEY rows, each read when asked, so a missing key fails where it is needed."""
+    """A view's attributes are its KEY rows, each read when asked, so a missing key fails where it is needed; base prefixes relative rows."""
     document: dict
+    base: str = ""
 
     def __getattr__(self, field):
         row = ROWS.get((self.name, field))
         if row is None:
             raise AttributeError(f"{type(self).__name__}.{field}: no KEY row")
         path, reading = row
-        return reading(self.document, path)
+        return reading(self.document, f"{self.base}.{path}" if self.base else path)
 
 
 class RunView(_View):
     name = "run"
 
 
+@dataclasses.dataclass(frozen=True)
 class GateView(_View):
     name = "gate"
+    base: str = RUN_GATE
 
 
 class AnalysisView(_View):
@@ -163,7 +180,9 @@ class EnergyView:
 def ignored_on_host(document):
     """The dotted paths a --bench run ignores that this run sets to other than :config's default, in KEY order; a key inside one listed is not."""
     listed = []
-    for _, _, path, _, host in KEYS:
+    for view, _, path, _, host in KEYS:
+        if view == GateView.name:
+            continue
         inside = any(path.startswith(f"{parent}.") for parent in listed)
         if not host and not inside and found(document, path) is not None and found(document, path) != defaults.at(path):
             listed.append(path)

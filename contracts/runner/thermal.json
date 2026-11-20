@@ -45,6 +45,7 @@
   "sensors": [
    "skin"
   ],
-  "kept": 36.0
+  "kept": 36.0,
+  "from": "run.thermalGate"
  }
 }

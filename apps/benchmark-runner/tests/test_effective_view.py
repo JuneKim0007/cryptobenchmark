@@ -34,7 +34,7 @@ class EffectiveView(unittest.TestCase):
         reads = {
             "run.processRepetitions": lambda: RunView({}).process_repetitions,
             "run.resumeBlockRuns": lambda: RunView({"run": {}}).resume_block_runs,
-            "run.caseCooldownSeconds": lambda: RunView({"run": {}}).case_cooldown,
+            "run.caseCooldownSeconds": lambda: passes.pass_views(RunView({"run": {"metrics": ["TIME"]}}), {"none"}),
             "run.warmup.iterations": lambda: warmup.settings({"run": {"warmup": {"jobs": [], "cases": 3}}}),
             "run.warmup.jobs": lambda: warmup.settings({"run": {"warmup": {"iterations": 1, "cases": 3}}}),
             "run.warmup.cases": lambda: warmup.settings({"run": {"warmup": {"iterations": 1, "jobs": []}}}),
@@ -74,6 +74,20 @@ class EffectiveView(unittest.TestCase):
         self.assertEqual(36.0, GateView({"run": {"thermalGate": {"temperatureKeptCelsius": 36.0}}}).kept)
         with self.assertRaises(AttributeError):
             RunView({}).typo
+
+    def test_a_pass_reads_its_own_gate_and_cool_down_only_where_config_wrote_them(self):
+        document = {"run": {"thermalGate": {"temperatureKeptCelsius": 36.0}, "caseCooldownSeconds": 0,
+                            "passes": {"timing": {"samples": 3}, "energy": {"samples": 2, "minWindowSeconds": 5, "thermalGate": {"temperatureKeptCelsius": 35.0},
+                                                                             "caseCooldownSeconds": 5}}}}
+        self.assertEqual(("run.thermalGate", "run.passes.energy.thermalGate", "run.thermalGate"),
+                         tuple(effective_view.scoped(document, name, "thermalGate") for name in ("timing", "energy", None)))
+        self.assertEqual("run.passes.energy.caseCooldownSeconds", effective_view.scoped(document, "energy", "caseCooldownSeconds"))
+        self.assertEqual(["run.thermalGate", "run.passes.energy.thermalGate"], effective_view.gate_scopes(document))
+        self.assertEqual((36.0, 35.0), (GateView(document).kept, GateView(document, "run.passes.energy.thermalGate").kept))
+        del document["run"]["thermalGate"]
+        self.assertEqual(["run.passes.energy.thermalGate"], effective_view.gate_scopes(document))
+        views = {p.name: (p.gate, p.cooldown) for p in passes.pass_views(RunView({"run": {**document["run"], "metrics": ["TIME"]}}), {"measured"})}
+        self.assertEqual({"timing": ("run.thermalGate", 0), "energy": ("run.passes.energy.thermalGate", 5)}, views)
 
     def test_analysis_falls_back_to_the_written_defaults_only_where_absent(self):
         self.assertEqual(("auto", {"latency": "us"}), (AnalysisView({}).headline, AnalysisView({"analysis": {"units": {"latency": "us"}}}).units))

@@ -72,7 +72,7 @@ def test_pass_arguments_and_pass_names():
 
 
 def test_the_metrics_each_pass_measures():
-    document = {"run": {"metrics": ["TIME", "ALLOCATION"], "passes": {"timing": {"samples": 3}, "energy": {"samples": 2, "minWindowSeconds": 5},
+    document = {"run": {"metrics": ["TIME", "ALLOCATION"], "caseCooldownSeconds": 0, "passes": {"timing": {"samples": 3}, "energy": {"samples": 2, "minWindowSeconds": 5},
                                                                          "allocation": {"samples": 4}}}}
     python = {p.name: p.metrics for p in passes.pass_views(RunView(document), {"measured"})}
     branches = kotlin(AT / "PassArguments.kt", r"metrics\s*=\s*when\s*\(named\)\s*\{(.*?)\n\s*\}", re.S)

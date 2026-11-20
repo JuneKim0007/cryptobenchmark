@@ -39,11 +39,14 @@ OWNED = {name: row.owned for name, row in PASS_ROWS.items() if row.owned}
 
 @dataclasses.dataclass(frozen=True)
 class Pass:
-    """One pass's view: its row of PASS_ROWS with the samples, metrics and minimum window the run gives it."""
+    """One pass's view: its row of PASS_ROWS with the samples, metrics and minimum window the run gives it, the gate scope it holds
+    under and its case cool-down (its own when :config wrote one, else the run's)."""
     name: str | None
     samples: int | None
     metrics: tuple
     min_window: int | None = None
+    gate: str = effective_view.RUN_GATE
+    cooldown: int = 0
 
     @property
     def row(self):
@@ -74,10 +77,11 @@ class Pass:
 def pass_views(view, captures):
     """view: effective_view.RunView. The run's passes in the order written; none configured is the single pass."""
     metrics, configured = view.metrics, view.passes or {}
+    cooldown = lambda name: effective_view.required(view.document, effective_view.scoped(view.document, name, "caseCooldownSeconds"))
     if not configured:
         if "measured" in captures:
             raise CommandError("not_supported: energy.capture measured without run.passes.energy; energy is always measured in its own pass")
-        return [Pass(None, None, tuple(metrics))]
+        return [Pass(None, None, tuple(metrics), cooldown=cooldown(None))]
     if "dry" in captures:
         raise CommandError("not_supported: energy.capture dry with run.passes; the energy pass measures `measured` cases and its samples set the window")
     configured = without_idle_energy(configured, captures)
@@ -86,7 +90,8 @@ def pass_views(view, captures):
     def one(name, value):
         row = PASS_ROWS[name]
         window = effective_view.required(view.document, f"run.passes.{name}.minWindowSeconds") if row.sizing == MIN_WINDOW else None
-        return Pass(name, int(value["samples"]), row.metrics or tuple(m for m in metrics if m not in owned), window)
+        return Pass(name, int(value["samples"]), row.metrics or tuple(m for m in metrics if m not in owned), window,
+                    effective_view.scoped(view.document, name, "thermalGate"), cooldown(name))
     return [one(name, value) for name, value in configured.items()]
 
 

@@ -30,7 +30,7 @@ OWN_LINES = ("run.passes", "run.thermalGate")
 def measure_on_device(run, one, captures, preparation, repetitions, folder, written, measured_blocks):
     device, captures = run.device, one.captures(captures)
     timed = captures - {"dry"}
-    gate = run.gate.session(one.label)
+    gate = run.gate.session(one.label, one.gate)
     hooks = timed_hooks(run, one, gate) if timed else []
     if captures - {"none"}:
         dry = lambda into, guarded: gate.hold("energy dry pass") and dry_pass(run.session, into, preparation, run.problems, guarded)
@@ -100,7 +100,7 @@ def measure_cases(options, device, results, found, problems, require_energy, rec
         print(waits.line())
         source = energy_stage.source(energy, options.energy_python, options.stacktrace)
         run = Measuring(device, EnergySession(device, waits), source, options, discovery, files, problems, order,
-                        view.throttle_sleep, view.case_cooldown, gate_opened(device, document, problems, waits), view.launch_retries, waits, results, record)
+                        view.throttle_sleep, gate_opened(device, document, problems, waits), view.launch_retries, waits, results, record)
         try:
             written, processes = device_cases(run, document, [effective, paths.Configuration.holding(effective).guide, capture, trial], captures, benchmark,
                                               preparation, in_blocks)
@@ -152,7 +152,7 @@ def host_cases(options, document, capture, trial, effective, benchmark, preparat
     repetitions, written = view.process_repetitions, []
     if view.passes:
         warn("run.passes: only a --device run measures in passes; this run measures once per process")
-    if view.thermal_gate:
+    if effective_view.gate_scopes(document):
         warn("TEMPERATURE SET BUT DEVICE CAN'T POLL: host_runtime; running without it", problems)
     for path in effective_view.ignored_on_host(document):
         if path not in OWN_LINES:

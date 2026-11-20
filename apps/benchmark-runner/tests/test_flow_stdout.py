@@ -23,12 +23,20 @@ def suppressed(monkeypatch):
     monkeypatch.setattr(flow, "OPTIONS", types.SimpleNamespace(**{**vars(flow.OPTIONS), "suppress_errors": "EMULATOR"}))
 
 
+# :config writes a pass's own gate in full; the timing pass inherits run.thermalGate
+ENERGY_OWN_GATE = MEASURED | {"thermalGate": CASE["thermalGate"], "passes": {
+    "energy": {**MEASURED["passes"]["energy"], "caseCooldownSeconds": 4, "thermalGate": {**CASE["thermalGate"], "temperatureKeptCelsius": 35.0}},
+    "timing": MEASURED["passes"]["timing"]}}
+
 FLOWS = {
     "case_crash_retried": lambda tmp_path, monkeypatch: measured(tmp_path, monkeypatch, {"launchRetries": 1},
                                                                  cases=("a", "crash", "b"), crash=("crash",)),
     "energy_and_timing_passes": lambda tmp_path, monkeypatch: measured(tmp_path, monkeypatch, MEASURED),
     "gate_energy_passes": lambda tmp_path, monkeypatch: (Heat(monkeypatch, start=35.7, rise=0.2, cooling=0.05),
                                                          measured(tmp_path, monkeypatch, MEASURED | {"thermalGate": CASE["thermalGate"]})),
+    "gate_energy_own": lambda tmp_path, monkeypatch: (Heat(monkeypatch, start=35.7, rise=0.2, cooling=0.05),
+                                                      monkeypatch.setattr(flow.cooldown_hook.time, "sleep", lambda _s: None),
+                                                      measured(tmp_path, monkeypatch, ENERGY_OWN_GATE)),
     "gate_discard": lambda tmp_path, monkeypatch: (Heat(monkeypatch, start=35.7, rise=0.4, cooling=0.05), measured(tmp_path, monkeypatch, CASE)),
     "gate_cooldown": lambda tmp_path, monkeypatch: (Heat(monkeypatch), monkeypatch.setattr(flow.cooldown_hook.time, "sleep", lambda _s: None),
                                                     measured(tmp_path, monkeypatch, CASE | {"caseCooldownSeconds": 4})),

@@ -70,7 +70,7 @@ Each entry's `variants`, else `run.variants` ([operations.md](../apps/benchmark/
 | status | `Thermal Status: <n>`, 0 none to 6 shutdown |
 | section | `Current temperatures from HAL:` (queried when dumpsys runs); when absent or empty, `Cached temperatures:` with note `source: cached` |
 | unavailable | `start`, `end`, statuses null and the reason in `thermalNote`; the case is measured as ever |
-| files | `thermal.json` per process folder (`process` and `cases`; with the gate on also its `gate` baseline and each case's `gate`); `ConvertKt --thermal` puts each case's reading in `benchmark.json` ([results.md](results.md#benchmarkjson-case-fields)) |
+| files | `thermal.json` per process folder (`process` and `cases`; with the gate on also its `gate` baseline (`sensors`, `kept`, `from`: the scope it held under) and each case's `gate`); `ConvertKt --thermal` puts each case's reading in `benchmark.json` ([results.md](results.md#benchmarkjson-case-fields)) |
 | per pass | `thermal:   <pass>: skin <sensor> <c> C at a case start, <c> C at an end; CPU <c> C at a case start, <c> C at an end; <n> pauses, <s> s paused; <n> cases ended throttled (status > 0)`; skin is the gate's reading (live type-3 sensors), CPU the hottest live type-0 sensor, each the maximum over the pass's cases; a side with no reading prints `skin unavailable` or `CPU unavailable`, both `temperature unavailable: <note>`; other sensor types are in `thermal.json` only |
 | cost | two `dumpsys` calls per case, under a second |
 | Jetpack's heat pause | `run.thermalThrottleSleepSeconds` passed as `-e androidx.benchmark.thermalThrottle.sleepDurationSeconds` to every measuring process; unset keeps Jetpack's 90 s |
@@ -81,7 +81,7 @@ Each entry's `variants`, else `run.variants` ([operations.md](../apps/benchmark/
 
 | rule | value |
 |---|---|
-| cool-down | `run.caseCooldownSeconds` (0): the host sleeps before every measured case but each session's first, before the case's temperature and clocks are read |
+| cool-down | `run.caseCooldownSeconds` (0), or the pass's own `run.passes.<p>.caseCooldownSeconds` when :config wrote one: the host sleeps before every measured case but each session's first, before the case's temperature and clocks are read |
 | printed | `cool-down: <pass>: <n> x <s> s = <t> s between cases` per pass when set |
 | with the gate | the cool-down sleeps first, with the gate, the hold comes first ([Thermal gate](#thermal-gate)) |
 | cost | `(cases - 1) x seconds` per pass; at 20 s and 50 cases about 16 min a pass |
@@ -95,14 +95,15 @@ Why: the phone's power controller lowers the CPU limit once skin reaches its own
 
 | step | rule |
 |---|---|
-| on | `run.thermalGate` set; a `--device` run only |
+| on | `run.thermalGate` or a `run.passes.<p>.thermalGate` set; a `--device` run only |
+| scope | a pass holds under `run.passes.<p>.thermalGate` when :config wrote one (merged key by key over `run.thermalGate`), else under `run.thermalGate`; the warm-up holds under `run.thermalGate`; a scope the run does not set is off. `effective_view.scoped` selects, never merges. One `TEMPERATURE GATE SET[ for <scope>]: ...` line per scope |
 | startup | once, before the build: `lib/cryptobench/cryptobench/stages/measurement/thermal.py` `capability`: live type-3 (SKIN) sensors, or one reason. Anything else prints `TEMPERATURE SET BUT DEVICE CAN'T POLL` and the run goes on |
 | start limit | `temperatureKeptCelsius` minus the start margin. `lib/cryptobench/cryptobench/stages/measurement/session/dynamic_temperature.py` is the facade; the arithmetic is in `lib/cryptobench/cryptobench/stages/measurement/start_margin.py` |
 | hold | before every launch of a run, the warm-up and the energy dry pass: above the limit, wait `cooldownMinutes`, then read every `pollMinutes` |
 | end | a run ending at or above `temperatureKeptCelsius` is discarded and measured again; the margin widens by `backoffFactor`, up to `maximumCelsius`; `cleanRunsToRecover` clean runs narrow it by `recoveryCelsius`, never below `initialCelsius` |
 | stop | still too hot after `pollTerminateMinutes`: the benchmark stops with `temperature_gate_timeout` |
 | limit | `discardLimit` discards of one run: `onDiscardLimit`, `nextCase` (the case fails, the next goes on) or `stop` (the benchmark stops); the vocabulary is `codes.yaml` `temperature_discard_limit` `values`, which :config's `ThermalGate.ON_DISCARD_LIMIT` matches (`test_thermal_gate.py`) |
-| read | every gate key through `effective_view.required` when the gate opens: an absent one is `missing_field: run.thermalGate.<key> in effective.yaml`, an unknown `onDiscardLimit` `invalid: run.thermalGate.onDiscardLimit ...`, both before the first case |
+| read | every gate key through `effective_view.required` when the gate opens: an absent one is `missing_field: <scope>.<key> in effective.yaml`, an unknown `onDiscardLimit` `invalid: <scope>.onDiscardLimit ...`, both before the first case |
 | unreadable | a reading is retried `readRetries` times; still unreadable: logged, that run is dropped, the next case goes on; a failed reading is never a pass |
 | refused | a failed launch whose case the device recorded in `skipped.yaml` with a code `codes.yaml` holds as an `outcome` or an `error` (`keystore_unsupported`, `strongbox_unavailable`, `api_too_low`, `not_supported`, ...): `case_skipped: <id>: <code>` in `problems`, not launched again in that process; a record without such a code, or none, is an other failure |
 | all skipped | a process whose every case is `case_skipped`: `all_cases_skipped: ...`, the run stops measuring, its manifest keeps `prepared.yaml` and `skipped.yaml` and no `benchmark.json`, exit 0; a session's row for it is `all_skipped` ([sessions.md](sessions.md)) |

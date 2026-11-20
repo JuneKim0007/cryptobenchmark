@@ -30,7 +30,6 @@ class Measuring:
     order: object
     # None keeps Jetpack's own sleep (effective_view.throttle_sleep)
     throttle_sleep: int | None
-    cooldown: int
     # dynamic_temperature.opened's gate, run.launchRetries, reconnect.Reconnect
     gate: object
     retries: int
@@ -76,7 +75,7 @@ def pass_arguments(run, one, samples=None):
 
 def timed_hooks(run, one, gate):
     """The gate holds in the launch loop, before these; Thermal writes its history into thermal.json."""
-    return [cooldown_hook.Cooldown(run.cooldown, one.label), clocks_hook.Clocks(run.device), thermal_hook.Thermal(run.device, one.label, gate.history)]
+    return [cooldown_hook.Cooldown(one.cooldown, one.label), clocks_hook.Clocks(run.device), thermal_hook.Thermal(run.device, one.label, gate.history)]
 
 
 def thermal_flag(process):

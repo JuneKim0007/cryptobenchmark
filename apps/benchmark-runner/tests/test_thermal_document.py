@@ -36,7 +36,7 @@ def test_convert_reads_the_gate_keys(tmp_path, monkeypatch):
     Heat(monkeypatch)
     measured(tmp_path, monkeypatch, CASE)
     [document] = seen
-    assert document["gate"] == {"sensors": ["skin"], "kept": 36.0} and all("gate" in r for r in document["cases"].values())
+    assert document["gate"] == {"sensors": ["skin"], "kept": 36.0, "from": "run.thermalGate"} and all("gate" in r for r in document["cases"].values())
 
 
 def test_each_process_writes_only_its_own_gate_records(tmp_path, monkeypatch):
