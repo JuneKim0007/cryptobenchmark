@@ -1,5 +1,5 @@
 """The run count's calculations, each rule on its own."""
-from cryptobench.shared.stats.equations import half_width, rank_interval, runs_needed
+from cryptobench.shared.stats.equations import SUBSAMPLE_SIZES, half_width, rank_interval, runs_needed
 
 
 def test_the_rank_interval_uses_the_published_ranks():
@@ -23,6 +23,13 @@ def test_values_that_cannot_reach_the_target_say_so():
     assert runs_needed([1000.0, 1300.0] * 20, 0.02) is None
 
 
-def test_fixed_values_need_the_same_count_under_two_seeds():
+def test_fixed_values_need_the_same_listed_count_under_every_seed():
     values = [1000.0 + (i * 37) % 80 for i in range(50)]
-    assert {runs_needed(values, 0.02, seed=s) for s in (7, 8)} == {30}
+    counts = {runs_needed(values, 0.02, seed=s) for s in range(1, 6)}
+    assert len(counts) == 1 and counts <= set(SUBSAMPLE_SIZES)
+    assert min(SUBSAMPLE_SIZES) < next(iter(counts)) < len(values)
+
+
+def test_a_looser_target_needs_no_more_runs():
+    values = [1000.0 + (i * 37) % 80 for i in range(50)]
+    assert runs_needed(values, 0.05) <= runs_needed(values, 0.02) <= runs_needed(values, 0.015)

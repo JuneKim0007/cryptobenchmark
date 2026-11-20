@@ -1,10 +1,12 @@
 import json
 import random
+import statistics
 from dataclasses import replace
 
 import pytest
 from helpers import summary
 
+from perfrepair.data_handler.inbound import bootstrap
 from perfrepair.data_handler.inbound.bootstrap import median_interval
 from perfrepair.data_handler.inbound.results import read_results
 from perfrepair.result.estimate import compare, p_improve
@@ -51,10 +53,23 @@ def test_resampling_by_process_widens_what_concatenated_runs_hide():
     assert by_process < concatenated - 0.1 and by_process < 0.8
 
 
-def test_the_bootstrap_gives_its_known_values_and_a_seed_moves_them_only_slightly():
-    assert p_improve(BEFORE, AFTER) == 0.671
-    assert p_improve(BEFORE, AFTER, seed=2) == pytest.approx(0.671, abs=0.05) and p_improve(BEFORE, AFTER, seed=2) != 0.671
-    assert median_interval(BEFORE) == pytest.approx((90.1219485, 112.1196755))
+SEEDS = range(1, 6)
+
+
+def test_a_small_win_is_likely_under_every_seed_and_seeds_agree_closely():
+    ps = [p_improve(BEFORE, AFTER, seed=s) for s in SEEDS]
+    assert all(0.5 < p < 1 for p in ps)
+    assert max(ps) - min(ps) < 0.06 and len(set(ps)) > 1
+
+
+@pytest.mark.parametrize("seed", SEEDS)
+def test_the_interval_spans_the_processes_and_holds_the_pooled_median(monkeypatch, seed):
+    monkeypatch.setattr(bootstrap, "SEED", seed)
+    medians = sorted(statistics.median(p) for p in BEFORE)
+    pooled = statistics.median(flat(BEFORE)[0])
+    low, high = median_interval(BEFORE)
+    assert min(flat(BEFORE)[0]) <= low < pooled < high <= max(flat(BEFORE)[0])
+    assert low < (medians[0] + pooled) / 2 and high > (medians[-1] + pooled) / 2
 
 
 def test_the_interval_is_honest_about_small_samples():

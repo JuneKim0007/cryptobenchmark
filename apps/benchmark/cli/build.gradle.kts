@@ -57,6 +57,7 @@ dependencies {
 tasks.test {
     filter { excludeTestsMatching("*ExampleFilesTest") }
     systemProperty("capture.dir", layout.buildDirectory.dir("capture").get().asFile.path)
+    systemProperty("bundled.artifacts", bundledArtifacts.joinToString(","))
     testLogging { showStandardStreams = true }
 }
 

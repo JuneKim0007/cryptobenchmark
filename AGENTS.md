@@ -50,7 +50,7 @@ apps/benchmark-runner/energy/ : the energy scripts --energy-python runs: rails a
 apps/benchmark-runner/explain.py : tool, not a pipeline step: each resolved setting of a run and the file it came from
 apps/benchmark-runner/failure.py : one error line and exit; reported(), a CommandError as that line, around an entry point's main and passed into harness_run
 apps/benchmark-runner/pipeline.py : run driver: stop signals as Ctrl-C, options and refusals, ROUTES (the first set option's stage runs on one StageContext, the plain run last; the routes compose the stages; a route that holds the device locks the phone by serial), one coded failure line; --probe (discover and configure only), --identify (device id, input and harness code digests, nothing written), --devices (adb's transports classified, before any config), --check-session (a session's plan, nothing run), --audit (a campaign's results read, audit.yaml written, before any config), --session (a session's targets as workers), --per-suite
-apps/benchmark-runner/tests/ : pytest and standalone tests for apps/benchmark-runner/
+apps/benchmark-runner/tests/ : pytest tests for apps/benchmark-runner/
 apps/benchmark/build.gradle : root buildscript: Android Gradle plugin and Kotlin plugin versions
 apps/benchmark/cli/ : the host commands: probe, configure, parse-only check, bench, end-to-end check and its diff, convert, merges, interop; JCA contract tests
 apps/benchmark/gradle.properties : Gradle daemon JVM args and AndroidX flags

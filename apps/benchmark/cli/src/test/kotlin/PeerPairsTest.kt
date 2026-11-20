@@ -2,6 +2,7 @@ import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterial
 import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterialGenerator
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 import java.security.Provider
@@ -14,7 +15,8 @@ import javax.crypto.KeyAgreement
 import javax.crypto.interfaces.DHPublicKey
 
 /** An agreement case's two pairs as KeyMaterialGenerator makes them (count = 2, the second through PeerPair): they share parameters and agree.
- * BC runs only with -PbundledArtifacts=org.bouncycastle:bcprov-jdk18on:<version> on the cli build, as .github/workflows/jca-contract.yml does. */
+ * BC runs only with -PbundledArtifacts=org.bouncycastle:bcprov-jdk18on:<version> on the cli build, as .github/workflows/jca-contract.yml does;
+ * once that property names BC, a missing BC fails instead of skipping. */
 class PeerPairsTest {
 
     private data class Observed(val sameParameters: Boolean, val agrees: Boolean)
@@ -61,6 +63,9 @@ class PeerPairsTest {
 
     private fun withBouncyCastle(block: (String) -> Unit) {
         val type = runCatching { Class.forName("org.bouncycastle.jce.provider.BouncyCastleProvider") }.getOrNull()
+        if (System.getProperty("bundled.artifacts").orEmpty().contains("org.bouncycastle:")) {
+            assertNotNull("bundledArtifacts names BouncyCastle but it is not on this classpath", type)
+        }
         assumeTrue("BouncyCastle is not on this classpath", type != null)
         val provider = type!!.getDeclaredConstructor().newInstance() as Provider
         val added = Security.getProvider(provider.name) == null && Security.addProvider(provider) != -1
