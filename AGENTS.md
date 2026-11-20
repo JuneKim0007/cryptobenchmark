@@ -75,7 +75,7 @@ apps/cli/facade/tree.py : the resolved tree: nodes, direction rule, printed line
 apps/cli/tests/ : pytest for the facade
 apps/perf-repair/ : cryptobenchmark results to crypto replacements applied per call site, compiled and interop-checked on a phone
 config/ : authored run configuration: global settings and test sets
-contracts/ : files both languages read: defaults/defaults.yaml, :config's defaults Python reads at run time; documents/, each YAML document with the .json value both must read; yaml-codec/, scalar and string cases and a duplicate-key file; runner/thermal.json as the runner writes it
+contracts/ : files both languages' tests read: documents/, each YAML document with the .json value both must read; yaml-codec/, scalar and string cases and a duplicate-key file; runner/thermal.json as the runner writes it
 docs/ : cross-module fact docs
 docs/contributing/ : directive guides
 lib/cryptobench/ : the Python library the runner and perf-repair share: shared components, the stage framework, the run's stages; map in its AGENTS.md

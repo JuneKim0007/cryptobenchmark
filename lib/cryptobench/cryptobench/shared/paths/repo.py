@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from . import roots
-from .names import (CONFIG_FOLDER, CONTRACT_DEFAULTS, CONTRACT_DOCUMENTS, CONTRACT_RUNNER, CONTRACT_YAML_CODEC, CONTRACTS, ENGINE_OPERATIONS, GLOBAL,
+from .names import (CONFIG_FOLDER, CONTRACT_DOCUMENTS, CONTRACT_RUNNER, CONTRACT_YAML_CODEC, CONTRACTS, ENGINE_OPERATIONS, GLOBAL,
                     SETUP_CATALOG)
 
 _KOTLIN_NAME_USERS = ("modules/environment/discovery/src/main/kotlin", "modules/config/src/main/kotlin", "modules/preparation/src/main/kotlin",
@@ -51,7 +51,6 @@ class Repo:
     contract_documents = property(lambda self: self.contracts / CONTRACT_DOCUMENTS)
     contract_yaml_codec = property(lambda self: self.contracts / CONTRACT_YAML_CODEC)
     contract_runner = property(lambda self: self.contracts / CONTRACT_RUNNER)
-    defaults = property(lambda self: self.contracts / CONTRACT_DEFAULTS / "defaults.yaml")
 
 
 def repo(root: Path | str | None = None) -> Repo:

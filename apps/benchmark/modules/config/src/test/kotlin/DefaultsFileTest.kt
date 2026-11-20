@@ -5,11 +5,10 @@ import io.github.junekim0007.cryptobench.document.YamlCodec
 import io.github.junekim0007.cryptobench.files.ContractsFolder
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import java.io.File
 
 class DefaultsFileTest {
 
-    private val committed = File(ContractsFolder.defaults, "defaults.yaml")
+    private val committed = ContractsFolder.defaults
 
     @Test
     fun committedDefaultsIsWhatThisBuildWrites() {

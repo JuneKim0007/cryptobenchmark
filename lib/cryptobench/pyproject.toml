@@ -15,3 +15,4 @@ exclude = ["*.tests", "*.tests.*"]
 
 [tool.setuptools.package-data]
 "cryptobench.shared.errors" = ["codes.yaml"]
+"cryptobench.shared.settings" = ["defaults.yaml"]

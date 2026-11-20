@@ -8,7 +8,6 @@ object Folders {
     const val DEVICE_PLAN = "cryptobench"
     const val SCOPE_KEYS = "scope-keys"
     const val CONTRACTS = "contracts"
-    const val CONTRACT_DEFAULTS = "defaults"
     const val CONTRACT_DOCUMENTS = "documents"
     const val CONTRACT_YAML_CODEC = "yaml-codec"
     const val CONTRACT_RUNNER = "runner"

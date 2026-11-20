@@ -1,4 +1,4 @@
-"""What a config node's harness.energy asks for: its capture and its source, else the default given; the defaults are contracts/defaults/defaults.yaml run.harness.energy, which a test pins.
+"""What a config node's harness.energy asks for: its capture and its source, else the default given; the defaults are shared/settings/defaults.yaml run.harness.energy, which a test pins.
 A copy of energy/capture.py, which the --energy-python scripts import; a parity test keeps the two equal."""
 
 

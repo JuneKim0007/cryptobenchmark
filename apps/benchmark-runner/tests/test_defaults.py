@@ -1,4 +1,4 @@
-"""contracts/defaults/defaults.yaml, which :config's DefaultsFileTest pins to what Kotlin writes, is where the Python readers take their defaults."""
+"""lib/cryptobench/cryptobench/shared/settings/defaults.yaml, which :config's DefaultsFileTest pins to what Kotlin writes, is where the Python readers take their defaults."""
 from cryptobench.shared.settings import defaults, energy_capture
 
 
