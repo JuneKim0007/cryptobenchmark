@@ -14,7 +14,6 @@ from cryptobench.shared.log.emit import emit
 from cryptobench.shared.stop.terminate import terminate
 from .selection import generated, relocated
 
-# :config's run.metrics for a config without one, from cryptobench/shared/settings/defaults.yaml
 DEFAULT_METRICS = tuple(defaults.at("run.metrics"))
 ALLOCATION_RUN = "ALLOCATION"
 ALLOCATION_PASS = "allocation"
