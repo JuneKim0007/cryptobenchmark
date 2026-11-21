@@ -273,7 +273,7 @@ def test_each_pass_is_its_own_session_and_every_metric_comes_from_its_pass(tmp_p
     assert named == ["timing:300", "timing:300", "energy:3", "energy:75", "energy:3", "energy:75", "allocation:100", "allocation:100"]
     assert steps(phone).count("window open") == 1 and steps(phone).index("window open") > steps(phone).index("instrument CryptoBenchmark b")
     # the energy pass converts again after the end idle reading, which follows the last pass
-    assert [c.split("--metrics=")[1].split(" --thermal")[0] for c in phone.converted] == ["TIME --samples=300", "TIME --uncleaned", "TIME,ALLOCATION --samples=100",
+    assert [c.split("--metrics=")[1].split(" --thermal")[0] for c in phone.converted] == ["TIME", "TIME --uncleaned", "TIME,ALLOCATION",
                                                                                          "TIME --uncleaned"]
     merged = json.loads((results / "benchmark/benchmark.json").read_text())["cases"][0]["metrics"]
     assert merged == {"timeNs": {"runs": [1.0]}, "energyJ": {"runs": [2.0]}, "allocationCount": {"runs": [3.0]}}

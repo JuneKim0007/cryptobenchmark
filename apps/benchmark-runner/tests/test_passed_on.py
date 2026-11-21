@@ -16,7 +16,7 @@ CODED = re.compile(r'(?:System\.err\.println\(\s*|dropped\s*\+=\s*|findings\s*\+
 LITERAL = re.compile(r'"([a-z_]+:)[ "$]')
 
 EMITTED = {"error:", "usage:", "warning:", "skipped:", "reused:", "energy_not_joined:", "not_in_plan:", "no_metrics:", "not_converted:",
-           "iterations_not_applied:", "allocation_runs_changed:", "not_merged:", "runtime_differs:"}
+           "allocation_runs_changed:", "not_merged:", "runtime_differs:"}
 # codes of exception messages: a main prints them after error:, never as their own line
 RAISED = {"missing_field:", "missing_file:", "nothing_converted:", "nothing_measured:", "nothing_merged:", "nothing_prepared:", "unequal_samples:"}
 
@@ -41,9 +41,8 @@ def test_current_behaviour_every_printed_code_is_passed_on_but_runtime_differs()
 
 
 def test_current_behaviour_a_runtime_mismatch_is_not_passed_on(capsys):
-    notices = []
-    gradle_runner.pass_on(["not_merged: a: process 2: x", "runtime_differs: model: process 1 m, process 2 n", "merged=1 processes=2"], notices)
-    assert notices == ["not_merged: a: process 2: x"] and capsys.readouterr().out == "not_merged: a: process 2: x\n"
+    gradle_runner.pass_on(["not_merged: a: process 2: x", "runtime_differs: model: process 1 m, process 2 n", "merged=1 processes=2"])
+    assert capsys.readouterr().out == "not_merged: a: process 2: x\n"
 
 
 def test_current_behaviour_bench_progress_after_a_skip_joins_the_failure_message():

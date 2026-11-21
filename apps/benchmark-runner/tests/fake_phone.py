@@ -47,7 +47,7 @@ class Phone(device_module.Device):
         # case id -> the skipped.yaml record DevicePlan writes when its preparation refuses the case
         self.refuse, self.skips = dict(refuse or {}), []
         self.written, self.log, self.ran, self.arguments, self.converted = [], [], [], [], []
-        self.thermal, self.notices, self.boot, self.convert_fails = thermal, [], "boot-1", None
+        self.thermal, self.boot, self.convert_fails = thermal, "boot-1", None
         # the cryptobench.samples the last launch asked for; androidx gives exactly that many
         self.samples = 1
 
@@ -178,10 +178,8 @@ class Energy:
             paths[-1].write_text(json.dumps({"written": self.written}))
 
 
-def fake_convert(phone, arguments, words, notices):
+def fake_convert(phone, arguments, words):
     phone.log.append("convert")
-    if notices is not None:
-        notices.extend(phone.notices)
     data, into = pathlib.Path(words[0]), pathlib.Path(words[2])
     names = [b["name"][8:-1] for b in json.loads(data.read_text())["benchmarks"]]
     into.mkdir(parents=True, exist_ok=True)
@@ -218,14 +216,14 @@ def fake_merge_runs(phone, words):
 
 def fake_tools(monkeypatch, phone):
     """ConvertKt, MergePassesKt and MergeRunsKt: the same files as the real tools, from the fake data."""
-    def run(arguments, _stacktrace, _stream=False, *, main_class, notices=None, failed=gradle_runner._stop):
+    def run(arguments, _stacktrace, _stream=False, *, main_class, failed=gradle_runner._stop):
         words = arguments.split()
         if main_class == "ConvertKt" and phone.convert_fails and phone.convert_fails(words):
             phone.log.append("convert failed")
             failed("nothing_converted: no benchmark gave a row")
             return []
         if main_class == "ConvertKt":
-            fake_convert(phone, arguments, words, notices)
+            fake_convert(phone, arguments, words)
         elif main_class == "MergePassesKt":
             fake_merge_passes(phone, words)
         elif main_class == "MergeRunsKt":

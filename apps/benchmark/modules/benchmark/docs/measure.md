@@ -122,7 +122,7 @@ Harness settings as plain values, no androidx type.
 | `timeNs.iterations` | `repeatIterations`, default 1 |
 | `allocationCount.iterations` | 1 |
 | `allocationSamples` written (an allocation pass) | read as `allocationCount`, one run per sample; `allocation_runs_changed` is not checked |
-| a pass (`ConvertKt --metrics=... --samples=n`) | the pass's metrics replace the case's `metrics`; `n` replaces `iterations` in `iterations_not_applied` |
+| a pass (`ConvertKt --metrics=...`) | the pass's metrics replace the case's `metrics` |
 | case shape | algorithm, provider, operation, sizes, `keyKind`, `variant` from the `prepared.yaml` case |
 | `parameters` | the case's `resolvedParameters`; absent: `not_converted: <id>: missing_field: resolvedParameters for <id>; ...` |
 | androidx.benchmark | 1.5.0 |
@@ -137,7 +137,6 @@ Harness settings as plain values, no androidx type.
 
 | `RunCountAudit` line | when |
 |---|---|
-| `iterations_not_applied: <id> asked for N, timeNs has M runs` | timing runs differ from requested iterations |
 | `allocation_runs_changed: ...` | allocation runs differ from 5 |
 
 `ConvertKt` and `MergeRunsKt` command lines: `docs/tools.md`.

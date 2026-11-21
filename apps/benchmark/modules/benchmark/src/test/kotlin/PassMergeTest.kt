@@ -81,12 +81,12 @@ class PassMergeTest {
     }
 
     @Test
-    fun anAllocationPassReadsOneRunPerSampleAndItsOwnSampleCount() {
+    fun anAllocationPassReadsOneRunPerSample() {
         val example = File("example")
         val sampled = File(example, "benchmark_jetpack_example.json").readText()
             .replaceFirst("\"allocationCount\": {", "\"allocationSamples\": {\"runs\": [4.0, 4.0, 4.0]},\n        \"allocationCount\": {")
         val converted = JetpackResults.convert(sampled, File(example, "benchmark_prepared_example.yaml").readText(),
-            metrics = listOf("TIME", "ALLOCATION"), samples = 3)
+            metrics = listOf("TIME", "ALLOCATION"))
         val digest = converted.rows.single { it.algorithm == "SHA-256" }
         assertEquals(listOf(4.0, 4.0, 4.0), digest.metrics[MetricSamples.ALLOCATIONS]?.runs)
         assertEquals(true, converted.notApplied.none { it.startsWith("allocation_runs_changed: ${digest.id}") })

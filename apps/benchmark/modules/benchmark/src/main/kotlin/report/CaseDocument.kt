@@ -44,8 +44,6 @@ internal object CaseDocument {
         return ReportedStats(values[0], values[1], values[2], values[3])
     }
 
-    fun requestedIterations(case: Map<String, Any>): Int? = integer(optionalSection(case["harness"])?.get("iterations"))
-
     @Suppress("UNCHECKED_CAST")
     fun row(case: Map<String, Any>, metrics: Map<String, MetricSamples>, parameters: Map<String, Any>,
             sleep: Long? = (case[SLEEP] as? Number)?.toLong(), thermal: Map<String, Any?>? = case[THERMAL] as? Map<String, Any?>,

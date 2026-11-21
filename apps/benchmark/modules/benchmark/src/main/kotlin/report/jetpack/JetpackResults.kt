@@ -15,10 +15,10 @@ object JetpackResults {
     // dropped: one coded line per benchmark that gave no row: not_in_plan, no_metrics, not_converted
     class Converted(val runtime: Map<String, String>, val rows: List<ResultRow>, val dropped: List<String>, val notApplied: List<String> = emptyList())
 
-    // metrics: a set the run reports instead of each case's own; samples: a pass's own count; thermal: thermal.json's readings by case id;
+    // metrics: a set the run reports instead of each case's own; thermal: thermal.json's readings by case id;
     // cleaned: false only for the energy pass, the one pass that collects no garbage between samples
     fun convert(benchmarkDataText: String, preparedText: String, energy: Map<String, MetricSamples> = emptyMap(), metrics: List<String>? = null,
-                samples: Int? = null, thermal: Map<String, Map<String, Any?>> = emptyMap(), cleaned: Boolean = true): Converted {
+                thermal: Map<String, Map<String, Any?>> = emptyMap(), cleaned: Boolean = true): Converted {
         val data = CaseDocument.load(benchmarkDataText)
         val prepared = CaseDocument.load(preparedText)
         val cases = CaseDocument.sections(prepared["cases"]).associateBy { case -> case["id"].toString() }
@@ -42,7 +42,7 @@ object JetpackResults {
                 val reading = thermal[id]
                 rows += CaseDocument.row(case, measured, resolvedParametersOf(id, case), (benchmark[CaseDocument.SLEEP] as? Number)?.toLong(),
                     reading?.filterKeys { it in CaseDocument.THERMAL_KEYS }, reading?.get(CaseDocument.NOTE)?.toString(), gateOf(reading))
-                notApplied += RunCountAudit.findings(id, samples ?: CaseDocument.requestedIterations(case), measured, sampledAllocations(benchmark))
+                notApplied += RunCountAudit.findings(id, measured, sampledAllocations(benchmark))
             } catch (unusable: RuntimeException) {
                 dropped += "not_converted: $id: ${unusable.message ?: unusable.javaClass.simpleName}"
             }

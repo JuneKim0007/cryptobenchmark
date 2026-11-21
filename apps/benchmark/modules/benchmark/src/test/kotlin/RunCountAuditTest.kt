@@ -14,25 +14,15 @@ class RunCountAuditTest {
     ).apply { allocations?.let { put(MetricSamples.ALLOCATIONS, MetricSamples(runs(it), 1)) } }
 
     @Test
-    fun runsThatMatchWhatWasAskedForAreSilent() {
-        assertEquals(emptyList<String>(), RunCountAudit.findings("a", 50, metrics(50, 5)))
-    }
-
-    @Test
-    fun aSettingThatNeverReachedTheTimerIsNamed() {
-        assertEquals(listOf("iterations_not_applied: a asked for 5, timeNs has 50 runs"), RunCountAudit.findings("a", 5, metrics(50)))
-    }
-
-    @Test
-    fun aCaseThatAskedForNothingIsNotHeldToAnything() {
-        assertEquals(emptyList<String>(), RunCountAudit.findings("a", null, metrics(50)))
+    fun allocationRunsAsAndroidxUsesThemAreSilent() {
+        assertEquals(emptyList<String>(), RunCountAudit.findings("a", metrics(50, 5)))
     }
 
     @Test
     fun allocationRunsAreHeldToWhatAndroidxUses() {
         assertEquals(
             listOf("allocation_runs_changed: a has 50 allocationCount runs, androidx used 5 when this was written"),
-            RunCountAudit.findings("a", null, metrics(50, 50)),
+            RunCountAudit.findings("a", metrics(50, 50)),
         )
     }
 }

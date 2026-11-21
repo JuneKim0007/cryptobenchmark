@@ -69,9 +69,7 @@ class Pass:
     def convert_flags(self):
         if self.name is None:
             return ""
-        # a sized pass's cases ran with their own samples (energy-samples.yaml), so ConvertKt is not told one count
-        samples = f" --samples={self.samples}" if self.row.sizing == FIXED else ""
-        return f" --metrics={','.join(self.metrics)}{samples}" + ("" if self.row.cleaned else " --uncleaned")
+        return f" --metrics={','.join(self.metrics)}" + ("" if self.row.cleaned else " --uncleaned")
 
 
 def pass_views(view, captures):

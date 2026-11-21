@@ -38,9 +38,9 @@ def measure_on_device(run, one, captures, preparation, repetitions, folder, writ
         energy = energy_hook.EnergyCapture(run.source, run.session, captures, run.discovery, preparation, run.problems, dry, bool(timed))
         hooks.insert(0, energy)
 
-    def conversion(process, joules, into, problems=None):
+    def conversion(process, joules, into):
         joined = f" {joules}" if "measured" in captures and joules.is_file() else ""
-        convert(run, f"{process.data} {paths.Preparation(preparation).prepared} {into}{joined}{one.convert_flags()}{thermal_flag(process)}", problems)
+        convert(run, f"{process.data} {paths.Preparation(preparation).prepared} {into}{joined}{one.convert_flags()}{thermal_flag(process)}")
 
     def again(process):
         """Into the staging folder; energy_end swaps the files in once every process succeeded."""
@@ -48,7 +48,7 @@ def measure_on_device(run, one, captures, preparation, repetitions, folder, writ
         energy.written(process, staged.energy)
         if not timed:
             return [(staged.energy, at.energy)]
-        conversion(process, staged.energy, staged.root, problems=[])
+        conversion(process, staged.energy, staged.root)
         return [(staged.energy, at.energy), (staged.json, at.json)]
 
     def converted(process):

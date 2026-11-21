@@ -6,19 +6,17 @@ import io.github.junekim0007.cryptobench.files.FileNames
 import java.io.File
 
 private const val METRICS = "--metrics="
-private const val SAMPLES = "--samples="
 private const val THERMAL = "--thermal="
 private const val UNCLEANED = "--uncleaned"
-private val FLAGS = listOf(METRICS, SAMPLES, THERMAL, UNCLEANED)
+private val FLAGS = listOf(METRICS, THERMAL, UNCLEANED)
 
 fun main(arguments: Array<String>) = command(arguments,
-    "<benchmarkData.json> <${FileNames.PREPARED}> <output directory> [${FileNames.ENERGY_JSON}] [--metrics=TIME,...] [--samples=n] [--thermal=thermal.json] [--uncleaned]",
+    "<benchmarkData.json> <${FileNames.PREPARED}> <output directory> [${FileNames.ENERGY_JSON}] [--metrics=TIME,...] [--thermal=thermal.json] [--uncleaned]",
     { it.count { argument -> !argument.startsWith("--") } >= 3 && it.filter { argument -> argument.startsWith("--") }.all { flag -> FLAGS.any { flag.startsWith(it) } } }) {
     val (flags, positional) = arguments.partition { it.startsWith("--") }
     val metrics = flags.lastOrNull { it.startsWith(METRICS) }?.removePrefix(METRICS)?.split(',')
-    val samples = flags.lastOrNull { it.startsWith(SAMPLES) }?.removePrefix(SAMPLES)?.toInt()
     val thermal = flags.firstOrNull { it.startsWith(THERMAL) }?.removePrefix(THERMAL)?.let { JetpackResults.thermalOf(File(it).readText()) }.orEmpty()
-    val converted = JetpackResults.convert(File(positional[0]).readText(), File(positional[1]).readText(), energy(positional.getOrNull(3)), metrics, samples, thermal, cleaned = UNCLEANED !in flags)
+    val converted = JetpackResults.convert(File(positional[0]).readText(), File(positional[1]).readText(), energy(positional.getOrNull(3)), metrics, thermal, cleaned = UNCLEANED !in flags)
     converted.dropped.forEach { System.err.println(it) }
     converted.notApplied.forEach { System.err.println(it) }
     check(converted.rows.isNotEmpty()) { "nothing_converted: no benchmark in ${positional[0]} gave a row" }

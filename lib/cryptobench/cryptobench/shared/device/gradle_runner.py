@@ -12,7 +12,7 @@ from cryptobench.shared.log.stdout import ERROR
 
 WRAPPER = paths.repo().gradlew
 CLI = paths.repo().benchmark_cli
-PASSED_ON = ("warning:", "skipped:", "reused:", "iterations_not_applied:", "allocation_runs_changed:", "not_in_plan:", "no_metrics:",
+PASSED_ON = ("warning:", "skipped:", "reused:", "allocation_runs_changed:", "not_in_plan:", "no_metrics:",
              "not_converted:", "not_merged:", "energy_not_joined:")
 # the wrapper prints these on stdout the first time it unpacks a distribution, before the tool runs
 BOOTSTRAP = ("Downloading https://services.gradle.org/", "Set executable permissions for:", "Unzipping ", "Welcome to Gradle")
@@ -63,8 +63,8 @@ def _stop(message):
     raise CommandError(message)
 
 
-def run(arguments, stacktrace, stream=False, *, main_class, notices=None, properties=(), failed=_stop):
-    """notices, when given, collects every passed-on line, so a caller can record it; properties are -P build properties;
+def run(arguments, stacktrace, stream=False, *, main_class, properties=(), failed=_stop):
+    """properties are -P build properties;
     failed takes the failure's lines instead of stopping the run, for a caller that keeps what the tool wrote before it died."""
     if not WRAPPER.is_file():
         raise CommandError(f"missing_file: {WRAPPER}")
@@ -80,16 +80,14 @@ def run(arguments, stacktrace, stream=False, *, main_class, notices=None, proper
     if result.returncode != 0:
         if stacktrace:
             print("\n".join(output), file=sys.stderr)
-        pass_on(output, notices)
+        pass_on(output)
         failed(failure_message(output))
         return []
-    pass_on(output, notices)
+    pass_on(output)
     return tool_lines(result.stdout)
 
 
-def pass_on(output, notices):
-    passed = [line for line in output if line.startswith(PASSED_ON)]
-    for line in passed:
-        print(line)
-    if notices is not None:
-        notices.extend(passed)
+def pass_on(output):
+    for line in output:
+        if line.startswith(PASSED_ON):
+            print(line)

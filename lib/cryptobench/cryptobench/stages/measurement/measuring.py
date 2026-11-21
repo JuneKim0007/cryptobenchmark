@@ -43,11 +43,8 @@ class Measuring:
     record: dict
 
 
-def convert(run, arguments, problems=None):
-    """ConvertKt on one process; a case that did not get the samples it asked for is a problem the manifest records (problems, when given, instead)."""
-    notices = []
-    gradle_runner.run(arguments, run.options.stacktrace, run.options.stream, main_class="ConvertKt", notices=notices)
-    (run.problems if problems is None else problems).extend(line for line in notices if line.startswith("iterations_not_applied:"))
+def convert(run, arguments):
+    gradle_runner.run(arguments, run.options.stacktrace, run.options.stream, main_class="ConvertKt")
 
 
 def gate_opened(device, document, problems, waits):

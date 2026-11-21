@@ -120,14 +120,6 @@ class JetpackResultsTest {
         assertEquals(null, CaseDocument.reportedStats(null))
     }
 
-    @Test
-    fun aSettingThatNeverReachedTheTimerIsReportedWhenTheFileIsConverted() {
-        val plan = File(example, "benchmark_prepared_example.yaml").readText()
-            .replaceFirst("  harness: {iterations: 5}\n  key: {kind: none}", "  harness: {iterations: 7}\n  key: {kind: none}")
-        val audited = JetpackResults.convert(File(example, "benchmark_jetpack_example.json").readText(), plan)
-        assertEquals(listOf("iterations_not_applied: MessageDigest_SHA-256_DIGEST_AndroidOpenSSL_i1024_WARM_fixed asked for 7, timeNs has 5 runs"), audited.notApplied)
-    }
-
     private companion object {
 
         const val NO_METRICS = """

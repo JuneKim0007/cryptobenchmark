@@ -29,9 +29,9 @@ def test_without_a_gate_the_document_ends_with_a_null_gate_and_no_case_has_one(t
 def test_convert_reads_the_gate_keys(tmp_path, monkeypatch):
     seen, real = [], fake_phone.fake_convert
 
-    def convert(phone, arguments, words, notices):
+    def convert(phone, arguments, words):
         seen.append(json.loads(pathlib.Path(arguments.split("--thermal=")[1].split()[0]).read_text()))
-        return real(phone, arguments, words, notices)
+        return real(phone, arguments, words)
     monkeypatch.setattr(fake_phone, "fake_convert", convert)
     Heat(monkeypatch)
     measured(tmp_path, monkeypatch, CASE)

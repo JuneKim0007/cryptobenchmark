@@ -88,7 +88,7 @@ class MainExitsTest {
             ConfigureKt 0 args | exit 2 | usage: configure <probe_*.yaml> <trial_*.yaml> <configuration output directory> [<global.yaml>] [--facts=<facts.yaml>]
             ConfigureKt 3 args | exit 1 | error: missing_file: <tmp>/missing/probe.yaml
             ConfigureKt 3 args | exit 1 | error: unreadable_yaml: probe.yaml: while parsing a flow sequence
-            ConvertKt 0 args | exit 2 | usage: <benchmarkData.json> <prepared.yaml> <output directory> [energy.json] [--metrics=TIME,...] [--samples=n] [--thermal=thermal.json] [--uncleaned]
+            ConvertKt 0 args | exit 2 | usage: <benchmarkData.json> <prepared.yaml> <output directory> [energy.json] [--metrics=TIME,...] [--thermal=thermal.json] [--uncleaned]
             ConvertKt 3 args | exit 1 | error: <tmp>/missing/benchmarkData.json (No such file or directory)
             ConvertKt 3 args | exit 1 | error: while parsing a flow sequence
             MergePassesKt 0 args | exit 2 | usage: <output directory> <base benchmark.json> [<metric key>=<benchmark.json> ...]
