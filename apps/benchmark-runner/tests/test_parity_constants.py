@@ -166,7 +166,7 @@ def manafa_written_version():
         return yaml.safe_load(out.read_text())["schemaVersion"]
 
 
-def test_the_names_file_both_readers_load():
+def test_the_names_file_name_is_one_in_both_languages():
     assert paths.ALGORITHM_NAMES == const("document/src/main/kotlin/names/AlgorithmNames.kt", "FILE")
 
 
