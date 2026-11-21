@@ -23,9 +23,10 @@ def test_the_named_files_are_against_the_global_file(tmp_path):
 
 @pytest.mark.parametrize("case", BESIDE["cases"], ids=lambda case: case["value"])
 def test_the_test_set_path_is_kotlins_beside_authored(case):
-    assert str(paths.beside(BESIDE["settingsFile"], case["value"])) == case["path"]
+    # location parity: pathlib drops a "." part that java.io.File keeps
+    assert paths.beside(BESIDE["settingsFile"], case["value"]) == Path(case["path"])
     given = authored.Authored(Path(BESIDE["settingsFile"]), {"selection": {"testSet": case["value"]}})
-    assert str(given.test_set) == case["path"]
+    assert given.test_set == Path(case["path"])
 
 
 def test_nothing_named_is_none_and_no_bundled(tmp_path):

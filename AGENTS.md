@@ -84,7 +84,7 @@ docs/contributing/ : directive guides
 lib/cryptobench/ : the Python library the runner and perf-repair share: shared components, the stage framework, the run's stages; map in its AGENTS.md
 pytest.ini : the Python apps' source folders, and the test folders other tests import, on the test path for pytest from the repository root
 requirements.txt : every host Python dependency
-tests/contracts/ : fixtures both languages' tests read: documents/, the .json value each must read a module example (config global and effective, preparation guide) to, and the facts and known-answers Python writes with theirs, beside-authored.json the test-set path cases; yaml-codec/, scalar and string cases and a duplicate-key file; runner/thermal.json as the runner writes it
+tests/contracts/ : fixtures both languages' tests read: documents/, the .json value each must read a module example (config global and effective, preparation guide) to, and the facts and known-answers Python writes with theirs, beside-authored.json the test-set path cases (Kotlin the exact path text, Python the same location); yaml-codec/, scalar and string cases and a duplicate-key file; runner/thermal.json as the runner writes it
 tools/android-api-check/ : compiles jca, document, discovery, settings, records, catalogue, preparation, benchmark against android.jar without the JDK
 tools/dead-code-allow.txt : vulture findings the dead-code check keeps, each with its reason
 tools/dead_code.py : dead-code check: vulture minus the allowlist; local only, fails without vulture
