@@ -1,7 +1,7 @@
 import io.github.junekim0007.cryptobench.benchmark.check.EnergyCapability
 import io.github.junekim0007.cryptobench.benchmark.report.energy.EnergyWindows
 import io.github.junekim0007.cryptobench.config.source.CaptureSource
-import io.github.junekim0007.cryptobench.config.yaml.YamlFiles
+import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import io.github.junekim0007.cryptobench.discovery.write.CaptureDocument
 import io.github.junekim0007.cryptobench.discovery.write.RequirementDocument
 import io.github.junekim0007.cryptobench.discovery.write.TrialDocument
@@ -31,7 +31,7 @@ class SchemaRefusalsTest {
         val file = folder.newFile("probe_x.yaml").apply { writeText("schemaVersion: 99\n") }
         val table = linkedMapOf(
             "document AlgorithmNames" to refusal { AlgorithmNames.parse(wrong) },
-            "config ReadOnlyYamlFile" to refusal { YamlFiles().readOnly(file, CaptureSource).read() },
+            "config VersionedFile" to refusal { YamlFiles().readOnly(file, CaptureSource).read() },
             "preparation DocumentFile" to refusal { DocumentFile.read("skipped.yaml", "schemaVersion: 99\n", 1) },
             "discovery CaptureDocument" to refusal { CaptureDocument.parse(wrong) },
             "discovery TrialDocument" to refusal { TrialDocument.parse(wrong) },
@@ -46,7 +46,7 @@ class SchemaRefusalsTest {
         // reader | refusal
         val EXPECTED = """
             document AlgorithmNames | unsupported_schema_version: algorithm-names.yaml: 99, this build reads 1
-            config ReadOnlyYamlFile | unsupported_schema_version: probe_x.yaml: 99, this build reads 1
+            config VersionedFile | unsupported_schema_version: probe_x.yaml: 99, this build reads 1
             preparation DocumentFile | unsupported_schema_version: skipped.yaml: 99, this build reads 1
             discovery CaptureDocument | unsupported_schema_version: probe: 99, this build reads 1
             discovery TrialDocument | unsupported_schema_version: trial: 99, this build reads 3

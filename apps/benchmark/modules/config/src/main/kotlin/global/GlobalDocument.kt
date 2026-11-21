@@ -6,8 +6,8 @@ import io.github.junekim0007.cryptobench.config.global.dto.Policy
 import io.github.junekim0007.cryptobench.config.global.dto.ProviderSources
 import io.github.junekim0007.cryptobench.config.global.dto.Selection
 import io.github.junekim0007.cryptobench.config.testset.RuleDocument
-import io.github.junekim0007.cryptobench.config.yaml.DocumentHandler
-import io.github.junekim0007.cryptobench.config.yaml.ReadOnlyYamlFile
+import io.github.junekim0007.cryptobench.document.versioned.DocumentHandler
+import io.github.junekim0007.cryptobench.document.SchemaVersion
 import io.github.junekim0007.cryptobench.document.DocumentFields.expectKeys
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSection
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSections
@@ -37,7 +37,7 @@ object GlobalDocument : DocumentHandler<GlobalConfig> {
     ).apply { if (value.providers.bundled.isNotEmpty()) put(PROVIDERS, ProvidersDocument.of(value.providers)) }
 
     override fun parse(document: Map<String, Any>): GlobalConfig {
-        val unknown = document.keys.filter { it != ReadOnlyYamlFile.SCHEMA_VERSION && it !in SECTIONS }
+        val unknown = document.keys.filter { it != SchemaVersion.FIELD && it !in SECTIONS }
         require(unknown.isEmpty()) { "unknown_section: $unknown, known $SECTIONS" }
         return GlobalConfig(
             selection = selection(section(document, SELECTION)),

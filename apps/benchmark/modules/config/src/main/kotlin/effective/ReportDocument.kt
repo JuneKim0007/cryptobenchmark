@@ -1,8 +1,8 @@
 package io.github.junekim0007.cryptobench.config.effective
 
 import io.github.junekim0007.cryptobench.config.effective.dto.Report
-import io.github.junekim0007.cryptobench.config.yaml.DocumentHandler
-import io.github.junekim0007.cryptobench.config.yaml.ReadOnlyYamlFile
+import io.github.junekim0007.cryptobench.document.versioned.DocumentHandler
+import io.github.junekim0007.cryptobench.document.SchemaVersion
 import io.github.junekim0007.cryptobench.document.DocumentFields.expectKeys
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSections
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalStringOrNull
@@ -24,7 +24,7 @@ object ReportDocument : DocumentHandler<Report> {
     }
 
     override fun parse(document: Map<String, Any>): Report {
-        expectKeys(document, listOf(ReadOnlyYamlFile.SCHEMA_VERSION, RUN_ID, WARNINGS, SKIPPED), "report")
+        expectKeys(document, listOf(SchemaVersion.FIELD, RUN_ID, WARNINGS, SKIPPED), "report")
         return Report(
             runId = optionalStringOrNull(document, RUN_ID),
             warnings = optionalStrings(document, WARNINGS),

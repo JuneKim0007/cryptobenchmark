@@ -1,4 +1,4 @@
-package io.github.junekim0007.cryptobench.config.yaml
+package io.github.junekim0007.cryptobench.document.versioned
 
 interface DocumentHandler<T> : DocumentReader<T> {
 

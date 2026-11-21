@@ -1,6 +1,7 @@
-package io.github.junekim0007.cryptobench.config.yaml
+package io.github.junekim0007.cryptobench.document.versioned
 
 import io.github.junekim0007.cryptobench.document.AtomicFile
+import io.github.junekim0007.cryptobench.document.SchemaVersion
 import io.github.junekim0007.cryptobench.document.YamlCodec
 import java.io.File
 
@@ -10,12 +11,12 @@ class YamlFile<T> internal constructor(
     private val codec: YamlCodec,
 ) {
 
-    private val reader = ReadOnlyYamlFile(file, handler, codec)
+    private val reader = VersionedFile(file, handler, codec)
 
     fun read(): T = reader.read()
 
     fun write(value: T): File {
-        val document = linkedMapOf<String, Any>(ReadOnlyYamlFile.SCHEMA_VERSION to handler.schemaVersion)
+        val document = linkedMapOf<String, Any>(SchemaVersion.FIELD to handler.schemaVersion)
         document.putAll(handler.of(value))
         return AtomicFile.write(file, codec.dump(document))
     }

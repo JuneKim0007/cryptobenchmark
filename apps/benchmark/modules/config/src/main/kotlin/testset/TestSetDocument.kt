@@ -20,8 +20,8 @@ import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSection
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalString
 import io.github.junekim0007.cryptobench.document.DocumentFields.section
 import io.github.junekim0007.cryptobench.document.DocumentFields.strings
-import io.github.junekim0007.cryptobench.config.yaml.DocumentHandler
-import io.github.junekim0007.cryptobench.config.yaml.ReadOnlyYamlFile
+import io.github.junekim0007.cryptobench.document.versioned.DocumentHandler
+import io.github.junekim0007.cryptobench.document.SchemaVersion
 
 object TestSetDocument : DocumentHandler<TestSet> {
 
@@ -52,7 +52,7 @@ object TestSetDocument : DocumentHandler<TestSet> {
     )
 
     override fun parse(document: Map<String, Any>): TestSet {
-        expectKeys(document, listOf(ReadOnlyYamlFile.SCHEMA_VERSION, DESCRIPTION, INCLUDE, EXCLUDE, OVERRIDES), "testSet")
+        expectKeys(document, listOf(SchemaVersion.FIELD, DESCRIPTION, INCLUDE, EXCLUDE, OVERRIDES), "testSet")
         val notices = mutableListOf<String>()
         return TestSet(
             description = optionalString(document, DESCRIPTION),

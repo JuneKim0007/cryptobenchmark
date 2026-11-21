@@ -69,12 +69,7 @@ apps/benchmark/modules/config/src/main/kotlin/testset/dto/Include.kt : one inclu
 apps/benchmark/modules/config/src/main/kotlin/testset/dto/Override.kt : one override and its validation
 apps/benchmark/modules/config/src/main/kotlin/testset/dto/Rule.kt : rule matching through AlgorithmNames, and specificity
 apps/benchmark/modules/config/src/main/kotlin/testset/dto/TestSet.kt : test-set model
-apps/benchmark/modules/config/src/main/kotlin/yaml/DocumentHandler.kt : reader and writer interface
-apps/benchmark/modules/config/src/main/kotlin/yaml/DocumentReader.kt : reader interface with schemaVersion
 apps/benchmark/modules/config/src/main/kotlin/yaml/ProviderTree.kt : provider to type to name map, both directions
-apps/benchmark/modules/config/src/main/kotlin/yaml/ReadOnlyYamlFile.kt : read with missing, parse and schemaVersion checks
-apps/benchmark/modules/config/src/main/kotlin/yaml/YamlFile.kt : stamped schemaVersion, written through :document AtomicFile
-apps/benchmark/modules/config/src/main/kotlin/yaml/YamlFiles.kt : factory for YamlFile and ReadOnlyYamlFile
 apps/benchmark/modules/config/src/test/kotlin/AlgorithmNamesTest.kt : document's AlgorithmNames: the cases shared with perf-repair, every catalogued spelling, key types, linkage refusals, inventory duplicates, rule names
 apps/benchmark/modules/config/src/test/kotlin/AuthoredFilesTest.kt : a typo key or a bad providers.bundled stops the parse-only read
 apps/benchmark/modules/config/src/test/kotlin/BesideAuthoredParityTest.kt : tests/contracts/documents/beside-authored.json: Beside.authored gives each stated test-set path text; Python's paths.beside the same location

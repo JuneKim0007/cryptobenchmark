@@ -6,7 +6,7 @@ import io.github.junekim0007.cryptobench.config.layers.LayerStack
 import io.github.junekim0007.cryptobench.config.layers.Provenance
 import io.github.junekim0007.cryptobench.config.testset.TestSetDocument
 import io.github.junekim0007.cryptobench.config.testset.dto.TestSet
-import io.github.junekim0007.cryptobench.config.yaml.YamlFiles
+import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import io.github.junekim0007.cryptobench.files.Beside
 import java.io.File
 

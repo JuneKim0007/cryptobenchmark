@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.config.source
 
-import io.github.junekim0007.cryptobench.config.yaml.DocumentReader
+import io.github.junekim0007.cryptobench.document.versioned.DocumentReader
 import io.github.junekim0007.cryptobench.document.DocumentFields.boolean
 import io.github.junekim0007.cryptobench.document.DocumentFields.number
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalBoolean

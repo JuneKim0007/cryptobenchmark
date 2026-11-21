@@ -2,7 +2,7 @@ package io.github.junekim0007.cryptobench.config
 
 import io.github.junekim0007.cryptobench.config.effective.EffectiveDocument
 import io.github.junekim0007.cryptobench.config.global.GlobalDocument
-import io.github.junekim0007.cryptobench.config.yaml.YamlFiles
+import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import io.github.junekim0007.cryptobench.document.YamlCodec
 import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 import io.github.junekim0007.cryptobench.document.names.dto.Canonical

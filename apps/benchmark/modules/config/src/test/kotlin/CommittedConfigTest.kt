@@ -2,7 +2,7 @@ package io.github.junekim0007.cryptobench.config
 
 import io.github.junekim0007.cryptobench.config.global.GlobalDocument
 import io.github.junekim0007.cryptobench.config.testset.TestSetDocument
-import io.github.junekim0007.cryptobench.config.yaml.YamlFiles
+import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import io.github.junekim0007.cryptobench.files.RepositoryFiles
 import org.junit.Test
 import java.io.File

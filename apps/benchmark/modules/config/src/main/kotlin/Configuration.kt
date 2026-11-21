@@ -13,7 +13,7 @@ import io.github.junekim0007.cryptobench.config.layers.Provenance
 import io.github.junekim0007.cryptobench.config.source.CaptureSource
 import io.github.junekim0007.cryptobench.config.source.TrialSource
 import io.github.junekim0007.cryptobench.document.YamlCodec
-import io.github.junekim0007.cryptobench.config.yaml.YamlFiles
+import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import io.github.junekim0007.cryptobench.files.Beside
 import io.github.junekim0007.cryptobench.files.FileNames
 import io.github.junekim0007.cryptobench.settings.Facts

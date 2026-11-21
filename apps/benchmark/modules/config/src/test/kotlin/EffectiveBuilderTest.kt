@@ -17,7 +17,7 @@ import io.github.junekim0007.cryptobench.config.testset.dto.Include
 import io.github.junekim0007.cryptobench.config.testset.dto.Override
 import io.github.junekim0007.cryptobench.config.testset.dto.Rule
 import io.github.junekim0007.cryptobench.config.testset.dto.TestSet
-import io.github.junekim0007.cryptobench.config.yaml.YamlFiles
+import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import io.github.junekim0007.cryptobench.document.YamlCodec
 import io.github.junekim0007.cryptobench.settings.CoreChoice
 import io.github.junekim0007.cryptobench.settings.CpuSettings

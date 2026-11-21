@@ -1,11 +1,11 @@
-package io.github.junekim0007.cryptobench.config.yaml
+package io.github.junekim0007.cryptobench.document.versioned
 
 import io.github.junekim0007.cryptobench.document.SchemaVersion
 import io.github.junekim0007.cryptobench.document.YamlCodec
 import org.yaml.snakeyaml.error.YAMLException
 import java.io.File
 
-class ReadOnlyYamlFile<T> internal constructor(
+class VersionedFile<T> internal constructor(
     val file: File,
     private val reader: DocumentReader<T>,
     private val codec: YamlCodec,
@@ -26,9 +26,5 @@ class ReadOnlyYamlFile<T> internal constructor(
         } catch (failure: IllegalArgumentException) {
             throw IllegalArgumentException("${file.name}: ${failure.message}", failure)
         }
-    }
-
-    internal companion object {
-        const val SCHEMA_VERSION = "schemaVersion"
     }
 }
