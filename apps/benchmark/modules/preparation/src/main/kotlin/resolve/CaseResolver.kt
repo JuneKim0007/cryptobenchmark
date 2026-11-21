@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation.resolve
 
-import io.github.junekim0007.cryptobench.settings.EngineRows
+import io.github.junekim0007.cryptobench.catalogue.EngineRows
 import io.github.junekim0007.cryptobench.files.VariantLabels
 import io.github.junekim0007.cryptobench.preparation.engine.EngineTypes
 import io.github.junekim0007.cryptobench.preparation.key.secure.KeystoreSpec

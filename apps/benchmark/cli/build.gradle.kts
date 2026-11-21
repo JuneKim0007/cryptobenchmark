@@ -32,6 +32,7 @@ sourceSets {
             "../modules/environment/discovery/src/main/kotlin",
             "../modules/settings/src/main/kotlin",
             "../modules/records/src/main/kotlin",
+            "../modules/catalogue/src/main/kotlin",
             "../modules/config/src/main/kotlin",
             "../modules/preparation/src/main/kotlin",
             "../modules/benchmark/src/main/kotlin",

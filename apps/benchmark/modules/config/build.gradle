@@ -16,6 +16,7 @@ dependencies {
     implementation libs.snakeyaml
     implementation project(':settings')
     implementation project(':records')
+    implementation project(':catalogue')
     implementation project(':files')
     implementation project(':document')
     testImplementation 'junit:junit:4.13.2'

@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.config.effective
 
-import io.github.junekim0007.cryptobench.settings.EngineRows
+import io.github.junekim0007.cryptobench.catalogue.EngineRows
 import io.github.junekim0007.cryptobench.records.StoppedOnFailureException
 import io.github.junekim0007.cryptobench.settings.OnFailure
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveConfig

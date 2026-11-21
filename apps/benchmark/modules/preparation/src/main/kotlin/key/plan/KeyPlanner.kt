@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation.key.plan
 
-import io.github.junekim0007.cryptobench.settings.EngineRows
+import io.github.junekim0007.cryptobench.catalogue.EngineRows
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.operation.KeyShape
 import io.github.junekim0007.cryptobench.preparation.operation.OperationDefinitions

@@ -52,7 +52,7 @@ Each item is measured once per path its entry's `variants` keeps ([prepare.md](p
 | `fixed` | the setup the API lets a call keep, kept: what the catalog row below still does per call |
 | `notFixed` | `getInstance` + init + operation every call, for every row |
 
-Catalog: `algorithms/setup-catalog.yaml`, read through `:settings` `EngineRows` by `operation/SetupCatalog` (the build puts it beside the class) and by config's `entry/EngineCatalog`; a type without a row is a `not_in_catalogue` skip; each row cites the JCA API contract it rests on. No engine or mode name is in code.
+Catalog: `algorithms/setup-catalog.yaml`, read through `:catalogue` `EngineRows` by `operation/SetupCatalog` (the build puts it beside the class) and by config's `entry/EngineCatalog`; a type without a row is a `not_in_catalogue` skip; each row cites the JCA API contract it rests on. No engine or mode name is in code.
 
 | engine type, mode | `fixed` per call (`perCall`) | contract |
 |---|---|---|

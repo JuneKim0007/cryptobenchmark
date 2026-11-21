@@ -15,20 +15,24 @@ modules:
       document: all
   records:
     uses: {}
-  settings:
+  catalogue:
     uses:
       files: [FileNames, VariantLabels]
+  settings:
+    uses: {}
   config:
     uses:
-      settings: [EnergySettings, EngineRows, Facts, HarnessSettings, Leaf, Metric, Nested, OnFailure, Phase, RunKeys, Section, Unsupported, Values]
+      settings: [EnergySettings, Facts, HarnessSettings, Leaf, Metric, Nested, OnFailure, Phase, RunKeys, Section, Unsupported, Values]
       records: [Skip, StoppedOnFailureException]
+      catalogue: [EngineRows]
       files: all
       document: all
   preparation:
     uses:
       jca: [failure.Attempt, failure.ErrorText, peer.PeerPair, reflect.Reflect]
-      settings: [EngineRows, HarnessSettings, Metric, OnFailure, Phase, RunKeys]
+      settings: [HarnessSettings, Metric, OnFailure, Phase, RunKeys]
       records: [Skip, StoppedOnFailureException]
+      catalogue: [EngineRows]
       files: all
       document: all
   benchmark:
@@ -75,6 +79,7 @@ consumers:
       discovery: all
       settings: all
       records: all
+      catalogue: all
       config: all
       preparation: all
       benchmark: all

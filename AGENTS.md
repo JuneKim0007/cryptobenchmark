@@ -11,6 +11,7 @@
 - config: authored files, inventory, effective, precedence → `apps/benchmark/modules/config/docs/index.md`
 - settings: harness key table, device support → `apps/benchmark/modules/settings/docs/index.md`
 - records: `Skip`, `StoppedOnFailureException` → `apps/benchmark/modules/records/docs/index.md`
+- catalogue: `EngineRows`, setup-catalog.yaml's rows → `apps/benchmark/modules/catalogue/docs/index.md`
 - files: every Kotlin file and folder name, stamps, beside-a-file rules → `apps/benchmark/modules/files/docs/index.md`
 - jca: the catch rule, provider error text → `apps/benchmark/modules/jca/docs/index.md`
 - document: the YAML codec and its profiles, typed field reads → `apps/benchmark/modules/document/docs/index.md`
@@ -59,6 +60,7 @@ apps/benchmark/gradle/ : shared by the root, cli and tools/ builds: guide-resour
 apps/benchmark/gradlew : the one Gradle wrapper, for the benchmark's root build, its CLI build and every tools/ build
 apps/benchmark/modules/android/ : instrumentation app: Jetpack harness, device plan, native core affinity
 apps/benchmark/modules/benchmark/ : plan check and measurement of prepared cases; benchmark.json
+apps/benchmark/modules/catalogue/ : EngineRows, the one reading of setup-catalog.yaml's per-type rows config and preparation share
 apps/benchmark/modules/config/ : capture and trial to inventory.yaml; inventory and config/ to effective.yaml
 apps/benchmark/modules/document/ : the one YAML codec, a SnakeYAML setup per profile, and DocumentFields; shared by discovery, config, preparation and benchmark
 apps/benchmark/modules/environment/discovery/ : provider and service probe, default-run and requirement trials, capture, trial and requirements YAML
@@ -83,7 +85,7 @@ lib/cryptobench/ : the Python library the runner and perf-repair share: shared c
 pytest.ini : the Python apps' source folders, and the test folders other tests import, on the test path for pytest from the repository root
 requirements.txt : every host Python dependency
 tests/contracts/ : fixtures both languages' tests read: documents/, the .json value each must read a module example (config global and effective, preparation guide) to, and the facts and known-answers Python writes with theirs; yaml-codec/, scalar and string cases and a duplicate-key file; runner/thermal.json as the runner writes it
-tools/android-api-check/ : compiles jca, document, discovery, settings, records, preparation, benchmark against android.jar without the JDK
+tools/android-api-check/ : compiles jca, document, discovery, settings, records, catalogue, preparation, benchmark against android.jar without the JDK
 tools/dead-code-allow.txt : vulture findings the dead-code check keeps, each with its reason
 tools/dead_code.py : dead-code check: vulture minus the allowlist; local only, fails without vulture
 tools/docs_lint.py : docs and guide graph check: maps, coverage, index.md, edges, reachability, size, banned text, names code must hold

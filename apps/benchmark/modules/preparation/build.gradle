@@ -16,6 +16,7 @@ dependencies {
     implementation libs.snakeyaml
     api project(':settings')
     api project(':records')
+    api project(':catalogue')
     api project(':jca')
     implementation project(':files')
     implementation project(':document')

@@ -1,4 +1,4 @@
-package io.github.junekim0007.cryptobench.settings
+package io.github.junekim0007.cryptobench.catalogue
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows

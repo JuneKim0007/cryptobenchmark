@@ -33,17 +33,18 @@ config/benchmark/global.yaml + config/benchmark/testsets/*.yaml
 | `:jca` | `apps/benchmark/modules/jca` | none | none |
 | `:document` | `apps/benchmark/modules/document` | none | snakeyaml 2.3 |
 | `:environment:discovery` | `apps/benchmark/modules/environment/discovery` | `api :jca`, `implementation :files`, `implementation :document` | none |
-| `:settings` | `apps/benchmark/modules/settings` | `api :files` | none |
+| `:settings` | `apps/benchmark/modules/settings` | none | none |
 | `:records` | `apps/benchmark/modules/records` | none | none |
-| `:config` | `apps/benchmark/modules/config` | `implementation :settings`, `implementation :records`, `implementation :files`, `implementation :document` | snakeyaml 2.3 |
-| `:preparation` | `apps/benchmark/modules/preparation` | `api :settings`, `api :records`, `api :jca`, `implementation :files`, `implementation :document` | snakeyaml 2.3 |
+| `:catalogue` | `apps/benchmark/modules/catalogue` | `api :files` | none |
+| `:config` | `apps/benchmark/modules/config` | `implementation :settings`, `implementation :records`, `implementation :catalogue`, `implementation :files`, `implementation :document` | snakeyaml 2.3 |
+| `:preparation` | `apps/benchmark/modules/preparation` | `api :settings`, `api :records`, `api :catalogue`, `api :jca`, `implementation :files`, `implementation :document` | snakeyaml 2.3 |
 | `:benchmark` | `apps/benchmark/modules/benchmark` | `api :preparation`, `implementation :files`, `implementation :document` | snakeyaml 2.3 |
 | `:android` | `apps/benchmark/modules/android` | `androidTestImplementation :benchmark`, `:environment:discovery`, `:files`, `:document` | benchmark-junit4 1.5.0; androidTest: androidx.test:runner 1.5.2, junit 4.13.2 |
 
 - JVM modules test with junit 4.13.2.
 - The SnakeYAML version is declared once, in `apps/benchmark/gradle/libs.versions.toml`; the cli and tools/ builds import it in their settings.
 
-- `apps/benchmark/settings.gradle` includes the nine projects; `rootProject.name = cryptobenchmark`.
+- `apps/benchmark/settings.gradle` includes the ten projects; `rootProject.name = cryptobenchmark`.
 - Package root: `io.github.junekim0007.cryptobench`.
 - Root buildscript pins AGP 8.13.2 and Kotlin plugin 2.2.21.
 - One wrapper, `apps/benchmark/gradlew`: Gradle 9.5.1.
@@ -56,7 +57,7 @@ config/benchmark/global.yaml + config/benchmark/testsets/*.yaml
 
 | project | languages | source layout |
 |---|---|---|
-| `:document`, `:environment:discovery`, `:settings`, `:records`, `:config`, `:preparation`, `:benchmark` | Kotlin | `src/main/kotlin/`, package root folders omitted |
+| `:document`, `:environment:discovery`, `:settings`, `:records`, `:catalogue`, `:config`, `:preparation`, `:benchmark` | Kotlin | `src/main/kotlin/`, package root folders omitted |
 | `:android` | Kotlin main (`Affinity.kt`), C (`src/main/cpp/affinity.c`, `CMakeLists.txt`), Kotlin androidTest | full package folders |
 | `apps/benchmark-runner/` | Python 3 | the entry points `pipeline.py`, `dependencies.py`, `explain.py` and their error line `failure.py`; every other module they import is in `lib/cryptobench` (`tools/tests/test_runner_layout.py`) |
 | `lib/cryptobench/cryptobench/` | Python 3 | `shared/` components, `pipeline/` the stage framework, `stages/<stage>/` one package per stage: configuration, discovery, measurement, analysis, verification |
@@ -68,7 +69,7 @@ config/benchmark/global.yaml + config/benchmark/testsets/*.yaml
 ## Example files
 
 - `apps/benchmark/modules/<m>/example/<module>_<responsibility>_example.(yaml|json)` exist for config, preparation, benchmark.
-- `:settings` and `:records` have no `example/`.
+- `:settings`, `:records` and `:catalogue` have no `example/`.
 
 ## Isolation build
 
@@ -79,12 +80,12 @@ config/benchmark/global.yaml + config/benchmark/testsets/*.yaml
 | `files` | `apps/benchmark/modules/files/src/main/kotlin` | junit 4.13.2 (test) |
 | `document` | `apps/benchmark/modules/document/src/main/kotlin` | snakeyaml 2.3; junit 4.13.2 (test) |
 | `discovery` | `apps/benchmark/modules/environment/discovery/src/main/kotlin` + `apps/benchmark/modules/files` + `apps/benchmark/modules/document` | snakeyaml 2.3; junit 4.13.2 (test) |
-| `config` | `apps/benchmark/modules/config` + `apps/benchmark/modules/settings` + `apps/benchmark/modules/records` + `apps/benchmark/modules/files` + `apps/benchmark/modules/document` | same |
-| `preparation` | `apps/benchmark/modules/preparation` + `apps/benchmark/modules/settings` + `apps/benchmark/modules/records` + `apps/benchmark/modules/files` + `apps/benchmark/modules/document` | same |
-| `benchmark` | `apps/benchmark/modules/benchmark` + `apps/benchmark/modules/preparation` + `apps/benchmark/modules/settings` + `apps/benchmark/modules/records` + `apps/benchmark/modules/files` + `apps/benchmark/modules/document` | same |
+| `config` | `apps/benchmark/modules/config` + `apps/benchmark/modules/settings` + `apps/benchmark/modules/records` + `apps/benchmark/modules/catalogue` + `apps/benchmark/modules/files` + `apps/benchmark/modules/document` | same |
+| `preparation` | `apps/benchmark/modules/preparation` + `apps/benchmark/modules/settings` + `apps/benchmark/modules/records` + `apps/benchmark/modules/catalogue` + `apps/benchmark/modules/files` + `apps/benchmark/modules/document` | same |
+| `benchmark` | `apps/benchmark/modules/benchmark` + `apps/benchmark/modules/preparation` + `apps/benchmark/modules/settings` + `apps/benchmark/modules/records` + `apps/benchmark/modules/catalogue` + `apps/benchmark/modules/files` + `apps/benchmark/modules/document` | same |
 | `architecture` | tests only: the module subprojects' compiled classes against `tools/module-isolation/layers.yaml` | archunit 1.5.1, snakeyaml 2.3, junit 4.13.2 (test) |
 
-- `:settings`, `:records` and `:android` are not subprojects.
+- `:settings`, `:records`, `:catalogue` and `:android` are not subprojects.
 - guide resources (`apps/benchmark/gradle/guide-resources.gradle`): `algorithms/algorithm-names.yaml` and `algorithms/setup-catalog.yaml` at the classpath root, `setup-catalog.yaml` beside preparation's `operation/SetupCatalog` `engine-operations.yaml` beside its `engine/EngineTypes`, in every build that compiles config or preparation (root, isolation, cli); the seven family catalogues discovery and preparation read, `provider-builds.yaml`, `deviations.yaml` and `groups.yaml` beside document's `catalogue/FamilyCatalogue`, carried by `:document` alone in the root build (the APK merges module jars) and by each reading module in the isolation and cli builds.
 - Tests run with `workingDir` = the module directory.
 - `-Dexamples.update` is forwarded to tests.

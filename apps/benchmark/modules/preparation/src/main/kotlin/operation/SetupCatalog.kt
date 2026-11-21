@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation.operation
 
-import io.github.junekim0007.cryptobench.settings.EngineRows
+import io.github.junekim0007.cryptobench.catalogue.EngineRows
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.measurement.Variant
 import io.github.junekim0007.cryptobench.document.DocumentFields

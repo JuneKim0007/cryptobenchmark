@@ -31,6 +31,7 @@ sourceSets {
             "../../apps/benchmark/modules/environment/discovery/src/main/kotlin",
             "../../apps/benchmark/modules/settings/src/main/kotlin",
             "../../apps/benchmark/modules/records/src/main/kotlin",
+            "../../apps/benchmark/modules/catalogue/src/main/kotlin",
             "../../apps/benchmark/modules/preparation/src/main/kotlin",
             "../../apps/benchmark/modules/benchmark/src/main/kotlin",
         ))

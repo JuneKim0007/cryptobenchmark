@@ -38,6 +38,7 @@ configure(subprojects.filter { it.name in moduleDirectories }) {
             rootDir.resolve(moduleDirectories.getValue("document")).resolve("src/main/kotlin").takeIf { !leaf },
             rootDir.resolve("../../apps/benchmark/modules/settings/src/main/kotlin").takeIf { !leaf && name != "discovery" },
             rootDir.resolve("../../apps/benchmark/modules/records/src/main/kotlin").takeIf { !leaf && name != "discovery" },
+            rootDir.resolve("../../apps/benchmark/modules/catalogue/src/main/kotlin").takeIf { !leaf && name != "discovery" },
             rootDir.resolve(moduleDirectories.getValue("preparation")).resolve("src/main/kotlin").takeIf { name == "benchmark" },
         )
         sourceSets["main"].kotlin.setSrcDirs(sources)

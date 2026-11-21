@@ -1,7 +1,7 @@
 package io.github.junekim0007.cryptobench.config.entry
 
+import io.github.junekim0007.cryptobench.catalogue.EngineRows
 import io.github.junekim0007.cryptobench.document.YamlCodec
-import io.github.junekim0007.cryptobench.settings.EngineRows
 
 /** setup-catalog.yaml from the classpath root, read once. */
 object EngineCatalog {

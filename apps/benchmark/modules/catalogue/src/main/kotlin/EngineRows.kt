@@ -1,4 +1,4 @@
-package io.github.junekim0007.cryptobench.settings
+package io.github.junekim0007.cryptobench.catalogue
 
 import io.github.junekim0007.cryptobench.files.FileNames
 import io.github.junekim0007.cryptobench.files.VariantLabels
