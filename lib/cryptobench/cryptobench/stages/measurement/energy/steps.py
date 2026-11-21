@@ -7,12 +7,17 @@ from cryptobench.shared import paths
 
 from cryptobench.stages.measurement.energy.sources import SOURCES
 from cryptobench.stages.measurement.energy.sources.runner import Host
-from cryptobench.shared.errors.failures import EnergyError
+from cryptobench.shared.errors.failures import CommandError, EnergyError
 
 
 def source(view, python, idle_seconds, stacktrace=False):
-    """view: effective_view.EnergyView; idle_seconds: RunView.energy_idle_seconds."""
-    return SOURCES[view.source](Host(python, stacktrace, paths.platform_tools(), timeouts.SECONDS["energy"]), idle_seconds)
+    """view: effective_view.EnergyView; idle_seconds: RunView.energy_idle_seconds. A capture the source cannot measure is refused here."""
+    name = view.source
+    adapter = SOURCES[name]
+    unmeasured = sorted(view.captures - {"none"} - set(adapter.CAPTURES))
+    if unmeasured:
+        raise CommandError(f"not_supported: energy.source {name} captures {', '.join(unmeasured)}; it measures {', '.join(adapter.CAPTURES)}")
+    return adapter(Host(python, stacktrace, paths.platform_tools(), timeouts.SECONDS["energy"]), idle_seconds)
 
 
 def guarded(problems, step):

@@ -13,6 +13,7 @@ RAILS_CONFIG = ('buffers { size_kb: 4096 }\n'
 
 class RailsSource:
     MODULE = "perfetto"
+    CAPTURES = ("measured", "dry")
     REQUIREMENTS = ("requirements.txt",)
 
     def __init__(self, host, idle_seconds):

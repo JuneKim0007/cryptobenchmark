@@ -17,6 +17,8 @@ def _last_line(text):
 
 class ManafaSource:
     MODULE = "manafa"
+    # each Jetpack per-case trace stops the session a measured window opens, so only dry is covered
+    CAPTURES = ("dry",)
     REQUIREMENTS = ("requirements.txt", "requirements-manafa.txt")
 
     def __init__(self, host, idle_seconds):

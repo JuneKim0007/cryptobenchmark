@@ -34,7 +34,7 @@
 | `rails` (default) | `measured` | Perfetto power rails | below |
 | `manafa` | `estimated` | `manafa` 0.4.14: `power_profile.xml`, cpufreq, batterystats | an idle session of `run.energyIdleSeconds` |
 
-- A run has one source; entries that differ fail with `energy_sources_differ`.
+- A run has one source; entries that differ fail with `energy_sources_differ`. Each adapter's `CAPTURES` lists the captures it measures (`rails`: `measured`, `dry`; `manafa`: `dry`); any other capture in the run stops it with `not_supported: energy.source <source> captures <captures>; it measures <captures>` before any device step.
 - `lib/cryptobench/cryptobench/stages/measurement/energy/steps.py` picks the adapter; each adapter has `preflight`, `idle_end`, `window` (around the device run) and `joules`.
 - `manafa` facts, its pre-flight and its reasons: [energy-manafa.md](energy-manafa.md).
 

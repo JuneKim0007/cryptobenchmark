@@ -4,7 +4,7 @@ import pytest
 from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.settings.effective_view import EnergyView
 from cryptobench.stages.measurement.energy import steps as energy_stage
-from cryptobench.shared.errors.failures import EnergyError  # noqa: E402
+from cryptobench.shared.errors.failures import CommandError, EnergyError  # noqa: E402
 
 
 def test_effective_entries_inherit_the_run_capture(tmp_path):
@@ -34,3 +34,16 @@ def test_entries_with_another_source_are_refused(tmp_path):
                          "providers: {p: {t: {a: {}, b: {harness: {energy: {source: manafa}}}}}}\n")
     with pytest.raises(EnergyError, match="energy_sources_differ"):
         energy_stage.source(EnergyView(read_yaml(effective)), "py", 120)
+
+
+def test_a_source_refuses_a_capture_it_cannot_measure(tmp_path):
+    effective = tmp_path / "effective.yaml"
+    effective.write_text("run: {harness: {energy: {source: manafa, capture: measured}}}\n")
+    with pytest.raises(CommandError, match=r"^not_supported: energy.source manafa captures measured; it measures dry$"):
+        energy_stage.source(EnergyView(read_yaml(effective)), "py", 120)
+    effective.write_text("run: {harness: {energy: {source: manafa, capture: dry}}}\nproviders: {p: {t: {a: {}, b: {harness: {energy: {capture: measured}}}}}}\n")
+    with pytest.raises(CommandError, match="not_supported: energy.source manafa captures measured"):
+        energy_stage.source(EnergyView(read_yaml(effective)), "py", 120)
+    for source, capture, adapter in (("manafa", "dry", "ManafaSource"), ("rails", "measured", "RailsSource"), ("rails", "dry", "RailsSource")):
+        effective.write_text(f"run: {{harness: {{energy: {{source: {source}, capture: {capture}}}}}}}\n")
+        assert type(energy_stage.source(EnergyView(read_yaml(effective)), "py", 120)).__name__ == adapter

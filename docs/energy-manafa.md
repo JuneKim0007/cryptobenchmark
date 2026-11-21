@@ -16,7 +16,7 @@ The `energy.source: manafa` adapter. Shared capture modes and `energy.json`: [en
 | window | case window on BOOTTIME + `boot_time`, passed to `get_consumption_in_between` |
 | joules | gross whole-device estimate; `netJoules` is null |
 | device effects | `dumpsys batterystats --reset` on start, `killall perfetto` on init and stop |
-| `measured` capture | a Jetpack per-case trace stops other Perfetto sessions; windows after the last cpufreq event are `window_uncovered` |
+| `measured` capture | refused before any device step: `not_supported: energy.source manafa captures measured; it measures dry` (a Jetpack per-case trace stops other Perfetto sessions) |
 
 ## Pre-flight
 
