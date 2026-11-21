@@ -12,4 +12,5 @@ apps/benchmark/modules/files/src/main/kotlin/VariantLabels.kt : the execution pa
 apps/benchmark/modules/files/src/test/kotlin/BesideTest.kt : beside and authored rules
 apps/benchmark/modules/files/src/test/kotlin/StampedNameTest.kt : stamp format, prefix recognition, pairing
 apps/benchmark/modules/files/src/testFixtures/kotlin/ContractsFolder.kt : the tests/contracts/ folder above the working directory and its subfolders, the module examples and Python's settings defaults.yaml, for the module tests that read them
+apps/benchmark/modules/files/src/testFixtures/kotlin/StatedJson.kt : a contract fixture's .json value in the bytes Python's json.dumps(indent=1) writes, for the -Dexamples.update runs
 ```

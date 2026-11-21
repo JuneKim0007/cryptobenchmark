@@ -3,13 +3,18 @@ package io.github.junekim0007.cryptobench.preparation
 import io.github.junekim0007.cryptobench.preparation.adapter.DiscoveryCapability
 import io.github.junekim0007.cryptobench.preparation.record.PreparedFile
 import io.github.junekim0007.cryptobench.preparation.report.SkipFile
+import io.github.junekim0007.cryptobench.files.ContractsFolder
+import io.github.junekim0007.cryptobench.files.StatedJson
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import org.yaml.snakeyaml.LoaderOptions
+import org.yaml.snakeyaml.Yaml
+import org.yaml.snakeyaml.constructor.SafeConstructor
 import java.io.File
 
-/** The module runs on its own example files, with no other module on the classpath. */
+/** The module runs on its own example files, with no other module on the classpath; -Dexamples.update also writes guide.json, the value tests/contracts/documents states for the example guide. */
 class ExampleFilesTest {
 
     @get:Rule
@@ -50,6 +55,9 @@ class ExampleFilesTest {
         )
         assertExample("preparation_skipped_example.yaml", report.file)
         assertExample("preparation_prepared_example.yaml", record.file)
+        if (System.getProperty("examples.update") != null) {
+            StatedJson.write(File(ContractsFolder.documents, "guide.json"), Yaml(SafeConstructor(LoaderOptions())).load(File(example, "guide.yaml").readText()))
+        }
     }
 
     private fun assertExample(name: String, written: File) {
