@@ -7,6 +7,7 @@ import pipeline  # noqa: E402
 from cryptobench.shared.device import timeouts  # noqa: E402
 from cryptobench.shared.errors.coded import Coded  # noqa: E402
 from cryptobench.shared.device.adb import DeviceError  # noqa: E402
+from cryptobench.shared.settings.bundled import BundledError  # noqa: E402
 
 SLEEP = [sys.executable, "-c", "import time; time.sleep(30)"]
 
@@ -43,7 +44,7 @@ def test_an_error_the_run_did_not_survive_is_one_line(error, line):
 
 
 KNOWN = [
-    "cryptobench.shared.settings.bundled.BundledError", "cryptobench.stages.configuration.config_check.ConfigCheckError", "cryptobench.stages.verification.scope.results.ScopeResultError", "cryptobench.stages.verification.scope.code_digest.CodeDigestError",
+    "cryptobench.stages.configuration.config_check.ConfigCheckError", "cryptobench.stages.verification.scope.results.ScopeResultError", "cryptobench.stages.verification.scope.code_digest.CodeDigestError",
     "cryptobench.shared.device.timeouts.StepTimeout", "cryptobench.stages.measurement.session.dynamic_temperature.Terminated", "cryptobench.shared.errors.input_error.InputError",
     "cryptobench.shared.device.adb.DeviceError", "cryptobench.shared.device.identity.DeviceIdError", "cryptobench.shared.errors.failures.EnergyError",
     "cryptobench.shared.device.reconnect.DeviceGone",
@@ -66,6 +67,12 @@ def test_a_marked_failure_carries_the_code_its_message_starts_with():
 @pytest.mark.parametrize("known", [_class(name) for name in KNOWN], ids=lambda c: c.__name__)
 def test_a_known_failure_is_its_own_message_unchanged(known):
     assert pipeline.failure_line(known("some_code: a  spaced   message")) == "some_code: a  spaced   message"
+
+
+def test_a_refused_bundled_list_is_an_input_error_and_still_its_own_line():
+    error = BundledError("wrong_type: providers.bundled in g.yaml, expected a list of {artifact, create, alias?}")
+    assert isinstance(error, ValueError) and error.code == "wrong_type"
+    assert pipeline.failure_line(error) == str(error)
 
 
 def test_a_known_failure_keeps_its_line_breaks_and_length():

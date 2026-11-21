@@ -13,6 +13,7 @@ from perfrepair.report.__main__ import main as report
 from perfrepair.validation.__main__ import main as validation
 from perfrepair.failure import reported
 from cryptobench.shared.errors.coded import code_of
+from cryptobench.shared.settings.bundled import BundledError
 from cryptobench.shared.errors.validation import ValidationFailed, require
 from helpers import captured_events, with_results
 
@@ -93,3 +94,11 @@ def test_a_failed_validator_is_one_error_event_with_its_code(capsys):
         assert reported(lambda: require("items", ["bad row"])) == 1
     [error] = [e for e in events if e.event == "error"]
     assert error.data["code"] == "artifact_invalid" and "items: 1 problem(s)" in capsys.readouterr().err
+
+
+def test_a_refused_bundled_list_is_a_coded_error_not_a_bug(capsys):
+    def step():
+        raise BundledError("wrong_type: providers.bundled in g.yaml, expected a list of {artifact, create, alias?}")
+    assert reported(step) == 1
+    err = capsys.readouterr().err
+    assert err.startswith("error wrong_type: providers.bundled in g.yaml") and "bug" not in err, err
