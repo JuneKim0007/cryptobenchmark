@@ -79,13 +79,14 @@ def owned_config(base: Path, folder: Path, perf: PerfMode, on_device: bool) -> P
     """base when it already measures what perfMode needs, so its digest stays; else <folder>/metrics-global.yaml, which
     the device stage then treats as its base."""
     path = RunTree(folder).metrics_config
-    run = (authored.read(base).document.get("run") or {}) if Path(base).is_file() else {}
+    given = authored.read(base) if Path(base).is_file() else None
+    run = (given.document.get("run") or {}) if given else {}
     owned = _owned_run(run, perf, harness_of(on_device))
-    if not Path(base).is_file() or not (_metrics_changed(run, owned) or _beside_metrics_changed(run, owned)):
+    if given is None or not (_metrics_changed(run, owned) or _beside_metrics_changed(run, owned)):
         path.unlink(missing_ok=True)
         return Path(base)
     path.parent.mkdir(parents=True, exist_ok=True)
-    return generated(path, base, "perfMode owns run.metrics", {**relocated(base), "run": owned})
+    return generated(path, base, "perfMode owns run.metrics", {**relocated(given), "run": owned})
 
 
 def _named(metrics) -> str:

@@ -12,6 +12,7 @@ from perfrepair.device.bundled_missing import missing_set
 from perfrepair.device.bundled_suggest import suggest
 from perfrepair.dto.bundled import OFF, BundledPolicy, Coordinate, MissingProvider, entries_digest
 from cryptobench.shared.versions.order import newest
+from cryptobench.shared.settings.bundled import BundledError
 from perfrepair.inputs.check import check_from_apps
 from perfrepair.validation.bundled import validate_suggestions
 
@@ -112,12 +113,19 @@ def applied_folder(tmp_path):
     return device, base
 
 
-@pytest.mark.parametrize("entry", ["g:own:1", {"create": "X"}, {"artifact": ""}, {"artifact": 7}])
-def test_a_providers_bundled_entry_with_no_artifact_is_refused_never_dropped(tmp_path, entry):
+@pytest.mark.parametrize("entry", ["g:own:1", {"create": "X"}, {"artifact": "g:a:1"}, {"artifact": 7, "create": "X"},
+                                   {"artifact": "g:a:1", "create": "X", "other": 1}])
+def test_a_providers_bundled_entry_kotlin_refuses_is_refused_never_dropped(tmp_path, entry):
     base = tmp_path / "global.yaml"
-    base.write_text(yaml.safe_dump({"providers": {"bundled": [{"artifact": "g:own:1"}, entry]}}))
-    with pytest.raises(ValueError, match=rf"^invalid: providers.bundled in {base}: .* names no artifact"):
+    base.write_text(yaml.safe_dump({"providers": {"bundled": [{"artifact": "g:own:1", "create": "Own"}, entry]}}))
+    with pytest.raises(BundledError, match=rf"^wrong_type: providers.bundled in {base}, expected a list of"):
         configured(base)
+
+
+def test_an_empty_artifact_is_accepted_as_kotlins_bundled_providers_accepts_it(tmp_path):
+    base = tmp_path / "global.yaml"
+    base.write_text(yaml.safe_dump({"providers": {"bundled": [{"artifact": "", "create": "X"}]}}))
+    assert configured(base) == frozenset({""})
 
 
 def test_applied_entries_append_to_the_base_and_none_use_it_as_it_is(tmp_path):

@@ -5,6 +5,7 @@ from cryptobench.shared.errors.input_error import InputError
 
 
 KEY = "bundledProviders"   # BundledProviders.KEY and the effective.yaml key
+FIELDS = ("artifact", "create", "alias")
 
 
 class BundledError(InputError):
@@ -15,10 +16,18 @@ def entries(document, global_file):
     providers = document.get("providers") or {}
     if not isinstance(providers, dict):
         raise BundledError(f"wrong_type: providers in {global_file}")
-    bundled = providers.get("bundled") or []
-    if not isinstance(bundled, list) or not all(isinstance(entry, dict) and isinstance(entry.get("artifact"), str) for entry in bundled):
+    bundled = providers.get("bundled")
+    if bundled is None:
+        return []
+    if not isinstance(bundled, list) or not all(_accepted(entry) for entry in bundled):
         raise BundledError(f"wrong_type: providers.bundled in {global_file}, expected a list of {{artifact, create, alias?}}")
     return [{key: value for key, value in entry.items() if value is not None} for entry in bundled]
+
+
+def _accepted(entry):
+    """Kotlin BundledProviders.read's rule: only these keys, artifact and create strings (empty ones too), alias a string or absent."""
+    return (isinstance(entry, dict) and set(entry) <= set(FIELDS) and isinstance(entry.get("artifact"), str)
+            and isinstance(entry.get("create"), str) and (entry.get("alias") is None or isinstance(entry["alias"], str)))
 
 
 def gradle_properties(bundled):

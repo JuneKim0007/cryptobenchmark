@@ -54,10 +54,10 @@ def test_an_empty_include_already_plans_everything_so_nothing_is_added(tmp_path)
     (tmp_path / "set.yaml").write_text("schemaVersion: 1\n")
     (tmp_path / "global.yaml").write_text("schemaVersion: 1\nselection: {testSet: set.yaml}\n")
     doc = yaml.safe_load(write_config(tmp_path / "global.yaml", tmp_path, [], [{"provider": "P", "type": "T", "name": "A"}]).read_text())
-    assert Path(doc["selection"]["testSet"]) == (tmp_path / "set.yaml").resolve()
+    assert doc["selection"]["testSet"] == str(tmp_path / "set.yaml")
 
 
-def test_the_generated_config_keeps_the_base_and_its_test_set_resolved(tmp_path):
+def test_the_generated_config_keeps_the_base_and_its_test_set_where_kotlin_finds_it(tmp_path):
     base = tmp_path / "conf" / "global.yaml"
     base.parent.mkdir()
     base.write_text("schemaVersion: 1\nselection: {testSet: sets/x.yaml, exclude: [{type: T}]}\n"
@@ -65,5 +65,13 @@ def test_the_generated_config_keeps_the_base_and_its_test_set_resolved(tmp_path)
     path = write_config(base, tmp_path, [{"provider": "P", "type": "T", "name": "N"}])
     doc = yaml.safe_load(path.read_text())
     assert path == RunTree(tmp_path).used_config and doc["providers"] == {"bundled": [{"artifact": "g:a:1", "create": "A"}]}
-    assert doc["run"] == {"seed": 3} and Path(doc["selection"]["testSet"]) == (base.parent / "sets/x.yaml").resolve()
+    assert doc["run"] == {"seed": 3} and doc["selection"]["testSet"] == str(base.parent / "sets/x.yaml")
     assert doc["selection"]["exclude"] == [{"type": "T"}, {"provider": "P", "type": "T", "name": "N"}]
+
+
+def test_a_dotdot_test_set_is_joined_unresolved_as_kotlins_beside_authored(tmp_path):
+    base = tmp_path / "conf" / "global.yaml"
+    base.parent.mkdir()
+    base.write_text("schemaVersion: 1\nselection: {testSet: ../sets/x.yaml}\n")
+    doc = yaml.safe_load(write_config(base, tmp_path, []).read_text())
+    assert doc["selection"]["testSet"] == f"{base.parent}/../sets/x.yaml"

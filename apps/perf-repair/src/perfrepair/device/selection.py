@@ -5,12 +5,11 @@ from __future__ import annotations
 from pathlib import Path
 
 from cryptobench.shared.paths import RunTree
-from cryptobench.shared import paths
+from cryptobench.shared.settings import authored
 from ..dto.device import DeviceRecord
 from cryptobench.shared.catalogue.grouping import Item
 from ..dto.screen import Verdict
 from ..dto.used import names_digest
-from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.document.write import write_text
 from .selection_adds import write_test_set
 from cryptobench.shared.document.dump import dump_yaml, FLOW_LEAVES
@@ -54,13 +53,12 @@ def exclusions(items: list[Item], verdicts: dict[int, Verdict] | None, keep: fro
             if i.qualified not in keep and _canonical(i, (verdicts or {}).get(i.id)) not in kept]
 
 
-def relocated(base: Path) -> dict:
-    """The base global.yaml as a file in the device folder reads it: a relative test set resolved against the base."""
-    document = read_yaml(base) or {}
-    selection = dict(document.get("selection") or {})
-    if selection.get("testSet"):
-        selection["testSet"] = str(paths.against(base, selection["testSet"]))
-    return {**document, "selection": selection}
+def relocated(base: authored.Authored) -> dict:
+    """The base global.yaml as a file in the device folder reads it: its test set where Kotlin finds it from the base."""
+    selection = dict(base.document.get("selection") or {})
+    if base.test_set:
+        selection["testSet"] = str(base.test_set)
+    return {**base.document, "selection": selection}
 
 
 def generated(path: Path, base: Path, why: str, document: dict) -> Path:
@@ -71,7 +69,7 @@ def generated(path: Path, base: Path, why: str, document: dict) -> Path:
 
 def write_config(base: Path, folder: Path, rules: list[dict], adds: list[dict] = ()) -> Path:
     """adds: include rules the test set gains, written as its own copy (device/selection_adds.py)."""
-    document = relocated(base)
+    document = relocated(authored.read(base))
     selection = {**document["selection"], "exclude": list(document["selection"].get("exclude") or []) + rules}
     if adds and selection.get("testSet"):
         selection["testSet"] = str(write_test_set(Path(selection["testSet"]), folder, list(adds)))

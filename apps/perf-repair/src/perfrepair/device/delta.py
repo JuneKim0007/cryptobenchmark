@@ -26,7 +26,6 @@ from ..dto.benchmark_coverage import (
 )
 from ..dto.dossier import SETUP_DRIFT
 from ..files import read_json, write_text_making_parents
-from cryptobench.shared.document.document import read_yaml
 from ..result.estimate import MIN_RUNS, compare
 from ..result.gain import UNCHANGED, change_of
 from .delta_config import DELTA, narrowed, write_delta_config, write_rerun_config
@@ -41,6 +40,7 @@ from .setup_fingerprint import (
     without_narrowed,
 )
 from cryptobench.shared.results.manifest import write as write_manifest
+from cryptobench.shared.settings import authored
 
 RESULTS = "results"
 DRIFT_METRIC = "timeNs"
@@ -118,7 +118,7 @@ def run_delta(folder: Path, gaps: tuple[Gap, ...], anchors: frozenset[str], sess
     require_connected(folder, stored_config if stored_config.is_file() else None, on_device,
                       "a delta measures the device the benchmark did", benchmark)
     items = {g.item for g in gaps}
-    run = narrowed((read_yaml(stored_config).get("run") or {}) if stored_config.is_file() else {}, gaps)
+    run = narrowed((authored.read(stored_config).document.get("run") or {}) if stored_config.is_file() else {}, gaps)
     config = write_delta_config(stored_config, folder, items | anchors, run)
     alike = without_narrowed if run is not None else (lambda a, b: (a, b))
     planned = {}

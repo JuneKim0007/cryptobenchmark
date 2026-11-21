@@ -7,18 +7,14 @@ from pathlib import Path
 
 from cryptobench.shared.paths import RunTree
 from ..dto.bundled import applied_entries
+from cryptobench.shared.settings import authored
 from cryptobench.shared.document.document import read_yaml
-from cryptobench.shared.errors.input_error import InputError
 from .selection import generated, relocated
 
 
 def configured(base: Path) -> frozenset[str]:
     """The group:name of each providers.bundled entry the base config holds."""
-    entries = ((read_yaml(base) or {}).get("providers") or {}).get("bundled") or []
-    for e in entries:
-        if not (isinstance(e, dict) and e.get("artifact") and isinstance(e["artifact"], str)):
-            raise InputError(f"invalid: providers.bundled in {base}: {e!r} names no artifact")
-    return frozenset(e["artifact"].rsplit(":", 1)[0] for e in entries)
+    return frozenset(e["artifact"].rsplit(":", 1)[0] for e in authored.read(base).bundled)
 
 
 def last_applied(folder: Path) -> list[dict]:
@@ -39,7 +35,7 @@ def bundled_config(base: Path, folder: Path, entries: list[dict]) -> Path:
     if not entries:
         path.unlink(missing_ok=True)
         return Path(base)
-    document = relocated(base)
+    document = relocated(authored.read(base))
     providers = dict(document.get("providers") or {})
     providers["bundled"] = list(providers.get("bundled") or []) + entries
     path.parent.mkdir(parents=True, exist_ok=True)
