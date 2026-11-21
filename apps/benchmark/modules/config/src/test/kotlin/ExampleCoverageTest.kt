@@ -10,6 +10,7 @@ import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.SafeConstructor
 import org.yaml.snakeyaml.nodes.MappingNode
 import org.yaml.snakeyaml.nodes.Node
+import org.yaml.snakeyaml.nodes.NodeTuple
 import org.yaml.snakeyaml.nodes.ScalarNode
 import org.yaml.snakeyaml.nodes.SequenceNode
 import java.io.StringReader
@@ -21,6 +22,7 @@ class ExampleCoverageTest {
 
     private val shapes = LinkedHashMap<List<String>, Shape>()
     private val uncommented = mutableListOf<String>()
+    private val unlisted = mutableListOf<String>()
 
     @Test
     fun everyAcceptedKeyIsInAnExampleWithItsComment() {
@@ -28,6 +30,7 @@ class ExampleCoverageTest {
         walk("config_testset_example.yaml") { TestSetDocument.parse(it) }
         assertEquals("keys a reader accepts that no example writes", emptyList<String>(), shapes.values.flatMap { s -> (s.known - s.present).map { "${s.path}.$it" } })
         assertEquals("example keys with no comment on their line", emptyList<String>(), uncommented)
+        assertEquals("mappings off the open list whose reader names no key list", emptyList<String>(), unlisted.map { "$it: no key list in the refusal" })
     }
 
     private fun walk(name: String, parse: (Map<String, Any>) -> Unit) {
@@ -36,14 +39,16 @@ class ExampleCoverageTest {
     }
 
     private fun visit(node: Node, path: List<Any>, name: String, lines: List<String>, known: (List<Any>) -> List<String>?) {
+        val schema = path.joinToString("") { if (it is Int) "[]" else ".$it" }.removePrefix(".")
+        if (OPEN.any { schema == it || schema.startsWith("$it.") || schema.startsWith("$it[") }) return
         when (node) {
             is MappingNode -> {
                 val keys = node.value.map { (it.keyNode as ScalarNode).value to it }
-                known(path)?.let { accepted ->
-                    val label = name + path.joinToString("") { if (it is Int) "[]" else ".$it" }
-                    shapes.getOrPut(accepted.sorted()) { Shape(label, accepted) }.present += keys.map { it.first }
-                    uncommented += keys.filter { (_, tuple) -> '#' !in lines[tuple.keyNode.startMark.line] }.map { "$label.${it.first}" }
-                }
+                val label = "$name.$schema".removeSuffix(".")
+                val accepted = known(path)
+                if (accepted == null) unlisted += label
+                else shapes.getOrPut(accepted.sorted()) { Shape(label, accepted) }.present += keys.map { it.first }
+                uncommented += keys.filterNot { (_, tuple) -> commented(tuple, lines) }.map { "$label.${it.first}" }
                 keys.forEach { (key, tuple) -> visit(tuple.valueNode, path + key, name, lines, known) }
             }
             is SequenceNode -> node.value.forEachIndexed { index, item -> visit(item, path + index, name, lines, known) }
@@ -51,7 +56,15 @@ class ExampleCoverageTest {
         }
     }
 
-    /** The keys the reader names when the mapping at path holds one it does not know; null where it takes any key. */
+    // a comment is a whitespace-led # after the value, or after the key when the value starts below it
+    private fun commented(tuple: NodeTuple, lines: List<String>): Boolean {
+        val key = tuple.keyNode.endMark
+        val value = tuple.valueNode.endMark
+        val from = if (value.line == key.line) value.column else key.column
+        return COMMENT.containsMatchIn(lines[key.line].substring(from))
+    }
+
+    /** The keys the reader names when the mapping at path holds one it does not know; null when no refusal names them. */
     @Suppress("UNCHECKED_CAST")
     private fun accepted(text: String, path: List<Any>, parse: (Map<String, Any>) -> Unit): List<String>? {
         val document = Yaml(SafeConstructor(LoaderOptions())).load<Map<String, Any>>(text)
@@ -69,5 +82,8 @@ class ExampleCoverageTest {
     private companion object {
         const val PROBE = "exampleCoverageProbe"
         val KNOWN = Regex("""known \[([^\]]*)]""")
+        val COMMENT = Regex("""\s#""")
+        // readers that take any key: preparation's parameter tree, and a key block beside its spec tree
+        val OPEN = setOf("overrides[].set.parameters", "overrides[].set.key")
     }
 }
