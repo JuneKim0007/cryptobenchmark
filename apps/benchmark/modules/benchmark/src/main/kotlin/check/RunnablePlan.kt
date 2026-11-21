@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.benchmark.check
 
+import io.github.junekim0007.cryptobench.benchmark.RefusedPlanException
 import io.github.junekim0007.cryptobench.preparation.Preparation
 import io.github.junekim0007.cryptobench.settings.OnFailure
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
@@ -42,7 +43,16 @@ class RunnablePlan(
     // written: false in a process given its cases by name, which adds to the files the listing wrote instead of replacing them.
     fun list(effective: File, written: Boolean): List<BenchmarkCase> {
         listing = preparation.list(effective)
-        val checked = planCheck.runnable(listing.cases, listing.global.processRepetitions)
+        val checked = try {
+            planCheck.runnable(listing.cases, listing.global.processRepetitions)
+        } catch (refused: RefusedPlanException) {
+            // every case refused: the refusals are this run's skips, so the host reads them as it reads any other
+            if (written && refused.skipped.isNotEmpty()) {
+                skipFile.write(listing.skipped + refused.skipped)
+                preparedFile.listed(listing, emptyList())
+            }
+            throw refused
+        }
         refused = checked.skipped
         listed = checked.runnable.map { it.id }
         if (written) {

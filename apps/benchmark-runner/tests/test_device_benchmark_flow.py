@@ -259,6 +259,50 @@ def test_the_warm_up_leaves_out_a_coded_skip_and_warms_the_next_cases(tmp_path, 
     assert [line for line in problems if not line.startswith("not_measured: ")] == [f"case_skipped: {case}: keystore_unsupported" for case in launched]
 
 
+RAILS = "no_power_rails: the device reports no power rails"
+REFUSED_PLAN = ("INSTRUMENTATION_STATUS: stack=io.github.junekim0007.cryptobench.benchmark.RefusedPlanException: refused_plan: {0}\n"
+                "Tests run: 1,  Failures: 1\nINSTRUMENTATION_CODE: -1\n")
+
+
+class RefusingPhone(Phone):
+    """The plan check refuses every case: the listing dies on RefusedPlanException after RunnablePlan wrote each refusal to skipped.yaml."""
+
+    def __init__(self, folder, run_wide=None, **options):
+        super().__init__(folder, **options)
+        self.run_wide = run_wide
+
+    def instrument(self, test_class, *arguments, step="instrument"):
+        if "log" not in arguments:
+            return super().instrument(test_class, *arguments, step=step)
+        self.log.append(f"list {test_class}")
+        if self.run_wide:
+            return REFUSED_PLAN.format(self.run_wide)
+        self.skips = [{"stage": "benchmark", "provider": "P", "type": "T", "name": c, "caseId": c, "code": "no_power_rails", "reason": RAILS}
+                      for c in self.cases]
+        self.cases = []
+        return REFUSED_PLAN.format("; ".join(f"{c}: {RAILS}" for c in ("a", "b")))
+
+
+@pytest.mark.parametrize("warmup", [0, 5])
+def test_a_plan_whose_every_case_the_check_refused_is_all_cases_skipped(tmp_path, monkeypatch, capsys, warmup):
+    phone = RefusingPhone(tmp_path)
+    run = {"warmup": {"iterations": warmup, "jobs": [], "cases": 3}}
+    _phone, files, problems, _results = measured(tmp_path, monkeypatch, run, phone=phone)
+    out = capsys.readouterr().out.splitlines()
+    assert [line for line in out if line.startswith("case_skipped: ")] == ["case_skipped: a: no_power_rails", "case_skipped: b: no_power_rails"]
+    assert problems == ["all_cases_skipped: every case of CryptoBenchmark is refused by the plan check: 2 skips, listed in skipped.yaml"]
+    assert [r["code"] for r in yaml.safe_load(files["skipped"].read_text())["skipped"]] == ["no_power_rails"] * 2
+    assert yaml.safe_load(files["prepared"].read_text())["cases"] is None and "benchmark" not in files
+    assert not [s for s in steps(phone) if s.startswith("instrument ")]
+
+
+@pytest.mark.parametrize("warmup", [0, 5])
+def test_a_run_wide_refusal_stops_with_the_devices_words(tmp_path, monkeypatch, warmup):
+    phone = RefusingPhone(tmp_path, run_wide="not_positive: processRepetitions 0")
+    with pytest.raises(DeviceError, match=r"(?s)CryptoBenchmark planned no case on the device:.*refused_plan: not_positive: processRepetitions 0"):
+        measured(tmp_path, monkeypatch, {"warmup": {"iterations": warmup, "jobs": [], "cases": 3}}, phone=phone)
+
+
 def test_every_case_failing_stops_the_run(tmp_path, monkeypatch):
     with pytest.raises(DeviceError, match="failed on the device for every case"):
         measured(tmp_path, monkeypatch, {}, cases=("a",), crash=("a",))
@@ -401,3 +445,12 @@ def test_variants_run_interleaved_per_item_each_in_its_own_process(tmp_path, mon
     phone, _files, _problems, _results = measured(tmp_path, monkeypatch, {"processRepetitions": 2}, cases=cases)
     run = [line.split()[-1] for line in steps(phone) if line.startswith("instrument CryptoBenchmark ")]
     assert run == ["m_fixed", "m_notFixed", "c_fixed", "c_notFixed", "m_notFixed", "m_fixed", "c_notFixed", "c_fixed"]
+
+
+def test_an_all_refused_run_exits_0_and_its_manifest_counts_the_skips(tmp_path, monkeypatch):
+    from test_rerun_safety import Rerun, manifest_of
+    rerun = Rerun(tmp_path, monkeypatch, RefusingPhone(tmp_path))
+    assert rerun() in (None, 0)
+    written = manifest_of(rerun.device)
+    assert written["problems"] == ["all_cases_skipped: every case of CryptoBenchmark is refused by the plan check: 2 skips, listed in skipped.yaml"]
+    assert written["counts"] == {"prepared": 0, "skipped": 2}

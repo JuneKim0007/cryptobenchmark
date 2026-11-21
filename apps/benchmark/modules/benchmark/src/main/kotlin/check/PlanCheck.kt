@@ -17,9 +17,7 @@ class PlanCheck(
 
     class Checked(val runnable: List<BenchmarkCase>, val refused: List<Pair<BenchmarkCase, Refusal>>) {
 
-        val skipped: List<Skip> get() = refused.map { (case, refusal) ->
-            Skip(STAGE, case.provider, case.type, case.algorithm, refusal.reason, refusal.caseId)
-        }
+        val skipped: List<Skip> get() = skips(refused)
     }
 
     // Refused before any case is prepared: a refused case is left out with its reason; a run-wide refusal, or no case left, refuses the plan.
@@ -27,10 +25,14 @@ class PlanCheck(
         val refusals = check(cases, processRepetitions)
         val refused = refusals.mapTo(HashSet()) { it.caseId }
         val runnable = cases.filterNot { it.id in refused }
-        if ("" in refused || runnable.isEmpty()) {
+        if ("" in refused) {
             throw RefusedPlanException(refusals)
         }
-        return Checked(runnable, refusals.map { refusal -> cases.first { it.id == refusal.caseId } to refusal })
+        val byCase = refusals.map { refusal -> cases.first { it.id == refusal.caseId } to refusal }
+        if (runnable.isEmpty()) {
+            throw RefusedPlanException(refusals, skips(byCase))
+        }
+        return Checked(runnable, byCase)
     }
 
     fun check(cases: List<BenchmarkCase>, processRepetitions: Int): List<Refusal> {
@@ -82,5 +84,9 @@ class PlanCheck(
 
     private companion object {
         const val STAGE = "benchmark"
+
+        fun skips(refused: List<Pair<BenchmarkCase, Refusal>>): List<Skip> = refused.map { (case, refusal) ->
+            Skip(STAGE, case.provider, case.type, case.algorithm, refusal.reason, refusal.caseId)
+        }
     }
 }

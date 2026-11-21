@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.benchmark
 
+import io.github.junekim0007.cryptobench.benchmark.check.EnergyCapability
 import io.github.junekim0007.cryptobench.benchmark.check.PlanCheck
 import io.github.junekim0007.cryptobench.benchmark.check.RunnablePlan
 import io.github.junekim0007.cryptobench.benchmark.run.HostHarness
@@ -112,6 +113,26 @@ items:
         assertEquals(null, plan.guarded<Unit>(case, RunnablePlan.CHECK, RunnablePlan.CHECK_FAILED) { throw OutOfMemoryError("native") })
         assertEquals(RunnablePlan.CHECK, plan.skipped.last().stage)
         assertThrows(OutOfMemoryError::class.java) { plan.guarded(case, RunnablePlan.CHECK, RunnablePlan.CHECK_FAILED) { } }
+    }
+
+    @Test
+    fun aPlanWithEveryCaseRefusedWritesEachRefusalAndStillRefuses() {
+        val noRails = PlanCheck(HostHarness.METRICS, energyCapability = { EnergyCapability(false, false, 0.0, 0.0, 2.0, 2.0, false) })
+        val refusing = RunnablePlan(Preparation(device), noRails, File(folder.root, "out"), log = { logged += it })
+        val energy = effective().readText().replace("variants: [fixed]}", "variants: [fixed], harness: {energy: {capture: dry}}}")
+        val error = assertThrows(RefusedPlanException::class.java) { refusing.list(File(folder.root, "effective.yaml").apply { writeText(energy) }, written = true) }
+        assertEquals(4, error.skipped.size)
+        val skipped = File(folder.root, "out/skipped.yaml").readText()
+        assertEquals(4, Regex("code: no_power_rails").findAll(skipped).count())
+        assertTrue(File(folder.root, "out/prepared.yaml").readText().contains("cases: []"))
+    }
+
+    @Test
+    fun aRunWideRefusalWritesNoSkips() {
+        val zero = effective().readText().replace("processRepetitions: 1", "processRepetitions: 0")
+        val error = assertThrows(RefusedPlanException::class.java) { plan.list(File(folder.root, "effective.yaml").apply { writeText(zero) }, written = true) }
+        assertEquals(emptyList<Skip>(), error.skipped)
+        assertTrue(!File(folder.root, "out/skipped.yaml").exists())
     }
 
     @Test

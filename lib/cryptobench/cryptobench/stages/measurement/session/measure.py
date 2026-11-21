@@ -6,7 +6,7 @@ from cryptobench.shared.device import timeouts
 from cryptobench.shared.errors.failures import ALL_CASES_SKIPPED, AllSkipped
 from cryptobench.shared.errors.line import one_line
 from cryptobench.stages.measurement import case_files
-from cryptobench.shared.device import instrumentation, reconnect
+from cryptobench.shared.device import reconnect
 from cryptobench.stages.measurement.session import blocks, case_isolation, launch, skips
 from cryptobench.stages.measurement.validation import rejected, rules
 from cryptobench.shared.device.adb import DeviceError, DeviceLost
@@ -43,6 +43,8 @@ class Plan:
     refused: object = lambda _case: None
     # the pass's window.MinWindow; None keeps the configured samples
     sizing: object = None
+    # the device's prepared.yaml and skipped.yaml pulled; the skipped.yaml document (a refused listing reads it)
+    plan_skips: object = lambda: {}
 
 
 @dataclasses.dataclass
@@ -199,17 +201,14 @@ def measure(device, plan, process, hooks):
     each_case(device, plan, process, hooks)
 
 
-def planned(device, plan):
-    return case_isolation.listed(instrumentation.once(device, instrumentation.Instrumented(plan.test_class, passed=None), *plan.arguments, "-e", "log", "true"))
-
-
 def each_case(device, plan, process, hooks):
     if process.redo:
         process.cases = paths.Measurement(process.into).order.read_text().split()
         print(f"measure:   {len(process.redo)} of {len(process.cases)} cases of a kept run launched again")
         again(device, plan, process, hooks, rejected.run_of(plan.unit, process.into, process.repetition), process.redo)
         return
-    process.cases = plan.order(process.repetition, plan.reconnect.retried(lambda: planned(device, plan), "the case listing"))
+    process.cases = plan.order(process.repetition, plan.reconnect.retried(
+        lambda: case_isolation.planned(device, plan.test_class, plan.arguments, plan.plan_skips), "the case listing"))
     print(f"measure:   one process per case ({len(process.cases)} cases)")
     case_files.opened(process.into)
     case_files.ordered(process.into, process.cases)
