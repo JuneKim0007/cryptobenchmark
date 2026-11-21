@@ -65,13 +65,18 @@ def measure_on_device(run, one, captures, preparation, repetitions, folder, writ
             run.files.setdefault("energySamples", []).append(sizing.write(process, paths.Measurement(process.into).energy_samples))
         record(run.files, process.into, captures, device)
 
+    def kept(process):
+        if sizing:
+            sizing.seeded(paths.Measurement(process.into).energy_samples)
+        held(process)
+
     arguments = pass_arguments(run, one)
     sizing = window.MinWindow(one.min_window, one.samples, lambda samples: pass_arguments(run, one, samples)) if one.row.sizing == passes.MIN_WINDOW else None
     plan = measure_session.Plan("CryptoBenchmark", arguments, run.order, gate, run.retries, run.reconnect, run.unit,
                                 expectation.of(run.record["run"], one.name), timed=bool(timed),
                                 cleared=(paths.PREPARED, paths.SKIPPED), stale=(paths.Preparation(preparation).prepared, paths.Preparation(preparation).skipped),
                                 pull_plan=lambda process: (pull_plan(device, preparation), pull_pins(device, process)), after_process=converted,
-                                blocks=measured_blocks, kept=held,
+                                blocks=measured_blocks, kept=kept,
                                 refused=lambda case: device_skips(device, preparation).get(case), sizing=sizing)
     measure_session.run_session(device, plan, repetitions, hooks, folder, run.problems)
 

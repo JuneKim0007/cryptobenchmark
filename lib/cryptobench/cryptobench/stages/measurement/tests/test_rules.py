@@ -142,6 +142,15 @@ def test_a_relaunch_counts_the_samples_it_asked_for(tmp_path):
     assert rules.check_run(sized, energy) == []
 
 
+def test_a_later_process_is_held_to_the_count_its_entry_asked(tmp_path):
+    run = run_folder(tmp_path, ["a"], [])
+    data(run.folder / "cases/a.json", runs=75)
+    energy = expectation.Expectation("energy", 3, 5)
+    assert rules.check_run(rules.RunFolder(tmp_path, run.folder, run.folder, 2, sized={"a": {"samples": 75}}), energy) == []
+    assert [f.code for f in rules.check_run(rules.RunFolder(tmp_path, run.folder, run.folder, 2, sized={"a": {"samples": 76}}), energy)] == ["sample_count"]
+    assert rules.asked_samples({"samples": 3}) == 3 and rules.asked_samples({"samples": 3, "relaunched": {"samples": 75}}) == 75
+
+
 def test_the_energy_pass_rows_note_a_kept_short_window_and_an_uncovered_window(tmp_path):
     run = run_folder(tmp_path, ["a", "b"], ["a", "b"])
     (run.folder / "energy-samples.yaml").write_text(yaml.safe_dump({"cases": {"a": {"samples": 3, "windowSeconds": 1.0, "shortWindow": True}}}))

@@ -13,7 +13,7 @@ from cryptobench.stages.measurement import benchmark, resume  # noqa: E402
 from cryptobench.stages.discovery import discover  # noqa: E402
 from cryptobench.stages.measurement.session import blocks, skips  # noqa: E402
 from failure import reported  # noqa: E402
-from fake_phone import PROBE, Energy, Phone, fake_tools  # noqa: E402
+from fake_phone import OK, PROBE, Energy, Phone, fake_tools, jetpack_case  # noqa: E402
 
 OPTIONS = types.SimpleNamespace(stream=False, suppress_errors="", stacktrace=False, energy_python="python3", energy_accept_unresponsive=False,
                                 reconnect_wait_minutes=None, reconnect_poll_seconds=None)
@@ -278,6 +278,35 @@ def test_each_pass_is_its_own_session_and_every_metric_comes_from_its_pass(tmp_p
     merged = json.loads((results / "benchmark/benchmark.json").read_text())["cases"][0]["metrics"]
     assert merged == {"timeNs": {"runs": [1.0]}, "energyJ": {"runs": [2.0]}, "allocationCount": {"runs": [3.0]}}
     assert len(files["clocks"]) == 3 and files["clocks"][0] == results / "benchmark/timing/clocks.yaml"
+
+
+class UnevenPhone(Phone):
+    """Each process's samples last their own ns, as the emulator's did: process 1 short of the window at 3 samples, process 2 not."""
+
+    def __init__(self, folder, ns, **options):
+        super().__init__(folder, **options)
+        self.ns = ns
+
+    def pulled(self, remote, local, check):
+        if remote == self.data and self.written:
+            ns = self.ns[self.log.count("clear") - 1]
+            cases = [{**jetpack_case(c), "metrics": {"timeNs": {"runs": [ns] * self.samples}}} for c in self.written]
+            pathlib.Path(local).write_text(json.dumps({"context": {"build": {"model": "fake"}}, "benchmarks": cases}))
+            return OK
+        return super().pulled(remote, local, check)
+
+
+def test_every_energy_process_holds_the_count_the_first_sized_so_the_runs_merge_as_equals(tmp_path, monkeypatch):
+    run = {"harness": {"energy": {"capture": "measured"}}, "passes": {"energy": {"samples": 3, "minWindowSeconds": 5}}, "processRepetitions": 2}
+    phone = UnevenPhone(tmp_path, (1e7, 2e8))
+    _phone, _files, problems, results = measured(tmp_path, monkeypatch, run, phone=phone)
+    asked = [int(a[a.index("cryptobench.samples") + 1]) for a in phone.arguments]
+    assert asked == [3, 75, 3, 75, 75, 75]
+    folder = results / "benchmark/energy"
+    held = [{p.stem: len(json.loads(p.read_text())["benchmarks"][0]["metrics"]["timeNs"]["runs"]) for p in (folder / f"process-{n}/cases").glob("*.json")}
+            for n in (1, 2)]
+    assert held == [{"a": 75, "b": 75}] * 2
+    assert [line for line in problems if line.startswith("short_window")] == [] and steps(phone).count("merge") >= 1
 
 
 def test_the_throttle_sleep_reaches_every_process_and_unset_passes_nothing(tmp_path, monkeypatch):

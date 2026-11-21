@@ -54,8 +54,8 @@ def attempts(device, plan, process, case, hooks, pulled, short):
     retried, then the next case goes on. Every launch again is one process.relaunched entry; short takes the bytes of a window launched
     again for being short."""
     gate, retries, discards, attempt = plan.gate, plan.retries, 0, 0
-    # a short energy window is launched once more with more samples, outside the retries
-    arguments, relaunched = plan.arguments, None
+    # a short energy window is launched once more with more samples, outside the retries; a case sized by an earlier process starts at its count
+    (arguments, asked), relaunched = plan.sizing.first(case) if plan.sizing else (plan.arguments, None), False
     again = lambda code: process.relaunched.append({"case": case, "attempt": attempt, "code": code})
     run = rejected.run_of(plan.unit, process.into, process.repetition)
     aside = lambda code, detail: rejected.moved(plan.unit, rules.Result(run, case, pulled), attempt,
@@ -84,17 +84,17 @@ def attempts(device, plan, process, case, hooks, pulled, short):
                 return gate.discard_limit_reached(case)
             again("temperature_discarded")
             continue
-        result = rules.Result(run, case, pulled, relaunched)
+        result = rules.Result(run, case, pulled, asked)
         findings = [] if failure else rules.check_case(result, plan.expectation.planned(paths.RunTree(plan.unit).preparation.prepared))
         failed = rules.failed(findings)
         if not failure and not failed:
             for finding in findings:
                 print(f"note: {finding.code}: {finding.detail}")
-            more = plan.sizing.sized(process, case, pulled, relaunched) if plan.sizing else None
+            more = plan.sizing.sized(process, case, pulled, asked, relaunched) if plan.sizing else None
             if more:
                 short.append(pulled.read_bytes())
                 again("short_window")
-                arguments, relaunched = plan.sizing.arguments(more), more
+                arguments, asked, relaunched = plan.sizing.arguments(more), more, True
                 continue
             return None
         if failed:

@@ -35,7 +35,7 @@ class Finding:
 
 @dataclasses.dataclass(frozen=True)
 class Result:
-    """One attempt's pulled benchmarkData: run names its process folder, samples the count a relaunch asked for (None: the pass's)."""
+    """One attempt's pulled benchmarkData: run names its process folder, samples the count the launch asked for (None: the pass's)."""
     run: str
     case: str
     path: pathlib.Path
@@ -120,14 +120,19 @@ class RunFolder:
         return [case for case in self.order or () if not self.gave_up(case)]
 
     @functools.cached_property
-    def relaunched(self):
-        """case -> the samples a short window's relaunch ran with, from energy-samples.yaml."""
+    def asked(self):
+        """case -> the samples its kept launch ran with, from energy-samples.yaml."""
         samples = paths.Measurement(self.folder).energy_samples
         cases = self.sized if self.sized is not None else (read_yaml(samples).get("cases") or {}) if samples.is_file() else {}
-        return {case: entry["relaunched"]["samples"] for case, entry in cases.items() if isinstance(entry.get("relaunched"), dict)}
+        return {case: asked_samples(entry) for case, entry in cases.items()}
 
     def result(self, case):
-        return Result(self.run, case, paths.Measurement(self.folder).case(case), self.relaunched.get(case))
+        return Result(self.run, case, paths.Measurement(self.folder).case(case), self.asked.get(case))
+
+
+def asked_samples(entry):
+    """An energy-samples.yaml case entry's kept count: the relaunch's, else the first launch's."""
+    return entry["relaunched"]["samples"] if isinstance(entry.get("relaunched"), dict) else entry["samples"]
 
 
 def every_case_present(run, _expectation):

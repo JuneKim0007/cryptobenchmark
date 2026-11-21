@@ -381,6 +381,8 @@ def test_block_end_records_each_runs_findings_and_validation_yaml_holds_the_last
 
 
 ENERGY_THREE = MEASURED | {"processRepetitions": 3, "resumeBlockRuns": 1}
+# energy pass launches: process 1 sizes both cases (3, then 75 samples each), later processes launch each case once at 75
+ENERGY_LAUNCHES = (4, 2, 2)
 
 
 def invocations(monkeypatch):
@@ -407,7 +409,7 @@ def energy_of(rerun, process):
 def test_a_resume_reads_energy_again_only_for_the_processes_it_measured_and_kept_ones_keep_their_energy_and_idle(tmp_path, monkeypatch):
     invocations(monkeypatch)
     rerun = Rerun(tmp_path, monkeypatch)
-    stopped(rerun, ENERGY_THREE, launch=4 * 2 + 1)
+    stopped(rerun, ENERGY_THREE, launch=sum(ENERGY_LAUNCHES[:2]) + 1)
     kept = [energy_of(rerun, n) for n in (1, 2)]
     rerun(ENERGY_THREE)
     assert [energy_of(rerun, n) for n in (1, 2)] == kept and kept[0]["idleBaseline"] == "idle_start_only"
@@ -418,7 +420,7 @@ def test_a_resume_reads_energy_again_only_for_the_processes_it_measured_and_kept
 def test_a_kept_energy_run_failing_one_case_is_measured_again_whole_so_no_earlier_trace_meets_this_invocations_line(tmp_path, monkeypatch, capsys):
     invocations(monkeypatch)
     rerun = Rerun(tmp_path, monkeypatch)
-    stopped(rerun, ENERGY_THREE, launch=4 * 3 + 1)
+    stopped(rerun, ENERGY_THREE, launch=sum(ENERGY_LAUNCHES) + 1)
     kept = energy_of(rerun, 1)
     paths.RunTree(rerun.device).benchmark.root.joinpath("energy/process-2/cases/a.json").write_text("{}")
     capsys.readouterr()
@@ -427,3 +429,20 @@ def test_a_kept_energy_run_failing_one_case_is_measured_again_whole_so_no_earlie
     assert energy_of(rerun, 1) == kept and kept["idleBaseline"] == "idle_start_only"
     for process in (2, 3):
         assert energy_of(rerun, process) == {"idleBaseline": "interpolated", "cases": {"a": {"by": 2}, "b": {"by": 2}}}
+
+
+def energy_samples(phone, since=0):
+    return [int(a[a.index("cryptobench.samples") + 1]) for a in phone.arguments[since:] if a[a.index("cryptobench.pass") + 1] == "energy"]
+
+
+def test_a_resume_launches_the_cases_kept_processes_sized_at_their_count(tmp_path, monkeypatch):
+    rerun = Rerun(tmp_path, monkeypatch)
+    stopped(rerun, ENERGY_THREE, launch=sum(ENERGY_LAUNCHES[:2]) + 1)
+    assert energy_samples(rerun.phone) == [3, 75, 3, 75, 75, 75]
+    since = len(rerun.phone.arguments)
+    rerun(ENERGY_THREE)
+    assert energy_samples(rerun.phone, since) == [75, 75]
+    folder = paths.RunTree(rerun.device).benchmark.root / "energy"
+    counts = [{c: e.get("relaunched", e)["samples"] for c, e in yaml.safe_load((folder / f"process-{n}/energy-samples.yaml").read_text())["cases"].items()}
+              for n in (1, 2, 3)]
+    assert counts == [{"a": 75, "b": 75}] * 3

@@ -1,11 +1,12 @@
-"""run.passes.energy.minWindowSeconds: a case's energy window from its pulled file, its one relaunch when short (decision 32), and the
-process's energy-samples.yaml."""
+"""run.passes.energy.minWindowSeconds: a case's energy window from its pulled file, its one relaunch when short (decision 32), sized once
+per run so every process holds equal samples, and the process's energy-samples.yaml."""
 import dataclasses, json, math
 
-from cryptobench.shared.document.document import DocumentKind
+from cryptobench.shared.document.document import DocumentKind, read_yaml
 from cryptobench.shared.document.dump import dump_yaml
 from cryptobench.shared.document.write import write_text
 from cryptobench.shared.log.warn import warn
+from cryptobench.stages.measurement.validation.rules import asked_samples
 
 ENERGY_SAMPLES_DOC = DocumentKind("energySamples", 1)
 # a relaunch aims past the minimum, since repeatIterations is picked again per process
@@ -24,30 +25,51 @@ class MinWindow:
     samples: int
     # samples -> the pass's instrumentation arguments with that count
     arguments: object
+    # case -> the samples the first process that measured it kept; every later process launches it with that count
+    decided: dict = dataclasses.field(default_factory=dict)
 
-    def sized(self, process, case, pulled, relaunched):
-        """The samples of the one relaunch a short window gets, else None; records the case in process.samples. relaunched: the samples the
-        launch just judged ran with, None for the first."""
+    def first(self, case):
+        """The first launch's arguments and the samples it asks for."""
+        asked = self.decided.get(case, self.samples)
+        return self.arguments(asked), asked
+
+    def sized(self, process, case, pulled, asked, relaunched):
+        """The samples of the one relaunch a short window gets, else None; records the case in process.samples. asked: the samples the launch
+        just judged ran with; relaunched: that launch was the relaunch."""
         window = seconds(pulled)
-        if relaunched is None:
-            process.samples[case] = {"samples": self.samples, "windowSeconds": round(window, 3)}
-            if window >= self.minimum:
-                return None
-            more = math.ceil(self.samples * MARGIN * self.minimum / window) if window > 0 else self.samples * 2
-            print(f"window:    {case}: {window:.2f} s below {self.minimum} s; launching again with {more} samples")
-            return more
-        process.samples[case]["relaunched"] = {"samples": relaunched, "windowSeconds": round(window, 3)}
-        if window < self.minimum:
-            process.samples[case]["shortWindow"] = True
-            warn(f"short_window: {case}: {window:.2f} s with {relaunched} samples, below {self.minimum} s")
-        return None
+        if relaunched:
+            process.samples[case]["relaunched"] = {"samples": asked, "windowSeconds": round(window, 3)}
+            self.decided[case] = asked
+            if window < self.minimum:
+                process.samples[case]["shortWindow"] = True
+                warn(f"short_window: {case}: {window:.2f} s with {asked} samples, below {self.minimum} s")
+            return None
+        process.samples[case] = {"samples": asked, "windowSeconds": round(window, 3)}
+        if case in self.decided:
+            if window < self.minimum:
+                process.samples[case]["shortWindow"] = True
+                warn(f"short_window: {case}: {window:.2f} s with {asked} samples, below {self.minimum} s; sized by an earlier process")
+            return None
+        if window >= self.minimum:
+            self.decided[case] = asked
+            return None
+        more = math.ceil(asked * MARGIN * self.minimum / window) if window > 0 else asked * 2
+        print(f"window:    {case}: {window:.2f} s below {self.minimum} s; launching again with {more} samples")
+        return more
 
     def kept_short(self, process, case, failure):
-        """The relaunch failed every retry: the first, short window stays the case's result."""
+        """The relaunch failed every retry: the first, short window stays the case's result, and its count the run's."""
         process.samples[case]["shortWindow"] = True
         entry = process.samples[case]
+        self.decided[case] = entry["samples"]
         warn(f"short_window: {case}: {entry['windowSeconds']:.2f} s with {entry['samples']} samples kept, below {self.minimum} s; "
              f"its relaunch failed: {failure}")
+
+    def seeded(self, path):
+        """A kept process's energy-samples.yaml: its cases' counts decide this run's."""
+        cases = (read_yaml(path).get("cases") or {}) if path.is_file() else {}
+        for case, entry in cases.items():
+            self.decided.setdefault(case, asked_samples(entry))
 
     def write(self, process, path):
         document = {"schemaVersion": ENERGY_SAMPLES_DOC.version, "minWindowSeconds": self.minimum, "cases": process.samples}
