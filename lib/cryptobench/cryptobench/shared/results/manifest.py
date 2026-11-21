@@ -45,7 +45,8 @@ def operations():
 
 
 def survived(problems):
-    return {"problems": list(problems)} if problems else {}
+    """Each line once, in first order: a skip every process meets is one line here; the block records keep each process's."""
+    return {"problems": list(dict.fromkeys(problems))} if problems else {}
 
 
 def manifest(results, mode, configuration, files, problems=(), partial=None, resumed=(), run=None):

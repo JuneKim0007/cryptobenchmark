@@ -59,6 +59,21 @@ def test_problems_the_run_survived_are_recorded_and_a_clean_run_has_none():
         assert yaml.safe_load((results / "manifest.yaml").read_text())["problems"] == ["energy_failed: x", "not_measured: c"]
 
 
+def test_a_line_every_process_met_is_one_manifest_line_and_the_block_records_keep_theirs(tmp_path, monkeypatch):
+    from test_device_benchmark_flow import REFUSED, measured
+    from cryptobench.stages.measurement.session import blocks
+    refused = next(iter(REFUSED))
+    _phone, _files, problems, results = measured(tmp_path, monkeypatch, {"processRepetitions": 2}, cases=("a", refused), refuse=REFUSED)
+    line = f"case_skipped: {refused}: keystore_unsupported"
+    assert problems.count(line) == 2
+    runs = [run for record in blocks.recorded(results / "benchmark").values() for run in record["processes"]]
+    assert [run["problems"] for run in runs] == [[line], [line]]
+    (results / "global.yaml").write_text("schemaVersion: 1\n")
+    manifest(results, "device", results / "global.yaml", layout(results / "m", measured=True), problems)
+    assert yaml.safe_load((results / "manifest.yaml").read_text())["problems"] == [line, f"not_measured: {refused}"]
+    assert manifest_module.survived(["x", "x", "y"]) == {"problems": ["x", "y"]}
+
+
 def test_configure_only_lists_no_stage_that_did_not_run():
     with tempfile.TemporaryDirectory() as temporary:
         results = pathlib.Path(temporary)

@@ -275,8 +275,9 @@ def test_a_kept_run_brings_its_problem_lines_so_the_manifest_equals_an_uninterru
     whole = Rerun(tmp_path / "whole", monkeypatch, Phone(tmp_path / "whole", crash={"b"}))
     whole(four)
     problems = manifest_of(rerun.device)["problems"]
-    assert problems == manifest_of(whole.device)["problems"] and sum("case_failed: b" in line for line in problems) == 4
-    assert record(rerun.device, 1)["processes"][0]["problems"] == [problems[0]]
+    assert problems == manifest_of(whole.device)["problems"] and sum("case_failed: b" in line for line in problems) == 1
+    kept = [run["problems"] for block in (1, 2) for run in record(rerun.device, block)["processes"]]
+    assert kept == [[problems[0]]] * 4
 
 
 def test_a_new_fingerprint_is_another_device_folder_and_the_stopped_one_stays_as_it_was(tmp_path, monkeypatch, capsys):
