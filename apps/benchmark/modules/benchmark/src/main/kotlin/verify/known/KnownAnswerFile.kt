@@ -3,7 +3,8 @@ package io.github.junekim0007.cryptobench.benchmark.verify.known
 import io.github.junekim0007.cryptobench.document.DocumentFields
 import io.github.junekim0007.cryptobench.files.FileNames
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFile
+import io.github.junekim0007.cryptobench.document.versioned.MapDocument
+import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import java.io.File
 
 // Reads config/known-answers.yaml; {hex: ...} inside a parameter tree becomes bytes.
@@ -14,8 +15,9 @@ object KnownAnswerFile {
     private val PAIR_KEYS = listOf("algorithm", "private", "public")
     private const val HEX = "hex"
     private const val PREFIX = "prefix"
+    private const val SCHEMA_VERSION = 1
 
-    fun read(file: File): List<KnownAnswer> = parse(DocumentFile.read(file, 1))
+    fun read(file: File): List<KnownAnswer> = parse(YamlFiles().readOnly(file, MapDocument(SCHEMA_VERSION)).read())
 
     fun parse(document: Map<String, Any>): List<KnownAnswer> =
         DocumentFields.sections(document, "vectors").mapIndexed { index, vector ->

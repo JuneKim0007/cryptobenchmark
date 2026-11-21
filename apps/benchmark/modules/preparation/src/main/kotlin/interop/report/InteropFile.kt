@@ -1,7 +1,8 @@
 package io.github.junekim0007.cryptobench.preparation.interop.report
 
 import io.github.junekim0007.cryptobench.preparation.interop.plan.Member
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFile
+import io.github.junekim0007.cryptobench.document.versioned.MapDocument
+import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import java.io.File
 
 // interop.yaml is read back by perf-repair, which matches each row to its plan pair by id and members.
@@ -22,5 +23,5 @@ object InteropFile {
         linkedMapOf("type" to m.type, "algorithm" to m.algorithm, "provider" to m.provider)
 
     fun write(file: File, verdicts: List<InteropVerdict>, plan: String, capture: String): File =
-        DocumentFile.write(file, document(verdicts, plan, capture))
+        YamlFiles().at(file, MapDocument(1)).write(document(verdicts, plan, capture))
 }

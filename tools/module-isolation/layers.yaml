@@ -40,11 +40,11 @@ modules:
       jca: [failure.Attempt]
       preparation: [parameter.bind.BindException, measurement.BenchmarkCase, measurement.Operation, prepare.PreparedCase, operation.Invocations, operation.Invocation, Preparation,
         prepare.Listing, prepare.PreparationException, record.PreparedFile, report.SkipFile,
-        global.GlobalSettings, shared.FailureText, shared.DocumentFile, peer.Outcome, peer.OutputBytes, peer.PeerEngine, peer.ProducedCall, peer.Consumer, peer.Travel]
+        global.GlobalSettings, shared.FailureText, peer.Outcome, peer.OutputBytes, peer.PeerEngine, peer.ProducedCall, peer.Consumer, peer.Travel]
       settings: [HarnessSettings, EnergySettings, CpuSettings, Metric, OnFailure]
       records: [Skip, StoppedOnFailureException]
       files: all
-      document: [DocumentFields, SchemaVersion]
+      document: [AtomicFile, DocumentFields, SchemaVersion, versioned.MapDocument, versioned.VersionedFile, versioned.YamlFile, versioned.YamlFiles]
 
 # The one file that may name each androidx entry point: a second config or loop would bypass the collection between samples.
 owned:

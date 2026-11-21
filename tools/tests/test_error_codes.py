@@ -17,8 +17,6 @@ REPORTERS = {"fail", "warn", "guarded", "terminate", "halt", "halt_of", "warning
 PREFIX = re.compile(r"^(?:warning|error|skipped|facade(?: [a-z]+)?): ")
 KOTLIN_LITERAL = re.compile(r'"((?:[^"\\$]|\\.|\$\{[^}]*\}|\$)*)"')
 KOTLIN_TEMPLATE = re.compile(r"\$\{[^}]*\}|\$[A-Za-z_]\w*")
-# a document kind, read as `unsupported_<kind>_schema`; never a code itself
-KIND_ARGUMENT = re.compile(r"DocumentFile\.read\([^,]+,\s*$")
 
 
 def tracked(root, pattern):
@@ -85,7 +83,7 @@ def kotlin():
         for n, line in enumerate(path.read_text().splitlines(), 1):
             for m in KOTLIN_LITERAL.finditer(line):
                 text = KOTLIN_TEMPLATE.sub(HOLE, m.group(1))
-                if (code := leading(unprefixed(text))) and not KIND_ARGUMENT.search(line[:m.start()]):
+                if (code := leading(unprefixed(text))):
                     found.setdefault(code, []).append(f"{path.relative_to(REPO)}:{n}")
     return found
 

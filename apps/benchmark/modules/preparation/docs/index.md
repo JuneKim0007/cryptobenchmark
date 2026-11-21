@@ -97,7 +97,6 @@ apps/benchmark/modules/preparation/src/main/kotlin/resolve/Rejection.kt : one re
 apps/benchmark/modules/preparation/src/main/kotlin/resolve/Resolution.kt : cases and rejections result
 apps/benchmark/modules/preparation/src/main/kotlin/resolve/SelectionCheck.kt : per-selection rejection rules
 apps/benchmark/modules/preparation/src/main/kotlin/resolve/SelectionExpander.kt : cartesian expansion of a selection into cases
-apps/benchmark/modules/preparation/src/main/kotlin/shared/DocumentFile.kt : YAML file read (schemaVersion check) and write
 apps/benchmark/modules/preparation/src/main/kotlin/shared/FailureText.kt : a failure as one record line: scrubbed and capped, object identity hashes dropped
 apps/benchmark/modules/preparation/src/test/kotlin/BenchmarkCaseTest.kt : case id and case validation tests
 apps/benchmark/modules/preparation/src/test/kotlin/BenchmarkRequestTest.kt : request shape-error tests

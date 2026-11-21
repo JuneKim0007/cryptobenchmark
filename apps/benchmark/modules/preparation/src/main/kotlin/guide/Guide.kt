@@ -5,7 +5,8 @@ import io.github.junekim0007.cryptobench.files.Beside
 import io.github.junekim0007.cryptobench.files.FileNames
 import io.github.junekim0007.cryptobench.preparation.request.Selection
 import io.github.junekim0007.cryptobench.preparation.resolve.Rejection
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFile
+import io.github.junekim0007.cryptobench.document.versioned.MapDocument
+import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import java.io.File
 
 /** guide.yaml: what the implementation guide says for this run's items. Effective says what runs; this says how each is built. */
@@ -50,7 +51,7 @@ class Guide(private val items: Map<String, Map<String, Any>>) {
 
         fun read(file: File): Guide {
             val items = LinkedHashMap<String, Map<String, Any>>()
-            val document = DocumentFile.read(file, SUPPORTED_SCHEMA_VERSION)
+            val document = YamlFiles().readOnly(file, MapDocument(SUPPORTED_SCHEMA_VERSION)).read()
             for ((provider, types) in DocumentFields.sectionOrEmpty(document, "items")) for ((type, names) in DocumentFields.asSection(types, provider)) {
                 for ((name, item) in DocumentFields.asSection(names, "$provider.$type")) items["$provider/$type/$name"] = DocumentFields.asSection(item, "$provider.$type.$name")
             }

@@ -17,7 +17,8 @@ apps/benchmark/modules/document/src/main/kotlin/names/AlgorithmNames.kt : the on
 apps/benchmark/modules/document/src/main/kotlin/names/dto/Canonical.kt : canonical name, key-size constraint, catalogued or not
 apps/benchmark/modules/document/src/main/kotlin/versioned/DocumentHandler.kt : reader and writer interface
 apps/benchmark/modules/document/src/main/kotlin/versioned/DocumentReader.kt : reader interface: the schemaVersion it reads and its parse
-apps/benchmark/modules/document/src/main/kotlin/versioned/VersionedFile.kt : the one versioned read: missing_file, unreadable_yaml: <file>, the SchemaVersion refusal, then the reader's parse with its refusal prefixed <file>:
+apps/benchmark/modules/document/src/main/kotlin/versioned/MapDocument.kt : a versioned document read and written as its map; the caller parses, unprefixed
+apps/benchmark/modules/document/src/main/kotlin/versioned/VersionedFile.kt : the one versioned read, of a file or its text: missing_file, unreadable_yaml: <file>, the SchemaVersion refusal, then the reader's parse with its refusal prefixed <file>:
 apps/benchmark/modules/document/src/main/kotlin/versioned/YamlFile.kt : VersionedFile's read; write stamps schemaVersion first, through AtomicFile
 apps/benchmark/modules/document/src/main/kotlin/versioned/YamlFiles.kt : factory for YamlFile and VersionedFile on one codec profile
 apps/benchmark/modules/document/src/test/kotlin/DocumentFieldsTest.kt : sectionsIfKeyPresent fails on a null value, optionalSections, optionalSection and sectionOrEmpty on absent and null

@@ -2,7 +2,8 @@ package io.github.junekim0007.cryptobench.preparation.inbound
 
 import io.github.junekim0007.cryptobench.document.DocumentFields.expectKeys
 import io.github.junekim0007.cryptobench.document.DocumentFields.section
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFile
+import io.github.junekim0007.cryptobench.document.versioned.MapDocument
+import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import java.io.File
 
 object InboundFile {
@@ -14,10 +15,10 @@ object InboundFile {
     private val KEYS = listOf("schemaVersion", "generatedFrom", "runId", "run", "policy", "analysis", "bundledProviders", "providers", "warnings", "skipped")
 
     fun read(file: File): InboundDocument =
-        inbound(file.name, DocumentFile.read(file, SUPPORTED_SCHEMA_VERSION))
+        inbound(file.name, YamlFiles().readOnly(file, MapDocument(SUPPORTED_SCHEMA_VERSION)).read())
 
     fun read(fileName: String, text: String): InboundDocument =
-        inbound(fileName, DocumentFile.read(fileName, text, SUPPORTED_SCHEMA_VERSION))
+        inbound(fileName, YamlFiles().readOnly(File(fileName), MapDocument(SUPPORTED_SCHEMA_VERSION)).read(text))
 
     private fun inbound(fileName: String, document: Map<String, Any>): InboundDocument {
         expectKeys(document, KEYS, fileName)

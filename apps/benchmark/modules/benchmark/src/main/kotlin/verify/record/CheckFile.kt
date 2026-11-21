@@ -1,7 +1,8 @@
 package io.github.junekim0007.cryptobench.benchmark.verify.record
 
 import io.github.junekim0007.cryptobench.document.DocumentFields
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFile
+import io.github.junekim0007.cryptobench.document.versioned.MapDocument
+import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import java.io.File
 
 // check.yaml: the end-to-end check's per-case records and their counts; read back by RecordDiff and lib/cryptobench/cryptobench/stages/verification/check.py.
@@ -9,14 +10,14 @@ object CheckFile {
 
     private const val SCHEMA = 1
 
-    fun write(file: File, records: List<CaseRecord>, generatedFrom: Map<String, Any>): File = DocumentFile.write(file, linkedMapOf(
+    fun write(file: File, records: List<CaseRecord>, generatedFrom: Map<String, Any>): File = YamlFiles().at(file, MapDocument(SCHEMA)).write(linkedMapOf(
         "schemaVersion" to SCHEMA,
         "generatedFrom" to generatedFrom,
         "summary" to summary(records),
         "cases" to records.map { it.toMap() },
     ))
 
-    fun cases(file: File): List<Map<String, Any>> = DocumentFields.sections(DocumentFile.read(file, SCHEMA), "cases")
+    fun cases(file: File): List<Map<String, Any>> = DocumentFields.sections(YamlFiles().readOnly(file, MapDocument(SCHEMA)).read(), "cases")
 
     private fun summary(records: List<CaseRecord>): Map<String, Any> {
         val oracles = LinkedHashMap<String, MutableMap<String, Int>>()

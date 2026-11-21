@@ -10,7 +10,8 @@ import io.github.junekim0007.cryptobench.document.DocumentFields.string
 import io.github.junekim0007.cryptobench.preparation.device.dto.TrialledDevice
 import io.github.junekim0007.cryptobench.preparation.device.dto.TrialledService
 import io.github.junekim0007.cryptobench.preparation.device.dto.TrialledTransformation
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFile
+import io.github.junekim0007.cryptobench.document.versioned.MapDocument
+import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import java.io.File
 
 object TrialFile {
@@ -19,10 +20,10 @@ object TrialFile {
 
 
     fun read(file: File): TrialledDevice =
-        device(DocumentFile.read(file, SUPPORTED_SCHEMA_VERSION))
+        device(YamlFiles().readOnly(file, MapDocument(SUPPORTED_SCHEMA_VERSION)).read())
 
     fun read(fileName: String, text: String): TrialledDevice =
-        device(DocumentFile.read(fileName, text, SUPPORTED_SCHEMA_VERSION))
+        device(YamlFiles().readOnly(File(fileName), MapDocument(SUPPORTED_SCHEMA_VERSION)).read(text))
 
     private fun device(document: Map<String, Any>): TrialledDevice = TrialledDevice(
         capturedAtMillis = number(document, "capturedAtMillis").toLong(),

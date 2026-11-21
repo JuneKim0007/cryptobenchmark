@@ -5,6 +5,7 @@ import io.github.junekim0007.cryptobench.document.YamlCodec
 import org.yaml.snakeyaml.error.YAMLException
 import java.io.File
 
+/** The fixed steps of a versioned read: present, loadable, the version this build reads, then the reader's parse. */
 class VersionedFile<T> internal constructor(
     val file: File,
     private val reader: DocumentReader<T>,
@@ -15,8 +16,12 @@ class VersionedFile<T> internal constructor(
         if (!file.isFile) {
             throw IllegalArgumentException("missing_file: ${file.path}")
         }
+        return read(file.readText())
+    }
+
+    fun read(text: String): T {
         val document = try {
-            codec.load(file.readText())
+            codec.load(text)
         } catch (failure: YAMLException) {
             throw IllegalArgumentException("unreadable_yaml: ${file.name}: ${failure.message}", failure)
         }

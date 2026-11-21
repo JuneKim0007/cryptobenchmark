@@ -4,7 +4,8 @@ import io.github.junekim0007.cryptobench.benchmark.report.CaseDocument
 import io.github.junekim0007.cryptobench.benchmark.report.jetpack.JetpackResults
 import io.github.junekim0007.cryptobench.benchmark.verify.known.KnownAnswerFile
 import io.github.junekim0007.cryptobench.files.RepositoryFiles
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFile
+import io.github.junekim0007.cryptobench.document.versioned.MapDocument
+import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.yaml.snakeyaml.LoaderOptions
@@ -20,7 +21,7 @@ class ContractsTest {
 
     @Test
     fun theKnownAnswersPythonWroteReadToTheirStatedValueAndVectors() {
-        assertEquals(stated("known-answers"), DocumentFile.read(File(RepositoryFiles.documents, "known-answers.yaml"), 1))
+        assertEquals(stated("known-answers"), YamlFiles().readOnly(File(RepositoryFiles.documents, "known-answers.yaml"), MapDocument(1)).read())
         val vectors = KnownAnswerFile.read(File(RepositoryFiles.documents, "known-answers.yaml"))
         assertEquals(listOf("sha256-abc", "hmac-sha256-rfc4231-case2", "aes128-gcm-cavp-encryptextiv-pt256-count0", "aes128-kw-rfc3394-4.1"), vectors.map { it.id })
         assertEquals(listOf("AESWrap", "AES/KW/NoPadding"), vectors.last().algorithms)

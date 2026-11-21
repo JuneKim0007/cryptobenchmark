@@ -1,14 +1,14 @@
 package io.github.junekim0007.cryptobench.benchmark.report
 
 import io.github.junekim0007.cryptobench.files.FileNames
-import io.github.junekim0007.cryptobench.preparation.shared.DocumentFile
+import io.github.junekim0007.cryptobench.document.AtomicFile
 import java.io.File
 
 class BenchmarkJson(private val directory: File) {
 
     val file: File get() = File(directory, FileNames.BENCHMARK_JSON)
 
-    fun write(runtime: Map<String, String>, rows: List<ResultRow>): File = DocumentFile.writeText(file, text(runtime, rows))
+    fun write(runtime: Map<String, String>, rows: List<ResultRow>): File = AtomicFile.write(file, text(runtime, rows))
 
     fun text(runtime: Map<String, String>, rows: List<ResultRow>): String {
         val document = StringBuilder("{\n  \"runtime\": {")
