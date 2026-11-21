@@ -1,6 +1,7 @@
 schemaVersion: 2
 warnings: ['not_supported: run.harness.cpu: facts_unknown: no facts.yaml for this
-    run', 'shadowed_setting: run.harness.iterations is unused while run.passes sets
-    the samples of a --device run', 'shadowed_setting: overrides[2].set.harness.iterations
+    run', 'path_not_applicable: KeyPairGenerator (1 entry) applies [fixed, secure],
+    [notFixed] dropped', 'shadowed_setting: run.harness.iterations is unused while
+    run.passes sets the samples of a --device run', 'shadowed_setting: overrides[2].set.harness.iterations
     is unused while run.passes sets the samples of a --device run']
 skipped: []

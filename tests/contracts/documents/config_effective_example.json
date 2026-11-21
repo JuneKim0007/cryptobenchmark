@@ -239,6 +239,31 @@
     }
    }
   },
+  "SunRsaSign": {
+   "KeyPairGenerator": {
+    "RSA": {
+     "key": {
+      "class": "java.security.spec.RSAKeyGenParameterSpec",
+      "arguments": [
+       2048,
+       {
+        "field": "java.security.spec.RSAKeyGenParameterSpec.F4"
+       }
+      ]
+     },
+     "from": {
+      "testSet": "config_testset_example.yaml",
+      "includes": [
+       {
+        "index": 4,
+        "type": "KeyPairGenerator",
+        "name": "RSA"
+       }
+      ]
+     }
+    }
+   }
+  },
   "SunJCE": {
    "Cipher": {
     "AES/GCM/NoPadding": {
@@ -294,6 +319,30 @@
         "type": "Mac",
         "name": "HmacSHA256",
         "group": "short"
+       }
+      ]
+     }
+    }
+   },
+   "KeyGenerator": {
+    "AES": {
+     "key": {
+      "backing": "strongbox"
+     },
+     "variants": [
+      "secure"
+     ],
+     "providerDefaults": [
+      "keySize"
+     ],
+     "from": {
+      "testSet": "config_testset_example.yaml",
+      "includes": [
+       {
+        "index": 3,
+        "provider": "SunJCE",
+        "type": "KeyGenerator",
+        "name": "AES"
        }
       ]
      }

@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.config
 
+import io.github.junekim0007.cryptobench.config.entry.KeySource
 import io.github.junekim0007.cryptobench.config.global.GlobalDocument
 import io.github.junekim0007.cryptobench.config.testset.TestSetDocument
 import io.github.junekim0007.cryptobench.files.ContractsFolder
@@ -23,6 +24,7 @@ class ExampleCoverageTest {
     private val shapes = LinkedHashMap<List<String>, Shape>()
     private val uncommented = mutableListOf<String>()
     private val unlisted = mutableListOf<String>()
+    private val keyBlock = linkedSetOf<String>()
 
     @Test
     fun everyAcceptedKeyIsInAnExampleWithItsComment() {
@@ -30,6 +32,7 @@ class ExampleCoverageTest {
         walk("config_testset_example.yaml") { TestSetDocument.parse(it) }
         assertEquals("keys a reader accepts that no example writes", emptyList<String>(), shapes.values.flatMap { s -> (s.known - s.present).map { "${s.path}.$it" } })
         assertEquals("example keys with no comment on their line", emptyList<String>(), uncommented)
+        assertEquals("key source keys no set.key writes", emptyList<String>(), KeySource.KEYS - keyBlock)
         assertEquals("mappings off the open list whose reader names no key list", emptyList<String>(), unlisted.map { "$it: no key list in the refusal" })
     }
 
@@ -40,6 +43,7 @@ class ExampleCoverageTest {
 
     private fun visit(node: Node, path: List<Any>, name: String, lines: List<String>, known: (List<Any>) -> List<String>?) {
         val schema = path.joinToString("") { if (it is Int) "[]" else ".$it" }.removePrefix(".")
+        if (schema == KEY_BLOCK && node is MappingNode) keyBlock += node.value.map { (it.keyNode as ScalarNode).value }
         if (OPEN.any { schema == it || schema.startsWith("$it.") || schema.startsWith("$it[") }) return
         when (node) {
             is MappingNode -> {
@@ -84,6 +88,7 @@ class ExampleCoverageTest {
         val KNOWN = Regex("""known \[([^\]]*)]""")
         val COMMENT = Regex("""\s#""")
         // readers that take any key: preparation's parameter tree, and a key block beside its spec tree
-        val OPEN = setOf("overrides[].set.parameters", "overrides[].set.key")
+        const val KEY_BLOCK = "overrides[].set.key"
+        val OPEN = setOf("overrides[].set.parameters", KEY_BLOCK)
     }
 }

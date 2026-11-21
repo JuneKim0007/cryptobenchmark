@@ -23,6 +23,15 @@ services:
   defaultRun:
     works: true
     inputSize: 1024
+- provider: SunRsaSign
+  type: KeyPairGenerator
+  algorithm: RSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keyAlgorithm: RSA
+    keyProvider: SunRsaSign
+    keySize: 2048
 - provider: SunJCE
   type: Cipher
   algorithm: AES

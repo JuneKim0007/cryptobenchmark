@@ -1,12 +1,14 @@
 # Inbound, written by hand. The primitives a run measures, with the key sizes and parameters each needs.
 schemaVersion: 1                         # required
-description: three primitives from the example capture, one of each shape   # optional, free text
+description: five primitives from the example capture   # optional, free text
 
 include:                                 # optional — empty selects every primitive the inventory can run
   # a rule needs at least one of provider | type | name; each part is optional; name accepts *
   - {provider: SUN, type: MessageDigest, name: SHA-256}   # provider: only this provider's primitive
   - {type: Mac, name: HmacSHA256, group: short, variants: [fixed]}   # group: an entry HmacSHA256@short; variants: this include's paths
   - {type: Cipher, name: AES/GCM/NoPadding}              # type and name: every provider's AES/GCM/NoPadding
+  - {provider: SunJCE, type: KeyGenerator, name: AES, variants: [secure]}   # secure: the hardware-isolated key path only
+  - {type: KeyPairGenerator, name: RSA}                  # generation is the measured call
 
 exclude: []                              # optional, default [] — same rule shape; exclude always wins
 
@@ -22,3 +24,7 @@ overrides:                               # optional
       key: {algorithm: HmacSHA256, provider: same}   # the key's generator and its provider
       variants: [fixed, notFixed]        # beats the include's variants
       harness: {iterations: 20, profiling: none}   # merged key by key over run.harness
+  - match: {type: KeyGenerator, name: AES}       # the secure entry above
+    set: {key: {backing: strongbox}}     # backing: tee (default) | strongbox, where a secure key is born
+  - match: {type: KeyPairGenerator, name: RSA}   # a key spec tree: class + arguments, or field
+    set: {key: {class: java.security.spec.RSAKeyGenParameterSpec, arguments: [2048, {field: java.security.spec.RSAKeyGenParameterSpec.F4}]}}   # the generator's init spec

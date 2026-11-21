@@ -12,6 +12,14 @@ providers:
         runs: true
         aliases: [2.16.840.1.101.3.4.2.1, OID.2.16.840.1.101.3.4.2.1]
       SHA-512: {runs: true}
+  SunRsaSign:
+    KeyPairGenerator:
+      RSA:
+        runs: true
+        keySizes: [2048]
+        keyAlgorithm: RSA
+        keyProvider: SunRsaSign
+        aliases: [1.2.840.113549.1.1, OID.1.2.840.113549.1.1]
   SunJCE:
     Cipher:
       AES/GCM/NoPadding:
