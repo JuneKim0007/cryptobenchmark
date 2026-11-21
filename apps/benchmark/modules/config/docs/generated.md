@@ -106,7 +106,6 @@ An entry is checked as `run.harness` merged with its own harness. When the run s
 |---|---|
 | missing file | `missing_file: <path>` |
 | missing test set | `missing_file: <path> (<global> selection.testSet: <value>)` |
-| missing facts file | `missing_file: <path> (--facts)` |
 | invalid YAML | `unreadable_yaml: <file>: <msg>` |
 | `schemaVersion` missing or other | `missing_field` or `unsupported_schema_version` |
 | field error | `<code>: <file>: <location>`, e.g. `unknown_keys: default_predefined.yaml: include[0] [nme], known [...]` |

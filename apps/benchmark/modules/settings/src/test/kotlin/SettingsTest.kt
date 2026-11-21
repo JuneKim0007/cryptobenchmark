@@ -85,7 +85,7 @@ class SettingsTest {
         val wrong = assertThrows(IllegalArgumentException::class.java) {
             Facts.read(mapOf("schemaVersion" to 1, "cpu" to mapOf("cores" to listOf(mapOf("core" to "seven", "online" to true)))))
         }
-        assertEquals("wrong_type: facts.yaml cpu.cores[0].core expects a number", wrong.message)
+        assertEquals("wrong_type: cpu.cores[0].core expects a number", wrong.message)
     }
 
     @Test

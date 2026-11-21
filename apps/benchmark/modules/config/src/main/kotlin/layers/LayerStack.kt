@@ -3,7 +3,7 @@ package io.github.junekim0007.cryptobench.config.layers
 import io.github.junekim0007.cryptobench.document.SchemaVersion
 import io.github.junekim0007.cryptobench.config.global.GlobalDocument
 import io.github.junekim0007.cryptobench.document.YamlCodec
-import io.github.junekim0007.cryptobench.document.versioned.MapDocument
+import io.github.junekim0007.cryptobench.document.versioned.DocumentReader
 import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import io.github.junekim0007.cryptobench.files.Beside
 import org.yaml.snakeyaml.error.YAMLException
@@ -28,11 +28,8 @@ object LayerStack {
     }
 
     fun read(file: File): Merged {
-        val own = YamlFiles().readOnly(file, MapDocument(GlobalDocument.schemaVersion)).read()
-        val listed = own[LAYERS] ?: return merged(listOf(Layer(file.name, sha256(file)) to own - SchemaVersion.FIELD))
-        val names = (listed as? List<*>)?.map { it as? String ?: throw IllegalArgumentException("wrong_type: ${file.name}: $LAYERS, expected a list of paths") }
-            ?: throw IllegalArgumentException("wrong_type: ${file.name}: $LAYERS, expected a list of paths")
-        require(names.isNotEmpty()) { "empty: ${file.name}: $LAYERS" }
+        val (own, names) = YamlFiles().readOnly(file, Composition).read()
+        if (names == null) return merged(listOf(Layer(file.name, sha256(file)) to own - SchemaVersion.FIELD))
         val layers = names.map { name ->
             val layerFile = Beside.authored(file, name)
             require(layerFile.isFile) { "missing_file: ${layerFile.path} (${file.name} $LAYERS)" }
@@ -42,6 +39,20 @@ object LayerStack {
             Layer(name, sha256(layerFile)) to layer - SchemaVersion.FIELD
         }
         return merged(layers + (Layer(file.name, sha256(file)) to own - SchemaVersion.FIELD - LAYERS))
+    }
+
+    // the composition's own keys and the layers it lists, null without layers:
+    private object Composition : DocumentReader<Pair<Map<String, Any>, List<String>?>> {
+
+        override val schemaVersion = GlobalDocument.schemaVersion
+
+        override fun parse(document: Map<String, Any>): Pair<Map<String, Any>, List<String>?> {
+            val listed = document[LAYERS] ?: return document to null
+            val names = (listed as? List<*>)?.map { it as? String ?: throw IllegalArgumentException("wrong_type: $LAYERS, expected a list of paths") }
+                ?: throw IllegalArgumentException("wrong_type: $LAYERS, expected a list of paths")
+            require(names.isNotEmpty()) { "empty: $LAYERS" }
+            return document to names
+        }
     }
 
     private fun merged(layers: List<Pair<Layer, Map<String, Any>>>): Merged {

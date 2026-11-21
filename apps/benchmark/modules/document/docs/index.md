@@ -18,7 +18,7 @@ apps/benchmark/modules/document/src/main/kotlin/names/dto/Canonical.kt : canonic
 apps/benchmark/modules/document/src/main/kotlin/versioned/DocumentHandler.kt : reader and writer interface
 apps/benchmark/modules/document/src/main/kotlin/versioned/DocumentReader.kt : reader interface: the schemaVersion it reads and its parse
 apps/benchmark/modules/document/src/main/kotlin/versioned/FileRefusal.kt : a reader's <code>: <rest> refusal with the file after its code: <code>: <file>: <rest>
-apps/benchmark/modules/document/src/main/kotlin/versioned/MapDocument.kt : a versioned document read and written as its map; the caller parses, unprefixed
+apps/benchmark/modules/document/src/main/kotlin/versioned/MapDocument.kt : a versioned document written as the map its writer built (check.yaml, interop.yaml)
 apps/benchmark/modules/document/src/main/kotlin/versioned/VersionedFile.kt : the one versioned read, of a file or its text: missing_file, unreadable_yaml: <file>, the SchemaVersion refusal, then the reader's parse with its refusal as <code>: <file>: <rest> (FileRefusal)
 apps/benchmark/modules/document/src/main/kotlin/versioned/YamlFile.kt : VersionedFile's read; write stamps schemaVersion first, through AtomicFile
 apps/benchmark/modules/document/src/main/kotlin/versioned/YamlFiles.kt : factory for YamlFile and VersionedFile on one codec profile

@@ -8,6 +8,7 @@ import java.io.File
 // interop.yaml is read back by perf-repair, which matches each row to its plan pair by id and members.
 object InteropFile {
 
+    private const val SCHEMA_VERSION = 1
 
     fun document(verdicts: List<InteropVerdict>, plan: String, capture: String): Map<String, Any> = linkedMapOf(
         "generatedFrom" to linkedMapOf("plan" to plan, "capture" to capture),
@@ -22,5 +23,5 @@ object InteropFile {
         linkedMapOf("type" to m.type, "algorithm" to m.algorithm, "provider" to m.provider)
 
     fun write(file: File, verdicts: List<InteropVerdict>, plan: String, capture: String): File =
-        YamlFiles().at(file, MapDocument(1)).write(document(verdicts, plan, capture))
+        YamlFiles().at(file, MapDocument(SCHEMA_VERSION)).write(document(verdicts, plan, capture))
 }

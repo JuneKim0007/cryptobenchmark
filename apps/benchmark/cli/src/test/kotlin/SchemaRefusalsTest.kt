@@ -6,7 +6,7 @@ import io.github.junekim0007.cryptobench.discovery.write.CaptureDocument
 import io.github.junekim0007.cryptobench.discovery.write.RequirementDocument
 import io.github.junekim0007.cryptobench.discovery.write.TrialDocument
 import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
-import io.github.junekim0007.cryptobench.document.versioned.MapDocument
+import io.github.junekim0007.cryptobench.preparation.report.SkipFile
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -33,7 +33,7 @@ class SchemaRefusalsTest {
         val table = linkedMapOf(
             "document AlgorithmNames" to refusal { AlgorithmNames.read("schemaVersion: 99\n") },
             "config VersionedFile" to refusal { YamlFiles().readOnly(file, CaptureSource).read() },
-            "preparation MapDocument" to refusal { YamlFiles().readOnly(File("skipped.yaml"), MapDocument(1)).read("schemaVersion: 99\n") },
+            "preparation SkipFile" to refusal { SkipFile(folder.newFolder().apply { resolve("skipped.yaml").writeText("schemaVersion: 99\n") }).read() },
             "discovery CaptureDocument" to refusal { CaptureDocument.parse(wrong) },
             "discovery TrialDocument" to refusal { TrialDocument.parse(wrong) },
             "discovery RequirementDocument" to refusal { RequirementDocument.parse(wrong) },
@@ -48,7 +48,7 @@ class SchemaRefusalsTest {
         val EXPECTED = """
             document AlgorithmNames | unsupported_schema_version: algorithm-names.yaml: 99, this build reads 1
             config VersionedFile | unsupported_schema_version: probe_x.yaml: 99, this build reads 1
-            preparation MapDocument | unsupported_schema_version: skipped.yaml: 99, this build reads 1
+            preparation SkipFile | unsupported_schema_version: skipped.yaml: 99, this build reads 2
             discovery CaptureDocument | unsupported_schema_version: probe: 99, this build reads 1
             discovery TrialDocument | unsupported_schema_version: trial: 99, this build reads 3
             discovery RequirementDocument | unsupported_schema_version: requirements: 99, this build reads 1

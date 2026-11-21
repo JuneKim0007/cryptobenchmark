@@ -14,7 +14,7 @@ data class Facts(
 
     companion object {
         val UNKNOWN = Facts()
-        // checked by its reader, config's Configuration
+        // checked by its reader, config's FactsSource
         const val SCHEMA_VERSION = 1
 
         fun read(document: Map<String, Any?>): Facts {
@@ -39,6 +39,6 @@ data class Facts(
         private fun section(document: Map<String, Any?>, key: String): Map<*, *>? =
             document[key]?.let { it as? Map<*, *> ?: throw wrongType(key, "a mapping") }
 
-        private fun wrongType(field: String, expected: String) = IllegalArgumentException("wrong_type: facts.yaml $field expects $expected")
+        private fun wrongType(field: String, expected: String) = IllegalArgumentException("wrong_type: $field expects $expected")
     }
 }

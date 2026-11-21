@@ -84,7 +84,7 @@ Written by `lib/cryptobench/cryptobench/stages/discovery/facts.py` into the disc
 | `cpu.cores[]` | `{core, online, maxKhz}`; `maxKhz` = `cpuinfo_max_freq` |
 | `pinning` | APK contains `lib/<abi>/libaffinity.so` |
 
-Wrong types fail `wrong_type: facts.yaml <field> expects ...`.
+Wrong types fail `wrong_type: facts.yaml: <field> expects ...`, through config's reader.
 
 ## Dependencies
 

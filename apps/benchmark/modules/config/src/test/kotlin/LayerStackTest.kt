@@ -71,6 +71,8 @@ class LayerStackTest {
         assertTrue(message, message.startsWith("unknown_keys: b.yaml: run [sed]") && message.endsWith("(layer 2 typo.yaml)"))
         assertTrue(refused(file("c.yaml", "schemaVersion: 1\nlayers: [gone.yaml]\n")).startsWith("missing_file: "))
         assertTrue(refused(file("d.yaml", "layers: [base.yaml]\n")).startsWith("missing_field: d.yaml: schemaVersion"))
+        assertEquals("wrong_type: e.yaml: layers, expected a list of paths", refused(file("e.yaml", "schemaVersion: 1\nlayers: base.yaml\n")))
+        assertEquals("empty: f.yaml: layers", refused(file("f.yaml", "schemaVersion: 1\nlayers: []\n")))
     }
 
     @Test

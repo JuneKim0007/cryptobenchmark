@@ -10,8 +10,8 @@ import io.github.junekim0007.cryptobench.config.inventory.InventoryDocument
 import io.github.junekim0007.cryptobench.config.global.RunDocument
 import io.github.junekim0007.cryptobench.config.layers.Provenance
 import io.github.junekim0007.cryptobench.config.source.CaptureSource
+import io.github.junekim0007.cryptobench.config.source.FactsSource
 import io.github.junekim0007.cryptobench.config.source.TrialSource
-import io.github.junekim0007.cryptobench.document.versioned.MapDocument
 import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import io.github.junekim0007.cryptobench.files.Beside
 import io.github.junekim0007.cryptobench.files.FileNames
@@ -61,14 +61,5 @@ class Configuration(
         return effective.copy(warnings = effective.warnings + noticed.warnings, skipped = effective.skipped + noticed.skipped)
     }
 
-    private fun readFacts(file: File): Facts {
-        require(file.isFile) { "missing_file: ${file.path} (--facts)" }
-        val document = files.readOnly(file, MapDocument(Facts.SCHEMA_VERSION)).read()
-        return try {
-            Facts.read(document)
-        } catch (malformed: RuntimeException) {
-            if (malformed is IllegalArgumentException) throw malformed
-            throw IllegalArgumentException("unreadable_yaml: ${file.path}: ${malformed.message}", malformed)
-        }
-    }
+    private fun readFacts(file: File): Facts = files.readOnly(file, FactsSource).read()
 }
