@@ -27,7 +27,7 @@ TRIAL = {"services": [{"provider": "P", "type": "Cipher", "algorithm": NAME, "in
 
 @pytest.fixture
 def catalogs(tmp_path):
-    """Copies of the names and catalogues; the names copy holds the name, so a groups load must place it."""
+    """Copies of the names and catalogues; the names copy holds the name, which no catalogue builds yet."""
     names = yaml.safe_load(NAMES_CATALOG.read_text())
     names["names"]["Cipher"][NAME] = []
     shutil.copytree(DIRECTORY, tmp_path / "algorithms")
@@ -66,11 +66,12 @@ def _run(catalog, names, monkeypatch):
     return items[0], profiles, verdicts
 
 
-def test_a_name_in_no_list_and_without_evidence_is_unidentified_and_asked(monkeypatch):
-    names = Names.load()
+def test_a_name_in_no_list_and_without_evidence_is_unidentified_and_asked(catalogs, monkeypatch, capsys):
+    tmp_path, names = catalogs
     item, profiles, verdicts = _run(load(CATALOG, FAMILIES, names), names, monkeypatch)
     assert (item.family, profiles[item.id].keyKind, profiles[item.id].keyKindFrom) == (UNIDENTIFIED, "unknown", "none")
     assert not identified(item, verdicts)
+    assert f"warning: name_unbuilt: {ID}: names-file canonical with no catalogue entry, not in unidentified" in capsys.readouterr().out
 
 
 def test_a_name_held_in_unidentified_stays_there(catalogs, monkeypatch):
@@ -101,9 +102,3 @@ def test_one_id_in_a_family_and_in_unidentified_is_refused(tmp_path):
 def test_the_group_exists_and_holds_nothing_for_now():
     assert load(CATALOG).unidentified == ()
     assert yaml.safe_load(CATALOG.read_text())["groups"][UNIDENTIFIED] == {"exemplars": [], "algorithms": []}
-
-
-def test_a_name_in_neither_a_catalogue_nor_unidentified_is_refused(catalogs):
-    tmp_path, names = catalogs
-    with pytest.raises(GroupsError, match=r"Cipher\|MOVED-ALG: names-file canonical with no catalogue entry, not in unidentified"):
-        load(CATALOG, FAMILIES, names, load_catalogues(tmp_path / "algorithms", FAMILIES))
