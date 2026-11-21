@@ -133,7 +133,7 @@ def test_pipeline_refuses_a_typo_with_one_line_before_any_build(tmp_path):
     (tmp_path / "global.yaml").write_text("schemaVersion: 1\nselection: {testSet: set.yaml}\nrnu: {seed: 1}\n")
     done = subprocess.run([sys.executable, str(ROOT / "apps/benchmark-runner/pipeline.py"), "--config", str(tmp_path / "global.yaml"), "--device",
                            "--results", str(tmp_path / "r")], capture_output=True, text=True, check=False)
-    assert done.returncode == 1 and done.stderr.strip().startswith("error: global.yaml: unknown_section")
+    assert done.returncode == 1 and done.stderr.strip().startswith("error: unknown_section: global.yaml: ")
     assert "\n" not in done.stderr.strip() and not (tmp_path / "r").exists()
 
 

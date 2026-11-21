@@ -29,7 +29,7 @@ class VersionedFile<T> internal constructor(
         return try {
             reader.parse(document)
         } catch (failure: IllegalArgumentException) {
-            throw IllegalArgumentException("${file.name}: ${failure.message}", failure)
+            throw IllegalArgumentException(FileRefusal.of(file.name, failure.message.orEmpty()), failure)
         }
     }
 }

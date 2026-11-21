@@ -11,11 +11,12 @@ def test_the_real_parser_catches_a_typo_and_a_bad_provider_before_any_build(tmp_
     [one] = config_check.parse_all([good])
     assert one["testSet"].endswith("set.yaml") and one["bundled"] == [{"artifact": "a:b:1", "create": "org.example.C"}]
     good.write_text("schemaVersion: 1\nselection: {testSet: set.yaml}\n")
-    with pytest.raises(config_check.ConfigCheckError, match="missing_field: run.orderSeed"):
+    with pytest.raises(config_check.ConfigCheckError, match="missing_field: global.yaml: run.orderSeed"):
         config_check.parse_all([good])
     good.write_text("schemaVersion: 1\nselection: {testSet: set.yaml}\nrun: {orderSeed: 1}\nrnu: {seed: 1}\n")
-    with pytest.raises(config_check.ConfigCheckError, match="unknown_section"):
+    with pytest.raises(config_check.ConfigCheckError, match="^unknown_section: global.yaml: ") as refused:
         config_check.parse_all([good])
+    assert refused.value.code == "unknown_section"
     good.write_text("schemaVersion: 1\nselection: {testSet: set.yaml}\nrun: {orderSeed: 1}\nproviders: {bundled: [{artifact: 'a:b:1', create: C}]}\n")
     with pytest.raises(config_check.ConfigCheckError, match="invalid_create"):
         config_check.parse_all([good])

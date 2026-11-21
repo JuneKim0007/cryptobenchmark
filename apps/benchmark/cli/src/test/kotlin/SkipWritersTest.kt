@@ -41,7 +41,7 @@ class SkipWritersTest {
             return listOf(assertThrows(IllegalArgumentException::class.java) { YamlFiles().at(report, ReportDocument).read() }.message,
                           assertThrows(IllegalArgumentException::class.java) { SkipFile(directory).read() }.message)
         }
-        assertEquals(listOf("report.yaml: missing_field: skipped code", "missing_field: skipped code"),
+        assertEquals(listOf("missing_field: report.yaml: skipped code", "missing_field: skipped code"),
                      refusals("schemaVersion: 2\nskipped:\n- {stage: s, reason: r}\n"))
         assertEquals(listOf("unsupported_schema_version: report.yaml: 1, this build reads 2", "unsupported_schema_version: skipped.yaml: 1, this build reads 2"),
                      refusals("schemaVersion: 1\nskipped: []\n"))

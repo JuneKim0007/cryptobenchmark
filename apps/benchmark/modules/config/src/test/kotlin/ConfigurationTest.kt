@@ -42,7 +42,7 @@ class ConfigurationTest {
         global.writeText(Fixtures.GLOBAL)
         testSet.writeText(Fixtures.TEST_SET.replace("- {type: Cipher, name: RSA}", "- {type: Cipher, nme: RSA}"))
         val insideTheFile = assertThrows(IllegalArgumentException::class.java) { configuration.effective(global) }.message!!
-        assertTrue(insideTheFile, insideTheFile.startsWith("default_predefined.yaml: unknown_keys: include[1] [nme]"))
+        assertTrue(insideTheFile, insideTheFile.startsWith("unknown_keys: default_predefined.yaml: include[1] [nme]"))
     }
 
     /** A failed run must not leave the previous run's effective.yaml for preparation to pick up. */

@@ -1,10 +1,13 @@
 package io.github.junekim0007.cryptobench.document
 
+import io.github.junekim0007.cryptobench.document.versioned.DocumentReader
+import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import java.io.File
 import java.nio.file.FileAlreadyExistsException
 
 class DocumentIoTest {
@@ -18,6 +21,16 @@ class DocumentIoTest {
         assertEquals("unsupported_schema_version: x.yaml: 99, this build reads 1", wrong.message)
         val missing = assertThrows(IllegalArgumentException::class.java) { SchemaVersion.require(emptyMap<String, Any>(), 1, "x.yaml") }
         assertEquals("missing_field: x.yaml: schemaVersion", missing.message)
+    }
+
+    @Test
+    fun aParseRefusalNamesTheFileAfterItsCode() {
+        val reader = object : DocumentReader<Unit> {
+            override val schemaVersion = 1
+            override fun parse(document: Map<String, Any>) = throw IllegalArgumentException("unknown_keys: run [sed]")
+        }
+        val refused = assertThrows(IllegalArgumentException::class.java) { YamlFiles().readOnly(File("x.yaml"), reader).read("schemaVersion: 1\n") }
+        assertEquals("unknown_keys: x.yaml: run [sed]", refused.message)
     }
 
     @Test

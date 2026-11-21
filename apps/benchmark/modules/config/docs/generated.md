@@ -109,7 +109,7 @@ An entry is checked as `run.harness` merged with its own harness. When the run s
 | missing facts file | `missing_file: <path> (--facts)` |
 | invalid YAML | `unreadable_yaml: <file>: <msg>` |
 | `schemaVersion` missing or other | `missing_field` or `unsupported_schema_version` |
-| field error | `<file>: <code>: <location>`, e.g. `default_predefined.yaml: unknown_keys: include[0] [nme], known [...]` |
+| field error | `<code>: <file>: <location>`, e.g. `unknown_keys: default_predefined.yaml: include[0] [nme], known [...]` |
 | non-mapping document | `not_a_mapping` |
 | YAML loading | SafeConstructor; duplicate keys refused |
 | write | `schemaVersion` stamped first, written to a unique `.<name>.<n>.partial` beside it, moved into place atomically (`:document` `AtomicFile`) |

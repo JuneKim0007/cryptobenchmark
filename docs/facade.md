@@ -31,7 +31,7 @@ every side    -> packaged catalogs
 | a `perfrepair.yaml` key of the table below, with a value | `placement: <key> is no perfrepair.yaml key; set <place>` |
 | a key of another file in `perfrepair.yaml` | `placement: <key> in <file> belongs in ...` |
 | a key nothing reads in `perfrepair.yaml` | `unknown_key: <key> in <file>` |
-| a key of another file in `global.yaml` | `config_invalid: global.yaml: unknown_section: ...` |
+| a key of another file in `global.yaml` | `config_invalid: unknown_section: global.yaml: ...` |
 
 | `perfrepair.yaml` key refused | index key | guide flag |
 |---|---|---|
