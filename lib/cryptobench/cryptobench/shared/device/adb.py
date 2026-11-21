@@ -72,6 +72,9 @@ class Device:
         result = self.raw(*arguments)
         if result.returncode != 0 and (reason := lost(result.stderr or result.stdout)):
             raise DeviceLost(lost_line(arguments, reason))
+        if result.returncode != 0:
+            # a transport cut mid-command exits non-zero without adb's words; get-state tells it from a failed command
+            self.attached(f"adb {arguments[0]}")
         if check and result.returncode != 0:
             raise DeviceError(f"adb {' '.join(arguments)}: {(result.stderr or result.stdout).strip()}")
         return result

@@ -20,7 +20,7 @@ How a `--device` run measures: one session, its passes, its processes. Flags and
 
 ## Lost device
 
-`lib/cryptobench/cryptobench/shared/device/adb.py` turns any adb call whose output names a lost transport (`device unauthorized`, `device offline`, `device '<serial>' not found`, `no devices/emulators found`, `error: closed`, adb server errors), and an `am instrument` that did not pass while `adb get-state` no longer says `device`, into `device_lost: adb <command>: <reason>`.
+`lib/cryptobench/cryptobench/shared/device/adb.py` turns any adb call whose output names a lost transport (`device unauthorized`, `device offline`, `device '<serial>' not found`, `no devices/emulators found`, `error: closed`, adb server errors), and any adb call that exits non-zero, or an `am instrument` that did not pass, while `adb get-state` no longer says `device`, into `device_lost: adb <command>: <reason>`.
 
 | rule | value |
 |---|---|

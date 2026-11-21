@@ -126,3 +126,68 @@ def test_the_lost_attempt_is_kept_in_rejected_with_its_why(tmp_path, monkeypatch
     _phone, (_p, _files, _problems, results) = lost_run(tmp_path, monkeypatch, polls=3)
     whys = [read_yaml(why) for why in paths.RunTree(results).rejected.rglob(paths.WHY)]
     assert [(w["case"], w["attempt"], w["findings"][0]["code"]) for w in whys] == [("b", 1, "device_lost")]
+
+
+# the 2026-11-20 try1 stop: adb shell exited 1 with no words of its own and the clocks read cut after 3 cores
+PARTIAL = "cpu0 1 sched_pixel 300000 300000 2000000\ncpu1 1 sched_pixel 300000 300000 2000000\ncpu2 1"
+
+
+def cut_device(tmp_path, monkeypatch, state):
+    device = device_module.Device(tmp_path, False, False)
+    answers = {"shell": types.SimpleNamespace(returncode=1, stdout=PARTIAL, stderr=""),
+               "get-state": types.SimpleNamespace(returncode=0 if state else 1, stdout=state, stderr="")}
+    monkeypatch.setattr(timeouts, "run", lambda _step, command, **_o: answers[command[1]])
+    return device
+
+
+def test_a_wordless_failure_with_the_device_gone_is_device_lost(tmp_path, monkeypatch):
+    device = cut_device(tmp_path, monkeypatch, "")
+    with pytest.raises(device_module.DeviceLost, match=r"^device_lost: adb get-state after adb shell: no answer$"):
+        device.shell("for c in /sys/devices/system/cpu/cpu[0-9]*; do ...")
+    with pytest.raises(device_module.DeviceLost):
+        device.run("shell", "ls", check=False)
+
+
+def test_a_wordless_failure_with_the_device_attached_stays_the_command_failure(tmp_path, monkeypatch):
+    device = cut_device(tmp_path, monkeypatch, "device\n")
+    with pytest.raises(device_module.DeviceError) as failed:
+        device.shell("ls")
+    assert type(failed.value) is device_module.DeviceError and str(failed.value).startswith("adb shell ls: cpu0 1")
+    assert device.run("shell", "ls", check=False).returncode == 1
+
+
+class CuttingPhone(Phone):
+    """Cuts the transport inside the first process's clocks read: adb shell exits 1 with partial output and no words of its own."""
+
+    def __init__(self, folder, polls, **options):
+        super().__init__(folder, thermal=SKIN, **options)
+        self.cut, self.polls, self.states = True, polls, []
+
+    def shell(self, command):
+        if self.cut and command.startswith("for c in /sys"):
+            self.cut = False
+            self.log.append("clocks cut")
+            return device_module.Device.run(self, "shell", command).stdout
+        return super().shell(command)
+
+    def raw(self, *arguments):
+        if arguments[0] == "get-state":
+            self.states.append(self.polls)
+            if self.polls == 0:
+                return types.SimpleNamespace(returncode=0, stdout="device\n", stderr="")
+            self.polls -= 1
+            return types.SimpleNamespace(returncode=1, stdout="", stderr="")
+        return types.SimpleNamespace(returncode=1, stdout=PARTIAL, stderr="")
+
+
+def test_a_clocks_read_cut_mid_shell_is_waited_out_and_the_process_runs(tmp_path, monkeypatch, capsys):
+    Clock(monkeypatch)
+    phone = CuttingPhone(tmp_path, 2)
+    monkeypatch.setattr("test_device_benchmark_flow.OPTIONS", types.SimpleNamespace(**{**vars(OPTIONS), "reconnect_wait_minutes": 1,
+                                                                                         "reconnect_poll_seconds": 10}))
+    _phone, _files, problems, results = measured(tmp_path, monkeypatch, {"thermalGate": GATE}, phone=phone)
+    assert phone.states == [2, 1, 0] and problems == []
+    assert phone.log.index("clocks cut") < phone.log.index("clocks")
+    assert [s for s in phone.log if s.startswith("instrument ")] == ["instrument CryptoBenchmark a", "instrument CryptoBenchmark b"]
+    assert [b["name"] for b in json.loads((results / "benchmark/benchmarkData.json").read_text())["benchmarks"]] == ["measure[a]", "measure[b]"]
+    assert "device_lost: adb get-state after adb shell: no answer" in capsys.readouterr().out
