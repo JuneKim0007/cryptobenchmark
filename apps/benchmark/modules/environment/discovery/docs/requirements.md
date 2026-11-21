@@ -18,7 +18,7 @@ Level 3 names no algorithm: each variation is built from a spec a provider accep
 
 | rule | value |
 |---|---|
-| key order | `KeyNames`, then every registered generator or factory name the service's name contains, longest first; per name the service's provider, then the others: `KeyGenerator`, `KeyPairGenerator`, `SecretKeyFactory` with `PBEKeySpec`; last `SecretKeySpec` of 16, 32, 24, 8 bytes |
+| key order | `KeyCandidates`: for a catalogued service the generator entries of its entry's `key.type` as the provider's build sees it (the key type's own entry, then the service's, then catalogue order), then that key type, each followed by the registered generator or factory names the names file gives as its spelling, with the names file's key size, else first the entry's one key length, then the generator's default; for an uncatalogued service its name and every registered generator or factory name it contains, longest first; every name on the service's provider, then on each other provider: `KeyGenerator`, `KeyPairGenerator`, `SecretKeyFactory` with `PBEKeySpec`; last `SecretKeySpec` of 16, 32, 24, 8 bytes, named by the entry's `key.type`, else the longest registered name the service's name contains, else that name |
 | spec order | a digest's message is the longest of 64, 32, 16, 1, 0 bytes it takes; no spec, then each `ParameterSpecs` candidate; the first key, spec and input that run are `runWith`; a cipher that refuses every input but wraps runs with `operation: wrap` |
 | sweeps | the whole call, not only the init: `ivBytes` 0..32, `tagBits` 0..256 by 8, `keyBytes` 1..64, Mac keys 1..64, 96, 128, 160 |
 | `keyBits` | RSA and EC keys only: 224, 256, 384, 512, 521, 1024, 2048; other pairs cost a parameter generation per size |

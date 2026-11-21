@@ -111,7 +111,7 @@ class KeystoreTrialTest {
     @Test
     fun theBundledCatalogueBlocksParse() {
         val root = generateSequence(File("").absoluteFile) { it.parentFile }.first { File(it, "algorithms/setup-catalog.yaml").isFile }
-        val files = KeystoreCatalogue.FAMILIES.map(FamilyCatalogue::file) + listOf(FamilyCatalogue.PROVIDER_BUILDS, FamilyCatalogue.DEVIATIONS)
+        val files = FamilyCatalogue.GENERATORS.map(FamilyCatalogue::file) + listOf(FamilyCatalogue.PROVIDER_BUILDS, FamilyCatalogue.DEVIATIONS, FamilyCatalogue.FAMILIES)
         assertEquals(files.map { File(root, "algorithms/$it").readText() }, files.map(FamilyCatalogue::resource))
         val parsed = KeystoreCatalogue.bundled
         val rsa = parsed.of("KeyPairGenerator", listOf("rsa"))!!

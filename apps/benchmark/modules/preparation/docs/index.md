@@ -17,7 +17,7 @@ apps/benchmark/modules/preparation/example/preparation_skipped_example.yaml : ex
 apps/benchmark/modules/preparation/example/preparation_trial_example.yaml : example discovery trial input
 apps/benchmark/modules/preparation/src/main/kotlin/Preparation.kt : entry point; prepare(effectiveFile) runs every stage and applies onFailure
 apps/benchmark/modules/preparation/src/main/kotlin/adapter/DiscoveryCapability.kt : DeviceCapability over a capture and trial pair
-apps/benchmark/modules/preparation/src/main/kotlin/device/CaptureFile.kt : reads capture YAML (schema capture v1) into CapturedDevice, with runtime.sdkInt (none on a JVM)
+apps/benchmark/modules/preparation/src/main/kotlin/device/CaptureFile.kt : reads capture YAML (schema capture v1) into CapturedDevice, with runtime.sdkInt (none on a JVM) and the platform CatalogueOverlays names
 apps/benchmark/modules/preparation/src/main/kotlin/device/ServiceName.kt : uppercase-folded (type, algorithm) lookup key
 apps/benchmark/modules/preparation/src/main/kotlin/device/TrialFile.kt : reads trial YAML (schema trial v3) into TrialledDevice
 apps/benchmark/modules/preparation/src/main/kotlin/device/dto/ : capture and trial DTOs as preparation reads them

@@ -22,11 +22,20 @@ class FamilyCatalogue(val entries: List<Entry>, private val overlays: CatalogueO
 
         @Suppress("UNCHECKED_CAST")
         fun section(key: String, build: String? = null): Map<String, Any?>? = fields(build)[key] as? Map<String, Any?>
+
+        fun keyType(build: String? = null): String? = section("key", build)?.get("type") as? String
     }
 
     private val byId = entries.associateBy { fold(it.id) }
 
     fun of(type: String, name: String): Entry? = byId[fold("$type|${names.canonical(type, name).name}")]
+
+    /** The generator entries whose key type, as [build] sees it, is [entry]'s: the key type's canonical first, then the entry's own, then catalogue order. */
+    fun generatorsOf(entry: Entry, build: String?): List<Entry> {
+        val wanted = entry.keyType(build)?.let { fold(names.keyType(it).name) } ?: return emptyList()
+        return entries.filter { it.family in GENERATORS && it.keyType(build)?.let { type -> fold(names.keyType(type).name) } == wanted }
+            .sortedBy { when (fold(it.name)) { wanted -> 0; fold(entry.name) -> 1; else -> 2 } }
+    }
 
     /** The build a provider runs as on this platform, whose view [Entry.fields] gives; null: the base entry. */
     fun build(provider: String, platform: String?): String? = overlays.build(provider, platform)
@@ -36,6 +45,14 @@ class FamilyCatalogue(val entries: List<Entry>, private val overlays: CatalogueO
         internal const val PROVIDERS = "providers"
         const val PROVIDER_BUILDS = "provider-builds.yaml"
         const val DEVIATIONS = "deviations.yaml"
+        const val FAMILIES = "families.yaml"
+        // families.yaml gives digests and generators one key kind, none; what generates a key is setup-catalog's, which :document cannot read
+        val GENERATORS = listOf("keygen.none", "keypairgen.none")
+
+        /** The families whose entries take a key: families.yaml's, every key kind but none. */
+        val KEYED: List<String> by lazy {
+            DocumentFields.sections(YamlCodec.DOCUMENT.load(resource(FAMILIES)), "families").filter { DocumentFields.string(it, "keyKind") != "none" }.map { DocumentFields.string(it, "id") }
+        }
 
         fun fold(name: String): String = name.uppercase(Locale.ROOT)
 

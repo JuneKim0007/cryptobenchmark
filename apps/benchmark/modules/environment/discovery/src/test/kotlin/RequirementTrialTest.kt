@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery
 
+import io.github.junekim0007.cryptobench.discovery.trial.call.KeyCandidates
 import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceRequirement
 import io.github.junekim0007.cryptobench.discovery.trial.DefaultRunTrial
@@ -43,7 +44,7 @@ class RequirementTrialTest {
 
     private fun report(providers: Array<Provider>) = run {
         val capture = ProviderProbe().capture(providers)
-        val keys = DefaultKeys(providers.toList())
+        val keys = DefaultKeys(providers.toList(), KeyCandidates.of(capture))
         RequirementTrial().run(capture, DefaultRunTrial().run(TrialRunner().run(capture, providers), providers, keys), providers, keys)
     }
 
@@ -133,7 +134,7 @@ class RequirementTrialTest {
         val capture = ProviderProbe().capture(arrayOf(aliased))
         val entry = capture.providers.single().services.single { it.type == "Mac" }
         val trial = ServiceTrialEntry(aliased.name, entry.type, entry.algorithm, TrialOutcome.SUCCESS)
-        val service = ProbedService(aliased, entry.type, entry.algorithm, entry, trial, KeySources(capture, live, DefaultKeys(live)), live, emptyList(), emptyList())
+        val service = ProbedService(aliased, entry.type, entry.algorithm, entry, trial, KeySources(live, DefaultKeys(live, KeyCandidates.of(capture))), live, emptyList(), emptyList())
         val aliases = AliasRuns.of(service, HmacTag::class.java.name, CallResult(aliasRuns = {}, aliasAcceptsKey = { _, _ -> }))
         assertEquals(listOf("TAG-A", "TAG-B"), aliases.map { it["name"] })
         assertEquals("same", aliases.single { it["name"] == "TAG-A" }["behaviour"])
@@ -242,9 +243,9 @@ class RequirementTrialTest {
         val CAPTURE = ProviderProbe().capture(Security.getProviders())
         val JVM = RequirementTrial().run(
             CAPTURE,
-            DefaultRunTrial().run(TrialRunner().run(CAPTURE, Security.getProviders()), Security.getProviders()),
+            DefaultRunTrial().run(CAPTURE, TrialRunner().run(CAPTURE, Security.getProviders()), Security.getProviders()),
             Security.getProviders(),
-            DefaultKeys(Security.getProviders().toList()),
+            DefaultKeys(Security.getProviders().toList(), KeyCandidates.of(CAPTURE)),
         )
     }
 }

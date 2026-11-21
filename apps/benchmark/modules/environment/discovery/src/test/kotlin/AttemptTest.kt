@@ -1,5 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery
 
+import io.github.junekim0007.cryptobench.document.catalogue.FamilyCatalogue
+import io.github.junekim0007.cryptobench.discovery.trial.call.KeyCandidates
 import io.github.junekim0007.cryptobench.discovery.trial.call.DefaultKeys
 import io.github.junekim0007.cryptobench.discovery.trial.requirement.FactSheet
 import org.junit.Assert.assertEquals
@@ -28,7 +30,7 @@ class AttemptTest {
         assertThrows(OutOfMemoryError::class.java) { FactSheet().measure("fact") { throw OutOfMemoryError("heap") } }
         Security.addProvider(Exhausting())
         try {
-            val keys = DefaultKeys(listOf(Security.getProvider("Exhausting")))
+            val keys = DefaultKeys(listOf(Security.getProvider("Exhausting")), KeyCandidates(FamilyCatalogue(emptyList()), null, emptyList()))
             assertThrows(OutOfMemoryError::class.java) { keys.secret(Security.getProvider("Exhausting"), "EXHAUST", null) }
         } finally {
             Security.removeProvider("Exhausting")
@@ -39,7 +41,7 @@ class AttemptTest {
     fun aKeyGeneratorsLinkageErrorIsARefusedKey() {
         Security.addProvider(Exhausting())
         try {
-            val keys = DefaultKeys(listOf(Security.getProvider("Exhausting")))
+            val keys = DefaultKeys(listOf(Security.getProvider("Exhausting")), KeyCandidates(FamilyCatalogue(emptyList()), null, emptyList()))
             assertThrows(NoClassDefFoundError::class.java) { keys.secret(Security.getProvider("Exhausting"), "UNLINKED", null) }
             assertEquals(1, keys.stats().refused)
         } finally {

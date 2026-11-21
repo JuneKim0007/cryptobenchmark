@@ -6,10 +6,12 @@ import javax.crypto.KeyAgreement
 
 internal object AgreementCall : DefaultCall {
 
+    private const val TYPE = "KeyAgreement"
+
     override val takesInput: Boolean = false
 
     override fun call(provider: Provider, algorithm: String, input: ByteArray, keys: DefaultKeys): DefaultRunOutcome {
-        val own = keys.pair(provider, KeyNames.agreementKey(algorithm))
+        val own = keys.firstPair(provider, keys.candidates.of(TYPE, algorithm, provider.name))
         KeyAgreement.getInstance(algorithm, provider).apply {
             init(own.keys.private)
             doPhase(keys.peer(own).public, true)

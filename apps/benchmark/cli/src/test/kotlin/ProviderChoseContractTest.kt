@@ -15,7 +15,8 @@ class ProviderChoseContractTest {
     @Test
     fun discoveryNamesWhatItChoseWithPreparationsResolvedParameterKeys() {
         val providers = Security.getProviders()
-        val report = DefaultRunTrial().run(TrialRunner().run(ProviderProbe().capture(providers), providers), providers)
+        val capture = ProviderProbe().capture(providers)
+        val report = DefaultRunTrial().run(capture, TrialRunner().run(capture, providers), providers)
         val chosen = report.services
             .flatMap { service -> listOf(service.defaultRun) + service.transformations.map { it.defaultRun } }
             .mapNotNull { it?.providerChose?.takeIf(String::isNotBlank) }

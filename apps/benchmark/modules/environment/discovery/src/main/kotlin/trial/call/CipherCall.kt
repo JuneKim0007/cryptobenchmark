@@ -1,6 +1,5 @@
 package io.github.junekim0007.cryptobench.discovery.trial.call
 
-import io.github.junekim0007.cryptobench.jca.failure.Attempt
 import io.github.junekim0007.cryptobench.discovery.contract.DefaultRunOutcome
 import io.github.junekim0007.cryptobench.discovery.contract.ParameterReadBack
 import java.security.Key
@@ -10,6 +9,8 @@ import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.OAEPParameterSpec
 
 internal object CipherCall : DefaultCall {
+
+    private const val TYPE = "Cipher"
 
     override val takesInput: Boolean = true
 
@@ -32,11 +33,9 @@ internal object CipherCall : DefaultCall {
     private class EncryptionKey(val algorithm: String, val provider: String, val key: Key, val fixedSize: Int? = null)
 
     private fun encryptionKey(provider: Provider, algorithm: String, keys: DefaultKeys): EncryptionKey {
-        for ((name, size) in KeyNames.cipherCandidates(algorithm)) {
-            val secret = Attempt.of { keys.secret(provider, name, size) }.getOrNull() ?: continue
-            return EncryptionKey(secret.algorithm, secret.provider, secret.key, size)
-        }
-        val pair = keys.pair(provider, KeyNames.cipherBase(algorithm))
+        val candidates = keys.candidates.of(TYPE, algorithm, provider.name)
+        keys.firstSecret(provider, candidates).getOrNull()?.let { (secret, size) -> return EncryptionKey(secret.algorithm, secret.provider, secret.key, size) }
+        val pair = keys.firstPair(provider, candidates)
         return EncryptionKey(pair.algorithm, pair.provider, pair.keys.public)
     }
 

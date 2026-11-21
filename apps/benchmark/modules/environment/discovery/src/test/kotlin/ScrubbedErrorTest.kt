@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery
 
+import io.github.junekim0007.cryptobench.discovery.trial.call.KeyCandidates
 import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
 import io.github.junekim0007.cryptobench.jca.failure.ErrorText
 import io.github.junekim0007.cryptobench.discovery.trial.DefaultRunTrial
@@ -21,7 +22,7 @@ class ScrubbedErrorTest {
     fun aKeyBearingMessageIsScrubbedAndCappedAtEveryLevel() {
         val providers = Security.getProviders() + Leaky()
         val capture = ProviderProbe().capture(providers)
-        val keys = DefaultKeys(providers.toList())
+        val keys = DefaultKeys(providers.toList(), KeyCandidates.of(capture))
         val trial = DefaultRunTrial().run(TrialRunner().run(capture, providers), providers, keys)
         val requirements = RequirementTrial().run(capture, trial, providers, keys)
         val leaky = trial.services.filter { it.provider == "Leaky" }

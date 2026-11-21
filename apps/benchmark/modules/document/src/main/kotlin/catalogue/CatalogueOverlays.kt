@@ -36,6 +36,10 @@ class CatalogueOverlays(private val builds: Map<String, String>, private val beh
         val NONE = CatalogueOverlays(emptyMap(), emptyList(), emptyList())
         private val PLATFORM = Regex("(\\w+)-(\\d+)")
 
+        /** The platform [build] takes: android-<sdk> where an API level is captured, else jdk-<major>; null when neither is. */
+        fun platform(sdkInt: Int?, javaVersion: String?): String? =
+            sdkInt?.takeIf { it > 0 }?.let { "android-$it" } ?: javaVersion?.substringBefore('.')?.takeIf { it.isNotEmpty() }?.let { "jdk-$it" }
+
         fun parse(providerBuilds: String, deviations: String): CatalogueOverlays {
             val document = YamlCodec.DOCUMENT.load(providerBuilds)
             val builds = DocumentFields.section(document, "builds").mapValues { (key, row) -> DocumentFields.string(DocumentFields.asSection(row, key), "name") }

@@ -7,6 +7,8 @@ import io.github.junekim0007.cryptobench.discovery.contract.TrialReport
 import io.github.junekim0007.cryptobench.discovery.trial.call.DefaultCall
 import io.github.junekim0007.cryptobench.discovery.trial.call.DefaultCalls
 import io.github.junekim0007.cryptobench.discovery.trial.call.DefaultKeys
+import io.github.junekim0007.cryptobench.discovery.trial.call.KeyCandidates
+import io.github.junekim0007.cryptobench.discovery.contract.CapturedEnvironment
 import java.security.Provider
 
 class DefaultRunTrial(private val inputSizes: List<Int> = listOf(1024, 32)) {
@@ -15,8 +17,8 @@ class DefaultRunTrial(private val inputSizes: List<Int> = listOf(1024, 32)) {
         require(inputSizes.isNotEmpty() && inputSizes.all { it >= 0 }) { "invalid_input_sizes: $inputSizes" }
     }
 
-    fun run(report: TrialReport, providers: Array<Provider>?): TrialReport =
-        run(report, providers, DefaultKeys(providers.orEmpty().toList()))
+    fun run(capture: CapturedEnvironment, report: TrialReport, providers: Array<Provider>?): TrialReport =
+        run(report, providers, DefaultKeys(providers.orEmpty().toList(), KeyCandidates.of(capture)))
 
     internal fun run(report: TrialReport, providers: Array<Provider>?, keys: DefaultKeys): TrialReport {
         val installed = providers.orEmpty().associateBy { it.name }

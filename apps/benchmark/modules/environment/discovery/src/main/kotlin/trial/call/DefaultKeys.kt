@@ -14,7 +14,7 @@ import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
 
 // One cache per run, kept across trial levels: a refused generation is remembered too, since it refuses again.
-internal class DefaultKeys(private val providers: List<Provider>) {
+internal class DefaultKeys(private val providers: List<Provider>, val candidates: KeyCandidates) {
 
     class Secret(val algorithm: String, val provider: String, val key: SecretKey)
 
@@ -39,6 +39,23 @@ internal class DefaultKeys(private val providers: List<Provider>) {
 
     fun pair(preferred: Provider, algorithm: String): Pair =
         pairFrom(firstOffering(preferred, algorithm) { KeyPairGenerator.getInstance(algorithm, it) }, algorithm, null).getOrThrow()
+
+    // every candidate on the preferred provider before any other provider; the last refusal when none generates
+    fun firstSecret(preferred: Provider, candidates: List<KeyCandidates.Candidate>): Result<kotlin.Pair<Secret, Int?>> =
+        first(preferred, candidates) { provider, candidate -> secretFrom(provider, candidate.name, candidate.size).map { it to candidate.size?.takeIf { candidate.fixed } } }
+
+    fun firstPair(preferred: Provider, candidates: List<KeyCandidates.Candidate>): Pair =
+        first(preferred, candidates) { provider, candidate -> pairFrom(provider, candidate.name, null) }.getOrThrow()
+
+    fun order(preferred: Provider): List<Provider> = listOf(preferred) + providers.filter { it.name != preferred.name }
+
+    private fun <T> first(preferred: Provider, candidates: List<KeyCandidates.Candidate>, make: (Provider, KeyCandidates.Candidate) -> Result<T>): Result<T> {
+        var refused: Result<T> = Result.failure(NoSuchAlgorithmException("no key candidate"))
+        for (provider in order(preferred)) for (candidate in candidates) {
+            refused = make(provider, candidate).onSuccess { return Result.success(it) }
+        }
+        return refused
+    }
 
     fun secretFrom(provider: Provider, algorithm: String, keySize: Int?): Result<Secret> =
         cached(secrets, cacheKey(provider, algorithm, keySize)) {

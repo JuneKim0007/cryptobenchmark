@@ -82,6 +82,40 @@ class FamilyCatalogueTest {
     }
 
     @Test
+    fun anEntrysKeyTypeIsAsEachBuildSeesIt() {
+        val entry = catalogue.of("T", "A")!!
+        assertEquals(listOf("K", "X", "Y"), listOf(null, "P @ android-30", "P @ android-33").map(entry::keyType))
+        assertNull(FamilyCatalogue.parse(listOf("schemaVersion: 1\nalgorithms:\n  T|N: {}")).of("T", "N")!!.keyType())
+    }
+
+    @Test
+    fun generatorsOfAKeyTypeTakeTheKeyTypesCanonicalThenTheEntrysOwnThenCatalogueOrder() {
+        val generators = """
+            schemaVersion: 1
+            family: keygen.none
+            algorithms:
+              KeyGenerator|Other: {key: {type: K}}
+              KeyGenerator|K: {key: {type: K}}
+              KeyGenerator|Second: {key: {type: k}}
+              KeyGenerator|A: {key: {type: K}}
+              KeyGenerator|Foreign: {key: {type: Z}}
+        """.trimIndent()
+        val both = FamilyCatalogue.parse(listOf(family, generators))
+        assertEquals(listOf("K", "A", "Other", "Second"), both.generatorsOf(both.of("T", "A")!!, null).map { it.name })
+        assertEquals(listOf("K", "Other", "Second", "A"), both.generatorsOf(both.of("T", "Plain")!!, null).map { it.name })
+        assertEquals(emptyList<String>(), FamilyCatalogue.parse(listOf(family)).generatorsOf(catalogue.of("T", "A")!!, null))
+    }
+
+    @Test
+    fun aPlatformIsTheApiLevelElseTheJavaMajor() {
+        assertEquals("android-33", CatalogueOverlays.platform(33, "0"))
+        assertEquals("jdk-25", CatalogueOverlays.platform(0, "25.0.3"))
+        assertEquals("jdk-17", CatalogueOverlays.platform(null, "17"))
+        assertNull(CatalogueOverlays.platform(null, ""))
+        assertNull(CatalogueOverlays.platform(null, null))
+    }
+
+    @Test
     fun groupExemplarsByFamily() {
         val groups = GroupExemplars.parse("schemaVersion: 3\ngroups:\n  f.none: {exemplars: [T|A], algorithms: [A]}\n  unidentified: {exemplars: [], algorithms: []}")
         assertEquals(listOf("T|A"), groups.of("f.none"))

@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery
 
+import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceTrialEntry
 import io.github.junekim0007.cryptobench.discovery.contract.TrialOutcome
 import io.github.junekim0007.cryptobench.discovery.contract.TrialReport
@@ -24,7 +25,7 @@ import javax.crypto.SecretKey
 class GeneratorKeysTest {
 
     private fun run(type: String) = DefaultRunTrial().run(
-        TrialReport(1L, listOf(ServiceTrialEntry("Sized", type, "X", TrialOutcome.SUCCESS))), arrayOf(SizedProvider()),
+        ProviderProbe().capture(arrayOf(SizedProvider())), TrialReport(1L, listOf(ServiceTrialEntry("Sized", type, "X", TrialOutcome.SUCCESS))), arrayOf(SizedProvider()),
     ).services.single().defaultRun!!
 
     @Test

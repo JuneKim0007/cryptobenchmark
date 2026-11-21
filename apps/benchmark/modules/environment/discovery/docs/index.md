@@ -48,7 +48,7 @@ apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/TrialRepor
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/DefaultRunTrial.kt : level 2: one real call per instantiated service or transformation
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/TransformationSet.kt : every declared mode x padding of a Cipher service
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/TrialRunner.kt : level 1: instantiate each captured service
-apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/call/ : per-type default calls, their registry, default keys, key names and key bits
+apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/call/ : per-type default calls, their registry, default keys, key candidates from the catalogue and key bits
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/keystore/KeystoreCatalogue.kt : the generator catalogues' keystore blocks, read through document's FamilyCatalogue: authorizations, trial key sizes and curves
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/keystore/KeystoreMaker.kt : what the keystore trial needs of a runtime: classes, StrongBox feature, generate, sweep, delete
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/keystore/KeystoreTrial.kt : level 4: one key per keystore-born generator, size or curve and hardware path, coded refusals
@@ -94,7 +94,8 @@ apps/benchmark/modules/environment/discovery/src/test/kotlin/ContractsTest.kt : 
 apps/benchmark/modules/environment/discovery/src/test/kotlin/DefaultRunTrialTest.kt : default runs against the live JVM
 apps/benchmark/modules/environment/discovery/src/test/kotlin/GeneratorKeysTest.kt : triedKeys: each size with its own key, a refusal, a pair asked no size above its default
 apps/benchmark/modules/environment/discovery/src/test/kotlin/JcaContractTest.kt : JCA-surface drift checks on the running JVM
-apps/benchmark/modules/environment/discovery/src/test/kotlin/KeyNamesTest.kt : KeyNames tests
+apps/benchmark/modules/environment/discovery/src/test/kotlin/KeyCandidatesTest.kt : key candidates: catalogued generators of the key type each with its registered spellings, then the key type, the names file's key size, generic names only uncatalogued, the raw key's name
+apps/benchmark/modules/environment/discovery/src/test/kotlin/KeyOrderTest.kt : every key candidate on the service's provider before another provider's
 apps/benchmark/modules/environment/discovery/src/test/kotlin/KeystoreTrialTest.kt : keystore trial with a fake keystore: rows per size, curve and path, coded refusals, no StrongBox, absent section, bundled catalogue
 apps/benchmark/modules/environment/discovery/src/test/kotlin/ProbeDirectoryTest.kt : no-overwrite test
 apps/benchmark/modules/environment/discovery/src/test/kotlin/ProviderProbeTest.kt : ProviderProbe tests

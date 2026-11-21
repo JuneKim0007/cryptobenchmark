@@ -22,8 +22,8 @@ internal class KeyUse(
     class Found(val use: Use?, val keyTypes: List<String>)
 
     fun of(generator: String, generatorAlgorithm: String, keyAlgorithm: String, producer: String, consumer: String): Found {
-        val own = catalogue.of(generator, generatorAlgorithm)?.takeIf { it.family in GENERATORS }
-        val keyTypes = listOfNotNull(if (own != null) keyType(own, catalogue.build(producer, capability.platform)) else keyAlgorithm)
+        val own = catalogue.of(generator, generatorAlgorithm)?.takeIf { it.family in FamilyCatalogue.GENERATORS }
+        val keyTypes = listOfNotNull(if (own != null) own.keyType(catalogue.build(producer, capability.platform)) else keyAlgorithm)
             .map { catalogue.names.keyType(it).name }
         return Found(keyTypes.firstNotNullOfOrNull { of(it, producer, consumer) }, keyTypes)
     }
@@ -31,15 +31,13 @@ internal class KeyUse(
     fun of(keyType: String, producer: String, consumer: String): Use? {
         val wanted = catalogue.names.keyType(keyType).name
         val builds = listOf(producer, consumer).map { catalogue.build(it, capability.platform) }
-        val preferred = FAMILIES.flatMap(exemplars::of).mapNotNull { id -> catalogue.of(id.substringBefore('|'), id.substringAfter('|')) }
+        val preferred = FamilyCatalogue.KEYED.flatMap(exemplars::of).mapNotNull { id -> catalogue.of(id.substringBefore('|'), id.substringAfter('|')) }
         return listOf(preferred, catalogue.entries).asSequence().flatMap { tier -> TYPES.flatMap { type -> tier.filter { it.type == type } } }
-            .filter { it.family in FAMILIES }
-            .filter { entry -> builds.all { keyType(entry, it)?.let(catalogue.names::keyType)?.name.equals(wanted, ignoreCase = true) } }
+            .filter { it.family in FamilyCatalogue.KEYED }
+            .filter { entry -> builds.all { entry.keyType(it)?.let(catalogue.names::keyType)?.name.equals(wanted, ignoreCase = true) } }
             .filter { entry -> listOf(producer, consumer).all { capability.check(it, entry.type, entry.name) == Availability.Available } }
             .firstNotNullOfOrNull { entry -> operation(entry)?.let { Use(entry.type, entry.name, it) } }
     }
-
-    private fun keyType(entry: FamilyCatalogue.Entry, build: String?): String? = entry.section("key", build)?.get("type") as? String
 
     // the catalogue names operations in words (computeMac, agree); the type's timed operation is the one its word begins
     private fun operation(entry: FamilyCatalogue.Entry): Operation? = (entry.section("operations")?.get("value") as? List<*>).orEmpty().firstNotNullOfOrNull { word ->
@@ -51,10 +49,8 @@ internal class KeyUse(
     companion object {
 
         val TYPES = listOf("Signature", "Cipher", "Mac", "KeyAgreement")
-        val FAMILIES = listOf("cipher.secret", "cipher.pair", "signature.pair", "mac.secret", "agreement.peer")
-        val GENERATORS = listOf("keygen.none", "keypairgen.none")
 
-        private val bundled: FamilyCatalogue by lazy { FamilyCatalogue.bundled(FAMILIES + GENERATORS) }
+        private val bundled: FamilyCatalogue by lazy { FamilyCatalogue.bundled(FamilyCatalogue.KEYED + FamilyCatalogue.GENERATORS) }
         private val bundledExemplars: GroupExemplars by lazy { GroupExemplars.bundled() }
     }
 }

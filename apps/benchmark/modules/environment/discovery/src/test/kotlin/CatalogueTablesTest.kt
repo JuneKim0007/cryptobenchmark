@@ -7,7 +7,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.io.File
 
-/** Every setup-catalog type has its row in discovery's type-keyed tables: DefaultCalls, RequirementCalls and KeyNames. */
+/** Every setup-catalog type has its row in discovery's type-keyed tables: DefaultCalls and RequirementCalls. */
 class CatalogueTablesTest {
 
     // discovery's classpath has no guide files: the catalogue is read from the checkout
@@ -20,12 +20,5 @@ class CatalogueTablesTest {
     fun everyCatalogueTypeHasADefaultCallAndARequirementCall() {
         assertEquals(emptyList<String>(), types.filter { DefaultCalls.of(it) == null })
         assertEquals(emptyList<String>(), types.filter { RequirementCalls.of(it) == null })
-    }
-
-    @Test
-    fun todayKeyNamesHasRowsForThreeCatalogueTypesAndPassesTheOthersThrough() {
-        val probes = listOf("AES_128/GCM/NoPadding", "SHA256withECDSA", "ECDH")
-        val ruled = types.filter { type -> probes.any { KeyNames.candidates(type, it) != listOf(it to null) } }
-        assertEquals(listOf("Signature", "KeyAgreement", "Cipher"), ruled)
     }
 }

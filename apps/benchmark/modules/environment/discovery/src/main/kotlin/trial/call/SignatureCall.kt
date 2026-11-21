@@ -6,10 +6,12 @@ import java.security.Signature
 
 internal object SignatureCall : DefaultCall {
 
+    private const val TYPE = "Signature"
+
     override val takesInput: Boolean = true
 
     override fun call(provider: Provider, algorithm: String, input: ByteArray, keys: DefaultKeys): DefaultRunOutcome {
-        val pair = keys.pair(provider, KeyNames.signatureKey(algorithm))
+        val pair = keys.firstPair(provider, keys.candidates.of(TYPE, algorithm, provider.name))
         Signature.getInstance(algorithm, provider).apply {
             initSign(pair.keys.private)
             update(input)

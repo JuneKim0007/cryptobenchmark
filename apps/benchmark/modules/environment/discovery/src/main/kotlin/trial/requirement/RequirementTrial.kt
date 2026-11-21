@@ -19,7 +19,7 @@ class RequirementTrial {
         val started = System.nanoTime()
         val live = providers.orEmpty().toList()
         val installed = live.associateBy { it.name }
-        val sources = KeySources(capture, live, keys)
+        val sources = KeySources(live, keys)
         val digests = namesOf(capture, DIGEST)
         val secretNames = namesOf(capture, SECRET_GENERATOR)
         val trialled = trial.services.associateBy { Triple(it.provider, ServiceKey.fold(it.type), ServiceKey.fold(it.algorithm)) }

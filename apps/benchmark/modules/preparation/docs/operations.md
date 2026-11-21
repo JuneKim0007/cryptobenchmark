@@ -84,7 +84,7 @@ Catalog: `algorithms/setup-catalog.yaml`, read through `:catalogue` `EngineRows`
 | DECRYPT input | seeded message encrypted once; carries ciphertext and spec (provider `AlgorithmParameters` when no spec); round trip checked, `round_trip_failed` |
 | VERIFY input | seeded message signed once and verified; carries message and signature |
 | asymmetric cipher | encrypt with the first pair's public key, decrypt with its private key |
-| key | entry `key.algorithm`, else the trial's `keyAlgorithm` and `fixedKeySize` (the size kept when the written name is the measured one): discovery's `KeyNames` is the one naming rule; neither: `no_measured_key: <type>.<alg>` |
+| key | entry `key.algorithm`, else the trial's `keyAlgorithm` and `fixedKeySize` (the size kept when the written name is the measured one): discovery's `KeyCandidates` is the one naming rule; neither: `no_measured_key: <type>.<alg>` |
 | generator provider | entry `key.provider`: `same` (default) the case's provider; `any` the case's provider, then all providers in precedence order, the first with an available generator; else the named one; no other provider is tried |
 | interop check | the key shared by both members: the producer's provider, then all providers in precedence order ([interop.md](interop.md)) |
 | DEVICE_DECIDES | secret `KeyGenerator` first, then a one-pair `KeyPairGenerator` |

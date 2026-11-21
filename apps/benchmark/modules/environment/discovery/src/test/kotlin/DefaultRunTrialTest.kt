@@ -99,7 +99,8 @@ class DefaultRunTrialTest {
     companion object {
         private val REPORT: TrialReport by lazy {
             val providers = Security.getProviders()
-            DefaultRunTrial().run(TrialRunner().run(ProviderProbe().capture(providers), providers), providers)
+            val capture = ProviderProbe().capture(providers)
+            DefaultRunTrial().run(capture, TrialRunner().run(capture, providers), providers)
         }
     }
 }

@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery
 
+import io.github.junekim0007.cryptobench.discovery.trial.call.KeyCandidates
 import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
 import io.github.junekim0007.cryptobench.discovery.contract.ServiceRequirement
 import io.github.junekim0007.cryptobench.discovery.trial.DefaultRunTrial
@@ -76,7 +77,7 @@ class ResetRunTest {
         val REPORT by lazy {
             val providers = Security.getProviders()
             val capture = ProviderProbe().capture(providers)
-            val keys = DefaultKeys(providers.toList())
+            val keys = DefaultKeys(providers.toList(), KeyCandidates.of(capture))
             RequirementTrial().run(capture, DefaultRunTrial().run(TrialRunner().run(capture, providers), providers, keys), providers, keys)
         }
     }

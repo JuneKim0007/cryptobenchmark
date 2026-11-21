@@ -14,13 +14,12 @@ internal class KeystoreCatalogue(private val blocks: Map<Pair<String, String>, B
 
     companion object {
 
-        val FAMILIES = listOf("keygen.none", "keypairgen.none")
         private const val KEYSTORE = "keystore"
         private const val TRIAL_KEY_SIZES = "trialKeySizes"
         private const val TRIAL_CURVES = "trialCurves"
         private val LEAVES = setOf("source", "url", TRIAL_KEY_SIZES, TRIAL_CURVES)
 
-        val bundled: KeystoreCatalogue by lazy { of(FamilyCatalogue.bundled(FAMILIES)) }
+        val bundled: KeystoreCatalogue by lazy { of(FamilyCatalogue.bundled(FamilyCatalogue.GENERATORS)) }
 
         fun of(catalogue: FamilyCatalogue): KeystoreCatalogue = KeystoreCatalogue(catalogue.entries.mapNotNull { entry ->
             @Suppress("UNCHECKED_CAST")

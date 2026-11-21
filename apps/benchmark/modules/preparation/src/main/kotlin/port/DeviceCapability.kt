@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation.port
 
+import io.github.junekim0007.cryptobench.document.catalogue.CatalogueOverlays
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyCandidate
 
 interface DeviceCapability {
@@ -13,6 +14,5 @@ interface DeviceCapability {
     // the captured Android API level; null on a JVM
     val sdkInt: Int? get() = null
 
-    // the guide's build platform: android-<sdk>, jdk-<major>
-    val platform: String? get() = sdkInt?.let { "android-$it" }
+    val platform: String? get() = CatalogueOverlays.platform(sdkInt, null)
 }
