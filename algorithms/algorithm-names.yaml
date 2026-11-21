@@ -3293,17 +3293,22 @@ transformations:
         NONE: ECB
 # What Key.getAlgorithm() returns, per key type; catalogue key.type names one of these, or none for no key.
 keyTypes:
-  AES: []
-  ARCFOUR: []
+  AES:
+  - Rijndael
+  ARCFOUR:
+  - RC4
   ARIA: []
   Blowfish: []
   CAMELLIA: []
   CAST5: []
   CAST6: []
+  # CHACHA is Bernstein's ChaCha (BC ChaCha); ChaCha20 is RFC 7539's (JDK ChaCha20, BC ChaCha7539): two keys
   CHACHA: []
-  ChaCha20: []
+  ChaCha20:
+  - ChaCha7539
   DES: []
-  DESede: []
+  DESede:
+  - DESede3
   DH:
   - DiffieHellman
   DILITHIUM2: []
@@ -3320,6 +3325,7 @@ keyTypes:
   - ECDH
   - ECDHC
   - ECMQV
+  - SM2
   ECGOST3410: []
   ECGOST3410-2012: []
   Ed25519: []
@@ -3337,7 +3343,50 @@ keyTypes:
   Grainv1: []
   HC128: []
   HC256: []
-  HMAC: []
+  HMAC:
+  - HMACDSTU7564-256
+  - HMACDSTU7564-384
+  - HMACDSTU7564-512
+  - HMACGOST3411
+  - HMACKECCAK224
+  - HMACKECCAK256
+  - HMACKECCAK288
+  - HMACKECCAK384
+  - HMACKECCAK512
+  - HMACMD2
+  - HMACMD4
+  - HmacMD5
+  - HMACRIPEMD128
+  - HMACRIPEMD160
+  - HMACRIPEMD256
+  - HMACRIPEMD320
+  - HmacSHA1
+  - HmacSHA224
+  - HmacSHA256
+  - HmacSHA3-224
+  - HmacSHA3-256
+  - HmacSHA3-384
+  - HmacSHA3-512
+  - HmacSHA384
+  - HmacSHA512
+  - HmacSHA512/224
+  - HmacSHA512/256
+  - HMACSkein-1024-1024
+  - HMACSkein-1024-384
+  - HMACSkein-1024-512
+  - HMACSkein-256-128
+  - HMACSkein-256-160
+  - HMACSkein-256-224
+  - HMACSkein-256-256
+  - HMACSkein-512-128
+  - HMACSkein-512-160
+  - HMACSkein-512-224
+  - HMACSkein-512-256
+  - HMACSkein-512-384
+  - HMACSkein-512-512
+  - HMACSM3
+  - HMACTIGER
+  - HMACWHIRLPOOL
   IDEA: []
   KMAC128: []
   KMAC256: []
@@ -3400,10 +3449,14 @@ keyTypes:
   PBEWITHSHA256AND128BITAES-CBC-BC: []
   PBEWITHSHA256AND192BITAES-CBC-BC: []
   PBEWITHSHA256AND256BITAES-CBC-BC: []
-  PBEWITHSHAAND128BITAES-CBC-BC: []
-  PBEWITHSHAAND192BITAES-CBC-BC: []
-  PBEWITHSHAAND2-KEYTRIPLEDES-CBC: []
-  PBEWITHSHAAND256BITAES-CBC-BC: []
+  PBEWITHSHAAND128BITAES-CBC-BC:
+  - PBEWithSHA1And128BitAES-CBC-BC
+  PBEWITHSHAAND192BITAES-CBC-BC:
+  - PBEWithSHA1And192BitAES-CBC-BC
+  PBEWITHSHAAND2-KEYTRIPLEDES-CBC:
+  - PBEwithSHAandDES2Key-CBC
+  PBEWITHSHAAND256BITAES-CBC-BC:
+  - PBEWithSHA1And256BitAES-CBC-BC
   PBEWITHSHAANDIDEA-CBC: []
   PBEWITHSHAANDTWOFISH-CBC: []
   POLY1305: []
@@ -3426,7 +3479,8 @@ keyTypes:
   SEED: []
   Serpent: []
   SHACAL-2: []
-  SipHash: []
+  SipHash:
+  - SipHash128
   Skein-MAC-1024-1024: []
   Skein-MAC-1024-384: []
   Skein-MAC-1024-512: []
@@ -3497,8 +3551,10 @@ keyTypes:
   XSALSA20: []
   XTEA: []
   XWING: []
-  ZUC-128: []
-  ZUC-256: []
+  ZUC-128:
+  - ZUC128
+  ZUC-256:
+  - ZUC256
 keyFormats:
 - RAW
 - PKCS#8

@@ -114,7 +114,7 @@ class KeyUseTest {
 
     @Test
     fun theGeneratorsOwnEntryGivesTheKeyType() {
-        assertEquals("HMAC, HmacSHA256 -> Mac|HmacSHA256 COMPUTE_MAC", generated("KeyGenerator", "HmacSHA256", "HmacSHA256"))
+        assertEquals("HMAC -> Mac|HmacSHA256 COMPUTE_MAC", generated("KeyGenerator", "HmacSHA256", "HmacSHA256"))
         assertEquals("Ed25519, EdDSA -> Signature|Ed25519 SIGN", generated("KeyPairGenerator", "Ed25519", "EdDSA"))
         assertEquals("X25519, XDH -> KeyAgreement|X25519 AGREE_KEY", generated("KeyPairGenerator", "X25519", "XDH"))
         assertEquals("X448, XDH -> KeyAgreement|X448 AGREE_KEY", generated("KeyPairGenerator", "x448", "XDH"))

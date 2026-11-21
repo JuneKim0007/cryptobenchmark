@@ -13,6 +13,7 @@ import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.security.Security
+import javax.crypto.KeyGenerator
 
 class AlgorithmNamesTest {
 
@@ -82,6 +83,17 @@ class AlgorithmNamesTest {
             AlgorithmNames.parse(YamlCodec.DOCUMENT.load("schemaVersion: 1\nnames: {}\nkeyTypes:\n  EC: [ECDSA]\n  ECDSA: []\n"))
         }
         assertTrue(error.message!!, error.message!!.startsWith("names_catalog_duplicate:"))
+    }
+
+    @Test
+    fun everySecretKeyARunningKeyGeneratorMakesNamesAKeyType() {
+        val unnamed = Security.getProviders().flatMap { p -> p.services.filter { it.type == "KeyGenerator" }.map { p to it.algorithm } }
+            .mapNotNull { (p, algorithm) -> runCatching { KeyGenerator.getInstance(algorithm, p).generateKey().algorithm }.getOrNull()?.let { "${p.name} $algorithm" to it } }
+            .filter { (_, key) -> !names.keyType(key).known }
+        assertEquals(emptyList<Pair<String, String>>(), unnamed)
+        assertEquals(Canonical("HMAC"), names.keyType("HmacSHA256"))
+        assertEquals(Canonical("ChaCha20"), names.keyType("ChaCha7539"))
+        assertEquals(Canonical("CHACHA"), names.keyType("ChaCha"))
     }
 
     @Test

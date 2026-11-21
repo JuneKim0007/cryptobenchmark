@@ -47,8 +47,9 @@ def test_a_spelling_sized_and_named_or_an_oid_apart_from_its_bare_form_is_refuse
 
 def test_a_key_algorithm_spelling_names_its_key_type_and_a_curve_family_stays_apart(tmp_path):
     names = Names.load()
-    assert [names.key_type(s) for s in ("ecdsa", "DiffieHellman", "X25519", "XDH")] == [
-        Canonical("EC"), Canonical("DH"), Canonical("X25519"), Canonical("XDH", None, False)]
+    assert [names.key_type(s) for s in ("ecdsa", "DiffieHellman", "X25519", "XDH", "HmacSHA256", "ChaCha7539", "ChaCha")] == [
+        Canonical("EC"), Canonical("DH"), Canonical("X25519"), Canonical("XDH", None, False), Canonical("HMAC"),
+        Canonical("ChaCha20"), Canonical("CHACHA")]
     path = tmp_path / "names.yaml"
     path.write_text("schemaVersion: 1\nnames: {}\nkeyTypes:\n  EC: [ECDSA]\n  ECDSA: []\n")
     with pytest.raises(NamesError, match="names_catalog_duplicate"):
