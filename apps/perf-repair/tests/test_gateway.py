@@ -11,6 +11,7 @@ from perfrepair.ai.__main__ import main as ai
 from perfrepair.ai.attempt.escalate import next_tier
 from perfrepair.ai.parse.algorithm_classify import command as classify
 from perfrepair.ai.parse.grouping_assign import command as assign
+from cryptobench.shared import paths
 from cryptobench.shared.errors.failures import AgentFailed
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.gateway import registry
@@ -30,7 +31,7 @@ from perfrepair.guide.command import main as guide
 
 DRY = ScriptedConversations(lambda *_: {})
 F = Path(__file__).parent / "fixtures" / "results" / "test-api36-00000000" / "manifest.yaml"
-EXAMPLE = Path(__file__).parents[1] / "perfrepair.example.yaml"
+EXAMPLE = paths.repo().perfrepair_example
 
 
 def spawned(tmp_path, text="", argv=(), role=GROUPING_ASSIGN):

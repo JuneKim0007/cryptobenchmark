@@ -1,12 +1,12 @@
 """Review after Select on a scripted transport: off by default, only on a pick that edits code; a refusal feeds Select's
 repass, unidentified is a person's, reads by tool."""
 import json
-from pathlib import Path
 
 from helpers import LIBRARY, QUIET, logged
 from select_data import APP, doc, dossier
 from test_select import A, run_dir
 
+from cryptobench.shared import paths
 from perfrepair.ai.model.tier import Ladder, Tier
 from perfrepair.ai.runtime.agent import ScriptedConversations
 from perfrepair.ai.runtime.gateway.spawn import Spawned
@@ -17,7 +17,7 @@ from perfrepair.dto.dossier import Estimate, Option
 from perfrepair.files import read_json
 from perfrepair.inputs.table import APPS_REVIEW
 
-EXAMPLE = Path(__file__).parents[1] / "perfrepair.example.yaml"
+EXAMPLE = paths.repo().perfrepair_example
 ACCEPT = lambda *_: {"tool": "verdict", "args": {"verdict": "accept", "reason": "ok"}}
 
 

@@ -5,6 +5,3 @@ __pycache__/
 runs/
 *.egg-info/
 .venv/
-.env
-perfrepair.yaml
-targets.yaml

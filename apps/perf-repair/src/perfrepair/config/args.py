@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 from typing import Mapping
 
+from cryptobench.shared import paths
 from ..dto.perf_mode import PerfMode
 from ..inputs.check import Invalid, check_positive, check_run_id
 from ..inputs.table import Row
@@ -45,7 +46,7 @@ def perf_mode(text: str) -> str:
 
 def add_config_arg(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--perfrepair-config", type=Path, metavar="FILE",
-                        help="settings file; default: $PERFREPAIR_CONFIG, then apps/perf-repair/perfrepair.yaml")
+                        help=f"settings file; default: $PERFREPAIR_CONFIG, then {paths.repo().perfrepair_settings.relative_to(paths.repo().root)}")
 
 
 def load_settings(parser: argparse.ArgumentParser, args: argparse.Namespace) -> Loaded:

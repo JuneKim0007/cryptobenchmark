@@ -4,11 +4,11 @@
 
 | file | tracked | holds |
 |---|---|---|
-| `perfrepair.yaml` | no | the settings below; template `perfrepair.example.yaml` |
+| `perfrepair.yaml` | no | the settings below; template `../../config/perf-repair/perfrepair.example.yaml`, the copy beside it |
 | `settings.yaml` | no | at the repository root: the index of a facade run, and the keys `placement` names ([facade.md](../../../docs/facade.md)) |
-| `.env` | no | `PERFREPAIR_AGENT`, `PERFREPAIR_AUTH`, `PERFREPAIR_MODEL`, `PERFREPAIR_EFFORT`, `ANTHROPIC_API_KEY`; template `.env.example` |
+| `.env` | no | `PERFREPAIR_AGENT`, `PERFREPAIR_AUTH`, `PERFREPAIR_MODEL`, `PERFREPAIR_EFFORT`, `ANTHROPIC_API_KEY`; template `../../config/perf-repair/.env.example`, the copy beside it, read from there only |
 
-- Settings file lookup: `--perfrepair-config FILE`, then `$PERFREPAIR_CONFIG`, then `apps/perf-repair/perfrepair.yaml`; never the working directory. A file named by the flag or `PERFREPAIR_CONFIG` that does not exist exits 2 with `missing_file`.
+- Settings file lookup: `--perfrepair-config FILE`, then `$PERFREPAIR_CONFIG`, then `perfrepair.yaml` in `../../config/perf-repair/`; never the working directory. A file named by the flag or `PERFREPAIR_CONFIG` that does not exist exits 2 with `missing_file`.
 - Relative paths in the file resolve against the file's folder.
 - `.env` keys outside `PERFREPAIR_*` fill unset environment keys; its `PERFREPAIR_*` keys are a layer below `perfrepair.yaml`; `PERFREPAIR_CONFIG` is read from the environment only, never from `.env`.
 

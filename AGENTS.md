@@ -74,7 +74,7 @@ apps/cli/facade/phases.py : the crypto and guided phases as guide children with 
 apps/cli/facade/tree.py : the resolved tree: nodes, direction rule, printed lines, the document a run record keeps
 apps/cli/tests/ : pytest for the facade
 apps/perf-repair/ : cryptobenchmark results to crypto replacements applied per call site, compiled and interop-checked on a phone
-config/ : every user-edited file by its reader: benchmark/ (global.yaml, testsets/); README.md maps them with the files outside it and each lookup order
+config/ : every user-edited file by its reader: benchmark/ (global.yaml, testsets/), perf-repair/ (perfrepair, targets and .env templates); README.md maps them with the files outside it and each lookup order
 docs/ : cross-module fact docs
 docs/contributing/ : directive guides
 lib/cryptobench/ : the Python library the runner and perf-repair share: shared components, the stage framework, the run's stages; map in its AGENTS.md

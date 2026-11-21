@@ -9,7 +9,7 @@
 # Relative paths resolve against this file's folder. Secrets (API keys, tokens) are refused here:
 # keep ANTHROPIC_API_KEY in the environment or .env.
 # A bad value here warns and uses the default, except device.id, device.screening.catalog and aiGateway.use/auth,
-# which stop the command; a key nothing reads warns. docs/settings.md lists every key.
+# which stop the command; a key nothing reads warns. apps/perf-repair/docs/settings.md lists every key.
 
 aiGateway:                 # shared: every model-calling command
   use:                     # claude | dry-run; empty = claude           (PERFREPAIR_AGENT)

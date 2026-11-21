@@ -1,9 +1,9 @@
 import logging
-from pathlib import Path
 
 import pytest
 import yaml
 
+from cryptobench.shared import paths
 from perfrepair.config.settings import ConfigError, Settings, parse, unknown_keys
 
 def warnings(caplog):
@@ -82,6 +82,6 @@ def test_unknown_keys_lists_what_parse_warns_about():
 
 
 def test_the_example_file_parses_without_a_warning(caplog):
-    example = Path(__file__).parents[1] / "perfrepair.example.yaml"
+    example = paths.repo().perfrepair_example
     parse(yaml.safe_load(example.read_text()), str(example))
     assert warnings(caplog) == []

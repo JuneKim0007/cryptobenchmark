@@ -6,7 +6,7 @@ from pathlib import Path
 
 from . import roots
 from .names import (BENCHMARK_CONFIG, CONFIG_FOLDER, CONTRACT_DOCUMENTS, CONTRACT_RUNNER, CONTRACT_YAML_CODEC, CONTRACTS, ENGINE_OPERATIONS,
-                    EXAMPLE, GLOBAL, SETUP_CATALOG, TESTS)
+                    EXAMPLE, GLOBAL, PERF_REPAIR_CONFIG, SETUP_CATALOG, TESTS)
 
 _KOTLIN_NAME_USERS = ("modules/environment/discovery/src/main/kotlin", "modules/config/src/main/kotlin", "modules/preparation/src/main/kotlin",
                       "modules/benchmark/src/main/kotlin", "modules/android/src/androidTest/kotlin", "cli/src/main/kotlin")
@@ -45,8 +45,12 @@ class Repo:
     setup_catalog = property(lambda self: self.algorithms / SETUP_CATALOG)
     perf_repair = property(lambda self: self.root / "apps/perf-repair")
     perf_repair_source = property(lambda self: self.perf_repair / "src")
-    perfrepair_settings = property(lambda self: self.perf_repair / "perfrepair.yaml")
-    dotenv = property(lambda self: self.perf_repair / ".env")
+    perf_repair_config = property(lambda self: self.config / PERF_REPAIR_CONFIG)
+    perfrepair_settings = property(lambda self: self.perf_repair_config / "perfrepair.yaml")
+    perfrepair_example = property(lambda self: self.perf_repair_config / "perfrepair.example.yaml")
+    targets_example = property(lambda self: self.perf_repair_config / "targets.example.yaml")
+    dotenv = property(lambda self: self.perf_repair_config / ".env")
+    dotenv_example = property(lambda self: self.perf_repair_config / ".env.example")
     library = property(lambda self: self.root / "lib/cryptobench")
     contracts = property(lambda self: self.root / TESTS / CONTRACTS)
     contract_documents = property(lambda self: self.contracts / CONTRACT_DOCUMENTS)

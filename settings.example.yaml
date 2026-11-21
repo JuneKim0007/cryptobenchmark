@@ -13,4 +13,4 @@ crypto:
   harnessConfig:                 # optional: the global.yaml of the per-app device check (compile and interop); empty = crypto.config
 
 llm:
-  config: apps/perf-repair/perfrepair.yaml # required: a copy of perfrepair.example.yaml -> apps.targets, device.screening.catalog, paths.prompts
+  config: config/perf-repair/perfrepair.yaml # required: a copy of perfrepair.example.yaml -> apps.targets, device.screening.catalog, paths.prompts
