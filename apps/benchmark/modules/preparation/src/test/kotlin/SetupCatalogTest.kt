@@ -33,6 +33,27 @@ class SetupCatalogTest {
         assertEquals(PerCall.INIT_AND_OPERATION, perCall("cipher", "aes/gcm/nopadding"))
     }
 
+    private fun measured(type: String, algorithm: String, provider: String, platform: String?) =
+        catalog.perCall(BenchmarkCase(type, algorithm, provider, Operation.TYPE_DEFAULT), platform) { false }
+
+    @Test
+    fun aCataloguedCipherOrMacTakesInitIntoTheCallWhenItsBuildAsksAFreshInitValueOrRefusesASecondOperation() {
+        assertEquals(PerCall.INIT_AND_OPERATION, measured("Mac", "POLY1305-AES", "BundledBC", "jdk-25"))
+        assertEquals(PerCall.INIT_AND_OPERATION, measured("Mac", "AESCCMMAC", "BundledBC", "jdk-25"))
+        assertEquals(PerCall.OPERATION, measured("Mac", "HmacSHA256", "SunJCE", "jdk-25"))
+        assertEquals(PerCall.OPERATION, measured("Cipher", "AES/KW/NoPadding", "SunJCE", "jdk-25"))
+        assertEquals(PerCall.INIT_AND_OPERATION, measured("Cipher", "AES/GCM/NoPadding", "SunJCE", "jdk-25"))
+        assertEquals(PerCall.INIT_AND_OPERATION, measured("Cipher", "ChaCha20", "SunJCE", "jdk-25"))
+        assertEquals(PerCall.INIT_AND_OPERATION, measured("Cipher", "PBEWithHmacSHA256AndAES_128", "AndroidOpenSSL", "android-33"))
+        assertEquals(PerCall.INIT_AND_OPERATION, measured("Cipher", "AES/GCM-SIV/NoPadding", "AndroidOpenSSL", "android-33"))
+    }
+
+    @Test
+    fun anUncataloguedNameOrAProviderWithNoMeasuredBuildKeepsTheRow() {
+        assertEquals(PerCall.OPERATION, measured("Mac", "POLY1305-AES", "Unmeasured", "jdk-25"))
+        assertEquals(PerCall.INIT_AND_OPERATION, measured("Cipher", "NoSuchCipher/CBC/NoPadding", "SunJCE", "jdk-25"))
+    }
+
     @Test
     fun aCipherWithoutAModeIsDecidedByItsIv() {
         assertEquals(PerCall.OPERATION, perCall("Cipher", "ARCFOUR", hasIv = false))

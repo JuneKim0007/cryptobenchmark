@@ -33,6 +33,6 @@ internal object DecryptDefinition : OperationDefinition {
         val input = prepared.input as? OperationInput.Ciphertext ?: throw IllegalArgumentException("decrypt_without_ciphertext")
         val key = CipherKeys.decrypting(prepared.key)
         val call = CipherCall({ Cipher.getInstance(prepared.case.algorithm, prepared.case.provider) }, input.bytes, { cipher, _ -> input.initDecrypting(cipher, key) })
-        return call.invocation(prepared.case, setup)
+        return call.invocation(prepared.case, prepared.platform, setup)
     }
 }

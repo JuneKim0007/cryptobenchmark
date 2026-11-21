@@ -17,6 +17,6 @@ internal object ComputeMacDefinition : OperationDefinition {
         val message = CaseArguments.preparedMessage(prepared)
         val call = EngineCall({ Mac.getInstance(prepared.case.algorithm, prepared.case.provider) },
             { mac, n -> if (specs.isEmpty()) mac.init(key) else mac.init(key, specs[n % specs.size]) }, { mac -> mac.doFinal(message) })
-        return call.invocation(setup.perCall(prepared.case))
+        return call.invocation(setup.perCall(prepared.case, prepared.platform))
     }
 }

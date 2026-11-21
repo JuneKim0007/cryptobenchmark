@@ -63,7 +63,7 @@ apps/benchmark/modules/preparation/src/main/kotlin/operation/KeyShape.kt : enum 
 apps/benchmark/modules/preparation/src/main/kotlin/operation/OperationDefinition.kt : interface: what an operation consumes and its call
 apps/benchmark/modules/preparation/src/main/kotlin/operation/OperationDefinitions.kt : Operation to definition map
 apps/benchmark/modules/preparation/src/main/kotlin/operation/PerCall.kt : enum of what one timed call does: operation, initAndOperation, getInstanceInitAndOperation
-apps/benchmark/modules/preparation/src/main/kotlin/operation/SetupCatalog.kt : algorithms/setup-catalog.yaml beside its class as EngineRows, the asked paths a row applies, and a case's PerCall
+apps/benchmark/modules/preparation/src/main/kotlin/operation/SetupCatalog.kt : algorithms/setup-catalog.yaml beside its class as EngineRows, the asked paths a row applies, and a case's PerCall: a catalogued Cipher or Mac by its entry's rows as its provider's build sees them
 apps/benchmark/modules/preparation/src/main/kotlin/operation/SignDefinition.kt : SIGN definition
 apps/benchmark/modules/preparation/src/main/kotlin/operation/TypeDefaultDefinition.kt : TYPE_DEFAULT definition (no-op call)
 apps/benchmark/modules/preparation/src/main/kotlin/operation/VerifyDefinition.kt : VERIFY definition; builds signed-message input

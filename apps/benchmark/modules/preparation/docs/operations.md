@@ -52,11 +52,12 @@ Each item is measured once per path its entry's `variants` keeps ([prepare.md](p
 | `fixed` | the setup the API lets a call keep, kept: what the catalog row below still does per call |
 | `notFixed` | `getInstance` + init + operation every call, for every row |
 
-Catalog: `algorithms/setup-catalog.yaml`, read through `:catalogue` `EngineRows` by `operation/SetupCatalog` (the build puts it beside the class) and by config's `entry/EngineCatalog`; a type without a row is a `not_in_catalogue` skip; each row cites the JCA API contract it rests on. No engine or mode name is in code.
+Catalog: `algorithms/setup-catalog.yaml`, read through `:catalogue` `EngineRows` by `operation/SetupCatalog` (the build puts it beside the class) and by config's `entry/EngineCatalog`; a type without a row is a `not_in_catalogue` skip; each row cites the JCA API contract it rests on. No engine or mode name is in code. A Cipher or Mac name with a catalogue entry, on a provider with a measured build, takes the catalogue row below instead of its mode or suffix row.
 
 | engine type, mode | `fixed` per call (`perCall`) | contract |
 |---|---|---|
 | MessageDigest | operation (`operation`) | `digest()` resets the digest |
+| Cipher, Mac with a catalogue entry | init with the next fresh value + operation when the entry, as the provider's build on the case's platform sees it, has an init-passed `required` row with `rule: unique` or `unpredictable`, or `lifecycle.reset.forward: none`; else operation | the entry's measured rows |
 | Mac | operation | `doFinal()` resets the Mac to its state after `init(key)` |
 | Mac named `...GMAC` | init with the next fresh IV + operation | a GMAC nonce must not repeat under one key: its IV role lives `perUse` with `rule: unique`, whatever `lifecycle.reset` says |
 | Signature | operation after one init | `sign()`, `verify()` reset to the state after `initSign`/`initVerify` |

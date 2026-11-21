@@ -19,8 +19,8 @@ internal class CipherCall(create: () -> Cipher, private val input: ByteArray, in
         return output
     }
 
-    fun invocation(case: BenchmarkCase, setup: SetupCatalog): Invocation =
-        invocation(setup.perCall(case) { call.engine.iv != null })
+    fun invocation(case: BenchmarkCase, platform: String?, setup: SetupCatalog): Invocation =
+        invocation(setup.perCall(case, platform) { call.engine.iv != null })
 
     fun invocation(perCall: PerCall): Invocation {
         val invocation = call.invocation(perCall, { output.copyOf(written) }, readBack = true)

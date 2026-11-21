@@ -28,6 +28,7 @@ internal class CasePreparer(
     private val generator: KeyMaterialGenerator,
     private val binder: ParameterBinder,
     private val sdkInt: Int? = null,
+    private val platform: String? = null,
 ) {
 
     private val keys = HashMap<KeyRecipe, Result<KeyMaterial>>()
@@ -41,7 +42,7 @@ internal class CasePreparer(
         val keyParameters = if (recipe is KeyRecipe.None) bound(case.keyParameters, "key") else null
         if (case.variant == Variant.SECURE) return secure(case, recipe, material, keyParameters)
         val input = step("input_preparation_failed: ") { definition.input(case, material, parameters) }
-        val candidate = PreparedCase(case, recipe, material, parameters, keyParameters, input)
+        val candidate = PreparedCase(case, recipe, material, parameters, keyParameters, input, platform = platform)
         val invocation = step("dry_run_failed: ") { Invocations.of(candidate) }
         val result = step("dry_run_failed: ") { invocation.once() }
         step("parameters_unreadable: ") { definition.parametersIgnored(case, material, parameters) }?.let { throw PreparationException(it) }
@@ -53,7 +54,7 @@ internal class CasePreparer(
     private fun secure(case: BenchmarkCase, recipe: KeyRecipe, material: KeyMaterial, keyParameters: BoundParameters?): PreparedCase {
         val key = SecureKey(case, sdkInt)
         val spec = step(key::refusal) { BoundParameters.cycling(listOf(key.spec(keyParameters?.next()))) }
-        val candidate = PreparedCase(case, recipe, material, null, spec, OperationInput.None, afterCall = key::delete)
+        val candidate = PreparedCase(case, recipe, material, null, spec, OperationInput.None, platform = platform, afterCall = key::delete)
         val invocation = step(key::refusal) { Invocations.of(candidate) }
         val result = step(key::refusal) { invocation.once() }
         // the slot is emptied whatever happens; a failed delete is suppressed under the read's failure, never in its place

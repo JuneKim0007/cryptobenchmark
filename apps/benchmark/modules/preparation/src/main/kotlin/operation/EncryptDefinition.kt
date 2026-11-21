@@ -31,6 +31,6 @@ internal object EncryptDefinition : OperationDefinition {
         val call = CipherCall({ Cipher.getInstance(prepared.case.algorithm, prepared.case.provider) }, message, { cipher, n ->
             if (specs.isEmpty()) cipher.init(Cipher.ENCRYPT_MODE, key) else cipher.init(Cipher.ENCRYPT_MODE, key, specs[n % specs.size])
         })
-        return call.invocation(prepared.case, setup)
+        return call.invocation(prepared.case, prepared.platform, setup)
     }
 }

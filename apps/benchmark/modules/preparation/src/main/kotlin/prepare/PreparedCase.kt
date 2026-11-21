@@ -16,6 +16,8 @@ data class PreparedCase(
     val input: OperationInput,
     val resolvedParameters: Map<String, Any> = emptyMap(),
     val perCall: PerCall? = null,
+    // the catalogue build platform the per-call setup reads: android-<sdk>, jdk-<major>
+    val platform: String? = null,
     // untimed after every timed call: a secure case empties its key slot
     val afterCall: (() -> Unit)? = null,
 ) {
