@@ -115,20 +115,26 @@ class KeyUseTest {
     @Test
     fun theGeneratorsOwnEntryGivesTheKeyType() {
         assertEquals("HMAC -> Mac|HmacSHA256 COMPUTE_MAC", generated("KeyGenerator", "HmacSHA256", "HmacSHA256"))
-        assertEquals("Ed25519, EdDSA -> Signature|Ed25519 SIGN", generated("KeyPairGenerator", "Ed25519", "EdDSA"))
-        assertEquals("X25519, XDH -> KeyAgreement|X25519 AGREE_KEY", generated("KeyPairGenerator", "X25519", "XDH"))
-        assertEquals("X448, XDH -> KeyAgreement|X448 AGREE_KEY", generated("KeyPairGenerator", "x448", "XDH"))
-        assertEquals("X25519, XDH -> KeyAgreement|X25519 AGREE_KEY", generated("KeyPairGenerator", "OID.1.3.101.110", "XDH"))
+        assertEquals("Ed25519 -> Signature|Ed25519 SIGN", generated("KeyPairGenerator", "Ed25519", "EdDSA"))
+        assertEquals("X25519 -> KeyAgreement|X25519 AGREE_KEY", generated("KeyPairGenerator", "X25519", "XDH"))
+        assertEquals("X448 -> KeyAgreement|X448 AGREE_KEY", generated("KeyPairGenerator", "x448", "XDH"))
+        assertEquals("X25519 -> KeyAgreement|X25519 AGREE_KEY", generated("KeyPairGenerator", "OID.1.3.101.110", "XDH"))
     }
 
     @Test
     fun aKeyNamedOtherwiseThanItsGeneratorsType() {
         assertEquals("EC -> Signature|SHA256withECDSA SIGN", generated("KeyPairGenerator", "EC", "ECDSA"))
         assertEquals("EC -> Signature|SHA256withECDSA SIGN", generated("KeyPairGenerator", "ECDSA", "ECDSA"))
-        assertEquals("X25519, XDH -> KeyAgreement|X25519 AGREE_KEY", generated("KeyPairGenerator", "XDH", "XDH"))
-        assertEquals("Ed25519, EdDSA -> Signature|Ed25519 SIGN", generated("KeyPairGenerator", "EdDSA", "EdDSA"))
+        assertEquals("X25519 -> KeyAgreement|X25519 AGREE_KEY", generated("KeyPairGenerator", "XDH", "XDH"))
+        assertEquals("Ed25519 -> Signature|Ed25519 SIGN", generated("KeyPairGenerator", "EdDSA", "EdDSA"))
         assertEquals("XWING -> null", generated("KeyPairGenerator", "XWING", "XWING"))
         assertEquals("AES -> Cipher|AES/GCM/NoPadding ENCRYPT", generated("KeyGenerator", "Uncatalogued", "AES"))
+    }
+
+    @Test
+    fun aKeyNameIsReadOnlyForAGeneratorWithNoEntry() {
+        val kmac = KeyUse(lacking("KMAC128")).of("KeyGenerator", "KMAC128", "HMACSHA3-256", "P", "Q")
+        assertEquals("KMAC128 -> null", "${kmac.keyTypes.joinToString()} -> ${kmac.use}")
     }
 
     private fun lacking(vararg names: String) = object : DeviceCapability by capability {

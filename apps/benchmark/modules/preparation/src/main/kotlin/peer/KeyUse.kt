@@ -8,7 +8,7 @@ import io.github.junekim0007.cryptobench.preparation.port.Availability
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
 import java.util.Locale
 
-/** A generated key's use: its key type from the generator's own entry, else the key's name, each read through the names file's keyTypes; the families' exemplars, then catalogue order, each by type (Signature, Cipher, Mac, KeyAgreement), the first entry of that key type, as each provider's build sees it, Available on both, with an operation the harness times. */
+/** A generated key's use: its key type from the generator's own entry, the key's name only for a generator with no entry, read through the names file's keyTypes; the families' exemplars, then catalogue order, each by type (Signature, Cipher, Mac, KeyAgreement), the first entry of that key type, as each provider's build sees it, Available on both, with an operation the harness times. */
 internal class KeyUse(
     private val capability: DeviceCapability,
     private val catalogue: FamilyCatalogue = bundled,
@@ -22,9 +22,9 @@ internal class KeyUse(
     class Found(val use: Use?, val keyTypes: List<String>)
 
     fun of(generator: String, generatorAlgorithm: String, keyAlgorithm: String, producer: String, consumer: String): Found {
-        val ownType = catalogue.of(generator, generatorAlgorithm)?.takeIf { it.family in GENERATORS }
-            ?.let { keyType(it, catalogue.build(producer, capability.platform)) }
-        val keyTypes = listOfNotNull(ownType, keyAlgorithm).map { catalogue.names.keyType(it).name }.distinctBy { it.uppercase(Locale.ROOT) }
+        val own = catalogue.of(generator, generatorAlgorithm)?.takeIf { it.family in GENERATORS }
+        val keyTypes = listOfNotNull(if (own != null) keyType(own, catalogue.build(producer, capability.platform)) else keyAlgorithm)
+            .map { catalogue.names.keyType(it).name }
         return Found(keyTypes.firstNotNullOfOrNull { of(it, producer, consumer) }, keyTypes)
     }
 
