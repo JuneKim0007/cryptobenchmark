@@ -1,3 +1,4 @@
+# The AndroidKeyStore refused item and the SunJCE AES/CBC problem item show the guide writer's shape for its refusal paths; no host catalogue writes them.
 schemaVersion: 2
 generatedFrom:
   global: config_global_example.yaml

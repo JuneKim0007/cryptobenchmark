@@ -9,10 +9,11 @@ apps/benchmark/modules/preparation/docs/operations.md : operation consumption, t
 apps/benchmark/modules/preparation/docs/peer.md : the peer engine: procedure, outcomes table, rows
 apps/benchmark/modules/preparation/docs/prepare.md : stages, inputs, selections, resolution, failures
 apps/benchmark/modules/preparation/docs/prepared.md : prepared.yaml, skipped.yaml and the case id
+apps/benchmark/modules/preparation/example/guide.yaml : example guide input; the Python writer's bytes for the value tests/contracts/documents/guide.json holds
 apps/benchmark/modules/preparation/example/preparation_capture_example.yaml : example discovery capture input (SUN, SunRsaSign, SunJCE)
 apps/benchmark/modules/preparation/example/preparation_effective_example.yaml : example effective.yaml input
 apps/benchmark/modules/preparation/example/preparation_prepared_example.yaml : expected prepared.yaml
-apps/benchmark/modules/preparation/example/preparation_skipped_example.yaml : expected skipped.yaml (empty list)
+apps/benchmark/modules/preparation/example/preparation_skipped_example.yaml : expected skipped.yaml: the guide's problem and refused rows
 apps/benchmark/modules/preparation/example/preparation_trial_example.yaml : example discovery trial input
 apps/benchmark/modules/preparation/src/main/kotlin/Preparation.kt : entry point; prepare(effectiveFile) runs every stage and applies onFailure
 apps/benchmark/modules/preparation/src/main/kotlin/adapter/DiscoveryCapability.kt : DeviceCapability over a capture and trial pair

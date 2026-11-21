@@ -6,6 +6,7 @@ import io.github.junekim0007.cryptobench.document.YamlCodec
 import io.github.junekim0007.cryptobench.files.ContractsFolder
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
+import org.junit.Assume
 import org.junit.Test
 import org.yaml.snakeyaml.LoaderOptions
 import org.yaml.snakeyaml.Yaml
@@ -25,6 +26,7 @@ class ContractsTest {
 
     @Test
     fun theGuideAndEffectiveReadToTheirStatedValues() {
+        plainRun()
         assertEquals(stated("guide"), read(guide))
         assertEquals(stated("config_effective_example"), read(effective))
         Guide.read(guide)
@@ -35,4 +37,7 @@ class ContractsTest {
     fun currentBehaviourADuplicateKeyIsRefused() {
         assertThrows(DuplicateKeyException::class.java) { read(File(ContractsFolder.yamlCodec, "duplicate-key.yaml")) }
     }
+
+    // an update run writes the examples and their .json; only a plain run checks them
+    private fun plainRun() = Assume.assumeTrue(System.getProperty("examples.update") == null)
 }

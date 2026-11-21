@@ -10,6 +10,7 @@ import io.github.junekim0007.cryptobench.config.yaml.YamlFiles
 import io.github.junekim0007.cryptobench.settings.Facts
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
+import org.junit.Assume
 import org.junit.Test
 import org.yaml.snakeyaml.LoaderOptions
 import org.yaml.snakeyaml.Yaml
@@ -33,6 +34,7 @@ class ContractsTest {
 
     @Test
     fun eachFixtureReadsToItsStatedValue() {
+        plainRun()
         for (file in listOf(global, effective, File(ContractsFolder.documents, "facts.yaml"))) {
             assertEquals(file.name, stated(ContractsFolder.documents, file.nameWithoutExtension), read(file))
         }
@@ -61,6 +63,7 @@ class ContractsTest {
 
     @Test
     fun theAuthoredAndGeneratedFixturesPassTheirReaders() {
+        plainRun()
         val files = YamlFiles()
         files.at(global, GlobalDocument).read()
         files.at(effective, EffectiveDocument).read()
@@ -81,4 +84,7 @@ class ContractsTest {
         assertEquals(Canonical("AES", 256), names.canonical("Cipher", "AES_256"))
         assertEquals(Canonical("NotAnAlgorithm", null, false), names.canonical("Cipher", "NotAnAlgorithm"))
     }
+
+    // an update run writes the examples and their .json; only a plain run checks them
+    private fun plainRun() = Assume.assumeTrue(System.getProperty("examples.update") == null)
 }
