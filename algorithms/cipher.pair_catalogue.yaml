@@ -808,7 +808,7 @@ algorithms:
       roundTrip: {value: true, source: measured}
     lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
     operations: {value: [encrypt, decrypt], source: measured}
-    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: SM2, digest: BLAKE2B}}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: SM2, digest: BLAKE2B-512}}
     sourcedOnly:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
@@ -828,7 +828,7 @@ algorithms:
       roundTrip: {value: true, source: measured}
     lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
     operations: {value: [encrypt, decrypt], source: measured}
-    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: SM2, digest: BLAKE2S}}
+    contract: {key: app, input: {passwordBased: false, wrap: false}, output: {base: SM2, digest: BLAKE2S-256}}
     sourcedOnly:
     - {fact: strengthBits, value: 128, source: inferred}
     - {fact: minSdk, value: null, source: inferred}

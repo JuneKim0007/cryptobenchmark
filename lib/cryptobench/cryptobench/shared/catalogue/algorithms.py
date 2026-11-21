@@ -38,6 +38,8 @@ CLOSED_BOOLEANS = ("passwordBased", "wrap", "prehashed")
 CONTRACT_KEY = "key"
 KEY_APP, KEY_PROVIDER, KEY_PASSWORD, KEY_NONE = "app", "provider", "password", "none"
 KEY_CONTRACTS = (KEY_APP, KEY_PROVIDER, KEY_PASSWORD, KEY_NONE)
+# contract digests that name no MessageDigest: a prehashed input, the TLS MD5 and SHA-1 concatenation
+DIGEST_WORDS = ("NONE", "MD5ANDSHA1")
 VALUE, ASSUMED, RESET = "value", "assumed", "reset"
 PROVIDER_SPEC = "providerSpec"
 PARAMETER_KIND = {"jca.ivSpec": "iv", "jca.nonceIvSpec": "iv", "jca.gcmSpec": "gcm", "jca.chacha20Spec": "chacha", "jca.pbeSpec": "pbe", "jca.pbeIvSpec": "pbe"}
@@ -374,11 +376,15 @@ def _key_type_problem(names: Names, key_type: str) -> str | None:
 
 
 def _digest_problems(names: Names, e: Entry) -> list[str]:
-    """A contract digest the names file knows as a MessageDigest spelling is its canonical name; mgf1 may name an XOF."""
+    """A contract digest is a canonical MessageDigest name or a DIGEST_WORDS word; mgf1 may name an XOF."""
     output = ((e.raw.get("contract") or {}).get("output") or {}).get("digest")
     value = output.get("value") if isinstance(output, dict) else output
+    if output is None or value in DIGEST_WORDS:
+        return []
     found = names.catalogued("MessageDigest", value) if isinstance(value, str) else None
-    return [f"contract digest {value} is not canonical, the names file gives {found.name}"] if found and found.known and found.name != value else []
+    if found is not None and found.known and found.name == value:
+        return []
+    return [f"contract digest {value} is not canonical" + (f", the names file gives {found.name}" if found is not None and found.known else ", no MessageDigest")]
 
 
 def _linkage_problems(entries: list[Entry], names: Names, engine_types: set[str]) -> list[str]:

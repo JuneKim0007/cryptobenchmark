@@ -135,9 +135,14 @@ def test_a_key_type_outside_the_key_types_of_the_names_file_is_refused(tmp_path,
         load(_copy(tmp_path, "signature.pair_catalogue.yaml", mutate))
 
 
-def test_a_contract_digest_spelled_otherwise_than_its_canonical_name_is_refused(tmp_path):
-    mutate = lambda d: d["algorithms"]["Signature|SHAKE128WITHRSAPSS"]["contract"]["output"].update(digest="SHAKE128")
-    with pytest.raises(AlgorithmsError, match=r"Signature\|SHAKE128WITHRSAPSS: contract digest SHAKE128 is not canonical, the names file gives SHAKE128-256"):
+@pytest.mark.parametrize("digest,code", [
+    ("SHAKE128", "contract digest SHAKE128 is not canonical, the names file gives SHAKE128-256"),
+    ("BLAKE2B", "contract digest BLAKE2B is not canonical, no MessageDigest"),
+    (None, "contract digest None is not canonical, no MessageDigest"),
+])
+def test_a_contract_digest_spelled_otherwise_than_its_canonical_name_is_refused(tmp_path, digest, code):
+    mutate = lambda d: d["algorithms"]["Signature|SHAKE128WITHRSAPSS"]["contract"]["output"].update(digest={"value": digest})
+    with pytest.raises(AlgorithmsError, match=rf"Signature\|SHAKE128WITHRSAPSS: {code}"):
         load(_copy(tmp_path, "signature.pair_catalogue.yaml", mutate))
 
 
