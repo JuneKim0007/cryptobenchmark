@@ -1148,6 +1148,7 @@ codes:
   missing_resource: {kind: error}
   missing_verdict: {kind: error}
   mixed_types: {kind: error}
+  name_conflict: {kind: error}
   name_unbuilt: {kind: notice}
   names_catalog_missing: {kind: error}
   negative: {kind: error}
