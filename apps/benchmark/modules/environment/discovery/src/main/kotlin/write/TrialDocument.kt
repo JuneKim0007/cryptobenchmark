@@ -23,7 +23,6 @@ import io.github.junekim0007.cryptobench.document.DocumentFields.string
 
 object TrialDocument {
 
-    internal const val SCHEMA_VERSION = "schemaVersion"
     private const val CAPTURED_AT_MILLIS = "capturedAtMillis"
     private const val SERVICES = "services"
     private const val DEFAULT_RUN_INPUT_SIZE = "defaultRunInputSize"
@@ -60,7 +59,7 @@ object TrialDocument {
     private const val MILLIS = "millis"
 
     fun of(report: TrialReport): Map<String, Any> = linkedMapOf<String, Any>(
-        SCHEMA_VERSION to report.schemaVersion,
+        SchemaVersion.FIELD to report.schemaVersion,
         CAPTURED_AT_MILLIS to report.capturedAtMillis,
     ).apply {
         report.defaultRunInputSize?.let { put(DEFAULT_RUN_INPUT_SIZE, it) }
@@ -70,7 +69,7 @@ object TrialDocument {
 
     fun parse(document: Map<String, Any>): TrialReport {
         SchemaVersion.require(document, TrialReport.SCHEMA_VERSION, StampedName.TRIAL)
-        val schemaVersion = number(document, SCHEMA_VERSION).toInt()
+        val schemaVersion = number(document, SchemaVersion.FIELD).toInt()
         return TrialReport(
             capturedAtMillis = number(document, CAPTURED_AT_MILLIS).toLong(),
             services = sections(document, SERVICES).map { serviceEntry(it) },

@@ -10,7 +10,6 @@ object InteropFile {
 
 
     fun document(verdicts: List<InteropVerdict>, plan: String, capture: String): Map<String, Any> = linkedMapOf(
-        "schemaVersion" to 1,
         "generatedFrom" to linkedMapOf("plan" to plan, "capture" to capture),
         "pairs" to verdicts.map { v ->
             linkedMapOf("id" to v.pair.id, "group" to v.pair.group, "a" to member(v.pair.a), "b" to member(v.pair.b),

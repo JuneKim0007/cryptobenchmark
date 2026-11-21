@@ -19,7 +19,6 @@ import io.github.junekim0007.cryptobench.document.DocumentFields.string
 
 object CaptureDocument {
 
-    internal const val SCHEMA_VERSION = "schemaVersion"
     private const val CAPTURED_AT_MILLIS = "capturedAtMillis"
     private const val DEVICE_CLOCK_MILLIS = "deviceClockMillis"
     internal const val RUNTIME = "runtime"
@@ -52,7 +51,7 @@ object CaptureDocument {
     private const val ATTRIBUTES = "attributes"
 
     fun of(environment: CapturedEnvironment): Map<String, Any> = linkedMapOf(
-        SCHEMA_VERSION to environment.schemaVersion,
+        SchemaVersion.FIELD to environment.schemaVersion,
         CAPTURED_AT_MILLIS to environment.capturedAtMillis,
         DEVICE_CLOCK_MILLIS to environment.deviceClockMillis,
         RUNTIME to runtimeDocument(environment.runtime),
@@ -61,7 +60,7 @@ object CaptureDocument {
 
     fun parse(document: Map<String, Any>): CapturedEnvironment {
         SchemaVersion.require(document, CapturedEnvironment.SCHEMA_VERSION, StampedName.PROBE)
-        val schemaVersion = number(document, SCHEMA_VERSION).toInt()
+        val schemaVersion = number(document, SchemaVersion.FIELD).toInt()
         return CapturedEnvironment(
             runtime = runtimeEntry(section(document, RUNTIME)),
             providers = sections(document, PROVIDERS).map { providerEntry(it) },

@@ -15,7 +15,6 @@ class SkipFile(private val directory: File) {
 
     fun write(skipped: List<Skip>): File {
         val document = linkedMapOf<String, Any>(
-            "schemaVersion" to SCHEMA_VERSION,
             "skipped" to skipped.map(Skip::fields),
         )
         return versioned.write(document)

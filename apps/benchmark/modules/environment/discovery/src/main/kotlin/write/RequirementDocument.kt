@@ -16,7 +16,6 @@ import io.github.junekim0007.cryptobench.document.DocumentFields.string
 
 object RequirementDocument {
 
-    private const val SCHEMA_VERSION = "schemaVersion"
     private const val CAPTURED_AT_MILLIS = "capturedAtMillis"
     private const val DEVICE_CLOCK_MILLIS = "deviceClockMillis"
     private const val MILLIS = "millis"
@@ -47,7 +46,7 @@ object RequirementDocument {
 
     /** Everything but the services, which a writer emits one at a time. */
     fun header(report: RequirementReport): Map<String, Any> = linkedMapOf(
-        SCHEMA_VERSION to report.schemaVersion,
+        SchemaVersion.FIELD to report.schemaVersion,
         CAPTURED_AT_MILLIS to report.capturedAtMillis,
         DEVICE_CLOCK_MILLIS to report.deviceClockMillis,
         MILLIS to report.millis,
@@ -56,7 +55,7 @@ object RequirementDocument {
 
     fun parse(document: Map<String, Any>): RequirementReport {
         SchemaVersion.require(document, RequirementReport.SCHEMA_VERSION, StampedName.REQUIREMENTS)
-        val schemaVersion = number(document, SCHEMA_VERSION).toInt()
+        val schemaVersion = number(document, SchemaVersion.FIELD).toInt()
         val cache = section(document, KEY_CACHE)
         return RequirementReport(
             capturedAtMillis = number(document, CAPTURED_AT_MILLIS).toLong(),

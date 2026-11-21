@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation.inbound
 
+import io.github.junekim0007.cryptobench.document.SchemaVersion
 import io.github.junekim0007.cryptobench.document.DocumentFields.expectKeys
 import io.github.junekim0007.cryptobench.document.DocumentFields.section
 import io.github.junekim0007.cryptobench.document.versioned.MapDocument
@@ -12,7 +13,7 @@ object InboundFile {
 
 
     // Every key :config writes; preparation reads run, policy, providers and runId.
-    private val KEYS = listOf("schemaVersion", "generatedFrom", "runId", "run", "policy", "analysis", "bundledProviders", "providers", "warnings", "skipped")
+    private val KEYS = listOf(SchemaVersion.FIELD, "generatedFrom", "runId", "run", "policy", "analysis", "bundledProviders", "providers", "warnings", "skipped")
 
     fun read(file: File): InboundDocument =
         inbound(file.name, YamlFiles().readOnly(file, MapDocument(SUPPORTED_SCHEMA_VERSION)).read())

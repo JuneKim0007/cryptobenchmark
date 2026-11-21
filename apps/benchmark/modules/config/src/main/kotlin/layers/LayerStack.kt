@@ -14,7 +14,6 @@ import java.security.MessageDigest
 object LayerStack {
 
     const val LAYERS = "layers"
-    private const val SCHEMA_VERSION = "schemaVersion"
 
     enum class Merge { BY_KEY, REPLACE }
 
@@ -30,7 +29,7 @@ object LayerStack {
 
     fun read(file: File): Merged {
         val own = YamlFiles().readOnly(file, MapDocument(GlobalDocument.schemaVersion)).read()
-        val listed = own[LAYERS] ?: return merged(listOf(Layer(file.name, sha256(file)) to own - SCHEMA_VERSION))
+        val listed = own[LAYERS] ?: return merged(listOf(Layer(file.name, sha256(file)) to own - SchemaVersion.FIELD))
         val names = (listed as? List<*>)?.map { it as? String ?: throw IllegalArgumentException("wrong_type: ${file.name}: $LAYERS, expected a list of paths") }
             ?: throw IllegalArgumentException("wrong_type: ${file.name}: $LAYERS, expected a list of paths")
         require(names.isNotEmpty()) { "empty: ${file.name}: $LAYERS" }
@@ -39,10 +38,10 @@ object LayerStack {
             require(layerFile.isFile) { "missing_file: ${layerFile.path} (${file.name} $LAYERS)" }
             val layer = load(layerFile, name)
             require(LAYERS !in layer) { "nested_layers: $name lists $LAYERS; only the composition ${file.name} lists layers" }
-            if (SCHEMA_VERSION in layer) SchemaVersion.require(layer, GlobalDocument.schemaVersion, name)
-            Layer(name, sha256(layerFile)) to layer - SCHEMA_VERSION
+            if (SchemaVersion.FIELD in layer) SchemaVersion.require(layer, GlobalDocument.schemaVersion, name)
+            Layer(name, sha256(layerFile)) to layer - SchemaVersion.FIELD
         }
-        return merged(layers + (Layer(file.name, sha256(file)) to own - SCHEMA_VERSION - LAYERS))
+        return merged(layers + (Layer(file.name, sha256(file)) to own - SchemaVersion.FIELD - LAYERS))
     }
 
     private fun merged(layers: List<Pair<Layer, Map<String, Any>>>): Merged {

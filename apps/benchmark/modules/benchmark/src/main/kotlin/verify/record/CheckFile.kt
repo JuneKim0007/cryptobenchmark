@@ -11,7 +11,6 @@ object CheckFile {
     private const val SCHEMA = 1
 
     fun write(file: File, records: List<CaseRecord>, generatedFrom: Map<String, Any>): File = YamlFiles().at(file, MapDocument(SCHEMA)).write(linkedMapOf(
-        "schemaVersion" to SCHEMA,
         "generatedFrom" to generatedFrom,
         "summary" to summary(records),
         "cases" to records.map { it.toMap() },

@@ -17,7 +17,6 @@ internal object PreparedDocument {
 
     // A listed case stands for itself until its process replaces it with the prepared entry or removes it.
     fun of(listing: Listing, cases: List<BenchmarkCase>): Map<String, Any> = linkedMapOf(
-        "schemaVersion" to SCHEMA_VERSION,
         "generatedFrom" to linkedMapOf<String, Any>("effective" to listing.effectiveFileName).apply { listing.runId?.let { put("runId", it) } },
         "run" to linkedMapOf<String, Any>(
             "seed" to listing.global.seed,

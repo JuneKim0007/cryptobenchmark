@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery
 
+import io.github.junekim0007.cryptobench.document.SchemaVersion
 import io.github.junekim0007.cryptobench.discovery.contract.DefaultRunOutcome
 import io.github.junekim0007.cryptobench.discovery.contract.KeystoreRow
 import io.github.junekim0007.cryptobench.discovery.contract.KeystoreSection
@@ -58,7 +59,7 @@ class TrialDocumentTest {
     @Test
     fun refusesWhatCannotBeTrue() {
         val document = LinkedHashMap(TrialDocument.of(report))
-        document[TrialDocument.SCHEMA_VERSION] = TrialReport.SCHEMA_VERSION + 1
+        document[SchemaVersion.FIELD] = TrialReport.SCHEMA_VERSION + 1
         val error = assertThrows(IllegalArgumentException::class.java) { TrialDocument.parse(document) }
         assertEquals("unsupported_schema_version", error.message!!.substringBefore(':'))
         assertThrows(IllegalArgumentException::class.java) { TrialOutcome(instantiates = true, error = "x") }

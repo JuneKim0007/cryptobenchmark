@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery
 
+import io.github.junekim0007.cryptobench.document.SchemaVersion
 import io.github.junekim0007.cryptobench.discovery.adapter.DeviceRuntimeReader
 import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
 import io.github.junekim0007.cryptobench.discovery.contract.CapturedEnvironment
@@ -28,7 +29,7 @@ class CaptureDocumentTest {
     @Test
     fun refusesAndNamesWhatIsWrong() {
         val damages: List<Pair<(MutableMap<String, Any>) -> Unit, String>> = listOf(
-            { document: MutableMap<String, Any> -> document[CaptureDocument.SCHEMA_VERSION] = CapturedEnvironment.SCHEMA_VERSION + 1 } to "unsupported_schema_version",
+            { document: MutableMap<String, Any> -> document[SchemaVersion.FIELD] = CapturedEnvironment.SCHEMA_VERSION + 1 } to "unsupported_schema_version",
             { document: MutableMap<String, Any> -> document.remove(CaptureDocument.PROVIDERS); Unit } to "missing_field: providers",
             { document: MutableMap<String, Any> -> document[CaptureDocument.RUNTIME] = "not a section" } to "wrong_type: runtime",
             { document: MutableMap<String, Any> -> document[CaptureDocument.PROVIDERS] = providersWithout(document, CaptureDocument.ORIGIN) } to "missing_field: origin",
