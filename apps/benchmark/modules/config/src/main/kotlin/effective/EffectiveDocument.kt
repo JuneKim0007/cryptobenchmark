@@ -30,7 +30,7 @@ import io.github.junekim0007.cryptobench.config.layers.LayerStack
 import io.github.junekim0007.cryptobench.document.DocumentFields.string
 import io.github.junekim0007.cryptobench.config.yaml.DocumentHandler
 import io.github.junekim0007.cryptobench.config.yaml.ProviderTree
-import io.github.junekim0007.cryptobench.settings.Skip
+import io.github.junekim0007.cryptobench.records.Skip
 
 object EffectiveDocument : DocumentHandler<EffectiveConfig> {
 

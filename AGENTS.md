@@ -10,6 +10,7 @@
 - discovery: probe, trial, capture fields → `apps/benchmark/modules/environment/discovery/docs/index.md`
 - config: authored files, inventory, effective, precedence → `apps/benchmark/modules/config/docs/index.md`
 - settings: harness key table, device support → `apps/benchmark/modules/settings/docs/index.md`
+- records: `Skip`, `StoppedOnFailureException` → `apps/benchmark/modules/records/docs/index.md`
 - files: every Kotlin file and folder name, stamps, beside-a-file rules → `apps/benchmark/modules/files/docs/index.md`
 - jca: the catch rule, provider error text → `apps/benchmark/modules/jca/docs/index.md`
 - document: the YAML codec and its profiles, typed field reads → `apps/benchmark/modules/document/docs/index.md`
@@ -64,6 +65,7 @@ apps/benchmark/modules/environment/discovery/ : provider and service probe, defa
 apps/benchmark/modules/files/ : every Kotlin file and folder name, stamps and beside-a-file rules; python's CONTRACT agrees
 apps/benchmark/modules/jca/ : the one catch rule and the provider-message scrubber every module that calls a provider shares
 apps/benchmark/modules/preparation/ : effective.yaml to prepared cases, each called once; prepared.yaml, skipped.yaml
+apps/benchmark/modules/records/ : Skip and StoppedOnFailureException, the records of left-out work config, preparation and benchmark share
 apps/benchmark/modules/settings/ : harness key table shared by config, preparation and benchmark
 apps/benchmark/settings.gradle : Gradle projects and their directories under apps/benchmark/modules/
 apps/cli/facade.py : one command for benchmark then guided repair from one settings index; SIGTERM as Ctrl-C; --check
@@ -81,7 +83,7 @@ lib/cryptobench/ : the Python library the runner and perf-repair share: shared c
 pytest.ini : the Python apps' source folders, and the test folders other tests import, on the test path for pytest from the repository root
 requirements.txt : every host Python dependency
 tests/contracts/ : fixtures both languages' tests read: documents/, the .json value each must read a module example (config global and effective, preparation guide) to, and the facts and known-answers Python writes with theirs; yaml-codec/, scalar and string cases and a duplicate-key file; runner/thermal.json as the runner writes it
-tools/android-api-check/ : compiles jca, document, discovery, settings, preparation, benchmark against android.jar without the JDK
+tools/android-api-check/ : compiles jca, document, discovery, settings, records, preparation, benchmark against android.jar without the JDK
 tools/dead-code-allow.txt : vulture findings the dead-code check keeps, each with its reason
 tools/dead_code.py : dead-code check: vulture minus the allowlist; local only, fails without vulture
 tools/docs_lint.py : docs and guide graph check: maps, coverage, index.md, edges, reachability, size, banned text, names code must hold

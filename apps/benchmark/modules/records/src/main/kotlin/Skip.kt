@@ -1,4 +1,4 @@
-package io.github.junekim0007.cryptobench.settings
+package io.github.junekim0007.cryptobench.records
 
 /** A case or entry left out; reason is `code: detail`, caseId only when one case is meant. skipped.yaml and report.yaml list them. */
 data class Skip(

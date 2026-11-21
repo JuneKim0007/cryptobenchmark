@@ -2,7 +2,7 @@
 
 ```
 apps/benchmark/modules/preparation/README.md : module summary and link to this index
-apps/benchmark/modules/preparation/build.gradle : Kotlin/JVM 17 library; snakeyaml 2.3, api :settings, :files (and its test fixtures) and :document; passes examples.update to tests
+apps/benchmark/modules/preparation/build.gradle : Kotlin/JVM 17 library; snakeyaml 2.3, api :settings, api :records, :files (and its test fixtures) and :document; passes examples.update to tests
 apps/benchmark/modules/preparation/docs/index.md : this map
 apps/benchmark/modules/preparation/docs/interop.md : cross-provider interop check
 apps/benchmark/modules/preparation/docs/operations.md : operation consumption, timed calls, inputs, keys, parameter trees

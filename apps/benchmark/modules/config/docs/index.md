@@ -2,7 +2,7 @@
 
 ```
 apps/benchmark/modules/config/README.md : module summary and link to this index
-apps/benchmark/modules/config/build.gradle : Kotlin/JVM 17 library; snakeyaml 2.3, :settings, :files (and its test fixtures) and :document; passes examples.update to tests
+apps/benchmark/modules/config/build.gradle : Kotlin/JVM 17 library; snakeyaml 2.3, :settings, :records, :files (and its test fixtures) and :document; passes examples.update to tests
 apps/benchmark/modules/config/docs/config.md : authored files: global.yaml, test sets, rules, overrides, groups
 apps/benchmark/modules/config/docs/entry.md : an entry's variants and key source: values, precedence, notices, checks
 apps/benchmark/modules/config/docs/generated.md : inventory.yaml, effective.yaml and report.yaml: build order, skips, warnings, errors

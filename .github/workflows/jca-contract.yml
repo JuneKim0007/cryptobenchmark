@@ -3,9 +3,9 @@ name: jca contract
 # Fails when the JCA surface :discovery reads changes under a new Java version.
 on:
   push:
-    paths: ['apps/benchmark/modules/environment/discovery/**', 'apps/benchmark/modules/settings/**', 'apps/benchmark/modules/config/**', 'apps/benchmark/modules/preparation/**', 'apps/benchmark/modules/benchmark/**', 'apps/benchmark/cli/**', 'config/**', 'tools/android-api-check/**', 'apps/benchmark/gradle/wrapper/**', '.github/workflows/jca-contract.yml']
+    paths: ['apps/benchmark/modules/environment/discovery/**', 'apps/benchmark/modules/settings/**', 'apps/benchmark/modules/records/**', 'apps/benchmark/modules/config/**', 'apps/benchmark/modules/preparation/**', 'apps/benchmark/modules/benchmark/**', 'apps/benchmark/cli/**', 'config/**', 'tools/android-api-check/**', 'apps/benchmark/gradle/wrapper/**', '.github/workflows/jca-contract.yml']
   pull_request:
-    paths: ['apps/benchmark/modules/environment/discovery/**', 'apps/benchmark/modules/settings/**', 'apps/benchmark/modules/config/**', 'apps/benchmark/modules/preparation/**', 'apps/benchmark/modules/benchmark/**', 'apps/benchmark/cli/**', 'config/**', 'tools/android-api-check/**', 'apps/benchmark/gradle/wrapper/**', '.github/workflows/jca-contract.yml']
+    paths: ['apps/benchmark/modules/environment/discovery/**', 'apps/benchmark/modules/settings/**', 'apps/benchmark/modules/records/**', 'apps/benchmark/modules/config/**', 'apps/benchmark/modules/preparation/**', 'apps/benchmark/modules/benchmark/**', 'apps/benchmark/cli/**', 'config/**', 'tools/android-api-check/**', 'apps/benchmark/gradle/wrapper/**', '.github/workflows/jca-contract.yml']
   schedule:
     - cron: '0 6 * * 1'
   workflow_dispatch:

@@ -1,6 +1,6 @@
 import io.github.junekim0007.cryptobench.config.effective.ReportDocument
 import io.github.junekim0007.cryptobench.config.effective.dto.Report
-import io.github.junekim0007.cryptobench.settings.Skip
+import io.github.junekim0007.cryptobench.records.Skip
 import io.github.junekim0007.cryptobench.config.yaml.YamlFiles
 import io.github.junekim0007.cryptobench.preparation.shared.DocumentFile
 import org.junit.Assert.assertEquals

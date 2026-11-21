@@ -5,7 +5,7 @@ import io.github.junekim0007.cryptobench.benchmark.verify.CaseCheck
 import io.github.junekim0007.cryptobench.benchmark.verify.known.KnownAnswerFile
 import io.github.junekim0007.cryptobench.benchmark.verify.record.CaseRecord
 import io.github.junekim0007.cryptobench.benchmark.verify.record.CheckFile
-import io.github.junekim0007.cryptobench.settings.Skip
+import io.github.junekim0007.cryptobench.records.Skip
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test

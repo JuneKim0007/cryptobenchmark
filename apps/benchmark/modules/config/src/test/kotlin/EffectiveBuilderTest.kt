@@ -3,7 +3,7 @@ package io.github.junekim0007.cryptobench.config
 import io.github.junekim0007.cryptobench.settings.OnFailure
 import io.github.junekim0007.cryptobench.config.effective.EffectiveBuilder
 import io.github.junekim0007.cryptobench.config.effective.ShadowedSettings
-import io.github.junekim0007.cryptobench.settings.StoppedOnFailureException
+import io.github.junekim0007.cryptobench.records.StoppedOnFailureException
 import io.github.junekim0007.cryptobench.config.global.GlobalDocument
 import io.github.junekim0007.cryptobench.config.global.dto.GlobalConfig
 import io.github.junekim0007.cryptobench.config.global.dto.MeasurePass

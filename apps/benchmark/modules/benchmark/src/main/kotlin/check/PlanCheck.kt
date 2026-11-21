@@ -5,7 +5,7 @@ import io.github.junekim0007.cryptobench.benchmark.run.energy.Energy
 import io.github.junekim0007.cryptobench.files.FileNames
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
-import io.github.junekim0007.cryptobench.settings.Skip
+import io.github.junekim0007.cryptobench.records.Skip
 import io.github.junekim0007.cryptobench.settings.Metric
 import java.security.Security
 

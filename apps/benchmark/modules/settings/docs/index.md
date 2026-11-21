@@ -17,8 +17,6 @@ apps/benchmark/modules/settings/src/main/kotlin/OnFailure.kt : policy.onFailure:
 apps/benchmark/modules/settings/src/main/kotlin/Phase.kt : run.phases enum WARM; reading (unknown_phase, duplicate)
 apps/benchmark/modules/settings/src/main/kotlin/RunKeys.kt : the effective run section's keys: config writes them, preparation accepts them, Python's RUN_KEYS agrees
 apps/benchmark/modules/settings/src/main/kotlin/Section.kt : ordered key table: read, write, merge, forDevice
-apps/benchmark/modules/settings/src/main/kotlin/Skip.kt : one skipped item {stage, provider?, type?, name?, caseId?, code, reason}, its record map and read; report.yaml and skipped.yaml list them
-apps/benchmark/modules/settings/src/main/kotlin/StoppedOnFailureException.kt : thrown under onFailure stop, carrying every skip
 apps/benchmark/modules/settings/src/main/kotlin/Support.kt : Support and Unsupported
 apps/benchmark/modules/settings/src/main/kotlin/Values.kt : single-value type readers
 apps/benchmark/modules/settings/src/test/kotlin/EngineRowsTest.kt : catalogue rows: paths, a missing type, invalid variants, one generator per key kind

@@ -11,7 +11,7 @@ import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
 import io.github.junekim0007.cryptobench.preparation.prepare.CasePreparer
 import io.github.junekim0007.cryptobench.preparation.prepare.Listing
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
-import io.github.junekim0007.cryptobench.settings.Skip
+import io.github.junekim0007.cryptobench.records.Skip
 import io.github.junekim0007.cryptobench.preparation.request.BenchmarkRequest
 import io.github.junekim0007.cryptobench.preparation.request.PrimitiveReader
 import io.github.junekim0007.cryptobench.preparation.resolve.CaseResolver

@@ -7,7 +7,7 @@ import org.junit.Assert.assertThrows
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
-import io.github.junekim0007.cryptobench.settings.Skip
+import io.github.junekim0007.cryptobench.records.Skip
 
 /** The same skips written by config (report.yaml) and preparation (skipped.yaml) and read back; a record without a code or of schema 1 is refused by both. */
 class SkipWritersTest {

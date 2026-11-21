@@ -15,6 +15,7 @@ kotlin {
 dependencies {
     implementation libs.snakeyaml
     api project(':settings')
+    api project(':records')
     api project(':jca')
     implementation project(':files')
     implementation project(':document')

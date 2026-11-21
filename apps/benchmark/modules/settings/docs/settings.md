@@ -1,6 +1,6 @@
 # settings
 
-The harness key table read by config, preparation and benchmark. Each YAML setting is one `Key`; a `Section` is an ordered table of keys. File map: [index.md](index.md). It also holds what config and preparation share about skips: `Skip`, `OnFailure`, `StoppedOnFailureException`.
+The harness key table read by config, preparation and benchmark. Each YAML setting is one `Key`; a `Section` is an ordered table of keys. File map: [index.md](index.md). It also holds `OnFailure`, the policy config and preparation share; the skip records are in `:records` ([index.md](../../records/docs/index.md)).
 
 ## Harness keys
 

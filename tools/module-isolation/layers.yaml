@@ -13,18 +13,22 @@ modules:
       jca: [failure.Attempt, failure.ErrorText, peer.PeerPair, reflect.Reflect]
       files: all
       document: all
+  records:
+    uses: {}
   settings:
     uses:
       files: [FileNames, VariantLabels]
   config:
     uses:
-      settings: [EnergySettings, EngineRows, Facts, HarnessSettings, Leaf, Metric, Nested, OnFailure, Phase, RunKeys, Section, Skip, StoppedOnFailureException, Unsupported, Values]
+      settings: [EnergySettings, EngineRows, Facts, HarnessSettings, Leaf, Metric, Nested, OnFailure, Phase, RunKeys, Section, Unsupported, Values]
+      records: [Skip, StoppedOnFailureException]
       files: all
       document: all
   preparation:
     uses:
       jca: [failure.Attempt, failure.ErrorText, peer.PeerPair, reflect.Reflect]
-      settings: [EngineRows, HarnessSettings, Metric, OnFailure, Phase, RunKeys, Skip, StoppedOnFailureException]
+      settings: [EngineRows, HarnessSettings, Metric, OnFailure, Phase, RunKeys]
+      records: [Skip, StoppedOnFailureException]
       files: all
       document: all
   benchmark:
@@ -33,7 +37,8 @@ modules:
       preparation: [parameter.bind.BindException, measurement.BenchmarkCase, measurement.Operation, prepare.PreparedCase, operation.Invocations, operation.Invocation, Preparation,
         prepare.Listing, prepare.PreparationException, record.PreparedFile, report.SkipFile,
         global.GlobalSettings, shared.FailureText, shared.DocumentFile, peer.Outcome, peer.OutputBytes, peer.PeerEngine, peer.ProducedCall, peer.Consumer, peer.Travel]
-      settings: [HarnessSettings, EnergySettings, CpuSettings, Metric, Skip, OnFailure, StoppedOnFailureException]
+      settings: [HarnessSettings, EnergySettings, CpuSettings, Metric, OnFailure]
+      records: [Skip, StoppedOnFailureException]
       files: all
       document: [DocumentFields, SchemaVersion]
 
@@ -55,7 +60,8 @@ consumers:
         measurement.Operation, key.plan.KeyPlanner, key.plan.KeyRecipe, key.generate.KeyMaterial, key.generate.KeyMaterialGenerator]
       benchmark: [report.MetricSamples, check.PlanCheck, check.RunnablePlan, check.Refusal, check.EnergyCapability,
         run.CaseSettings, run.compose.CaseRuns, run.energy.Energy, run.energy.WindowMarker]
-      settings: [CpuSettings, Metric, Skip]
+      settings: [CpuSettings, Metric]
+      records: [Skip]
       jca: [failure.Attempt]
       files: all
       discovery: [Discovery, bundled.BundledInstaller, bundled.BundledProviders, bundled.ProviderFactory, write.ProbeDirectory]
@@ -68,6 +74,7 @@ consumers:
       document: all
       discovery: all
       settings: all
+      records: all
       config: all
       preparation: all
       benchmark: all

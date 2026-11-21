@@ -1,13 +1,13 @@
 package io.github.junekim0007.cryptobench.config.effective
 
 import io.github.junekim0007.cryptobench.settings.EngineRows
-import io.github.junekim0007.cryptobench.settings.StoppedOnFailureException
+import io.github.junekim0007.cryptobench.records.StoppedOnFailureException
 import io.github.junekim0007.cryptobench.settings.OnFailure
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveConfig
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveEntry
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveSource
 import io.github.junekim0007.cryptobench.config.effective.dto.EntryOrigin
-import io.github.junekim0007.cryptobench.settings.Skip
+import io.github.junekim0007.cryptobench.records.Skip
 import io.github.junekim0007.cryptobench.config.entry.EngineCatalog
 import io.github.junekim0007.cryptobench.config.entry.KeySource
 import io.github.junekim0007.cryptobench.config.entry.Variants

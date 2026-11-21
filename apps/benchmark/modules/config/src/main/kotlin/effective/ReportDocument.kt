@@ -7,7 +7,7 @@ import io.github.junekim0007.cryptobench.document.DocumentFields.expectKeys
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSections
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalStringOrNull
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalStrings
-import io.github.junekim0007.cryptobench.settings.Skip
+import io.github.junekim0007.cryptobench.records.Skip
 
 object ReportDocument : DocumentHandler<Report> {
 
