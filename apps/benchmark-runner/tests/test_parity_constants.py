@@ -17,6 +17,7 @@ from cryptobench.stages.verification import check
 from cryptobench.stages.discovery import facts, probe
 from cryptobench.shared.device import capture
 from cryptobench.shared.catalogue import guide_items, names, vectors
+from cryptobench.shared import paths
 from cryptobench.shared.paths import device_dirs
 from cryptobench.shared.results import skipped
 import energy, manafa_session, preflight
@@ -163,6 +164,10 @@ def manafa_written_version():
         except manafa_session.CannotStart:
             pass
         return yaml.safe_load(out.read_text())["schemaVersion"]
+
+
+def test_the_names_file_both_readers_load():
+    assert paths.ALGORITHM_NAMES == const("document/src/main/kotlin/names/AlgorithmNames.kt", "FILE")
 
 
 def test_schema_versions_across_the_boundary():
