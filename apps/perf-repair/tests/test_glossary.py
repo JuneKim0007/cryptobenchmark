@@ -209,7 +209,9 @@ def test_every_family_has_its_word():
     (lambda d: d.update(colour=1), "build.colour"),
     (lambda d: next(iter(d["builds"].values())).update(colour=1), "build.colour"),
     (lambda d: next(iter(d["builds"].values())).update(origin="colour"), "no value 'colour'"),
-    (lambda d: d["builds"].update({"BC 1.79": {"name": "BC", "selfReported": "1.79", "origin": "host"}}), "not <name> @ <build>")])
+    (lambda d: d["builds"].update({"BC 1.79": {"name": "BC", "selfReported": "1.79", "origin": "host"}}), "not <name> @ <build>"),
+    (lambda d: d["providers"]["AndroidKeyStore"]["registers"][0]["names"].append("KeyGenerator|HMACSHA256"),
+     r"AndroidKeyStore.registers: KeyGenerator\|HMACSHA256 is not a canonical id, the names file gives HmacSHA256")])
 def test_provider_builds_is_closed_at_load(tmp_path, change, word):
     doc = yaml.safe_load(PROVIDER_BUILDS.read_text())
     change(doc)

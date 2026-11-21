@@ -373,8 +373,16 @@ def _key_type_problem(names: Names, key_type: str) -> str | None:
     return f"key.type {key_type} is not a keyTypes name" + (f", the names file gives {found.name}" if found.known else "")
 
 
+def _digest_problems(names: Names, e: Entry) -> list[str]:
+    """A contract digest the names file knows as a MessageDigest spelling is its canonical name; mgf1 may name an XOF."""
+    output = ((e.raw.get("contract") or {}).get("output") or {}).get("digest")
+    value = output.get("value") if isinstance(output, dict) else output
+    found = names.catalogued("MessageDigest", value) if isinstance(value, str) else None
+    return [f"contract digest {value} is not canonical, the names file gives {found.name}"] if found and found.known and found.name != value else []
+
+
 def _linkage_problems(entries: list[Entry], names: Names, engine_types: set[str]) -> list[str]:
-    """Each id is its own canonical name and each key.type a keyTypes name on every build (deviations already overlaid); each sized spelling of a catalogued type links to an entry that takes its size."""
+    """Each id is its own canonical name, each key.type a keyTypes name on every build (deviations already overlaid) and each contract digest a canonical MessageDigest; each sized spelling of a catalogued type links to an entry that takes its size."""
     by_id = {fold(e.id): e for e in entries}
     problems = []
     for e in (e for e in entries if split_id(e.id)):
@@ -382,6 +390,7 @@ def _linkage_problems(entries: list[Entry], names: Names, engine_types: set[str]
         if not found.known or found.name != e.canonical or found.keySize is not None:
             problems.append(f"{e.id}: id not canonical, the names file gives {found.name} keySize {found.keySize}")
         problems += [f"{e.id}: {p}" for p in (_key_type_problem(names, t) for t in sorted(_key_types(e))) if p]
+        problems += [f"{e.id}: {p}" for p in _digest_problems(names, e)]
     for t in sorted(engine_types):
         for spelling, sized in sorted(names.sized.get(t, {}).items()):
             entry = by_id.get(fold(algorithm_id(t, sized.name)))

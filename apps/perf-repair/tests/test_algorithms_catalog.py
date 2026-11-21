@@ -135,6 +135,12 @@ def test_a_key_type_outside_the_key_types_of_the_names_file_is_refused(tmp_path,
         load(_copy(tmp_path, "signature.pair_catalogue.yaml", mutate))
 
 
+def test_a_contract_digest_spelled_otherwise_than_its_canonical_name_is_refused(tmp_path):
+    mutate = lambda d: d["algorithms"]["Signature|SHAKE128WITHRSAPSS"]["contract"]["output"].update(digest="SHAKE128")
+    with pytest.raises(AlgorithmsError, match=r"Signature\|SHAKE128WITHRSAPSS: contract digest SHAKE128 is not canonical, the names file gives SHAKE128-256"):
+        load(_copy(tmp_path, "signature.pair_catalogue.yaml", mutate))
+
+
 def test_a_key_algorithm_spelling_as_key_type_is_refused_naming_its_key_type(tmp_path):
     mutate = lambda d: d["algorithms"]["Mac|HmacSHA256"]["key"].update(type="HmacSHA256")
     with pytest.raises(AlgorithmsError, match=r"Mac\|HmacSHA256: key.type HmacSHA256 is not a keyTypes name, the names file gives HMAC"):

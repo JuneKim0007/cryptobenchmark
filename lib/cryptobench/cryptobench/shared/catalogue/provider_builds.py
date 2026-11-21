@@ -1,4 +1,4 @@
-"""provider-builds.yaml: every provider build the catalogues' measured facts ran on, its key and what it says of itself; a behaviour true of a provider, stated once; a name resolves to a key or is refused."""
+"""provider-builds.yaml: every provider build the catalogues' measured facts ran on, its key and what it says of itself; a behaviour true of a provider, stated once, for the canonical ids it registers; a name resolves to a key or is refused."""
 from __future__ import annotations
 
 from .. import paths
@@ -10,6 +10,7 @@ from pathlib import Path
 from ..errors.input_error import InputError
 from ..document.document import DocumentKind
 from .glossary import build_problems
+from .names import Names
 
 CATALOG = paths.repo().algorithms / "provider-builds.yaml"
 SCHEMA_VERSION = 1
@@ -69,9 +70,21 @@ class ProviderBuilds:
         return (keys[-1], False) if keys else (None, False)
 
 
-def load(path: Path = CATALOG) -> ProviderBuilds:
+def _registered_problems(doc: dict, names: Names) -> list[str]:
+    problems = []
+    for provider, row in (doc.get("providers") or {}).items():
+        for name in (n for r in row.get("registers") or [] for n in r.get("names") or []):
+            engine_type, _, canonical = name.partition("|")
+            found = names.catalogued(engine_type, canonical)
+            if not found.known or found.name != canonical or found.keySize is not None:
+                problems.append(f"{provider}.registers: {name} is not a canonical id, the names file gives {found.name}")
+    return problems
+
+
+def load(path: Path = CATALOG, names: Names | None = None) -> ProviderBuilds:
     doc = BUILDS_DOC.read(path, UNKNOWN)
     problems = build_problems(doc)
+    problems = problems or _registered_problems(doc, names or Names.load())
     if problems:
         raise ProviderBuildError(f"{UNKNOWN}: {path}: " + "; ".join(problems))
     return ProviderBuilds(doc["builds"], doc.get("providers") or {})

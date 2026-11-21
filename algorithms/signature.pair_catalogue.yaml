@@ -3665,7 +3665,7 @@ algorithms:
       roundTrip: {value: true, source: measured}
     lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
     operations: {value: [sign, verify], source: measured}
-    contract: {key: app, input: {prehashed: false}, output: {curve: byKey, digest: SHAKE128, encoding: DER, scheme: ECDSA}}
+    contract: {key: app, input: {prehashed: false}, output: {curve: byKey, digest: SHAKE128-256, encoding: DER, scheme: ECDSA}}
     sourcedOnly:
     - {fact: strengthBits, value: {key: ecc, cap: 128}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
@@ -3685,7 +3685,7 @@ algorithms:
       roundTrip: {value: true, source: measured}
     lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
     operations: {value: [sign, verify], source: measured}
-    contract: {key: app, input: {prehashed: false}, output: {digest: SHAKE128, mgf1: SHAKE128, salt: {value: '32', assumed: true}, scheme: RSA-PSS}}
+    contract: {key: app, input: {prehashed: false}, output: {digest: SHAKE128-256, mgf1: SHAKE128, salt: {value: '32', assumed: true}, scheme: RSA-PSS}}
     sourcedOnly:
     - {fact: strengthBits, value: {key: ifc, cap: 128}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
@@ -3705,7 +3705,7 @@ algorithms:
       roundTrip: {value: true, source: measured}
     lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
     operations: {value: [sign, verify], source: measured}
-    contract: {key: app, input: {prehashed: false}, output: {curve: byKey, digest: SHAKE256, encoding: DER, scheme: ECDSA}}
+    contract: {key: app, input: {prehashed: false}, output: {curve: byKey, digest: SHAKE256-512, encoding: DER, scheme: ECDSA}}
     sourcedOnly:
     - {fact: strengthBits, value: {key: ecc, cap: 256}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
@@ -3725,7 +3725,7 @@ algorithms:
       roundTrip: {value: true, source: measured}
     lifecycle: {reset: {forward: {value: afterInit, source: measured}, reverse: {value: afterInit, source: measured}}}
     operations: {value: [sign, verify], source: measured}
-    contract: {key: app, input: {prehashed: false}, output: {digest: SHAKE256, mgf1: SHAKE256, salt: {value: '64', assumed: true}, scheme: RSA-PSS}}
+    contract: {key: app, input: {prehashed: false}, output: {digest: SHAKE256-512, mgf1: SHAKE256, salt: {value: '64', assumed: true}, scheme: RSA-PSS}}
     sourcedOnly:
     - {fact: strengthBits, value: {key: ifc, cap: 256}, source: inferred}
     - {fact: minSdk, value: null, source: inferred}
