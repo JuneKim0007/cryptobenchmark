@@ -5,7 +5,7 @@ import io.github.junekim0007.cryptobench.files.Beside
 import io.github.junekim0007.cryptobench.files.FileNames
 import io.github.junekim0007.cryptobench.preparation.request.Selection
 import io.github.junekim0007.cryptobench.preparation.resolve.Rejection
-import io.github.junekim0007.cryptobench.document.versioned.MapDocument
+import io.github.junekim0007.cryptobench.document.versioned.DocumentReader
 import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import java.io.File
 
@@ -43,15 +43,18 @@ class Guide(private val items: Map<String, Map<String, Any>>) {
         return ready to refused
     }
 
-    companion object {
+    companion object : DocumentReader<Guide> {
 
         private const val SUPPORTED_SCHEMA_VERSION = 1
 
+        override val schemaVersion = SUPPORTED_SCHEMA_VERSION
+
         fun beside(effectiveFile: File): Guide = read(Beside.file(effectiveFile, FileNames.GUIDE))
 
-        fun read(file: File): Guide {
+        fun read(file: File): Guide = YamlFiles().readOnly(file, this).read()
+
+        override fun parse(document: Map<String, Any>): Guide {
             val items = LinkedHashMap<String, Map<String, Any>>()
-            val document = YamlFiles().readOnly(file, MapDocument(SUPPORTED_SCHEMA_VERSION)).read()
             for ((provider, types) in DocumentFields.sectionOrEmpty(document, "items")) for ((type, names) in DocumentFields.asSection(types, provider)) {
                 for ((name, item) in DocumentFields.asSection(names, "$provider.$type")) items["$provider/$type/$name"] = DocumentFields.asSection(item, "$provider.$type.$name")
             }

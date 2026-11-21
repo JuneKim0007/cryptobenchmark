@@ -10,22 +10,21 @@ import io.github.junekim0007.cryptobench.document.DocumentFields.string
 import io.github.junekim0007.cryptobench.preparation.device.dto.TrialledDevice
 import io.github.junekim0007.cryptobench.preparation.device.dto.TrialledService
 import io.github.junekim0007.cryptobench.preparation.device.dto.TrialledTransformation
-import io.github.junekim0007.cryptobench.document.versioned.MapDocument
+import io.github.junekim0007.cryptobench.document.versioned.DocumentReader
 import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import java.io.File
 
-object TrialFile {
+object TrialFile : DocumentReader<TrialledDevice> {
 
     const val SUPPORTED_SCHEMA_VERSION = 3
 
+    override val schemaVersion = SUPPORTED_SCHEMA_VERSION
 
-    fun read(file: File): TrialledDevice =
-        device(YamlFiles().readOnly(file, MapDocument(SUPPORTED_SCHEMA_VERSION)).read())
+    fun read(file: File): TrialledDevice = YamlFiles().readOnly(file, this).read()
 
-    fun read(fileName: String, text: String): TrialledDevice =
-        device(YamlFiles().readOnly(File(fileName), MapDocument(SUPPORTED_SCHEMA_VERSION)).read(text))
+    fun read(fileName: String, text: String): TrialledDevice = YamlFiles().readOnly(File(fileName), this).read(text)
 
-    private fun device(document: Map<String, Any>): TrialledDevice = TrialledDevice(
+    override fun parse(document: Map<String, Any>): TrialledDevice = TrialledDevice(
         capturedAtMillis = number(document, "capturedAtMillis").toLong(),
         services = sections(document, "services").map { service ->
             TrialledService(

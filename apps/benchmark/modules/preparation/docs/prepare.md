@@ -24,18 +24,18 @@ one named case (Preparation.prepareOne): KeyPlanner -> KeyMaterialGenerator -> b
 
 | file | schema | read |
 |---|---|---|
-| effective.yaml | `config` v1 | sections `run`, `policy`, `providers`, all required |
+| effective.yaml | `config` v2 | sections `run`, `policy`, `providers`, all required |
 | capture | `capture` v1 | `capturedAtMillis`, `providers[].name`, `precedence`, `services[].type`, `algorithm`, `aliases` |
 | trial | `trial` v3 | `services[].provider`, `type`, `algorithm`, `instantiates`, `error`, `transformations[]`; `keyAlgorithm` and `fixedKeySize` from `defaultRun` |
 
 | error | text |
 |---|---|
-| wrong schemaVersion | `unsupported_<schema>_schema: <file>: <n>, this build reads <m>` |
+| wrong schemaVersion | `unsupported_schema_version: <file>: <n>, this build reads <m>` |
 | missing file | `missing_file: <path>` |
 | bad YAML, duplicate keys | `unreadable_yaml` |
 | non-mapping | `not_a_mapping` |
-| field | `missing_field: <key>`, `wrong_type: <key>`, `unknown_<field>: <name>, one of [...]` (enum match case-insensitive) |
-| unknown key | `unknown_keys: <path> [..], known [..]`, as config refuses it |
+| field | `missing_field`, `wrong_type`, `unknown_<field>: <name>, one of [...]` (enum match case-insensitive); `<code>: <file>: <key>` while the file is read, `<code>: <key>` for run, policy and selections checked after it |
+| unknown key | `unknown_keys: <file>: effective [..], known [..]` at the top level, `unknown_keys: run [..], known [..]` after it, as config refuses it |
 
 ## run and policy
 

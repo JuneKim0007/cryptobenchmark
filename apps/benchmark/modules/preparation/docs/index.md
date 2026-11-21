@@ -26,7 +26,7 @@ apps/benchmark/modules/preparation/src/main/kotlin/engine/EngineTypes.kt : engin
 apps/benchmark/modules/preparation/src/main/kotlin/global/GlobalReader.kt : reads run and policy sections into GlobalSettings
 apps/benchmark/modules/preparation/src/main/kotlin/global/GlobalSettings.kt : run-wide settings as config checked them
 apps/benchmark/modules/preparation/src/main/kotlin/inbound/InboundDocument.kt : effective.yaml split into run, policy, providers sections
-apps/benchmark/modules/preparation/src/main/kotlin/inbound/InboundFile.kt : reads effective.yaml (schema config v1)
+apps/benchmark/modules/preparation/src/main/kotlin/inbound/InboundFile.kt : reads effective.yaml (schema config v2)
 apps/benchmark/modules/preparation/src/main/kotlin/input/CipherKeys.kt : picks the encrypt or decrypt key from KeyMaterial
 apps/benchmark/modules/preparation/src/main/kotlin/input/InputBytes.kt : seeded input bytes (java.util.Random(seed))
 apps/benchmark/modules/preparation/src/main/kotlin/input/OperationInput.kt : sealed case input: None, Message, Ciphertext, SignedMessage

@@ -9,22 +9,21 @@ import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSection
 import io.github.junekim0007.cryptobench.document.DocumentFields.sections
 import io.github.junekim0007.cryptobench.document.DocumentFields.sectionOrEmpty
 import io.github.junekim0007.cryptobench.document.DocumentFields.string
-import io.github.junekim0007.cryptobench.document.versioned.MapDocument
+import io.github.junekim0007.cryptobench.document.versioned.DocumentReader
 import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import java.io.File
 
-object CaptureFile {
+object CaptureFile : DocumentReader<CapturedDevice> {
 
     const val SUPPORTED_SCHEMA_VERSION = 1
 
+    override val schemaVersion = SUPPORTED_SCHEMA_VERSION
 
-    fun read(file: File): CapturedDevice =
-        device(YamlFiles().readOnly(file, MapDocument(SUPPORTED_SCHEMA_VERSION)).read())
+    fun read(file: File): CapturedDevice = YamlFiles().readOnly(file, this).read()
 
-    fun read(fileName: String, text: String): CapturedDevice =
-        device(YamlFiles().readOnly(File(fileName), MapDocument(SUPPORTED_SCHEMA_VERSION)).read(text))
+    fun read(fileName: String, text: String): CapturedDevice = YamlFiles().readOnly(File(fileName), this).read(text)
 
-    private fun device(document: Map<String, Any>): CapturedDevice = CapturedDevice(
+    override fun parse(document: Map<String, Any>): CapturedDevice = CapturedDevice(
         capturedAtMillis = number(document, "capturedAtMillis").toLong(),
         providers = sections(document, "providers").map { provider ->
             CapturedProvider(

@@ -15,11 +15,11 @@ class InboundFileTest {
     /** Every refusal names the file, so a failed run says which input to fix. */
     @Test
     fun aBadFileIsRefusedByName() {
-        assertEquals("missing_field: policy", rejection(EffectiveFixture.TEXT.replace("policy: {onFailure: skip}\n", "")))
+        assertEquals("missing_field: effective.yaml: policy", rejection(EffectiveFixture.TEXT.replace("policy: {onFailure: skip}\n", "")))
         assertEquals("unsupported_schema_version: effective.yaml: 1, this build reads 2", rejection(EffectiveFixture.TEXT.replace("schemaVersion: 2", "schemaVersion: 1")))
         assertTrue(rejection(EffectiveFixture.TEXT.replace("  seed: 0\n", "  seed: 0\n  seed: 1\n")).contains("duplicate key"))
         assertTrue(rejection("\tbroken: [\n").startsWith("unreadable_yaml: effective.yaml:"))
-        assertTrue(rejection(EffectiveFixture.TEXT.replace("policy: {", "polcy: {}\npolicy: {")).startsWith("unknown_keys: effective.yaml [polcy],"))
+        assertTrue(rejection(EffectiveFixture.TEXT.replace("policy: {", "polcy: {}\npolicy: {")).startsWith("unknown_keys: effective.yaml: effective [polcy],"))
         assertEquals("missing_file: /no/such/effective.yaml",
             assertThrows(IllegalArgumentException::class.java) { InboundFile.read(File("/no/such/effective.yaml")) }.message)
     }

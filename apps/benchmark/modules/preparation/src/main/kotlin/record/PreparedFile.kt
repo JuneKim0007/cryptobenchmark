@@ -5,7 +5,7 @@ import io.github.junekim0007.cryptobench.files.FileNames
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.prepare.Listing
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
-import io.github.junekim0007.cryptobench.document.versioned.MapDocument
+import io.github.junekim0007.cryptobench.document.versioned.DocumentHandler
 import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import java.io.File
 
@@ -14,7 +14,7 @@ class PreparedFile(private val directory: File) {
 
     val file: File get() = File(directory, FileNames.PREPARED)
 
-    private val versioned get() = YamlFiles().at(file, MapDocument(PreparedDocument.SCHEMA_VERSION))
+    private val versioned get() = YamlFiles().at(file, Document)
 
     fun listed(listing: Listing, cases: List<BenchmarkCase>): File = versioned.write(PreparedDocument.of(listing, cases))
 
@@ -24,7 +24,21 @@ class PreparedFile(private val directory: File) {
 
     private fun edited(id: String, entry: () -> Map<String, Any>?): File {
         val document = LinkedHashMap(versioned.read())
-        document["cases"] = DocumentFields.sections(document, "cases").mapNotNull { case -> if (case["id"] == id) entry() else case }
+        document[CASES] = DocumentFields.sections(document, CASES).mapNotNull { case -> if (case["id"] == id) entry() else case }
         return versioned.write(document)
+    }
+
+    // read whole and written back whole; parse refuses a file without its cases
+    private object Document : DocumentHandler<Map<String, Any>> {
+
+        override val schemaVersion = PreparedDocument.SCHEMA_VERSION
+
+        override fun parse(document: Map<String, Any>): Map<String, Any> = document.also { DocumentFields.sections(it, CASES) }
+
+        override fun of(value: Map<String, Any>): Map<String, Any> = value
+    }
+
+    private companion object {
+        const val CASES = "cases"
     }
 }
