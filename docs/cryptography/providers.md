@@ -7,9 +7,9 @@
 
 ## Selection
 
-- `config/testsets/default_predefined.yaml` names AndroidOpenSSL, BundledConscrypt, BundledBC, AndroidKeyStore and platform `BC` in its tier and rest rows; its provider-less type rules select every other provider's primitives.
-- `exclude` is empty in `config/global.yaml` and `default_predefined.yaml`.
-- The APK bundles the `providers.bundled` artifacts of the run's `global.yaml`; `config/global.yaml` bundles Conscrypt 2.9.0 as `BundledConscrypt` and BouncyCastle 1.87 as `BundledBC`.
+- `config/benchmark/testsets/default_predefined.yaml` names AndroidOpenSSL, BundledConscrypt, BundledBC, AndroidKeyStore and platform `BC` in its tier and rest rows; its provider-less type rules select every other provider's primitives.
+- `exclude` is empty in `config/benchmark/global.yaml` and `default_predefined.yaml`.
+- The APK bundles the `providers.bundled` artifacts of the run's `global.yaml`; `config/benchmark/global.yaml` bundles Conscrypt 2.9.0 as `BundledConscrypt` and BouncyCastle 1.87 as `BundledBC`.
 
 | provider | observed on device |
 |---|---|

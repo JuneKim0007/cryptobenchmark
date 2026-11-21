@@ -3,7 +3,7 @@ package io.github.junekim0007.cryptobench.preparation
 import io.github.junekim0007.cryptobench.preparation.adapter.DiscoveryCapability
 import io.github.junekim0007.cryptobench.preparation.record.PreparedFile
 import io.github.junekim0007.cryptobench.preparation.report.SkipFile
-import io.github.junekim0007.cryptobench.files.ContractsFolder
+import io.github.junekim0007.cryptobench.files.RepositoryFiles
 import io.github.junekim0007.cryptobench.files.StatedJson
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -56,7 +56,7 @@ class ExampleFilesTest {
         assertExample("preparation_skipped_example.yaml", report.file)
         assertExample("preparation_prepared_example.yaml", record.file)
         if (System.getProperty("examples.update") != null) {
-            StatedJson.write(File(ContractsFolder.documents, "guide.json"), Yaml(SafeConstructor(LoaderOptions())).load(File(example, "guide.yaml").readText()))
+            StatedJson.write(File(RepositoryFiles.documents, "guide.json"), Yaml(SafeConstructor(LoaderOptions())).load(File(example, "guide.yaml").readText()))
         }
     }
 

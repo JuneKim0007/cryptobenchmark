@@ -16,9 +16,8 @@ from cryptobench.shared import paths
 from cryptobench.shared.document.document import parse_yaml, read_yaml
 
 DOCUMENTS, CODEC = paths.repo().contract_documents, paths.repo().contract_yaml_codec
-MODULES = paths.repo().gradle_root / "modules"
-GLOBAL, EFFECTIVE = MODULES / "config/example/config_global_example.yaml", MODULES / "config/example/config_effective_example.yaml"
-GUIDE = MODULES / "preparation/example/guide.yaml"
+GLOBAL, EFFECTIVE = (paths.repo().module_example("config", f"config_{name}_example.yaml") for name in ("global", "effective"))
+GUIDE = paths.repo().module_example("preparation", "guide.yaml")
 # each shared YAML and the .json beside DOCUMENTS or CODEC that states its value
 SHARED = {"global": (GLOBAL, DOCUMENTS), "effective": (EFFECTIVE, DOCUMENTS), "guide": (GUIDE, DOCUMENTS),
           **{name: (DOCUMENTS / f"{name}.yaml", DOCUMENTS) for name in ("known-answers", "facts")},

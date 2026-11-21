@@ -5,7 +5,7 @@ import io.github.junekim0007.cryptobench.config.global.GlobalDocument
 import io.github.junekim0007.cryptobench.config.names.AlgorithmNames
 import io.github.junekim0007.cryptobench.config.names.dto.Canonical
 import io.github.junekim0007.cryptobench.document.YamlCodec
-import io.github.junekim0007.cryptobench.files.ContractsFolder
+import io.github.junekim0007.cryptobench.files.RepositoryFiles
 import io.github.junekim0007.cryptobench.config.yaml.YamlFiles
 import io.github.junekim0007.cryptobench.settings.Facts
 import org.junit.Assert.assertEquals
@@ -23,8 +23,8 @@ class ContractsTest {
 
     private val codec = YamlCodec.DOCUMENT
 
-    private val global = ContractsFolder.example("config", "config_global_example.yaml")
-    private val effective = ContractsFolder.example("config", "config_effective_example.yaml")
+    private val global = RepositoryFiles.example("config", "config_global_example.yaml")
+    private val effective = RepositoryFiles.example("config", "config_effective_example.yaml")
 
     private fun stated(folder: File, name: String): Map<String, Any> = Yaml(SafeConstructor(LoaderOptions())).load(File(folder, "$name.json").readText())
 
@@ -35,30 +35,30 @@ class ContractsTest {
     @Test
     fun eachFixtureReadsToItsStatedValue() {
         plainRun()
-        for (file in listOf(global, effective, File(ContractsFolder.documents, "facts.yaml"))) {
-            assertEquals(file.name, stated(ContractsFolder.documents, file.nameWithoutExtension), read(file))
+        for (file in listOf(global, effective, File(RepositoryFiles.documents, "facts.yaml"))) {
+            assertEquals(file.name, stated(RepositoryFiles.documents, file.nameWithoutExtension), read(file))
         }
-        assertEquals(stated(ContractsFolder.yamlCodec, "scalars"), read(ContractsFolder.yamlCodec, "scalars") - "exponentNoDot")
+        assertEquals(stated(RepositoryFiles.yamlCodec, "scalars"), read(RepositoryFiles.yamlCodec, "scalars") - "exponentNoDot")
     }
 
     @Test
     fun currentBehaviourAnUnquotedExponentWithoutADotIsADouble() {
         // Python reads the same plain 1e3 as the string "1e3"
-        assertEquals(1000.0, read(ContractsFolder.yamlCodec, "scalars")["exponentNoDot"])
+        assertEquals(1000.0, read(RepositoryFiles.yamlCodec, "scalars")["exponentNoDot"])
     }
 
     @Test
     fun currentBehaviourAnExponentLikeStringPythonWroteReadsAsADouble() {
         @Suppress("UNCHECKED_CAST")
-        val strings = read(ContractsFolder.yamlCodec, "python-strings")["strings"] as Map<String, Any>
+        val strings = read(RepositoryFiles.yamlCodec, "python-strings")["strings"] as Map<String, Any>
         @Suppress("UNCHECKED_CAST")
-        val written = stated(ContractsFolder.yamlCodec, "python-strings")["strings"] as Map<String, Any>
+        val written = stated(RepositoryFiles.yamlCodec, "python-strings")["strings"] as Map<String, Any>
         assertEquals(mapOf("exponent" to 1000.0, "exponentLong" to 1.2E46), strings.filter { it.value != written[it.key] })
     }
 
     @Test
     fun currentBehaviourADuplicateKeyIsRefused() {
-        assertThrows(DuplicateKeyException::class.java) { read(ContractsFolder.yamlCodec, "duplicate-key") }
+        assertThrows(DuplicateKeyException::class.java) { read(RepositoryFiles.yamlCodec, "duplicate-key") }
     }
 
     @Test
@@ -72,7 +72,7 @@ class ContractsTest {
 
     @Test
     fun theFactsPythonWroteAreTheFactsKotlinReads() {
-        val facts = Facts.read(read(ContractsFolder.documents, "facts"))
+        val facts = Facts.read(read(RepositoryFiles.documents, "facts"))
         assertEquals(Facts(true, 37, listOf(Facts.Core(0, true, 2246000), Facts.Core(1, false, null), Facts.Core(7, true, 3782000)), true), facts)
     }
 

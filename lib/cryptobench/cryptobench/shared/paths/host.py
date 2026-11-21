@@ -11,13 +11,17 @@ def home() -> Path:
     return Path.home()
 
 
+def _user_config() -> Path:
+    return home() / ".config/cryptobench"
+
+
 def user_global() -> Path:
-    return home() / ".config/cryptobench" / GLOBAL
+    return _user_config() / GLOBAL
 
 
 def user_devices() -> Path:
     """The user's device aliases; a fixed place, so an absent file is no aliases."""
-    return home() / ".config/cryptobench/devices.yaml"
+    return _user_config() / "devices.yaml"
 
 
 def user_cache() -> Path:

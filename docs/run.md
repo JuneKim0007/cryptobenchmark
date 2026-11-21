@@ -24,7 +24,7 @@ python3 apps/benchmark-runner/pipeline.py [--config PATH] [--results DIR] [--dis
 
 | flag | default | effect |
 |---|---|---|
-| `--config PATH` | `$CRYPTOBENCH_CONFIG`, then `~/.config/cryptobench/global.yaml`, then `config/global.yaml` | the `global.yaml` to run; one named by the flag or the variable and missing is `missing_file` |
+| `--config PATH` | `$CRYPTOBENCH_CONFIG`, then `~/.config/cryptobench/global.yaml`, then `config/benchmark/global.yaml` | the `global.yaml` to run; one named by the flag or the variable and missing is `missing_file` |
 | `--results DIR`, `--per-suite` | `<repo>/results`, off | results root; the run writes `<DIR>/<device_id>/`, with `--per-suite` `<DIR>/<device_id>/<suite>/` ([results.md](results.md#device-folder)); `--per-suite` with `--identify` or `--harness` fails |
 | `--discovery` | `overwrite` | `overwrite` starts an empty `discovery/`, the old one moving aside with its unit ([results.md](results.md#device-folder)); `keep` adds a new capture; `reuse` keeps this device's capture, found by asking the JVM for its id first; `verify` as `overwrite` but reusing a stored probe ([Probe store](#probe-store)) |
 | `--probe-store DIR` | off | `--discovery verify` only: one capture+trial per build key, shared by every run that names it |

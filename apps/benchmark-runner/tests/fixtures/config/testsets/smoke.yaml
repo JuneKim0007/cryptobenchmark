@@ -1,4 +1,4 @@
-# Schema and which keys are optional: see config/testsets/default_predefined.yaml.
+# Schema and which keys are optional: see config/benchmark/testsets/default_predefined.yaml.
 schemaVersion: 1                 # required
 description: a few staples, for CI and dry runs
 

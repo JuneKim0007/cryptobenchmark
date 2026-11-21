@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.config
 
-import io.github.junekim0007.cryptobench.files.ContractsFolder
+import io.github.junekim0007.cryptobench.files.RepositoryFiles
 import io.github.junekim0007.cryptobench.files.StatedJson
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -29,7 +29,7 @@ class ExampleFilesTest {
         assertExample("config_effective_example.yaml", configuration.effectiveFile)
         assertExample("config_report_example.yaml", configuration.reportFile)
         if (System.getProperty("examples.update") != null) listOf("config_global_example", "config_effective_example").forEach { name ->
-            StatedJson.write(File(ContractsFolder.documents, "$name.json"), Yaml(SafeConstructor(LoaderOptions())).load(File(example, "$name.yaml").readText()))
+            StatedJson.write(File(RepositoryFiles.documents, "$name.json"), Yaml(SafeConstructor(LoaderOptions())).load(File(example, "$name.yaml").readText()))
         }
     }
 

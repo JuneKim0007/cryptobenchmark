@@ -23,7 +23,7 @@
 
 - Main class comes from `-PmainClass`, default `ProbeKt`.
 - Every main (`Command.kt` `command`): arguments it cannot take print `usage: ...` and exit 2; any failure prints one `error: <message>` and exits 1, never a stack trace; an `Error` (out of memory) ends the JVM as it is.
-- `ProbeKt` and `ConfigureKt` fall back to the nearest `config/global.yaml` up the tree; none found gives a warning and no `effective.yaml`.
+- `ProbeKt` and `ConfigureKt` without a `global.yaml` argument write no `effective.yaml` and warn `no global.yaml given`.
 - `ConfigureKt`: a missing input is `error: missing_file`; warnings print `warning: <w>`, skips `skipped: <s>` to stderr.
 - Compiles discovery, settings, config, preparation and benchmark sources; tests are discovery and config tests, plus `ProviderChoseContractTest`: every discovery `providerChose` key is a preparation `ResolvedParameters.KEYS` key or `fixedValueBytes`; `EffectiveKeysAgreeTest`: an effective.yaml with every key config writes reads through preparation without `unknown_keys`.
 - `apps/benchmark/gradlew -p apps/benchmark/cli test` excludes `*ExampleFilesTest` and writes captures to `build/capture`.

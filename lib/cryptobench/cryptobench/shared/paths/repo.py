@@ -5,8 +5,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from . import roots
-from .names import (CONFIG_FOLDER, CONTRACT_DOCUMENTS, CONTRACT_RUNNER, CONTRACT_YAML_CODEC, CONTRACTS, ENGINE_OPERATIONS, GLOBAL,
-                    SETUP_CATALOG, TESTS)
+from .names import (BENCHMARK_CONFIG, CONFIG_FOLDER, CONTRACT_DOCUMENTS, CONTRACT_RUNNER, CONTRACT_YAML_CODEC, CONTRACTS, ENGINE_OPERATIONS,
+                    EXAMPLE, GLOBAL, SETUP_CATALOG, TESTS)
 
 _KOTLIN_NAME_USERS = ("modules/environment/discovery/src/main/kotlin", "modules/config/src/main/kotlin", "modules/preparation/src/main/kotlin",
                       "modules/benchmark/src/main/kotlin", "modules/android/src/androidTest/kotlin", "cli/src/main/kotlin")
@@ -25,7 +25,8 @@ class Repo:
 
     algorithms = property(lambda self: self.root / roots.ALGORITHMS)
     config = property(lambda self: self.root / CONFIG_FOLDER)
-    default_global = property(lambda self: self.config / GLOBAL)
+    benchmark_config = property(lambda self: self.config / BENCHMARK_CONFIG)
+    default_global = property(lambda self: self.benchmark_config / GLOBAL)
     default_results = property(lambda self: self.root / "results")
     runner = property(lambda self: self.root / roots.RUNNER)
     pipeline = property(lambda self: self.root / roots.PIPELINE)
@@ -51,6 +52,9 @@ class Repo:
     contract_documents = property(lambda self: self.contracts / CONTRACT_DOCUMENTS)
     contract_yaml_codec = property(lambda self: self.contracts / CONTRACT_YAML_CODEC)
     contract_runner = property(lambda self: self.contracts / CONTRACT_RUNNER)
+
+    def module_example(self, module: str, name: str) -> Path:
+        return self.gradle_root / "modules" / module / EXAMPLE / name
 
 
 def repo(root: Path | str | None = None) -> Repo:

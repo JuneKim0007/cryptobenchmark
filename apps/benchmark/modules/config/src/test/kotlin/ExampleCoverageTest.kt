@@ -3,7 +3,7 @@ package io.github.junekim0007.cryptobench.config
 import io.github.junekim0007.cryptobench.config.entry.KeySource
 import io.github.junekim0007.cryptobench.config.global.GlobalDocument
 import io.github.junekim0007.cryptobench.config.testset.TestSetDocument
-import io.github.junekim0007.cryptobench.files.ContractsFolder
+import io.github.junekim0007.cryptobench.files.RepositoryFiles
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.yaml.snakeyaml.LoaderOptions
@@ -37,7 +37,7 @@ class ExampleCoverageTest {
     }
 
     private fun walk(name: String, parse: (Map<String, Any>) -> Unit) {
-        val text = ContractsFolder.example("config", name).readText()
+        val text = RepositoryFiles.example("config", name).readText()
         visit(Yaml().compose(StringReader(text)), emptyList(), name, text.lines()) { path -> accepted(text, path, parse) }
     }
 

@@ -1,5 +1,5 @@
 """The used set's additions to the test set: an include rule per used item the base test set may not plan, in the
-provider's declared spelling, written as a test set beside the device folder; config/testsets stays as authored."""
+provider's declared spelling, written as a test set beside the device folder; config/benchmark/testsets stays as authored."""
 from __future__ import annotations
 
 from pathlib import Path

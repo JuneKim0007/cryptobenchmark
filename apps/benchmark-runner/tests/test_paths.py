@@ -56,7 +56,7 @@ def test_benchmark_root_refuses_with_the_callers_error(tmp_path, monkeypatch):
 
 def test_repo_locations_exist():
     r = paths.repo()
-    for location in (r.algorithms, r.setup_catalog, r.config, r.default_global, r.runner, r.pipeline, r.dependencies, r.energy, r.gradle_root, r.gradlew,
+    for location in (r.algorithms, r.setup_catalog, r.config, r.benchmark_config, r.default_global, r.runner, r.pipeline, r.dependencies, r.energy, r.gradle_root, r.gradlew,
                      r.benchmark_cli, r.engine_operations, r.perf_repair, r.perf_repair_source, r.library):
         assert location.exists(), location
 

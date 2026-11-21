@@ -3,7 +3,7 @@ package io.github.junekim0007.cryptobench.preparation
 import io.github.junekim0007.cryptobench.preparation.guide.Guide
 import io.github.junekim0007.cryptobench.preparation.inbound.InboundFile
 import io.github.junekim0007.cryptobench.document.YamlCodec
-import io.github.junekim0007.cryptobench.files.ContractsFolder
+import io.github.junekim0007.cryptobench.files.RepositoryFiles
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Assume
@@ -17,10 +17,10 @@ import java.io.File
 /** tests/contracts/documents: preparation's example guide, as Python writes it, and config's example effective read through preparation's codec to the values their .json hold. */
 class ContractsTest {
 
-    private val guide = ContractsFolder.example("preparation", "guide.yaml")
-    private val effective = ContractsFolder.example("config", "config_effective_example.yaml")
+    private val guide = RepositoryFiles.example("preparation", "guide.yaml")
+    private val effective = RepositoryFiles.example("config", "config_effective_example.yaml")
 
-    private fun stated(name: String): Map<String, Any> = Yaml(SafeConstructor(LoaderOptions())).load(File(ContractsFolder.documents, "$name.json").readText())
+    private fun stated(name: String): Map<String, Any> = Yaml(SafeConstructor(LoaderOptions())).load(File(RepositoryFiles.documents, "$name.json").readText())
 
     private fun read(file: File): Map<String, Any> = YamlCodec.DOCUMENT.load(file.readText())
 
@@ -35,7 +35,7 @@ class ContractsTest {
 
     @Test
     fun currentBehaviourADuplicateKeyIsRefused() {
-        assertThrows(DuplicateKeyException::class.java) { read(File(ContractsFolder.yamlCodec, "duplicate-key.yaml")) }
+        assertThrows(DuplicateKeyException::class.java) { read(File(RepositoryFiles.yamlCodec, "duplicate-key.yaml")) }
     }
 
     // an update run writes the examples and their .json; only a plain run checks them

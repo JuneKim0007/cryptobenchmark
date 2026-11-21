@@ -1,8 +1,10 @@
 package io.github.junekim0007.cryptobench.files
 
-/** Every folder a stage names, in a run's tree or on a device, and the repository's tests/contracts/ folders both languages' tests read. */
+/** Every folder a stage names, in a run's tree or on a device, and the repository folders both languages' tests read. */
 object Folders {
     const val CONFIG = "config"
+    const val BENCHMARK_CONFIG = "benchmark"
+    const val EXAMPLE = "example"
     const val CONFIGURATION = "configuration"
     const val PREPARATION = "preparation"
     const val DEVICE_PLAN = "cryptobench"

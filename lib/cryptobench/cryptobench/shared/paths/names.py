@@ -9,7 +9,7 @@ SESSIONS, SESSION_LOG, SESSION_SUMMARY, INDEX = "sessions", "session.log", "summ
 EFFECTIVE, INVENTORY, CONFIG_REPORT, GUIDE, KNOWN_ANSWERS = "effective.yaml", "inventory.yaml", "report.yaml", "guide.yaml", "known-answers.yaml"
 CAPTURE_PREFIX, TRIAL_PREFIX, REQUIREMENTS_PREFIX = "probe", "trial", "requirements"
 CAPTURE_PATTERN, TRIAL_FORM, REQUIREMENTS_FORM = f"{CAPTURE_PREFIX}_*.yaml", f"{TRIAL_PREFIX}_{{}}.yaml", f"{REQUIREMENTS_PREFIX}_{{}}.yaml"
-GLOBAL, CONFIG_FOLDER = "global.yaml", "config"
+GLOBAL, CONFIG_FOLDER, BENCHMARK_CONFIG, EXAMPLE = "global.yaml", "config", "benchmark", "example"
 TESTS, CONTRACTS, CONTRACT_DOCUMENTS, CONTRACT_YAML_CODEC, CONTRACT_RUNNER = "tests", "contracts", "documents", "yaml-codec", "runner"
 ALGORITHM_NAMES, ENGINE_OPERATIONS, SETUP_CATALOG = "algorithm-names.yaml", "engine-operations.yaml", "setup-catalog.yaml"
 FACTS, ENERGY_CAPABILITY, ENERGY_PREFLIGHT = "facts.yaml", "energy.yaml", "energy-preflight"
@@ -62,7 +62,8 @@ CONTRACT = {
 }
 # Shared too, but ordinary words or an authored name other tools also spell: compared with Kotlin, not banned as Python literals.
 CONTRACT_PARTS = {
-    GLOBAL: "FileNames.GLOBAL", CONFIG_FOLDER: "Folders.CONFIG", CONFIGURATION: "Folders.CONFIGURATION", PREPARATION: "Folders.PREPARATION",
+    GLOBAL: "FileNames.GLOBAL", CONFIG_FOLDER: "Folders.CONFIG", BENCHMARK_CONFIG: "Folders.BENCHMARK_CONFIG", EXAMPLE: "Folders.EXAMPLE",
+    CONFIGURATION: "Folders.CONFIGURATION", PREPARATION: "Folders.PREPARATION",
     PLAN_DIRECTORY: "Folders.DEVICE_PLAN", SCOPE_KEYS: "Folders.SCOPE_KEYS",
     TESTS: "Folders.TESTS", CONTRACTS: "Folders.CONTRACTS", CONTRACT_DOCUMENTS: "Folders.CONTRACT_DOCUMENTS",
     CONTRACT_YAML_CODEC: "Folders.CONTRACT_YAML_CODEC", CONTRACT_RUNNER: "Folders.CONTRACT_RUNNER",

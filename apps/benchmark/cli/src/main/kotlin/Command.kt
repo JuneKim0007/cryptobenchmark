@@ -1,6 +1,3 @@
-import io.github.junekim0007.cryptobench.files.FileNames
-import io.github.junekim0007.cryptobench.files.Folders
-import java.io.File
 import kotlin.system.exitProcess
 
 // Every main's contract: arguments it cannot take are its usage line and exit 2; any Exception is one error line and exit 1, no stack trace.
@@ -19,6 +16,3 @@ internal fun command(arguments: Array<String>, usage: String, valid: (Array<Stri
 }
 
 const val USAGE = 2
-
-internal fun committedGlobal(): File? =
-    generateSequence(File("").absoluteFile) { it.parentFile }.map { File(File(it, Folders.CONFIG), FileNames.GLOBAL) }.firstOrNull { it.exists() }

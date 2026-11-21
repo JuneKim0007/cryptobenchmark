@@ -13,7 +13,7 @@ fun main(arguments: Array<String>) = command(arguments,
     val paths = arguments.filterNot { it.startsWith("--") }
     val discoveryDirectory = File(paths[0])
     val configurationDirectory = paths.getOrNull(1)?.let { File(it) } ?: Beside.file(discoveryDirectory, Folders.CONFIGURATION)
-    run(discoveryDirectory, configurationDirectory, paths.getOrNull(2)?.let { File(it) } ?: committedGlobal(), "--reuse" in arguments)
+    run(discoveryDirectory, configurationDirectory, paths.getOrNull(2)?.let { File(it) }, "--reuse" in arguments)
 }
 
 private fun run(discoveryDirectory: File, configurationDirectory: File, globalFile: File?, reuse: Boolean) {
@@ -42,7 +42,7 @@ private fun run(discoveryDirectory: File, configurationDirectory: File, globalFi
     println(requirementsFile)
     println(inventoryFile)
     if (globalFile == null) {
-        System.err.println("warning: no ${Folders.CONFIG}/${FileNames.GLOBAL} found; ${FileNames.EFFECTIVE} not written")
+        System.err.println("warning: no ${FileNames.GLOBAL} given; ${FileNames.EFFECTIVE} not written")
         return
     }
     val effectiveFile = configuration.effective(globalFile, inventoryFile)

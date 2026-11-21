@@ -3,7 +3,7 @@
 ## Stage flow
 
 ```
-config/global.yaml + config/testsets/*.yaml
+config/benchmark/global.yaml + config/benchmark/testsets/*.yaml
         │
 :environment:discovery ──probe_<stamp>.yaml, trial_<stamp>.yaml, requirements_<stamp>.yaml──▶ :config
 :config ──inventory.yaml, effective.yaml──▶ :preparation

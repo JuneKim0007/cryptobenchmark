@@ -6,6 +6,7 @@ import unittest
 import yaml
 
 import chart_input  # noqa: E402
+from cryptobench.shared import paths
 from cryptobench.shared.settings import defaults
 import charts  # noqa: E402
 from cryptobench.shared.stats.descriptive import summarize
@@ -107,7 +108,7 @@ class Charts(unittest.TestCase):
         self.assertTrue(all(c["noisy"] for c in data))
 
     def test_the_python_defaults_match_the_ones_the_config_module_writes(self):
-        example = pathlib.Path(__file__).resolve().parents[4] / "apps/benchmark/modules/config/example/config_effective_example.yaml"
+        example = paths.repo().module_example("config", "config_effective_example.yaml")
         analysis = yaml.safe_load(example.read_text())["analysis"]
         self.assertEqual(defaults.at("analysis.charts"), analysis["charts"])
         self.assertEqual(defaults.at("analysis.statistic.headline"), analysis["statistic"]["headline"])

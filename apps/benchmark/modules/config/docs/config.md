@@ -1,12 +1,12 @@
 # config
 
-Authored settings: `config/global.yaml` and `config/testsets/*.yaml`, committed and written only by the user. `algorithms/vectors/` holds the end-to-end check's sourced vectors; the benchmark module reads it ([check.md](../../benchmark/docs/check.md)), config does not. Generated files: [generated.md](generated.md). File map: [index.md](index.md).
+Authored settings: `config/benchmark/global.yaml` and `config/benchmark/testsets/*.yaml`, committed and written only by the user. `algorithms/vectors/` holds the end-to-end check's sourced vectors; the benchmark module reads it ([check.md](../../benchmark/docs/check.md)), config does not. Generated files: [generated.md](generated.md). File map: [index.md](index.md).
 
 ## Authored files
 
 | file | selection.testSet | run | notes |
 |---|---|---|---|
-| `config/global.yaml` | `testsets/default_predefined.yaml` | inputSizes `[64, 1024, 16384]`, seed 0, variants default | harness `iterations: 100`; `providers.bundled` Conscrypt 2.9.0 as `BundledConscrypt`, BouncyCastle 1.87 as `BundledBC`; every other key takes its default |
+| `config/benchmark/global.yaml` | `testsets/default_predefined.yaml` | inputSizes `[64, 1024, 16384]`, seed 0, variants default | harness `iterations: 100`; `providers.bundled` Conscrypt 2.9.0 as `BundledConscrypt`, BouncyCastle 1.87 as `BundledBC`; every other key takes its default |
 
 | test set | contents |
 |---|---|

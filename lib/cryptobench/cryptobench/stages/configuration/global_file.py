@@ -15,7 +15,8 @@ def global_config(argument):
     for candidate in (paths.user_global(), paths.repo().default_global):
         if candidate.is_file():
             return single(candidate.resolve())
-    raise CommandError("no global.yaml: pass --config, set CRYPTOBENCH_CONFIG, or keep config/global.yaml")
+    repository = paths.repo()
+    raise CommandError(f"no global.yaml: pass --config, set CRYPTOBENCH_CONFIG, or keep {repository.default_global.relative_to(repository.root)}")
 
 
 def single(path):

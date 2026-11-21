@@ -26,9 +26,9 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       - run: ../gradlew -p . test --no-daemon
         working-directory: apps/benchmark/cli
-      # PeerPairsTest's BouncyCastle half, with config/global.yaml's bundled BC; naming BC makes its absence a failure
+      # PeerPairsTest's BouncyCastle half, with config/benchmark/global.yaml's bundled BC; naming BC makes its absence a failure
       - run: |
-          bc=$(grep -o "org\.bouncycastle:bcprov-[^'\" ,}]*" ../../../config/global.yaml)
+          bc=$(grep -o "org\.bouncycastle:bcprov-[^'\" ,}]*" ../../../config/benchmark/global.yaml)
           test -n "$bc"
           ../gradlew -p . test --tests PeerPairsTest -PbundledArtifacts="$bc" --no-daemon
         working-directory: apps/benchmark/cli
