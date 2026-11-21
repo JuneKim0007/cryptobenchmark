@@ -30,7 +30,8 @@ def test_measured_energy_puts_the_capture_outermost_in_its_own_pass_only(tmp_pat
 
 
 def test_a_dry_capture_alone_has_only_the_energy_hook(tmp_path, monkeypatch):
-    monkeypatch.setattr(benchmark.EnergySession, "dry_pass", lambda *_arguments: None)
+    monkeypatch.setattr(benchmark.EnergySession, "dry_pass", lambda *_arguments: "")
+    monkeypatch.setattr(benchmark, "dry_skips", lambda *_arguments, **_options: None)
     orders = [names for _p, names, _h in hook_orders(tmp_path, monkeypatch, {"harness": {"energy": {"capture": "dry"}}})]
     assert orders == [["EnergyCapture"]]
 

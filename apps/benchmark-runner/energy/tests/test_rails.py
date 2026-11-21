@@ -272,6 +272,15 @@ def test_a_dry_marker_without_a_call_count_is_invalid_and_the_other_marker_measu
     assert cases["kept"]["joulesPerOperation"] is not None
 
 
+def test_an_empty_energy_dry_file_reads_as_no_call_counts(tmp_path):
+    class Dry(SuspendedDeviceTrace):
+        def markers(self):
+            return {}
+    calls = tmp_path / "calls.yaml"
+    calls.write_text("")
+    assert energy.dry_cases(tmp_path / "dry.pftrace", calls, NO_IDLE, lambda path: Dry()) == {}
+
+
 def test_a_case_without_operations_is_never_valid():
     result = energy.window({"r": SAMPLES}, 0, 200, NO_IDLE, 0)
     assert result["joulesPerOperation"] is None

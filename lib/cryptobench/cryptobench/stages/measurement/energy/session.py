@@ -40,10 +40,10 @@ class EnergySession:
         self.device.pull(remote, local)
 
     def dry_pass(self, config, trace, calls, preparation, test_class="EnergyDryBenchmark"):
-        """No Jetpack trace runs in this pass, so none kills the host session."""
+        """No Jetpack trace runs in this pass, so none kills the host session; the instrumentation's output."""
         remote, dry = f"{TRACES}/{trace.name}", f"{self.device.files}/{paths.ENERGY_DRY}"
         row = instrumentation.Instrumented(test_class, cleared=(dry,), pulled=((remote, trace), (dry, calls), *plan_pulls(self.device, preparation)))
-        instrumentation.run(self.device, self.waits, row, *NO_DEFAULT_PROFILER, during=lambda: self.traced(config, remote))
+        return instrumentation.run(self.device, self.waits, row, *NO_DEFAULT_PROFILER, during=lambda: self.traced(config, remote))
 
     @contextlib.contextmanager
     def traced(self, config, remote):

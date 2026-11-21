@@ -1,5 +1,6 @@
 """The benchmark of a plain run: on the device in passes and sessions, or on the host JVM."""
 import functools
+import re
 import time
 
 from cryptobench.shared.settings import bundled, effective_view
@@ -10,7 +11,7 @@ from cryptobench.stages.measurement.energy.session import EnergySession
 from cryptobench.shared.log.warn import warn
 from cryptobench.shared.log.stdout import WROTE, say
 from cryptobench.shared.errors.line import one_line
-from cryptobench.shared.errors.failures import AllSkipped, CommandError
+from cryptobench.shared.errors.failures import ALL_CASES_SKIPPED, AllSkipped, CommandError
 from cryptobench.shared import paths
 from cryptobench.shared.device import reconnect
 from cryptobench.stages.measurement.session import blocks, case_isolation, energy_hook, passes, skips, variant_order, warmup, window
@@ -25,6 +26,8 @@ from cryptobench.shared.document.document import read_yaml
 
 # the ignored keys host_cases names in their own line
 OWN_LINES = ("run.passes", "run.thermalGate")
+# EnergyDryBenchmark's Parameterized name: capture[<caseId>]
+DRY_CASE = re.compile(r"^INSTRUMENTATION_STATUS: test=capture\[(.+)\]\s*$", re.M)
 
 
 def measure_on_device(run, one, captures, preparation, repetitions, folder, written, measured_blocks, redo):
@@ -97,8 +100,24 @@ def pulled_skips(device, preparation):
 def dry_pass(session, into, preparation, problems, guarded):
     """Beside a timed run its failure costs only energy; alone it is the whole measurement."""
     print("measure:   EnergyDryBenchmark inside a host trace session")
-    step = lambda: session.dry_pass(paths.repo().energy_trace_config, paths.Measurement(into).dry_trace, paths.Measurement(into).energy_dry, preparation)
+    at = paths.Measurement(into)
+    step = lambda: dry_skips(session.dry_pass(paths.repo().energy_trace_config, at.dry_trace, at.energy_dry, preparation), at.energy_dry, preparation,
+                             problems, alone=not guarded)
     energy_stage.guarded(problems, step) if guarded else step()
+
+
+def dry_skips(output, calls, preparation, problems, alone):
+    """A dry case the device's preparation skipped with a final code is one case_skipped line; alone, a pass that measured none and skipped every
+    case is AllSkipped."""
+    measured = read_yaml(calls) or {}
+    final = skips.recorded(read_yaml(paths.Preparation(preparation).skipped))
+    cases = list(dict.fromkeys(DRY_CASE.findall(output)))
+    skipped = [case for case in cases if case not in measured and case in final]
+    for case in skipped:
+        print(skips.line(case, final[case]))
+        problems.append(skips.line(case, final[case]))
+    if alone and not measured and skipped and len(skipped) == len(cases):
+        raise AllSkipped(f"{ALL_CASES_SKIPPED}: every case of EnergyDryBenchmark is a coded preparation skip: {len(skipped)} cases, listed in {paths.SKIPPED}")
 
 
 def measure_cases(options, device, results, found, problems, require_energy, record, redo):

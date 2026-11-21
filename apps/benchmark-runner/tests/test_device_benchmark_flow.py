@@ -13,7 +13,7 @@ from cryptobench.stages.measurement import benchmark, resume  # noqa: E402
 from cryptobench.stages.discovery import discover  # noqa: E402
 from cryptobench.stages.measurement.session import blocks, skips  # noqa: E402
 from failure import reported  # noqa: E402
-from fake_phone import OK, PROBE, Energy, Phone, fake_tools, jetpack_case  # noqa: E402
+from fake_phone import MISSING, NOT_PREPARED, OK, PROBE, Energy, Phone, fake_tools, jetpack_case  # noqa: E402
 
 OPTIONS = types.SimpleNamespace(stream=False, suppress_errors="", stacktrace=False, energy_python="python3", energy_accept_unresponsive=False,
                                 reconnect_wait_minutes=None, reconnect_poll_seconds=None)
@@ -28,12 +28,12 @@ RUN = {"inputSizes": [1024], "phases": ["WARM"], "metrics": ["TIME"], "variants"
        "caseCooldownSeconds": 0, "launchRetries": 0, "energyIdleSeconds": 120, "resumeBlockRuns": 10, "orderSeed": 4792, "warmup": {"iterations": 0, "jobs": [], "cases": 3}}
 
 
-def layout(tmp_path, run):
+def layout(tmp_path, run, providers=None):
     results = tmp_path / "results"
     (results / "configuration").mkdir(parents=True)
     (results / "discovery").mkdir()
     effective = results / "configuration/effective.yaml"
-    effective.write_text(yaml.safe_dump({"run": {**RUN, **run}, "providers": {}}, sort_keys=False))
+    effective.write_text(yaml.safe_dump({"run": {**RUN, **run}, "providers": providers or {}}, sort_keys=False))
     capture, trial = results / "discovery/probe_1.yaml", results / "discovery/trial_1.yaml"
     capture.write_text(yaml.safe_dump(PROBE))
     trial.write_text("{}")
@@ -49,10 +49,10 @@ def measured_fakes(monkeypatch, phone):
     monkeypatch.setattr(benchmark.EnergySession, "pull_traces", lambda _self, _traces, fresh=True: phone.log.append("pull traces") or 0)
 
 
-def measured(tmp_path, monkeypatch, run, phone=None, **phone_options):
+def measured(tmp_path, monkeypatch, run, phone=None, providers=None, **phone_options):
     phone = phone or Phone(tmp_path, **phone_options)
     measured_fakes(monkeypatch, phone)
-    results, effective, capture, trial = layout(tmp_path, run)
+    results, effective, capture, trial = layout(tmp_path, run, providers)
     files, problems = {"effective": effective}, []
     pipeline.benchmarked(OPTIONS, phone, results, discover.Discovered(results / "discovery", effective, capture, trial, files), problems,
                          {"identity": "of this run", "run": yaml.safe_load(effective.read_text())["run"]}, resume.NOTHING)
@@ -454,3 +454,83 @@ def test_an_all_refused_run_exits_0_and_its_manifest_counts_the_skips(tmp_path, 
     written = manifest_of(rerun.device)
     assert written["problems"] == ["all_cases_skipped: every case of CryptoBenchmark is refused by the plan check: 2 skips, listed in skipped.yaml"]
     assert written["counts"] == {"prepared": 0, "skipped": 2}
+
+
+class DryPhone(Phone):
+    """EnergyDryBenchmark on the fake phone: one capture[<id>] test per case; a case preparation refused is an assumption failure (assumed),
+    or, as the device did before, a failed test."""
+
+    def __init__(self, folder, assumed=True, dry_cases=None, **options):
+        super().__init__(folder, **options)
+        self.assumed, self.dry, self.dry_cases = assumed, [], list(dry_cases or self.cases)
+
+    def shell(self, command):
+        if "perfetto --txt" in command:
+            return "4242"
+        return "" if command.startswith("kill ") else super().shell(command)
+
+    def instrument(self, test_class, *arguments, step="instrument"):
+        if test_class != "EnergyDryBenchmark":
+            return super().instrument(test_class, *arguments, step=step)
+        self.log.append("instrument EnergyDryBenchmark")
+        refused = [c for c in self.dry_cases if c in self.refuse]
+        self.skips += [self.refuse[c] for c in refused]
+        self.dry = [c for c in self.dry_cases if c not in self.refuse]
+        lines = "".join(f"INSTRUMENTATION_STATUS: test=capture[{c}]\nINSTRUMENTATION_STATUS_CODE: 1\n" +
+                        (f"INSTRUMENTATION_STATUS: stack=org.junit.AssumptionViolatedException: not_prepared: {c}\nINSTRUMENTATION_STATUS_CODE: -4\n"
+                         if c in refused and self.assumed else NOT_PREPARED.format(c, 0, 0).split("Tests run")[0] if c in refused else
+                         "INSTRUMENTATION_STATUS_CODE: 0\n") for c in self.dry_cases)
+        n = len(self.dry_cases)
+        return lines + (f"OK ({n} tests)\n" if self.assumed or not refused else f"Tests run: {n},  Failures: {len(refused)}\n")
+
+    def pull(self, remote, local):
+        if remote.endswith("energy-dry.yaml"):
+            # EnergyDryBenchmark writes the file empty before its first case
+            pathlib.Path(local).write_text("".join(f'"{c}": 1000\n' for c in self.dry))
+            return
+        super().pull(remote, local)
+
+
+DRY = {"harness": {"energy": {"capture": "dry"}}}
+
+
+def test_a_dry_case_preparation_skipped_is_a_skip_and_the_others_are_measured(tmp_path, monkeypatch):
+    refused = next(iter(REFUSED))
+    phone = DryPhone(tmp_path, cases=("a", refused, "b"), refuse=REFUSED)
+    _phone, files, problems, results = measured(tmp_path, monkeypatch, DRY, phone=phone)
+    assert problems == [f"case_skipped: {refused}: keystore_unsupported"]
+    assert yaml.safe_load((results / "benchmark/energy-dry.yaml").read_text()) == {"a": 1000, "b": 1000}
+    assert "instrument EnergyDryBenchmark" in steps(phone) and "joules" in steps(phone)
+
+
+def test_a_dry_pass_whose_every_case_preparation_skipped_is_all_cases_skipped(tmp_path, monkeypatch):
+    phone = DryPhone(tmp_path, cases=tuple(REFUSED), refuse=REFUSED)
+    _phone, files, problems, _results = measured(tmp_path, monkeypatch, DRY, phone=phone)
+    assert problems[:-1] == [f"case_skipped: {case}: keystore_unsupported" for case in REFUSED]
+    assert problems[-1] == "all_cases_skipped: every case of EnergyDryBenchmark is a coded preparation skip: 5 cases, listed in skipped.yaml"
+    assert files["skipped"].is_file() and "benchmark" not in files
+
+
+def test_a_dry_skip_the_device_still_reports_as_a_failed_test_stops_the_dry_only_run(tmp_path, monkeypatch):
+    refused = next(iter(REFUSED))
+    with pytest.raises(DeviceError, match="EnergyDryBenchmark failed on the device"):
+        measured(tmp_path, monkeypatch, DRY, phone=DryPhone(tmp_path, assumed=False, cases=("a", refused), refuse=REFUSED))
+
+
+def test_every_dry_case_skipped_beside_a_timed_case_keeps_the_processes_measured_joules(tmp_path, monkeypatch):
+    dry = list(REFUSED)
+
+    def joules(self, captures, capability, preparation, data, traces, energy_dry, out):
+        # energy.py reads energy-dry.yaml for a dry capture: without it the process's joules are lost
+        if not energy_dry.is_file():
+            raise EnergyError(f"apps/benchmark-runner/energy/energy.py: missing_file: {energy_dry}")
+        self.phone.log.append("joules")
+        out.write_text(json.dumps({"cases": {"a": {"joules": 1.0}}}))
+    monkeypatch.setattr(Energy, "joules", joules)
+    phone = DryPhone(tmp_path, cases=("a",), dry_cases=dry, refuse=REFUSED)
+    providers = {"P": {"T": {"a": {}, **{case: {"harness": {"energy": {"capture": "dry"}}} for case in dry}}}}
+    _phone, files, problems, results = measured(tmp_path, monkeypatch, {}, phone=phone, providers=providers)
+    assert problems == [f"case_skipped: {case}: keystore_unsupported" for case in dry]
+    assert json.loads((results / "benchmark/energy.json").read_text()) == {"cases": {"a": {"joules": 1.0}}}
+    assert (results / "benchmark/energy-dry.yaml").read_text() == "" and "benchmark" in files
+    assert [s for s in steps(phone) if s.startswith("instrument ")] == ["instrument CryptoBenchmark a", "instrument EnergyDryBenchmark"]
