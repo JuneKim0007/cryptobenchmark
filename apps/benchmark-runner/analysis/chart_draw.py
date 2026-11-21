@@ -4,7 +4,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 
-from chart_model import op_slug, short, size_label, variant  # noqa: E402
+from chart_model import ASYMMETRIC_CIPHER, SYMMETRIC_CIPHER, op_slug, short, size_label, variant  # noqa: E402
 from cryptobench.shared import paths
 from cryptobench.shared.stats.inference import normal_scores
 
@@ -96,18 +96,13 @@ def count_vs_time(pairs, metric_label, out, metric, units):
     return path
 
 
-# Cipher covers both AES and RSA, so asymmetric is excluded by name: RSA has one
-# fixed-size block, not a size sweep.
-ASYMMETRIC_PREFIXES = ("RSA", "EC")
-
-
 def label(r):
     key = f"-{r['keySize']}" if r["keySize"] else ""
     return f"{r['algorithm']}{key}{variant(r)}"
 
 
 def is_symmetric_cipher(r):
-    return r["type"] == "Cipher" and not r["algorithm"].startswith(ASYMMETRIC_PREFIXES)
+    return r["group"] == SYMMETRIC_CIPHER
 
 
 GROUPS = [
@@ -144,7 +139,7 @@ def throughput(rows, out, units):
 
 def latency(rows, out, units):
     plt.figure(figsize=(8, 4.5))
-    slow = [r for r in rows if r["type"] in ("Signature", "KeyPairGenerator", "KeyGenerator") or r["algorithm"].startswith("RSA")]
+    slow = [r for r in rows if r["type"] in ("Signature", "KeyPairGenerator", "KeyGenerator") or r["group"] == ASYMMETRIC_CIPHER]
     slow.sort(key=lambda r: r["latency"])
     names = [f"{label(r)} {r['operation'].lower()}" + (f" {r['inputSize']}B" if r["inputSize"] else "") for r in slow]
     plt.barh(names, [r["latency"] for r in slow], color="#4c72b0")

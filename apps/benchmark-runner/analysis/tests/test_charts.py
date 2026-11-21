@@ -8,6 +8,7 @@ import yaml
 import chart_input  # noqa: E402
 from cryptobench.shared import paths
 from cryptobench.shared.settings import defaults
+import chart_draw  # noqa: E402
 import charts  # noqa: E402
 from cryptobench.shared.stats.descriptive import summarize
 from cryptobench.shared.stats.units import DisplayUnits, number
@@ -155,6 +156,14 @@ class AuditAgainstJetpack(unittest.TestCase):
     def test_a_case_with_nothing_reported_is_not_audited_and_not_failed(self):
         audit = self.manifest(self.build(None))
         self.assertEqual((0, []), (audit["checked"], audit["mismatches"]))
+
+
+class CipherPanels(unittest.TestCase):
+
+    def test_a_cipher_is_symmetric_or_asymmetric_by_its_prepared_chart_group_not_its_name(self):
+        rows = {"ElGamal/NONE/NoPadding": 2, "SM2": 2, "RC5-64/ECB/NoPadding": 1, "ECIES": 2}
+        symmetric = [a for a, g in rows.items() if chart_draw.is_symmetric_cipher({"type": "Cipher", "algorithm": a, "group": g})]
+        self.assertEqual(["RC5-64/ECB/NoPadding"], symmetric)
 
 
 if __name__ == "__main__":

@@ -1,6 +1,8 @@
 """Which parameter types a scope wrapper can synthesise, and the ScopeInputs call that builds each."""
 import re
 
+from cryptobench.shared.catalogue.key_types import key_type
+
 SEED = 7
 # kind per normalised type; every other type is unsupported_parameter.
 KINDS = {"byte[]": "bytes", "ByteArray": "bytes", "String": "text", "CharSequence": "text",
@@ -39,7 +41,11 @@ def item(option):
 
 
 def key_algorithm(option):
-    return item(option)[1].split("/")[0]
+    engine_type, name, provider = item(option)
+    found = key_type(engine_type, name, provider)
+    if found is None:
+        raise InputError(f"no_key_algorithm: {option!r} has no catalogue entry, or its provider's builds give different key types")
+    return found
 
 
 def expression(parameter, scope, side="after"):

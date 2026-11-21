@@ -14,4 +14,5 @@ object Folders {
     const val CONTRACT_DOCUMENTS = "documents"
     const val CONTRACT_YAML_CODEC = "yaml-codec"
     const val CONTRACT_RUNNER = "runner"
+    const val CONTRACT_CATALOGUE = "catalogue"
 }

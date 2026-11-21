@@ -55,3 +55,12 @@ def test_a_function_of_every_new_kind_is_generated_and_a_failing_input_stays_in_
     assert 'ScopeCatalog.guarded("aaaaaaaaaaaa") { saaaaaaaaaaaa() }' in catalog
     assert 'ScopeKeys.pair("Cipher", "RSA", "B", 2048, "A").private' in catalog
     assert "ScopeInputs.file(64, 7)" in catalog and 'ScopeKeys.pair("Cipher", "RSA", "B", 2048, "B").private' in catalog
+
+
+def test_a_secret_key_takes_its_entrys_key_type_as_the_options_provider_builds_give_it():
+    def key(option):
+        return expression("SecretKey", SimpleNamespace(key_size=128, input_size=64, input_source="run", current=None, option=option))
+    assert key("Cipher|AES/GCM/NoPadding|BC") == 'ScopeInputs.secretKey("AES", 128, 8)'
+    assert key("Cipher|PBEWithHmacSHA256AndAES_128|AndroidOpenSSL") == 'ScopeInputs.secretKey("AES", 128, 8)'
+    with pytest.raises(scope_inputs.InputError, match="no_key_algorithm"):
+        key("Cipher|NoSuchCipher/X/Y|BC")

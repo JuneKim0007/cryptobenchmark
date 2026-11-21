@@ -5,7 +5,8 @@ from cryptobench.shared.stats import descriptive
 from chart_input import UNIDENTIFIED
 
 AUDIT_TOLERANCE = 1e-9         # relative; descriptive.py equals Jetpack's to ~1e-12 on real device data, so more than this is a real disagreement
-PAYLOAD_GROUPS = {1, 4, 5}      # symmetric-cipher, hash, mac: cost scales with the input, so throughput means something
+SYMMETRIC_CIPHER, ASYMMETRIC_CIPHER = 1, 2     # ChartGroup ids in :preparation: a cipher's group is its prepared key's kind
+PAYLOAD_GROUPS = {SYMMETRIC_CIPHER, 4, 5}      # symmetric-cipher, hash, mac: cost scales with the input, so throughput means something
 
 
 def runs_of(case):

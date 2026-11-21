@@ -5,6 +5,8 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+from cryptobench.shared.catalogue.key_types import key_type, same_key_type
+
 from ...dto.lifecycle import Requirement
 from ...dto.site import Scope
 from ...dto.unit import PRODUCER_CONSUMER, Link
@@ -24,7 +26,9 @@ def _family_fits(producer: Scope, consumer: Scope) -> bool:
     """Only the parameter rule needs it: nothing else ties the two; an unknown name cannot rule the pair out."""
     if producer.algorithm is None or consumer.algorithm is None:
         return True
-    return consumer.algorithm.split("/")[0].upper() == producer.algorithm.upper()
+    made = key_type(producer.engineType, producer.algorithm, producer.provider)
+    taken = key_type(consumer.engineType, consumer.algorithm, consumer.provider)
+    return made is None or taken is None or same_key_type(made, taken)
 
 
 @dataclass(frozen=True)

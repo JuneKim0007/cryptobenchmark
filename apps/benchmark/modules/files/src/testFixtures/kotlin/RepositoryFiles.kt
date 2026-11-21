@@ -11,6 +11,7 @@ object RepositoryFiles {
     val documents = File(contracts, Folders.CONTRACT_DOCUMENTS)
     val yamlCodec = File(contracts, Folders.CONTRACT_YAML_CODEC)
     val runner = File(contracts, Folders.CONTRACT_RUNNER)
+    val catalogue = File(contracts, Folders.CONTRACT_CATALOGUE)
     val benchmarkConfig = File(root, "${Folders.CONFIG}/${Folders.BENCHMARK_CONFIG}")
     val defaults = File(root, "lib/cryptobench/cryptobench/shared/settings/defaults.yaml")
 

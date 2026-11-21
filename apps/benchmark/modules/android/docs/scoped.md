@@ -53,7 +53,7 @@ python3 apps/benchmark-runner/pipeline.py --device --harness <harness.yaml>
 | `signature_changed` | before and after differ in name, parameters or return type |
 | `unsupported_parameter: <name>: <type>` | a parameter outside the input table, `Context` included |
 | `missing_input: inputSize` or `keySize`, `none from <app\|run>` | the input the parameter needs is null in `harness.yaml` |
-| `no_key_algorithm` | a key parameter and an `option` not in `Type\|name\|provider` form |
+| `no_key_algorithm` | a key parameter and an `option` not in `Type\|name\|provider` form, with no catalogue entry, or whose provider's builds give different key types |
 | `unsatisfied_dependencies` with `identifiers` | a dependency not imported, not language-provided, not stubbed |
 | `compile_error` with `compilerErrors` | Gradle rejects the scope compiled alone |
 
@@ -68,7 +68,7 @@ Each side builds its own inputs (`b`/`a`-prefixed values in `GeneratedScopes`): 
 | `byte[]`, `ByteArray` | `inputSize` random bytes, seed 7 |
 | `String`, `CharSequence` | `inputSize` alphanumeric characters, seed 7 |
 | `char[]`, `CharArray` | same characters as an array |
-| `SecretKey`, `Key`, `SecretKeySpec` | `SecretKeySpec` of `keySize / 8` random bytes, seed 8; algorithm = the option's name up to `/` |
+| `SecretKey`, `Key`, `SecretKeySpec` | `SecretKeySpec` of `keySize / 8` random bytes, seed 8; algorithm = the `key.type` of the option's catalogue entry, the one every build of its provider gives |
 | `PrivateKey`, `PublicKey`, `KeyPair` | `ScopeKeys`: the key planner's pair for the option's item at `keySize`, generated once per run and kept in `scope-keys/` on the device, every process has the same bytes, each side decodes them through its own provider: before `current`'s, after `option`'s (another provider's key class is converted at every init); a key that cannot be built is that scope's `call_failed` |
 | `File` | a new temp file of `inputSize` random bytes, seed 7, per call |
 | `boolean`, `byte`, `short`, `int`, `long`, `float`, `double`, `char`, in Java or Kotlin spelling | one fixed value: `true`, `1`, `1L`, `1f`, `1.0`, `'a'`; a function that fails on it is `call_failed` |

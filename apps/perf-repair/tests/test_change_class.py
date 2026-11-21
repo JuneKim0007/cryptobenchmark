@@ -59,6 +59,11 @@ def test_a_key_type_change_is_a_migration():
     assert (c.change, c.diff.key) == ("migration", "type")
 
 
+def test_two_spellings_of_one_key_type_are_no_key_change():
+    a, b = row("MAC-A", "tag", auth=True, key="HmacSHA256"), row("MAC-B", "tag", auth=True, key="HMAC")
+    assert classify(TYPES, scope(("local",)), a, cand(b), 21).diff.key == "same"
+
+
 def test_a_key_size_change_is_local_only_for_a_key_made_in_the_function():
     a = row("C-A", "ciphertext", det=False, nonce="unpredictable", params="iv", key="K", strength=Strength(key="blockKey"))
     b = replace(a, canonical="C-B", strength=Strength(bits=256))

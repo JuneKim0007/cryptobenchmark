@@ -7,6 +7,7 @@ from ..catalog.types import Types
 from ..dto.change import (FIELD_BOUND, LOCAL_EDIT, MIGRATION, REACH_REVIEW, REJECTED, SAME, Change, PairDiff,
                           output_changes)
 from ..dto.site import Scope
+from cryptobench.shared.catalogue.key_types import same_key_type
 from cryptobench.shared.catalogue.types import NO_NONCE, NO_PARAMETERS, TypeRow
 
 FIELD_BINDING = "field"
@@ -61,7 +62,7 @@ def _input(scope: Scope, current: TypeRow, candidate: TypeRow) -> str:
 
 
 def _key(current: TypeRow, candidate: TypeRow) -> str:
-    if current.properties.keyType != candidate.properties.keyType:
+    if not same_key_type(current.properties.keyType, candidate.properties.keyType):
         return "type"
     return "size" if current.strength.key != candidate.strength.key else SAME
 

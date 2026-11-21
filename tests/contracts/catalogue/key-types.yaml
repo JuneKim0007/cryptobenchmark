@@ -1,0 +1,13 @@
+# An entry's key.type as both languages read it. Kotlin takes the entry as the provider's build on the platform sees it;
+# Python takes the key type every build of the provider gives (no platform at scope generation): a row holds where the two agree.
+schemaVersion: 1
+cases:
+- {type: Cipher, name: AES/GCM/NoPadding, provider: SunJCE, platform: jdk-25, keyType: AES}
+- {type: Cipher, name: aes/gcm/nopadding, provider: BundledBC, platform: jdk-25, keyType: AES}
+- {type: Cipher, name: PBEWithHmacSHA256AndAES_128, provider: AndroidOpenSSL, platform: android-33, keyType: AES}
+- {type: Cipher, name: PBEWithHmacSHA256AndAES_128, provider: SunJCE, platform: jdk-25, keyType: PBEWithHmacSHA256AndAES_128}
+- {type: Cipher, name: ChaCha20-Poly1305, provider: SunJCE, platform: jdk-25, keyType: ChaCha20}
+- {type: Mac, name: HmacSHA256, provider: SunJCE, platform: jdk-25, keyType: HMAC}
+- {type: Signature, name: SHA256withECDSA, provider: BundledBC, platform: jdk-25, keyType: EC}
+- {type: KeyPairGenerator, name: ML-DSA, provider: SUN, platform: jdk-25, keyType: ML-DSA-65}
+- {type: KeyPairGenerator, name: ML-DSA, provider: Unmeasured, platform: jdk-25, keyType: ML-DSA-87}

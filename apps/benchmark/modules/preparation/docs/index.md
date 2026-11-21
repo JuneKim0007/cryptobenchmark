@@ -118,6 +118,7 @@ apps/benchmark/modules/preparation/src/test/kotlin/InteropOracleTest.kt : intero
 apps/benchmark/modules/preparation/src/test/kotlin/InvocationTest.kt : invocation repeatability, IV reuse, both variants, fresh IV under fixed
 apps/benchmark/modules/preparation/src/test/kotlin/KeyMaterialGeneratorTest.kt : key generation tests
 apps/benchmark/modules/preparation/src/test/kotlin/KeyPlannerTest.kt : key recipe planning tests
+apps/benchmark/modules/preparation/src/test/kotlin/KeyTypeContractTest.kt : tests/contracts/catalogue/key-types.yaml: an entry's key.type per build, as Python reads it
 apps/benchmark/modules/preparation/src/test/kotlin/KeyUseTest.kt : a key use from a small catalogue: order, folded key type, both providers, the operation from the entry's words
 apps/benchmark/modules/preparation/src/test/kotlin/OperationContractTest.kt : per-operation consumption contract tests
 apps/benchmark/modules/preparation/src/test/kotlin/OperationInputTest.kt : per-operation input tests

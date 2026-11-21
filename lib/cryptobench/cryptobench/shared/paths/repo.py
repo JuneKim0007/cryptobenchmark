@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from . import roots
-from .names import (BENCHMARK_CONFIG, CONFIG_FOLDER, CONTRACT_DOCUMENTS, CONTRACT_RUNNER, CONTRACT_YAML_CODEC, CONTRACTS, ENGINE_OPERATIONS,
+from .names import (BENCHMARK_CONFIG, CONFIG_FOLDER, CONTRACT_CATALOGUE, CONTRACT_DOCUMENTS, CONTRACT_RUNNER, CONTRACT_YAML_CODEC, CONTRACTS, ENGINE_OPERATIONS,
                     EXAMPLE, FACADE_CONFIG, GLOBAL, PERF_REPAIR_CONFIG, SETUP_CATALOG, TESTS)
 
 _KOTLIN_NAME_USERS = ("modules/environment/discovery/src/main/kotlin", "modules/catalogue/src/main/kotlin", "modules/config/src/main/kotlin",
@@ -58,6 +58,7 @@ class Repo:
     contract_documents = property(lambda self: self.contracts / CONTRACT_DOCUMENTS)
     contract_yaml_codec = property(lambda self: self.contracts / CONTRACT_YAML_CODEC)
     contract_runner = property(lambda self: self.contracts / CONTRACT_RUNNER)
+    contract_catalogue = property(lambda self: self.contracts / CONTRACT_CATALOGUE)
 
     def module_example(self, module: str, name: str) -> Path:
         return self.gradle_root / "modules" / module / EXAMPLE / name
