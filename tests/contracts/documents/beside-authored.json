@@ -1,0 +1,7 @@
+{"settingsFile": "/a/b/global.yaml",
+ "cases": [
+  {"value": "sets/a.yaml", "path": "/a/b/sets/a.yaml"},
+  {"value": "../sets/a.yaml", "path": "/a/b/../sets/a.yaml"},
+  {"value": "~/sets/a.yaml", "path": "/a/b/~/sets/a.yaml"},
+  {"value": "/c/set.yaml", "path": "/c/set.yaml"}
+ ]}

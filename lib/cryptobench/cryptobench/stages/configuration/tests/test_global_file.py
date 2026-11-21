@@ -33,7 +33,7 @@ def test_the_argument_comes_before_the_environment_which_comes_before_the_defaul
     assert stopped.value.code == 1
 
 
-def test_a_composition_is_refused_since_the_raw_readers_would_miss_its_layers(tmp_path):
+def test_a_composition_is_refused_since_the_authored_reader_merges_no_layers(tmp_path):
     composition = tmp_path / "energy.yaml"
     composition.write_text("schemaVersion: 1\nlayers: [base.yaml]\n")
     with pytest.raises(global_file.CommandError, match="^not_supported: .*energy.yaml lists layers; the pipeline reads a single global.yaml$"):

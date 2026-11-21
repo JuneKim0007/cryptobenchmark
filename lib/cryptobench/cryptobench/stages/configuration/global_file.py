@@ -20,8 +20,8 @@ def global_config(argument):
 
 
 def single(path):
-    """The run inputs digest, bundled providers, known vectors and dependency check read the authored file raw, so a composition is refused."""
-    from cryptobench.shared.document.document import read_yaml  # dependencies.py imports this module before it checks yaml
-    if "layers" in (read_yaml(path) or {}):
+    """authored.read, which every Python reader of the authored file calls, merges no layers, so a composition is refused."""
+    from cryptobench.shared.settings import authored  # dependencies.py imports this module before it checks yaml
+    if "layers" in authored.read(path).document:
         raise CommandError(f"not_supported: {path} lists layers; the pipeline reads a single global.yaml")
     return path

@@ -77,6 +77,7 @@ apps/benchmark/modules/config/src/main/kotlin/yaml/YamlFile.kt : stamped schemaV
 apps/benchmark/modules/config/src/main/kotlin/yaml/YamlFiles.kt : factory for YamlFile and ReadOnlyYamlFile
 apps/benchmark/modules/config/src/test/kotlin/AlgorithmNamesTest.kt : document's AlgorithmNames: the cases shared with perf-repair, every catalogued spelling, key types, linkage refusals, inventory duplicates, rule names
 apps/benchmark/modules/config/src/test/kotlin/AuthoredFilesTest.kt : a typo key or a bad providers.bundled stops the parse-only read
+apps/benchmark/modules/config/src/test/kotlin/BesideAuthoredParityTest.kt : tests/contracts/documents/beside-authored.json: Beside.authored gives each stated test-set path, as Python's paths.beside does
 apps/benchmark/modules/config/src/test/kotlin/CommittedConfigTest.kt : committed config/ files parse
 apps/benchmark/modules/config/src/test/kotlin/ConfigurationTest.kt : facade tests
 apps/benchmark/modules/config/src/test/kotlin/ContractsTest.kt : config's global and effective examples, tests/contracts/ facts and scalars read to their .json values; algorithm-names.yaml resolves as Python resolves it; the duplicate-key refusal and exponent read

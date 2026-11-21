@@ -79,20 +79,16 @@ if not any(folder.samefile(_library) for folder in _loaded().parents if _library
     fail(_outside_checkout(_library))
 
 from cryptobench.shared.errors.failures import CommandError  # noqa: E402
+from cryptobench.shared.settings import authored  # noqa: E402
 from cryptobench.shared.settings.energy_capture import capture, source  # noqa: E402
 from cryptobench.stages.configuration.global_file import global_config  # noqa: E402
-
-
-def _run_of(configuration):
-    import yaml
-    return (yaml.safe_load(pathlib.Path(configuration).read_text()) or {}).get("run")
 
 
 def check(options, configuration):
     """Only what this run reaches: analysis on a plain timed run, the energy source's module when the config captures."""
     if options.probe or options.identify or options.interop or not (options.bench or options.device):
         return
-    run = _run_of(configuration)
+    run = authored.read(configuration).document.get("run")
     captured = capture(run)
     if not options.harness and captured != "dry":
         require(ANALYSIS)

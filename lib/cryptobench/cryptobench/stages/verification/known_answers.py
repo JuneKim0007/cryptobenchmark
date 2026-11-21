@@ -3,6 +3,7 @@
 from cryptobench.shared.log.warn import warn
 from cryptobench.shared import paths
 from cryptobench.shared.catalogue import vectors
+from cryptobench.shared.settings import authored
 from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.device.capture import platform
 from cryptobench.shared.document.dump import dump_yaml
@@ -10,8 +11,7 @@ from cryptobench.shared.document.dump import dump_yaml
 
 def user_vectors(configuration):
     """selection.knownVectors of global.yaml, against that file; a test set's vectors are read only by --check."""
-    named = (read_yaml(configuration).get("selection") or {}).get("knownVectors")
-    return paths.against(configuration, named) if named else None
+    return authored.read(configuration).known_vectors
 
 
 def write_known_answers(effective, capture, configuration):

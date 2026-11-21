@@ -95,7 +95,7 @@ cryptobench/shared/paths/repo.py : Repo and repo(root): one checkout's named loc
 cryptobench/shared/paths/results.py : Results(root): the finished device folders of a results root, a session's folder; finished, a manifest without partial:
 cryptobench/shared/paths/roots.py : code_root (this checkout), benchmark_root (the checkout a run measures), each with its environment variable
 cryptobench/shared/paths/run_tree.py : RunTree: every file of one results folder; its sections Configuration, Discovery, Preparation, Measurement, Analysis, Charts, CheckFolder, InteropFolder, Scoped, Logs, Review; AppTree, GroupingTree
-cryptobench/shared/paths/settings.py : against(settings_file, value), the one rule for a path a settings file names; in_temp
+cryptobench/shared/paths/settings.py : against(settings_file, value), the rule for a path a Python-read settings key names; beside, Kotlin Beside.authored for the authored test set; in_temp
 cryptobench/shared/results/__init__.py : package of a run's results folder, importing no app
 cryptobench/shared/results/identity.py : a measuring run's identity (effective run block, selection digest, timed and runner code digests, capture runtime with facts.yaml's build, order, suppressed errors) and the dotted fields two identities differ in
 cryptobench/shared/results/layout.py : the --discovery modes; results/<device_id>/[<suite>/]: unit_folder, staging, publishing into the device folder after the earlier unit, but for the paths a resumed run keeps, moves to superseded/<stamp>/, the temporary-folder warning
@@ -112,7 +112,8 @@ cryptobench/shared/session/document.py : Session; session.yaml read and checked 
 cryptobench/shared/session/targets.py : TargetSpec, Resolved; resolve: each target found by key, alias or serial, its order, config, suites and the session's discovery mode checked, a coded skip per bad target, the host after the last phone group; groups; nothing_to_measure
 cryptobench/shared/session/tests/ : pytest tests of session.yaml and target resolution, one per fallback row
 cryptobench/shared/settings/__init__.py : package of the run's settings readers the stages share
-cryptobench/shared/settings/bundled.py : providers.bundled of global.yaml: the digest's raw read, build property of the app or host CLI, DeviceProbe argument, effective record and check
+cryptobench/shared/settings/authored.py : read, the one Python reader of the authored global.yaml: its document, providers.bundled, selection.knownVectors against it, selection.testSet beside it by paths.beside
+cryptobench/shared/settings/bundled.py : providers.bundled of global.yaml: its entries checked for authored.read, build property of the app or host CLI, DeviceProbe argument, effective record and check
 cryptobench/shared/settings/defaults.py : defaults.yaml read through importlib.resources, by dotted path: the value :config writes for a key a config leaves out
 cryptobench/shared/settings/defaults.yaml : package data written by :config DefaultsDocument (DefaultsFileTest pins it): run and analysis defaults, the energy capture and source a node without them gets
 cryptobench/shared/settings/effective_view.py : the KEY table of effective.yaml (path, read rule, honoured on --bench); RunView, GateView, AnalysisView, EnergyView; the keys a host run ignores; effective.yaml with the warnings and skips of report.yaml

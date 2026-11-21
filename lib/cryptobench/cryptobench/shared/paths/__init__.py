@@ -10,4 +10,4 @@ from .results import Results, finished
 from .roots import BENCHMARK_ROOT_ENV, CODE_ROOT_ENV, PIPELINE, benchmark_root, checkout_of, code_root
 from .run_tree import (Analysis, AppTree, Charts, CheckFolder, Configuration, Discovery, GroupingTree, InteropFolder, Logs, Measurement, Preparation,
                        Review, RunTree, Scoped, app_dir)
-from .settings import against, in_temp
+from .settings import against, beside, in_temp

@@ -2,7 +2,7 @@
 import copy, hashlib, json
 
 
-from cryptobench.shared.settings import bundled
+from cryptobench.shared.settings import authored
 from cryptobench.shared.errors.failures import CommandError
 from cryptobench.shared.document.document import read_yaml
 
@@ -14,12 +14,12 @@ def digest(value):
 def digests(global_file):
     """Parsed, not raw: a comment or a reordered key reruns nothing; the bundled list is its own input; analysis only
     shows results (charts, units), so changing it reruns no measurement."""
-    document = copy.deepcopy(read_yaml(global_file))
+    given = authored.read(global_file)
+    document = copy.deepcopy(given.document)
     document.pop("analysis", None)
-    shipped = bundled.read(global_file)
+    shipped = given.bundled
     (document.get("providers") or {}).pop("bundled", None)
-    test_set = (document.get("selection") or {}).get("testSet")
-    path = global_file.parent / test_set if test_set else None
+    path = given.test_set
     if path and not path.is_file():
         raise CommandError(f"missing_file: {path} (selection.testSet)")
     selected = read_yaml(path) if path else None

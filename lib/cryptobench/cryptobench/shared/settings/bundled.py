@@ -1,4 +1,4 @@
-"""providers.bundled of global.yaml: the digest's raw read, the build property of the app or the host CLI, the DeviceProbe argument, effective.yaml's record and the check against it."""
+"""providers.bundled of global.yaml: its entries checked for authored.read, the build property of the app or the host CLI, the DeviceProbe argument, effective.yaml's record and the check against it."""
 import json, shlex
 from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.errors.coded import Coded
@@ -11,8 +11,7 @@ class BundledError(Coded):
     pass
 
 
-def read(global_file):
-    document = read_yaml(global_file)
+def entries(document, global_file):
     providers = document.get("providers") or {}
     if not isinstance(providers, dict):
         raise BundledError(f"wrong_type: providers in {global_file}")

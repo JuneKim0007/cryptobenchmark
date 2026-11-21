@@ -4,7 +4,7 @@ import shlex
 import tempfile
 import unittest
 
-from cryptobench.shared.settings import bundled  # noqa: E402
+from cryptobench.shared.settings import authored, bundled  # noqa: E402
 
 CONSCRYPT = {"artifact": "org.conscrypt:conscrypt-android:2.5.3", "create": "org.conscrypt.Conscrypt#newProvider"}
 
@@ -17,7 +17,7 @@ class Bundled(unittest.TestCase):
 
     def write(self, text):
         self.global_file.write_text("schemaVersion: 1\nselection: {testSet: a.yaml}\n" + text)
-        return bundled.read(self.global_file)
+        return authored.read(self.global_file).bundled
 
     def test_no_providers_section_builds_and_passes_nothing(self):
         shipped = self.write("")
