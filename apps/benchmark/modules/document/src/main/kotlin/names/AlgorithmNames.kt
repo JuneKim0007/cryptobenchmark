@@ -1,8 +1,9 @@
 package io.github.junekim0007.cryptobench.document.names
 
-import io.github.junekim0007.cryptobench.document.SchemaVersion
-import io.github.junekim0007.cryptobench.document.YamlCodec
+import io.github.junekim0007.cryptobench.document.versioned.DocumentReader
+import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import io.github.junekim0007.cryptobench.document.names.dto.Canonical
+import java.io.File
 import java.util.Locale
 
 class AlgorithmNames private constructor(
@@ -62,23 +63,26 @@ class AlgorithmNames private constructor(
         return Canonical("${base.name}/$mode/$padding", base.keySize)
     }
 
-    companion object {
+    companion object : DocumentReader<AlgorithmNames> {
 
         const val FILE = "algorithm-names.yaml"
         private const val SCHEMA_VERSION = 1
         private const val OID_PREFIX = "OID."
 
+        override val schemaVersion: Int = SCHEMA_VERSION
+
         val catalog: AlgorithmNames by lazy {
             val text = AlgorithmNames::class.java.getResource(FILE)?.readText()
                 ?: throw IllegalStateException("names_catalog_missing: $FILE is not beside ${AlgorithmNames::class.java.name}")
-            parse(YamlCodec.DOCUMENT.load(text))
+            read(text)
         }
 
         fun fold(value: String): String = value.uppercase(Locale.ROOT)
 
+        fun read(text: String): AlgorithmNames = YamlFiles().readOnly(File(FILE), this).read(text)
+
         @Suppress("UNCHECKED_CAST")
-        fun parse(document: Map<String, Any>): AlgorithmNames {
-            SchemaVersion.require(document, SCHEMA_VERSION, FILE)
+        override fun parse(document: Map<String, Any>): AlgorithmNames {
             val names = (document["names"] as Map<String, Map<String, List<String>?>>).mapValues { (_, spellings) -> folded(spellings) }
             val sized = (document["sized"] as Map<String, Map<String, Map<String, Any>>>? ?: emptyMap()).mapValues { (_, rows) ->
                 rows.entries.associate { (spelling, row) -> fold(spelling) to Canonical(row["name"] as String, row["keySize"] as Int) }

@@ -3,6 +3,8 @@ package io.github.junekim0007.cryptobench.config.layers
 import io.github.junekim0007.cryptobench.document.SchemaVersion
 import io.github.junekim0007.cryptobench.config.global.GlobalDocument
 import io.github.junekim0007.cryptobench.document.YamlCodec
+import io.github.junekim0007.cryptobench.document.versioned.MapDocument
+import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import io.github.junekim0007.cryptobench.files.Beside
 import org.yaml.snakeyaml.error.YAMLException
 import java.io.File
@@ -27,8 +29,7 @@ object LayerStack {
     }
 
     fun read(file: File): Merged {
-        val own = load(file, file.name)
-        SchemaVersion.require(own, GlobalDocument.schemaVersion, file.name)
+        val own = YamlFiles().readOnly(file, MapDocument(GlobalDocument.schemaVersion)).read()
         val listed = own[LAYERS] ?: return merged(listOf(Layer(file.name, sha256(file)) to own - SCHEMA_VERSION))
         val names = (listed as? List<*>)?.map { it as? String ?: throw IllegalArgumentException("wrong_type: ${file.name}: $LAYERS, expected a list of paths") }
             ?: throw IllegalArgumentException("wrong_type: ${file.name}: $LAYERS, expected a list of paths")
@@ -71,6 +72,7 @@ object LayerStack {
     private fun leaves(value: Any, path: String): List<String> =
         if (value is Map<*, *> && value.isNotEmpty()) value.entries.flatMap { (key, inner) -> leaves(inner ?: "", "$path.$key") } else listOf(path)
 
+    // a layer's schemaVersion is optional and its refusals name its path as listed, so it skips VersionedFile
     private fun load(file: File, name: String): Map<String, Any> = try {
         YamlCodec.DOCUMENT.load(file.readText())
     } catch (failure: YAMLException) {

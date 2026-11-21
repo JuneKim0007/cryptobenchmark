@@ -1,8 +1,10 @@
 package io.github.junekim0007.cryptobench.benchmark.check
 
-import io.github.junekim0007.cryptobench.document.SchemaVersion
-import io.github.junekim0007.cryptobench.benchmark.report.CaseDocument
+import io.github.junekim0007.cryptobench.document.YamlCodec
+import io.github.junekim0007.cryptobench.document.versioned.MapDocument
+import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import io.github.junekim0007.cryptobench.files.FileNames
+import java.io.File
 
 // Rails reporting equal energy for idle and busy windows measure nothing (an emulator HAL counts polls).
 data class EnergyCapability(
@@ -24,9 +26,10 @@ data class EnergyCapability(
 
     companion object {
 
+        private const val SCHEMA_VERSION = 3
+
         fun parse(text: String): EnergyCapability {
-            val document = CaseDocument.load(text)
-            SchemaVersion.require(document, 3, FileNames.ENERGY_CAPABILITY)
+            val document = YamlFiles(YamlCodec.RESULTS).readOnly(File(FileNames.ENERGY_CAPABILITY), MapDocument(SCHEMA_VERSION)).read(text)
             fun flag(key: String) = document[key] as? Boolean ?: throw IllegalArgumentException("missing_field: ${FileNames.ENERGY_CAPABILITY} $key")
             fun number(key: String) = (document[key] as? Number)?.toDouble() ?: throw IllegalArgumentException("missing_field: ${FileNames.ENERGY_CAPABILITY} $key")
             return EnergyCapability(flag("railsPresent"), flag("railsResponsive"), number("idleMicrojoules"),

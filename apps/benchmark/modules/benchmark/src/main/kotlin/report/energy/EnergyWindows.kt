@@ -1,7 +1,10 @@
 package io.github.junekim0007.cryptobench.benchmark.report.energy
 
-import io.github.junekim0007.cryptobench.document.SchemaVersion
+import io.github.junekim0007.cryptobench.document.YamlCodec
+import io.github.junekim0007.cryptobench.document.versioned.MapDocument
+import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import io.github.junekim0007.cryptobench.benchmark.report.CaseDocument
+import java.io.File
 import io.github.junekim0007.cryptobench.benchmark.report.MetricSamples
 import io.github.junekim0007.cryptobench.files.FileNames
 
@@ -12,8 +15,7 @@ object EnergyWindows {
     class Read(val samples: Map<String, MetricSamples>, val notJoined: Map<String, List<String>>)
 
     fun read(energyText: String): Read {
-        val document = CaseDocument.load(energyText)
-        SchemaVersion.require(document, SCHEMA_VERSION, FileNames.ENERGY_JSON)
+        val document = YamlFiles(YamlCodec.RESULTS).readOnly(File(FileNames.ENERGY_JSON), MapDocument(SCHEMA_VERSION)).read(energyText)
         val source = document["source"]?.toString() ?: throw IllegalArgumentException("missing_field: ${FileNames.ENERGY_JSON} source")
         val kind = document["kind"]?.toString() ?: throw IllegalArgumentException("missing_field: ${FileNames.ENERGY_JSON} kind")
         val baseline = document["idleBaseline"]?.toString()

@@ -31,7 +31,7 @@ class SchemaRefusalsTest {
         val wrong = mapOf<String, Any>("schemaVersion" to 99)
         val file = folder.newFile("probe_x.yaml").apply { writeText("schemaVersion: 99\n") }
         val table = linkedMapOf(
-            "document AlgorithmNames" to refusal { AlgorithmNames.parse(wrong) },
+            "document AlgorithmNames" to refusal { AlgorithmNames.read("schemaVersion: 99\n") },
             "config VersionedFile" to refusal { YamlFiles().readOnly(file, CaptureSource).read() },
             "preparation MapDocument" to refusal { YamlFiles().readOnly(File("skipped.yaml"), MapDocument(1)).read("schemaVersion: 99\n") },
             "discovery CaptureDocument" to refusal { CaptureDocument.parse(wrong) },

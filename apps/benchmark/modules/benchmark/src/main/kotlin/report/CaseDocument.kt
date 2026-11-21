@@ -1,12 +1,10 @@
 package io.github.junekim0007.cryptobench.benchmark.report
 
-import org.yaml.snakeyaml.LoaderOptions
-import org.yaml.snakeyaml.Yaml
-import org.yaml.snakeyaml.constructor.SafeConstructor
+import io.github.junekim0007.cryptobench.document.YamlCodec
 
 internal object CaseDocument {
 
-    fun load(text: String): Map<String, Any> = section(Yaml(SafeConstructor(LoaderOptions())).load<Any?>(text))
+    fun load(text: String): Map<String, Any> = YamlCodec.RESULTS.load(text)
 
     @Suppress("UNCHECKED_CAST")
     fun section(value: Any?): Map<String, Any> =

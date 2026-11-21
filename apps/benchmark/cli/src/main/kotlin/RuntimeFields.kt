@@ -1,9 +1,9 @@
 import io.github.junekim0007.cryptobench.discovery.adapter.DeviceRuntimeReader
-import org.yaml.snakeyaml.Yaml
+import io.github.junekim0007.cryptobench.document.YamlCodec
 
 fun main(arguments: Array<String>) = command(arguments, "runtimefields (no arguments)", { it.all(String::isBlank) }) {
     val runtime = DeviceRuntimeReader.read()
-    println(Yaml().dump(linkedMapOf(
+    println(YamlCodec.DOCUMENT.dump(linkedMapOf(
         "sdkInt" to runtime.sdkInt,
         "osName" to runtime.osName,
         "osArch" to runtime.osArch,

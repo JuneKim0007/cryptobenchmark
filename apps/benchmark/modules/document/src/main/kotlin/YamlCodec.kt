@@ -10,7 +10,7 @@ import org.yaml.snakeyaml.representer.Representer
 /** The one SnakeYAML setup, by profile; a profile's bytes and load failures are part of what its files promise. */
 enum class YamlCodec {
 
-    // config and preparation: flow style AUTO, aliases dereferenced, safe constructor, duplicate keys and non-mappings refused
+    // config, preparation and benchmark's YAML files: flow style AUTO, aliases dereferenced, safe constructor, duplicate keys and non-mappings refused
     DOCUMENT {
         override fun yaml(): Yaml {
             val dumperOptions = DumperOptions().apply {
@@ -37,6 +37,15 @@ enum class YamlCodec {
         // unchecked: an empty document throws NullPointerException, a list ClassCastException
         @Suppress("UNCHECKED_CAST")
         override fun mapping(loaded: Any?): Map<String, Any> = loaded as Map<String, Any>
+    },
+
+    // benchmark's result inputs (androidx JSON, energy, passes): safe constructor, duplicate keys last-wins; read only
+    RESULTS {
+        override fun yaml(): Yaml = Yaml(SafeConstructor(LoaderOptions()))
+
+        @Suppress("UNCHECKED_CAST")
+        override fun mapping(loaded: Any?): Map<String, Any> =
+            loaded as? Map<String, Any> ?: throw IllegalArgumentException("not_a_mapping: $loaded")
     };
 
     fun dump(document: Any): String = yaml().dump(document)

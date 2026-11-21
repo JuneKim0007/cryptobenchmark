@@ -150,7 +150,7 @@ def test_thermal_json_keys():
 
 
 def capability_version():
-    return int(kotlin("benchmark/src/main/kotlin/check/EnergyCapability.kt", r'SchemaVersion\.require\(document, (\d+), '))
+    return number("benchmark/src/main/kotlin/check/EnergyCapability.kt", "SCHEMA_VERSION")
 
 
 def manafa_written_version():

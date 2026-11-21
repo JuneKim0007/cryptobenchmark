@@ -1,6 +1,5 @@
 package io.github.junekim0007.cryptobench.config
 
-import io.github.junekim0007.cryptobench.document.SchemaVersion
 import io.github.junekim0007.cryptobench.config.effective.EffectiveBuilder
 import io.github.junekim0007.cryptobench.config.effective.EffectiveDocument
 import io.github.junekim0007.cryptobench.config.effective.ReportDocument
@@ -12,7 +11,7 @@ import io.github.junekim0007.cryptobench.config.global.RunDocument
 import io.github.junekim0007.cryptobench.config.layers.Provenance
 import io.github.junekim0007.cryptobench.config.source.CaptureSource
 import io.github.junekim0007.cryptobench.config.source.TrialSource
-import io.github.junekim0007.cryptobench.document.YamlCodec
+import io.github.junekim0007.cryptobench.document.versioned.MapDocument
 import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import io.github.junekim0007.cryptobench.files.Beside
 import io.github.junekim0007.cryptobench.files.FileNames
@@ -64,8 +63,9 @@ class Configuration(
 
     private fun readFacts(file: File): Facts {
         require(file.isFile) { "missing_file: ${file.path} (--facts)" }
+        val document = files.readOnly(file, MapDocument(Facts.SCHEMA_VERSION)).read()
         return try {
-            Facts.read(YamlCodec.DOCUMENT.load(file.readText()).also { SchemaVersion.require(it, Facts.SCHEMA_VERSION, file.name) })
+            Facts.read(document)
         } catch (malformed: RuntimeException) {
             if (malformed is IllegalArgumentException) throw malformed
             throw IllegalArgumentException("unreadable_yaml: ${file.path}: ${malformed.message}", malformed)
