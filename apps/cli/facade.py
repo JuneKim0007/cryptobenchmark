@@ -7,6 +7,7 @@ import facade  # noqa: F401  first: it names a missing library and puts the benc
 
 # isort: split
 import dependencies  # noqa: F401  next: it reports a missing PyYAML, which everything below needs
+from cryptobench.shared import paths
 from cryptobench.shared.device import timeouts
 from facade import tree
 from facade.check import check
@@ -34,7 +35,7 @@ def _report(checked):
 def main():
     stop_like_ctrl_c()
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--settings", required=True, metavar="FILE", help="the root settings index (settings.example.yaml)")
+    parser.add_argument("--settings", required=True, metavar="FILE", help=f"the root settings index ({paths.repo().facade_example.relative_to(paths.repo().root)})")
     parser.add_argument("--check", action="store_true",
                         help="resolve and verify the tree, then stop: no app build, no device, no model; the parsers of "
                              "global.yaml run on the JVM through the host tool, which Gradle compiles on first use")

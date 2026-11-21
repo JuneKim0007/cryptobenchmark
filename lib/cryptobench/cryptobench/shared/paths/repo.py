@@ -6,7 +6,7 @@ from pathlib import Path
 
 from . import roots
 from .names import (BENCHMARK_CONFIG, CONFIG_FOLDER, CONTRACT_DOCUMENTS, CONTRACT_RUNNER, CONTRACT_YAML_CODEC, CONTRACTS, ENGINE_OPERATIONS,
-                    EXAMPLE, GLOBAL, PERF_REPAIR_CONFIG, SETUP_CATALOG, TESTS)
+                    EXAMPLE, FACADE_CONFIG, GLOBAL, PERF_REPAIR_CONFIG, SETUP_CATALOG, TESTS)
 
 _KOTLIN_NAME_USERS = ("modules/environment/discovery/src/main/kotlin", "modules/config/src/main/kotlin", "modules/preparation/src/main/kotlin",
                       "modules/benchmark/src/main/kotlin", "modules/android/src/androidTest/kotlin", "cli/src/main/kotlin")
@@ -27,6 +27,7 @@ class Repo:
     config = property(lambda self: self.root / CONFIG_FOLDER)
     benchmark_config = property(lambda self: self.config / BENCHMARK_CONFIG)
     default_global = property(lambda self: self.benchmark_config / GLOBAL)
+    facade_example = property(lambda self: self.config / FACADE_CONFIG / "settings.example.yaml")
     default_results = property(lambda self: self.root / "results")
     runner = property(lambda self: self.root / roots.RUNNER)
     pipeline = property(lambda self: self.root / roots.PIPELINE)

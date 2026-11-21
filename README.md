@@ -15,10 +15,10 @@ pip install -r requirements.txt
 ## First run
 
 ```
-cp settings.example.yaml settings.yaml
+cp config/facade/settings.example.yaml config/facade/settings.yaml
 cp config/perf-repair/perfrepair.example.yaml config/perf-repair/perfrepair.yaml   # set apps.targets
-python3 apps/cli/facade.py --settings settings.yaml --check           # the resolved tree; no app build, device or model
-python3 apps/cli/facade.py --settings settings.yaml                   # benchmark, then guided repair
+python3 apps/cli/facade.py --settings config/facade/settings.yaml --check   # the resolved tree; no app build, device or model
+python3 apps/cli/facade.py --settings config/facade/settings.yaml           # benchmark, then guided repair
 ```
 
 | read | for |

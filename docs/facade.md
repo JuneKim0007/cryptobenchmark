@@ -4,7 +4,7 @@
 
 ## Settings index
 
-Template: `settings.example.yaml`. Relative paths resolve against the file holding them. A key not below is an error.
+Template: `config/facade/settings.example.yaml`, copied to `settings.yaml` beside it. Relative paths resolve against the file holding them. A key not below is an error.
 
 | key | holds |
 |---|---|
