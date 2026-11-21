@@ -6,15 +6,15 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from cryptobench.shared.paths import RunTree
-from cryptobench.shared.settings import defaults, energy_capture
+from cryptobench.shared.settings import authored, defaults, energy_capture
 from cryptobench.shared.log.event import LOG
 from ..dto.metrics import ENERGY, METRICS, Metric
 from ..dto.perf_mode import PerfMode
-from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.log.emit import emit
 from cryptobench.shared.stop.terminate import terminate
 from .selection import generated, relocated
 
+# :config's run.metrics for a config without one, from cryptobench/shared/settings/defaults.yaml
 DEFAULT_METRICS = tuple(defaults.at("run.metrics"))
 ALLOCATION_RUN = "ALLOCATION"
 ALLOCATION_PASS = "allocation"
@@ -79,7 +79,7 @@ def owned_config(base: Path, folder: Path, perf: PerfMode, on_device: bool) -> P
     """base when it already measures what perfMode needs, so its digest stays; else <folder>/metrics-global.yaml, which
     the device stage then treats as its base."""
     path = RunTree(folder).metrics_config
-    run = ((read_yaml(base) or {}).get("run") or {}) if Path(base).is_file() else {}
+    run = (authored.read(base).document.get("run") or {}) if Path(base).is_file() else {}
     owned = _owned_run(run, perf, harness_of(on_device))
     if not Path(base).is_file() or not (_metrics_changed(run, owned) or _beside_metrics_changed(run, owned)):
         path.unlink(missing_ok=True)
@@ -135,7 +135,7 @@ def check_measures(config: Path, perf: PerfMode, on_device: bool = False, requir
     harness = harness_of(on_device)
     required = perf.required if required is None else required
     _impossible(harness, perf, required)
-    doc = (read_yaml(config) or {}) if Path(config).is_file() else {}
+    doc = authored.read(config).document if Path(config).is_file() else {}
     on = switched_on(doc)
     _maybe_no_energy(config, harness, on, required)
     _overridden(config, doc, perf, harness)
