@@ -1,14 +1,13 @@
 package io.github.junekim0007.cryptobench.benchmark.verify.known
 
 import io.github.junekim0007.cryptobench.document.DocumentFields
-import io.github.junekim0007.cryptobench.files.FileNames
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
-import io.github.junekim0007.cryptobench.document.versioned.MapDocument
+import io.github.junekim0007.cryptobench.document.versioned.DocumentReader
 import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import java.io.File
 
 // Reads config/known-answers.yaml; {hex: ...} inside a parameter tree becomes bytes.
-object KnownAnswerFile {
+object KnownAnswerFile : DocumentReader<List<KnownAnswer>> {
 
     private val KEYS = listOf("id", "source", "type", "algorithm", "aliases", "operations", "key", "parameters", "input", "output", "compare", "provider", "origin", "unexpressible")
     private val SECRET_KEYS = listOf("algorithm", "secret")
@@ -17,9 +16,11 @@ object KnownAnswerFile {
     private const val PREFIX = "prefix"
     private const val SCHEMA_VERSION = 1
 
-    fun read(file: File): List<KnownAnswer> = parse(YamlFiles().readOnly(file, MapDocument(SCHEMA_VERSION)).read())
+    override val schemaVersion = SCHEMA_VERSION
 
-    fun parse(document: Map<String, Any>): List<KnownAnswer> =
+    fun read(file: File): List<KnownAnswer> = YamlFiles().readOnly(file, this).read()
+
+    override fun parse(document: Map<String, Any>): List<KnownAnswer> =
         DocumentFields.sections(document, "vectors").mapIndexed { index, vector ->
             val path = "vectors[$index]"
             DocumentFields.expectKeys(vector, KEYS, path)
@@ -36,7 +37,7 @@ object KnownAnswerFile {
                 DocumentFields.optionalString(vector, "unexpressible").ifEmpty { null },
             )
         }.also { vectors ->
-            require(vectors.map { it.id to it.provider + it.algorithms.first() }.toSet().size == vectors.size) { "duplicate_id: ${FileNames.KNOWN_ANSWERS} vector ids repeat" }
+            require(vectors.map { it.id to it.provider + it.algorithms.first() }.toSet().size == vectors.size) { "duplicate_id: vector ids repeat" }
         }
 
     private fun key(document: Map<String, Any>, path: String): KnownAnswer.RawKey {

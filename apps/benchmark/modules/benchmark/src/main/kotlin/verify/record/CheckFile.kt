@@ -1,6 +1,7 @@
 package io.github.junekim0007.cryptobench.benchmark.verify.record
 
 import io.github.junekim0007.cryptobench.document.DocumentFields
+import io.github.junekim0007.cryptobench.document.versioned.DocumentReader
 import io.github.junekim0007.cryptobench.document.versioned.MapDocument
 import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import java.io.File
@@ -16,7 +17,14 @@ object CheckFile {
         "cases" to records.map { it.toMap() },
     ))
 
-    fun cases(file: File): List<Map<String, Any>> = DocumentFields.sections(YamlFiles().readOnly(file, MapDocument(SCHEMA)).read(), "cases")
+    fun cases(file: File): List<Map<String, Any>> = YamlFiles().readOnly(file, Cases).read()
+
+    private object Cases : DocumentReader<List<Map<String, Any>>> {
+
+        override val schemaVersion = SCHEMA
+
+        override fun parse(document: Map<String, Any>): List<Map<String, Any>> = DocumentFields.sections(document, "cases")
+    }
 
     private fun summary(records: List<CaseRecord>): Map<String, Any> {
         val oracles = LinkedHashMap<String, MutableMap<String, Int>>()

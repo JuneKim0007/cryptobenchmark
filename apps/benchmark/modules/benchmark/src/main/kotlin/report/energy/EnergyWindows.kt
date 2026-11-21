@@ -1,23 +1,26 @@
 package io.github.junekim0007.cryptobench.benchmark.report.energy
 
 import io.github.junekim0007.cryptobench.document.YamlCodec
-import io.github.junekim0007.cryptobench.document.versioned.MapDocument
+import io.github.junekim0007.cryptobench.document.versioned.DocumentReader
 import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import io.github.junekim0007.cryptobench.benchmark.report.CaseDocument
 import java.io.File
 import io.github.junekim0007.cryptobench.benchmark.report.MetricSamples
 import io.github.junekim0007.cryptobench.files.FileNames
 
-object EnergyWindows {
+object EnergyWindows : DocumentReader<EnergyWindows.Read> {
 
     private const val SCHEMA_VERSION = 3
 
+    override val schemaVersion = SCHEMA_VERSION
+
     class Read(val samples: Map<String, MetricSamples>, val notJoined: Map<String, List<String>>)
 
-    fun read(energyText: String): Read {
-        val document = YamlFiles(YamlCodec.RESULTS).readOnly(File(FileNames.ENERGY_JSON), MapDocument(SCHEMA_VERSION)).read(energyText)
-        val source = document["source"]?.toString() ?: throw IllegalArgumentException("missing_field: ${FileNames.ENERGY_JSON} source")
-        val kind = document["kind"]?.toString() ?: throw IllegalArgumentException("missing_field: ${FileNames.ENERGY_JSON} kind")
+    fun read(energyText: String): Read = YamlFiles(YamlCodec.RESULTS).readOnly(File(FileNames.ENERGY_JSON), this).read(energyText)
+
+    override fun parse(document: Map<String, Any>): Read {
+        val source = document["source"]?.toString() ?: throw IllegalArgumentException("missing_field: source")
+        val kind = document["kind"]?.toString() ?: throw IllegalArgumentException("missing_field: kind")
         val baseline = document["idleBaseline"]?.toString()
         val samples = LinkedHashMap<String, MetricSamples>()
         val notJoined = LinkedHashMap<String, List<String>>()

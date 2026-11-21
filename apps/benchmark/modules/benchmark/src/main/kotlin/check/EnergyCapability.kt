@@ -1,7 +1,7 @@
 package io.github.junekim0007.cryptobench.benchmark.check
 
 import io.github.junekim0007.cryptobench.document.YamlCodec
-import io.github.junekim0007.cryptobench.document.versioned.MapDocument
+import io.github.junekim0007.cryptobench.document.versioned.DocumentReader
 import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import io.github.junekim0007.cryptobench.files.FileNames
 import java.io.File
@@ -24,14 +24,17 @@ data class EnergyCapability(
         else -> null
     }
 
-    companion object {
+    companion object : DocumentReader<EnergyCapability> {
 
         private const val SCHEMA_VERSION = 3
 
-        fun parse(text: String): EnergyCapability {
-            val document = YamlFiles(YamlCodec.RESULTS).readOnly(File(FileNames.ENERGY_CAPABILITY), MapDocument(SCHEMA_VERSION)).read(text)
-            fun flag(key: String) = document[key] as? Boolean ?: throw IllegalArgumentException("missing_field: ${FileNames.ENERGY_CAPABILITY} $key")
-            fun number(key: String) = (document[key] as? Number)?.toDouble() ?: throw IllegalArgumentException("missing_field: ${FileNames.ENERGY_CAPABILITY} $key")
+        override val schemaVersion = SCHEMA_VERSION
+
+        fun parse(text: String): EnergyCapability = YamlFiles(YamlCodec.RESULTS).readOnly(File(FileNames.ENERGY_CAPABILITY), this).read(text)
+
+        override fun parse(document: Map<String, Any>): EnergyCapability {
+            fun flag(key: String) = document[key] as? Boolean ?: throw IllegalArgumentException("missing_field: $key")
+            fun number(key: String) = (document[key] as? Number)?.toDouble() ?: throw IllegalArgumentException("missing_field: $key")
             return EnergyCapability(flag("railsPresent"), flag("railsResponsive"), number("idleMicrojoules"),
                                     number("busyMicrojoules"), number("idleWindowSeconds"), number("busyWindowSeconds"),
                                     flag("acceptUnresponsive"))

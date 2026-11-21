@@ -68,7 +68,7 @@ class EnergyCheckTest {
     fun anEnergyFileWithoutItsSchemaOrKindIsRefused() {
         fun failure(text: String) = assertThrows(IllegalArgumentException::class.java) { EnergyWindows.read(text) }.message
         assertEquals("unsupported_schema_version: energy.json: 1, this build reads 3", failure("""{"schemaVersion": 1, "cases": {}}"""))
-        assertEquals("missing_field: energy.json kind", failure("""{"schemaVersion": 3, "source": "rails", "cases": {}}"""))
+        assertEquals("missing_field: energy.json: kind", failure("""{"schemaVersion": 3, "source": "rails", "cases": {}}"""))
     }
 
     @Test
