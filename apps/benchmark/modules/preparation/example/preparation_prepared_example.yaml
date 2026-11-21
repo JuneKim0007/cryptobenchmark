@@ -234,6 +234,110 @@ cases:
     testSet: config_testset_example.yaml
     includes:
     - {index: 2, type: Cipher, name: AES/GCM/NoPadding}
+- id: Cipher_RSA-ECB-OAEPWithSHA-256AndMGF1Padding_ENCRYPT_SunJCE_k2048_i32_WARM_p12833ef4_fixed
+  type: Cipher
+  algorithm: RSA/ECB/OAEPWithSHA-256AndMGF1Padding
+  provider: SunJCE
+  operation: ENCRYPT
+  chartGroup: asymmetric-cipher
+  chartGroupId: 2
+  keySize: 2048
+  inputSize: 32
+  phase: WARM
+  variant: fixed
+  metrics: [TIME]
+  key: {kind: pair, algorithm: RSA, provider: SunRsaSign, keySize: 2048, pairs: 1}
+  parameters:
+    class: javax.crypto.spec.OAEPParameterSpec
+    arguments:
+    - SHA-256
+    - MGF1
+    - class: java.security.spec.MGF1ParameterSpec
+      arguments: [SHA-256]
+    - {field: javax.crypto.spec.PSource$PSpecified.DEFAULT}
+  input: {kind: message, bytes: 32}
+  fingerprint: '04581047'
+  perCall: operation
+  resolvedParameters: {mode: ECB, padding: OAEPWithSHA-256AndMGF1Padding, digest: SHA-256,
+    mgf1: SHA-256, labelBytes: 0, keyBits: 2048}
+- id: Cipher_RSA-ECB-OAEPWithSHA-256AndMGF1Padding_ENCRYPT_SunJCE_k2048_i32_WARM_p12833ef4_notFixed
+  type: Cipher
+  algorithm: RSA/ECB/OAEPWithSHA-256AndMGF1Padding
+  provider: SunJCE
+  operation: ENCRYPT
+  chartGroup: asymmetric-cipher
+  chartGroupId: 2
+  keySize: 2048
+  inputSize: 32
+  phase: WARM
+  variant: notFixed
+  metrics: [TIME]
+  key: {kind: pair, algorithm: RSA, provider: SunRsaSign, keySize: 2048, pairs: 1}
+  parameters:
+    class: javax.crypto.spec.OAEPParameterSpec
+    arguments:
+    - SHA-256
+    - MGF1
+    - class: java.security.spec.MGF1ParameterSpec
+      arguments: [SHA-256]
+    - {field: javax.crypto.spec.PSource$PSpecified.DEFAULT}
+  input: {kind: message, bytes: 32}
+  fingerprint: 1663ce16
+  perCall: getInstanceInitAndOperation
+  resolvedParameters: {mode: ECB, padding: OAEPWithSHA-256AndMGF1Padding, digest: SHA-256,
+    mgf1: SHA-256, labelBytes: 0, keyBits: 2048}
+- id: Cipher_RSA-ECB-OAEPWithSHA-256AndMGF1Padding_DECRYPT_SunJCE_k2048_i32_WARM_p12833ef4_fixed
+  type: Cipher
+  algorithm: RSA/ECB/OAEPWithSHA-256AndMGF1Padding
+  provider: SunJCE
+  operation: DECRYPT
+  chartGroup: asymmetric-cipher
+  chartGroupId: 2
+  keySize: 2048
+  inputSize: 32
+  phase: WARM
+  variant: fixed
+  metrics: [TIME]
+  key: {kind: pair, algorithm: RSA, provider: SunRsaSign, keySize: 2048, pairs: 1}
+  parameters:
+    class: javax.crypto.spec.OAEPParameterSpec
+    arguments:
+    - SHA-256
+    - MGF1
+    - class: java.security.spec.MGF1ParameterSpec
+      arguments: [SHA-256]
+    - {field: javax.crypto.spec.PSource$PSpecified.DEFAULT}
+  input: {kind: ciphertext, bytes: 256, plaintextBytes: 32, spec: carried}
+  fingerprint: b6fd8dbb
+  perCall: operation
+  resolvedParameters: {mode: ECB, padding: OAEPWithSHA-256AndMGF1Padding, digest: SHA-256,
+    mgf1: SHA-256, labelBytes: 0, keyBits: 2048}
+- id: Cipher_RSA-ECB-OAEPWithSHA-256AndMGF1Padding_DECRYPT_SunJCE_k2048_i32_WARM_p12833ef4_notFixed
+  type: Cipher
+  algorithm: RSA/ECB/OAEPWithSHA-256AndMGF1Padding
+  provider: SunJCE
+  operation: DECRYPT
+  chartGroup: asymmetric-cipher
+  chartGroupId: 2
+  keySize: 2048
+  inputSize: 32
+  phase: WARM
+  variant: notFixed
+  metrics: [TIME]
+  key: {kind: pair, algorithm: RSA, provider: SunRsaSign, keySize: 2048, pairs: 1}
+  parameters:
+    class: javax.crypto.spec.OAEPParameterSpec
+    arguments:
+    - SHA-256
+    - MGF1
+    - class: java.security.spec.MGF1ParameterSpec
+      arguments: [SHA-256]
+    - {field: javax.crypto.spec.PSource$PSpecified.DEFAULT}
+  input: {kind: ciphertext, bytes: 256, plaintextBytes: 32, spec: carried}
+  fingerprint: 11c97063
+  perCall: getInstanceInitAndOperation
+  resolvedParameters: {mode: ECB, padding: OAEPWithSHA-256AndMGF1Padding, digest: SHA-256,
+    mgf1: SHA-256, labelBytes: 0, keyBits: 2048}
 - id: Mac_HmacSHA256_COMPUTE-MAC_SunJCE_i1024_WARM_fixed
   type: Mac
   algorithm: HmacSHA256

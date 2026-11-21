@@ -23,18 +23,26 @@ class ExampleFilesTest {
     )
 
     @Test
-    fun theExampleEffectivePreparesEveryCase() {
+    fun theExampleEffectivePreparesEveryCaseTheGuideAllows() {
         val report = SkipFile(output.root)
         val record = PreparedFile(output.root)
         val run = Preparation(capability).prepareAll(File(example, "preparation_effective_example.yaml"), output.root)
 
-        assertEquals(emptyList<String>(), run.skipped.map { it.toString() })
+        assertEquals(
+            listOf(
+                "[preparation] SunJCE Cipher AES/CBC/PKCS5Padding: guide_recipe_unbuildable: ['jca.gcmSpec', 'jca.ivSpec'] are several objects for one init",
+                "[preparation] AndroidKeyStore Cipher RSA/ECB/PKCS1Padding: key_inside_provider: this provider keeps its own keys; its catalogue entry gives no keystore block to make one inside",
+            ),
+            run.skipped.map { it.toString() },
+        )
         assertEquals(
             listOf(
                 "Cipher_AES-GCM-NoPadding_DECRYPT_SunJCE_k128_i1024_WARM_p81667fe4",
                 "Cipher_AES-GCM-NoPadding_DECRYPT_SunJCE_k256_i1024_WARM_p81667fe4",
                 "Cipher_AES-GCM-NoPadding_ENCRYPT_SunJCE_k128_i1024_WARM_p81667fe4",
                 "Cipher_AES-GCM-NoPadding_ENCRYPT_SunJCE_k256_i1024_WARM_p81667fe4",
+                "Cipher_RSA-ECB-OAEPWithSHA-256AndMGF1Padding_DECRYPT_SunJCE_k2048_i32_WARM_p12833ef4",
+                "Cipher_RSA-ECB-OAEPWithSHA-256AndMGF1Padding_ENCRYPT_SunJCE_k2048_i32_WARM_p12833ef4",
                 "Mac_HmacSHA256_COMPUTE-MAC_SunJCE_i1024_WARM",
                 "MessageDigest_SHA-256_DIGEST_SUN_i1024_WARM",
             ).flatMap { listOf("${it}_fixed", "${it}_notFixed") },

@@ -9,7 +9,7 @@ apps/benchmark/modules/preparation/docs/operations.md : operation consumption, t
 apps/benchmark/modules/preparation/docs/peer.md : the peer engine: procedure, outcomes table, rows
 apps/benchmark/modules/preparation/docs/prepare.md : stages, inputs, selections, resolution, failures
 apps/benchmark/modules/preparation/docs/prepared.md : prepared.yaml, skipped.yaml and the case id
-apps/benchmark/modules/preparation/example/preparation_capture_example.yaml : example discovery capture input (SUN, SunJCE)
+apps/benchmark/modules/preparation/example/preparation_capture_example.yaml : example discovery capture input (SUN, SunRsaSign, SunJCE)
 apps/benchmark/modules/preparation/example/preparation_effective_example.yaml : example effective.yaml input
 apps/benchmark/modules/preparation/example/preparation_prepared_example.yaml : expected prepared.yaml
 apps/benchmark/modules/preparation/example/preparation_skipped_example.yaml : expected skipped.yaml (empty list)

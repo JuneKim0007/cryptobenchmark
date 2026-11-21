@@ -1,2 +1,8 @@
 schemaVersion: 2
-skipped: []
+skipped:
+- {stage: preparation, provider: SunJCE, type: Cipher, name: AES/CBC/PKCS5Padding,
+  code: guide_recipe_unbuildable, reason: '[''jca.gcmSpec'', ''jca.ivSpec''] are several
+    objects for one init'}
+- {stage: preparation, provider: AndroidKeyStore, type: Cipher, name: RSA/ECB/PKCS1Padding,
+  code: key_inside_provider, reason: this provider keeps its own keys; its catalogue
+    entry gives no keystore block to make one inside}

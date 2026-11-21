@@ -26,12 +26,46 @@
       192,
       256
      ]
+    },
+    "AES/CBC/PKCS5Padding": {
+     "build": "SunJCE @ jdk-25",
+     "exactBuild": false,
+     "problem": "guide_recipe_unbuildable: ['jca.gcmSpec', 'jca.ivSpec'] are several objects for one init"
+    },
+    "RSA/ECB/OAEPWithSHA-256AndMGF1Padding": {
+     "build": "SunJCE @ jdk-25",
+     "exactBuild": false,
+     "parameters": {
+      "class": "javax.crypto.spec.OAEPParameterSpec",
+      "arguments": [
+       "SHA-256",
+       "MGF1",
+       {
+        "class": "java.security.spec.MGF1ParameterSpec",
+        "arguments": [
+         "SHA-256"
+        ]
+       },
+       {
+        "field": "javax.crypto.spec.PSource$PSpecified.DEFAULT"
+       }
+      ]
+     }
     }
    },
    "Mac": {
     "HmacSHA256": {
      "build": "SunJCE @ jdk-25",
      "exactBuild": false
+    }
+   }
+  },
+  "AndroidKeyStore": {
+   "Cipher": {
+    "RSA/ECB/PKCS1Padding": {
+     "build": "AndroidKeyStore @ android-36",
+     "exactBuild": false,
+     "refused": "key_inside_provider: this provider keeps its own keys; its catalogue entry gives no keystore block to make one inside"
     }
    }
   }

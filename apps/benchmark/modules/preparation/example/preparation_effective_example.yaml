@@ -31,7 +31,15 @@ providers:
           testSet: config_testset_example.yaml
           includes:
           - {index: 2, type: Cipher, name: AES/GCM/NoPadding}
+      AES/CBC/PKCS5Padding: {}
+      RSA/ECB/OAEPWithSHA-256AndMGF1Padding:
+        keySizes: [2048]
+        inputSizes: [32]
+        key: {provider: SunRsaSign}
     Mac:
       HmacSHA256: {}
+  AndroidKeyStore:
+    Cipher:
+      RSA/ECB/PKCS1Padding: {}
 warnings: []
 skipped: []

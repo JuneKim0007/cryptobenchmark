@@ -61,6 +61,25 @@ services:
   - name: AES/CTR/PKCS5Padding
     instantiates: false
     error: 'NoSuchPaddingException: PKCS5Padding cannot be used with CTR'
+- provider: SunRsaSign
+  type: KeyPairGenerator
+  algorithm: RSA
+  instantiates: true
+  defaultRun:
+    works: true
+    keySize: 2048
+- provider: SunJCE
+  type: Cipher
+  algorithm: RSA
+  instantiates: true
+  transformations:
+  - name: RSA/ECB/OAEPWithSHA-256AndMGF1Padding
+    instantiates: true
+    defaultRun:
+      works: true
+      keyAlgorithm: RSA
+      keyProvider: SunRsaSign
+      keySize: 2048
 - provider: SunJCE
   type: Mac
   algorithm: HmacSHA256

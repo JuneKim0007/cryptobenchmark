@@ -53,7 +53,7 @@ class DiscoveryCapabilityTest {
 
     @Test
     fun providersComeInPrecedenceOrder() {
-        assertEquals(listOf("SUN", "SunJCE"), capability.providers())
+        assertEquals(listOf("SUN", "SunRsaSign", "SunJCE"), capability.providers())
     }
 
     /** The API level a secure case's api_too_low names is the capture's: an Android capture's sdkInt, none on a JVM's 0. */
