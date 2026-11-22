@@ -189,7 +189,7 @@ def test_host_apply_says_nothing_is_applied_and_lists_the_row(scoped, capsys):  
 
 
 def test_host_with_a_configured_provider_does_not_probe_again(scoped):  # noqa: F811
-    scoped.global_yaml.write_text(scoped.global_yaml.read_text().replace("bundled: []", f"bundled: [{{artifact: '{CONSCRYPT}', create: X}}]"))
+    scoped.global_yaml.write_text(scoped.global_yaml.read_text().replace("bundled: []", f"bundled: [{{artifact: '{CONSCRYPT}', create: a.X}}]"))
     root = target(scoped, "tls", SHA, ships=CONSCRYPT)
     run_targets(scoped, root)
     assert scoped.device_runs() == 2

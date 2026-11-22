@@ -1,11 +1,11 @@
-"""providers.bundled of global.yaml: its entries checked for authored.read, the build property of the app or the host CLI, the DeviceProbe argument, effective.yaml's record and the check against it."""
+"""providers.bundled of global.yaml: its entries checked for authored.read by bundled_rule and for duplicates, the build property of the app or the host CLI, the DeviceProbe argument, effective.yaml's record and the check against it."""
 import json, shlex
 from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.errors.input_error import InputError
+from cryptobench.shared.settings import bundled_rule
 
 
 KEY = "bundledProviders"   # BundledProviders.KEY and the effective.yaml key
-FIELDS = ("artifact", "create", "alias")
 
 
 class BundledError(InputError):
@@ -15,19 +15,25 @@ class BundledError(InputError):
 def entries(document, global_file):
     providers = document.get("providers") or {}
     if not isinstance(providers, dict):
-        raise BundledError(f"wrong_type: providers in {global_file}")
+        raise BundledError(f"wrong_type: {global_file}: providers")
     bundled = providers.get("bundled")
     if bundled is None:
         return []
-    if not isinstance(bundled, list) or not all(_accepted(entry) for entry in bundled):
-        raise BundledError(f"wrong_type: providers.bundled in {global_file}, expected a list of {{artifact, create, alias?}}")
-    return [{key: value for key, value in entry.items() if value is not None} for entry in bundled]
+    if not isinstance(bundled, list):
+        raise BundledError(f"wrong_type: {global_file}: providers.bundled, expected a list of {{artifact, create, alias?}}")
+    for index, entry in enumerate(bundled):
+        if refused := bundled_rule.problem(entry, f"providers.bundled[{index}]"):
+            raise BundledError(f"{refused[0]}: {global_file}: {refused[1]}")
+    checked = [{key: value for key, value in entry.items() if value is not None} for entry in bundled]
+    for key in ("artifact", "alias"):
+        _unique([entry[key] for entry in checked if key in entry], f"duplicate_{key}", global_file)
+    return checked
 
 
-def _accepted(entry):
-    """Kotlin BundledProviders.read's rule: only these keys, artifact and create strings (empty ones too), alias a string or absent."""
-    return (isinstance(entry, dict) and set(entry) <= set(FIELDS) and isinstance(entry.get("artifact"), str)
-            and isinstance(entry.get("create"), str) and (entry.get("alias") is None or isinstance(entry["alias"], str)))
+def _unique(values, code, global_file):
+    repeated = list(dict.fromkeys(value for value in values if values.count(value) > 1))
+    if repeated:
+        raise BundledError(f"{code}: {global_file}: [{', '.join(repeated)}] at providers.bundled")
 
 
 def gradle_properties(bundled):

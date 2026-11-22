@@ -22,7 +22,7 @@ from perfrepair.screen.catalog import screening_catalog
 F = Path(__file__).parent / "fixtures"
 APP = F / "app"
 FOLDER = "fake-api36-00000000"
-BUNDLED_FIRST = "bundled: [{artifact: 'g:a:1', create: Aaa}]"
+BUNDLED_FIRST = "bundled: [{artifact: 'g:a:1', create: g.Aaa, alias: Aaa}]"
 OLD_ITEMS = 4
 INTERCHANGE = signature.interchange
 GROUPS = group_catalog_file.CATALOG

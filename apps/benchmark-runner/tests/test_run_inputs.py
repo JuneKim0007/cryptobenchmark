@@ -5,7 +5,7 @@ import pytest
 from cryptobench.shared.results import run_inputs  # noqa: E402
 from failure import reported  # noqa: E402
 
-BASE = "schemaVersion: 1\nselection: {testSet: sets/a.yaml}\nrun: {seed: 1, phases: [WARM]}\nproviders: {bundled: [{artifact: 'g:a:1', create: X}]}\n"
+BASE = "schemaVersion: 1\nselection: {testSet: sets/a.yaml}\nrun: {seed: 1, phases: [WARM]}\nproviders: {bundled: [{artifact: 'g:a:1', create: a.X}]}\n"
 
 
 def digests(tmp_path, text=BASE, test_set="include: []\n"):
@@ -18,13 +18,13 @@ def digests(tmp_path, text=BASE, test_set="include: []\n"):
 def test_a_comment_or_key_order_changes_nothing(tmp_path):
     first = digests(tmp_path)
     reordered = "# note\nrun: {phases: [WARM], seed: 1}\nschemaVersion: 1\nselection: {testSet: sets/a.yaml}\n" \
-                "providers: {bundled: [{create: X, artifact: 'g:a:1'}]}\n"
+                "providers: {bundled: [{create: a.X, artifact: 'g:a:1'}]}\n"
     assert digests(tmp_path, reordered) == first
 
 
 def test_the_bundled_list_is_its_own_input(tmp_path):
     first = digests(tmp_path)
-    added = digests(tmp_path, BASE.replace("create: X}]", "create: X}, {artifact: 'g:b:2', create: Y}]"))
+    added = digests(tmp_path, BASE.replace("create: a.X}]", "create: a.X}, {artifact: 'g:b:2', create: a.Y}]"))
     assert added["bundled"] != first["bundled"] and added["config"] == first["config"]
 
 
@@ -54,5 +54,5 @@ def test_no_test_set_named_is_no_refusal(tmp_path):
 
 
 def test_the_digests_of_a_fixed_global_file_and_test_set_are_these_values(tmp_path):
-    assert digests(tmp_path) == {"bundled": "85e9f752cc0902c9a08ad2a9569087258492d125ada6a198feaa4dda75832249",
+    assert digests(tmp_path) == {"bundled": "299170fda670cf70f09d93a6d25d8ec35542abb1ed4f22d41178e23565c8f1df",
                                  "config": "853d6854752ed57cb56db296bf6b60611c69047614c30f78998e2ff8bb3a5485"}

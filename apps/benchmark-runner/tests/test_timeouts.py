@@ -70,7 +70,7 @@ def test_a_known_failure_is_its_own_message_unchanged(known):
 
 
 def test_a_refused_bundled_list_is_an_input_error_and_still_its_own_line():
-    error = BundledError("wrong_type: providers.bundled in g.yaml, expected a list of {artifact, create, alias?}")
+    error = BundledError("wrong_type: g.yaml: providers.bundled, expected a list of {artifact, create, alias?}")
     assert isinstance(error, ValueError) and error.code == "wrong_type"
     assert pipeline.failure_line(error) == str(error)
 

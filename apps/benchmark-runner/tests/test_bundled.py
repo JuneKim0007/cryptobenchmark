@@ -35,10 +35,6 @@ class Bundled(unittest.TestCase):
         self.assertEqual(["-e", "bundledProviders"], arguments[:2])
         self.assertEqual({"bundledProviders": [dict(CONSCRYPT, alias="Outer$Inner")]}, json.loads(shlex.split(arguments[2])[0]))
 
-    def test_a_malformed_list_is_refused(self):
-        with self.assertRaisesRegex(bundled.BundledError, "wrong_type: providers.bundled"):
-            self.write("providers: {bundled: [{create: a.B}]}\n")
-
     def test_effective_must_record_what_the_app_was_built_with(self):
         effective = self.dir / "effective.yaml"
         effective.write_text("bundledProviders:\n- {artifact: 'org.conscrypt:conscrypt-android:2.5.3', create: org.conscrypt.Conscrypt#newProvider}\n")

@@ -8,6 +8,8 @@ from cryptobench.shared.settings import authored, bundled
 
 # the cases Kotlin's BesideAuthoredParityTest reads too
 BESIDE = json.loads((paths.repo().contract_documents / "beside-authored.json").read_text())
+# the cases Kotlin's BundledCasesParityTest reads too
+BUNDLED = json.loads((paths.repo().contract_documents / "bundled-cases.json").read_text())
 
 
 def read(tmp_path, text):
@@ -37,8 +39,18 @@ def test_nothing_named_is_none_and_no_bundled(tmp_path):
 def test_a_bad_bundled_list_is_refused_only_where_it_is_read(tmp_path):
     given = read(tmp_path, "schemaVersion: 1\nselection: {testSet: a.yaml}\nproviders: {bundled: [{create: a.B}]}\n")
     assert given.test_set == tmp_path / "a.yaml"
-    with pytest.raises(bundled.BundledError, match="^wrong_type: providers.bundled in "):
+    with pytest.raises(bundled.BundledError, match=f"^missing_field: {tmp_path / 'global.yaml'}: artifact at providers.bundled\\[0\\]$"):
         given.bundled
+
+
+@pytest.mark.parametrize("case", BUNDLED["cases"], ids=lambda case: case["name"])
+def test_each_bundled_case_has_kotlins_code(case):
+    try:
+        bundled.entries({"providers": case["providers"]}, "global.yaml")
+        code = None
+    except bundled.BundledError as refused:
+        code = refused.code
+    assert code == case["code"]
 
 
 def test_a_missing_global_file_is_not_found(tmp_path):

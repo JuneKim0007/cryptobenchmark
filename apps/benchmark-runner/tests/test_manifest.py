@@ -33,7 +33,7 @@ def layout(results, measured):
 
 
 def written(results, mode, files):
-    (results / "global.yaml").write_text("schemaVersion: 1\nproviders: {bundled: [{artifact: 'g:a:1', create: X}]}\n")
+    (results / "global.yaml").write_text("schemaVersion: 1\nproviders: {bundled: [{artifact: 'g:a:1', create: a.X}]}\n")
     manifest(results, mode, results / "global.yaml", files)
     return yaml.safe_load((results / "manifest.yaml").read_text())
 
@@ -183,7 +183,7 @@ def golden_text(name, measured, problems=(), extra=None):
         operations.write_text(OPERATIONS)
         manifest_module.ENGINE_OPERATIONS = operations
         try:
-            (results / "global.yaml").write_text("schemaVersion: 1\nproviders: {bundled: [{artifact: 'g:a:1', create: X}]}\n")
+            (results / "global.yaml").write_text("schemaVersion: 1\nproviders: {bundled: [{artifact: 'g:a:1', create: a.X}]}\n")
             manifest(results, "device" if measured else "host", results / "global.yaml", files, problems)
         finally:
             manifest_module.ENGINE_OPERATIONS = kept

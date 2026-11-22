@@ -98,7 +98,7 @@ def test_a_failed_validator_is_one_error_event_with_its_code(capsys):
 
 def test_a_refused_bundled_list_is_a_coded_error_not_a_bug(capsys):
     def step():
-        raise BundledError("wrong_type: providers.bundled in g.yaml, expected a list of {artifact, create, alias?}")
+        raise BundledError("wrong_type: g.yaml: providers.bundled, expected a list of {artifact, create, alias?}")
     assert reported(step) == 1
     err = capsys.readouterr().err
-    assert err.startswith("error wrong_type: providers.bundled in g.yaml") and "bug" not in err, err
+    assert err.startswith("error wrong_type: g.yaml: providers.bundled") and "bug" not in err, err

@@ -109,28 +109,24 @@ def test_a_bare_off_in_yaml_is_off_with_no_warning():
 def applied_folder(tmp_path):
     device, base = tmp_path / "device", tmp_path / "global.yaml"
     device.mkdir()
-    base.write_text("selection: {testSet: t.yaml}\nproviders: {bundled: [{artifact: 'g:own:1', create: Own}]}\n")
+    base.write_text("selection: {testSet: t.yaml}\nproviders: {bundled: [{artifact: 'g:own:1', create: g.Own}]}\n")
     return device, base
 
 
-@pytest.mark.parametrize("entry", ["g:own:1", {"create": "X"}, {"artifact": "g:a:1"}, {"artifact": 7, "create": "X"},
-                                   {"artifact": "g:a:1", "create": "X", "other": 1}])
-def test_a_providers_bundled_entry_kotlin_refuses_is_refused_never_dropped(tmp_path, entry):
+@pytest.mark.parametrize(("entry", "code"), [("g:own:1", "wrong_type"), ({"create": "g.X"}, "missing_field"),
+                                             ({"artifact": "g:a:1"}, "missing_field"), ({"artifact": 7, "create": "g.X"}, "wrong_type"),
+                                             ({"artifact": "g:a:1", "create": "g.X", "other": 1}, "unknown_keys"),
+                                             ({"artifact": "", "create": "g.X"}, "invalid_artifact")])
+def test_a_providers_bundled_entry_kotlin_refuses_is_refused_never_dropped(tmp_path, entry, code):
     base = tmp_path / "global.yaml"
-    base.write_text(yaml.safe_dump({"providers": {"bundled": [{"artifact": "g:own:1", "create": "Own"}, entry]}}))
-    with pytest.raises(BundledError, match=rf"^wrong_type: providers.bundled in {base}, expected a list of"):
+    base.write_text(yaml.safe_dump({"providers": {"bundled": [{"artifact": "g:own:1", "create": "g.Own"}, entry]}}))
+    with pytest.raises(BundledError, match=rf"^{code}: {base}: "):
         configured(base)
-
-
-def test_an_empty_artifact_is_accepted_as_kotlins_bundled_providers_accepts_it(tmp_path):
-    base = tmp_path / "global.yaml"
-    base.write_text(yaml.safe_dump({"providers": {"bundled": [{"artifact": "", "create": "X"}]}}))
-    assert configured(base) == frozenset({""})
 
 
 def test_applied_entries_append_to_the_base_and_none_use_it_as_it_is(tmp_path):
     device, base = applied_folder(tmp_path)
-    made = bundled_config(base, device, [{"artifact": "g:aaa:1", "create": "Aaa"}])
+    made = bundled_config(base, device, [{"artifact": "g:aaa:1", "create": "g.Aaa"}])
     document = yaml.safe_load(made.read_text())
     assert [e["artifact"] for e in document["providers"]["bundled"]] == ["g:own:1", "g:aaa:1"]
     assert document["selection"]["testSet"] == str(tmp_path / "t.yaml")
@@ -140,8 +136,8 @@ def test_applied_entries_append_to_the_base_and_none_use_it_as_it_is(tmp_path):
 def test_the_harness_builds_what_the_device_stage_applied(tmp_path):
     device, base = applied_folder(tmp_path)
     assert harness_config(device, None, tmp_path) is None and harness_config(device, base, tmp_path) == base
-    made = bundled_config(base, device, [{"artifact": "g:aaa:1", "create": "Aaa"}])
-    entry = {"artifact": "g:aaa:1", "create": "Aaa"}
+    made = bundled_config(base, device, [{"artifact": "g:aaa:1", "create": "g.Aaa"}])
+    entry = {"artifact": "g:aaa:1", "create": "g.Aaa"}
     (device / "bundled-suggestions.yaml").write_text(yaml.safe_dump({"matched": [{"applied": True, "entry": entry}]}))
     assert harness_config(device, None, tmp_path) == made
     app_folder = tmp_path / "app"
