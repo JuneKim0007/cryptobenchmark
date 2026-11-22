@@ -42,10 +42,10 @@ internal class DefaultKeys(private val providers: List<Provider>, val candidates
 
     // every candidate on the preferred provider before any other provider; the last refusal when none generates
     fun firstSecret(preferred: Provider, candidates: List<KeyCandidates.Candidate>): Result<kotlin.Pair<Secret, Int?>> =
-        first(preferred, candidates) { provider, candidate -> secretFrom(provider, candidate.name, candidate.size).map { it to candidate.size?.takeIf { candidate.fixed } } }
+        first(preferred, candidates.filter { it.spec == null }) { provider, candidate -> secretFrom(provider, candidate.name, candidate.size).map { it to candidate.size?.takeIf { candidate.fixed } } }
 
     fun firstPair(preferred: Provider, candidates: List<KeyCandidates.Candidate>): Pair =
-        first(preferred, candidates) { provider, candidate -> pairFrom(provider, candidate.name, null) }.getOrThrow()
+        first(preferred, candidates) { provider, candidate -> pairFrom(provider, candidate.name, null, candidate.spec) }.getOrThrow()
 
     fun order(preferred: Provider): List<Provider> = listOf(preferred) + providers.filter { it.name != preferred.name }
 
@@ -64,10 +64,10 @@ internal class DefaultKeys(private val providers: List<Provider>, val candidates
             Secret(algorithm, provider.name, generator.generateKey())
         }
 
-    fun pairFrom(provider: Provider, algorithm: String, keySize: Int?): Result<Pair> =
-        cached(pairs, cacheKey(provider, algorithm, keySize)) {
+    fun pairFrom(provider: Provider, algorithm: String, keySize: Int?, spec: KeyGenerationSpec.Built? = null): Result<Pair> =
+        cached(pairs, cacheKey(provider, algorithm, keySize) + spec?.let { "|" + it.label }.orEmpty()) {
             val generator = KeyPairGenerator.getInstance(algorithm, provider)
-            if (keySize != null) generator.initialize(keySize)
+            if (spec != null) generator.initialize(spec.spec) else if (keySize != null) generator.initialize(keySize)
             Pair(algorithm, provider.name, generator.generateKeyPair())
         }
 

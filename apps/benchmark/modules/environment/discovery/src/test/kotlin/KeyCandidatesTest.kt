@@ -4,7 +4,7 @@ import io.github.junekim0007.cryptobench.document.catalogue.FamilyCatalogue
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-/** A catalogued service's generators of its key type, then that key type, with the names file's key size; an uncatalogued one only the generic names. */
+/** A catalogued service's generators of its key type, then that key type, with the names file's key size, then with the entry's key spec; an uncatalogued one only the generic names. */
 class KeyCandidatesTest {
 
     private val catalogue = FamilyCatalogue.bundled(FamilyCatalogue.KEYED + FamilyCatalogue.GENERATORS)
@@ -38,6 +38,14 @@ class KeyCandidatesTest {
     @Test
     fun anUncataloguedServiceTriesItsNameThenTheRegisteredNamesItContains() {
         assertEquals(listOf("UnlistedAES/X/Y" to null, "Unlisted" to null, "AES" to null), names("Cipher", "UnlistedAES/X/Y"))
+    }
+
+    @Test
+    fun anEntrysKeyGenerationSpecFollowsTheNameAlone() {
+        val gost = candidates.of("Signature", "GOST3411-2012-512WITHECGOST3410-2012-512", "BundledBC")
+        assertEquals(listOf("ECGOST3410-2012" to null, "ECGOST3410-2012" to "jca.ecGenSpec[Tc26-Gost-3410-12-512-paramSetA]"), gost.map { it.name to it.spec?.label })
+        assertEquals("Tc26-Gost-3410-12-512-paramSetA", (gost.last().spec!!.spec as java.security.spec.ECGenParameterSpec).name)
+        assertEquals(emptyList<KeyGenerationSpec.Built>(), candidates.of("KeyAgreement", "DH", "SunJCE").mapNotNull { it.spec })
     }
 
     @Test

@@ -2,6 +2,7 @@ package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
 import io.github.junekim0007.cryptobench.jca.failure.Attempt
 import io.github.junekim0007.cryptobench.discovery.trial.call.DefaultKeys
+import io.github.junekim0007.cryptobench.discovery.trial.call.KeyGenerationSpec
 import java.security.KeyPair
 import java.security.Provider
 import java.security.SecureRandom
@@ -15,10 +16,11 @@ internal class KeySources(private val providers: List<Provider>, private val key
     fun of(type: String, algorithm: String, preferred: Provider, pairsOnly: Boolean = false): Sequence<ProbeKey> = sequence {
         val candidates = keys.candidates.of(type, algorithm, preferred.name)
         for (provider in keys.order(preferred)) {
-            for ((name, size) in candidates.map { it.name to it.size }) {
-                if (!pairsOnly) keys.secretFrom(provider, name, size).getOrNull()?.let { yield(ProbeKey.secret(ProbeKey.GENERATOR, it.algorithm, it.provider, it.key)) }
-                keys.pairFrom(provider, name, null).getOrNull()?.let { yield(ProbeKey.pair(it.algorithm, it.provider, it.keys)) }
-                if (!pairsOnly) password(provider, name).getOrNull()?.let { yield(it) }
+            for (candidate in candidates) {
+                val secrets = !pairsOnly && candidate.spec == null
+                if (secrets) keys.secretFrom(provider, candidate.name, candidate.size).getOrNull()?.let { yield(ProbeKey.secret(ProbeKey.GENERATOR, it.algorithm, it.provider, it.key)) }
+                keys.pairFrom(provider, candidate.name, null, candidate.spec).getOrNull()?.let { yield(ProbeKey.pair(it.algorithm, it.provider, it.keys)) }
+                if (secrets) password(provider, candidate.name).getOrNull()?.let { yield(it) }
             }
         }
         if (!pairsOnly) {
@@ -26,6 +28,11 @@ internal class KeySources(private val providers: List<Provider>, private val key
             for (length in RAW_LENGTHS) yield(ProbeKey.secret(ProbeKey.RAW, base, "", SecretKeySpec(random(length), base)))
         }
     }
+
+    // the entry's key-generation row that could not be made, as a tried key with its coded reason
+    fun refusals(type: String, algorithm: String, preferred: Provider): List<Map<String, Any>> =
+        (keys.candidates.keyGeneration(type, algorithm, preferred.name) as? KeyGenerationSpec.Refused)
+            ?.let { listOf(mapOf("source" to KEY_GENERATION, "recipe" to it.recipe, "refused" to it.reason)) }.orEmpty()
 
     // The same algorithm and size from another provider; a size is asked for only when it costs no parameter generation.
     fun foreign(key: ProbeKey, provider: Provider): Result<ProbeKey> = Attempt.of {
@@ -56,6 +63,7 @@ internal class KeySources(private val providers: List<Provider>, private val key
 
     private companion object {
         val RAW_LENGTHS = listOf(16, 32, 24, 8)
+        const val KEY_GENERATION = "keyGeneration"
         val RANDOM = SecureRandom()
         fun random(length: Int) = ByteArray(length).also { RANDOM.nextBytes(it) }
     }

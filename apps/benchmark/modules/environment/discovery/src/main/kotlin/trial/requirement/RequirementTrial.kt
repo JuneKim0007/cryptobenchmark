@@ -91,7 +91,7 @@ class RequirementTrial {
             detail = result.detail,
             key = result.key?.describe().orEmpty(),
             runWith = result.runWith,
-            keysTried = result.keysTried,
+            keysTried = sources.refusals(service.type, service.algorithm, provider) + result.keysTried,
             facts = sheet.facts,
             aliases = AliasRuns.of(probed, classRun, result),
             millis = (System.nanoTime() - started) / NANOS_PER_MILLI,
