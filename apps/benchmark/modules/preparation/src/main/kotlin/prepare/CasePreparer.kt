@@ -10,10 +10,10 @@ import io.github.junekim0007.cryptobench.preparation.key.secure.SecureKey
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.measurement.KeySource
 import io.github.junekim0007.cryptobench.preparation.measurement.Variant
-import io.github.junekim0007.cryptobench.preparation.parameter.bind.BoundParameters
+import io.github.junekim0007.cryptobench.jca.bind.BoundParameters
 import io.github.junekim0007.cryptobench.preparation.operation.Invocations
 import io.github.junekim0007.cryptobench.preparation.operation.OperationDefinitions
-import io.github.junekim0007.cryptobench.preparation.parameter.bind.ParameterBinder
+import io.github.junekim0007.cryptobench.jca.bind.ParameterBinder
 import io.github.junekim0007.cryptobench.preparation.parameter.resolve.ResolvedParameters
 import io.github.junekim0007.cryptobench.jca.failure.Attempt
 import io.github.junekim0007.cryptobench.preparation.shared.FailureText

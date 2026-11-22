@@ -5,7 +5,7 @@ import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterial
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.operation.PerCall
-import io.github.junekim0007.cryptobench.preparation.parameter.bind.BoundParameters
+import io.github.junekim0007.cryptobench.jca.bind.BoundParameters
 
 data class PreparedCase(
     val case: BenchmarkCase,

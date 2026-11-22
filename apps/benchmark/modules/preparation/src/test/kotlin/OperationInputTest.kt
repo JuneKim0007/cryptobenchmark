@@ -2,14 +2,14 @@ package io.github.junekim0007.cryptobench.preparation
 
 import io.github.junekim0007.cryptobench.preparation.input.InputBytes
 import io.github.junekim0007.cryptobench.preparation.operation.OperationDefinitions
-import io.github.junekim0007.cryptobench.preparation.parameter.bind.BoundParameters
+import io.github.junekim0007.cryptobench.jca.bind.BoundParameters
 import io.github.junekim0007.cryptobench.preparation.input.OperationInput
 import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterial
 import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterialGenerator
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
-import io.github.junekim0007.cryptobench.preparation.parameter.bind.ParameterBinder
+import io.github.junekim0007.cryptobench.jca.bind.ParameterBinder
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull

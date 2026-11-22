@@ -3,8 +3,8 @@ package io.github.junekim0007.cryptobench.preparation.resolve
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.operation.KeyShape
 import io.github.junekim0007.cryptobench.preparation.operation.OperationDefinitions
-import io.github.junekim0007.cryptobench.preparation.parameter.bind.BindException
-import io.github.junekim0007.cryptobench.preparation.parameter.bind.ParameterBinder
+import io.github.junekim0007.cryptobench.jca.bind.BindException
+import io.github.junekim0007.cryptobench.jca.bind.ParameterBinder
 import io.github.junekim0007.cryptobench.preparation.request.Selection
 
 internal class SelectionCheck(private val binder: ParameterBinder) {

@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation
 
-import io.github.junekim0007.cryptobench.preparation.parameter.bind.BoundParameters
+import io.github.junekim0007.cryptobench.jca.bind.BoundParameters
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

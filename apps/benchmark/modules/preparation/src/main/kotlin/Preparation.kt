@@ -6,7 +6,7 @@ import io.github.junekim0007.cryptobench.preparation.inbound.InboundFile
 import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterialGenerator
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyPlanner
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
-import io.github.junekim0007.cryptobench.preparation.parameter.bind.ParameterBinder
+import io.github.junekim0007.cryptobench.jca.bind.ParameterBinder
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
 import io.github.junekim0007.cryptobench.preparation.prepare.CasePreparer
 import io.github.junekim0007.cryptobench.preparation.prepare.Listing

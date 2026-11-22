@@ -11,8 +11,8 @@ import io.github.junekim0007.cryptobench.preparation.operation.Invocation
 import io.github.junekim0007.cryptobench.preparation.operation.PerCall
 import io.github.junekim0007.cryptobench.preparation.operation.Invocations
 import io.github.junekim0007.cryptobench.preparation.operation.OperationDefinitions
-import io.github.junekim0007.cryptobench.preparation.parameter.bind.BoundParameters
-import io.github.junekim0007.cryptobench.preparation.parameter.bind.ParameterBinder
+import io.github.junekim0007.cryptobench.jca.bind.BoundParameters
+import io.github.junekim0007.cryptobench.jca.bind.ParameterBinder
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull

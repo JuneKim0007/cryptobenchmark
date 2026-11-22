@@ -3,7 +3,7 @@ package io.github.junekim0007.cryptobench.preparation.operation
 import io.github.junekim0007.cryptobench.preparation.input.OperationInput
 import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterial
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
-import io.github.junekim0007.cryptobench.preparation.parameter.bind.BoundParameters
+import io.github.junekim0007.cryptobench.jca.bind.BoundParameters
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
 import java.security.Signature
 

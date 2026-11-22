@@ -1,4 +1,4 @@
-package io.github.junekim0007.cryptobench.preparation.parameter.bind
+package io.github.junekim0007.cryptobench.jca.bind
 
 import java.math.BigInteger
 

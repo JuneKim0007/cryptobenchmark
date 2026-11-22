@@ -1,7 +1,7 @@
 package io.github.junekim0007.cryptobench.preparation
 
-import io.github.junekim0007.cryptobench.preparation.parameter.bind.BindException
-import io.github.junekim0007.cryptobench.preparation.parameter.bind.ParameterBinder
+import io.github.junekim0007.cryptobench.jca.bind.BindException
+import io.github.junekim0007.cryptobench.jca.bind.ParameterBinder
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

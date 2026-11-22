@@ -67,12 +67,6 @@ apps/benchmark/modules/preparation/src/main/kotlin/operation/SetupCatalog.kt : a
 apps/benchmark/modules/preparation/src/main/kotlin/operation/SignDefinition.kt : SIGN definition
 apps/benchmark/modules/preparation/src/main/kotlin/operation/TypeDefaultDefinition.kt : TYPE_DEFAULT definition (no-op call)
 apps/benchmark/modules/preparation/src/main/kotlin/operation/VerifyDefinition.kt : VERIFY definition; builds signed-message input
-apps/benchmark/modules/preparation/src/main/kotlin/parameter/bind/BindException.kt : bind_failed: <path>: <detail>
-apps/benchmark/modules/preparation/src/main/kotlin/parameter/bind/BindPolicy.kt : classes a parameter tree may name
-apps/benchmark/modules/preparation/src/main/kotlin/parameter/bind/BoundParameters.kt : compiled tree; varies, next(); cycling(specs) for the end-to-end check's fixed values
-apps/benchmark/modules/preparation/src/main/kotlin/parameter/bind/ParameterBinder.kt : compiles a parameter tree into a ValueNode
-apps/benchmark/modules/preparation/src/main/kotlin/parameter/bind/ValueCoercion.kt : YAML value to constructor parameter type
-apps/benchmark/modules/preparation/src/main/kotlin/parameter/bind/ValueNode.kt : tree nodes: Literal, Fresh, Cycle, StaticField, Construction
 apps/benchmark/modules/preparation/src/main/kotlin/parameter/resolve/Fingerprint.kt : first 8 hex chars of SHA-256
 apps/benchmark/modules/preparation/src/main/kotlin/parameter/resolve/KeyFields.kt : keyBits and curve of a key, by key interface
 apps/benchmark/modules/preparation/src/main/kotlin/parameter/resolve/PerInitValue.kt : whether an IvParameterSpec value is an IV or a constant the provider fills in

@@ -8,7 +8,7 @@ import io.github.junekim0007.cryptobench.benchmark.verify.known.RawMaterial
 import io.github.junekim0007.cryptobench.preparation.peer.Outcome
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.operation.Invocations
-import io.github.junekim0007.cryptobench.preparation.parameter.bind.BindException
+import io.github.junekim0007.cryptobench.jca.bind.BindException
 import java.security.InvalidAlgorithmParameterException
 import java.security.InvalidKeyException
 import java.security.spec.InvalidKeySpecException

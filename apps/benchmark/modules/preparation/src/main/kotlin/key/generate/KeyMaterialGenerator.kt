@@ -1,7 +1,7 @@
 package io.github.junekim0007.cryptobench.preparation.key.generate
 
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
-import io.github.junekim0007.cryptobench.preparation.parameter.bind.ParameterBinder
+import io.github.junekim0007.cryptobench.jca.bind.ParameterBinder
 import io.github.junekim0007.cryptobench.jca.peer.PeerPair
 import java.security.KeyPair
 import java.security.KeyPairGenerator

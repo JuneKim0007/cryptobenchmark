@@ -13,7 +13,7 @@ import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.operation.Invocations
-import io.github.junekim0007.cryptobench.preparation.parameter.bind.BindException
+import io.github.junekim0007.cryptobench.jca.bind.BindException
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
 import org.junit.Assert.assertEquals
 import org.junit.Test

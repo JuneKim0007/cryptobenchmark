@@ -8,7 +8,7 @@ import io.github.junekim0007.cryptobench.preparation.measurement.Variant
 import io.github.junekim0007.cryptobench.preparation.request.Selection
 import io.github.junekim0007.cryptobench.preparation.operation.SetupCatalog
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
-import io.github.junekim0007.cryptobench.preparation.parameter.bind.ParameterBinder
+import io.github.junekim0007.cryptobench.jca.bind.ParameterBinder
 import io.github.junekim0007.cryptobench.preparation.port.Availability
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
 import io.github.junekim0007.cryptobench.preparation.request.BenchmarkRequest

@@ -4,8 +4,8 @@ import io.github.junekim0007.cryptobench.benchmark.verify.oracle.CheckedCall
 import io.github.junekim0007.cryptobench.benchmark.verify.oracle.ContractOracle
 import io.github.junekim0007.cryptobench.preparation.operation.Invocations
 import io.github.junekim0007.cryptobench.preparation.operation.PerCall
-import io.github.junekim0007.cryptobench.preparation.parameter.bind.BoundParameters
-import io.github.junekim0007.cryptobench.preparation.parameter.bind.ParameterBinder
+import io.github.junekim0007.cryptobench.jca.bind.BoundParameters
+import io.github.junekim0007.cryptobench.jca.bind.ParameterBinder
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import javax.crypto.spec.IvParameterSpec

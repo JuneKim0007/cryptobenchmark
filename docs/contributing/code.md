@@ -13,6 +13,7 @@
 - contract: a stage reads another stage's output from its file (capture, trial, inventory, effective, prepared, benchmark.json), never through that stage's classes.
 - shared code: a module compiles against another module's classes only through the handoff types below; widening a list is a reviewed change to this guide.
 - shared code: `:environment:discovery` and `:preparation` use jca's `Attempt`, `ErrorText`, `PeerPair`; `:benchmark` and `:android` androidTest use jca's `Attempt`; it is the one catch rule (an Exception or LinkageError is a result, any other Error escapes), never copied.
+- shared code: `:environment:discovery`, `:preparation` and `:benchmark` use jca's `ParameterBinder`, `BoundParameters`, `BindPolicy`, `BindException`: the one parameter-tree binder, never copied.
 - shared code: `:environment:discovery`, `:config`, `:preparation`, `:benchmark` and `:android` androidTest use `:files` without a list; it holds names and pure rules only.
 - shared code: `:environment:discovery`, `:config` and `:preparation` use `:document` without a list; `:benchmark` uses its `AtomicFile`, `DocumentFields`, `YamlCodec`, `DocumentReader`, `MapDocument`, `VersionedFile`, `YamlFile`, `YamlFiles`, `:android` androidTest its `YamlCodec`, `YamlLine`.
 - shared code: `:records` uses document's `ErrorCode`, the one code pattern.
