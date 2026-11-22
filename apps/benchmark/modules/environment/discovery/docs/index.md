@@ -81,6 +81,7 @@ apps/benchmark/modules/environment/discovery/src/test/kotlin/KeyOrderTest.kt : e
 apps/benchmark/modules/environment/discovery/src/test/kotlin/KeystoreTrialTest.kt : keystore trial with a fake keystore: rows per size, curve and path, coded refusals, no StrongBox, absent section, bundled catalogue
 apps/benchmark/modules/environment/discovery/src/test/kotlin/ProbeDirectoryTest.kt : no-overwrite test
 apps/benchmark/modules/environment/discovery/src/test/kotlin/ProviderProbeTest.kt : ProviderProbe tests
+apps/benchmark/modules/environment/discovery/src/test/kotlin/RecipeTreesContractTest.kt : tests/contracts/catalogue/recipe-trees.yaml: document's Recipes makes every recipe row's tree or refusal as Python's parameter_tree
 apps/benchmark/modules/environment/discovery/src/test/kotlin/RequirementTrialTest.kt : requirement trial against the live JVM and made-up providers
 apps/benchmark/modules/environment/discovery/src/test/kotlin/ResetRunTest.kt : reset test against the live JVM
 apps/benchmark/modules/environment/discovery/src/test/kotlin/ReuseTest.kt : reusable tests

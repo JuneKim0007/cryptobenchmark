@@ -140,7 +140,7 @@ cryptobench/stages/configuration/__init__.py : package of the configuration stag
 cryptobench/stages/configuration/config_check.py : the parse-only check of a global.yaml and its test set before any build, through CheckConfigKt; providers.bundled from its output
 cryptobench/stages/configuration/global_file.py : the global.yaml a run reads: --config, CRYPTOBENCH_CONFIG, the user's, the repository's
 cryptobench/stages/configuration/guide.py : after effective.yaml: exactly its items picked from the implementation guide, written as guide.yaml beside it; one fallback line per provider
-cryptobench/stages/configuration/tests/ : pytest tests of the configuration stage
+cryptobench/stages/configuration/tests/ : pytest tests of the configuration stage; test_recipe_trees.py writes and checks tests/contracts/catalogue/recipe-trees.yaml
 cryptobench/stages/discovery/__init__.py : package of the discovery stage
 cryptobench/stages/discovery/capture_files.py : the capture, trial and requirements a discovery wrote, by path and paired by stamp; never the newest in a kept folder; the reuse that probed again
 cryptobench/stages/discovery/discover.py : discover and configure: probe or host discovery, ConfigureKt, effective.yaml summary; three end states: in place, staged (the caller publishes), published under the capture's device id

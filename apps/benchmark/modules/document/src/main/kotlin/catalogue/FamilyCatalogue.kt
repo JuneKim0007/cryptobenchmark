@@ -46,6 +46,7 @@ class FamilyCatalogue(val entries: List<Entry>, private val overlays: CatalogueO
         const val PROVIDER_BUILDS = "provider-builds.yaml"
         const val DEVIATIONS = "deviations.yaml"
         const val FAMILIES = "families.yaml"
+        const val RECIPES = "recipes.yaml"
         // families.yaml gives digests and generators one key kind, none; what generates a key is setup-catalog's, which :document cannot read
         val GENERATORS = listOf("keygen.none", "keypairgen.none")
 

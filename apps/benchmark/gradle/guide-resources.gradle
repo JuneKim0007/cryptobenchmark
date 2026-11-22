@@ -1,6 +1,6 @@
 // Puts the implementation guide's catalogues on the classpath of the build that applies this; the one place that knows where they are.
 def guide = new File(buildscript.sourceFile.parentFile.parentFile.parentFile.parentFile, 'algorithms')
-// the family catalogues, their overlays, groups and families sit beside document's catalogue/FamilyCatalogue, the names file beside names/AlgorithmNames;
+// the family catalogues, their overlays, groups, families and recipes sit beside document's catalogue/FamilyCatalogue, the names file beside names/AlgorithmNames;
 // the root build's modules are jars the APK merges, so a file two of them carry collides: there only :document carries them
 def rootBuild = rootProject.name == 'cryptobenchmark'
 def catalogues = rootBuild ? project.path == ':document' : project.path in [':document', ':discovery', ':config', ':preparation', ':benchmark', ':']
@@ -9,7 +9,7 @@ def guideTables = !(project.path in [':environment:discovery', ':discovery', ':d
 tasks.matching { it.name == 'processResources' }.configureEach {
     if (catalogues) {
         from(guide) {
-            include 'keygen.none_catalogue.yaml', 'keypairgen.none_catalogue.yaml', 'cipher.secret_catalogue.yaml', 'cipher.pair_catalogue.yaml', 'signature.pair_catalogue.yaml', 'mac.secret_catalogue.yaml', 'agreement.peer_catalogue.yaml', 'provider-builds.yaml', 'deviations.yaml', 'groups.yaml', 'families.yaml'
+            include 'keygen.none_catalogue.yaml', 'keypairgen.none_catalogue.yaml', 'cipher.secret_catalogue.yaml', 'cipher.pair_catalogue.yaml', 'signature.pair_catalogue.yaml', 'mac.secret_catalogue.yaml', 'agreement.peer_catalogue.yaml', 'provider-builds.yaml', 'deviations.yaml', 'groups.yaml', 'families.yaml', 'recipes.yaml'
             into 'io/github/junekim0007/cryptobench/document/catalogue'
         }
         from(guide) { include 'algorithm-names.yaml'; into 'io/github/junekim0007/cryptobench/document/names' }

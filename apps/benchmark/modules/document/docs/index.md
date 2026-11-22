@@ -2,7 +2,7 @@
 
 ```
 apps/benchmark/modules/document/README.md : module summary and link to this index
-apps/benchmark/modules/document/build.gradle : Kotlin/JVM 17 library; snakeyaml 2.3; in the root build it alone carries the family catalogues, provider-builds.yaml, deviations.yaml, groups.yaml and families.yaml beside catalogue/FamilyCatalogue, and algorithm-names.yaml beside names/AlgorithmNames, through gradle/guide-resources.gradle
+apps/benchmark/modules/document/build.gradle : Kotlin/JVM 17 library; snakeyaml 2.3; in the root build it alone carries the family catalogues, provider-builds.yaml, deviations.yaml, groups.yaml, families.yaml and recipes.yaml beside catalogue/FamilyCatalogue, and algorithm-names.yaml beside names/AlgorithmNames, through gradle/guide-resources.gradle
 apps/benchmark/modules/document/docs/index.md : this map
 apps/benchmark/modules/document/src/main/kotlin/AtomicFile.kt : whole-or-nothing write: a unique temporary file beside the target, renamed over it; replace = false refuses an existing file
 apps/benchmark/modules/document/src/main/kotlin/DocumentFields.kt : typed reads with missing_field and wrong_type; optionalSection (null) and sectionOrEmpty; optionalSections and sectionsIfKeyPresent (a null value fails); choice by key (invalid:) and by enum (unknown_<field>:); expectKeys
@@ -14,6 +14,7 @@ apps/benchmark/modules/document/src/main/kotlin/catalogue/CatalogueOverlays.kt :
 apps/benchmark/modules/document/src/main/kotlin/catalogue/FamilyCatalogue.kt : the one Kotlin reader of algorithms/<family>_catalogue.yaml: entries by type and any spelling of the name (through AlgorithmNames), one build's view (the entry's own providers section over the overlays, only for an entry with a providers section, as the Python reader), an entry's key.type per build, the generators of an entry's key type, the keyed families (families.yaml, key kind not none), the guide files beside it (missing_resource); no validation, the Python reader validates
 apps/benchmark/modules/document/src/main/kotlin/catalogue/GroupExemplars.kt : groups.yaml's exemplars per family, in file order
 apps/benchmark/modules/document/src/main/kotlin/catalogue/Overrides.kt : a build's path: value on a copy of an entry: a dotted field (a list step by name or fact), or a whole required or optional row (null drops it)
+apps/benchmark/modules/document/src/main/kotlin/catalogue/Recipes.kt : the one Kotlin reader of algorithms/recipes.yaml (bundled beside FamilyCatalogue): a recipe and an entry's required rows at a build to the {class, arguments} tree jca's ParameterBinder binds, as Python's guide_items.parameter_tree; a builder or keyRef recipe, a role without its value or length, an unknown recipe: Unbuildable, guide_recipe_unbuildable
 apps/benchmark/modules/document/src/main/kotlin/names/AlgorithmNames.kt : the one Kotlin reader of algorithm-names.yaml (beside it): canonical name and key size, key type, rule name match, identifier fold; refuses a spelling under two names, sized and named, or an OID. form apart from its bare OID
 apps/benchmark/modules/document/src/main/kotlin/names/dto/Canonical.kt : canonical name, key-size constraint, catalogued or not
 apps/benchmark/modules/document/src/main/kotlin/versioned/DocumentHandler.kt : reader and writer interface
@@ -26,5 +27,6 @@ apps/benchmark/modules/document/src/main/kotlin/versioned/YamlFiles.kt : factory
 apps/benchmark/modules/document/src/test/kotlin/DocumentFieldsTest.kt : sectionsIfKeyPresent fails on a null value, optionalSections, optionalSection and sectionOrEmpty on absent and null
 apps/benchmark/modules/document/src/test/kotlin/DocumentIoTest.kt : SchemaVersion refusals, a parse refusal as <code>: <file>: <rest> (codeless, empty and colon-in-detail cases), AtomicFile replace and refuse, YamlLine escapes
 apps/benchmark/modules/document/src/test/kotlin/FamilyCatalogueTest.kt : a build's view with behaviours, deviations and the entry's own section, an entry without providers untouched, the nearest build, group exemplars
+apps/benchmark/modules/document/src/test/kotlin/RecipesTest.kt : a recipe's tree from the rows at a build, nested recipes, constants and enums; builder, keyRef and unknown recipes refused with the code
 apps/benchmark/modules/document/src/test/kotlin/YamlCodecTest.kt : both profiles' dump style and load failures
 ```
