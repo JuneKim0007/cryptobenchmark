@@ -37,7 +37,7 @@ configure(subprojects.filter { it.name in moduleDirectories }) {
             rootDir.resolve(moduleDirectories.getValue("files")).resolve("src/main/kotlin").takeIf { !leaf },
             rootDir.resolve(moduleDirectories.getValue("jca")).resolve("src/main/kotlin").takeIf { !leaf && name != "contract" },
             rootDir.resolve(moduleDirectories.getValue("document")).resolve("src/main/kotlin").takeIf { !leaf },
-            rootDir.resolve(moduleDirectories.getValue("contract")).resolve("src/main/kotlin").takeIf { name == "discovery" },
+            rootDir.resolve(moduleDirectories.getValue("contract")).resolve("src/main/kotlin").takeIf { name in listOf("discovery", "config") },
             rootDir.resolve("../../apps/benchmark/modules/settings/src/main/kotlin").takeIf { !leaf && name !in listOf("contract", "discovery") },
             rootDir.resolve("../../apps/benchmark/modules/records/src/main/kotlin").takeIf { !leaf && name !in listOf("contract", "discovery") },
             rootDir.resolve("../../apps/benchmark/modules/catalogue/src/main/kotlin").takeIf { !leaf && name !in listOf("contract", "discovery") },

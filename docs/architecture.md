@@ -37,7 +37,7 @@ config/benchmark/global.yaml + config/benchmark/testsets/*.yaml
 | `:settings` | `apps/benchmark/modules/settings` | none | none |
 | `:records` | `apps/benchmark/modules/records` | `implementation :document` | none |
 | `:catalogue` | `apps/benchmark/modules/catalogue` | `api :files` | none |
-| `:config` | `apps/benchmark/modules/config` | `implementation :settings`, `implementation :records`, `implementation :catalogue`, `implementation :files`, `implementation :document` | snakeyaml 2.3 |
+| `:config` | `apps/benchmark/modules/config` | `implementation :environment:contract`, `implementation :settings`, `implementation :records`, `implementation :catalogue`, `implementation :files`, `implementation :document` | snakeyaml 2.3 |
 | `:preparation` | `apps/benchmark/modules/preparation` | `api :settings`, `api :records`, `api :catalogue`, `api :jca`, `implementation :files`, `implementation :document` | snakeyaml 2.3 |
 | `:benchmark` | `apps/benchmark/modules/benchmark` | `api :preparation`, `implementation :files`, `implementation :document` | snakeyaml 2.3 |
 | `:android` | `apps/benchmark/modules/android` | `androidTestImplementation :benchmark`, `:environment:discovery`, `:files`, `:document` | benchmark-junit4 1.5.0; androidTest: androidx.test:runner 1.5.2, junit 4.13.2 |
@@ -82,7 +82,7 @@ config/benchmark/global.yaml + config/benchmark/testsets/*.yaml
 | `document` | `apps/benchmark/modules/document/src/main/kotlin` | snakeyaml 2.3; junit 4.13.2 (test) |
 | `contract` | `apps/benchmark/modules/environment/contract/src/main/kotlin` + `apps/benchmark/modules/files` + `apps/benchmark/modules/document` | snakeyaml 2.3 |
 | `discovery` | `apps/benchmark/modules/environment/discovery/src/main/kotlin` + `apps/benchmark/modules/environment/contract` + `apps/benchmark/modules/files` + `apps/benchmark/modules/document` | snakeyaml 2.3; junit 4.13.2 (test) |
-| `config` | `apps/benchmark/modules/config` + `apps/benchmark/modules/settings` + `apps/benchmark/modules/records` + `apps/benchmark/modules/catalogue` + `apps/benchmark/modules/files` + `apps/benchmark/modules/document` | same |
+| `config` | `apps/benchmark/modules/config` + `apps/benchmark/modules/environment/contract` + `apps/benchmark/modules/settings` + `apps/benchmark/modules/records` + `apps/benchmark/modules/catalogue` + `apps/benchmark/modules/files` + `apps/benchmark/modules/document` | same |
 | `preparation` | `apps/benchmark/modules/preparation` + `apps/benchmark/modules/settings` + `apps/benchmark/modules/records` + `apps/benchmark/modules/catalogue` + `apps/benchmark/modules/files` + `apps/benchmark/modules/document` | same |
 | `benchmark` | `apps/benchmark/modules/benchmark` + `apps/benchmark/modules/preparation` + `apps/benchmark/modules/settings` + `apps/benchmark/modules/records` + `apps/benchmark/modules/catalogue` + `apps/benchmark/modules/files` + `apps/benchmark/modules/document` | same |
 | `architecture` | tests only: the module subprojects' compiled classes against `tools/module-isolation/layers.yaml` | archunit 1.5.1, snakeyaml 2.3, junit 4.13.2 (test) |

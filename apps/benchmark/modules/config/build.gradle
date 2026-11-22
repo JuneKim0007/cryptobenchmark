@@ -14,6 +14,7 @@ kotlin {
 
 dependencies {
     implementation libs.snakeyaml
+    implementation project(':environment:contract')
     implementation project(':settings')
     implementation project(':records')
     implementation project(':catalogue')

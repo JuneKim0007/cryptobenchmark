@@ -1007,8 +1007,6 @@ codes:
   api_too_low: {kind: outcome}
   bench_failed: {kind: notice}
   bind_failed: {kind: error}
-  blank_alias: {kind: error}
-  blank_artifact: {kind: error}
   blank_provider: {kind: error}
   blank_rule_part: {kind: error}
   block_unverified: {kind: notice}

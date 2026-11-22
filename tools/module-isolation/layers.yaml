@@ -28,6 +28,7 @@ modules:
     uses: {}
   config:
     uses:
+      contract: [bundled.BundledProvider]
       settings: [EnergySettings, Facts, HarnessSettings, Leaf, Metric, Nested, OnFailure, Phase, RunKeys, Section, Unsupported, Values]
       records: [Skip, StoppedOnFailureException]
       catalogue: [EngineRows]

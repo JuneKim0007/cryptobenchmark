@@ -1,10 +1,14 @@
-package io.github.junekim0007.cryptobench.config.global.dto
+package io.github.junekim0007.cryptobench.contract.bundled
 
 data class BundledProvider(
     val artifact: String,
     val create: String,
     val alias: String? = null,
 ) {
+
+    val className: String get() = create.substringBefore(FACTORY)
+
+    val factory: String? get() = create.substringAfter(FACTORY, "").ifEmpty { null }
 
     init {
         require(ARTIFACT.matches(artifact)) { "invalid_artifact: $artifact, expected group:name:version" }
@@ -13,6 +17,7 @@ data class BundledProvider(
     }
 
     private companion object {
+        const val FACTORY = '#'
         val ARTIFACT = Regex("[^:,\\s]+:[^:,\\s]+:[^:,\\s]+")
         private const val IDENTIFIER = "[\\p{L}_$][\\p{L}\\p{N}_$]*"
         val CREATE = Regex("$IDENTIFIER(\\.$IDENTIFIER)+(#$IDENTIFIER)?")

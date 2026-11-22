@@ -4,6 +4,7 @@
 apps/benchmark/modules/environment/contract/README.md : module summary and link to this index
 apps/benchmark/modules/environment/contract/build.gradle : Kotlin/JVM 17 library; :files and :document; no :jca
 apps/benchmark/modules/environment/contract/docs/index.md : this map
+apps/benchmark/modules/environment/contract/src/main/kotlin/bundled/BundledProvider.kt : one providers.bundled entry and its rule: artifact group:name:version, create Class or Class#factory, alias without whitespace; className and factory
 apps/benchmark/modules/environment/contract/src/main/kotlin/capture/CaptureDocument.kt : capture YAML schema (of, parse)
 apps/benchmark/modules/environment/contract/src/main/kotlin/capture/CapturedEnvironment.kt : capture model, SCHEMA_VERSION 1
 apps/benchmark/modules/environment/contract/src/main/kotlin/capture/ProviderEntry.kt : one provider record with origin and artifact

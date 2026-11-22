@@ -2,7 +2,7 @@ package io.github.junekim0007.cryptobench.discovery
 
 import io.github.junekim0007.cryptobench.discovery.bundled.AliasedProvider
 import io.github.junekim0007.cryptobench.discovery.bundled.BundledInstaller
-import io.github.junekim0007.cryptobench.discovery.bundled.BundledProvider
+import io.github.junekim0007.cryptobench.contract.bundled.BundledProvider
 import io.github.junekim0007.cryptobench.discovery.bundled.BundledProviderException
 import io.github.junekim0007.cryptobench.discovery.bundled.InstalledProvider
 import io.github.junekim0007.cryptobench.discovery.bundled.ProviderFactory

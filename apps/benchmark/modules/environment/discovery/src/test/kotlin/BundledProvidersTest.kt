@@ -1,7 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery
 
-import io.github.junekim0007.cryptobench.discovery.bundled.BundledProvider
-import io.github.junekim0007.cryptobench.discovery.bundled.BundledProviderException
+import io.github.junekim0007.cryptobench.contract.bundled.BundledProvider
 import io.github.junekim0007.cryptobench.discovery.bundled.BundledProviders
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -34,13 +33,14 @@ class BundledProvidersTest {
             "wrong_type" to "not a list",
             "missing_field" to listOf(mapOf("artifact" to "a:b:1")),
             "unknown_keys" to listOf(mapOf("artifact" to "a:b:1", "create" to "a.B", "position" to 1)),
+            "invalid_artifact" to listOf(mapOf("artifact" to "a:b", "create" to "a.B")),
             "invalid_create" to listOf(mapOf("artifact" to "a:b:1", "create" to "a.B#")),
             "invalid_create" to listOf(mapOf("artifact" to "a:b:1", "create" to "a..B")),
-            "blank_alias" to listOf(mapOf("artifact" to "a:b:1", "create" to "a.B", "alias" to " ")),
+            "invalid_alias" to listOf(mapOf("artifact" to "a:b:1", "create" to "a.B", "alias" to "x y")),
         )
         cases.forEach { (code, value) ->
-            val error = assertThrows(BundledProviderException::class.java) { BundledProviders.read(mapOf(BundledProviders.KEY to value)) }
-            assertEquals(code, error.code)
+            val error = assertThrows(IllegalArgumentException::class.java) { BundledProviders.read(mapOf(BundledProviders.KEY to value)) }
+            assertEquals(code, error.message!!.substringBefore(':'))
         }
     }
 }

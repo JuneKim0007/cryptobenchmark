@@ -64,7 +64,7 @@ apps/benchmark/modules/benchmark/ : plan check and measurement of prepared cases
 apps/benchmark/modules/catalogue/ : EngineRows, the one reading of setup-catalog.yaml's per-type rows config and preparation share
 apps/benchmark/modules/config/ : capture and trial to inventory.yaml; inventory and config/ to effective.yaml
 apps/benchmark/modules/document/ : the one YAML codec, a SnakeYAML setup per profile, and DocumentFields; shared by discovery, config, preparation and benchmark
-apps/benchmark/modules/environment/contract/ : the discovery handoff documents: capture, trial and requirements models and YAML schemas, no JCA
+apps/benchmark/modules/environment/contract/ : the discovery handoff documents: capture, trial and requirements models and YAML schemas, and the one providers.bundled entry rule; no JCA
 apps/benchmark/modules/environment/discovery/ : provider and service probe, default-run and requirement trials, capture, trial and requirements YAML writers
 apps/benchmark/modules/files/ : every Kotlin file and folder name, stamps and beside-a-file rules; python's CONTRACT agrees
 apps/benchmark/modules/jca/ : the one catch rule and the provider-message scrubber every module that calls a provider shares

@@ -24,9 +24,8 @@ apps/benchmark/modules/environment/discovery/src/main/kotlin/adapter/ServiceKey.
 apps/benchmark/modules/environment/discovery/src/main/kotlin/adapter/ServiceKeyException.kt : blank-field error for ServiceKey
 apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/AliasedProvider.kt : delegating Provider under an alias; services re-bound to it
 apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/BundledInstaller.kt : creates and appends each bundled provider; alias on a name clash
-apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/BundledProvider.kt : one bundled provider spec {artifact, create, alias?}
-apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/BundledProviderException.kt : coded install or spec error
-apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/BundledProviders.kt : reads the bundledProviders list from a document map
+apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/BundledProviderException.kt : coded install or document-shape error
+apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/BundledProviders.kt : reads the bundledProviders list from a document map: shape only, each entry contract's BundledProvider
 apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/InstalledProvider.kt : registered name and artifact of one installed provider
 apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/ProviderFactory.kt : Provider by reflection: no-argument constructor or static factory
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/DefaultRunTrial.kt : level 2: one real call per instantiated service or transformation

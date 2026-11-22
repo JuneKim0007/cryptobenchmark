@@ -14,7 +14,7 @@ BUNDLED_PROVIDERS = paths.BUNDLED_PROVIDERS.path
 SCHEMA_VERSION = 1
 REQUIRED = ("artifact", "provider", "create", "source")
 OPTIONAL = ("alias", "minSdk", "notes", "blocked", "badVersions")
-# the forms config's BundledProvider accepts; the version is the app's pin, never the catalog's
+# the forms contract's BundledProvider accepts; the version is the app's pin, never the catalog's
 _ARTIFACT = re.compile(r"^[\w.\-]+:[\w.\-]+$")
 _CREATE = re.compile(r"^[A-Za-z_$][\w$]*(\.[A-Za-z_$][\w$]*)+(#[A-Za-z_$][\w$]*)?$")
 _NAME = re.compile(r"^\S+$")

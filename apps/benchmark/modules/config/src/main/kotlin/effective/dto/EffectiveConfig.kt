@@ -2,7 +2,7 @@ package io.github.junekim0007.cryptobench.config.effective.dto
 
 import io.github.junekim0007.cryptobench.records.Skip
 import io.github.junekim0007.cryptobench.config.global.dto.AnalysisSettings
-import io.github.junekim0007.cryptobench.config.global.dto.BundledProvider
+import io.github.junekim0007.cryptobench.contract.bundled.BundledProvider
 import io.github.junekim0007.cryptobench.config.global.dto.Policy
 import io.github.junekim0007.cryptobench.config.global.dto.RunSettings
 import io.github.junekim0007.cryptobench.files.StampedName

@@ -4,7 +4,7 @@ import io.github.junekim0007.cryptobench.config.effective.EffectiveBuilder
 import io.github.junekim0007.cryptobench.config.effective.EffectiveDocument
 import io.github.junekim0007.cryptobench.config.global.GlobalDocument
 import io.github.junekim0007.cryptobench.config.global.dto.AnalysisSettings
-import io.github.junekim0007.cryptobench.config.global.dto.BundledProvider
+import io.github.junekim0007.cryptobench.contract.bundled.BundledProvider
 import io.github.junekim0007.cryptobench.config.global.dto.MeasurePass
 import io.github.junekim0007.cryptobench.config.global.dto.StartMargin
 import io.github.junekim0007.cryptobench.config.global.dto.ThermalGate

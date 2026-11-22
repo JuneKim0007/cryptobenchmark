@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.config.global
 
-import io.github.junekim0007.cryptobench.config.global.dto.BundledProvider
+import io.github.junekim0007.cryptobench.contract.bundled.BundledProvider
 import io.github.junekim0007.cryptobench.config.global.dto.ProviderSources
 import io.github.junekim0007.cryptobench.document.DocumentFields.expectKeys
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSections

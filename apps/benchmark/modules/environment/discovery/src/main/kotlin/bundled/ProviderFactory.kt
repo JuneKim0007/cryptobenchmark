@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery.bundled
 
+import io.github.junekim0007.cryptobench.contract.bundled.BundledProvider
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Modifier
 import java.security.Provider

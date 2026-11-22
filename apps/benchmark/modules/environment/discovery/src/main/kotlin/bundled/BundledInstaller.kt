@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery.bundled
 
+import io.github.junekim0007.cryptobench.contract.bundled.BundledProvider
 import java.security.Provider
 import java.security.Security
 
