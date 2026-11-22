@@ -73,7 +73,7 @@ apps/benchmark/modules/config/src/main/kotlin/yaml/ProviderTree.kt : provider to
 apps/benchmark/modules/config/src/test/kotlin/AlgorithmNamesTest.kt : document's AlgorithmNames: the cases shared with perf-repair, every catalogued spelling, key types, linkage refusals, inventory duplicates, rule names
 apps/benchmark/modules/config/src/test/kotlin/AuthoredFilesTest.kt : a typo key or a bad providers.bundled stops the parse-only read
 apps/benchmark/modules/config/src/test/kotlin/BesideAuthoredParityTest.kt : tests/contracts/documents/beside-authored.json: Beside.authored gives each stated test-set path text; Python's paths.beside the same location
-apps/benchmark/modules/config/src/test/kotlin/BundledCasesParityTest.kt : tests/contracts/documents/bundled-cases.json: ProvidersDocument refuses each case with its code or accepts it; Python's bundled.entries the same
+apps/benchmark/modules/config/src/test/kotlin/BundledCasesParityTest.kt : tests/contracts/documents/bundled-cases.json: the providers section and its bundled entries, read as GlobalDocument reads them, each refused with its code or accepted; Python's bundled.entries the same
 apps/benchmark/modules/config/src/test/kotlin/CommittedConfigTest.kt : committed config/ files parse
 apps/benchmark/modules/config/src/test/kotlin/ConfigurationTest.kt : facade tests
 apps/benchmark/modules/config/src/test/kotlin/ContractsTest.kt : config's global and effective examples, tests/contracts/ facts and scalars read to their .json values; algorithm-names.yaml resolves as Python resolves it; the duplicate-key refusal and exponent read

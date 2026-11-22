@@ -37,6 +37,7 @@
   {"name": "types are checked before patterns", "providers": {"bundled": [{"artifact": "", "create": 7}]}, "code": "wrong_type"},
   {"name": "an Nl or No digit inside an identifier", "providers": {"bundled": [{"artifact": "a:b:1", "create": "a.B\u00b2"}, {"artifact": "c:d:1", "create": "a.B\u216b"}]}, "code": null},
   {"name": "an Lo letter", "providers": {"bundled": [{"artifact": "a:b:1", "create": "a.\u4e2d"}]}, "code": null},
+  {"name": "an Lm letter", "providers": {"bundled": [{"artifact": "a:b:1", "create": "a.B\u02b0"}]}, "code": null},
   {"name": "a supplementary-plane letter", "providers": {"bundled": [{"artifact": "a:b:1", "create": "a.\ud835\udc00#\ud835\udc01"}]}, "code": null},
   {"name": "a null alias is no alias", "providers": {"bundled": [{"artifact": "a:b:1", "create": "a.B", "alias": null}]}, "code": null},
   {"name": "a newline in the alias", "providers": {"bundled": [{"artifact": "a:b:1", "create": "a.B", "alias": "x\ny"}]}, "code": "invalid_alias"},
