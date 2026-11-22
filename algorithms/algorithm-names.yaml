@@ -3317,9 +3317,6 @@ keyTypes:
   DSA: []
   DSTU4145: []
   DSTU7624: []
-  DSTU7624-128: []
-  DSTU7624-256: []
-  DSTU7624-512: []
   EC:
   - ECDSA
   - ECDH
