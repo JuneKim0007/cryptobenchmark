@@ -115,7 +115,7 @@ cryptobench/shared/session/tests/ : pytest tests of session.yaml and target reso
 cryptobench/shared/settings/__init__.py : package of the run's settings readers the stages share
 cryptobench/shared/settings/authored.py : read, the one Python reader of the authored global.yaml: its document, providers.bundled, selection.knownVectors against it, selection.testSet beside it by paths.beside
 cryptobench/shared/settings/bundled.py : providers.bundled of global.yaml: its entries checked for authored.read by bundled_rule and for repeats in config's order, build property of the app or host CLI, DeviceProbe argument, effective record and check
-cryptobench/shared/settings/bundled_rule.py : one providers.bundled entry checked as config's ProvidersDocument and contract's BundledProvider check it: shape, then artifact, create and alias forms
+cryptobench/shared/settings/bundled_rule.py : one providers.bundled entry checked as config's ProvidersDocument and contract's BundledProvider check it: shape, then artifact, create and alias forms; the create and name forms perf-repair's bundled catalog reuses
 cryptobench/shared/settings/defaults.py : defaults.yaml read through importlib.resources, by dotted path: the value :config writes for a key a config leaves out
 cryptobench/shared/settings/defaults.yaml : package data written by :config DefaultsDocument (DefaultsFileTest pins it): run and analysis defaults, the energy capture and source a node without them gets
 cryptobench/shared/settings/effective_view.py : the KEY table of effective.yaml (path, read rule, honoured on --bench); RunView, GateView, AnalysisView, EnergyView; the keys a host run ignores; effective.yaml with the warnings and skips of report.yaml

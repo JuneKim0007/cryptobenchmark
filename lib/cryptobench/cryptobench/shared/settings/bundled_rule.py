@@ -25,18 +25,23 @@ def problem(entry, at):
         return "wrong_type", f"alias at {at}"
     if not _ARTIFACT.fullmatch(entry["artifact"]):
         return "invalid_artifact", f"{entry['artifact']}, expected group:name:version at {at}"
-    if not _create(entry["create"]):
+    if not valid_create(entry["create"]):
         return "invalid_create", f"{entry['create']}, expected fully.qualified.Class or fully.qualified.Class#staticFactory at {at}"
-    if alias is not None and (not alias or any(c in _SPACE for c in alias)):
+    if alias is not None and not valid_name(alias):
         return "invalid_alias", f"'{alias}', expected a non-blank name without whitespace at {at}"
     return None
 
 
-def _create(text):
+def valid_create(text):
     """Kotlin's ID(.ID)+(#ID)? where ID is [\\p{L}_$][\\p{L}\\p{N}_$]*; Python's re has no \\p{L}, so by category."""
     type_name, *factory = text.split("#")
     parts = type_name.split(".")
     return len(factory) <= 1 and len(parts) >= 2 and all(map(_identifier, parts + factory))
+
+
+def valid_name(text):
+    """Kotlin's \\S+ on the host: non-empty, none of Java's whitespace."""
+    return bool(text) and not any(c in _SPACE for c in text)
 
 
 def _identifier(word):

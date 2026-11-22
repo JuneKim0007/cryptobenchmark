@@ -24,7 +24,7 @@
 
 ```
 src/perfrepair/catalog/bundled-providers.yaml : data: per Gradle group:name an app ships, the provider it registers, create, alias, minSdk, notes, a known blocker, and its source
-src/perfrepair/catalog/bundled_providers.py : the bundled-providers reader: every row's forms, keys and source checked, every problem at once; a row's providers.bundled entry at the app's pinned version; whether an app's registration expression builds the row's provider
+src/perfrepair/catalog/bundled_providers.py : the bundled-providers reader: every row's forms (create, alias and provider by cryptobench bundled_rule), keys and source checked, every problem at once; a row's providers.bundled entry at the app's pinned version; whether an app's registration expression builds the row's provider
 src/perfrepair/catalog/screening.py : the screening reader: crypto, component and platform rules; every key canonical, statuses and sources checked; component match
 src/perfrepair/catalog/screening.yaml : data: per (engine type, canonical name) a deprecated or accepted status with reason and source; Cipher base and mode rules; per-provider platform deprecation by targetSdk
 src/perfrepair/catalog/upgrades.py : reader of upgrades.yaml, checked whole: per family a broken canonical name, its accepted targets, each target's source; every name canonical with a type row, screened as said

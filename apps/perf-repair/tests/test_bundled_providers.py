@@ -30,10 +30,17 @@ def test_each_row_names_the_provider_libraries_yaml_gives_its_artifact():
     ({"source": "T"}, "source 'T' is not in sources"),
     ({"version": "1"}, "unknown key version"),
     ({"create": None}, "no create"),
+    ({"artifact": "g:a\n"}, "artifact"),
+    ({"create": "g.Aaa\n"}, "create"),
+    ({"alias": "X\n"}, "alias"),
 ])
 def test_a_bad_row_is_one_problem(change, problem):
     [found] = catalog_problems(doc({**ROW, **change}))
     assert found.startswith(f"providers[0]: {problem.split(' ')[0]}")
+
+
+def test_create_and_names_follow_the_providers_bundled_rule():
+    assert catalog_problems(doc({**ROW, "create": "\u00e9.B#make", "alias": "\u2003x", "provider": "\u4e2d"})) == []
 
 
 def test_a_duplicate_artifact_is_a_problem_a_shared_alias_is_not():

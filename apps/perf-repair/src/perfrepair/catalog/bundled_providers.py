@@ -9,17 +9,16 @@ from pathlib import Path
 from cryptobench.shared import paths
 from cryptobench.shared.errors.input_error import InputError
 from cryptobench.shared.document.document import parse_yaml
+from cryptobench.shared.settings import bundled_rule
 
 BUNDLED_PROVIDERS = paths.BUNDLED_PROVIDERS.path
 SCHEMA_VERSION = 1
 REQUIRED = ("artifact", "provider", "create", "source")
 OPTIONAL = ("alias", "minSdk", "notes", "blocked", "badVersions")
-# the forms contract's BundledProvider accepts; the version is the app's pin, never the catalog's
-_ARTIFACT = re.compile(r"^[\w.\-]+:[\w.\-]+$")
-_CREATE = re.compile(r"^[A-Za-z_$][\w$]*(\.[A-Za-z_$][\w$]*)+(#[A-Za-z_$][\w$]*)?$")
-_NAME = re.compile(r"^\S+$")
-_FORMS = (("artifact", _ARTIFACT, "group:name"), ("create", _CREATE, "Class or Class#factory"),
-          ("alias", _NAME, "a name without whitespace"), ("provider", _NAME, "a name without whitespace"))
+# create and names by the providers.bundled rule; the artifact is group:name, the version is the app's pin
+_ARTIFACT = re.compile(r"[\w.\-]+:[\w.\-]+")
+_FORMS = (("artifact", _ARTIFACT.fullmatch, "group:name"), ("create", bundled_rule.valid_create, "Class or Class#factory"),
+          ("alias", bundled_rule.valid_name, "a name without whitespace"), ("provider", bundled_rule.valid_name, "a name without whitespace"))
 
 
 class BundledCatalogError(InputError):
@@ -65,8 +64,8 @@ class BundledCatalog:
 
 
 def _form_problems(where: str, row: dict) -> list[str]:
-    return [f"{where}: {k} {row[k]!r} is not {what}" for k, pattern, what in _FORMS
-            if row.get(k) is not None and not (isinstance(row[k], str) and pattern.match(row[k]))]
+    return [f"{where}: {k} {row[k]!r} is not {what}" for k, valid, what in _FORMS
+            if row.get(k) is not None and not (isinstance(row[k], str) and valid(row[k]))]
 
 
 def _value_problems(where: str, row: dict, sources: dict) -> list[str]:
