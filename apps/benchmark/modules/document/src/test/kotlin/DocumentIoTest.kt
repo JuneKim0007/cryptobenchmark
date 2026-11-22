@@ -1,6 +1,7 @@
 package io.github.junekim0007.cryptobench.document
 
 import io.github.junekim0007.cryptobench.document.versioned.DocumentReader
+import io.github.junekim0007.cryptobench.document.versioned.FileRefusal
 import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
@@ -31,6 +32,14 @@ class DocumentIoTest {
         }
         val refused = assertThrows(IllegalArgumentException::class.java) { YamlFiles().readOnly(File("x.yaml"), reader).read("schemaVersion: 1\n") }
         assertEquals("unknown_keys: x.yaml: run [sed]", refused.message)
+    }
+
+    @Test
+    fun aRefusalWithoutACodeIsRefusedAsItIsAndADetailKeepsItsColons() {
+        assertEquals("invalid: refusal without a code: x.yaml: precedence is 1-based, was 0", FileRefusal.of("x.yaml", "precedence is 1-based, was 0"))
+        assertEquals("invalid: refusal without a code: x.yaml: ", FileRefusal.of("x.yaml", ""))
+        assertEquals("invalid: refusal without a code: x.yaml: Oops: bad", FileRefusal.of("x.yaml", "Oops: bad"))
+        assertEquals("wrong_type: x.yaml: c expects 'k: v'", FileRefusal.of("x.yaml", "wrong_type: c expects 'k: v'"))
     }
 
     @Test

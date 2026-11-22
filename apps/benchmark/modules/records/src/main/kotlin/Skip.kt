@@ -1,5 +1,7 @@
 package io.github.junekim0007.cryptobench.records
 
+import io.github.junekim0007.cryptobench.document.ErrorCode
+
 /** A case or entry left out; reason is `code: detail`, caseId only when one case is meant. skipped.yaml and report.yaml list them. */
 data class Skip(
     val stage: String,
@@ -12,7 +14,7 @@ data class Skip(
 
     init {
         require(stage.isNotBlank()) { "missing_field: stage" }
-        require(CODE.matches(code)) { "invalid: skip reason without a code: $reason" }
+        require(ErrorCode.PATTERN.matches(code)) { "invalid: skip reason without a code: $reason" }
     }
 
     val code: String get() = reason.substringBefore(SEPARATOR)
@@ -45,7 +47,6 @@ data class Skip(
         private const val CODE_FIELD = "code"
         private const val REASON = "reason"
         private const val SEPARATOR = ": "
-        private val CODE = Regex("[a-z][a-z0-9_]*")
 
         fun read(record: Map<String, *>): Skip {
             fun text(key: String) = record[key]?.toString()

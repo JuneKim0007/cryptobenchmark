@@ -14,7 +14,8 @@ modules:
       files: all
       document: all
   records:
-    uses: {}
+    uses:
+      document: [ErrorCode]
   catalogue:
     uses:
       files: [FileNames, VariantLabels]

@@ -6,6 +6,7 @@ apps/benchmark/modules/document/build.gradle : Kotlin/JVM 17 library; snakeyaml 
 apps/benchmark/modules/document/docs/index.md : this map
 apps/benchmark/modules/document/src/main/kotlin/AtomicFile.kt : whole-or-nothing write: a unique temporary file beside the target, renamed over it; replace = false refuses an existing file
 apps/benchmark/modules/document/src/main/kotlin/DocumentFields.kt : typed reads with missing_field and wrong_type; optionalSection (null) and sectionOrEmpty; optionalSections and sectionsIfKeyPresent (a null value fails); choice by key (invalid:) and by enum (unknown_<field>:); expectKeys
+apps/benchmark/modules/document/src/main/kotlin/ErrorCode.kt : the one Kotlin error-code pattern; FileRefusal and records' Skip check codes with it
 apps/benchmark/modules/document/src/main/kotlin/SchemaVersion.kt : the one schemaVersion refusal: missing_field: <name>: schemaVersion, unsupported_schema_version: <name>: <v>, this build reads <n>
 apps/benchmark/modules/document/src/main/kotlin/YamlCodec.kt : SnakeYAML dump and load by profile: DOCUMENT (config, preparation, benchmark's YAML files: AUTO, aliases dereferenced, safe, duplicate keys and non-mappings refused), CAPTURE (discovery: BLOCK, aliases kept, default constructor, unchecked mapping cast), RESULTS (benchmark's androidx JSON, energy and pass inputs: safe, duplicate keys last wins, not_a_mapping: <value>)
 apps/benchmark/modules/document/src/main/kotlin/YamlLine.kt : a double-quoted YAML scalar for line-at-a-time writers (cpu-pins.yaml, energy-dry.yaml)
@@ -17,13 +18,13 @@ apps/benchmark/modules/document/src/main/kotlin/names/AlgorithmNames.kt : the on
 apps/benchmark/modules/document/src/main/kotlin/names/dto/Canonical.kt : canonical name, key-size constraint, catalogued or not
 apps/benchmark/modules/document/src/main/kotlin/versioned/DocumentHandler.kt : reader and writer interface
 apps/benchmark/modules/document/src/main/kotlin/versioned/DocumentReader.kt : reader interface: the schemaVersion it reads and its parse
-apps/benchmark/modules/document/src/main/kotlin/versioned/FileRefusal.kt : a reader's <code>: <rest> refusal with the file after its code: <code>: <file>: <rest>
+apps/benchmark/modules/document/src/main/kotlin/versioned/FileRefusal.kt : a reader's <code>: <rest> refusal with the file after its code: <code>: <file>: <rest>; a codeless one is invalid: refusal without a code: <file>: <message>
 apps/benchmark/modules/document/src/main/kotlin/versioned/MapDocument.kt : a versioned document written as the map its writer built (check.yaml, interop.yaml)
 apps/benchmark/modules/document/src/main/kotlin/versioned/VersionedFile.kt : the one versioned read, of a file or its text: missing_file, unreadable_yaml: <file>, the SchemaVersion refusal, then the reader's parse with its refusal as <code>: <file>: <rest> (FileRefusal)
 apps/benchmark/modules/document/src/main/kotlin/versioned/YamlFile.kt : VersionedFile's read; write stamps schemaVersion first, through AtomicFile
 apps/benchmark/modules/document/src/main/kotlin/versioned/YamlFiles.kt : factory for YamlFile and VersionedFile on one codec profile
 apps/benchmark/modules/document/src/test/kotlin/DocumentFieldsTest.kt : sectionsIfKeyPresent fails on a null value, optionalSections, optionalSection and sectionOrEmpty on absent and null
-apps/benchmark/modules/document/src/test/kotlin/DocumentIoTest.kt : SchemaVersion refusals, a parse refusal as <code>: <file>: <rest>, AtomicFile replace and refuse, YamlLine escapes
+apps/benchmark/modules/document/src/test/kotlin/DocumentIoTest.kt : SchemaVersion refusals, a parse refusal as <code>: <file>: <rest> (codeless, empty and colon-in-detail cases), AtomicFile replace and refuse, YamlLine escapes
 apps/benchmark/modules/document/src/test/kotlin/FamilyCatalogueTest.kt : a build's view with behaviours, deviations and the entry's own section, an entry without providers untouched, the nearest build, group exemplars
 apps/benchmark/modules/document/src/test/kotlin/YamlCodecTest.kt : both profiles' dump style and load failures
 ```
