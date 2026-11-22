@@ -17,6 +17,12 @@ def test_the_real_parser_catches_a_typo_and_a_bad_provider_before_any_build(tmp_
     with pytest.raises(config_check.ConfigCheckError, match="^unknown_section: global.yaml: ") as refused:
         config_check.parse_all([good])
     assert refused.value.code == "unknown_section"
+    good.write_text("schemaVersion: 1\nselection: {testSet: set.yaml}\nrun: {orderSeed: 1}\n")
+    (tmp_path / "set.yaml").write_text("schemaVersion: 1\ninclde: []\n")
+    with pytest.raises(config_check.ConfigCheckError, match=r"^unknown_keys: set.yaml: testSet \[inclde\]") as refused:
+        config_check.parse_all([good])
+    assert refused.value.code == "unknown_keys"
+    (tmp_path / "set.yaml").write_text("schemaVersion: 1\n")
     good.write_text("schemaVersion: 1\nselection: {testSet: set.yaml}\nrun: {orderSeed: 1}\nproviders: {bundled: [{artifact: 'a:b:1', create: C}]}\n")
     with pytest.raises(config_check.ConfigCheckError, match="invalid_create"):
         config_check.parse_all([good])
