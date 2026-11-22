@@ -52,10 +52,10 @@ A composition of layers: [layers.md](layers.md).
 | | `statistic.meanUpToCovPercent` | `5` | `> 0`; `auto` leads with the mean at or below this CoV, else the median; also the stability limit |
 | | `units.latency` | `ms` | `ms`, `us`, `ns`; display only, results stay ns/op; else `invalid: analysis.units.latency` |
 | | `units.throughput` | `MB/s` | `MB/s` (10⁶ bytes), `MiB/s`, `ops/s`; MB/s and MiB/s only where a case has an input size; else `invalid: analysis.units.throughput` |
-| `providers` | `bundled` | `[]` | list of `{artifact, create, alias?}`; no duplicate artifact or alias |
+| `providers` | `bundled` | `[]` | list of `{artifact, create, alias?}`; a repeated artifact fails `duplicate_artifact`, then a repeated alias `duplicate_alias` |
 | | `bundled[].artifact` | required | `group:name:version`, no comma or whitespace; else `invalid_artifact` |
 | | `bundled[].create` | required | `fully.qualified.Class` (public no-argument constructor) or `fully.qualified.Class#staticFactory`; else `invalid_create` |
-| | `bundled[].alias` | unset | non-blank, no whitespace; the name the provider is registered under; required on the device when its own name is already installed |
+| | `bundled[].alias` | unset | non-blank, no whitespace, else `invalid_alias`; the name the provider is registered under; required on the device when its own name is already installed |
 
 ```yaml
 run:   # a pass's own gate and cool-down, key by key over the run's; every key: example/config_global_example.yaml
@@ -71,7 +71,7 @@ Defaults are `lib/cryptobench/cryptobench/shared/settings/defaults.yaml`, which 
 
 `analysis` is read by `apps/benchmark-runner/analysis/analyze.py` and `charts.py`; `apps/benchmark-runner/pipeline.py` records `analysis.units` in `manifest.yaml`, where perf-repair reads it (`docs/tools.md`, `docs/results.md`). It is left out of the run's input digest: a change reruns no measurement and applies from the next run's manifest.
 
-`providers.bundled` is for `--device` runs. `apps/benchmark-runner/pipeline.py` passes each `artifact` to the app build as `-PbundledArtifacts=a:b:1,c:d:2`, an `implementation` dependency of `apps/benchmark/modules/android`. It also passes the list to `DeviceProbe`. On the device, discovery's `BundledInstaller` creates each provider by reflection and appends it after every platform provider. The capture then records it with `origin: bundled` and its `artifact`. A name that is already installed needs `alias`; without one the install fails with `bundled_name_taken`. Fields: `apps/benchmark/modules/environment/discovery/docs/probe.md`.
+`providers.bundled` is for `--device` runs. `apps/benchmark-runner/pipeline.py` passes each `artifact` to the app build as `-PbundledArtifacts=a:b:1,c:d:2`, an `implementation` dependency of `apps/benchmark/modules/android`. It also passes the list to `DeviceProbe`. On the device, discovery's `BundledInstaller` creates each provider by reflection and appends it after every platform provider. The capture then records it with `origin: bundled` and its `artifact`. A name that is already installed needs `alias`; without one the install fails with `bundled_name_taken`. The entry rule is contract's `apps/benchmark/modules/environment/contract/src/main/kotlin/bundled/BundledProvider.kt`, which config and discovery construct; Python's `lib/cryptobench/cryptobench/shared/settings/bundled_rule.py` refuses the same entries with the same codes, by `tests/contracts/documents/bundled-cases.json`. Fields: `apps/benchmark/modules/environment/discovery/docs/probe.md`.
 
 ## testsets/*.yaml
 
