@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery.adapter
 
-import io.github.junekim0007.cryptobench.discovery.contract.RuntimeInfo
+import io.github.junekim0007.cryptobench.contract.capture.RuntimeInfo
 
 object DeviceRuntimeReader {
 

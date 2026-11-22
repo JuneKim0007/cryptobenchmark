@@ -8,7 +8,7 @@ from . import roots
 from .names import (BENCHMARK_CONFIG, CONFIG_FOLDER, CONTRACT_CATALOGUE, CONTRACT_DOCUMENTS, CONTRACT_RUNNER, CONTRACT_YAML_CODEC, CONTRACTS, ENGINE_OPERATIONS,
                     EXAMPLE, FACADE_CONFIG, GLOBAL, PERF_REPAIR_CONFIG, SETUP_CATALOG, TESTS)
 
-_KOTLIN_NAME_USERS = ("modules/environment/discovery/src/main/kotlin", "modules/catalogue/src/main/kotlin", "modules/config/src/main/kotlin",
+_KOTLIN_NAME_USERS = ("modules/environment/contract/src/main/kotlin", "modules/environment/discovery/src/main/kotlin", "modules/catalogue/src/main/kotlin", "modules/config/src/main/kotlin",
                       "modules/preparation/src/main/kotlin", "modules/benchmark/src/main/kotlin", "modules/android/src/androidTest/kotlin",
                       "cli/src/main/kotlin")
 _APK = "modules/android/build/outputs/apk/release/android-release.apk"

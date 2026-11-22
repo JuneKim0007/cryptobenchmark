@@ -1,14 +1,14 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
 import io.github.junekim0007.cryptobench.jca.failure.Attempt
-import io.github.junekim0007.cryptobench.discovery.contract.CapturedEnvironment
+import io.github.junekim0007.cryptobench.contract.capture.CapturedEnvironment
 import io.github.junekim0007.cryptobench.jca.failure.ErrorText
-import io.github.junekim0007.cryptobench.discovery.contract.RequirementReport
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceEntry
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceKey
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceRequirement
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceTrialEntry
-import io.github.junekim0007.cryptobench.discovery.contract.TrialReport
+import io.github.junekim0007.cryptobench.contract.requirements.RequirementReport
+import io.github.junekim0007.cryptobench.contract.capture.ServiceEntry
+import io.github.junekim0007.cryptobench.discovery.adapter.ServiceKey
+import io.github.junekim0007.cryptobench.contract.requirements.ServiceRequirement
+import io.github.junekim0007.cryptobench.contract.trial.ServiceTrialEntry
+import io.github.junekim0007.cryptobench.contract.trial.TrialReport
 import io.github.junekim0007.cryptobench.discovery.trial.call.DefaultKeys
 import java.security.Provider
 

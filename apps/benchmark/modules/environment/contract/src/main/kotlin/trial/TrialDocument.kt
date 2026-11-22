@@ -1,15 +1,7 @@
-package io.github.junekim0007.cryptobench.discovery.write
+package io.github.junekim0007.cryptobench.contract.trial
 
 import io.github.junekim0007.cryptobench.files.StampedName
 import io.github.junekim0007.cryptobench.document.SchemaVersion
-import io.github.junekim0007.cryptobench.discovery.contract.DefaultRunOutcome
-import io.github.junekim0007.cryptobench.discovery.contract.KeystoreRow
-import io.github.junekim0007.cryptobench.discovery.contract.KeystoreSection
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceTrialEntry
-import io.github.junekim0007.cryptobench.discovery.contract.TransformationTrialEntry
-import io.github.junekim0007.cryptobench.discovery.contract.TrialOutcome
-import io.github.junekim0007.cryptobench.discovery.contract.TrialReport
-import io.github.junekim0007.cryptobench.discovery.contract.TriedKey
 import io.github.junekim0007.cryptobench.document.DocumentFields.boolean
 import io.github.junekim0007.cryptobench.document.DocumentFields.number
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalBoolean

@@ -8,6 +8,7 @@ val moduleDirectories = mapOf(
     "files" to "../../apps/benchmark/modules/files",
     "jca" to "../../apps/benchmark/modules/jca",
     "document" to "../../apps/benchmark/modules/document",
+    "contract" to "../../apps/benchmark/modules/environment/contract",
     "discovery" to "../../apps/benchmark/modules/environment/discovery",
     "config" to "../../apps/benchmark/modules/config",
     "preparation" to "../../apps/benchmark/modules/preparation",
@@ -34,15 +35,16 @@ configure(subprojects.filter { it.name in moduleDirectories }) {
         val sources = listOfNotNull(
             File(moduleDirectory, "src/main/kotlin"),
             rootDir.resolve(moduleDirectories.getValue("files")).resolve("src/main/kotlin").takeIf { !leaf },
-            rootDir.resolve(moduleDirectories.getValue("jca")).resolve("src/main/kotlin").takeIf { !leaf },
+            rootDir.resolve(moduleDirectories.getValue("jca")).resolve("src/main/kotlin").takeIf { !leaf && name != "contract" },
             rootDir.resolve(moduleDirectories.getValue("document")).resolve("src/main/kotlin").takeIf { !leaf },
-            rootDir.resolve("../../apps/benchmark/modules/settings/src/main/kotlin").takeIf { !leaf && name != "discovery" },
-            rootDir.resolve("../../apps/benchmark/modules/records/src/main/kotlin").takeIf { !leaf && name != "discovery" },
-            rootDir.resolve("../../apps/benchmark/modules/catalogue/src/main/kotlin").takeIf { !leaf && name != "discovery" },
+            rootDir.resolve(moduleDirectories.getValue("contract")).resolve("src/main/kotlin").takeIf { name == "discovery" },
+            rootDir.resolve("../../apps/benchmark/modules/settings/src/main/kotlin").takeIf { !leaf && name !in listOf("contract", "discovery") },
+            rootDir.resolve("../../apps/benchmark/modules/records/src/main/kotlin").takeIf { !leaf && name !in listOf("contract", "discovery") },
+            rootDir.resolve("../../apps/benchmark/modules/catalogue/src/main/kotlin").takeIf { !leaf && name !in listOf("contract", "discovery") },
             rootDir.resolve(moduleDirectories.getValue("preparation")).resolve("src/main/kotlin").takeIf { name == "benchmark" },
         )
         sourceSets["main"].kotlin.setSrcDirs(sources)
-        val fixtures = rootDir.resolve(moduleDirectories.getValue("files")).resolve("src/testFixtures/kotlin").takeIf { !leaf }
+        val fixtures = rootDir.resolve(moduleDirectories.getValue("files")).resolve("src/testFixtures/kotlin").takeIf { !leaf && name != "contract" }
         sourceSets["test"].kotlin.setSrcDirs(listOfNotNull(File(moduleDirectory, "src/test/kotlin"), fixtures))
     }
 

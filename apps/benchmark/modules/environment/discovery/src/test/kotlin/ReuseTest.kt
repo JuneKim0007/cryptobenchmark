@@ -1,10 +1,10 @@
 package io.github.junekim0007.cryptobench.discovery
 
 import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
-import io.github.junekim0007.cryptobench.discovery.contract.KeystoreSection
-import io.github.junekim0007.cryptobench.discovery.contract.RequirementReport
-import io.github.junekim0007.cryptobench.discovery.contract.RuntimeInfo
-import io.github.junekim0007.cryptobench.discovery.contract.TrialReport
+import io.github.junekim0007.cryptobench.contract.trial.KeystoreSection
+import io.github.junekim0007.cryptobench.contract.requirements.RequirementReport
+import io.github.junekim0007.cryptobench.contract.capture.RuntimeInfo
+import io.github.junekim0007.cryptobench.contract.trial.TrialReport
 import io.github.junekim0007.cryptobench.discovery.write.EnvironmentYamlWriter
 import io.github.junekim0007.cryptobench.discovery.write.ProbeDirectory
 import io.github.junekim0007.cryptobench.discovery.write.RequirementYamlWriter

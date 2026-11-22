@@ -1,15 +1,15 @@
 package io.github.junekim0007.cryptobench.discovery
 
 import io.github.junekim0007.cryptobench.document.SchemaVersion
-import io.github.junekim0007.cryptobench.discovery.contract.DefaultRunOutcome
-import io.github.junekim0007.cryptobench.discovery.contract.KeystoreRow
-import io.github.junekim0007.cryptobench.discovery.contract.KeystoreSection
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceTrialEntry
-import io.github.junekim0007.cryptobench.discovery.contract.TransformationTrialEntry
-import io.github.junekim0007.cryptobench.discovery.contract.TrialOutcome
-import io.github.junekim0007.cryptobench.discovery.contract.TrialReport
-import io.github.junekim0007.cryptobench.discovery.contract.TriedKey
-import io.github.junekim0007.cryptobench.discovery.write.TrialDocument
+import io.github.junekim0007.cryptobench.contract.trial.DefaultRunOutcome
+import io.github.junekim0007.cryptobench.contract.trial.KeystoreRow
+import io.github.junekim0007.cryptobench.contract.trial.KeystoreSection
+import io.github.junekim0007.cryptobench.contract.trial.ServiceTrialEntry
+import io.github.junekim0007.cryptobench.contract.trial.TransformationTrialEntry
+import io.github.junekim0007.cryptobench.contract.trial.TrialOutcome
+import io.github.junekim0007.cryptobench.contract.trial.TrialReport
+import io.github.junekim0007.cryptobench.contract.trial.TriedKey
+import io.github.junekim0007.cryptobench.contract.trial.TrialDocument
 import io.github.junekim0007.cryptobench.document.YamlCodec
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows

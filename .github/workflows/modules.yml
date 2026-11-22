@@ -1,6 +1,6 @@
 name: modules
 
-# Each module is built alone against its own example/ files: snakeyaml, JUnit, and settings, records and catalogue sources except discovery.
+# Each module is built alone against its own example/ files: snakeyaml, JUnit, and settings, records and catalogue sources except contract and discovery; discovery also compiles contract.
 # A module that reaches into another stops compiling here; benchmark also compiles with preparation.
 # architecture checks layers.yaml over the compiled classes against its frozen store; handoff checks androidTest and cli; names checks Kotlin file names against Python's.
 on:
@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        module: [files, jca, document, discovery, config, preparation, benchmark, architecture]
+        module: [files, jca, document, contract, discovery, config, preparation, benchmark, architecture]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4

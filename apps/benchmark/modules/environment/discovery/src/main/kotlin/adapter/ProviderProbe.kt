@@ -1,13 +1,12 @@
 package io.github.junekim0007.cryptobench.discovery.adapter
 
 import io.github.junekim0007.cryptobench.discovery.bundled.InstalledProvider
-import io.github.junekim0007.cryptobench.discovery.contract.CapturedEnvironment
-import io.github.junekim0007.cryptobench.discovery.contract.ProviderEntry
-import io.github.junekim0007.cryptobench.discovery.contract.ProviderOrigin
-import io.github.junekim0007.cryptobench.discovery.contract.RuntimeInfo
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceAttributes
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceEntry
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceKey
+import io.github.junekim0007.cryptobench.contract.capture.CapturedEnvironment
+import io.github.junekim0007.cryptobench.contract.capture.ProviderEntry
+import io.github.junekim0007.cryptobench.contract.capture.ProviderOrigin
+import io.github.junekim0007.cryptobench.contract.capture.RuntimeInfo
+import io.github.junekim0007.cryptobench.contract.capture.ServiceAttributes
+import io.github.junekim0007.cryptobench.contract.capture.ServiceEntry
 import java.security.Provider
 
 class ProviderProbe {

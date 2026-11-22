@@ -1,4 +1,4 @@
-package io.github.junekim0007.cryptobench.discovery.contract
+package io.github.junekim0007.cryptobench.discovery.trial.call
 
 import io.github.junekim0007.cryptobench.jca.failure.Attempt
 import java.security.AlgorithmParameters

@@ -1,7 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery.trial.keystore
 
-import io.github.junekim0007.cryptobench.discovery.contract.KeystoreRow
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceKey
+import io.github.junekim0007.cryptobench.contract.trial.KeystoreRow
+import io.github.junekim0007.cryptobench.discovery.adapter.ServiceKey
 import io.github.junekim0007.cryptobench.jca.failure.Attempt
 import io.github.junekim0007.cryptobench.jca.reflect.Reflect
 import java.security.KeyPairGenerator

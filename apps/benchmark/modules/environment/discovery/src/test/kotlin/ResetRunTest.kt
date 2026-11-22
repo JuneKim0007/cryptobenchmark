@@ -2,7 +2,7 @@ package io.github.junekim0007.cryptobench.discovery
 
 import io.github.junekim0007.cryptobench.discovery.trial.call.KeyCandidates
 import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceRequirement
+import io.github.junekim0007.cryptobench.contract.requirements.ServiceRequirement
 import io.github.junekim0007.cryptobench.discovery.trial.DefaultRunTrial
 import io.github.junekim0007.cryptobench.discovery.trial.TrialRunner
 import io.github.junekim0007.cryptobench.discovery.trial.call.DefaultKeys

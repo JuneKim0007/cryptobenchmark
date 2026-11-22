@@ -5,10 +5,10 @@
 - `docs/tools.md` : tools/ builds, commands and outputs
 
 ## Rules
-- isolation: a change to jca, document, discovery, config, preparation or benchmark passes `apps/benchmark/gradlew -p tools/module-isolation :<m>:test` for each touched module (`files`, `jca`, `document`, `discovery`, `config`, `preparation`, `benchmark`).
+- isolation: a change to jca, document, contract, discovery, config, preparation or benchmark passes `apps/benchmark/gradlew -p tools/module-isolation :<m>:test` for each touched module (`files`, `jca`, `document`, `contract`, `discovery`, `config`, `preparation`, `benchmark`).
 - isolation: a module that needs another module's classes outside the table in `docs/architecture.md` fails here; fix the dependency, never the isolation build.
-- contract: a change to document, discovery, settings, records, catalogue or config passes `apps/benchmark/gradlew -p apps/benchmark/cli test`.
-- android api: a change to files, jca, document, discovery, settings, records, catalogue, preparation or benchmark passes `apps/benchmark/gradlew -p tools/android-api-check compileKotlin`; pass `-PandroidJar=<android.jar>` when `$ANDROID_HOME/platforms/android-36/android.jar` is absent.
+- contract: a change to document, contract, discovery, settings, records, catalogue or config passes `apps/benchmark/gradlew -p apps/benchmark/cli test`.
+- android api: a change to files, jca, document, contract, discovery, settings, records, catalogue, preparation or benchmark passes `apps/benchmark/gradlew -p tools/android-api-check compileKotlin`; pass `-PandroidJar=<android.jar>` when `$ANDROID_HOME/platforms/android-36/android.jar` is absent.
 - settings: a change to `:settings` passes `apps/benchmark/gradlew -p apps/benchmark :settings:test`.
 - catalogue: a change to `:catalogue` passes `apps/benchmark/gradlew -p apps/benchmark :catalogue:test`.
 - android: a change under `apps/benchmark/modules/android/` passes `apps/benchmark/gradlew -p apps/benchmark build :android:compileReleaseAndroidTestKotlin` (needs `ANDROID_HOME`).

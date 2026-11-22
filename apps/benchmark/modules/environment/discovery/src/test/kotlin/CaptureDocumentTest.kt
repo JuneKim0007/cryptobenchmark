@@ -3,10 +3,10 @@ package io.github.junekim0007.cryptobench.discovery
 import io.github.junekim0007.cryptobench.document.SchemaVersion
 import io.github.junekim0007.cryptobench.discovery.adapter.DeviceRuntimeReader
 import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
-import io.github.junekim0007.cryptobench.discovery.contract.CapturedEnvironment
-import io.github.junekim0007.cryptobench.discovery.contract.ProviderOrigin
-import io.github.junekim0007.cryptobench.discovery.contract.RuntimeInfo
-import io.github.junekim0007.cryptobench.discovery.write.CaptureDocument
+import io.github.junekim0007.cryptobench.contract.capture.CapturedEnvironment
+import io.github.junekim0007.cryptobench.contract.capture.ProviderOrigin
+import io.github.junekim0007.cryptobench.contract.capture.RuntimeInfo
+import io.github.junekim0007.cryptobench.contract.capture.CaptureDocument
 import io.github.junekim0007.cryptobench.document.YamlCodec
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
@@ -30,10 +30,10 @@ class CaptureDocumentTest {
     fun refusesAndNamesWhatIsWrong() {
         val damages: List<Pair<(MutableMap<String, Any>) -> Unit, String>> = listOf(
             { document: MutableMap<String, Any> -> document[SchemaVersion.FIELD] = CapturedEnvironment.SCHEMA_VERSION + 1 } to "unsupported_schema_version",
-            { document: MutableMap<String, Any> -> document.remove(CaptureDocument.PROVIDERS); Unit } to "missing_field: providers",
-            { document: MutableMap<String, Any> -> document[CaptureDocument.RUNTIME] = "not a section" } to "wrong_type: runtime",
-            { document: MutableMap<String, Any> -> document[CaptureDocument.PROVIDERS] = providersWithout(document, CaptureDocument.ORIGIN) } to "missing_field: origin",
-            { document: MutableMap<String, Any> -> document[CaptureDocument.RUNTIME] = LinkedHashMap(document[CaptureDocument.RUNTIME] as Map<*, *>).apply { remove(CaptureDocument.FINGERPRINT) } } to "missing_field: fingerprint",
+            { document: MutableMap<String, Any> -> document.remove("providers"); Unit } to "missing_field: providers",
+            { document: MutableMap<String, Any> -> document["runtime"] = "not a section" } to "wrong_type: runtime",
+            { document: MutableMap<String, Any> -> document["providers"] = providersWithout(document, "origin") } to "missing_field: origin",
+            { document: MutableMap<String, Any> -> document["runtime"] = LinkedHashMap(document["runtime"] as Map<*, *>).apply { remove("fingerprint") } } to "missing_field: fingerprint",
         )
         damages.forEach { (damage, expected) ->
             val document = LinkedHashMap(CaptureDocument.of(capture)).also(damage)
@@ -51,7 +51,7 @@ class CaptureDocumentTest {
             val runtime = DeviceRuntimeReader.read()
             assertEquals("RSA:2048,EC:256", runtime.defaultKeySizeProperty)
             val document = CaptureDocument.of(capture.copy(runtime = runtime))
-            assertEquals("RSA:2048,EC:256", (document[CaptureDocument.RUNTIME] as Map<*, *>)[CaptureDocument.DEFAULT_KEY_SIZE_PROPERTY])
+            assertEquals("RSA:2048,EC:256", (document["runtime"] as Map<*, *>)["defaultKeySizeProperty"])
         } finally {
             if (before == null) System.clearProperty(DeviceRuntimeReader.DEFAULT_KEY_SIZE_PROPERTY) else System.setProperty(DeviceRuntimeReader.DEFAULT_KEY_SIZE_PROPERTY, before)
         }
@@ -73,12 +73,12 @@ class CaptureDocumentTest {
     fun aBundledProviderRoundTripsWithItsOriginAndArtifact() {
         val bundled = capture.copy(providers = capture.providers.take(1).map { it.copy(origin = ProviderOrigin.BUNDLED, artifact = "g:n:1") })
         val document = CaptureDocument.of(bundled)
-        assertEquals("bundled", ((document[CaptureDocument.PROVIDERS] as List<*>).single() as Map<*, *>)[CaptureDocument.ORIGIN])
+        assertEquals("bundled", ((document["providers"] as List<*>).single() as Map<*, *>)["origin"])
         assertEquals(bundled, CaptureDocument.parse(document))
     }
 
     private fun providersWithout(document: Map<String, Any>, key: String): List<Map<*, *>> =
-        (document[CaptureDocument.PROVIDERS] as List<*>).map { LinkedHashMap(it as Map<*, *>).apply { remove(key) } }
+        (document["providers"] as List<*>).map { LinkedHashMap(it as Map<*, *>).apply { remove(key) } }
 
     private companion object {
         val CAPTURE = ProviderProbe().capture(

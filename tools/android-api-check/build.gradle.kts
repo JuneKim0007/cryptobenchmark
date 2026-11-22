@@ -28,6 +28,7 @@ sourceSets {
             "../../apps/benchmark/modules/jca/src/main/kotlin",
             "../../apps/benchmark/modules/files/src/main/kotlin",
             "../../apps/benchmark/modules/document/src/main/kotlin",
+            "../../apps/benchmark/modules/environment/contract/src/main/kotlin",
             "../../apps/benchmark/modules/environment/discovery/src/main/kotlin",
             "../../apps/benchmark/modules/settings/src/main/kotlin",
             "../../apps/benchmark/modules/records/src/main/kotlin",

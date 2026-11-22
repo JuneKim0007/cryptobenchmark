@@ -25,7 +25,7 @@
 - Every main (`Command.kt` `command`): arguments it cannot take print `usage: ...` and exit 2; any failure prints one `error: <message>` and exits 1, never a stack trace; an `Error` (out of memory) ends the JVM as it is.
 - `ProbeKt` and `ConfigureKt` without a `global.yaml` argument write no `effective.yaml` and warn `no global.yaml given`.
 - `ConfigureKt`: a missing input is `error: missing_file`; warnings print `warning: <w>`, skips `skipped: <s>` to stderr.
-- Compiles discovery, settings, records, catalogue, config, preparation and benchmark sources; tests are discovery and config tests, plus `ProviderChoseContractTest`: every discovery `providerChose` key is a preparation `ResolvedParameters.KEYS` key or `fixedValueBytes`; `EffectiveKeysAgreeTest`: an effective.yaml with every key config writes reads through preparation without `unknown_keys`.
+- Compiles contract, discovery, settings, records, catalogue, config, preparation and benchmark sources; tests are discovery and config tests, plus `ProviderChoseContractTest`: every discovery `providerChose` key is a preparation `ResolvedParameters.KEYS` key or `fixedValueBytes`; `EffectiveKeysAgreeTest`: an effective.yaml with every key config writes reads through preparation without `unknown_keys`.
 - `apps/benchmark/gradlew -p apps/benchmark/cli test` excludes `*ExampleFilesTest` and writes captures to `build/capture`.
 - CI `.github/workflows/jca-contract.yml` job `probe`: that test on Java 17, 21, 25 (temurin), fail-fast off; uploads `build/capture/*.yaml` as `capture-java-<N>`.
 - `BenchKt` prepares and measures with the host harness: `apps/benchmark/modules/benchmark/docs/measure.md`.
@@ -47,7 +47,7 @@ apps/benchmark/gradlew -p tools/android-api-check compileKotlin -PandroidJar=<an
 ```
 
 - Default jar: `$ANDROID_HOME/platforms/android-36/android.jar`.
-- Compiles jca, files, document, discovery, settings, records, catalogue, preparation, benchmark sources with JVM target 1.8, `-no-jdk`, `android.jar` compileOnly.
+- Compiles jca, files, document, contract, discovery, settings, records, catalogue, preparation, benchmark sources with JVM target 1.8, `-no-jdk`, `android.jar` compileOnly.
 - CI: job `android-api` in `.github/workflows/jca-contract.yml` on Java 17 with `platforms;android-36`.
 
 ## analysis

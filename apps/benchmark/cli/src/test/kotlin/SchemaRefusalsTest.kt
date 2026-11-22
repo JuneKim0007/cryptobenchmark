@@ -2,9 +2,9 @@ import io.github.junekim0007.cryptobench.benchmark.check.EnergyCapability
 import io.github.junekim0007.cryptobench.benchmark.report.energy.EnergyWindows
 import io.github.junekim0007.cryptobench.config.source.CaptureSource
 import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
-import io.github.junekim0007.cryptobench.discovery.write.CaptureDocument
-import io.github.junekim0007.cryptobench.discovery.write.RequirementDocument
-import io.github.junekim0007.cryptobench.discovery.write.TrialDocument
+import io.github.junekim0007.cryptobench.contract.capture.CaptureDocument
+import io.github.junekim0007.cryptobench.contract.requirements.RequirementDocument
+import io.github.junekim0007.cryptobench.contract.trial.TrialDocument
 import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 import io.github.junekim0007.cryptobench.preparation.report.SkipFile
 import org.junit.Assert.assertEquals

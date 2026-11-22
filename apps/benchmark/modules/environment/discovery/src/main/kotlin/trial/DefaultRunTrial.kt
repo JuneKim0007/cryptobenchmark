@@ -1,14 +1,14 @@
 package io.github.junekim0007.cryptobench.discovery.trial
 
 import io.github.junekim0007.cryptobench.jca.failure.Attempt
-import io.github.junekim0007.cryptobench.discovery.contract.DefaultRunOutcome
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceTrialEntry
-import io.github.junekim0007.cryptobench.discovery.contract.TrialReport
+import io.github.junekim0007.cryptobench.contract.trial.DefaultRunOutcome
+import io.github.junekim0007.cryptobench.contract.trial.ServiceTrialEntry
+import io.github.junekim0007.cryptobench.contract.trial.TrialReport
 import io.github.junekim0007.cryptobench.discovery.trial.call.DefaultCall
 import io.github.junekim0007.cryptobench.discovery.trial.call.DefaultCalls
 import io.github.junekim0007.cryptobench.discovery.trial.call.DefaultKeys
 import io.github.junekim0007.cryptobench.discovery.trial.call.KeyCandidates
-import io.github.junekim0007.cryptobench.discovery.contract.CapturedEnvironment
+import io.github.junekim0007.cryptobench.contract.capture.CapturedEnvironment
 import java.security.Provider
 
 class DefaultRunTrial(private val inputSizes: List<Int> = listOf(1024, 32)) {

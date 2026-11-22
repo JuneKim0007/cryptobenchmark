@@ -2,8 +2,8 @@ package io.github.junekim0007.cryptobench.discovery.trial.call
 
 import io.github.junekim0007.cryptobench.jca.peer.PeerPair
 import io.github.junekim0007.cryptobench.jca.failure.Attempt
-import io.github.junekim0007.cryptobench.discovery.contract.KeyCacheStats
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceKey
+import io.github.junekim0007.cryptobench.contract.requirements.KeyCacheStats
+import io.github.junekim0007.cryptobench.discovery.adapter.ServiceKey
 import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.NoSuchAlgorithmException

@@ -1,7 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceEntry
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceTrialEntry
+import io.github.junekim0007.cryptobench.contract.capture.ServiceEntry
+import io.github.junekim0007.cryptobench.contract.trial.ServiceTrialEntry
 import java.security.Provider
 
 internal class ProbedService(

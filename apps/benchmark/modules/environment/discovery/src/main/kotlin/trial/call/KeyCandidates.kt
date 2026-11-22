@@ -1,7 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery.trial.call
 
-import io.github.junekim0007.cryptobench.discovery.contract.CapturedEnvironment
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceKey
+import io.github.junekim0007.cryptobench.contract.capture.CapturedEnvironment
+import io.github.junekim0007.cryptobench.discovery.adapter.ServiceKey
 import io.github.junekim0007.cryptobench.document.catalogue.CatalogueOverlays
 import io.github.junekim0007.cryptobench.document.catalogue.FamilyCatalogue
 

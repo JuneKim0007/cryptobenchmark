@@ -1,7 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery
 
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceKey
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceKeyException
+import io.github.junekim0007.cryptobench.discovery.adapter.ServiceKey
+import io.github.junekim0007.cryptobench.discovery.adapter.ServiceKeyException
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals

@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery.trial.keystore
 
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceKey
+import io.github.junekim0007.cryptobench.discovery.adapter.ServiceKey
 import io.github.junekim0007.cryptobench.document.DocumentFields
 import io.github.junekim0007.cryptobench.document.catalogue.FamilyCatalogue
 

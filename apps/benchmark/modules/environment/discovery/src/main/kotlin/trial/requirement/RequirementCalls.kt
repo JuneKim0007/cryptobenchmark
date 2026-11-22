@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceKey
+import io.github.junekim0007.cryptobench.discovery.adapter.ServiceKey
 
 internal object RequirementCalls {
 

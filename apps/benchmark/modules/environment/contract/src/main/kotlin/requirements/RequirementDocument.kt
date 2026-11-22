@@ -1,10 +1,7 @@
-package io.github.junekim0007.cryptobench.discovery.write
+package io.github.junekim0007.cryptobench.contract.requirements
 
 import io.github.junekim0007.cryptobench.files.StampedName
 import io.github.junekim0007.cryptobench.document.SchemaVersion
-import io.github.junekim0007.cryptobench.discovery.contract.KeyCacheStats
-import io.github.junekim0007.cryptobench.discovery.contract.RequirementReport
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceRequirement
 import io.github.junekim0007.cryptobench.document.DocumentFields.number
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSection
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalString

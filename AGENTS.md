@@ -7,6 +7,7 @@
 - device runs: prerequisites, adb, `--suppress-errors`, core pinning, energy on a device → `docs/contributing/device.md`
 - docs, guides, file maps, READMEs, any `.md` change → `docs/contributing/writing.md`
 - cross-module facts: architecture, run, results, energy, tools, cryptography catalogue → `docs/index.md`
+- contract: capture, trial and requirements models and their YAML schemas → `apps/benchmark/modules/environment/contract/docs/index.md`
 - discovery: probe, trial, capture fields → `apps/benchmark/modules/environment/discovery/docs/index.md`
 - config: authored files, inventory, effective, precedence → `apps/benchmark/modules/config/docs/index.md`
 - settings: harness key table, device support → `apps/benchmark/modules/settings/docs/index.md`
@@ -63,7 +64,8 @@ apps/benchmark/modules/benchmark/ : plan check and measurement of prepared cases
 apps/benchmark/modules/catalogue/ : EngineRows, the one reading of setup-catalog.yaml's per-type rows config and preparation share
 apps/benchmark/modules/config/ : capture and trial to inventory.yaml; inventory and config/ to effective.yaml
 apps/benchmark/modules/document/ : the one YAML codec, a SnakeYAML setup per profile, and DocumentFields; shared by discovery, config, preparation and benchmark
-apps/benchmark/modules/environment/discovery/ : provider and service probe, default-run and requirement trials, capture, trial and requirements YAML
+apps/benchmark/modules/environment/contract/ : the discovery handoff documents: capture, trial and requirements models and YAML schemas, no JCA
+apps/benchmark/modules/environment/discovery/ : provider and service probe, default-run and requirement trials, capture, trial and requirements YAML writers
 apps/benchmark/modules/files/ : every Kotlin file and folder name, stamps and beside-a-file rules; python's CONTRACT agrees
 apps/benchmark/modules/jca/ : the one catch rule and the provider-message scrubber every module that calls a provider shares
 apps/benchmark/modules/preparation/ : effective.yaml to prepared cases, each called once; prepared.yaml, skipped.yaml
@@ -85,7 +87,7 @@ lib/cryptobench/ : the Python library the runner and perf-repair share: shared c
 pytest.ini : the Python apps' source folders, and the test folders other tests import, on the test path for pytest from the repository root
 requirements.txt : every host Python dependency
 tests/contracts/ : fixtures both languages' tests read: documents/, the .json value each must read a module example (config global and effective, preparation guide) to, and the facts and known-answers Python writes with theirs, beside-authored.json the test-set path cases (Kotlin the exact path text, Python the same location); yaml-codec/, scalar and string cases and a duplicate-key file; runner/thermal.json as the runner writes it; catalogue/key-types.yaml, an entry's key.type per provider both languages read
-tools/android-api-check/ : compiles jca, document, discovery, settings, records, catalogue, preparation, benchmark against android.jar without the JDK
+tools/android-api-check/ : compiles jca, document, contract, discovery, settings, records, catalogue, preparation, benchmark against android.jar without the JDK
 tools/dead-code-allow.txt : vulture findings the dead-code check keeps, each with its reason
 tools/dead_code.py : dead-code check: vulture minus the allowlist; local only, fails without vulture
 tools/docs_lint.py : docs and guide graph check: maps, coverage, index.md, edges, reachability, size, banned text, names code must hold

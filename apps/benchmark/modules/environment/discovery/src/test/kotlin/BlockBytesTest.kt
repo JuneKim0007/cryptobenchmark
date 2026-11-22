@@ -1,7 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery
 
-import io.github.junekim0007.cryptobench.discovery.contract.RequirementReport
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceRequirement
+import io.github.junekim0007.cryptobench.contract.requirements.RequirementReport
+import io.github.junekim0007.cryptobench.contract.requirements.ServiceRequirement
 import io.github.junekim0007.cryptobench.discovery.write.ProbeDirectory
 import io.github.junekim0007.cryptobench.discovery.write.RequirementYamlWriter
 import io.github.junekim0007.cryptobench.document.YamlCodec

@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
-import io.github.junekim0007.cryptobench.discovery.contract.ParameterReadBack
+import io.github.junekim0007.cryptobench.discovery.trial.call.ParameterReadBack
 import java.security.SecureRandom
 import java.security.spec.AlgorithmParameterSpec
 import java.security.spec.MGF1ParameterSpec

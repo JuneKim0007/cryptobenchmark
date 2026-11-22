@@ -1,8 +1,8 @@
 package io.github.junekim0007.cryptobench.discovery.trial.call
 
 import io.github.junekim0007.cryptobench.jca.failure.Attempt
-import io.github.junekim0007.cryptobench.discovery.contract.DefaultRunOutcome
-import io.github.junekim0007.cryptobench.discovery.contract.TriedKey
+import io.github.junekim0007.cryptobench.contract.trial.DefaultRunOutcome
+import io.github.junekim0007.cryptobench.contract.trial.TriedKey
 import java.security.Key
 import java.security.KeyPairGenerator
 import java.security.Provider

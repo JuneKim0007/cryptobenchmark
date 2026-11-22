@@ -1,4 +1,4 @@
-package io.github.junekim0007.cryptobench.discovery.contract
+package io.github.junekim0007.cryptobench.contract.trial
 
 data class TrialReport(
     val capturedAtMillis: Long,

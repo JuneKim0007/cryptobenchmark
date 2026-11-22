@@ -2,7 +2,7 @@
 
 ```
 apps/benchmark/modules/environment/discovery/README.md : module summary and link to this index
-apps/benchmark/modules/environment/discovery/build.gradle : Kotlin/JVM 17 library; api :jca; :files (and its test fixtures) and :document; reads the keystore trial's catalogues through :document's catalogue/FamilyCatalogue
+apps/benchmark/modules/environment/discovery/build.gradle : Kotlin/JVM 17 library; api :jca and :environment:contract; :files (and its test fixtures) and :document; reads the keystore trial's catalogues through :document's catalogue/FamilyCatalogue
 apps/benchmark/modules/environment/discovery/docs/index.md : this map
 apps/benchmark/modules/environment/discovery/docs/keystore.md : the keystore trial: rows, StrongBox, refusal codes, cost
 apps/benchmark/modules/environment/discovery/docs/probe.md : probe, trial and reuse behaviour
@@ -20,6 +20,8 @@ apps/benchmark/modules/environment/discovery/src/main/kotlin/adapter/PropertyKey
 apps/benchmark/modules/environment/discovery/src/main/kotlin/adapter/PropertyKeyParser.kt : provider property name to PropertyKey
 apps/benchmark/modules/environment/discovery/src/main/kotlin/adapter/PropertyMapIndex.kt : one provider's property map to meta, aliases, attributes
 apps/benchmark/modules/environment/discovery/src/main/kotlin/adapter/ProviderProbe.kt : Provider[] to CapturedEnvironment
+apps/benchmark/modules/environment/discovery/src/main/kotlin/adapter/ServiceKey.kt : case-folded (type, algorithm) key
+apps/benchmark/modules/environment/discovery/src/main/kotlin/adapter/ServiceKeyException.kt : blank-field error for ServiceKey
 apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/AliasedProvider.kt : delegating Provider under an alias; services re-bound to it
 apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/BundledInstaller.kt : creates and appends each bundled provider; alias on a name clash
 apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/BundledProvider.kt : one bundled provider spec {artifact, create, alias?}
@@ -27,28 +29,11 @@ apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/BundledProv
 apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/BundledProviders.kt : reads the bundledProviders list from a document map
 apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/InstalledProvider.kt : registered name and artifact of one installed provider
 apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/ProviderFactory.kt : Provider by reflection: no-argument constructor or static factory
-apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/CapturedEnvironment.kt : capture model, SCHEMA_VERSION 1
-apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/DefaultRunOutcome.kt : one default-run result
-apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/KeyCacheStats.kt : keys generated, refused and reused over a run
-apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/KeystoreSection.kt : keystore trial rows (one generation per size or curve and path) or the reason the section is absent
-apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/ParameterReadBack.kt : the one read-back of a spec (readable, describe) for levels 2 and 3
-apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/ProviderEntry.kt : one provider record with origin and artifact
-apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/ProviderOrigin.kt : platform or bundled
-apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/RequirementReport.kt : requirements model, SCHEMA_VERSION 1
-apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/RuntimeInfo.kt : device and runtime provenance
-apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/ServiceAttributes.kt : typed view of a service's declared attributes
-apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/ServiceEntry.kt : one service record
-apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/ServiceKey.kt : case-folded (type, algorithm) key
-apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/ServiceKeyException.kt : blank-field error for ServiceKey
-apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/ServiceRequirement.kt : one service's requirements record and its reason codes
-apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/ServiceTrialEntry.kt : trial result for one service
-apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/TransformationTrialEntry.kt : trial result for one cipher transformation
-apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/TrialOutcome.kt : instantiation success or error
-apps/benchmark/modules/environment/discovery/src/main/kotlin/contract/TrialReport.kt : trial model, SCHEMA_VERSION 3
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/DefaultRunTrial.kt : level 2: one real call per instantiated service or transformation
+apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/Outcomes.kt : TrialOutcome.of and failure, DefaultRunOutcome.failure: a thrown failure as its ErrorText
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/TransformationSet.kt : every declared mode x padding of a Cipher service
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/TrialRunner.kt : level 1: instantiate each captured service
-apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/call/ : per-type default calls, their registry, default keys, key candidates from the catalogue and key bits
+apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/call/ : per-type default calls, their registry, default keys, key candidates from the catalogue and key bits, the one read-back of a spec (ParameterReadBack) for levels 2 and 3
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/keystore/KeystoreCatalogue.kt : the generator catalogues' keystore blocks, read through document's FamilyCatalogue: authorizations, trial key sizes and curves
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/keystore/KeystoreMaker.kt : what the keystore trial needs of a runtime: classes, StrongBox feature, generate, sweep, delete
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/keystore/KeystoreTrial.kt : level 4: one key per keystore-born generator, size or curve and hardware path, coded refusals
@@ -79,12 +64,9 @@ apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/R
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/ResetRun.kt : one instance's operation twice and a new instance's once, untimed: resets, the refusing class or a coded reason
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/SignatureFacts.kt : Signature facts
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/requirement/Sweep.kt : an accepted set from single calls, as ranges
-apps/benchmark/modules/environment/discovery/src/main/kotlin/write/CaptureDocument.kt : capture YAML schema (of, parse)
 apps/benchmark/modules/environment/discovery/src/main/kotlin/write/EnvironmentYamlWriter.kt : writes probe_<utc>.yaml
 apps/benchmark/modules/environment/discovery/src/main/kotlin/write/ProbeDirectory.kt : output directory: create-new, newest, sibling lookup
-apps/benchmark/modules/environment/discovery/src/main/kotlin/write/RequirementDocument.kt : requirements YAML schema (of, parse)
 apps/benchmark/modules/environment/discovery/src/main/kotlin/write/RequirementYamlWriter.kt : writes requirements_<utc>.yaml
-apps/benchmark/modules/environment/discovery/src/main/kotlin/write/TrialDocument.kt : trial YAML schema (of, parse)
 apps/benchmark/modules/environment/discovery/src/main/kotlin/write/TrialYamlWriter.kt : writes trial_<utc>.yaml
 apps/benchmark/modules/environment/discovery/src/test/kotlin/BlockBytesTest.kt : byte goldens of the BLOCK codec: a capture-shaped document with an alias, a streamed requirements file
 apps/benchmark/modules/environment/discovery/src/test/kotlin/BundledInstallerTest.kt : installer tests: reflection, append position, name clash, alias wrapper

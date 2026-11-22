@@ -1,13 +1,13 @@
 package io.github.junekim0007.cryptobench.discovery.trial.keystore
 
-import io.github.junekim0007.cryptobench.discovery.contract.CapturedEnvironment
-import io.github.junekim0007.cryptobench.discovery.contract.KeystoreRow
-import io.github.junekim0007.cryptobench.discovery.contract.KeystoreSection
-import io.github.junekim0007.cryptobench.discovery.contract.ProviderEntry
-import io.github.junekim0007.cryptobench.discovery.contract.RequirementReport
-import io.github.junekim0007.cryptobench.discovery.contract.RuntimeInfo
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceEntry
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceRequirement
+import io.github.junekim0007.cryptobench.contract.capture.CapturedEnvironment
+import io.github.junekim0007.cryptobench.contract.trial.KeystoreRow
+import io.github.junekim0007.cryptobench.contract.trial.KeystoreSection
+import io.github.junekim0007.cryptobench.contract.capture.ProviderEntry
+import io.github.junekim0007.cryptobench.contract.requirements.RequirementReport
+import io.github.junekim0007.cryptobench.contract.capture.RuntimeInfo
+import io.github.junekim0007.cryptobench.contract.capture.ServiceEntry
+import io.github.junekim0007.cryptobench.contract.requirements.ServiceRequirement
 import io.github.junekim0007.cryptobench.document.catalogue.FamilyCatalogue
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

@@ -1,4 +1,4 @@
-package io.github.junekim0007.cryptobench.discovery.contract
+package io.github.junekim0007.cryptobench.contract.capture
 
 class ServiceAttributes private constructor(private val values: Map<String, Any>) {
 

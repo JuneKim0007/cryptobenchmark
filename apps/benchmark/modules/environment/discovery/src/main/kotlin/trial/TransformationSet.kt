@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery.trial
 
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceEntry
+import io.github.junekim0007.cryptobench.contract.capture.ServiceEntry
 
 internal object TransformationSet {
 

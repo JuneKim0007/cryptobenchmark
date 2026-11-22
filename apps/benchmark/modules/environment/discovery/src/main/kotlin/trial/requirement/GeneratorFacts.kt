@@ -1,7 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceKey
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceRequirement
+import io.github.junekim0007.cryptobench.discovery.adapter.ServiceKey
+import io.github.junekim0007.cryptobench.contract.requirements.ServiceRequirement
 import io.github.junekim0007.cryptobench.discovery.trial.call.GeneratorCall
 import java.security.KeyPairGenerator
 import javax.crypto.KeyGenerator

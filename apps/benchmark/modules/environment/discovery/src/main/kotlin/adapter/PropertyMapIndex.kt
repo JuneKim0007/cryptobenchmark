@@ -1,6 +1,5 @@
 package io.github.junekim0007.cryptobench.discovery.adapter
 
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceKey
 import java.security.Provider
 
 internal class PropertyMapIndex private constructor(

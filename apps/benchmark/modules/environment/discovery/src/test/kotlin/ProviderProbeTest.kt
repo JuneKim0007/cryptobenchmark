@@ -2,7 +2,7 @@ package io.github.junekim0007.cryptobench.discovery
 
 import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
 import io.github.junekim0007.cryptobench.discovery.bundled.InstalledProvider
-import io.github.junekim0007.cryptobench.discovery.contract.ProviderOrigin
+import io.github.junekim0007.cryptobench.contract.capture.ProviderOrigin
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.security.Provider

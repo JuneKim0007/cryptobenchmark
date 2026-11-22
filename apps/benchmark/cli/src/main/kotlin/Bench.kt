@@ -3,7 +3,7 @@ import io.github.junekim0007.cryptobench.benchmark.check.RunnablePlan
 import io.github.junekim0007.cryptobench.benchmark.report.BenchmarkJson
 import io.github.junekim0007.cryptobench.benchmark.report.ResultRow
 import io.github.junekim0007.cryptobench.benchmark.run.HostHarness
-import io.github.junekim0007.cryptobench.discovery.write.CaptureDocument
+import io.github.junekim0007.cryptobench.contract.capture.CaptureDocument
 import io.github.junekim0007.cryptobench.document.YamlCodec
 import io.github.junekim0007.cryptobench.files.FileNames
 import java.io.File

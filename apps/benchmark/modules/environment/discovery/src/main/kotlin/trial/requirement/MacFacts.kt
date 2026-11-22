@@ -1,9 +1,9 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
-import io.github.junekim0007.cryptobench.discovery.contract.ParameterReadBack
+import io.github.junekim0007.cryptobench.discovery.trial.call.ParameterReadBack
 import io.github.junekim0007.cryptobench.jca.failure.Attempt
 import io.github.junekim0007.cryptobench.jca.failure.ErrorText
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceRequirement
+import io.github.junekim0007.cryptobench.contract.requirements.ServiceRequirement
 import java.security.InvalidKeyException
 import java.security.Key
 import java.security.spec.AlgorithmParameterSpec

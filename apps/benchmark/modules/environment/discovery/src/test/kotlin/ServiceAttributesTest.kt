@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery
 
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceAttributes
+import io.github.junekim0007.cryptobench.contract.capture.ServiceAttributes
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

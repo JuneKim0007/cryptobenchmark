@@ -2,13 +2,13 @@ package io.github.junekim0007.cryptobench.discovery
 
 import io.github.junekim0007.cryptobench.discovery.trial.call.KeyCandidates
 import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceRequirement
+import io.github.junekim0007.cryptobench.contract.requirements.ServiceRequirement
 import io.github.junekim0007.cryptobench.discovery.trial.DefaultRunTrial
 import io.github.junekim0007.cryptobench.discovery.trial.TrialRunner
 import io.github.junekim0007.cryptobench.discovery.trial.call.DefaultKeys
 import io.github.junekim0007.cryptobench.jca.failure.ErrorText
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceTrialEntry
-import io.github.junekim0007.cryptobench.discovery.contract.TrialOutcome
+import io.github.junekim0007.cryptobench.contract.trial.ServiceTrialEntry
+import io.github.junekim0007.cryptobench.contract.trial.TrialOutcome
 import io.github.junekim0007.cryptobench.discovery.trial.requirement.AliasRuns
 import io.github.junekim0007.cryptobench.discovery.trial.requirement.CallResult
 import io.github.junekim0007.cryptobench.discovery.trial.requirement.KeyOrigin
@@ -16,7 +16,7 @@ import io.github.junekim0007.cryptobench.discovery.trial.requirement.KeySources
 import io.github.junekim0007.cryptobench.discovery.trial.requirement.ProbedService
 import io.github.junekim0007.cryptobench.discovery.trial.requirement.RequirementTrial
 import io.github.junekim0007.cryptobench.discovery.write.ProbeDirectory
-import io.github.junekim0007.cryptobench.discovery.write.RequirementDocument
+import io.github.junekim0007.cryptobench.contract.requirements.RequirementDocument
 import io.github.junekim0007.cryptobench.discovery.write.RequirementYamlWriter
 import io.github.junekim0007.cryptobench.document.YamlCodec
 import org.junit.Assert.assertEquals

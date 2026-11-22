@@ -14,6 +14,7 @@ kotlin {
 
 dependencies {
     api project(':jca')
+    api project(':environment:contract')
     implementation project(':files')
     implementation project(':document')
     testImplementation 'junit:junit:4.13.2'

@@ -8,9 +8,14 @@ modules:
     uses: {}
   document:
     uses: {}
+  contract:
+    uses:
+      files: [StampedName]
+      document: [SchemaVersion, DocumentFields]
   discovery:
     uses:
       jca: [failure.Attempt, failure.ErrorText, peer.PeerPair, reflect.Reflect]
+      contract: all
       files: all
       document: all
   records:
@@ -77,6 +82,7 @@ consumers:
       jca: all
       files: all
       document: all
+      contract: all
       discovery: all
       settings: all
       records: all

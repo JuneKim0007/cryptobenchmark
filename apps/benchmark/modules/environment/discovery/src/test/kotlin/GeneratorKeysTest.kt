@@ -1,10 +1,10 @@
 package io.github.junekim0007.cryptobench.discovery
 
 import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceTrialEntry
-import io.github.junekim0007.cryptobench.discovery.contract.TrialOutcome
-import io.github.junekim0007.cryptobench.discovery.contract.TrialReport
-import io.github.junekim0007.cryptobench.discovery.contract.TriedKey
+import io.github.junekim0007.cryptobench.contract.trial.ServiceTrialEntry
+import io.github.junekim0007.cryptobench.contract.trial.TrialOutcome
+import io.github.junekim0007.cryptobench.contract.trial.TrialReport
+import io.github.junekim0007.cryptobench.contract.trial.TriedKey
 import io.github.junekim0007.cryptobench.discovery.trial.DefaultRunTrial
 import org.junit.Assert.assertEquals
 import org.junit.Test

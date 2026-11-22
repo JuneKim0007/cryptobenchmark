@@ -29,6 +29,7 @@ sourceSets {
             "../modules/jca/src/main/kotlin",
             "../modules/files/src/main/kotlin",
             "../modules/document/src/main/kotlin",
+            "../modules/environment/contract/src/main/kotlin",
             "../modules/environment/discovery/src/main/kotlin",
             "../modules/settings/src/main/kotlin",
             "../modules/records/src/main/kotlin",

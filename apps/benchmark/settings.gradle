@@ -1,9 +1,10 @@
-include ':android', ':preparation', ':benchmark', ':environment:discovery', ':config', ':settings', ':records', ':catalogue', ':jca', ':files', ':document'
+include ':android', ':preparation', ':benchmark', ':environment:contract', ':environment:discovery', ':config', ':settings', ':records', ':catalogue', ':jca', ':files', ':document'
 
 project(':android').projectDir = file('modules/android')
 project(':preparation').projectDir = file('modules/preparation')
 project(':benchmark').projectDir = file('modules/benchmark')
 project(':environment').projectDir = file('modules/environment')
+project(':environment:contract').projectDir = file('modules/environment/contract')
 project(':environment:discovery').projectDir = file('modules/environment/discovery')
 project(':config').projectDir = file('modules/config')
 

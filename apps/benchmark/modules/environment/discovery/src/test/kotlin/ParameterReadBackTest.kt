@@ -1,7 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery
 
 import io.github.junekim0007.cryptobench.discovery.trial.call.CipherCall
-import io.github.junekim0007.cryptobench.discovery.contract.ParameterReadBack
+import io.github.junekim0007.cryptobench.discovery.trial.call.ParameterReadBack
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.security.KeyPairGenerator

@@ -174,7 +174,7 @@ def test_the_names_file_name_is_one_in_both_languages():
 
 def test_schema_versions_across_the_boundary():
     pairs = [
-        (capture.SCHEMA, number("environment/discovery/src/main/kotlin/contract/CapturedEnvironment.kt", "SCHEMA_VERSION")),
+        (capture.SCHEMA, number("environment/contract/src/main/kotlin/capture/CapturedEnvironment.kt", "SCHEMA_VERSION")),
         (capture.SCHEMA, number("preparation/src/main/kotlin/device/CaptureFile.kt", "SUPPORTED_SCHEMA_VERSION")),
         (capture.SCHEMA, int(kotlin("config/src/main/kotlin/source/CaptureSource.kt", r"override val schemaVersion: Int = (\d+)"))),
         (guide_items.SCHEMA_VERSION, number("preparation/src/main/kotlin/guide/Guide.kt", "SUPPORTED_SCHEMA_VERSION")),

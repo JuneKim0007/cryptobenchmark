@@ -1,7 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
 import io.github.junekim0007.cryptobench.jca.failure.ErrorText
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceRequirement
+import io.github.junekim0007.cryptobench.contract.requirements.ServiceRequirement
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.SecretKeySpec
 

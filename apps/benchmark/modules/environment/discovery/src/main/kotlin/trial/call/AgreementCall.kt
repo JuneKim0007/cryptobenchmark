@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery.trial.call
 
-import io.github.junekim0007.cryptobench.discovery.contract.DefaultRunOutcome
+import io.github.junekim0007.cryptobench.contract.trial.DefaultRunOutcome
 import java.security.Provider
 import javax.crypto.KeyAgreement
 

@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceRequirement
+import io.github.junekim0007.cryptobench.contract.requirements.ServiceRequirement
 
 // A provider with no generator or factory of its own that runs, refusing some key, holds its keys inside; the relabel keeps what the call measured.
 internal object KeyOrigin {

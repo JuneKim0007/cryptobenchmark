@@ -1,6 +1,4 @@
-package io.github.junekim0007.cryptobench.discovery.contract
-
-import io.github.junekim0007.cryptobench.jca.failure.ErrorText
+package io.github.junekim0007.cryptobench.contract.trial
 
 data class TrialOutcome(
     val instantiates: Boolean,
@@ -14,11 +12,6 @@ data class TrialOutcome(
     companion object {
 
         val SUCCESS = TrialOutcome(instantiates = true)
-
-        fun of(attempted: Result<*>): TrialOutcome = attempted.fold({ SUCCESS }, ::failure)
-
-        fun failure(throwable: Throwable): TrialOutcome =
-            TrialOutcome(instantiates = false, error = ErrorText.of(throwable))
 
         fun failure(reason: String): TrialOutcome = TrialOutcome(instantiates = false, error = reason)
     }

@@ -13,7 +13,7 @@ config/benchmark/global.yaml + config/benchmark/testsets/*.yaml
 
 | stage | reads | writes | code |
 |---|---|---|---|
-| discovery | JCA providers of the running JVM or device | `probe_<stamp>.yaml`, `trial_<stamp>.yaml`, `requirements_<stamp>.yaml` | `apps/benchmark/modules/environment/discovery/src/main/kotlin/write/` |
+| discovery | JCA providers of the running JVM or device | `probe_<stamp>.yaml`, `trial_<stamp>.yaml`, `requirements_<stamp>.yaml` | `apps/benchmark/modules/environment/discovery/src/main/kotlin/write/`; schemas in `apps/benchmark/modules/environment/contract/src/main/kotlin/` |
 | config | capture, trial, `global.yaml`, test set, optional `facts.yaml` | `inventory.yaml`, `effective.yaml` | `apps/benchmark/modules/config/src/main/kotlin/Configuration.kt` |
 | preparation | capture, trial, `effective.yaml` | `prepared.yaml`, `skipped.yaml` | `apps/benchmark/modules/preparation/src/main/kotlin/record/PreparedFile.kt`, `report/SkipFile.kt`, written by benchmark's `check/RunnablePlan.kt` |
 | benchmark | prepared cases, `energy.yaml` | `benchmark.json` | `apps/benchmark/modules/benchmark/src/main/kotlin/report/BenchmarkJson.kt` |
@@ -32,7 +32,8 @@ config/benchmark/global.yaml + config/benchmark/testsets/*.yaml
 | `:files` | `apps/benchmark/modules/files` | none | none |
 | `:jca` | `apps/benchmark/modules/jca` | none | none |
 | `:document` | `apps/benchmark/modules/document` | none | snakeyaml 2.3 |
-| `:environment:discovery` | `apps/benchmark/modules/environment/discovery` | `api :jca`, `implementation :files`, `implementation :document` | none |
+| `:environment:contract` | `apps/benchmark/modules/environment/contract` | `implementation :files`, `implementation :document` | none |
+| `:environment:discovery` | `apps/benchmark/modules/environment/discovery` | `api :jca`, `api :environment:contract`, `implementation :files`, `implementation :document` | none |
 | `:settings` | `apps/benchmark/modules/settings` | none | none |
 | `:records` | `apps/benchmark/modules/records` | `implementation :document` | none |
 | `:catalogue` | `apps/benchmark/modules/catalogue` | `api :files` | none |
@@ -44,7 +45,7 @@ config/benchmark/global.yaml + config/benchmark/testsets/*.yaml
 - JVM modules test with junit 4.13.2.
 - The SnakeYAML version is declared once, in `apps/benchmark/gradle/libs.versions.toml`; the cli and tools/ builds import it in their settings.
 
-- `apps/benchmark/settings.gradle` includes the ten projects; `rootProject.name = cryptobenchmark`.
+- `apps/benchmark/settings.gradle` includes the eleven projects; `rootProject.name = cryptobenchmark`.
 - Package root: `io.github.junekim0007.cryptobench`.
 - Root buildscript pins AGP 8.13.2 and Kotlin plugin 2.2.21.
 - One wrapper, `apps/benchmark/gradlew`: Gradle 9.5.1.
@@ -57,7 +58,7 @@ config/benchmark/global.yaml + config/benchmark/testsets/*.yaml
 
 | project | languages | source layout |
 |---|---|---|
-| `:document`, `:environment:discovery`, `:settings`, `:records`, `:catalogue`, `:config`, `:preparation`, `:benchmark` | Kotlin | `src/main/kotlin/`, package root folders omitted |
+| `:document`, `:environment:contract`, `:environment:discovery`, `:settings`, `:records`, `:catalogue`, `:config`, `:preparation`, `:benchmark` | Kotlin | `src/main/kotlin/`, package root folders omitted |
 | `:android` | Kotlin main (`Affinity.kt`), C (`src/main/cpp/affinity.c`, `CMakeLists.txt`), Kotlin androidTest | full package folders |
 | `apps/benchmark-runner/` | Python 3 | the entry points `pipeline.py`, `dependencies.py`, `explain.py` and their error line `failure.py`; every other module they import is in `lib/cryptobench` (`tools/tests/test_runner_layout.py`) |
 | `lib/cryptobench/cryptobench/` | Python 3 | `shared/` components, `pipeline/` the stage framework, `stages/<stage>/` one package per stage: configuration, discovery, measurement, analysis, verification |
@@ -79,7 +80,8 @@ config/benchmark/global.yaml + config/benchmark/testsets/*.yaml
 |---|---|---|
 | `files` | `apps/benchmark/modules/files/src/main/kotlin` | junit 4.13.2 (test) |
 | `document` | `apps/benchmark/modules/document/src/main/kotlin` | snakeyaml 2.3; junit 4.13.2 (test) |
-| `discovery` | `apps/benchmark/modules/environment/discovery/src/main/kotlin` + `apps/benchmark/modules/files` + `apps/benchmark/modules/document` | snakeyaml 2.3; junit 4.13.2 (test) |
+| `contract` | `apps/benchmark/modules/environment/contract/src/main/kotlin` + `apps/benchmark/modules/files` + `apps/benchmark/modules/document` | snakeyaml 2.3 |
+| `discovery` | `apps/benchmark/modules/environment/discovery/src/main/kotlin` + `apps/benchmark/modules/environment/contract` + `apps/benchmark/modules/files` + `apps/benchmark/modules/document` | snakeyaml 2.3; junit 4.13.2 (test) |
 | `config` | `apps/benchmark/modules/config` + `apps/benchmark/modules/settings` + `apps/benchmark/modules/records` + `apps/benchmark/modules/catalogue` + `apps/benchmark/modules/files` + `apps/benchmark/modules/document` | same |
 | `preparation` | `apps/benchmark/modules/preparation` + `apps/benchmark/modules/settings` + `apps/benchmark/modules/records` + `apps/benchmark/modules/catalogue` + `apps/benchmark/modules/files` + `apps/benchmark/modules/document` | same |
 | `benchmark` | `apps/benchmark/modules/benchmark` + `apps/benchmark/modules/preparation` + `apps/benchmark/modules/settings` + `apps/benchmark/modules/records` + `apps/benchmark/modules/catalogue` + `apps/benchmark/modules/files` + `apps/benchmark/modules/document` | same |

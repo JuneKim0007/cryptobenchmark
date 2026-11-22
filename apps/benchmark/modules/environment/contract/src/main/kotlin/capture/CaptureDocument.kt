@@ -1,13 +1,7 @@
-package io.github.junekim0007.cryptobench.discovery.write
+package io.github.junekim0007.cryptobench.contract.capture
 
 import io.github.junekim0007.cryptobench.files.StampedName
 import io.github.junekim0007.cryptobench.document.SchemaVersion
-import io.github.junekim0007.cryptobench.discovery.contract.CapturedEnvironment
-import io.github.junekim0007.cryptobench.discovery.contract.ProviderEntry
-import io.github.junekim0007.cryptobench.discovery.contract.ProviderOrigin
-import io.github.junekim0007.cryptobench.discovery.contract.RuntimeInfo
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceAttributes
-import io.github.junekim0007.cryptobench.discovery.contract.ServiceEntry
 import io.github.junekim0007.cryptobench.document.DocumentFields.number
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSection
 import io.github.junekim0007.cryptobench.document.DocumentFields.sectionsIfKeyPresent

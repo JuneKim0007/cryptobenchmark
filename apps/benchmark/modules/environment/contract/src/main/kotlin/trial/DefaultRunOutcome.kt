@@ -1,6 +1,4 @@
-package io.github.junekim0007.cryptobench.discovery.contract
-
-import io.github.junekim0007.cryptobench.jca.failure.ErrorText
+package io.github.junekim0007.cryptobench.contract.trial
 
 /** One key size a generator was asked for beside its default; refused: it would not make that size. */
 data class TriedKey(val size: Int, val keyMaterial: String = "", val keyFormat: String = "", val refused: Boolean = false)
@@ -34,8 +32,5 @@ data class DefaultRunOutcome(
         const val EXPORTABLE = "exportable"
         const val NON_EXPORTABLE = "non_exportable"
         private val KEY_MATERIALS = setOf("", EXPORTABLE, NON_EXPORTABLE)
-
-        fun failure(throwable: Throwable): DefaultRunOutcome =
-            DefaultRunOutcome(works = false, error = ErrorText.of(throwable))
     }
 }

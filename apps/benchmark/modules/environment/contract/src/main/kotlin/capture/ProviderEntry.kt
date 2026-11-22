@@ -1,4 +1,4 @@
-package io.github.junekim0007.cryptobench.discovery.contract
+package io.github.junekim0007.cryptobench.contract.capture
 
 data class ProviderEntry(
     val name: String,

@@ -1,6 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery.write
 
-import io.github.junekim0007.cryptobench.discovery.contract.CapturedEnvironment
+import io.github.junekim0007.cryptobench.contract.capture.CaptureDocument
+import io.github.junekim0007.cryptobench.contract.capture.CapturedEnvironment
 import io.github.junekim0007.cryptobench.document.YamlCodec
 import io.github.junekim0007.cryptobench.files.StampedName
 import java.io.File
