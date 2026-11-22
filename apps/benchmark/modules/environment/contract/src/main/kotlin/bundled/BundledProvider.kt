@@ -18,9 +18,12 @@ data class BundledProvider(
 
     private companion object {
         const val FACTORY = '#'
-        val ARTIFACT = Regex("[^:,\\s]+:[^:,\\s]+:[^:,\\s]+")
+        // Java's \s spelled out: ART's ICU regex gives \s another set
+        private const val SPACE = " \\t\\n\\u000B\\f\\r"
+        private const val PART = "[^:,$SPACE]+"
+        val ARTIFACT = Regex("$PART:$PART:$PART")
         private const val IDENTIFIER = "[\\p{L}_$][\\p{L}\\p{N}_$]*"
         val CREATE = Regex("$IDENTIFIER(\\.$IDENTIFIER)+(#$IDENTIFIER)?")
-        val NAME = Regex("\\S+")
+        val NAME = Regex("[^$SPACE]+")
     }
 }

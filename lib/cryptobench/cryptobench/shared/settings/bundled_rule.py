@@ -3,7 +3,7 @@ import re
 import unicodedata
 
 FIELDS = ("artifact", "create", "alias")
-# Java's \s, which Kotlin's Regex means; Python's \s also takes Unicode spaces
+# the Kotlin rule's whitespace set; Python's \s also takes Unicode spaces
 _SPACE = " \t\n\x0b\f\r"
 _ARTIFACT = re.compile(rf"[^:,{_SPACE}]+:[^:,{_SPACE}]+:[^:,{_SPACE}]+")
 
@@ -40,7 +40,7 @@ def valid_create(text):
 
 
 def valid_name(text):
-    """Kotlin's \\S+ on the host: non-empty, none of Java's whitespace."""
+    """Kotlin's NAME: non-empty, none of the rule's whitespace."""
     return bool(text) and not any(c in _SPACE for c in text)
 
 
