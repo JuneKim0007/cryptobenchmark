@@ -34,5 +34,14 @@
   {"name": "every entry is checked before repeats", "providers": {"bundled": [{"artifact": "a:b:1", "create": "a.B"}, {"artifact": "a:b:1", "create": "a.B"}, {"artifact": "c:d:1", "create": "a.B", "alias": "x y"}]}, "code": "invalid_alias"},
   {"name": "entries are checked in order", "providers": {"bundled": [{"create": "a.B"}, {"artifact": "a:b:1", "create": "a.B", "position": 1}]}, "code": "missing_field"},
   {"name": "keys are checked before values", "providers": {"bundled": [{"artifact": "", "create": "a.B", "position": 1}]}, "code": "unknown_keys"},
-  {"name": "types are checked before patterns", "providers": {"bundled": [{"artifact": "", "create": 7}]}, "code": "wrong_type"}
+  {"name": "types are checked before patterns", "providers": {"bundled": [{"artifact": "", "create": 7}]}, "code": "wrong_type"},
+  {"name": "an Nl or No digit inside an identifier", "providers": {"bundled": [{"artifact": "a:b:1", "create": "a.B\u00b2"}, {"artifact": "c:d:1", "create": "a.B\u216b"}]}, "code": null},
+  {"name": "an Lo letter", "providers": {"bundled": [{"artifact": "a:b:1", "create": "a.\u4e2d"}]}, "code": null},
+  {"name": "a supplementary-plane letter", "providers": {"bundled": [{"artifact": "a:b:1", "create": "a.\ud835\udc00#\ud835\udc01"}]}, "code": null},
+  {"name": "a null alias is no alias", "providers": {"bundled": [{"artifact": "a:b:1", "create": "a.B", "alias": null}]}, "code": null},
+  {"name": "a newline in the alias", "providers": {"bundled": [{"artifact": "a:b:1", "create": "a.B", "alias": "x\ny"}]}, "code": "invalid_alias"},
+  {"name": "no providers section", "providers": null, "code": null},
+  {"name": "an unknown key under providers", "providers": {"bundled": [], "other": 1}, "code": "unknown_keys"},
+  {"name": "providers that is a list", "providers": [], "code": "wrong_type"},
+  {"name": "providers that is a string", "providers": "", "code": "wrong_type"}
 ]}

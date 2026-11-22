@@ -13,9 +13,13 @@ class BundledError(InputError):
 
 
 def entries(document, global_file):
-    providers = document.get("providers") or {}
+    providers = document.get("providers")
+    if providers is None:
+        return []
     if not isinstance(providers, dict):
         raise BundledError(f"wrong_type: {global_file}: providers")
+    if unknown := [key for key in providers if key != "bundled"]:
+        raise BundledError(f"unknown_keys: {global_file}: providers [{', '.join(map(str, unknown))}], known [bundled]")
     bundled = providers.get("bundled")
     if bundled is None:
         return []
