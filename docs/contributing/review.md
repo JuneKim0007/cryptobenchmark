@@ -1,7 +1,7 @@
 # Review
 
 Tools that back a review with numbers. They are installed outside the repo, so no project dependency is added:
-- `T=~/capstone/tools/venv/bin`, created with `python3 -m venv ~/capstone/tools/venv && $T/pip install lizard radon vulture`
+- `T=<venv>/bin`, a venv outside the repo created with `python3 -m venv <venv> && $T/pip install lizard radon vulture`
 - `ruff` from the system
 - `jscpd` through `npx`
 - `jdeps` from the JDK
@@ -10,8 +10,8 @@ Tools that back a review with numbers. They are installed outside the repo, so n
 - evidence: every review finding cites a command's output or a file:line; a reading alone is not a finding.
 - dead code: a tool's hit is a candidate; grep the symbol (code, tests, YAML keys, CLI registration, reflection) before deleting.
 - proof: a refactor diffs the dry-run outputs before and after (`diff -r`) and reports the result.
-- runs: write run outputs under `~/capstone/runs/<date>-<name>/`, never `/tmp`.
-- end to end: a change to config, catalogs, discovery or the pipeline also runs `python3 apps/benchmark-runner/pipeline.py --bench --config apps/benchmark-runner/tests/fixtures/config/global-smoke.yaml --results ~/capstone/runs/<date>-<name>/results` to exit 0 (the run lands in `<results>/<device_id>/`); unit suites alone do not catch a JDK-specific name clash.
+- runs: write run outputs outside the repo and outside `/tmp`.
+- end to end: a change to config, catalogs, discovery or the pipeline also runs `python3 apps/benchmark-runner/pipeline.py --bench --config apps/benchmark-runner/tests/fixtures/config/global-smoke.yaml --results <run folder>/results` to exit 0, the run folder outside the repo and outside `/tmp` (the run lands in `<results>/<device_id>/`); unit suites alone do not catch a JDK-specific name clash.
 
 ## Commands
 | Question | Command | Flag when |

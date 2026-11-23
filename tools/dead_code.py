@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import pathlib
 import re
+import shutil
 import subprocess
 import sys
 
@@ -12,7 +13,7 @@ from cryptobench.shared import paths
 
 ROOT = paths.code_root()
 ALLOW = ROOT / "tools/dead-code-allow.txt"
-VULTURE = pathlib.Path(os.environ.get("VULTURE", paths.home() / "capstone/tools/venv/bin/vulture"))
+VULTURE = os.environ.get("VULTURE") or shutil.which("vulture")
 TARGETS = ("apps/perf-repair/src", "apps/benchmark-runner", "apps/cli", "lib/cryptobench", "tools")
 EXCLUDE = "*/tests/*,*/tests,*/fixtures/*"
 FINDING = re.compile(r"^(\S+?):\d+: unused \w+ '(\w+)'")
@@ -27,9 +28,9 @@ def allowed() -> dict[str, str]:
 
 
 def main() -> int:
-    if not VULTURE.is_file():
-        sys.exit(f"dead-code: no vulture at {VULTURE}; install it there or set VULTURE")
-    out = subprocess.run([str(VULTURE), *TARGETS, "--exclude", EXCLUDE], cwd=ROOT, capture_output=True, text=True).stdout
+    if not VULTURE or not pathlib.Path(VULTURE).is_file():
+        sys.exit(f"dead-code: no vulture at {VULTURE}; put it on PATH or set VULTURE")
+    out = subprocess.run([VULTURE, *TARGETS, "--exclude", EXCLUDE], cwd=ROOT, capture_output=True, text=True).stdout
     found = {f"{m.group(1)}:{m.group(2)}": line for line in out.splitlines() if (m := FINDING.match(line))}
     entries = allowed()
     problems = [line for key, line in sorted(found.items()) if key not in entries]

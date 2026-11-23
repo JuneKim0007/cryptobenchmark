@@ -91,7 +91,7 @@ Each entry's `variants`, else `run.variants` ([operations.md](../apps/benchmark/
 
 ## Thermal gate
 
-Why: the phone's power controller lowers the CPU limit once skin reaches its own threshold, 36 C on a Pixel 10. A run that crosses it measures two speeds.
+Why: the phone's power controller lowers the CPU limit once skin reaches the device's own threshold. A run that crosses it measures two speeds.
 
 | step | rule |
 |---|---|

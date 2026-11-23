@@ -215,7 +215,7 @@ def test_a_crash_and_a_hang_cost_only_their_cases(tmp_path, monkeypatch):
     assert "force-stop" in steps(phone) and "not_measured: crash" in problems
 
 
-# a Pixel 10's StrongBox refusals as its skipped.yaml recorded them, each case three times (one launch and launchRetries 2)
+# a device's StrongBox refusals as its skipped.yaml recorded them, each case three times (one launch and launchRetries 2)
 STRONGBOX = yaml.safe_load((pathlib.Path(__file__).parent / "fixtures/skipped_strongbox.yaml").read_text())
 REFUSED = {record["caseId"]: record for record in STRONGBOX["skipped"]}
 

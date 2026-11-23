@@ -10,7 +10,7 @@ import java.security.Security
 
 /**
  * What probe.md assumes about the JCA, checked against the running JVM. A failure on a new Java
- * version means the JCA moved, not that the code broke. Says nothing about Android providers (#14).
+ * version means the JCA moved, not that the code broke. Says nothing about Android providers.
  */
 class JcaContractTest {
 

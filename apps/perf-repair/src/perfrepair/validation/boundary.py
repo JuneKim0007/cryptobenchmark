@@ -121,5 +121,5 @@ def stage_violations(device: Path, names: Names | None = None) -> list[Violation
 
 
 def boundary_violations(device: Path, names: Names | None = None) -> list[Violation]:
-    """The command's whole check: also each case id against its fields, a rule that changes with the case id itself (#111)."""
+    """The command's whole check: also each case id against its fields, a rule that changes with the case id itself."""
     return case_ids_read_back(_rows(Path(device))) + stage_violations(device, names)

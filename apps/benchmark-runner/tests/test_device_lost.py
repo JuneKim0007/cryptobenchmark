@@ -1,4 +1,4 @@
-"""A lost adb transport mid-run (the 2026-11-15 pilot: `device unauthorized`): waited for, the same case held and launched again,
+"""A lost adb transport mid-run (`device unauthorized`): waited for, the same case held and launched again,
 never a failed case; past the bound the run stops."""
 import json, time, types
 
@@ -18,7 +18,7 @@ HAL Ready: true
 Current temperatures from HAL:
 \tTemperature{mValue=30.0, mType=3, mName=VIRTUAL-SKIN, mStatus=0}
 """
-# the pilot's case: the transport dropped inside am instrument, which printed only the test's start
+# the transport dropped inside am instrument, which printed only the test's start
 CUT = "INSTRUMENTATION_STATUS: numtests=1\nINSTRUMENTATION_STATUS_CODE: 1\n"
 
 
@@ -83,7 +83,7 @@ def lost_run(tmp_path, monkeypatch, polls, wait_minutes=1):
     return phone, measured(tmp_path, monkeypatch, {"thermalGate": GATE, "launchRetries": 1}, phone=phone)
 
 
-def test_the_pilots_lost_transport_is_waited_out_and_the_same_case_runs_again(tmp_path, monkeypatch, capsys):
+def test_a_transport_lost_inside_am_instrument_is_waited_out_and_the_same_case_runs_again(tmp_path, monkeypatch, capsys):
     phone, (_phone, _files, problems, results) = lost_run(tmp_path, monkeypatch, polls=3)
     assert not [p for p in problems if p.startswith(("case_failed", "temperature_unreadable", "not_measured"))]
     launched = [s for s in phone.log if s.startswith("instrument ")]
@@ -128,7 +128,7 @@ def test_the_lost_attempt_is_kept_in_rejected_with_its_why(tmp_path, monkeypatch
     assert [(w["case"], w["attempt"], w["findings"][0]["code"]) for w in whys] == [("b", 1, "device_lost")]
 
 
-# the 2026-11-20 try1 stop: adb shell exited 1 with no words of its own and the clocks read cut after 3 cores
+# adb shell exited 1 with no words of its own and the clocks read cut after 3 cores
 PARTIAL = "cpu0 1 sched_pixel 300000 300000 2000000\ncpu1 1 sched_pixel 300000 300000 2000000\ncpu2 1"
 
 

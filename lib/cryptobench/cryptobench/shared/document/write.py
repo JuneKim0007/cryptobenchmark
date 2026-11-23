@@ -29,7 +29,7 @@ MANIFEST = Staging(prefix=".", suffix="", private=True, synced=True)
 
 
 def _staged(path: Path, text: str, durable: bool, staging: Staging) -> Path:
-    # a name of its own per writer: a shared `<name>.tmp` let two writers rename each other's file away (#78)
+    # a name of its own per writer: a shared `<name>.tmp` let two writers rename each other's file away
     handle, name = tempfile.mkstemp(prefix=f"{staging.prefix}{path.name}.", suffix=staging.suffix, dir=path.parent)
     tmp = Path(name)
     try:

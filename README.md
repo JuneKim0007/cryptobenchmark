@@ -32,7 +32,7 @@ python3 apps/cli/facade.py --settings config/facade/settings.yaml           # be
 
 ## Recommended settings
 
-- **Set `run.thermalGate` on a phone, and find its temperature for your device.** A hot phone slows its CPU without reporting it, so numbers shift silently. `temperatureKeptCelsius` 36.0 is where a Pixel 10 slows down; other devices may differ.
+- **Set `run.thermalGate` on a phone, and find its temperature for your device.** A hot phone slows its CPU without reporting it, so numbers shift silently. Each device slows at its own skin temperature: find its skin sensor's throttling threshold in the device's thermal configuration (`adb shell dumpsys thermalservice` lists the static thresholds; the gate's capability line names the skin sensors it reads) and set `temperatureKeptCelsius` below it.
 - **Give very short algorithms more runs.** A case contains runs and a run contains iters. Fast hashes and MACs vary more from run to run than slow operations do, and more iters do not fix that: the extra launches do. `run.processRepetitions` sets one count for every case.
 
 ## Connected device setup

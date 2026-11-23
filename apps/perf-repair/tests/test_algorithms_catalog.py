@@ -13,7 +13,7 @@ from cryptobench.shared.catalogue.names import fold
 from perfrepair.catalog.screening import SCREENING
 from perfrepair.catalog.types import types
 
-FIXTURE = Path(__file__).parent / "fixtures" / "types" / "pixel-10-items.json"
+FIXTURE = Path(__file__).parent / "fixtures" / "types" / "device-items.json"
 MD5 = "MessageDigest|MD5"
 
 

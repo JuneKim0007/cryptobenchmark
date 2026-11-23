@@ -171,7 +171,7 @@ def test_a_measured_window_is_moved_onto_the_rails_clock(tmp_path):
 
 
 class RailsStopEarlyTrace(SuspendedDeviceTrace):
-    """The rail capture ended before the timed phase did (seen on a Pixel 10)."""
+    """The rail capture ended before the timed phase did (seen on a device)."""
 
     def rails(self):
         return {"r": [(t, float(t)) for t in range(1000, 1150, 10)]}

@@ -1,5 +1,5 @@
 """The provider a site is on for one app: named at the call, or by the default order, which the app's own registration of
-a provider it ships at position 1 moves ahead of the device's; the order is static reading, never proof (issue #50)."""
+a provider it ships at position 1 moves ahead of the device's; the order is static reading, never proof."""
 from __future__ import annotations
 
 from dataclasses import dataclass

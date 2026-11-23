@@ -12,7 +12,7 @@ FAIL, NOTE = "fail", "note"
 CASE, RUN, PASS = "case", "run", "pass"
 # a problem line that names a case the run gave up on: no file is expected for it
 GAVE_UP = ("case_failed: ", "case_skipped: ")
-# androidx targets about 100 ms a sample; the collapsed samples seen on a Pixel 10 were under 0.1 ms
+# androidx targets about 100 ms a sample; collapsed samples seen on a device were under 0.1 ms
 SHORT_SAMPLE_MS = 1.0
 # androidx ends a warm-up at 8 s whether or not the timing has settled; it does not report which happened
 WARMUP_NEAR_CAP_S = 6.0
