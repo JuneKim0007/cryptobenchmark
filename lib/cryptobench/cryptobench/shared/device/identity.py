@@ -5,6 +5,9 @@ from cryptobench.shared.errors.coded import Coded
 from cryptobench.shared.device import capture as captured
 
 
+HOST_FIELDS = ("osName", "osArch", "javaVersion", "javaVendor", "javaRuntimeVersion")
+
+
 class DeviceIdError(Coded):
     pass
 
@@ -43,8 +46,7 @@ def device_id(runtime):
     if int(sdk) > 0:
         model, fingerprint = fields(runtime, "model", "fingerprint")
         return f"{slug(model)}-api{sdk}-{digest(fingerprint)}"
-    os_name, arch, version, vendor, runtime_version = fields(runtime, "osName", "osArch", "javaVersion", "javaVendor",
-                                                             "javaRuntimeVersion")
+    os_name, arch, version, vendor, runtime_version = fields(runtime, *HOST_FIELDS)
     return f"host-{slug(os_name)}-{slug(arch)}-jdk{java_major(version)}-{digest(vendor, runtime_version)}"
 
 

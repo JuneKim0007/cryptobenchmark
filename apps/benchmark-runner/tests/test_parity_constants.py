@@ -15,7 +15,7 @@ from cryptobench.stages.measurement.session import case_isolation, passes, therm
 from cryptobench.stages.verification.scope import wrapper
 from cryptobench.stages.verification import check
 from cryptobench.stages.discovery import facts, probe
-from cryptobench.shared.device import capture
+from cryptobench.shared.device import capture, identity
 from cryptobench.shared.catalogue import guide_items, names, vectors
 from cryptobench.shared import paths
 from cryptobench.shared.paths import device_dirs
@@ -166,6 +166,14 @@ def manafa_written_version():
         except manafa_session.CannotStart:
             pass
         return yaml.safe_load(out.read_text())["schemaVersion"]
+
+
+def test_bench_copies_the_capture_runtime_keys_the_host_device_id_needs():
+    # a measured run's manifest runtime is benchmark.json's, which BenchKt copies from the capture it read
+    copied = re.findall(r'"(\w+)" to it\.(\w+),', kotlin(CLI / "Bench.kt", r"capture\.runtime\.let \{\s*mapOf\((.*?)\)\s*\}", re.S))
+    names = set(re.findall(r'const val \w+ = "(\w+)"', (KM / "environment/contract/src/main/kotlin/capture/RuntimeDocument.kt").read_text()))
+    assert copied and all(key == field and key in names for key, field in copied)
+    assert set(identity.HOST_FIELDS) <= {key for key, _ in copied}
 
 
 def test_the_names_file_name_is_one_in_both_languages():
