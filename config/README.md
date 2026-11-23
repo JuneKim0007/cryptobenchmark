@@ -15,6 +15,7 @@ Every file a user edits, by the tool that reads it. Nothing here is generated.
 | `~/.config/cryptobench/devices.yaml` | outside the repository | `apps/benchmark-runner/pipeline.py` `--devices`, `--session` | fixed; absent is no aliases |
 | a `session.yaml` | anywhere; no committed copy | `apps/benchmark-runner/pipeline.py` `--session`, `--check-session` | the flag; its paths resolve against its folder |
 | `apps/benchmark-runner/energy/requirements.txt`, `requirements-manafa.txt` | in place, tracked | the `--energy-python` interpreter's install | fixed, beside the energy scripts; installed on first use |
+| `apps/benchmark-runner/energy/rails/excluded.yaml` | in place, tracked | `apps/benchmark-runner/energy/rails/selection.py` | fixed, packaged beside its reader |
 | `requirements.txt` | in place, tracked | `pip install -r`, CI | fixed, at the repository root |
 | `lib/cryptobench/cryptobench/shared/settings/defaults.yaml` | never: the config module's `-Dexamples.update` run writes it | the runner and perf-repair, as package data | package data |
 

@@ -25,7 +25,7 @@ class RealShape:
 
     def rails(self):
         first, last, _count = SHAPE["rails"]
-        return Rails({"a": [(t, t / 1e6) for t in range(first, last, 100_000_000)]}, {})
+        return Rails({"a": [(t, t / 1e6) for t in range(first, last, 100_000_000)]}, {}, {})
 
     def close(self):
         pass

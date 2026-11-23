@@ -24,6 +24,12 @@ def excluded(rails):
     return sum(counters.whole(s) for s in rails.excluded.values())
 
 
+def subsystems_text(rails):
+    def names(group):
+        return ", ".join(sorted({str(rails.subsystems.get(raw)) for raw in group})) or "none"
+    return f"summed subsystems {names(rails.summed)} vs excluded {names(rails.excluded)}"
+
+
 def microwatts(microjoules, span):
     """Power over the span the samples cover, not the configured length: a short or cut trace keeps its true rate."""
     return microjoules / span if span > 0 else 0.0
@@ -38,7 +44,7 @@ def capability(idle_rails, busy_rails, idle_seconds, busy_seconds, accept, skin=
             "idleMicrojoules": idle, "busyMicrojoules": busy, "idleExcludedMicrojoules": excluded(idle_rails),
             "busyExcludedMicrojoules": excluded(busy_rails), "idleWindowSeconds": idle_seconds, "busyWindowSeconds": busy_seconds,
             "idleSpanSeconds": idle_span, "idleMicrowatts": microwatts(idle, idle_span), "idleBoottimeNs": idle_at,
-            "idleSkin": skin, "acceptUnresponsive": accept}
+            "idleSkin": skin, "acceptUnresponsive": accept, "railSubsystems": dict(sorted(busy_rails.subsystems.items()))}
 
 
 def ended(document, end_rails, seconds, skin=None):
@@ -91,12 +97,13 @@ def main(argv=None):
         end(*positional, skin=skin)
         return 0
     idle_path, busy_path, idle_seconds, busy_seconds, out = positional
-    document = capability(rails_of(idle_path), rails_of(busy_path), float(idle_seconds), float(busy_seconds), "--accept-unresponsive" in flags, skin)
+    busy = rails_of(busy_path)
+    document = capability(rails_of(idle_path), busy, float(idle_seconds), float(busy_seconds), "--accept-unresponsive" in flags, skin)
     pathlib.Path(out).write_text(yaml.safe_dump(document, sort_keys=False))
     print(f"rails:     present {document['railsPresent']}, responsive {document['railsResponsive']} "
           f"(idle {document['idleMicrojoules']:.0f} uJ over {document['idleSpanSeconds']:.1f} of {idle_seconds} s, {skin_text(skin)}; "
           f"busy {document['busyMicrojoules']:.0f} uJ over {busy_seconds} s; "
-          f"excluded idle {document['idleExcludedMicrojoules']:.0f} uJ, busy {document['busyExcludedMicrojoules']:.0f} uJ)")
+          f"excluded idle {document['idleExcludedMicrojoules']:.0f} uJ, busy {document['busyExcludedMicrojoules']:.0f} uJ; {subsystems_text(busy)})")
     return 0
 
 

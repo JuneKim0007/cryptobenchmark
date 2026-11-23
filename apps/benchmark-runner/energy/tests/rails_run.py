@@ -7,6 +7,7 @@ from rails.selection import Rails  # noqa: E402
 FIXTURES = pathlib.Path(__file__).parent / "fixtures"
 RAILS = {"a": [(t, 2.0 * t) for t in range(1000, 9000, 100)], "b": [(t, 0.5 * t) for t in range(1000, 9000, 100)]}
 SUPPLY = {"v": [(t, 0.25 * t) for t in range(1000, 9000, 100)]}
+SUBSYSTEMS = {"a": "CPU", "b": None, "v": "Battery"}
 
 
 class FakeTrace:
@@ -25,7 +26,7 @@ class FakeTrace:
 
     def rails(self):
         return Rails(*({name: [(t, v * 3 if self.loaded else v) for t, v in samples] for name, samples in group.items()}
-                       for group in (RAILS, SUPPLY)))
+                       for group in (RAILS, SUPPLY)), SUBSYSTEMS)
 
     def close(self):
         pass

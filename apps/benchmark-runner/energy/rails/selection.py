@@ -10,6 +10,7 @@ CATALOG = importlib.resources.files(__package__).joinpath("excluded.yaml")
 class Rails(NamedTuple):
     summed: dict
     excluded: dict
+    subsystems: dict
 
 
 class Unidentified(ValueError):
@@ -29,9 +30,10 @@ def excluded_subsystems(path=CATALOG):
 
 def split(tracks, excluded):
     """tracks: {(track name, raw name, subsystem): samples}."""
-    out = Rails({}, {})
+    out = Rails({}, {}, {})
     for (track, raw, subsystem), samples in tracks.items():
         if not raw or raw in out.summed or raw in out.excluded:
             raise Unidentified(f"rail_unidentified: {track}: raw_name {raw!r} missing or repeated")
         (out.excluded if subsystem in excluded else out.summed)[raw] = samples
+        out.subsystems[raw] = subsystem
     return out

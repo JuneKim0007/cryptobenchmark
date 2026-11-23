@@ -12,3 +12,7 @@ idleMicrowatts: 2500000000.0
 idleBoottimeNs: 4950
 idleSkin: null
 acceptUnresponsive: false
+railSubsystems:
+  a: CPU
+  b: null
+  v: Battery

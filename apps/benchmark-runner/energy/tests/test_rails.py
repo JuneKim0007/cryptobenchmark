@@ -25,7 +25,7 @@ def test_refuses_a_window_outside_the_samples():
 
 
 def test_window_reports_joules_net_of_idle_and_per_operation():
-    r = energy.window(Rails({"a": SAMPLES, "b": SAMPLES}, {}), 0, 200, idle=lambda a, b: 5.0 * (b - a), operations=4)
+    r = energy.window(Rails({"a": SAMPLES, "b": SAMPLES}, {}, {}), 0, 200, idle=lambda a, b: 5.0 * (b - a), operations=4)
     assert r["joules"] == pytest.approx(6000 / 1e6)
     assert r["netJoules"] == pytest.approx((6000 - 1000) / 1e6)
     assert r["joulesPerOperation"] == pytest.approx(5000 / 1e6 / 4)
@@ -33,15 +33,15 @@ def test_window_reports_joules_net_of_idle_and_per_operation():
 
 
 def test_rails_that_do_not_respond_to_load_are_flagged():
-    flat = Rails({"r": [(0, 0.0), (10, 1500.0)]}, {})
-    hot = Rails({"r": [(0, 0.0), (10, 6000.0)]}, {})
+    flat = Rails({"r": [(0, 0.0), (10, 1500.0)]}, {}, {})
+    hot = Rails({"r": [(0, 0.0), (10, 6000.0)]}, {}, {})
     assert not preflight.capability(flat, flat, 2, 2, False)["railsResponsive"]
     assert preflight.capability(flat, hot, 2, 2, False)["railsResponsive"]
-    assert not preflight.capability(Rails({}, {}), Rails({}, {}), 2, 2, False)["railsPresent"]
+    assert not preflight.capability(Rails({}, {}, {}), Rails({}, {}, {}), 2, 2, False)["railsPresent"]
 
 
 def spanning(seconds, microjoules):
-    return Rails({"r": [(0, 0.0), (int(seconds * 1e9), microjoules)]}, {})
+    return Rails({"r": [(0, 0.0), (int(seconds * 1e9), microjoules)]}, {}, {})
 
 
 def test_responsiveness_compares_power_over_the_spans_the_samples_cover():
@@ -121,7 +121,7 @@ def test_an_end_trace_without_rails_is_refused_and_energy_yaml_is_kept(tmp_path,
     rails_run.inputs(tmp_path)
     before = (tmp_path / "energy.yaml").read_text()
     with pytest.raises(SystemExit, match="no_rails"):
-        preflight.ended(yaml.safe_load(before), Rails({}, {}), 3.0)
+        preflight.ended(yaml.safe_load(before), Rails({}, {}, {}), 3.0)
     assert (tmp_path / "energy.yaml").read_text() == before
 
 
@@ -153,7 +153,7 @@ class SuspendedDeviceTrace:
         return 1000
 
     def rails(self):
-        return Rails({"r": [(t, float(t)) for t in range(1000, 1300, 10)]}, {})
+        return Rails({"r": [(t, float(t)) for t in range(1000, 1300, 10)]}, {}, {})
 
     def close(self):
         pass
@@ -175,7 +175,7 @@ class RailsStopEarlyTrace(SuspendedDeviceTrace):
     """The rail capture ended before the timed phase did (seen on a device)."""
 
     def rails(self):
-        return Rails({"r": [(t, float(t)) for t in range(1000, 1150, 10)]}, {})
+        return Rails({"r": [(t, float(t)) for t in range(1000, 1150, 10)]}, {}, {})
 
 
 def test_a_phase_past_the_last_rail_sample_is_one_invalid_case_not_a_failed_run(tmp_path):
@@ -242,7 +242,7 @@ class Broken(SuspendedDeviceTrace):
     (Phases(phases=[]), "timed_phases: 0"),
     (Phases(phases=[(100, 200), (300, 400)]), "timed_phases: 2"),
     (Phases(offset=None), "no_clock_snapshot"),
-    (Phases(rails=Rails({}, {})), "no_rails"),
+    (Phases(rails=Rails({}, {}, {})), "no_rails"),
     (Phases(phases=[(200, 100)]), "empty_window"),
     (Phases(phases=[{"start": 100, "end": 200, "runs": [], "sleeps": []}]), "no_measurement_slices"),
     (Broken(), "trace_unreadable: truncated trace"),
@@ -283,7 +283,7 @@ def test_an_empty_energy_dry_file_reads_as_no_call_counts(tmp_path):
 
 
 def test_a_case_without_operations_is_never_valid():
-    result = energy.window(Rails({"r": SAMPLES}, {}), 0, 200, NO_IDLE, 0)
+    result = energy.window(Rails({"r": SAMPLES}, {}, {}), 0, 200, NO_IDLE, 0)
     assert result["joulesPerOperation"] is None
     assert energy.judge(result, True)["invalid"][0] == "no_operations"
 

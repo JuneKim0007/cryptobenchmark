@@ -188,7 +188,7 @@ def test_schema_versions_across_the_boundary():
         (guide_items.SCHEMA_VERSION, number("preparation/src/main/kotlin/guide/Guide.kt", "SUPPORTED_SCHEMA_VERSION")),
         (vectors.SCHEMA_VERSION, number("benchmark/src/main/kotlin/verify/known/KnownAnswerFile.kt", "SCHEMA_VERSION")),
         (energy.SCHEMA_VERSION, number("benchmark/src/main/kotlin/report/energy/EnergyWindows.kt", "SCHEMA_VERSION")),
-        (preflight.capability(Rails({}, {}), Rails({}, {}), 1, 1, False)["schemaVersion"], capability_version()),
+        (preflight.capability(Rails({}, {}, {}), Rails({}, {}, {}), 1, 1, False)["schemaVersion"], capability_version()),
         (manafa_written_version(), capability_version()),
         (names.SCHEMA_VERSION, number("document/src/main/kotlin/names/AlgorithmNames.kt", "SCHEMA_VERSION")),
         (facts.FACTS_DOC.version, number("settings/src/main/kotlin/Facts.kt", "SCHEMA_VERSION")),

@@ -32,12 +32,21 @@ def test_a_real_trace_sums_31_load_rails_by_raw_name_and_sets_the_battery_rail_a
     assert result["excludedShare"] == pytest.approx(result["excludedRails"]["VSYS_PWR_VBATT"] / result["joules"])
     document = preflight.capability(rails, rails, 1, 1, False)
     assert document["busyExcludedMicrojoules"] == pytest.approx(result["excludedRails"]["VSYS_PWR_VBATT"] * 1e6)
+    assert len(document["railSubsystems"]) == 32 and document["railSubsystems"]["VSYS_PWR_VBATT"] == "Battery"
+    assert document["railSubsystems"]["S2M_VDD_CPU2"] == "CPU(BIG)"
+    text = preflight.subsystems_text(rails)
+    assert text.endswith("vs excluded Battery") and "CPU(BIG)" in text.split(" vs ")[0]
+
+
+def test_the_rails_line_names_a_rail_without_a_subsystem():
+    rails = Rails({"A": SAMPLES}, {}, {"A": None})
+    assert preflight.subsystems_text(rails) == "summed subsystems None vs excluded none"
 
 
 def test_a_rail_without_a_subsystem_or_of_an_unknown_one_is_summed():
     rails = selection.split({("power.a", "A", None): SAMPLES, ("power.b", "B", "Somewhere"): SAMPLES,
                              ("power.v", "V", "Battery"): SAMPLES}, frozenset({"Battery"}))
-    assert rails == Rails({"A": SAMPLES, "B": SAMPLES}, {"V": SAMPLES})
+    assert rails == Rails({"A": SAMPLES, "B": SAMPLES}, {"V": SAMPLES}, {"A": None, "B": "Somewhere", "V": "Battery"})
 
 
 @pytest.mark.parametrize("tracks", [
@@ -50,7 +59,7 @@ def test_a_rail_without_a_raw_name_or_with_a_repeated_one_is_refused(tracks):
 
 
 def test_every_rail_excluded_reads_as_no_rails():
-    rails = Rails({}, {"V": SAMPLES})
+    rails = Rails({}, {"V": SAMPLES}, {"V": "Battery"})
     with pytest.raises(energy.NotMeasured, match="no_rails"):
         energy.window(rails, 0, 200, no_idle, 1)
     assert not preflight.capability(rails, rails, 1, 1, False)["railsPresent"]
@@ -59,7 +68,7 @@ def test_every_rail_excluded_reads_as_no_rails():
 
 
 def test_a_window_records_its_excluded_rails_beside_the_sum():
-    result = energy.window(Rails({"A": SAMPLES}, {"V": [(0, 0.0), (200, 30.0)]}), 0, 200, no_idle, 1)
+    result = energy.window(Rails({"A": SAMPLES}, {"V": [(0, 0.0), (200, 30.0)]}, {"A": "CPU", "V": "Battery"}), 0, 200, no_idle, 1)
     assert (result["joules"], result["excludedRails"], result["excludedHigh"]) == (3000 / 1e6, {"V": 30 / 1e6}, False)
     assert result["excludedShare"] == pytest.approx(0.01)
 
