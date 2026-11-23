@@ -15,7 +15,7 @@ class DiscoveryCapability private constructor(capture: CapturedDevice, trial: Tr
 
     constructor(captureFile: File, trialFile: File) : this(Handoff.read(captureFile, trialFile))
 
-    private constructor(handoff: Handoff) : this(CapturedDevice.of(handoff.capture), TrialledDevice.of(handoff.trial))
+    constructor(handoff: Handoff) : this(CapturedDevice.of(handoff.capture), TrialledDevice.of(handoff.trial))
 
     override val sdkInt: Int? = capture.sdkInt
 

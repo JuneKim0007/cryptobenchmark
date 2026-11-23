@@ -3,7 +3,6 @@ import io.github.junekim0007.cryptobench.benchmark.check.RunnablePlan
 import io.github.junekim0007.cryptobench.benchmark.report.BenchmarkJson
 import io.github.junekim0007.cryptobench.benchmark.report.ResultRow
 import io.github.junekim0007.cryptobench.benchmark.run.HostHarness
-import io.github.junekim0007.cryptobench.contract.capture.CaptureDocument
 import io.github.junekim0007.cryptobench.files.FileNames
 import java.io.File
 import java.lang.management.ManagementFactory
@@ -12,21 +11,23 @@ import java.lang.management.ManagementFactory
 // or this JVM's death, loses no earlier row.
 fun main(arguments: Array<String>) = command(arguments, "<capture> <trial> <${FileNames.EFFECTIVE}> <benchmark output directory> <preparation directory> <order file>", { it.size == 6 }) {
     val preparationDirectory = File(arguments[4])
-    val plan = hostPlan(File(arguments[0]), File(arguments[1]), File(arguments[2]), preparationDirectory.apply { mkdirs() })
-    val capture = CaptureDocument.read(File(arguments[0]))
+    val host = HostPlan(File(arguments[0]), File(arguments[1]), File(arguments[2]), preparationDirectory.apply { mkdirs() })
+    val plan = host.plan
     val output = BenchmarkJson(File(arguments[3]).apply { mkdirs() })
     val orderText = File(arguments[5]).readText()
     val runnable = plan.preparedAll(File(arguments[2]))
     System.err.println("prepared=${runnable.size} skipped=${plan.skipped.size}")
 
-    val runtime = mapOf(
-        "javaVersion" to capture.runtime.javaVersion,
-        "defaultKeySizeProperty" to capture.runtime.defaultKeySizeProperty,
-        "javaVendor" to capture.runtime.javaVendor,
-        "javaRuntimeVersion" to capture.runtime.javaRuntimeVersion,
-        "osName" to capture.runtime.osName,
-        "osArch" to capture.runtime.osArch,
-    )
+    val runtime = host.handoff.capture.runtime.let {
+        mapOf(
+            "javaVersion" to it.javaVersion,
+            "defaultKeySizeProperty" to it.defaultKeySizeProperty,
+            "javaVendor" to it.javaVendor,
+            "javaRuntimeVersion" to it.javaRuntimeVersion,
+            "osName" to it.osName,
+            "osArch" to it.osArch,
+        )
+    }
     val harness = HostHarness(collectionCount = { ManagementFactory.getGarbageCollectorMXBeans().sumOf { maxOf(0L, it.collectionCount) } })
     val rows = mutableListOf<ResultRow>()
     val byId = runnable.associateBy { it.case.id }
