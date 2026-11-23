@@ -1,0 +1,2 @@
+# Rails whose channel measures supply into the system, not a load, matched on the power HAL's subsystem name; every other rail is summed.
+subsystems: [Battery]

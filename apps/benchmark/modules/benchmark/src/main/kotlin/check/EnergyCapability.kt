@@ -26,7 +26,7 @@ data class EnergyCapability(
 
     companion object : DocumentReader<EnergyCapability> {
 
-        private const val SCHEMA_VERSION = 3
+        private const val SCHEMA_VERSION = 4
 
         override val schemaVersion = SCHEMA_VERSION
 

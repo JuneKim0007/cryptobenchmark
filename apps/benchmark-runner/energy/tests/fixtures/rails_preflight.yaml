@@ -1,8 +1,10 @@
-schemaVersion: 3
+schemaVersion: 4
 railsPresent: true
 railsResponsive: true
 idleMicrojoules: 19750.0
 busyMicrojoules: 59250.0
+idleExcludedMicrojoules: 1975.0
+busyExcludedMicrojoules: 5925.0
 idleWindowSeconds: 3.0
 busyWindowSeconds: 3.0
 idleSpanSeconds: 7.9e-06

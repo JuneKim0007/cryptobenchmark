@@ -13,11 +13,15 @@ SKIN = "--skin"
 
 
 def reading(rails):
-    """A window's microjoules over every rail, the BOOTTIME midpoint of its samples (None without samples) and their span in seconds."""
-    times = [t for samples in rails.values() for t, _ in samples]
+    """A window's microjoules over the summed rails, the BOOTTIME midpoint of their samples (None without samples) and their span in seconds."""
+    times = [t for samples in rails.summed.values() for t, _ in samples]
     if not times:
         return 0, None, 0.0
-    return sum(counters.whole(s) for s in rails.values()), (min(times) + max(times)) // 2, (max(times) - min(times)) / 1e9
+    return sum(counters.whole(s) for s in rails.summed.values()), (min(times) + max(times)) // 2, (max(times) - min(times)) / 1e9
+
+
+def excluded(rails):
+    return sum(counters.whole(s) for s in rails.excluded.values())
 
 
 def microwatts(microjoules, span):
@@ -28,10 +32,11 @@ def microwatts(microjoules, span):
 def capability(idle_rails, busy_rails, idle_seconds, busy_seconds, accept, skin=None):
     idle, idle_at, idle_span = reading(idle_rails)
     busy, _, busy_span = reading(busy_rails)
-    present = bool(idle_rails) and bool(busy_rails)
+    present = bool(idle_rails.summed) and bool(busy_rails.summed)
     return {"schemaVersion": CAPABILITY_VERSION, "railsPresent": present,
             "railsResponsive": present and idle > 0 and microwatts(busy, busy_span) >= microwatts(idle, idle_span) * RESPONSIVE,
-            "idleMicrojoules": idle, "busyMicrojoules": busy, "idleWindowSeconds": idle_seconds, "busyWindowSeconds": busy_seconds,
+            "idleMicrojoules": idle, "busyMicrojoules": busy, "idleExcludedMicrojoules": excluded(idle_rails),
+            "busyExcludedMicrojoules": excluded(busy_rails), "idleWindowSeconds": idle_seconds, "busyWindowSeconds": busy_seconds,
             "idleSpanSeconds": idle_span, "idleMicrowatts": microwatts(idle, idle_span), "idleBoottimeNs": idle_at,
             "idleSkin": skin, "acceptUnresponsive": accept}
 
@@ -39,11 +44,11 @@ def capability(idle_rails, busy_rails, idle_seconds, busy_seconds, accept, skin=
 def ended(document, end_rails, seconds, skin=None):
     idle, at, span = reading(end_rails)
     if at is None:
-        raise SystemExit("no_rails: the end idle trace has no power rails")
+        raise SystemExit("no_rails: the end idle trace has no summed power rails")
     start, end = document["idleMicrowatts"], microwatts(idle, span)
     drift = (end - start) / start * 100 if start else None
-    return document | {"idleEndMicrojoules": idle, "idleEndWindowSeconds": seconds, "idleEndSpanSeconds": span, "idleEndMicrowatts": end,
-                       "idleEndBoottimeNs": at, "idleEndSkin": skin, "idleDriftPercent": drift}
+    return document | {"idleEndMicrojoules": idle, "idleEndExcludedMicrojoules": excluded(end_rails), "idleEndWindowSeconds": seconds,
+                       "idleEndSpanSeconds": span, "idleEndMicrowatts": end, "idleEndBoottimeNs": at, "idleEndSkin": skin, "idleDriftPercent": drift}
 
 
 def rails_of(path):
@@ -90,7 +95,8 @@ def main(argv=None):
     pathlib.Path(out).write_text(yaml.safe_dump(document, sort_keys=False))
     print(f"rails:     present {document['railsPresent']}, responsive {document['railsResponsive']} "
           f"(idle {document['idleMicrojoules']:.0f} uJ over {document['idleSpanSeconds']:.1f} of {idle_seconds} s, {skin_text(skin)}; "
-          f"busy {document['busyMicrojoules']:.0f} uJ over {busy_seconds} s)")
+          f"busy {document['busyMicrojoules']:.0f} uJ over {busy_seconds} s; "
+          f"excluded idle {document['idleExcludedMicrojoules']:.0f} uJ, busy {document['busyExcludedMicrojoules']:.0f} uJ)")
     return 0
 
 

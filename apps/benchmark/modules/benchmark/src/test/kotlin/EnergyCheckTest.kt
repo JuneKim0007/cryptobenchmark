@@ -59,7 +59,7 @@ class EnergyCheckTest {
 
     @Test
     fun theCapabilityFileIsReadWhole() {
-        val text = "schemaVersion: 3\nrailsPresent: true\nrailsResponsive: false\nidleMicrojoules: 30000\n" +
+        val text = "schemaVersion: 4\nrailsPresent: true\nrailsResponsive: false\nidleMicrojoules: 30000\n" +
             "busyMicrojoules: 3000\nidleWindowSeconds: 20\nbusyWindowSeconds: 2\nacceptUnresponsive: true\n"
         assertEquals(EnergyCapability(true, false, 30000.0, 3000.0, 20.0, 2.0, true), EnergyCapability.parse(text))
     }
@@ -67,8 +67,8 @@ class EnergyCheckTest {
     @Test
     fun anEnergyFileWithoutItsSchemaOrKindIsRefused() {
         fun failure(text: String) = assertThrows(IllegalArgumentException::class.java) { EnergyWindows.read(text) }.message
-        assertEquals("unsupported_schema_version: energy.json: 1, this build reads 3", failure("""{"schemaVersion": 1, "cases": {}}"""))
-        assertEquals("missing_field: energy.json: kind", failure("""{"schemaVersion": 3, "source": "rails", "cases": {}}"""))
+        assertEquals("unsupported_schema_version: energy.json: 1, this build reads 4", failure("""{"schemaVersion": 1, "cases": {}}"""))
+        assertEquals("missing_field: energy.json: kind", failure("""{"schemaVersion": 4, "source": "rails", "cases": {}}"""))
     }
 
     @Test
@@ -89,7 +89,7 @@ class EnergyCheckTest {
 
     @Test
     fun theIdleBaselineReachesEachCaseAndAMixOfProcessesIsMarked() {
-        fun energy(baseline: String) = """{"schemaVersion": 3, "source": "rails", "kind": "measured", "idleBaseline": "$baseline", "cases": {
+        fun energy(baseline: String) = """{"schemaVersion": 4, "source": "rails", "kind": "measured", "idleBaseline": "$baseline", "cases": {
             "c": {"capture": "measured", "valid": true, "joulesPerOperation": 2.5e-6, "operations": 4}}}"""
         fun text(baseline: String) = BenchmarkJson(File(".")).text(emptyMap(), listOf(ResultRow("c", "T", "A", "P", "OP", null, null, null,
             mapOf(MetricSamples.TIME to MetricSamples(listOf(9.0), 1), MetricSamples.ENERGY to EnergyWindows.read(energy(baseline)).samples.getValue("c")),
@@ -103,7 +103,7 @@ class EnergyCheckTest {
 
     @Test
     fun onlyMeasuredCasesBecomeAnEnergyMetric() {
-        val text = """{"schemaVersion": 3, "source": "manafa", "kind": "estimated", "cases": {
+        val text = """{"schemaVersion": 4, "source": "manafa", "kind": "estimated", "cases": {
             "m": {"capture": "measured", "valid": true, "joulesPerOperation": 2.5e-6, "operations": 40000},
             "x": {"capture": "measured", "valid": false, "invalid": ["short_window"], "joulesPerOperation": -1, "operations": 9},
             "d": {"capture": "dry", "valid": true, "joulesPerOperation": 1.0e-6, "operations": 9}}}"""
@@ -114,7 +114,7 @@ class EnergyCheckTest {
 
     @Test
     fun aValidCaseWithoutANumberIsNotJoinedAndTheOthersAre() {
-        val text = """{"schemaVersion": 3, "source": "rails", "kind": "measured", "cases": {
+        val text = """{"schemaVersion": 4, "source": "rails", "kind": "measured", "cases": {
             "m": {"capture": "measured", "valid": true, "joulesPerOperation": 2.5e-6, "operations": 4},
             "none": {"capture": "measured", "valid": true, "joulesPerOperation": null, "operations": 0},
             "zero": {"capture": "measured", "valid": true, "joulesPerOperation": 1.0, "operations": 0},

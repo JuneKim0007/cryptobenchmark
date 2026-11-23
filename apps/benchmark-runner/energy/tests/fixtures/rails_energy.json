@@ -2,6 +2,9 @@
  "schemaVersion": 1,
  "railsResponsive": true,
  "idleBaseline": "idle_start_only",
+ "excludedSubsystems": [
+  "Battery"
+ ],
  "cases": {
   "m1": {
    "joules": 0.01,
@@ -13,9 +16,14 @@
    "polls": 41,
    "shortWindow": false,
    "rails": {
-    "power.a": 0.008,
-    "power.b": 0.002
+    "a": 0.008,
+    "b": 0.002
    },
+   "excludedRails": {
+    "v": 0.001
+   },
+   "excludedShare": 0.1,
+   "excludedHigh": true,
    "capture": "measured",
    "clockOffsetNs": 500,
    "heatSleepAfterKeptRuns": false,
@@ -34,9 +42,14 @@
    "polls": 41,
    "shortWindow": false,
    "rails": {
-    "power.a": 0.008,
-    "power.b": 0.002
+    "a": 0.008,
+    "b": 0.002
    },
+   "excludedRails": {
+    "v": 0.001
+   },
+   "excludedShare": 0.1,
+   "excludedHigh": true,
    "capture": "measured",
    "clockOffsetNs": 500,
    "heatSleepAfterKeptRuns": false,
@@ -55,9 +68,14 @@
    "polls": 51,
    "shortWindow": false,
    "rails": {
-    "power.a": 0.01,
-    "power.b": 0.0025
+    "a": 0.01,
+    "b": 0.0025
    },
+   "excludedRails": {
+    "v": 0.00125
+   },
+   "excludedShare": 0.1,
+   "excludedHigh": true,
    "capture": "dry",
    "clockOffsetNs": 0,
    "valid": true,

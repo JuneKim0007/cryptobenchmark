@@ -47,8 +47,8 @@ class SchemaRefusalsTest {
             contract CaptureDocument | unsupported_schema_version: probe_x.yaml: 99, this build reads 1
             contract TrialDocument | unsupported_schema_version: trial_x.yaml: 99, this build reads 3
             contract RequirementDocument | unsupported_schema_version: requirements_x.yaml: 99, this build reads 1
-            benchmark EnergyWindows | unsupported_schema_version: energy.json: 99, this build reads 3
-            benchmark EnergyCapability | unsupported_schema_version: energy.yaml: 99, this build reads 3
+            benchmark EnergyWindows | unsupported_schema_version: energy.json: 99, this build reads 4
+            benchmark EnergyCapability | unsupported_schema_version: energy.yaml: 99, this build reads 4
         """.trimIndent()
     }
 }

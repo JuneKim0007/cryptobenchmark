@@ -24,7 +24,7 @@ The `energy.source: manafa` adapter. Shared capture modes and `energy.json`: [en
 
 | manafa `energy.yaml` field | value |
 |---|---|
-| `schemaVersion`, `source`, `kind` | 3 (the rails `energy.yaml`'s), `manafa`, `estimated` |
+| `schemaVersion`, `source`, `kind` | 4 (the rails `energy.yaml`'s), `manafa`, `estimated` |
 | `started`, `usable`, `reason` | the session started; it gave a number; why not |
 | `cpuFrequencyEvents`, `batteryStatsEvents`, `joules`, `idleWindowSeconds` | what the session read |
 | `powerProfile` | file name of the profile manafa used |

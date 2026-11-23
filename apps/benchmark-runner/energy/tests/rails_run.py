@@ -2,9 +2,11 @@
 import json, pathlib, sys, types
 
 import energy, preflight  # noqa: E402
+from rails.selection import Rails  # noqa: E402
 
 FIXTURES = pathlib.Path(__file__).parent / "fixtures"
-RAILS = {"power.a": [(t, 2.0 * t) for t in range(1000, 9000, 100)], "power.b": [(t, 0.5 * t) for t in range(1000, 9000, 100)]}
+RAILS = {"a": [(t, 2.0 * t) for t in range(1000, 9000, 100)], "b": [(t, 0.5 * t) for t in range(1000, 9000, 100)]}
+SUPPLY = {"v": [(t, 0.25 * t) for t in range(1000, 9000, 100)]}
 
 
 class FakeTrace:
@@ -22,7 +24,8 @@ class FakeTrace:
         return {"d1": (2000, 7000)}
 
     def rails(self):
-        return {name: [(t, v * 3 if self.loaded else v) for t, v in samples] for name, samples in RAILS.items()}
+        return Rails(*({name: [(t, v * 3 if self.loaded else v) for t, v in samples] for name, samples in group.items()}
+                       for group in (RAILS, SUPPLY)))
 
     def close(self):
         pass
@@ -44,7 +47,7 @@ def inputs(folder):
     (folder / "m2.trace").write_text("")
     (folder / "dry.pftrace").write_text("")
     (folder / "calls.yaml").write_text("d1: 77\n")
-    (folder / "energy.yaml").write_text("schemaVersion: 3\nrailsPresent: true\nrailsResponsive: true\nidleMicrojoules: 3000.0\n"
+    (folder / "energy.yaml").write_text("schemaVersion: 4\nrailsPresent: true\nrailsResponsive: true\nidleMicrojoules: 3000.0\n"
                                         "busyMicrojoules: 9000.0\nidleWindowSeconds: 3.0\nbusyWindowSeconds: 3.0\nidleSpanSeconds: 3.0\n"
                                         "idleMicrowatts: 1000.0\nidleBoottimeNs: 1000\nidleSkin: null\n"
                                         "acceptUnresponsive: false\n")

@@ -10,7 +10,7 @@ import io.github.junekim0007.cryptobench.files.FileNames
 
 object EnergyWindows : DocumentReader<EnergyWindows.Read> {
 
-    private const val SCHEMA_VERSION = 3
+    private const val SCHEMA_VERSION = 4
 
     override val schemaVersion = SCHEMA_VERSION
 

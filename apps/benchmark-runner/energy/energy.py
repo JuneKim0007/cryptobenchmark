@@ -4,17 +4,20 @@ import argparse, json, pathlib, sys
 import yaml
 
 from capture import capture  # noqa: E402
-from rails import counters  # noqa: E402
+from rails import counters, selection  # noqa: E402
 
 MIN_POLLS = 20
 # Valid windows read about 7 MB traces; the four cases that lost rail data read 38 to 125 MB, flooded by memory counters.
 LARGE_TRACE_BYTES = 32 * 1024 * 1024
+# Excluded rails above this share of the summed load: the supply side carries the load, e.g. a USB-limited charger.
+EXCLUDED_HIGH = 0.05
 # 2: source and kind
 # 3: idleBaseline and each window's idleJoules
-SCHEMA_VERSION = 3
+# 4: rails by raw name, load rails only; excludedSubsystems and each window's excludedRails
+SCHEMA_VERSION = 4
 # discovery/energy.yaml, written by preflight.py and manafa_session.py, read here and by EnergyCapability.kt (timed)
-# 2: idleWindowSeconds and busyWindowSeconds; 3: idleBoottimeNs and the end reading
-CAPABILITY_VERSION = 3
+# 2: idleWindowSeconds and busyWindowSeconds; 3: idleBoottimeNs and the end reading; 4: load rails only, excluded beside
+CAPABILITY_VERSION = 4
 SOURCE = "rails"
 KIND = "measured"
 INTERPOLATED, START_ONLY = "interpolated", "idle_start_only"
@@ -34,11 +37,12 @@ def idle_of(capability):
     return (lambda a, b: (start + (end - start) * ((a + b) / 2 - t0) / (t1 - t0)) * (b - a)), INTERPOLATED
 
 
-def window(rail_samples, start, end, idle, operations):
-    if not rail_samples:
+def window(rails, start, end, idle, operations):
+    if not rails.summed:
         raise NotMeasured("no_rails")
     try:
-        per_rail = {name: counters.between(samples, start, end) for name, samples in rail_samples.items()}
+        per_rail, excluded = ({name: counters.between(samples, start, end) for name, samples in group.items()}
+                              for group in (rails.summed, rails.excluded))
     except counters.Uncovered:
         raise NotMeasured("window_uncovered") from None
     except counters.EmptyWindow:
@@ -46,7 +50,8 @@ def window(rail_samples, start, end, idle, operations):
     gross_uj = sum(per_rail.values())
     idle_uj = idle(start, end)
     net_uj = gross_uj - idle_uj
-    polls = min(counters.polls_inside(s, start, end) for s in rail_samples.values())
+    polls = min(counters.polls_inside(s, start, end) for s in rails.summed.values())
+    share = sum(excluded.values()) / gross_uj if gross_uj > 0 else None
     return {
         "joules": gross_uj / 1e6,
         "netJoules": net_uj / 1e6,
@@ -57,13 +62,17 @@ def window(rail_samples, start, end, idle, operations):
         "polls": polls,
         "shortWindow": polls < MIN_POLLS,
         "rails": {name: uj / 1e6 for name, uj in sorted(per_rail.items())},
+        "excludedRails": {name: uj / 1e6 for name, uj in sorted(excluded.items())},
+        "excludedShare": share,
+        "excludedHigh": share is not None and share > EXCLUDED_HIGH,
     }
 
 
 def not_measured(reason, operations):
     """The case's record when it has no window to read; manafa's judge reads the same notMeasured."""
     return {"joules": None, "netJoules": None, "idleJoules": None, "operations": operations, "joulesPerOperation": None,
-            "windowSeconds": None, "polls": 0, "shortWindow": False, "rails": {}, "notMeasured": reason}
+            "windowSeconds": None, "polls": 0, "shortWindow": False, "rails": {}, "excludedRails": {}, "excludedShare": None,
+            "excludedHigh": False, "notMeasured": reason}
 
 
 def judge(result, rails_responsive):
@@ -193,6 +202,8 @@ def report_cases(cases):
         print(f"invalid:   {c}: {', '.join(reasons)}")
     for c in (c for c, r in cases.items() if r.get("heatSleepAfterKeptRuns")):
         print(f"flagged:   {c}: Jetpack slept for heat after its kept runs started; they may be hot")
+    for c in (c for c, r in cases.items() if r.get("excludedHigh")):
+        print(f"flagged:   {c}: excluded rails {cases[c]['excludedShare']:.0%} of the summed load; the supply side carried load")
     for c in (c for c, r in cases.items() if r.get("traceLarge")):
         print(f"flagged:   {c}: trace {cases[c]['traceBytes'] / 1e6:.0f} MB; rail samples may be lost to the trace buffer")
 
@@ -207,7 +218,7 @@ def main(argv=None):
     idle, baseline = idle_of(capability)
     cases = {c: judge(r, capability["railsResponsive"]) for c, r in read_cases(a, idle, Trace).items()}
     document = {"schemaVersion": SCHEMA_VERSION, "source": SOURCE, "kind": KIND, "railsResponsive": capability["railsResponsive"],
-                "idleBaseline": baseline, "cases": cases}
+                "idleBaseline": baseline, "excludedSubsystems": sorted(selection.excluded_subsystems()), "cases": cases}
     pathlib.Path(a.out).write_text(json.dumps(document, indent=1))
     report_cases(cases)
     print(f"idle:      {'interpolated between the start and end readings' if baseline == INTERPOLATED else 'the start reading alone (idle_start_only)'}")

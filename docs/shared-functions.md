@@ -12,6 +12,7 @@
 | `variant(case)` | `apps/benchmark-runner/analysis/chart_model.py` | ' fixed' or ' notFixed' after a case's name, so an item's two variants never read as one; empty for a row without one. | analyze, chart_draw, chart_report |
 | `one_line(error)` | `apps/benchmark-runner/energy/energy.py` | `' '.join(str(error).split())[:200] or type(error).__name__` | none |
 | `one_line(error)` | `apps/benchmark-runner/energy/manafa_estimate.py` | `' '.join(str(error).split()) or type(error).__name__` | manafa_session |
+| `excluded_subsystems(path)` | `apps/benchmark-runner/energy/rails/selection.py` | - | energy, rails.trace |
 | `fail(message)` | `apps/benchmark-runner/failure.py` | - | dependencies, pipeline |
 | `reported()` | `apps/benchmark-runner/failure.py` | A CommandError as fail() prints it; CommandError is imported here because dependencies.py imports this file before it checks for cryptobench. | dependencies, explain, pipeline |
 | `elapsed(label, started)` | `lib/cryptobench/cryptobench/pipeline/took.py` | - | cryptobench.stages.analysis.scripts, cryptobench.stages.discovery.discover, cryptobench.stages.measurement.benchmark, cryptobench.stages.measurement.measuring +3 |

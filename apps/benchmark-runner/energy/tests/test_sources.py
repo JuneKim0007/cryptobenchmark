@@ -18,7 +18,7 @@ def test_rails_preflight_and_energy_write_the_recorded_bytes(tmp_path, monkeypat
     rails_run.install_fake_trace(monkeypatch)
     assert rails_run.run_preflight(tmp_path) == (rails_run.FIXTURES / "rails_preflight.yaml").read_text()
     document = json.loads(rails_run.run_energy(tmp_path))
-    assert (document.pop("schemaVersion"), document.pop("source"), document.pop("kind")) == (3, "rails", "measured")
+    assert (document.pop("schemaVersion"), document.pop("source"), document.pop("kind")) == (4, "rails", "measured")
     assert json.dumps({"schemaVersion": 1} | document, indent=1) == GOLDEN.read_text()
 
 
@@ -97,7 +97,7 @@ def test_a_missing_manafa_is_one_coded_line(tmp_path, monkeypatch):
 def test_the_check_reports_what_it_got_and_never_reads_rails(tmp_path, monkeypatch, capsys):
     capability = manafa(monkeypatch, idle_seconds=0.02).preflight(None, tmp_path, False, None)
     document = yaml.safe_load(capability.read_text())
-    assert (document["schemaVersion"], document["idleWindowSeconds"]) == (3, 0.02)
+    assert (document["schemaVersion"], document["idleWindowSeconds"]) == (4, 0.02)
     assert (document["source"], document["kind"], document["started"], document["usable"]) == ("manafa", "estimated", True, True)
     assert document["cpuFrequencyEvents"] == 2 and document["batteryStatsEvents"] == 1 and document["joules"] > 0
     assert "railsPresent" not in document

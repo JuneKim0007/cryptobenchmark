@@ -1,5 +1,7 @@
 from perfetto.trace_processor import TraceProcessor
 
+from rails import selection
+
 # Kotlin's EnergyWindow.PREFIX; the two change together.
 MARKER_PREFIX = "energy:"
 JETPACK_TIMED = "Benchmark Time"
@@ -17,12 +19,15 @@ class Trace:
 
     def rails(self):
         rows = self.processor.query(
-            "select t.name as name, c.ts as ts, c.value as value from counter c "
-            "join counter_track t on c.track_id = t.id where t.name like 'power.%' order by t.name, c.ts")
-        out = {}
+            "select t.name as name, r.display_value as raw, s.display_value as subsystem, c.ts as ts, c.value as value from counter c "
+            "join counter_track t on c.track_id = t.id "
+            "left join args r on r.arg_set_id = t.source_arg_set_id and r.key = 'raw_name' "
+            "left join args s on s.arg_set_id = t.source_arg_set_id and s.key = 'subsystem_name' "
+            "where t.name like 'power.%' order by t.name, c.ts")
+        tracks = {}
         for r in rows:
-            out.setdefault(r.name, []).append((r.ts, r.value))
-        return out
+            tracks.setdefault((r.name, r.raw, r.subsystem), []).append((r.ts, r.value))
+        return selection.split(tracks, selection.excluded_subsystems())
 
     def markers(self):
         rows = self.processor.query(

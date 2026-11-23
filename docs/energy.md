@@ -49,10 +49,10 @@
 
 | `energy.yaml` field | value |
 |---|---|
-| `schemaVersion` | 3 (`CAPABILITY_VERSION` in `apps/benchmark-runner/energy/energy.py`); another is `unsupported_schema_version` in `energy.py` and `EnergyCapability` |
+| `schemaVersion` | 4 (`CAPABILITY_VERSION` in `apps/benchmark-runner/energy/energy.py`); another is `unsupported_schema_version` in `energy.py` and `EnergyCapability` |
 | `railsPresent` | both windows have rails |
 | `railsResponsive` | present, idle > 0, busy power ≥ 1.10 × idle power in µJ/s (`RESPONSIVE` in `apps/benchmark-runner/energy/preflight.py`) |
-| `idleMicrojoules`, `busyMicrojoules`; `idleWindowSeconds`, `busyWindowSeconds` | window totals; configured lengths |
+| `idleMicrojoules`, `busyMicrojoules`; `idle`/`busy`/`idleEnd` `ExcludedMicrojoules`; `idleWindowSeconds`, `busyWindowSeconds` | window totals over the summed rails; the excluded rails' totals (printed on the `rails:` line); configured lengths |
 | `idleSpanSeconds`, `idleMicrowatts` | the span the idle trace's rail samples cover; idle power = `idleMicrojoules` / that span (0 without one); a span under 90% of `idleWindowSeconds` adds `idle_span_short: <reading>: rail samples span <s> of <t> s; idle power is over the span` to `problems` |
 | `idleSkin`, `idleEndSkin` | `{start, end}`: the skin temperature (`{sensor, celsius}`, null unread) when the idle reading began and ended; printed on the `rails:` and `idle:` lines (`skin <c> C -> <c> C (<sensor>)`) |
 | `idleBoottimeNs`; `idleEnd{Microjoules,WindowSeconds,SpanSeconds,Microwatts,BoottimeNs}` | BOOTTIME midpoint of the start trace's rail samples (null without rails); the end reading, added by `preflight.py --end` |
@@ -79,21 +79,21 @@
 
 - `energy.pbtx`: 16384 KB ring buffer, power rails every 100 ms, `atrace_apps io.github.junekim0007.cryptobench`, `process_stats`, `write_into_file` every 2500 ms, max 3600000 ms.
 - Traces are pulled after every case (`traces:    <case>: <n> pulled`, with `, <m> expected` when fewer arrived): a case's own process may remove the earlier cases' traces on the device. Jetpack's own trace config records memory counters; an allocating call floods the trace, and rails in it are lost as `window_uncovered`. The energy pass's `samples` shorten the window; a trace above 32 MiB is flagged `traceLarge`; a lost window is `window_uncovered` with no number, never a wrong one.
-- Rails are counter tracks named `power.%`, cumulative µJ; window edges are interpolated linearly; a window outside the samples is `window_uncovered`, one that ends before it starts `empty_window`.
-- `measured` windows shift by BOOTTIME − MONOTONIC, taken from the first clock snapshot holding both (a trace can open with BOOTTIME alone); exactly one timed phase per case is required.
+- Rails are counter tracks named `power.%`, cumulative µJ, keyed by their source arg `raw_name`; a track without one, or a `raw_name` seen twice, is `rail_unidentified: <track>: …` (a `measured` case's `trace_unreadable`, a whole dry or pre-flight step's failure). Summed rails: every rail except those whose `subsystem_name` is listed in `apps/benchmark-runner/energy/rails/excluded.yaml` (`Battery`: the channel measures the battery's supply into the system, not a load, and double-counts under load); a rail with no or an unlisted subsystem is summed. The sum leaves out regulator conversion losses, so it is below whole-device energy. A missing or malformed catalog stops the step with `rails_catalog: <path>: <problem>`; every rail excluded reads as no rails. Window edges are interpolated linearly; a window outside the samples is `window_uncovered`, one that ends before it starts `empty_window`; `measured` windows shift by BOOTTIME − MONOTONIC, taken from the first clock snapshot holding both (a trace can open with BOOTTIME alone); exactly one timed phase per case is required.
 
 ## Outputs
 
-`benchmark/energy.json`: top level `schemaVersion` 3, `source`, `kind` (`measured` for rails, `estimated` for manafa), `cases`; rails adds `railsResponsive` and `idleBaseline` (`interpolated` or `idle_start_only`), manafa adds `powerProfile`. `ConvertKt` copies `idleBaseline` onto each case's `energyJ` in `benchmark.json` ([results.md](results.md)).
+`benchmark/energy.json`: top level `schemaVersion` 4, `source`, `kind` (`measured` for rails, `estimated` for manafa), `cases`; rails adds `railsResponsive`, `idleBaseline` (`interpolated` or `idle_start_only`) and `excludedSubsystems` (the catalog's list), manafa adds `powerProfile`. `ConvertKt` copies `idleBaseline` onto each case's `energyJ` in `benchmark.json` ([results.md](results.md)).
 
 | case field | value |
 |---|---|
-| `joules` | gross energy over the window |
+| `joules` | gross energy over the window, summed rails |
 | `netJoules` | gross − `idleJoules` |
 | `idleJoules` | rails: interpolated idle power at the window's midpoint × window length |
 | `operations` | see capture modes |
 | `joulesPerOperation` | net / operations |
-| `windowSeconds`, `polls`, `shortWindow`, `rails`, `capture`, `clockOffsetNs` | window facts |
+| `windowSeconds`, `polls`, `shortWindow`, `rails`, `capture`, `clockOffsetNs` | window facts; `rails`: joules per summed rail by `raw_name` |
+| `excludedRails`, `excludedShare`, `excludedHigh` | joules per excluded rail by `raw_name`; their total / `joules` (null when `joules` is 0); share above 5% (`EXCLUDED_HIGH` in `apps/benchmark-runner/energy/energy.py`: the supply side carried load, e.g. a USB-limited charger), printed `flagged:` |
 | `heatSleepAfterKeptRuns` | `measured`: Jetpack slept for heat after the kept runs began; it keeps such runs once its sleeps are spent, so they may be hot; printed `flagged:` |
 | `traceBytes`, `traceLarge` | `measured`: the trace's size; large above 32 MiB (`LARGE_TRACE_BYTES` in `apps/benchmark-runner/energy/energy.py`), where rail samples can be lost; printed `flagged:` |
 | `valid`, `invalid` | judgement and reasons |
@@ -112,7 +112,7 @@
 | `no_measurement_slices` | `measured`: the timed phase has no `measurement 0` child |
 | `no_clock_snapshot` | `measured`: no BOOTTIME/MONOTONIC snapshot in the trace |
 | `no_call_count` | `dry`: a marker without its line in `energy-dry.yaml` |
-| `no_rails` | the trace has no `power.%` counter |
+| `no_rails` | the trace has no summed `power.%` counter |
 | `empty_window` | the window ends before it starts |
 | `not_measured: <reason>` | manafa gave no number: [energy-manafa.md](energy-manafa.md#not-measured); the case-level reasons above reach manafa the same way |
 
@@ -132,10 +132,10 @@ apps/benchmark-runner/energy/energy.py : rail traces to energy.json; the case wi
 apps/benchmark-runner/energy/manafa_estimate.py : joules per case window from a stopped EManafa, or not_measured
 apps/benchmark-runner/energy/manafa_session.py : the process holding one EManafa; the manafa pre-flight check
 apps/benchmark-runner/energy/preflight.py : idle and busy traces to energy.yaml; the end idle reading into it
-apps/benchmark-runner/energy/rails/ : cumulative counter arithmetic; trace queries for rails, markers, timed phases, clock offset
+apps/benchmark-runner/energy/rails/ : cumulative counter arithmetic; trace queries for rails, markers, timed phases, clock offset; the summed and excluded rails by the excluded.yaml catalog
 apps/benchmark-runner/energy/requirements-manafa.txt : manafa, pinned; optional
 apps/benchmark-runner/energy/requirements.txt : perfetto, pyyaml
-apps/benchmark-runner/energy/tests/ : capture, counters, window, preflight, judge and source tests; a fake manafa; recorded rails output
+apps/benchmark-runner/energy/tests/ : capture, counters, window, preflight, judge, rail selection and source tests; a fake manafa; recorded rails output; a real busy trace cut to its rails
 lib/cryptobench/cryptobench/stages/measurement/energy/session.py : starts, stops and pulls Perfetto sessions on the device
 lib/cryptobench/cryptobench/stages/measurement/energy/sources/ : one adapter per energy.source on the host; how the host runs apps/benchmark-runner/energy
 lib/cryptobench/cryptobench/stages/measurement/energy/steps.py : capture selection, the run's one source

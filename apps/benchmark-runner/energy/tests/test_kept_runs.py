@@ -4,6 +4,7 @@ import json, pathlib
 import pytest
 
 import energy  # noqa: E402
+from rails.selection import Rails  # noqa: E402
 
 def NO_IDLE(_start, _end):
     return 0.0
@@ -24,7 +25,7 @@ class RealShape:
 
     def rails(self):
         first, last, _count = SHAPE["rails"]
-        return {"power.a": [(t, t / 1e6) for t in range(first, last, 100_000_000)]}
+        return Rails({"a": [(t, t / 1e6) for t in range(first, last, 100_000_000)]}, {})
 
     def close(self):
         pass

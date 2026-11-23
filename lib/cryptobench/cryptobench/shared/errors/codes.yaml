@@ -1270,6 +1270,8 @@ codes:
   produce_consume: {kind: outcome}
   producer_failed: {kind: outcome}
   provider_not_installed: {kind: error}
+  rail_unidentified: {kind: error}
+  rails_catalog: {kind: error}
   rails_unresponsive: {kind: outcome}
   raw_material_refused: {kind: outcome}
   refused_plan: {kind: error}
