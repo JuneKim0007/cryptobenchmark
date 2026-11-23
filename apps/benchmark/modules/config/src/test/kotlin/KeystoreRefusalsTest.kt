@@ -97,4 +97,13 @@ class KeystoreRefusalsTest {
         val refused = assertThrows(IllegalArgumentException::class.java) { TrialView.of(report.copy(keystore = null)) }
         assertEquals("missing_field: keystore", refused.message)
     }
+
+    @Test
+    fun anInventoryRowOnAnUnknownBackingIsRefused() {
+        val row = InventoryDocument.of(inventory).toMutableMap().apply {
+            put("keystore", listOf(mapOf("provider" to "P", "type" to "KeyGenerator", "algorithm" to "AES", "backing" to "secure", "supported" to true)))
+        }
+        val refused = assertThrows(IllegalArgumentException::class.java) { InventoryDocument.parse(row) }
+        assertEquals("invalid: backing secure, one of [tee, strongbox]", refused.message)
+    }
 }

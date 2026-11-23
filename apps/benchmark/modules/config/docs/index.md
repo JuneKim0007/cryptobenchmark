@@ -59,7 +59,6 @@ apps/benchmark/modules/config/src/main/kotlin/layers/LayerStack.kt : a compositi
 apps/benchmark/modules/config/src/main/kotlin/layers/Provenance.kt : generatedFrom.settings from the written sections and the stack; a parse failure named with its layer
 apps/benchmark/modules/config/src/main/kotlin/source/CaptureView.kt : capture fields config uses: runtime, provider order, each service's aliases; of() projects contract's CapturedEnvironment
 apps/benchmark/modules/config/src/main/kotlin/source/FactsSource.kt : reads a discovery facts file as settings' Facts
-apps/benchmark/modules/config/src/main/kotlin/source/KeystoreRow.kt : one keystore trial row: provider, type, algorithm, backing, size or curve, supported or the coded error
 apps/benchmark/modules/config/src/main/kotlin/source/TrialView.kt : trial fields config uses; of() projects contract's TrialReport
 apps/benchmark/modules/config/src/main/kotlin/testset/RuleDocument.kt : rule {provider, type, name, group} reader and writer
 apps/benchmark/modules/config/src/main/kotlin/testset/TestSetDocument.kt : test-set schema

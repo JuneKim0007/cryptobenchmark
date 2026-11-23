@@ -3,6 +3,7 @@ package io.github.junekim0007.cryptobench.config.effective
 import io.github.junekim0007.cryptobench.config.effective.dto.EffectiveEntry
 import io.github.junekim0007.cryptobench.config.entry.KeySource
 import io.github.junekim0007.cryptobench.config.inventory.dto.Inventory
+import io.github.junekim0007.cryptobench.contract.trial.KeystoreRow
 import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 
 /** A secure entry against the keystore trial: the key sizes it keeps, and the trial's coded refusal of each row it refused. A row the trial lacks keeps its size. */
@@ -13,10 +14,9 @@ object KeystoreRefusals {
     private const val CURVE_SPEC = "java.security.spec.ECGenParameterSpec"
     private const val CLASS = "class"
     private const val ARGUMENTS = "arguments"
-    private const val TEE = "tee"
 
     fun of(entry: EffectiveEntry, located: Inventory.Located, inventory: Inventory): Checked {
-        val backing = entry.key[KeySource.BACKING] as? String ?: TEE
+        val backing = entry.key[KeySource.BACKING] as? String ?: KeystoreRow.TEE
         val rows = inventory.keystore.filter {
             it.provider == located.provider && it.backing == backing &&
                 AlgorithmNames.fold(it.type) == AlgorithmNames.fold(located.type) && AlgorithmNames.fold(it.algorithm) == AlgorithmNames.fold(located.name)

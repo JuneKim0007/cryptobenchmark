@@ -1,6 +1,7 @@
 package io.github.junekim0007.cryptobench.config.source
 
 import io.github.junekim0007.cryptobench.contract.trial.DefaultRunOutcome
+import io.github.junekim0007.cryptobench.contract.trial.KeystoreRow
 import io.github.junekim0007.cryptobench.contract.trial.TrialReport
 
 data class TrialView(
@@ -37,9 +38,8 @@ data class TrialView(
                 }
             }
             val keystore = requireNotNull(trial.keystore) { "missing_field: keystore" }
-            return TrialView(entries, trial.defaultRunInputSize, keystore.rows.map {
-                KeystoreRow(it.provider, it.type, it.algorithm, it.backing, it.keySize, it.curve, it.supported, it.error)
-            })
+            // the inventory keeps no trial timing
+            return TrialView(entries, trial.defaultRunInputSize, keystore.rows.map { it.copy(millis = 0) })
         }
 
         private fun defaultRun(run: DefaultRunOutcome): DefaultRun =
