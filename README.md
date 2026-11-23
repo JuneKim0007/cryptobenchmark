@@ -71,3 +71,5 @@ These are not settings.
 - Clocks are not locked.
 - The phone is assumed not to throttle; temperature is recorded per case and held only with `run.thermalGate`.
 - Each launch generates its own key.
+- Every timed call processes one complete message of the case's input size: throughput is per-message, not bulk streaming of one long input through one initialized engine.
+- IVs for encryption come from a pool of 256 drawn before the timer and reused in turn; no path times drawing an IV.
