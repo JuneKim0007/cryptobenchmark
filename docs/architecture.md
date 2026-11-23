@@ -80,11 +80,11 @@ config/benchmark/global.yaml + config/benchmark/testsets/*.yaml
 |---|---|---|
 | `files` | `apps/benchmark/modules/files/src/main/kotlin` | junit 4.13.2 (test) |
 | `document` | `apps/benchmark/modules/document/src/main/kotlin` | snakeyaml 2.3; junit 4.13.2 (test) |
-| `contract` | `apps/benchmark/modules/environment/contract/src/main/kotlin` + `apps/benchmark/modules/files` + `apps/benchmark/modules/document` | snakeyaml 2.3 |
+| `contract` | `apps/benchmark/modules/environment/contract/src/main/kotlin` + `apps/benchmark/modules/document` | snakeyaml 2.3 |
 | `discovery` | `apps/benchmark/modules/environment/discovery/src/main/kotlin` + `apps/benchmark/modules/environment/contract` + `apps/benchmark/modules/files` + `apps/benchmark/modules/document` | snakeyaml 2.3; junit 4.13.2 (test) |
 | `config` | `apps/benchmark/modules/config` + `apps/benchmark/modules/environment/contract` + `apps/benchmark/modules/settings` + `apps/benchmark/modules/records` + `apps/benchmark/modules/catalogue` + `apps/benchmark/modules/files` + `apps/benchmark/modules/document` | same |
-| `preparation` | `apps/benchmark/modules/preparation` + `apps/benchmark/modules/settings` + `apps/benchmark/modules/records` + `apps/benchmark/modules/catalogue` + `apps/benchmark/modules/files` + `apps/benchmark/modules/document` | same |
-| `benchmark` | `apps/benchmark/modules/benchmark` + `apps/benchmark/modules/preparation` + `apps/benchmark/modules/settings` + `apps/benchmark/modules/records` + `apps/benchmark/modules/catalogue` + `apps/benchmark/modules/files` + `apps/benchmark/modules/document` | same |
+| `preparation` | `apps/benchmark/modules/preparation` + `apps/benchmark/modules/environment/contract` + `apps/benchmark/modules/settings` + `apps/benchmark/modules/records` + `apps/benchmark/modules/catalogue` + `apps/benchmark/modules/files` + `apps/benchmark/modules/document` | same |
+| `benchmark` | `apps/benchmark/modules/benchmark` + `apps/benchmark/modules/preparation` + `apps/benchmark/modules/environment/contract` + `apps/benchmark/modules/settings` + `apps/benchmark/modules/records` + `apps/benchmark/modules/catalogue` + `apps/benchmark/modules/files` + `apps/benchmark/modules/document` | same |
 | `architecture` | tests only: the module subprojects' compiled classes against `tools/module-isolation/layers.yaml` | archunit 1.5.1, snakeyaml 2.3, junit 4.13.2 (test) |
 
 - `:settings`, `:records`, `:catalogue` and `:android` are not subprojects.

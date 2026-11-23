@@ -49,7 +49,7 @@ object DevicePlan {
     // The pushed capture and its trial: what preparation and the key planner may use on this device.
     val capability: DiscoveryCapability by lazy {
         val capture = newest(StampedName.PROBE)
-        DiscoveryCapability(capture, paired(StampedName.TRIAL, capture))
+        DiscoveryCapability(capture, sibling(StampedName.TRIAL, capture))
     }
 
     // Null when the case could not be prepared: its skip is logged and in skipped.yaml.
@@ -66,7 +66,7 @@ object DevicePlan {
         ProbeDirectory(directory).newest(prefix)
             ?: throw IllegalStateException("missing_file: ${directory.absolutePath}/${prefix}_<stamp>.yaml")
 
-    private fun paired(prefix: String, capture: File): File =
+    private fun sibling(prefix: String, capture: File): File =
         ProbeDirectory(directory).named(prefix, capture).takeIf { it.isFile }
             ?: throw IllegalStateException("missing_file: ${ProbeDirectory(directory).named(prefix, capture).absolutePath}, the trial of ${capture.name}")
 }

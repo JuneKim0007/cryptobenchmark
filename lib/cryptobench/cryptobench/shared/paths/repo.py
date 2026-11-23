@@ -13,7 +13,7 @@ _KOTLIN_NAME_USERS = ("modules/environment/contract/src/main/kotlin", "modules/e
                       "cli/src/main/kotlin")
 _APK = "modules/android/build/outputs/apk/release/android-release.apk"
 # what builds the measuring code: the device app and test APK, the host's BenchKt, their dependency versions, the catalogues they read
-_TIMED_CODE = (*(f"apps/benchmark/modules/{m}/src/main/**/*" for m in ("jca", "settings", "records", "catalogue", "files", "document", "preparation", "benchmark")),
+_TIMED_CODE = (*(f"apps/benchmark/modules/{m}/src/main/**/*" for m in ("jca", "settings", "records", "catalogue", "files", "document", "environment/contract", "preparation", "benchmark")),
                "apps/benchmark/modules/android/src/**/*", "apps/benchmark/modules/android/build.gradle", "apps/benchmark/cli/src/main/**/*",
                "apps/benchmark/gradle/libs.versions.toml", f"{roots.ALGORITHMS}/{SETUP_CATALOG}", f"{roots.ALGORITHMS}/{ENGINE_OPERATIONS}")
 # what launches, orders, retries, gates and reads energy around the timed code
