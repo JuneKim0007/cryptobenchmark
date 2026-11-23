@@ -54,13 +54,13 @@ CapturedEnvironment, TrialReport -> RequirementTrial -> RequirementReport -> Req
 
 | step | class | does |
 |---|---|---|
-| read | `BundledProviders.read(document)` | the `bundledProviders` list of `{artifact, create, alias?}` from any map: the instrumentation argument or `effective.yaml`; checks the shape (`wrong_type`, `missing_field`, `unknown_keys`); each entry is contract's `BundledProvider`, refused as config refuses it (`invalid_artifact`, `invalid_create`, `invalid_alias`) |
+| read | `BundledProviders.read(document)` | the `bundledProviders` list of `{artifact, create, alias?}` from any map: the instrumentation argument or `effective.yaml`; read by contract's `BundledProvider.parseList`, the reader config uses, with its codes (`wrong_type`, `missing_field`, `unknown_keys`, `invalid_artifact`, `invalid_create`, `invalid_alias`, `duplicate_artifact`, `duplicate_alias`) |
 | create | `ProviderFactory(classLoader)` | `create` is `Class` (public no-argument constructor) or `Class#staticFactory` (public static, no arguments); failures `bundled_class_not_found`, `bundled_factory_not_found`, `bundled_factory_not_static`, `bundled_create_failed`, `bundled_not_a_provider` |
 | register | `BundledInstaller.install(list)` | `Security.addProvider`, which always appends, never inserts; a name already installed needs `alias`, else `bundled_name_taken`; a taken alias fails `bundled_alias_taken` |
 | alias | `AliasedProvider(alias, provider)` | forwards `getService` and `getServices`; each service is re-bound so an instance reports the alias; property map copied except `Provider.id*` |
 | record | `ProviderProbe.capture(..., bundled)` | an installed name gets `origin: bundled` and its `artifact`; every other provider `platform` |
 
-Shape and install errors are `BundledProviderException` with a `code`; an entry's rule refusal is contract's `<code>: <detail>`. The preparation and perf-repair readers ignore capture keys they do not know; discovery's own reader requires `origin`; `reusable` re-probes over a capture without it.
+Install errors are `BundledProviderException` with a `code`; a list refusal is contract's `<code>: <detail> at <path>`. The preparation and perf-repair readers ignore capture keys they do not know; discovery's own reader requires `origin`; `reusable` re-probes over a capture without it.
 
 ## Runtime
 

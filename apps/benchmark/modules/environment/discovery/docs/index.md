@@ -25,8 +25,8 @@ apps/benchmark/modules/environment/discovery/src/main/kotlin/adapter/ServiceKey.
 apps/benchmark/modules/environment/discovery/src/main/kotlin/adapter/ServiceKeyException.kt : blank-field error for ServiceKey
 apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/AliasedProvider.kt : delegating Provider under an alias; services re-bound to it
 apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/BundledInstaller.kt : creates and appends each bundled provider; alias on a name clash
-apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/BundledProviderException.kt : coded install or document-shape error
-apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/BundledProviders.kt : reads the bundledProviders list from a document map: shape only, each entry contract's BundledProvider
+apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/BundledProviderException.kt : coded install error
+apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/BundledProviders.kt : the bundledProviders key of a document map, read by contract's BundledProvider.parseList
 apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/InstalledProvider.kt : registered name and artifact of one installed provider
 apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/ProviderFactory.kt : Provider by reflection: no-argument constructor or static factory
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/DefaultRunTrial.kt : level 2: one real call per instantiated service or transformation
@@ -70,7 +70,7 @@ apps/benchmark/modules/environment/discovery/src/main/kotlin/write/RequirementYa
 apps/benchmark/modules/environment/discovery/src/main/kotlin/write/TrialYamlWriter.kt : writes trial_<utc>.yaml
 apps/benchmark/modules/environment/discovery/src/test/kotlin/BlockBytesTest.kt : byte goldens of the BLOCK codec: a capture-shaped document with an alias, a streamed requirements file
 apps/benchmark/modules/environment/discovery/src/test/kotlin/BundledInstallerTest.kt : installer tests: reflection, append position, name clash, alias wrapper
-apps/benchmark/modules/environment/discovery/src/test/kotlin/BundledProvidersTest.kt : bundled list reading and spec validation
+apps/benchmark/modules/environment/discovery/src/test/kotlin/BundledProvidersTest.kt : bundled list reading; bundled-cases.json entries refused with config's codes
 apps/benchmark/modules/environment/discovery/src/test/kotlin/CaptureDocumentTest.kt : capture schema tests
 apps/benchmark/modules/environment/discovery/src/test/kotlin/ContractsTest.kt : tests/contracts/yaml-codec/duplicate-key.yaml keeps its last value through this codec
 apps/benchmark/modules/environment/discovery/src/test/kotlin/DefaultRunTrialTest.kt : default runs against the live JVM
