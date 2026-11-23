@@ -6,7 +6,7 @@
 
 ```
 effective.yaml -> InboundFile -> GlobalReader -> PrimitiveReader -> BenchmarkRequest
-probe_<utc>.yaml, trial_<utc>.yaml -> CaptureFile, TrialFile -> DiscoveryCapability
+probe_<utc>.yaml, trial_<utc>.yaml -> Handoff.read -> CapturedDevice.of, TrialledDevice.of -> DiscoveryCapability
 BenchmarkRequest + DiscoveryCapability -> CaseResolver -> cases + rejections
 -> Listing (Preparation.list: no key made, no provider called)
 one named case (Preparation.prepareOne): KeyPlanner -> KeyMaterialGenerator -> bind parameters -> definition.input -> PreparedCase -> invocation.once()

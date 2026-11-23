@@ -36,7 +36,8 @@ modules:
       document: all
   preparation:
     uses:
-      contract: [Handoff]
+      contract: [Handoff, capture.CapturedEnvironment, capture.ProviderEntry, capture.RuntimeInfo, capture.ServiceEntry,
+        trial.TrialReport, trial.ServiceTrialEntry, trial.TransformationTrialEntry, trial.TrialOutcome, trial.DefaultRunOutcome]
       jca: [bind.BindException, bind.BindPolicy, bind.BoundParameters, bind.ParameterBinder, failure.Attempt, failure.ErrorText, peer.PeerPair, reflect.Reflect]
       settings: [HarnessSettings, Metric, OnFailure, Phase, RunKeys]
       records: [Skip, StoppedOnFailureException]

@@ -1,9 +1,7 @@
 package io.github.junekim0007.cryptobench.preparation.adapter
 
 import io.github.junekim0007.cryptobench.contract.Handoff
-import io.github.junekim0007.cryptobench.preparation.device.CaptureFile
 import io.github.junekim0007.cryptobench.preparation.device.ServiceName
-import io.github.junekim0007.cryptobench.preparation.device.TrialFile
 import io.github.junekim0007.cryptobench.preparation.device.dto.CapturedDevice
 import io.github.junekim0007.cryptobench.preparation.device.dto.CapturedService
 import io.github.junekim0007.cryptobench.preparation.device.dto.TrialledDevice
@@ -13,10 +11,11 @@ import io.github.junekim0007.cryptobench.preparation.port.Availability
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
 import java.io.File
 
-class DiscoveryCapability(capture: CapturedDevice, trial: TrialledDevice) : DeviceCapability {
+class DiscoveryCapability private constructor(capture: CapturedDevice, trial: TrialledDevice) : DeviceCapability {
 
-    // the pair is refused on the contract's read before preparation's own reads
-    constructor(captureFile: File, trialFile: File) : this(Handoff.read(captureFile, trialFile).run { CaptureFile.read(captureFile) }, TrialFile.read(trialFile))
+    constructor(captureFile: File, trialFile: File) : this(Handoff.read(captureFile, trialFile))
+
+    private constructor(handoff: Handoff) : this(CapturedDevice.of(handoff.capture), TrialledDevice.of(handoff.trial))
 
     override val sdkInt: Int? = capture.sdkInt
 

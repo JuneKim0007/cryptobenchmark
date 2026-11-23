@@ -16,11 +16,9 @@ apps/benchmark/modules/preparation/example/preparation_prepared_example.yaml : e
 apps/benchmark/modules/preparation/example/preparation_skipped_example.yaml : expected skipped.yaml: the guide's problem and refused rows
 apps/benchmark/modules/preparation/example/preparation_trial_example.yaml : example discovery trial input
 apps/benchmark/modules/preparation/src/main/kotlin/Preparation.kt : entry point; prepare(effectiveFile) runs every stage and applies onFailure
-apps/benchmark/modules/preparation/src/main/kotlin/adapter/DiscoveryCapability.kt : DeviceCapability over a capture and trial pair
-apps/benchmark/modules/preparation/src/main/kotlin/device/CaptureFile.kt : reads capture YAML (schema capture v1) into CapturedDevice, with runtime.sdkInt (none on a JVM) and the platform CatalogueOverlays names
+apps/benchmark/modules/preparation/src/main/kotlin/adapter/DiscoveryCapability.kt : DeviceCapability over a capture and trial pair read once through contract's Handoff.read
 apps/benchmark/modules/preparation/src/main/kotlin/device/ServiceName.kt : uppercase-folded (type, algorithm) lookup key
-apps/benchmark/modules/preparation/src/main/kotlin/device/TrialFile.kt : reads trial YAML (schema trial v3) into TrialledDevice
-apps/benchmark/modules/preparation/src/main/kotlin/device/dto/ : capture and trial DTOs as preparation reads them
+apps/benchmark/modules/preparation/src/main/kotlin/device/dto/ : capture and trial views preparation uses; CapturedDevice.of and TrialledDevice.of project contract's CapturedEnvironment and TrialReport, with runtime.sdkInt (none on a JVM) and the platform CatalogueOverlays names
 apps/benchmark/modules/preparation/src/main/kotlin/engine/EngineTypeName.kt : uppercase fold for engine type names
 apps/benchmark/modules/preparation/src/main/kotlin/engine/EngineTypes.kt : engine type to operations registry, read from engine-operations.yaml, with its TYPE_DEFAULT fallback
 apps/benchmark/modules/preparation/src/main/kotlin/global/GlobalReader.kt : reads run and policy sections into GlobalSettings
