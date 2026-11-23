@@ -20,8 +20,7 @@ internal sealed class KeyGenerationSpec {
         private const val KEY_GENERATION = "keyGeneration"
 
         fun of(entry: FamilyCatalogue.Entry, build: String?, recipes: Recipes = Recipes.bundled, binder: ParameterBinder = ParameterBinder()): KeyGenerationSpec {
-            val ids = (entry.fields(build)["required"] as? List<*>).orEmpty().filterIsInstance<Map<*, *>>()
-                .filter { it["passedTo"] == KEY_GENERATION }.mapNotNull { it["recipe"] as? String }.distinct()
+            val ids = recipes.ids(entry, build, KEY_GENERATION)
             if (ids.isEmpty()) return None
             val id = ids.singleOrNull() ?: return Refused(ids.joinToString(), "${Recipes.CODE}: $ids are several objects for one key generation")
             return Attempt.of { recipes.tree(id, entry, build).let { tree -> Built("$id${tree["arguments"]}", binder.bind(tree, "$KEY_GENERATION.$id").next()) } }

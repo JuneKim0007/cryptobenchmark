@@ -1,5 +1,7 @@
 package io.github.junekim0007.cryptobench.preparation
 
+import io.github.junekim0007.cryptobench.document.catalogue.FamilyCatalogue
+import io.github.junekim0007.cryptobench.document.catalogue.Recipes
 import io.github.junekim0007.cryptobench.preparation.input.InputBytes
 import io.github.junekim0007.cryptobench.preparation.input.OperationInput
 import io.github.junekim0007.cryptobench.preparation.key.generate.KeyMaterial
@@ -9,10 +11,12 @@ import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.operation.Invocations
 import io.github.junekim0007.cryptobench.jca.bind.ParameterBinder
 import io.github.junekim0007.cryptobench.preparation.peer.Consumer
+import io.github.junekim0007.cryptobench.preparation.peer.KeyUse
 import io.github.junekim0007.cryptobench.preparation.peer.Outcome
 import io.github.junekim0007.cryptobench.preparation.peer.PeerEngine
 import io.github.junekim0007.cryptobench.preparation.peer.ProducedCall
 import io.github.junekim0007.cryptobench.preparation.peer.Travel
+import io.github.junekim0007.cryptobench.preparation.peer.UseParameters
 import io.github.junekim0007.cryptobench.preparation.port.Availability
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
 import io.github.junekim0007.cryptobench.preparation.prepare.PreparedCase
@@ -46,10 +50,10 @@ class PeerRowsTest {
         PreparedCase(BenchmarkCase(type, algorithm, provider, operation, inputSize = 16), recipe, key, parameters?.let { ParameterBinder().bind(it, "parameters") }, null, input)
 
     // judgedAs: the case the engine sees, where a test swaps what the call ran with
-    private fun judged(prepared: PreparedCase, consumer: String, judgedAs: PreparedCase = prepared, output: (Any?) -> Any? = { it }): String {
+    private fun judged(prepared: PreparedCase, consumer: String, judgedAs: PreparedCase = prepared, engine: PeerEngine = this.engine, travel: Travel = Travel.USED, output: (Any?) -> Any? = { it }): String {
         val invocation = Invocations.of(prepared)
         val produced = ProducedCall(judgedAs, invocation.engine, output(invocation.once()))
-        return when (val outcome = engine.check(produced, Consumer(consumer, judgedAs.case.algorithm), Travel.USED)) {
+        return when (val outcome = engine.check(produced, Consumer(consumer, judgedAs.case.algorithm), travel)) {
             is Outcome.Pass -> "pass"
             is Outcome.Fail -> "fail ${cut(outcome.reason)}"
             is Outcome.NotCheckable -> "not_checkable ${cut(outcome.reason)}"
@@ -133,6 +137,22 @@ class PeerRowsTest {
             "dh key pair, agreed" to "pass",
             "output not a key" to "fail not_a_key: Integer",
         ), table)
+    }
+
+    // SunRsaSign's RSASSA-PSS signs only with a PSSParameterSpec: its use's init rows give it, and it reaches the consumer whole
+    @Test
+    fun keyOutputRowBindsTheUsesInitParameters() {
+        val catalogue = FamilyCatalogue.parse(listOf(
+            "family: keypairgen.none\nalgorithms:\n  KeyPairGenerator|RSASSA-PSS:\n    key: {type: PSS}\n",
+            "family: signature.pair\nalgorithms:\n  Signature|RSASSA-PSS:\n    key: {type: PSS}\n    operations: {value: [sign, verify]}\n    required:\n" +
+                listOf("digest" to "SHA-256", "mgf1" to "SHA-256", "saltBytes" to "32").joinToString("") { (name, value) -> "    - {name: $name, recipe: jca.pssSpec, value: $value, passedTo: init}\n" },
+        ))
+        val builder = Recipes.parse("schemaVersion: 1\nrecipes:\n  jca.pssSpec: {builder: pssBuilder}\n")
+        fun engine(recipes: Recipes) = PeerEngine(KeyUse(jvm, catalogue), UseParameters(recipes))
+        val pss = prepared("KeyPairGenerator", "RSASSA-PSS", "SunRsaSign", Operation.GENERATE_KEY_PAIR, KeyMaterial.None, OperationInput.None, KeyRecipe.Pair("RSASSA-PSS", 2048, "SunRsaSign"))
+        assertEquals("pass", judged(pss, "SunRsaSign", engine = engine(Recipes.bundled)))
+        assertEquals("pass", judged(pss, "SunRsaSign", engine = engine(Recipes.bundled), travel = Travel.MESSAGE_BORNE))
+        assertEquals("not_checkable ${Recipes.CODE}: jca.pssSpec is not a constructor (use Signature|RSASSA-PSS SIGN)", judged(pss, "SunRsaSign", engine = engine(builder)))
     }
 
     @Test

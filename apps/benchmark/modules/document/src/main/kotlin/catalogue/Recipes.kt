@@ -3,13 +3,17 @@ package io.github.junekim0007.cryptobench.document.catalogue
 import io.github.junekim0007.cryptobench.document.DocumentFields
 import io.github.junekim0007.cryptobench.document.YamlCodec
 
-/** algorithms/recipes.yaml beside [FamilyCatalogue]: a recipe and an entry's required rows at a build to the {class, arguments} tree jca's ParameterBinder binds, as Python's guide_items.parameter_tree; a builder or keyRef recipe, or a role without its value, is [Unbuildable]. */
+/** algorithms/recipes.yaml beside [FamilyCatalogue]: the recipes an entry's required rows passed to one call name, and a recipe and those rows at a build to the {class, arguments} tree jca's ParameterBinder binds, as Python's guide_items.parameter_tree; a builder or keyRef recipe, or a role without its value, is [Unbuildable]. */
 class Recipes(private val byId: Map<String, Any>) {
 
     class Unbuildable(detail: String) : IllegalArgumentException("$CODE: $detail")
 
-    fun tree(id: String, entry: FamilyCatalogue.Entry, build: String?): Map<String, Any> =
-        tree(id, (entry.fields(build)[REQUIRED] as? List<*>).orEmpty().filterIsInstance<Map<*, *>>().associateBy { it[NAME] })
+    fun tree(id: String, entry: FamilyCatalogue.Entry, build: String?): Map<String, Any> = tree(id, rows(entry, build).associateBy { it[NAME] })
+
+    fun ids(entry: FamilyCatalogue.Entry, build: String?, passedTo: String): List<String> =
+        rows(entry, build).filter { it[PASSED_TO] == passedTo }.mapNotNull { it[RECIPE] as? String }.distinct()
+
+    private fun rows(entry: FamilyCatalogue.Entry, build: String?) = (entry.fields(build)[REQUIRED] as? List<*>).orEmpty().filterIsInstance<Map<*, *>>()
 
     private fun tree(id: String, rows: Map<Any?, Map<*, *>>): Map<String, Any> {
         val recipe = byId[id] as? Map<*, *> ?: throw Unbuildable("$id is no recipe")
@@ -35,6 +39,7 @@ class Recipes(private val byId: Map<String, Any>) {
         const val CODE = "guide_recipe_unbuildable"
         private const val REQUIRED = "required"
         private const val NAME = "name"
+        private const val PASSED_TO = "passedTo"
         private const val CLASS = "class"
         private const val ARGUMENTS = "arguments"
         private const val ARGS = "args"

@@ -9,9 +9,9 @@ import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
 
 /** One procedure for every peer check: the operation's row, what the call must hold, a generated key's use, the consumer's setup and call, each failure through [Outcomes]. */
-class PeerEngine(capability: DeviceCapability) {
+class PeerEngine internal constructor(private val uses: KeyUse, private val parameters: UseParameters) {
 
-    private val uses = KeyUse(capability)
+    constructor(capability: DeviceCapability) : this(KeyUse(capability), UseParameters())
 
     // the producer's own call first: a pair's member that cannot make its output is producer_failed
     fun produced(case: BenchmarkCase, recipe: KeyRecipe, key: KeyMaterial, consumer: Consumer, travel: Travel): Outcome =
@@ -23,16 +23,16 @@ class PeerEngine(capability: DeviceCapability) {
         row.ready(produced)?.let { return it }
         return when (row) {
             is ConsumingRow -> consumed(row, produced, consumer, travel, Stage.SETUP)
-            KeyOutputRow -> used(produced, consumer, travel)
+            KeyOutputRow -> used(produced, consumer)
         }
     }
 
-    private fun used(produced: ProducedCall, consumer: Consumer, travel: Travel): Outcome {
+    private fun used(produced: ProducedCall, consumer: Consumer): Outcome {
         val case = produced.prepared.case
         val found = uses.of(case.type, case.algorithm, KeyOutputRow.algorithm(produced.output), case.provider, consumer.provider)
         val use = found.use ?: return Outcome.NotCheckable("no_key_use: no ${FamilyCatalogue.KEYED.joinToString()} entry of key.type ${found.keyTypes.joinToString(" or ")} " +
             "is Available on both ${case.provider} and ${consumer.provider} with a timed operation")
-        return judgedBy(use, produced, consumer, travel).let {
+        return judgedBy(use, produced, consumer).let {
             when (it) {
                 is Outcome.Pass -> Outcome.Pass("use $use")
                 is Outcome.Fail -> Outcome.Fail("${it.reason} (use $use)")
@@ -41,11 +41,13 @@ class PeerEngine(capability: DeviceCapability) {
         }
     }
 
-    private fun judgedBy(use: KeyUse.Use, produced: ProducedCall, consumer: Consumer, travel: Travel): Outcome {
-        val call = Attempt.of { KeyOutputRow.used(produced, use) }.getOrElse { return Outcomes.of(Stage.PRODUCE, it) }
+    private fun judgedBy(use: KeyUse.Use, produced: ProducedCall, consumer: Consumer): Outcome {
+        val bound = Attempt.of { parameters.of(use.entry, use.builds) }.getOrElse { return Outcome.NotCheckable(it.message ?: it.javaClass.name) }
+        val call = Attempt.of { KeyOutputRow.used(produced, use, bound) }.getOrElse { return Outcomes.of(Stage.PRODUCE, it) }
         val row = ROWS.getValue(use.operation) as ConsumingRow
         row.ready(call)?.let { return it }
-        return consumed(row, call, Consumer(consumer.provider, use.algorithm), travel, Stage.OUTPUT_KEY_SETUP)
+        // the use's parameters are the catalogue's, not the pair's: they reach the consumer whole
+        return consumed(row, call, Consumer(consumer.provider, use.algorithm), Travel.USED, Stage.OUTPUT_KEY_SETUP)
     }
 
     private fun consumed(row: ConsumingRow, produced: ProducedCall, consumer: Consumer, travel: Travel, setup: Stage): Outcome {

@@ -6,7 +6,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Test
 
-/** A recipe and an entry's rows at a build to a {class, arguments} tree; a builder, a keyRef, a missing value or recipe refused with guide_recipe_unbuildable. */
+/** The recipes an entry's rows passed to one call name; a recipe and an entry's rows at a build to a {class, arguments} tree; a builder, a keyRef, a missing value or recipe refused with guide_recipe_unbuildable. */
 class RecipesTest {
 
     private val recipes = Recipes.parse(
@@ -39,6 +39,13 @@ class RecipesTest {
         assertEquals(listOf("c2"), recipes.tree("r.curve", entry, "P")["arguments"])
         assertEquals(listOf("fresh(8)", 7, mapOf("field" to "A.B"), mapOf("class" to "java.security.spec.ECGenParameterSpec", "arguments" to listOf("c1"))),
             recipes.tree("r.nested", entry, null)["arguments"])
+    }
+
+    @Test
+    fun theRecipesTheRowsPassedToOneCallNameAtTheBuild() {
+        assertEquals(listOf("r.curve"), recipes.ids(entry, "P", "keyGeneration"))
+        assertEquals(listOf("r.nested"), recipes.ids(entry, null, "init"))
+        assertEquals(emptyList<String>(), recipes.ids(entry, null, "update"))
     }
 
     @Test

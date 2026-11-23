@@ -15,7 +15,8 @@ internal class KeyUse(
     private val exemplars: GroupExemplars = bundledExemplars,
 ) {
 
-    class Use(val type: String, val algorithm: String, val operation: Operation) {
+    // builds: the producer's then the consumer's, where the use's parameters are read
+    class Use(val type: String, val algorithm: String, val operation: Operation, val entry: FamilyCatalogue.Entry, val builds: List<String?>) {
         override fun toString() = "$type|$algorithm $operation"
     }
 
@@ -36,7 +37,7 @@ internal class KeyUse(
             .filter { it.family in FamilyCatalogue.KEYED }
             .filter { entry -> builds.all { entry.keyType(it)?.let(catalogue.names::keyType)?.name.equals(wanted, ignoreCase = true) } }
             .filter { entry -> listOf(producer, consumer).all { capability.check(it, entry.type, entry.name) == Availability.Available } }
-            .firstNotNullOfOrNull { entry -> operation(entry)?.let { Use(entry.type, entry.name, it) } }
+            .firstNotNullOfOrNull { entry -> operation(entry)?.let { Use(entry.type, entry.name, it, entry, builds) } }
     }
 
     // the catalogue names operations in words (computeMac, agree); the type's timed operation is the one its word begins
