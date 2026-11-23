@@ -1334,6 +1334,7 @@ codes:
   unsupported_parameter: {kind: outcome}
   unused_setting: {kind: notice}
   usage: {kind: error}
+  use_parameters_failed: {kind: outcome}
   vararg_parameter: {kind: outcome}
   variants_fallback: {kind: notice}
   vector_incomplete: {kind: error}

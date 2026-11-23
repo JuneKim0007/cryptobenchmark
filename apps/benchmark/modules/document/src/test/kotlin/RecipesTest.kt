@@ -6,7 +6,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Test
 
-/** The recipes an entry's rows passed to one call name; a recipe and an entry's rows at a build to a {class, arguments} tree; a builder, a keyRef, a missing value or recipe refused with guide_recipe_unbuildable. */
+/** The one recipe an entry's rows passed to one call name, several refused; a recipe and an entry's rows at a build to a {class, arguments} tree; a builder, a keyRef, a missing value or recipe refused with guide_recipe_unbuildable. */
 class RecipesTest {
 
     private val recipes = Recipes.parse(
@@ -42,10 +42,14 @@ class RecipesTest {
     }
 
     @Test
-    fun theRecipesTheRowsPassedToOneCallNameAtTheBuild() {
-        assertEquals(listOf("r.curve"), recipes.ids(entry, "P", "keyGeneration"))
-        assertEquals(listOf("r.nested"), recipes.ids(entry, null, "init"))
-        assertEquals(emptyList<String>(), recipes.ids(entry, null, "update"))
+    fun theOneRecipeTheRowsPassedToOneCallNameAtTheBuild() {
+        assertEquals("r.curve", recipes.one(entry, "P", "keyGeneration"))
+        assertEquals("r.nested", recipes.one(entry, null, "init"))
+        assertEquals(null, recipes.one(entry, null, "update"))
+        val two = FamilyCatalogue.parse(listOf("family: f\nalgorithms:\n  Signature|S:\n    required:\n    - {name: a, recipe: r.curve, passedTo: init}\n    - {name: b, recipe: r.ref, passedTo: init}\n")).entries.single()
+        val several = assertThrows(Recipes.Unbuildable::class.java) { recipes.one(two, null, "init") }
+        assertEquals("${Recipes.CODE}: [r.curve, r.ref] are several objects for one init", several.message)
+        assertEquals(listOf("r.curve", "r.ref"), several.recipes)
     }
 
     @Test

@@ -117,7 +117,7 @@ apps/benchmark/modules/preparation/src/test/kotlin/KeyUseTest.kt : a key use fro
 apps/benchmark/modules/preparation/src/test/kotlin/OperationContractTest.kt : per-operation consumption contract tests
 apps/benchmark/modules/preparation/src/test/kotlin/OperationInputTest.kt : per-operation input tests
 apps/benchmark/modules/preparation/src/test/kotlin/ParameterBinderTest.kt : parameter tree binding tests
-apps/benchmark/modules/preparation/src/test/kotlin/PeerRowsTest.kt : each peer row over a call on the JDK's providers: pass, refused, differs, not ready, consumer unavailable; a key use's init parameters bound or refused with the code
+apps/benchmark/modules/preparation/src/test/kotlin/PeerRowsTest.kt : each peer row over a call on the JDK's providers: pass, refused, differs, not ready, consumer unavailable; a key use's init parameters bound (from the consumer's build when the producer's has none, named in the reason) or refused with the code
 apps/benchmark/modules/preparation/src/test/kotlin/PreparationFixture.kt : shared preparation test fixtures
 apps/benchmark/modules/preparation/src/test/kotlin/PreparationPolicyTest.kt : onFailure policy tests
 apps/benchmark/modules/preparation/src/test/kotlin/PreparedCaseTest.kt : prepared-case tests
@@ -126,5 +126,5 @@ apps/benchmark/modules/preparation/src/test/kotlin/PrimitiveReaderTest.kt : prov
 apps/benchmark/modules/preparation/src/test/kotlin/ResolvedParametersTest.kt : read-back tests per parameter kind: GCM, CBC, key wrap, OAEP, PSS, EC curve, key size
 apps/benchmark/modules/preparation/src/test/kotlin/SecurePathTest.kt : secure path on a JVM: not_supported, quiet run drop, backing rules, ids, refusal codes
 apps/benchmark/modules/preparation/src/test/kotlin/SetupCatalogTest.kt : catalog rows per engine type and mode, paths per type, a generator row that would redo init refused
-apps/benchmark/modules/preparation/src/test/kotlin/UseParametersTest.kt : a key use's init rows on the producer's build, else the consumer's, bound; several recipes or one not made refused with the code
+apps/benchmark/modules/preparation/src/test/kotlin/UseParametersTest.kt : a key use's init rows on the producer's build, else the consumer's, bound with their recipe and build; several recipes, one not made or one not bound refused with the code
 ```

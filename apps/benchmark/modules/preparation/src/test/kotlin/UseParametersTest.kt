@@ -2,6 +2,7 @@ package io.github.junekim0007.cryptobench.preparation
 
 import io.github.junekim0007.cryptobench.document.catalogue.FamilyCatalogue
 import io.github.junekim0007.cryptobench.document.catalogue.Recipes
+import io.github.junekim0007.cryptobench.jca.bind.BindException
 import io.github.junekim0007.cryptobench.preparation.peer.UseParameters
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -9,7 +10,7 @@ import org.junit.Assert.assertThrows
 import org.junit.Test
 import java.security.spec.ECGenParameterSpec
 
-/** A key use's init rows on the producer's build, else the consumer's, made and bound; none without rows; several recipes or one not made refused with its code. */
+/** A key use's init rows on the producer's build, else the consumer's, made and bound with their recipe and build; none without rows; several recipes, one not made or one not bound refused with its code. */
 class UseParametersTest {
 
     private val recipes = Recipes.parse(
@@ -18,6 +19,7 @@ class UseParametersTest {
         recipes:
           r.curve: {class: java.security.spec.ECGenParameterSpec, args: [{role: curve, kind: string}]}
           r.group: {builder: namedGroupSpec}
+          r.absent: {class: no.such.Spec, args: [{role: curve, kind: string}]}
         """.trimIndent(),
     )
 
@@ -31,9 +33,11 @@ class UseParametersTest {
     fun theProducersRowsThenTheConsumersAreBound() {
         val onQ = entry("[]", "{Q: {required.curve: {name: curve, recipe: r.curve, value: secp256r1, passedTo: init}}}")
         val bound = parameters.of(onQ, listOf("P", "Q"))!!
-        assertEquals("secp256r1", (bound.next() as ECGenParameterSpec).name)
+        assertEquals("secp256r1", (bound.parameters.next() as ECGenParameterSpec).name)
+        assertEquals("init r.curve of Q", "$bound")
         val both = entry("[{name: curve, recipe: r.curve, value: secp384r1, passedTo: init}]", "{Q: {required.curve: {name: curve, recipe: r.curve, value: secp256r1, passedTo: init}}}")
-        assertEquals("secp384r1", (parameters.of(both, listOf("P", "Q"))!!.next() as ECGenParameterSpec).name)
+        assertEquals("secp384r1", (parameters.of(both, listOf("P", "Q"))!!.parameters.next() as ECGenParameterSpec).name)
+        assertEquals("P", parameters.of(both, listOf("P", "Q"))!!.build)
         assertNull(parameters.of(entry("[{name: curve, recipe: r.curve, value: x, passedTo: keyGeneration}]"), listOf("P", "Q")))
     }
 
@@ -45,5 +49,7 @@ class UseParametersTest {
             parameters.of(entry("[{name: curve, recipe: r.curve, value: a, passedTo: init}, {name: group, recipe: r.group, value: b, passedTo: init}]"), listOf("P"))
         }
         assertEquals("${Recipes.CODE}: [r.curve, r.group] are several objects for one init", several.message)
+        val unbound = assertThrows(BindException::class.java) { parameters.of(entry("[{name: curve, recipe: r.absent, value: c, passedTo: init}]"), listOf("P")) }
+        assertEquals("bind_failed: init.r.absent: no class no.such.Spec on this runtime", unbound.message)
     }
 }

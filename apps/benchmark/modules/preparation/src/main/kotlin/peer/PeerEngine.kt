@@ -32,18 +32,18 @@ class PeerEngine internal constructor(private val uses: KeyUse, private val para
         val found = uses.of(case.type, case.algorithm, KeyOutputRow.algorithm(produced.output), case.provider, consumer.provider)
         val use = found.use ?: return Outcome.NotCheckable("no_key_use: no ${FamilyCatalogue.KEYED.joinToString()} entry of key.type ${found.keyTypes.joinToString(" or ")} " +
             "is Available on both ${case.provider} and ${consumer.provider} with a timed operation")
-        return judgedBy(use, produced, consumer).let {
-            when (it) {
-                is Outcome.Pass -> Outcome.Pass("use $use")
-                is Outcome.Fail -> Outcome.Fail("${it.reason} (use $use)")
-                is Outcome.NotCheckable -> Outcome.NotCheckable("${it.reason} (use $use)")
-            }
-        }
+        val bound = Attempt.of { parameters.of(use.entry, use.builds) }.getOrElse { return labelled(Outcomes.of(Stage.USE_PARAMETERS, it), "$use") }
+        return labelled(judgedBy(use, bound, produced, consumer), listOfNotNull("$use", bound).joinToString(", "))
     }
 
-    private fun judgedBy(use: KeyUse.Use, produced: ProducedCall, consumer: Consumer): Outcome {
-        val bound = Attempt.of { parameters.of(use.entry, use.builds) }.getOrElse { return Outcome.NotCheckable(it.message ?: it.javaClass.name) }
-        val call = Attempt.of { KeyOutputRow.used(produced, use, bound) }.getOrElse { return Outcomes.of(Stage.PRODUCE, it) }
+    private fun labelled(outcome: Outcome, label: String): Outcome = when (outcome) {
+        is Outcome.Pass -> Outcome.Pass("use $label")
+        is Outcome.Fail -> Outcome.Fail("${outcome.reason} (use $label)")
+        is Outcome.NotCheckable -> Outcome.NotCheckable("${outcome.reason} (use $label)")
+    }
+
+    private fun judgedBy(use: KeyUse.Use, bound: UseParameters.Bound?, produced: ProducedCall, consumer: Consumer): Outcome {
+        val call = Attempt.of { KeyOutputRow.used(produced, use, bound?.parameters) }.getOrElse { return Outcomes.of(Stage.PRODUCE, it) }
         val row = ROWS.getValue(use.operation) as ConsumingRow
         row.ready(call)?.let { return it }
         // the use's parameters are the catalogue's, not the pair's: they reach the consumer whole

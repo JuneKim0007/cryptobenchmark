@@ -1,6 +1,10 @@
 package io.github.junekim0007.cryptobench.preparation
 
+import io.github.junekim0007.cryptobench.document.catalogue.CatalogueOverlays
 import io.github.junekim0007.cryptobench.document.catalogue.FamilyCatalogue
+import io.github.junekim0007.cryptobench.jca.bind.BindException
+import io.github.junekim0007.cryptobench.preparation.peer.Outcomes
+import io.github.junekim0007.cryptobench.preparation.peer.Stage
 import io.github.junekim0007.cryptobench.document.catalogue.Recipes
 import io.github.junekim0007.cryptobench.preparation.input.InputBytes
 import io.github.junekim0007.cryptobench.preparation.input.OperationInput
@@ -153,6 +157,50 @@ class PeerRowsTest {
         assertEquals("pass", judged(pss, "SunRsaSign", engine = engine(Recipes.bundled)))
         assertEquals("pass", judged(pss, "SunRsaSign", engine = engine(Recipes.bundled), travel = Travel.MESSAGE_BORNE))
         assertEquals("not_checkable ${Recipes.CODE}: jca.pssSpec is not a constructor (use Signature|RSASSA-PSS SIGN)", judged(pss, "SunRsaSign", engine = engine(builder)))
+    }
+
+    // BC's shape: the producer's build states no PSS rows, the consumer's does; the producer takes them
+    private class Renamed : java.security.Provider("RenamedRsaSign", "1", "SunRsaSign's RSASSA-PSS under another name") {
+        init {
+            for (type in listOf("Signature", "KeyPairGenerator", "KeyFactory")) {
+                val inner = Security.getProvider("SunRsaSign").getService(type, "RSASSA-PSS")
+                putService(object : Service(this, type, "RSASSA-PSS", inner.className, emptyList(), emptyMap()) {
+                    override fun newInstance(constructorParameter: Any?): Any = inner.newInstance(constructorParameter)
+                })
+            }
+        }
+    }
+
+    @Test
+    fun aUsesParametersComeFromTheConsumersBuildWhenTheProducersHasNone() {
+        val builds = "schemaVersion: 1\nbuilds:\n  \"SunRsaSign @ jdk-25\": {name: SunRsaSign}\n  \"RenamedRsaSign @ jdk-25\": {name: RenamedRsaSign}\n"
+        val rows = listOf("digest" to "SHA-256", "mgf1" to "SHA-256", "saltBytes" to "32")
+            .joinToString(", ") { (name, value) -> "required.$name: {name: $name, recipe: jca.pssSpec, value: $value, passedTo: init}" }
+        val catalogue = FamilyCatalogue.parse(listOf(
+            "family: keypairgen.none\nalgorithms:\n  KeyPairGenerator|RSASSA-PSS:\n    key: {type: PSS}\n    providers: {}\n",
+            "family: signature.pair\nalgorithms:\n  Signature|RSASSA-PSS:\n    key: {type: PSS}\n    operations: {value: [sign, verify]}\n    required: []\n    providers:\n      \"SunRsaSign @ jdk-25\": {$rows}\n",
+        ), CatalogueOverlays.parse(builds, "schemaVersion: 1\ndeviations: {}\n"))
+        val jdk = object : DeviceCapability by jvm {
+            override val platform = "jdk-25"
+        }
+        val engine = PeerEngine(KeyUse(jdk, catalogue), UseParameters())
+        Security.addProvider(Renamed())
+        try {
+            val pss = prepared("KeyPairGenerator", "RSASSA-PSS", "RenamedRsaSign", Operation.GENERATE_KEY_PAIR, KeyMaterial.None, OperationInput.None, KeyRecipe.Pair("RSASSA-PSS", 2048, "RenamedRsaSign"))
+            val invocation = Invocations.of(pss)
+            val outcome = engine.check(ProducedCall(pss, invocation.engine, invocation.once()), Consumer("SunRsaSign", "RSASSA-PSS"), Travel.MESSAGE_BORNE)
+            assertEquals("use Signature|RSASSA-PSS SIGN, init jca.pssSpec of SunRsaSign @ jdk-25", (outcome as Outcome.Pass).detail)
+        } finally {
+            Security.removeProvider("RenamedRsaSign")
+        }
+    }
+
+    @Test
+    fun aUsesParameterFailureKeepsItsCodeOrTakesOne() {
+        fun reason(failure: Exception) = (Outcomes.of(Stage.USE_PARAMETERS, failure) as Outcome.NotCheckable).reason
+        assertEquals("${Recipes.CODE}: r is no recipe", reason(Recipes.Unbuildable("r is no recipe")))
+        assertEquals("bind_failed: init.r: no class X on this runtime", reason(BindException("init.r", "no class X on this runtime")))
+        assertEquals("use_parameters_failed: IllegalStateException: odd", reason(IllegalStateException("odd")))
     }
 
     @Test

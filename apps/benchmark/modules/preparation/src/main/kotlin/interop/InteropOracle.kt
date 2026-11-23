@@ -18,7 +18,7 @@ import io.github.junekim0007.cryptobench.preparation.port.Availability
 import io.github.junekim0007.cryptobench.preparation.port.DeviceCapability
 import io.github.junekim0007.cryptobench.preparation.shared.FailureText
 
-/** Each direction of a pair: the first member's provider produces the type's first operation once with one planned key, the other member consumes it through the peer engine; only message-borne parameters travel. */
+/** Each direction of a pair: the first member's provider produces the type's first operation once with one planned key, the other member consumes it through the peer engine; only message-borne parameters travel, except that a generated key's use carries its own parameters. */
 class InteropOracle(
     private val capability: DeviceCapability,
     private val engineTypes: EngineTypes = EngineTypes.standard(),
