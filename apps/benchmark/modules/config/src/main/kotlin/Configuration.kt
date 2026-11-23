@@ -10,9 +10,9 @@ import io.github.junekim0007.cryptobench.config.inventory.InventoryBuilder
 import io.github.junekim0007.cryptobench.config.inventory.InventoryDocument
 import io.github.junekim0007.cryptobench.config.global.RunDocument
 import io.github.junekim0007.cryptobench.config.layers.Provenance
-import io.github.junekim0007.cryptobench.config.source.CaptureSource
+import io.github.junekim0007.cryptobench.config.source.CaptureView
 import io.github.junekim0007.cryptobench.config.source.FactsSource
-import io.github.junekim0007.cryptobench.config.source.TrialSource
+import io.github.junekim0007.cryptobench.config.source.TrialView
 import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import io.github.junekim0007.cryptobench.files.Beside
 import io.github.junekim0007.cryptobench.files.FileNames
@@ -35,11 +35,8 @@ class Configuration(
 
     fun inventory(captureFile: File, trialFile: File): File {
         Files.deleteIfExists(inventoryFile.toPath())
-        // the pair is refused on the contract's read before config's own reads
-        Handoff.read(captureFile, trialFile)
-        val capture = files.readOnly(captureFile, CaptureSource).read()
-        val trial = files.readOnly(trialFile, TrialSource).read()
-        val inventory = inventoryBuilder.build(capture, trial, InventoryBuilder.Files(captureFile.name, trialFile.name))
+        val handoff = Handoff.read(captureFile, trialFile)
+        val inventory = inventoryBuilder.build(CaptureView.of(handoff.capture), TrialView.of(handoff.trial), InventoryBuilder.Files(captureFile.name, trialFile.name))
         return files.at(inventoryFile, InventoryDocument).write(inventory)
     }
 

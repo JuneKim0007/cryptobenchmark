@@ -5,8 +5,6 @@ import io.github.junekim0007.cryptobench.config.effective.EffectiveDocument
 import io.github.junekim0007.cryptobench.config.global.GlobalDocument
 import io.github.junekim0007.cryptobench.config.inventory.InventoryBuilder
 import io.github.junekim0007.cryptobench.config.inventory.InventoryDocument
-import io.github.junekim0007.cryptobench.config.source.CaptureSource
-import io.github.junekim0007.cryptobench.config.source.TrialSource
 import io.github.junekim0007.cryptobench.config.testset.TestSetDocument
 import io.github.junekim0007.cryptobench.document.YamlCodec
 import org.junit.Assert.assertEquals
@@ -18,8 +16,8 @@ class PathsAndKeySourceTest {
 
     private val codec = YamlCodec.DOCUMENT
     private val inventory = InventoryBuilder().build(
-        CaptureSource.parse(codec.load(Fixtures.CAPTURE)),
-        TrialSource.parse(codec.load(Fixtures.TRIAL + GENERATORS)),
+        Fixtures.capture(),
+        Fixtures.trial(Fixtures.TRIAL + GENERATORS),
         InventoryBuilder.Files("probe_x.yaml", "trial_x.yaml"),
     )
     private val names = EffectiveBuilder.Files("global.yaml", "t.yaml", "inventory.yaml")
@@ -184,8 +182,8 @@ class PathsAndKeySourceTest {
     @Test
     fun aGeneratorAliasFromTheCaptureIsAccepted() {
         val capture = Fixtures.CAPTURE.replace("{name: SunJCE, version: '25', precedence: 2, origin: platform, services: []}",
-            "{name: SunJCE, version: '25', precedence: 2, origin: platform, services: [{type: KeyGenerator, algorithm: AES, aliases: [2.16.840.1.101.3.4.1]}]}")
-        val aliased = InventoryBuilder().build(CaptureSource.parse(codec.load(capture)), TrialSource.parse(codec.load(Fixtures.TRIAL + GENERATORS)),
+            "{name: SunJCE, version: '25', precedence: 2, origin: platform, services: [{type: KeyGenerator, algorithm: AES, className: x, aliases: [2.16.840.1.101.3.4.1]}]}")
+        val aliased = InventoryBuilder().build(Fixtures.capture(capture), Fixtures.trial(Fixtures.TRIAL + GENERATORS),
             InventoryBuilder.Files("probe_x.yaml", "trial_x.yaml"))
         assertEquals(listOf("2.16.840.1.101.3.4.1"), aliased.providers.getValue("SunJCE").getValue("KeyGenerator").getValue("AES").aliases)
         assertEquals(aliased, InventoryDocument.parse(codec.load(codec.dump(InventoryDocument.of(aliased)))))
@@ -202,9 +200,9 @@ class PathsAndKeySourceTest {
     @Test
     fun aTypeWithoutACatalogueRowIsSkipped() {
         val capture = Fixtures.CAPTURE.replace("{name: SunJCE, version: '25', precedence: 2, origin: platform, services: []}",
-            "{name: SunJCE, version: '25', precedence: 2, origin: platform, services: [{type: KEM, algorithm: DHKEM}]}")
+            "{name: SunJCE, version: '25', precedence: 2, origin: platform, services: [{type: KEM, algorithm: DHKEM, className: x}]}")
         val trial = Fixtures.TRIAL + "- provider: SunJCE\n  type: KEM\n  algorithm: DHKEM\n  instantiates: true\n  defaultRun: {works: true}\n"
-        val withKem = InventoryBuilder().build(CaptureSource.parse(codec.load(capture)), TrialSource.parse(codec.load(trial)), InventoryBuilder.Files("probe_x.yaml", "trial_x.yaml"))
+        val withKem = InventoryBuilder().build(Fixtures.capture(capture), Fixtures.trial(trial), InventoryBuilder.Files("probe_x.yaml", "trial_x.yaml"))
         val effective = EffectiveBuilder().build(GlobalDocument.parse(codec.load(Fixtures.seeded("schemaVersion: 1\nselection: {testSet: t.yaml}\n"))),
             TestSetDocument.parse(codec.load("schemaVersion: 1\ndescription: d\ninclude:\n- {type: KEM}\n- {type: MessageDigest}\n")), withKem, names)
         assertEquals(setOf("SUN"), effective.providers.keys)

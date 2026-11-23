@@ -176,7 +176,6 @@ def test_schema_versions_across_the_boundary():
     pairs = [
         (capture.SCHEMA, number("environment/contract/src/main/kotlin/capture/CapturedEnvironment.kt", "SCHEMA_VERSION")),
         (capture.SCHEMA, number("preparation/src/main/kotlin/device/CaptureFile.kt", "SUPPORTED_SCHEMA_VERSION")),
-        (capture.SCHEMA, int(kotlin("config/src/main/kotlin/source/CaptureSource.kt", r"override val schemaVersion: Int = (\d+)"))),
         (guide_items.SCHEMA_VERSION, number("preparation/src/main/kotlin/guide/Guide.kt", "SUPPORTED_SCHEMA_VERSION")),
         (vectors.SCHEMA_VERSION, number("benchmark/src/main/kotlin/verify/known/KnownAnswerFile.kt", "SCHEMA_VERSION")),
         (energy.SCHEMA_VERSION, number("benchmark/src/main/kotlin/report/energy/EnergyWindows.kt", "SCHEMA_VERSION")),

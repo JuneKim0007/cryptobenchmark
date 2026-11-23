@@ -1,5 +1,11 @@
 package io.github.junekim0007.cryptobench.config
 
+import io.github.junekim0007.cryptobench.config.source.CaptureView
+import io.github.junekim0007.cryptobench.config.source.TrialView
+import io.github.junekim0007.cryptobench.contract.capture.CaptureDocument
+import io.github.junekim0007.cryptobench.contract.trial.TrialDocument
+import io.github.junekim0007.cryptobench.document.YamlCodec
+
 /** Environment's files as text, in the shape environment writes them; kept here so config builds and tests alone. */
 object Fixtures {
 
@@ -11,6 +17,11 @@ object Fixtures {
         Regex("(?m)^run:\\s*$").containsMatchIn(text) -> text.replaceFirst(Regex("(?m)^run:\\s*\n"), "run:\n  orderSeed: 1\n")
         else -> text + "run: {orderSeed: 1}\n"
     }
+
+    /** A capture or trial text through contract's reader, projected as config's view. */
+    fun capture(text: String = CAPTURE): CaptureView = CaptureView.of(CaptureDocument.parse(YamlCodec.DOCUMENT.load(text)))
+
+    fun trial(text: String = TRIAL): TrialView = TrialView.of(TrialDocument.parse(YamlCodec.DOCUMENT.load(text)))
 
     const val CAPTURE = """
 schemaVersion: 1

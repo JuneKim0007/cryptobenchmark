@@ -3,8 +3,6 @@ package io.github.junekim0007.cryptobench.config
 import io.github.junekim0007.cryptobench.config.effective.EffectiveBuilder
 import io.github.junekim0007.cryptobench.config.global.GlobalDocument
 import io.github.junekim0007.cryptobench.config.inventory.InventoryBuilder
-import io.github.junekim0007.cryptobench.config.source.CaptureSource
-import io.github.junekim0007.cryptobench.config.source.TrialSource
 import io.github.junekim0007.cryptobench.config.testset.TestSetDocument
 import io.github.junekim0007.cryptobench.document.YamlCodec
 import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
@@ -17,7 +15,7 @@ internal class DocumentFixture {
     val codec = YamlCodec.DOCUMENT
     val directory: File = Files.createTempDirectory("documents").toFile()
     val inventory = InventoryBuilder().build(
-        CaptureSource.parse(codec.load(Fixtures.CAPTURE)), TrialSource.parse(codec.load(Fixtures.TRIAL)), InventoryBuilder.Files("probe_x.yaml", "trial_x.yaml"))
+        Fixtures.capture(), Fixtures.trial(), InventoryBuilder.Files("probe_x.yaml", "trial_x.yaml"))
     val global = GlobalDocument.parse(codec.load(Fixtures.GLOBAL))
     val testSet = TestSetDocument.parse(codec.load(Fixtures.TEST_SET))
     val effective = EffectiveBuilder().build(global, testSet, inventory, EffectiveBuilder.Files("global.yaml", "testsets/default_predefined.yaml", "inventory.yaml"))

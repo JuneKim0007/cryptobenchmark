@@ -69,7 +69,7 @@ object CaptureDocument : DocumentReader<CapturedEnvironment> {
         )
     }
 
-    private fun runtimeDocument(runtime: RuntimeInfo): Map<String, Any> = linkedMapOf(
+    fun runtimeDocument(runtime: RuntimeInfo): Map<String, Any> = linkedMapOf(
         MODEL to runtime.model,
         MANUFACTURER to runtime.manufacturer,
         HARDWARE to runtime.hardware,

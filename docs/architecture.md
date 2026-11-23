@@ -20,7 +20,7 @@ config/benchmark/global.yaml + config/benchmark/testsets/*.yaml
 | analysis | `benchmark.json` | `summary.md`, `throughput.png`, `latency.png`, `stability.png`, `<metric>-vs-time.png` | `apps/benchmark-runner/analysis/analyze.py` |
 
 - Stamp format: `yyyyMMdd'T'HHmmss'Z'`, UTC.
-- `:config` reads capture and trial by key names; no discovery class is on its classpath.
+- `:config` reads capture and trial once through contract's `Handoff.read` and projects them into its own views (`CaptureView.of`, `TrialView.of`); no discovery class is on its classpath.
 - No provider, algorithm or device name is hard-coded in module main code; selection comes from `config/`.
 - One command for both sides: `apps/cli/facade.py`, see [facade.md](facade.md): crypto (the benchmark) names nothing of the llm side (perf-repair) and the reverse; the root settings index names both.
 - Driver: `apps/benchmark-runner/pipeline.py`, see [run.md](run.md). Output layout: [results.md](results.md).

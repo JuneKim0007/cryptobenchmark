@@ -4,8 +4,7 @@ import io.github.junekim0007.cryptobench.config.effective.EffectiveBuilder
 import io.github.junekim0007.cryptobench.config.global.GlobalDocument
 import io.github.junekim0007.cryptobench.config.inventory.InventoryBuilder
 import io.github.junekim0007.cryptobench.config.inventory.InventoryDocument
-import io.github.junekim0007.cryptobench.config.source.CaptureSource
-import io.github.junekim0007.cryptobench.config.source.TrialSource
+import io.github.junekim0007.cryptobench.contract.trial.TrialDocument
 import io.github.junekim0007.cryptobench.config.testset.TestSetDocument
 import io.github.junekim0007.cryptobench.document.YamlCodec
 import org.junit.Assert.assertEquals
@@ -20,9 +19,10 @@ class KeystoreRefusalsTest {
     private val capture = """
         schemaVersion: 1
         capturedAtMillis: 1700000000000
-        runtime: {model: Pixel 10, sdkInt: 37}
+        deviceClockMillis: 1700000000000
+        runtime: {model: Pixel 10, manufacturer: Google, hardware: frankel, sdkInt: 37, release: '17', javaVersion: '0', defaultKeySizeProperty: '', fingerprint: '', javaVendor: '', javaRuntimeVersion: '', osName: '', osArch: ''}
         providers:
-        - {name: AndroidKeyStore, version: '1', precedence: 1, services: []}
+        - {name: AndroidKeyStore, version: '1', precedence: 1, origin: platform, services: []}
     """.trimIndent()
 
     private fun born(type: String, name: String) = "- {provider: AndroidKeyStore, type: $type, algorithm: $name, instantiates: true, defaultRun: {works: false, error: 'IllegalStateException: no spec'}}\n"
@@ -40,7 +40,7 @@ class KeystoreRefusalsTest {
         services:
     """.trimIndent() + "\n" + born("KeyPairGenerator", "RSA") + born("KeyPairGenerator", "EC") + born("KeyPairGenerator", "XDH") + born("KeyPairGenerator", "ED25519")
 
-    private val inventory = InventoryBuilder().build(CaptureSource.parse(codec.load(capture)), TrialSource.parse(codec.load(trial)), InventoryBuilder.Files("probe_x.yaml", "trial_x.yaml"))
+    private val inventory = InventoryBuilder().build(Fixtures.capture(capture), Fixtures.trial(trial), InventoryBuilder.Files("probe_x.yaml", "trial_x.yaml"))
 
     private val testSet = """
         schemaVersion: 1
@@ -93,7 +93,7 @@ class KeystoreRefusalsTest {
         assertEquals(5, inventory.keystore.size)
         assertEquals(inventory, InventoryDocument.parse(InventoryDocument.of(inventory)))
         val older = trial.substringBefore("keystore:") + trial.substring(trial.indexOf("services:"))
-        val refused = assertThrows(IllegalArgumentException::class.java) { TrialSource.parse(codec.load(older)) }
+        val refused = assertThrows(IllegalArgumentException::class.java) { TrialDocument.parse(codec.load(older)) }
         assertEquals("missing_field: keystore", refused.message)
     }
 }

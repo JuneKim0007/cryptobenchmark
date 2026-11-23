@@ -2,19 +2,14 @@ package io.github.junekim0007.cryptobench.config
 
 import io.github.junekim0007.cryptobench.config.inventory.InventoryBuilder
 import io.github.junekim0007.cryptobench.config.inventory.dto.InventoryEntry
-import io.github.junekim0007.cryptobench.config.source.CaptureSource
-import io.github.junekim0007.cryptobench.config.source.TrialSource
-import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
-import io.github.junekim0007.cryptobench.document.YamlCodec
+import io.github.junekim0007.cryptobench.config.source.TrialView
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class InventoryBuilderTest {
 
-    private val files = YamlFiles()
-    private val codec = YamlCodec.DOCUMENT
-    private val capture = CaptureSource.parse(codec.load(Fixtures.CAPTURE))
-    private val trial = TrialSource.parse(codec.load(Fixtures.TRIAL))
+    private val capture = Fixtures.capture()
+    private val trial = Fixtures.trial()
     private val names = InventoryBuilder.Files("probe_x.yaml", "trial_x.yaml")
     private val inventory = InventoryBuilder().build(capture, trial, names)
 
@@ -40,7 +35,7 @@ class InventoryBuilderTest {
     /** Which size is "the usual one" comes from the trial itself; an older trial that does not say keeps every size it observed. */
     @Test
     fun theUsualInputSizeIsTheOneTheTrialStartedFrom() {
-        val cipherOf = { view: io.github.junekim0007.cryptobench.config.source.TrialView -> InventoryBuilder().build(capture, view, names).providers.getValue("SunJCE").getValue("Cipher") }
+        val cipherOf = { view: TrialView -> InventoryBuilder().build(capture, view, names).providers.getValue("SunJCE").getValue("Cipher") }
         assertEquals(emptyList<Int>(), cipherOf(trial).getValue("AES").inputSizes)
         assertEquals(listOf(1024), cipherOf(trial.copy(defaultRunInputSize = null)).getValue("AES").inputSizes)
         assertEquals(listOf(1024), cipherOf(trial.copy(defaultRunInputSize = 2048)).getValue("AES").inputSizes)

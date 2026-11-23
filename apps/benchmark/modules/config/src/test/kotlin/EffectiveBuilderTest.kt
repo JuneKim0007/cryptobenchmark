@@ -10,8 +10,6 @@ import io.github.junekim0007.cryptobench.config.global.dto.MeasurePass
 import io.github.junekim0007.cryptobench.config.global.dto.Policy
 import io.github.junekim0007.cryptobench.config.global.dto.Warmup
 import io.github.junekim0007.cryptobench.config.inventory.InventoryBuilder
-import io.github.junekim0007.cryptobench.config.source.CaptureSource
-import io.github.junekim0007.cryptobench.config.source.TrialSource
 import io.github.junekim0007.cryptobench.config.testset.TestSetDocument
 import io.github.junekim0007.cryptobench.config.testset.dto.Include
 import io.github.junekim0007.cryptobench.config.testset.dto.Override
@@ -35,8 +33,8 @@ class EffectiveBuilderTest {
     private val files = YamlFiles()
     private val codec = YamlCodec.DOCUMENT
     private val inventory = InventoryBuilder().build(
-        CaptureSource.parse(codec.load(Fixtures.CAPTURE)),
-        TrialSource.parse(codec.load(Fixtures.TRIAL)),
+        Fixtures.capture(),
+        Fixtures.trial(),
         InventoryBuilder.Files("probe_x.yaml", "trial_x.yaml"),
     )
     private val global = GlobalDocument.parse(codec.load(Fixtures.GLOBAL))

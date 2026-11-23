@@ -1,7 +1,5 @@
 import io.github.junekim0007.cryptobench.benchmark.check.EnergyCapability
 import io.github.junekim0007.cryptobench.benchmark.report.energy.EnergyWindows
-import io.github.junekim0007.cryptobench.config.source.CaptureSource
-import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import io.github.junekim0007.cryptobench.contract.capture.CaptureDocument
 import io.github.junekim0007.cryptobench.contract.requirements.RequirementDocument
 import io.github.junekim0007.cryptobench.contract.trial.TrialDocument
@@ -31,7 +29,6 @@ class SchemaRefusalsTest {
         val file = folder.newFile("probe_x.yaml").apply { writeText("schemaVersion: 99\n") }
         val table = linkedMapOf(
             "document AlgorithmNames" to refusal { AlgorithmNames.read("schemaVersion: 99\n") },
-            "config VersionedFile" to refusal { YamlFiles().readOnly(file, CaptureSource).read() },
             "preparation SkipFile" to refusal { SkipFile(folder.newFolder().apply { resolve("skipped.yaml").writeText("schemaVersion: 99\n") }).read() },
             "contract CaptureDocument" to refusal { CaptureDocument.read(file) },
             "contract TrialDocument" to refusal { TrialDocument.read(folder.newFile("trial_x.yaml").apply { writeText("schemaVersion: 99\n") }) },
@@ -46,7 +43,6 @@ class SchemaRefusalsTest {
         // reader | refusal
         val EXPECTED = """
             document AlgorithmNames | unsupported_schema_version: algorithm-names.yaml: 99, this build reads 1
-            config VersionedFile | unsupported_schema_version: probe_x.yaml: 99, this build reads 1
             preparation SkipFile | unsupported_schema_version: skipped.yaml: 99, this build reads 2
             contract CaptureDocument | unsupported_schema_version: probe_x.yaml: 99, this build reads 1
             contract TrialDocument | unsupported_schema_version: trial_x.yaml: 99, this build reads 3

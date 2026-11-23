@@ -27,7 +27,8 @@ modules:
     uses: {}
   config:
     uses:
-      contract: [Handoff, bundled.BundledProvider]
+      contract: [Handoff, bundled.BundledProvider, capture.CaptureDocument, capture.CapturedEnvironment, capture.ProviderEntry, capture.RuntimeInfo, capture.ServiceEntry,
+        trial.TrialReport, trial.ServiceTrialEntry, trial.TransformationTrialEntry, trial.DefaultRunOutcome, trial.KeystoreSection, trial.KeystoreRow]
       settings: [EnergySettings, Facts, HarnessSettings, Leaf, Metric, Nested, OnFailure, Phase, RunKeys, Section, Unsupported, Values]
       records: [Skip, StoppedOnFailureException]
       catalogue: [EngineRows]
