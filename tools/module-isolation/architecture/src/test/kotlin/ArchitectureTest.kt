@@ -16,6 +16,12 @@ class ArchitectureTest {
     }
 
     @Test
+    fun everyListedNameIsAClass() {
+        val stale = layers.staleEntries(ClassEdges.names(classes, layers.root))
+        assertTrue(stale.joinToString("\n"), stale.isEmpty())
+    }
+
+    @Test
     fun moduleEdges() = freeze(rules.moduleEdges()).check(classes)
 
     @Test

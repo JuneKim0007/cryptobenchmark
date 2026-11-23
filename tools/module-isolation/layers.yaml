@@ -1,4 +1,4 @@
-# Dependency rules read by architecture/ (ArchUnit) and handoff_check.py. Names are relative to root, then to the module's package.
+# Dependency rules read by architecture/ (ArchUnit) and handoff_check.py. Names are exact classes, relative to root, then to the module's package.
 root: io.github.junekim0007.cryptobench
 
 modules:

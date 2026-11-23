@@ -39,6 +39,7 @@
 
 ## Dependency rules
 - rules: `tools/module-isolation/layers.yaml` holds the module edges, the handoff lists above, package cycles and forbidden package edges as data; a list change edits it and this guide together.
+- lists: a handoff list names exact classes; a name with no class in its module fails the ArchUnit check with a stale_entry line.
 - check: `tools/module-isolation/architecture` checks the compiled module classes with ArchUnit; `tools/module-isolation/handoff_check.py` checks androidTest and cli sources; `tools/module-isolation/names_check.py` checks file names, which ArchUnit cannot see; `.github/workflows/modules.yml` runs both.
 - frozen: violations that predate the rules live in `tools/module-isolation/architecture/frozen/` and `tools/module-isolation/handoff-frozen.txt`; a new violation fails and never joins them.
 - frozen: the stores only shrink: a fixed violation leaves its store in the same change (`-Darchunit.freeze.store.default.allowStoreUpdate=true`, `handoff_check.py --shrink`); both are empty by the end of H3.

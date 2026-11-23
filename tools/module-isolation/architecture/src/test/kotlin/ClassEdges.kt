@@ -12,6 +12,8 @@ object ClassEdges {
         }
     }.toSortedSet(compareBy({ it.from }, { it.to }))
 
+    fun names(classes: JavaClasses, root: String): Set<String> = classes.mapNotNull { projectName(it.name, root) }.toSet()
+
     private fun projectName(name: String, root: String): String? =
         name.takeIf { it.startsWith("$root.") }?.removePrefix("$root.")?.substringBefore('$')
 }
