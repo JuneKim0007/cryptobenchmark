@@ -14,7 +14,7 @@ import io.github.junekim0007.cryptobench.config.effective.dto.EntryOrigin
 import io.github.junekim0007.cryptobench.config.testset.RuleDocument
 import io.github.junekim0007.cryptobench.config.global.AnalysisDocument
 import io.github.junekim0007.cryptobench.config.global.PolicyDocument
-import io.github.junekim0007.cryptobench.config.global.ProvidersDocument
+import io.github.junekim0007.cryptobench.contract.bundled.BundledProvider
 import io.github.junekim0007.cryptobench.config.inventory.InventorySourceDocument
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
 import io.github.junekim0007.cryptobench.config.global.RunDocument
@@ -73,7 +73,7 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
         put(RUN, RunDocument.of(value.run))
         put(POLICY, PolicyDocument.of(value.policy))
         put(ANALYSIS, AnalysisDocument.of(value.analysis))
-        if (value.bundledProviders.isNotEmpty()) put(BUNDLED_PROVIDERS, ProvidersDocument.bundledList(value.bundledProviders))
+        if (value.bundledProviders.isNotEmpty()) put(BUNDLED_PROVIDERS, value.bundledProviders.map(BundledProvider::entry))
         put(PROVIDERS, ProviderTree.of(value.providers, ::entry))
     }
 
@@ -94,7 +94,7 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
             providers = ProviderTree.parse(section(document, PROVIDERS), PROVIDERS, ::entryOf),
             warnings = optionalStrings(document, WARNINGS),
             skipped = optionalSections(document, SKIPPED).map(Skip::read),
-            bundledProviders = ProvidersDocument.parseBundled(optionalSections(document, BUNDLED_PROVIDERS), BUNDLED_PROVIDERS),
+            bundledProviders = BundledProvider.parseList(optionalSections(document, BUNDLED_PROVIDERS), BUNDLED_PROVIDERS),
         )
     }
 

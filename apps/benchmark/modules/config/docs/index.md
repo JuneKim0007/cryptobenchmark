@@ -38,13 +38,13 @@ apps/benchmark/modules/config/src/main/kotlin/global/AnalysisDocument.kt : analy
 apps/benchmark/modules/config/src/main/kotlin/global/DefaultsDocument.kt : lib/cryptobench/cryptobench/shared/settings/defaults.yaml: run and analysis defaults as :config writes them, the energy capture and source a node without them gets
 apps/benchmark/modules/config/src/main/kotlin/global/GlobalDocument.kt : global.yaml schema
 apps/benchmark/modules/config/src/main/kotlin/global/PolicyDocument.kt : policy section reader and writer
-apps/benchmark/modules/config/src/main/kotlin/global/ProvidersDocument.kt : providers section reader and writer; bundled list shared with effective
+apps/benchmark/modules/config/src/main/kotlin/global/ProvidersDocument.kt : providers section reader and writer; its bundled list read and written by contract's BundledProvider
 apps/benchmark/modules/config/src/main/kotlin/global/RunDocument.kt : run section reader and writer
 apps/benchmark/modules/config/src/main/kotlin/global/dto/AnalysisSettings.kt : analysis defaults and validation: charts, dir, statistic, display units
 apps/benchmark/modules/config/src/main/kotlin/global/dto/GlobalConfig.kt : global model
 apps/benchmark/modules/config/src/main/kotlin/global/dto/MeasurePass.kt : one run.passes entry and its key table (Section): name timing, energy or allocation, samples >= 1; energy's minWindowSeconds, default 5
 apps/benchmark/modules/config/src/main/kotlin/global/dto/Policy.kt : policy.onFailure, the :settings OnFailure
-apps/benchmark/modules/config/src/main/kotlin/global/dto/ProviderSources.kt : providers section model; no duplicate artifact or alias
+apps/benchmark/modules/config/src/main/kotlin/global/dto/ProviderSources.kt : providers section model: the bundled list as BundledProvider.parseList checked it
 apps/benchmark/modules/config/src/main/kotlin/global/dto/RunSettings.kt : run defaults and validation
 apps/benchmark/modules/config/src/main/kotlin/global/dto/Selection.kt : testSet and global excludes
 apps/benchmark/modules/config/src/main/kotlin/global/dto/ThermalGate.kt : run.thermalGate key table (Section), defaults, the merge over them and its checks

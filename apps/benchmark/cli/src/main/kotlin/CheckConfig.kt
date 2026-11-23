@@ -1,5 +1,5 @@
 import io.github.junekim0007.cryptobench.config.AuthoredFiles
-import io.github.junekim0007.cryptobench.config.global.ProvidersDocument
+import io.github.junekim0007.cryptobench.contract.bundled.BundledProvider
 import io.github.junekim0007.cryptobench.document.YamlCodec
 import io.github.junekim0007.cryptobench.files.FileNames
 import java.io.File
@@ -9,7 +9,7 @@ fun main(arguments: Array<String>) = command(arguments, "checkconfig <${FileName
     val checked = arguments.map { path ->
         val authored = AuthoredFiles().read(File(path))
         linkedMapOf("global" to path, "testSet" to authored.testSetFile.path,
-                    "bundled" to ProvidersDocument.bundledList(authored.global.providers.bundled))
+                    "bundled" to authored.global.providers.bundled.map(BundledProvider::entry))
     }
     print(YamlCodec.DOCUMENT.dump(checked))
 }
