@@ -29,8 +29,8 @@ capturedAtMillis: 1700000000000
 deviceClockMillis: 1700000000000
 runtime: {model: Pixel 9, manufacturer: Google, hardware: zuma, sdkInt: 37, release: '17', javaVersion: '0', defaultKeySizeProperty: '', fingerprint: '', javaVendor: '', javaRuntimeVersion: '', osName: '', osArch: ''}
 providers:
-- {name: SunJCE, version: '25', precedence: 2, origin: platform, services: []}
 - {name: SUN, version: '25', precedence: 1, origin: platform, services: []}
+- {name: SunJCE, version: '25', precedence: 2, origin: platform, services: []}
 """
 
     const val TRIAL = """

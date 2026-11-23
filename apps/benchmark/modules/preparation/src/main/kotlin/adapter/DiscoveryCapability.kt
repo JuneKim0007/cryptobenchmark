@@ -22,7 +22,7 @@ class DiscoveryCapability(capture: CapturedDevice, trial: TrialledDevice) : Devi
 
     override val platform: String? = capture.platform
 
-    private val installed: List<String> = capture.providers.sortedBy { it.precedence }.map { it.name }
+    private val installed: List<String> = capture.providers.map { it.name }
 
     private val servicesByProvider: Map<String, Map<ServiceName, CapturedService>> =
         capture.providers.associate { provider ->

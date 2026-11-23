@@ -34,6 +34,8 @@ class CaptureDocumentTest {
             { document: MutableMap<String, Any> -> document["runtime"] = "not a section" } to "wrong_type: runtime",
             { document: MutableMap<String, Any> -> document["providers"] = providersWithout(document, "origin") } to "missing_field: origin",
             { document: MutableMap<String, Any> -> document["runtime"] = LinkedHashMap(document["runtime"] as Map<*, *>).apply { remove("fingerprint") } } to "missing_field: fingerprint",
+            { document: MutableMap<String, Any> -> document["providers"] = (document["providers"] as List<*>).reversed() } to "invalid: providers precedence",
+            { document: MutableMap<String, Any> -> document["providers"] = (document["providers"] as List<*>).let { it + it.last() } } to "invalid: providers precedence",
         )
         damages.forEach { (damage, expected) ->
             val document = LinkedHashMap(CaptureDocument.of(capture)).also(damage)
