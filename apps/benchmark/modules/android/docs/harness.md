@@ -53,7 +53,7 @@ The instrumentation app that probes, prepares and measures on a device. Device r
 | timed cases | `harness.energy.capture` other than `dry`; with the instrumentation argument `case` (`CaseFilter.ARGUMENT`) only the named ids, in the argument's order |
 | dry cases | `harness.energy.capture` = `dry` |
 
-Capture and trial come from the same device; preparation enforces the pair by `capturedAtMillis`.
+Capture and trial come from the same device; contract's `Handoff.read` enforces the pair by `capturedAtMillis`.
 
 ## CryptoBenchmark
 

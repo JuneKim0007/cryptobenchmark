@@ -25,7 +25,7 @@ one named case (Preparation.prepareOne): KeyPlanner -> KeyMaterialGenerator -> b
 | file | schema | read |
 |---|---|---|
 | effective.yaml | `config` v2 | sections `run`, `policy`, `providers`, all required |
-| capture | `capture` v1 | `capturedAtMillis`, `providers[].name`, `precedence`, `services[].type`, `algorithm`, `aliases` |
+| capture | `capture` v1, read with the trial through contract's `Handoff.read` | `capturedAtMillis`, `providers[].name`, `precedence`, `services[].type`, `algorithm`, `aliases` |
 | trial | `trial` v3 | `services[].provider`, `type`, `algorithm`, `instantiates`, `error`, `transformations[]`; `keyAlgorithm` and `fixedKeySize` from `defaultRun` |
 
 | error | text |
@@ -111,7 +111,7 @@ Type names match case-insensitively.
 | rule | value |
 |---|---|
 | pairing | capture and trial share `capturedAtMillis`, else `mismatched_trial: capture <a>, trial <b>` |
-| provider order | ascending `precedence` |
+| provider order | the capture's list order, precedence 1..n (contract's rule) |
 | lookup | registered algorithm or alias, case-insensitive |
 | name with `/` | when not registered, checked as a transformation of the base Cipher service in the trial |
 | reasons | `provider_not_installed`, `not_registered`, `not_tried`, `instantiation_fails: <error>`, `transformation_fails: <error>` |

@@ -2,7 +2,7 @@
 from cryptobench.shared.document.document import DocumentKind, read_yaml
 from cryptobench.shared.errors.input_error import InputError
 
-SCHEMA = 1   # discovery's CapturedEnvironment.SCHEMA_VERSION
+SCHEMA = 1   # contract's CapturedEnvironment.SCHEMA_VERSION
 
 
 class CaptureError(InputError):
