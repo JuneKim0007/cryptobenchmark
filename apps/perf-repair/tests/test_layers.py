@@ -26,14 +26,14 @@ LAYERS = [
 ]
 RANK = {layer: rank for rank, names in enumerate(LAYERS) for layer in names}
 
-# (importer, imported) package pairs: reason; the #66 stage that removes it.
+# (importer, imported) package pairs: reason; the stage that removes it.
 ALLOWLIST: dict[tuple[str, str], str] = {
     ("guide/app_steps", "app/__main__"): "guide calls the app command's main; no stage planned",
     ("guide/app_steps", "repair/__main__"): "guide calls the repair command's main; no stage planned",
     ("guide/device_steps", "grouping/__main__"): "guide runs grouping assign and report for what coverage finds missing",
 }
 
-# (importer, imported) package edges that close a cycle: reason; the #66 stage that removes it.
+# (importer, imported) package edges that close a cycle: reason; the stage that removes it.
 CYCLE_ALLOWLIST: dict[tuple[str, str], str] = {}
 
 

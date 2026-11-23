@@ -28,7 +28,7 @@ def subjects(found, invariant):
 
 def test_the_emulator_run_fails_both_mixed_generator_groups_and_the_all_unknown_one(g):
     found = inv.key_contract_agrees(g, {})
-    # aes-keygen-exportable: every member unknown too; #98's key contracts are what make it pass
+    # aes-keygen-exportable: every member unknown too; the key contracts are what make it pass
     assert subjects(found, "key_contract_agrees") == ["group aes-keygen", "group aes-keygen-exportable", "group rsa-keypair-gen"]
     assert all(v.severity == BLOCKING for v in found)
     assert "KeyGenerator|AES|AndroidKeyStore keyContract unknown, key component unknown" in group_evidence(found, "aes-keygen")

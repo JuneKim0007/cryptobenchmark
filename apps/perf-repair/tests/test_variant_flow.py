@@ -1,4 +1,4 @@
-"""#91 end to end on the fake pipeline: a benchmark.json with both variants under suffixed case ids, through inbound,
+"""End to end on the fake pipeline: a benchmark.json with both variants under suffixed case ids, through inbound,
 primitives.tsv and dossiers; a scope reads only its pattern's variant."""
 import shutil
 

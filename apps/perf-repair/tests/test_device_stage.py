@@ -1,4 +1,4 @@
-"""#78's vertical scenarios on a fake pipeline: what reruns, what is reused, how many device runs; no model, no device."""
+"""Vertical scenarios on a fake pipeline: what reruns, what is reused, how many device runs; no model, no device."""
 from pathlib import Path
 
 import pytest

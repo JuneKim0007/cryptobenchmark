@@ -1,4 +1,5 @@
 import json
+import logging
 import shutil
 import os
 from pathlib import Path
@@ -19,7 +20,7 @@ from perfrepair.app.resolve import resolve
 from perfrepair.app.facts.roots import project_roots
 from perfrepair.app.find.scan import call_pattern, scan
 from perfrepair.app.facts.sdk import sdk_levels
-from perfrepair.app.find.sources import GENERATED, MAIN, TEST, build_files, origin, skipped_copies, source_files
+from perfrepair.app.find.sources import GENERATED, MAIN, TEST, build_files, copy_dirs, origin, skipped_copies, source_files
 from perfrepair.data_handler.inbound import RunContext
 from perfrepair.dto import ProviderEntry
 from perfrepair.source.language import JAVA, KOTLIN
@@ -158,6 +159,15 @@ def test_a_copy_folder_apps_copies_names_is_not_scanned_and_is_counted(tmp_path)
     install_stops(load(tmp_path / "perfrepair.yaml", {}, {}))
     assert [f.rel for f in source_files(app)] == ["src/main/java/A.java"]
     assert skipped_copies(app) == 2
+
+
+def test_a_bad_apps_copies_value_warns_and_skips_no_folder(tmp_path, caplog):
+    (tmp_path / "NONE_TRANSFORMED_").mkdir()
+    (tmp_path / "perfrepair.yaml").write_text("apps: {copies: NONE_TRANSFORMED_}\n")
+    install_stops(load(tmp_path / "perfrepair.yaml", {}, {}))
+    with caplog.at_level(logging.WARNING):
+        assert copy_dirs() == frozenset() and skipped_copies(tmp_path) == 0
+    assert any("apps.copies" in r.getMessage() for r in caplog.records if r.levelno == logging.WARNING)
 
 
 def test_sources_are_tagged_and_ignored_folders_skipped():

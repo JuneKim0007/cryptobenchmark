@@ -1,4 +1,4 @@
-"""#78 flow 7: one run per device folder (the lock), and two writers of one file never take each other's temp file."""
+"""One run per device folder (the lock), and two writers of one file never take each other's temp file."""
 import os
 import subprocess
 import sys

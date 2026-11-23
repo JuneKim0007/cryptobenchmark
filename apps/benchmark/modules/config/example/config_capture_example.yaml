@@ -3,7 +3,7 @@
 # the services the config and preparation examples use.
 # SUN, SunRsaSign and SunJCE are providers every OpenJDK build registers — Linux, macOS and Windows alike —
 # so this example runs anywhere the tests run. An Android device registers different names
-# (AndroidOpenSSL, AndroidKeyStore, BC); capturing one is #14.
+# (AndroidOpenSSL, AndroidKeyStore, BC).
 schemaVersion: 1
 capturedAtMillis: 1750000000000
 deviceClockMillis: 1750000000000

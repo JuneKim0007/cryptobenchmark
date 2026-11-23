@@ -1,4 +1,4 @@
-"""#78's flows across runs on the fake pipeline and the dry-run gateway: what reruns, how many device runs and model calls."""
+"""Flows across runs on the fake pipeline and the dry-run gateway: what reruns, how many device runs and model calls."""
 import json
 import logging
 import shutil
