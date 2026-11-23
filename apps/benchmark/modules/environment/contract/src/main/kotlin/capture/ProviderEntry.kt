@@ -10,7 +10,6 @@ data class ProviderEntry(
 ) {
 
     init {
-        require(precedence >= 1) { "precedence is 1-based, was $precedence" }
         require((origin == ProviderOrigin.BUNDLED) == artifact.isNotEmpty()) { "invalid: $name origin ${origin.key} with artifact '$artifact'" }
     }
 

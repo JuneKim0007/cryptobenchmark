@@ -12,7 +12,7 @@ data class CapturedEnvironment(
     init {
         // the list is the precedence order every reader uses as is
         val precedence = providers.map { it.precedence }
-        require(precedence.zipWithNext().all { (first, next) -> first < next }) { "invalid: providers precedence $precedence, ascending and unique" }
+        require(precedence == (1..providers.size).toList()) { "invalid: providers precedence $precedence, not 1..${providers.size} in list order" }
     }
 
     companion object {

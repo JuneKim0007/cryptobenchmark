@@ -18,7 +18,7 @@ Top-level keys, in this order.
 | `capturedAtMillis` | long | capture time, epoch milliseconds: the host's on a device run |
 | `deviceClockMillis` | long | the running device's or JVM's own clock at capture |
 | `runtime` | object | device the capture was taken on |
-| `providers` | list | installed providers, in ascending, unique precedence; any other order is refused `invalid: <file>: providers precedence [..]` |
+| `providers` | list | installed providers in search order, precedence exactly 1..n in list order; anything else is refused `invalid: <file>: providers precedence [..], not 1..n in list order` |
 
 ## runtime
 

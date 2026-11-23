@@ -36,6 +36,9 @@ class CaptureDocumentTest {
             { document: MutableMap<String, Any> -> document["runtime"] = LinkedHashMap(document["runtime"] as Map<*, *>).apply { remove("fingerprint") } } to "missing_field: fingerprint",
             { document: MutableMap<String, Any> -> document["providers"] = (document["providers"] as List<*>).reversed() } to "invalid: providers precedence",
             { document: MutableMap<String, Any> -> document["providers"] = (document["providers"] as List<*>).let { it + it.last() } } to "invalid: providers precedence",
+            { document: MutableMap<String, Any> -> document["providers"] = renumbered(document) { it + 1 } } to "invalid: providers precedence [2, ",
+            { document: MutableMap<String, Any> -> document["providers"] = renumbered(document) { it - 1 } } to "invalid: providers precedence [0, ",
+            { document: MutableMap<String, Any> -> document["providers"] = renumbered(document) { if (it == 1) 1 else it + 1 } } to "invalid: providers precedence [1, 3, ",
         )
         damages.forEach { (damage, expected) ->
             val document = LinkedHashMap(CaptureDocument.of(capture)).also(damage)
@@ -81,6 +84,9 @@ class CaptureDocumentTest {
 
     private fun providersWithout(document: Map<String, Any>, key: String): List<Map<*, *>> =
         (document["providers"] as List<*>).map { LinkedHashMap(it as Map<*, *>).apply { remove(key) } }
+
+    private fun renumbered(document: Map<String, Any>, precedence: (Int) -> Int): List<Map<*, *>> =
+        (document["providers"] as List<*>).map { provider -> LinkedHashMap(provider as Map<String, Any>).apply { put("precedence", precedence(get("precedence") as Int)) } }
 
     private companion object {
         val CAPTURE = ProviderProbe().capture(

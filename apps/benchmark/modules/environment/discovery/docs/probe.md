@@ -26,7 +26,7 @@ CapturedEnvironment, TrialReport -> RequirementTrial -> RequirementReport -> Req
 
 | API | gives |
 |---|---|
-| `Security.getProviders()` (caller) | providers; precedence = 1-based array index, `>= 1` enforced |
+| `Security.getProviders()` (caller) | providers; precedence = 1-based array index; the contract refuses any list not 1..n in order |
 | `Provider.getName()`, property `Provider.id version` | provider identity |
 | `Provider.getServices()` | type, algorithm, class name (`""` when null); sorted by (type, algorithm) |
 | `Provider.stringPropertyNames()`, `getProperty()` | aliases, attributes; blank values skipped |

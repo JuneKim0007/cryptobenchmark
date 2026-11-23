@@ -48,7 +48,7 @@ class DocumentIoTest {
 
     @Test
     fun aRefusalWithoutACodeIsRefusedAsItIsAndADetailKeepsItsColons() {
-        assertEquals("invalid: refusal without a code: x.yaml: precedence is 1-based, was 0", FileRefusal.of("x.yaml", "precedence is 1-based, was 0"))
+        assertEquals("invalid: refusal without a code: x.yaml: count is negative, was -1", FileRefusal.of("x.yaml", "count is negative, was -1"))
         assertEquals("invalid: refusal without a code: x.yaml: ", FileRefusal.of("x.yaml", ""))
         assertEquals("invalid: refusal without a code: x.yaml: Oops: bad", FileRefusal.of("x.yaml", "Oops: bad"))
         assertEquals("wrong_type: x.yaml: c expects 'k: v'", FileRefusal.of("x.yaml", "wrong_type: c expects 'k: v'"))
