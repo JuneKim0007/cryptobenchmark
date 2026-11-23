@@ -9,7 +9,7 @@ from cryptobench.shared.errors.failures import GateError
 from ...source.language import NAMES, SOURCE_SUFFIXES
 from .roots import (BUILD_FILES, MANIFEST, MAX_DEPTH as MAX_ROOT_DEPTH, SETTINGS_FILES, EscapingLink, is_legacy,
                     project_roots)
-from ..find.sources import IGNORED_DIRS
+from ..find.sources import ignored_dirs
 
 PROJECT_FILES = SETTINGS_FILES + BUILD_FILES
 SOURCE_SET_DIRS = NAMES  # Gradle names a source set folder after its language
@@ -70,10 +70,10 @@ def open_app(root: Path, max_files: int = MAX_FILES, max_source_bytes: int = MAX
     real = root.resolve()
     _project_files(root)
     files = source_bytes = 0
-    android = False
+    android, ignored = False, ignored_dirs()
     for here, dirs, names in os.walk(root):
         here_path = Path(here)
-        dirs[:] = sorted(d for d in dirs if d not in IGNORED_DIRS)
+        dirs[:] = sorted(d for d in dirs if d not in ignored)
         for name in [*dirs, *names]:
             path = here_path / name
             if path.is_symlink() and not _inside(path, real):

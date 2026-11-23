@@ -8,13 +8,13 @@ from pathlib import Path
 
 from cryptobench.shared import paths
 from cryptobench.shared.document.document import read_yaml
+from ...config import current
+from ...inputs.table import APPS_COPIES
 from ...source.language import SOURCE_SUFFIXES, Language, of_file
 
 BUILD_NAMES = ("build.gradle", "build.gradle.kts", "settings.gradle", "settings.gradle.kts", "gradle.properties")
 CATALOG = "libs.versions.toml"
-_IGNORED = read_yaml(paths.IGNORED_FILES.path)
-COPY_DIRS = frozenset(_IGNORED["copies"])
-IGNORED_DIRS = frozenset(_IGNORED["tooling"]) | COPY_DIRS
+TOOLING_DIRS = frozenset(read_yaml(paths.IGNORED_FILES.path)["tooling"])
 MAIN, TEST, GENERATED = "main", "test", "generated"
 
 _TEST_SET = re.compile(r"^(test|androidTest)|Test$")
@@ -31,10 +31,19 @@ class SourceFile:
         return of_file(self.path.name)
 
 
+def copy_dirs() -> frozenset[str]:
+    return frozenset(current.read(APPS_COPIES))
+
+
+def ignored_dirs() -> frozenset[str]:
+    return TOOLING_DIRS | copy_dirs()
+
+
 def walk(root: Path):
     """Every regular file under root, ignored folders pruned, symlinks not followed, in a stable order."""
+    ignored = ignored_dirs()
     for here, dirs, files in os.walk(root):
-        dirs[:] = sorted(d for d in dirs if d not in IGNORED_DIRS and not os.path.islink(os.path.join(here, d)))
+        dirs[:] = sorted(d for d in dirs if d not in ignored and not os.path.islink(os.path.join(here, d)))
         for name in sorted(files):
             path = Path(here) / name
             if not path.is_symlink():
@@ -43,10 +52,11 @@ def walk(root: Path):
 
 def skipped_copies(root: Path) -> int:
     """Stale copies the scan did not enter, each counted once; nothing under an ignored folder is looked at."""
-    count = 0
+    count, copies = 0, copy_dirs()
+    ignored = TOOLING_DIRS | copies
     for _, dirs, _ in os.walk(root):
-        count += sum(d in COPY_DIRS for d in dirs)
-        dirs[:] = [d for d in dirs if d not in IGNORED_DIRS]
+        count += sum(d in copies for d in dirs)
+        dirs[:] = [d for d in dirs if d not in ignored]
     return count
 
 

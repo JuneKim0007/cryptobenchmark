@@ -15,7 +15,7 @@ apps:
 
 - Relative paths resolve against the file that holds the list: `perfrepair.yaml`'s folder, or the targets file's; the targets file itself is relative to `perfrepair.yaml`'s folder.
 - A targets file that is missing is `missing_file`; one that is not a list of entries is `invalid`; template: `../../config/perf-repair/targets.example.yaml`.
-- A root's candidates are the outermost folders under it that are a project root (`app/facts/roots.py`: settings file, build file beside a source set, legacy Ant) or hold an `AndroidManifest.xml`; `app/find/ignored.yaml` folders are not entered, symlinks not followed, one leaving the root is a warning and the root finds nothing.
+- A root's candidates are the outermost folders under it that are a project root (`app/facts/roots.py`: settings file, build file beside a source set, legacy Ant) or hold an `AndroidManifest.xml`; `app/find/ignored.yaml` and `apps.copies` folders are not entered, symlinks not followed, one leaving the root is a warning and the root finds nothing.
 
 ## Kinds
 

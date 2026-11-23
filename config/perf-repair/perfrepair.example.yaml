@@ -50,6 +50,7 @@ apps:                      # per app: the guide, `ai replace`
   perfMode: generic        # generic or all (every metric, overall judgement) | a list of latency, throughput, memAlloc, energy (strict rule)
   limit:                   # scopes the guide asks the model about; empty = all
   device: false            # true: the guide also compiles and interop-checks the harness on the attached phone
+  copies: [NONE_TRANSFORMED_]   # folder names of stale source copies no app step enters, counted as skippedCopies; empty = none
   maxChange: drop-in       # highest change class the guide may apply: drop-in | local-edit | migration; higher ones are reported
   replace: {}              # role keys of Select: `ai replace` and the guide's upgrade and replace steps
   review: false            # true: a reviewer one tier up reads each Select pick that edits code

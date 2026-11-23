@@ -3,20 +3,15 @@ starts; without settings, or with a bad value (one warning), the row's default."
 from __future__ import annotations
 
 from ..inputs.check import UNLIMITED
-from ..inputs.table import TIMEOUT_CLAUDE, TIMEOUT_PIPELINE, Row
+from ..inputs.table import TIMEOUT_CLAUDE, TIMEOUT_PIPELINE
 from . import current
 
 
-def _seconds(row: Row) -> int:
-    loaded = current.settings()
-    return row.default if loaded is None else loaded.read(row)
-
-
 def claude_seconds() -> int:
-    return _seconds(TIMEOUT_CLAUDE)
+    return current.read(TIMEOUT_CLAUDE)
 
 
 def pipeline_seconds() -> int | None:
     """None waits with no cap."""
-    seconds = _seconds(TIMEOUT_PIPELINE)
+    seconds = current.read(TIMEOUT_PIPELINE)
     return None if seconds == UNLIMITED else seconds

@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 
 from ...source.language import NAMES
-from ..find.sources import IGNORED_DIRS
+from ..find.sources import ignored_dirs
 
 SETTINGS_FILES = ("settings.gradle", "settings.gradle.kts")
 BUILD_FILES = ("build.gradle", "build.gradle.kts")
@@ -46,7 +46,7 @@ def project_roots(folder: Path, max_depth: int = MAX_DEPTH, manifests: bool = Fa
     folder = Path(folder)
     real = folder.resolve()
     found: list[str] = []
-    pending = [(folder, 0)]
+    pending, ignored = [(folder, 0)], ignored_dirs()
     while pending:
         d, depth = pending.pop()
         if _is_root(d, depth == 0, manifests):
@@ -58,6 +58,6 @@ def project_roots(folder: Path, max_depth: int = MAX_DEPTH, manifests: bool = Fa
             if child.is_symlink():
                 if not child.resolve().is_relative_to(real):
                     raise EscapingLink(child.relative_to(folder), os.readlink(child))
-            elif child.is_dir() and child.name not in IGNORED_DIRS:
+            elif child.is_dir() and child.name not in ignored:
                 pending.append((child, depth + 1))
     return sorted(found)

@@ -13,6 +13,8 @@ from perfrepair.app.detect import detect
 from cryptobench.shared.errors.failures import GateError
 from perfrepair.app.facts.gate import open_app, open_apps
 from perfrepair.app.find.imports import import_reason
+from perfrepair.config.load import load
+from perfrepair.config.stops import install_stops
 from perfrepair.app.resolve import resolve
 from perfrepair.app.facts.roots import project_roots
 from perfrepair.app.find.scan import call_pattern, scan
@@ -146,12 +148,16 @@ def test_gate_caps_size(tmp_path):
     assert e.value.reason == "too_large"
 
 
-def test_a_stale_copy_folder_is_not_scanned_and_is_counted(tmp_path):
+def test_a_copy_folder_apps_copies_names_is_not_scanned_and_is_counted(tmp_path):
+    app = tmp_path / "app"
     for rel in ("src/main/java/A.java", "NONE_TRANSFORMED_/src/main/java/A.java", "lib/NONE_TRANSFORMED_/B.java"):
-        (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
-        (tmp_path / rel).write_text("class A {}")
-    assert [f.rel for f in source_files(tmp_path)] == ["src/main/java/A.java"]
-    assert skipped_copies(tmp_path) == 2
+        (app / rel).parent.mkdir(parents=True, exist_ok=True)
+        (app / rel).write_text("class A {}")
+    assert len(source_files(app)) == 3 and skipped_copies(app) == 0
+    (tmp_path / "perfrepair.yaml").write_text("apps: {copies: [NONE_TRANSFORMED_]}\n")
+    install_stops(load(tmp_path / "perfrepair.yaml", {}, {}))
+    assert [f.rel for f in source_files(app)] == ["src/main/java/A.java"]
+    assert skipped_copies(app) == 2
 
 
 def test_sources_are_tagged_and_ignored_folders_skipped():

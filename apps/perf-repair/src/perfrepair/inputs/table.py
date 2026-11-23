@@ -16,6 +16,7 @@ from cryptobench.shared.stop.codes import CODES_LIST, OVERRIDABLE
 from .check import (
     check_any,
     check_bool,
+    check_folder_names,
     check_from_apps,
     check_max_change,
     check_one_of,
@@ -116,6 +117,8 @@ DEVICE_ID = Row("device.id", check_text, invalid=OnInvalid.ERROR)
 APPS_TARGETS = Row("apps.targets", check_targets)
 APPS_PERF_MODE = Row("apps.perfMode", check_perf_mode, default=GENERIC)
 APPS_LIMIT = Row("apps.limit", check_positive)
+# folders of stale source copies no app step enters, counted when skipped; none unless named
+APPS_COPIES = Row("apps.copies", check_folder_names, default=[])
 APPS_DEVICE = Row("apps.device", check_bool, default=False)
 # the highest change class the guide may apply; a bad value falls back to drop-in, the class that changes no contract
 APPS_MAX_CHANGE = Row("apps.maxChange", check_max_change, default=DROP_IN)

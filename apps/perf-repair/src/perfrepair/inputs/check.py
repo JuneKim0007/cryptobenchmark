@@ -103,6 +103,11 @@ def check_path(name: str, value: Any) -> None:
     _check(name, value, isinstance(value, Path) or (isinstance(value, str) and value != ""), "a path")
 
 
+def check_folder_names(name: str, value: Any) -> None:
+    ok = isinstance(value, list) and all(isinstance(v, str) and v and "/" not in v for v in value)
+    _check(name, value, ok, "a list of folder names")
+
+
 def check_from_apps(name: str, value: Any) -> None:
     # YAML 1.1 reads a bare `off` as false
     _check(name, value, value is False or value in FROM_APPS, f"one of {list(FROM_APPS)}")

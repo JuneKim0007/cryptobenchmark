@@ -1,3 +1,2 @@
-# Folders no app step enters. tooling: build output and editor state; copies: stale source copies, counted when skipped.
+# Folders no app step enters: build output and editor state. Stale source copies are the apps.copies setting.
 tooling: [build, .gradle, .git, .idea, node_modules]
-copies: [NONE_TRANSFORMED_]
