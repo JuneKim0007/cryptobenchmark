@@ -3,7 +3,10 @@ package io.github.junekim0007.cryptobench.document
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
+import io.github.junekim0007.cryptobench.document.versioned.DocumentReader
+import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import org.junit.Test
+import java.io.File
 import org.yaml.snakeyaml.composer.ComposerException
 
 class YamlCodecTest {
@@ -46,5 +49,32 @@ class YamlCodecTest {
     fun captureRefusesAGlobalTag() {
         val failure = assertThrows(ComposerException::class.java) { YamlCodec.CAPTURE.load("!!java.util.Date {}\n") }
         assertTrue(failure.message, failure.message!!.startsWith("Global tag is not allowed: tag:yaml.org,2002:java.util.Date"))
+    }
+
+    /** A host requirements file is above SnakeYAML's 3 MiB default: every profile reads it. */
+    @Test
+    fun everyProfileLoadsADocumentAboveThreeMebibytes() {
+        val text = sized(4 * MIB)
+        YamlCodec.values().forEach { assertEquals(it.name, text.length / LINE.length, (it.load(text)["k"] as List<*>).size) }
+    }
+
+    @Test
+    fun aDocumentBeyondTheLimitIsUnreadableYamlNamingTheFile() {
+        val reader = object : DocumentReader<Map<String, Any>> {
+            override val schemaVersion = 1
+            override fun parse(document: Map<String, Any>) = document
+        }
+        YamlCodec.values().forEach {
+            val refused = assertThrows(IllegalArgumentException::class.java) { YamlFiles(it).readOnly(File("requirements_x.yaml"), reader).read(sized(16 * MIB + 1)) }
+            assertEquals(it.name, "unreadable_yaml: requirements_x.yaml: The incoming YAML document exceeds the limit: ${16 * MIB} code points.", refused.message)
+        }
+    }
+
+    // many short lines: one long scalar makes SnakeYAML's scan quadratic
+    private fun sized(codePoints: Int): String = "k:\n" + LINE.repeat((codePoints - 3) / LINE.length + 1)
+
+    private companion object {
+        const val MIB = 1024 * 1024
+        val LINE = "- " + "a".repeat(61) + "\n"
     }
 }

@@ -4,8 +4,14 @@ import java.io.Writer
 import org.yaml.snakeyaml.DumperOptions
 import org.yaml.snakeyaml.LoaderOptions
 import org.yaml.snakeyaml.Yaml
+import org.yaml.snakeyaml.constructor.Constructor
 import org.yaml.snakeyaml.constructor.SafeConstructor
 import org.yaml.snakeyaml.representer.Representer
+
+// SnakeYAML's 3 MiB default refuses host requirements files (3.76 MB measured); 16 MiB still refuses a runaway file.
+private const val CODE_POINT_LIMIT = 16 * 1024 * 1024
+
+private fun loaderOptions(): LoaderOptions = LoaderOptions().apply { codePointLimit = CODE_POINT_LIMIT }
 
 /** The one SnakeYAML setup, by profile; a profile's bytes and load failures are part of what its files promise. */
 enum class YamlCodec {
@@ -18,7 +24,7 @@ enum class YamlCodec {
                 indent = 2
                 isDereferenceAliases = true
             }
-            val loaderOptions = LoaderOptions().apply { isAllowDuplicateKeys = false }
+            val loaderOptions = loaderOptions().apply { isAllowDuplicateKeys = false }
             return Yaml(SafeConstructor(loaderOptions), Representer(dumperOptions), dumperOptions, loaderOptions)
         }
 
@@ -27,12 +33,16 @@ enum class YamlCodec {
             loaded as? Map<String, Any> ?: throw IllegalArgumentException("not_a_mapping: the document is not a set of key: value entries")
     },
 
-    // discovery: block style, aliases kept, SnakeYAML's default constructor and loader options (duplicate keys: last wins)
+    // discovery: block style, aliases kept, SnakeYAML's default constructor (duplicate keys: last wins)
     CAPTURE {
-        override fun yaml(): Yaml = Yaml(DumperOptions().apply {
-            defaultFlowStyle = DumperOptions.FlowStyle.BLOCK
-            indent = 2
-        })
+        override fun yaml(): Yaml {
+            val dumperOptions = DumperOptions().apply {
+                defaultFlowStyle = DumperOptions.FlowStyle.BLOCK
+                indent = 2
+            }
+            val loaderOptions = loaderOptions()
+            return Yaml(Constructor(loaderOptions), Representer(dumperOptions), dumperOptions, loaderOptions)
+        }
 
         // unchecked: an empty document throws NullPointerException, a list ClassCastException
         @Suppress("UNCHECKED_CAST")
@@ -41,7 +51,7 @@ enum class YamlCodec {
 
     // benchmark's result inputs (androidx JSON, energy, passes): safe constructor, duplicate keys last-wins; read only
     RESULTS {
-        override fun yaml(): Yaml = Yaml(SafeConstructor(LoaderOptions()))
+        override fun yaml(): Yaml = Yaml(SafeConstructor(loaderOptions()))
 
         @Suppress("UNCHECKED_CAST")
         override fun mapping(loaded: Any?): Map<String, Any> =
