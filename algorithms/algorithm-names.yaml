@@ -3488,6 +3488,7 @@ keyTypes:
   RC5-64: []
   RC6: []
   RSA: []
+  RSASSA-PSS: []
   SALSA20: []
   SEED: []
   Serpent: []

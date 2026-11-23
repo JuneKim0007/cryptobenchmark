@@ -11,3 +11,6 @@ cases:
 - {type: Signature, name: SHA256withECDSA, provider: BundledBC, platform: jdk-25, keyType: EC}
 - {type: KeyPairGenerator, name: ML-DSA, provider: SUN, platform: jdk-25, keyType: ML-DSA-65}
 - {type: KeyPairGenerator, name: ML-DSA, provider: Unmeasured, platform: jdk-25, keyType: ML-DSA-87}
+- {type: KeyPairGenerator, name: RSASSA-PSS, provider: SunRsaSign, platform: jdk-25, keyType: RSASSA-PSS}
+- {type: Signature, name: RSASSA-PSS, provider: BundledBC, platform: jdk-25, keyType: RSASSA-PSS}
+- {type: Signature, name: SHA256withRSA, provider: SunRsaSign, platform: jdk-25, keyType: RSA}

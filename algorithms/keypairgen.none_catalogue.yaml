@@ -834,7 +834,7 @@ algorithms:
     - {fact: minSdk, value: 1, source: sourced, url: 'https://developer.android.com/reference/java/security/KeyPairGenerator'}
     providers: {}
   KeyPairGenerator|RSASSA-PSS:
-    key: {type: RSA, origin: none, source: measured}
+    key: {type: RSASSA-PSS, origin: none, source: measured}
     required: []
     optional:
     - {name: keySize, affects: [security], source: measured}

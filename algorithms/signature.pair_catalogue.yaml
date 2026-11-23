@@ -1269,7 +1269,7 @@ algorithms:
     - {fact: minSdk, value: null, source: inferred}
     providers: {}
   Signature|RSASSA-PSS:
-    key: {type: RSA, origin: app, source: measured}
+    key: {type: RSASSA-PSS, origin: app, source: measured}
     required:
     - {name: privateKey, use: sign, passedTo: init, source: measured}
     - {name: publicKey, use: verify, passedTo: init, source: measured}

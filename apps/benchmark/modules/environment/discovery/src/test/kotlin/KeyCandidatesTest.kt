@@ -25,6 +25,12 @@ class KeyCandidatesTest {
     }
 
     @Test
+    fun aPssSignatureTakesThePssGeneratorAndAnRsaSignatureTheRsaOne() {
+        assertEquals(listOf("RSASSA-PSS"), candidates.of("Signature", "RSASSA-PSS", "SunRsaSign").map { it.name }.distinct())
+        assertEquals(listOf("RSA"), candidates.of("Signature", "SHA256withRSA", "SunRsaSign").map { it.name }.distinct())
+    }
+
+    @Test
     fun aGeneratorIsFollowedByTheRegisteredSpellingsOfIt() {
         assertEquals(listOf("ARCFOUR", "ARC4"), names("Cipher", "ARC4").map { it.first }.take(2))
     }

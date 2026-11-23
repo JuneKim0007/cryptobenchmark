@@ -31,6 +31,13 @@ def test_builds_that_disagree_give_no_key_type():
 def test_key_types_compare_through_the_names_files_vocabulary():
     assert same_key_type("HmacSHA256", "HMAC") and same_key_type("ec", "EC")
     assert not same_key_type("CHACHA", "ChaCha20")
+    assert not same_key_type("RSASSA-PSS", "RSA")
+
+
+def test_a_pss_generator_and_signature_take_their_own_key_type():
+    assert key_type("KeyPairGenerator", "RSASSA-PSS", "SunRsaSign") == "RSASSA-PSS"
+    assert key_type("Signature", "rsassa-pss", "BundledBC") == "RSASSA-PSS"
+    assert key_type("Signature", "SHA256withRSA", "SunRsaSign") == "RSA"
 
 
 def test_the_shared_fixture_reads_alike_in_python():

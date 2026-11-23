@@ -79,6 +79,8 @@ class AlgorithmNamesTest {
         assertEquals(Canonical("DH"), names.keyType("DiffieHellman"))
         assertEquals(Canonical("X25519"), names.keyType("X25519"))
         assertEquals(Canonical("XDH", null, false), names.keyType("XDH"))
+        assertEquals(Canonical("RSASSA-PSS"), names.keyType("rsassa-pss"))
+        assertEquals(Canonical("RSA"), names.keyType("rsa"))
         val error = assertThrows(IllegalArgumentException::class.java) {
             AlgorithmNames.parse(YamlCodec.DOCUMENT.load("schemaVersion: 1\nnames: {}\nkeyTypes:\n  EC: [ECDSA]\n  ECDSA: []\n"))
         }
