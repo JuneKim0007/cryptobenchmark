@@ -1,4 +1,3 @@
-import io.github.junekim0007.cryptobench.benchmark.check.PlanCheck
 import io.github.junekim0007.cryptobench.benchmark.check.RunnablePlan
 import io.github.junekim0007.cryptobench.benchmark.run.HostHarness
 import io.github.junekim0007.cryptobench.benchmark.verify.CaseCheck
@@ -7,19 +6,17 @@ import io.github.junekim0007.cryptobench.benchmark.verify.record.CaseRecord
 import io.github.junekim0007.cryptobench.benchmark.verify.record.CheckFile
 import io.github.junekim0007.cryptobench.files.FileNames
 import io.github.junekim0007.cryptobench.files.Folders
-import io.github.junekim0007.cryptobench.preparation.Preparation
-import io.github.junekim0007.cryptobench.preparation.adapter.DiscoveryCapability
 import java.io.File
 
 // The end-to-end check on the host JVM: every prepared case once through HostHarness.ONCE, all in this one process; writes check.yaml.
 fun main(arguments: Array<String>) = command(arguments, "<capture> <trial> <${FileNames.EFFECTIVE}> <${FileNames.KNOWN_ANSWERS}> <output directory>", { it.size == 5 }) {
     val (capture, trial, effective, knownAnswers, out) = arguments.map(::File)
-    HostBundled.fromEffective(effective)
-    val capability = DiscoveryCapability(capture, trial)
-    val preparation = File(out, Folders.PREPARATION).apply { mkdirs() }
-    val plan = RunnablePlan(Preparation(capability), PlanCheck(HostHarness.METRICS), preparation)
+    val preparation = File(out, Folders.PREPARATION)
+    val host = HostPlan(capture, trial, effective, preparation)
+    preparation.mkdirs()
+    val plan = host.plan
     val runnable = plan.preparedAll(effective)
-    val check = CaseCheck(CaseCheck.oracles(KnownAnswerFile.read(knownAnswers), capability, HostHarness.ONCE), HostHarness.ONCE)
+    val check = CaseCheck(CaseCheck.oracles(KnownAnswerFile.read(knownAnswers), host.capability, HostHarness.ONCE), HostHarness.ONCE)
     val started = System.nanoTime()
     val checked = mutableListOf<CaseRecord>()
     // In finally: a check that ran out of memory stops here and still leaves its records.
