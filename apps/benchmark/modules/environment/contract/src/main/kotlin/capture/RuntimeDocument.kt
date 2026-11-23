@@ -19,6 +19,8 @@ object RuntimeDocument {
     private const val OS_NAME = "osName"
     private const val OS_ARCH = "osArch"
 
+    private val HOST = listOf(JAVA_VERSION, DEFAULT_KEY_SIZE_PROPERTY, JAVA_VENDOR, JAVA_RUNTIME_VERSION, OS_NAME, OS_ARCH)
+
     fun of(runtime: RuntimeInfo): Map<String, Any> = linkedMapOf(
         MODEL to runtime.model,
         MANUFACTURER to runtime.manufacturer,
@@ -33,6 +35,9 @@ object RuntimeDocument {
         OS_NAME to runtime.osName,
         OS_ARCH to runtime.osArch,
     )
+
+    // the keys a host benchmark.json carries, in this order
+    fun host(runtime: RuntimeInfo): Map<String, String> = of(runtime).let { all -> HOST.associateWith { all.getValue(it).toString() } }
 
     fun parse(document: Map<String, Any>): RuntimeInfo = RuntimeInfo(
         model = string(document, MODEL),

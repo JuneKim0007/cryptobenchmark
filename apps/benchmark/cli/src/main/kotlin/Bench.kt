@@ -3,6 +3,7 @@ import io.github.junekim0007.cryptobench.benchmark.check.RunnablePlan
 import io.github.junekim0007.cryptobench.benchmark.report.BenchmarkJson
 import io.github.junekim0007.cryptobench.benchmark.report.ResultRow
 import io.github.junekim0007.cryptobench.benchmark.run.HostHarness
+import io.github.junekim0007.cryptobench.contract.capture.RuntimeDocument
 import io.github.junekim0007.cryptobench.files.FileNames
 import java.io.File
 import java.lang.management.ManagementFactory
@@ -18,16 +19,7 @@ fun main(arguments: Array<String>) = command(arguments, "<capture> <trial> <${Fi
     val runnable = plan.preparedAll(File(arguments[2]))
     System.err.println("prepared=${runnable.size} skipped=${plan.skipped.size}")
 
-    val runtime = host.handoff.capture.runtime.let {
-        mapOf(
-            "javaVersion" to it.javaVersion,
-            "defaultKeySizeProperty" to it.defaultKeySizeProperty,
-            "javaVendor" to it.javaVendor,
-            "javaRuntimeVersion" to it.javaRuntimeVersion,
-            "osName" to it.osName,
-            "osArch" to it.osArch,
-        )
-    }
+    val runtime = RuntimeDocument.host(host.handoff.capture.runtime)
     val harness = HostHarness(collectionCount = { ManagementFactory.getGarbageCollectorMXBeans().sumOf { maxOf(0L, it.collectionCount) } })
     val rows = mutableListOf<ResultRow>()
     val byId = runnable.associateBy { it.case.id }

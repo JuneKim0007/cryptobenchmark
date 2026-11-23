@@ -168,12 +168,13 @@ def manafa_written_version():
         return yaml.safe_load(out.read_text())["schemaVersion"]
 
 
-def test_bench_copies_the_capture_runtime_keys_the_host_device_id_needs():
-    # a measured run's manifest runtime is benchmark.json's, which BenchKt copies from the capture it read
-    copied = re.findall(r'"(\w+)" to it\.(\w+),', kotlin(CLI / "Bench.kt", r"capture\.runtime\.let \{\s*mapOf\((.*?)\)\s*\}", re.S))
-    names = set(re.findall(r'const val \w+ = "(\w+)"', (KM / "environment/contract/src/main/kotlin/capture/RuntimeDocument.kt").read_text()))
-    assert copied and all(key == field and key in names for key, field in copied)
-    assert set(identity.HOST_FIELDS) <= {key for key, _ in copied}
+def test_a_host_manifest_runtime_recomputes_the_host_device_id():
+    # a measured host run's manifest runtime is benchmark.json's, RuntimeDocument.host's keys; perf-repair's RUNTIME_KEYS read them from it
+    document = KM / "environment/contract/src/main/kotlin/capture/RuntimeDocument.kt"
+    named = dict(re.findall(r'const val (\w+) = "(\w+)"', document.read_text()))
+    host = [named[name] for name in listed(kotlin(document, r"val HOST = listOf\(([^)]*)\)"))]
+    assert set(identity.HOST_FIELDS) <= set(host)
+    assert identity.device_id({key: "1" for key in host}).startswith("host-")
 
 
 def test_the_names_file_name_is_one_in_both_languages():

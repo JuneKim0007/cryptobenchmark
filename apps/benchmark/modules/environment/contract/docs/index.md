@@ -10,7 +10,7 @@ apps/benchmark/modules/environment/contract/src/main/kotlin/capture/CaptureDocum
 apps/benchmark/modules/environment/contract/src/main/kotlin/capture/CapturedEnvironment.kt : capture model, SCHEMA_VERSION 1; providers listed in ascending, unique precedence, else invalid
 apps/benchmark/modules/environment/contract/src/main/kotlin/capture/ProviderEntry.kt : one provider record with origin and artifact
 apps/benchmark/modules/environment/contract/src/main/kotlin/capture/ProviderOrigin.kt : platform or bundled
-apps/benchmark/modules/environment/contract/src/main/kotlin/capture/RuntimeDocument.kt : the capture's runtime section: its 12 key names, of and parse; CaptureDocument and config's CaptureView use it
+apps/benchmark/modules/environment/contract/src/main/kotlin/capture/RuntimeDocument.kt : the capture's runtime section: its 12 key names, of and parse, and host: the 6 a host benchmark.json carries; CaptureDocument and config's CaptureView use it
 apps/benchmark/modules/environment/contract/src/main/kotlin/capture/RuntimeInfo.kt : device and runtime provenance
 apps/benchmark/modules/environment/contract/src/main/kotlin/capture/ServiceAttributes.kt : typed view of a service's declared attributes
 apps/benchmark/modules/environment/contract/src/main/kotlin/capture/ServiceEntry.kt : one service record
