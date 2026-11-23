@@ -5,7 +5,8 @@ import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSection
 
 object BundledProviders {
 
-    const val KEY = "bundledProviders"
+    // androidTest names the key through discovery, not contract
+    const val KEY = BundledProvider.KEY
 
     fun read(document: Map<String, Any>): List<BundledProvider> = BundledProvider.parseList(optionalSections(document, KEY), KEY)
 }

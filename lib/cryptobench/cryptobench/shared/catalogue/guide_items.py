@@ -4,6 +4,7 @@ from __future__ import annotations
 from .algorithms import KEY_PROVIDER, KEYSTORE, KEYSTORE_LEAVES, KEYSTORE_TRIAL, algorithms, algorithm_id
 from .names import Names, fold
 from .provider_builds import provider_builds
+from ..settings import bundled
 from .recipes import load as load_recipes
 from .views import view_for
 
@@ -71,7 +72,7 @@ def guide_items(effective: dict, platform: str | None) -> dict:
     """An item the guide does not hold is left out, and preparation logs and drops it."""
     names, builds, recipes = Names.load(), provider_builds(), load_recipes().by_id
     known = {fold(e.id) for e in algorithms().entries}
-    artifacts = {b.get("alias"): b["artifact"] for b in effective.get("bundledProviders") or []}
+    artifacts = {b.get("alias"): b["artifact"] for b in effective.get(bundled.KEY) or []}
     items: dict = {}
     for provider, types in (effective.get("providers") or {}).items():
         build, exact = builds.nearest(provider, platform, artifacts.get(provider))

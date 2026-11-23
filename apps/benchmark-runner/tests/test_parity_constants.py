@@ -97,7 +97,7 @@ def test_instrumentation_arguments():
     assert case_isolation.CASE_ARGUMENT == const(AT / "CaseFilter.kt", "ARGUMENT")
     assert check.DRY_RUN == ["-e", const(AT / "EndToEndCheck.kt", "DRY_RUN"), "true"]
     assert probe.HOST_MILLIS == const(AT / "DeviceProbe.kt", "HOST_MILLIS")
-    assert bundled.KEY == const("environment/discovery/src/main/kotlin/bundled/BundledProviders.kt", "KEY")
+    assert bundled.KEY == const("environment/contract/src/main/kotlin/bundled/BundledProvider.kt", "KEY")
 
 
 def test_package_and_device_folders():

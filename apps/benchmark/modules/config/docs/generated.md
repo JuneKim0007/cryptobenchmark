@@ -85,7 +85,7 @@ An entry is checked as `run.harness` merged with its own harness. When the run s
 | `run` | the global `run` section |
 | `policy` | the global `policy` section |
 | `analysis` | the global `analysis` section, defaults filled in |
-| `bundledProviders` | the global `providers.bundled` list as written; absent when empty. `DevicePlan` installs it before preparing |
+| `bundledProviders` | the global `providers.bundled` list as written; absent when empty; a repeated artifact or alias is refused with `duplicate_artifact` / `duplicate_alias`. `DevicePlan` installs it before preparing |
 | `providers.<p>.<type>.<name>` | `keySizes`, `inputSizes`, `key`, `parameters`, `operations`, `variants`, `providerDefaults`, `harness`; empty ones omitted; then `from` |
 | `from` | `testSet` (the `generatedFrom.testSet` file) and `includes`: every include that selected the entry, each `{index, provider?, type?, name?, group?}` with its 0-based position in the test set's `include` list; selection is a union, so no include wins; absent when the test set has no `include` |
 | `providers.<p>.<type>.<name>@<group>` | the same, for one group |

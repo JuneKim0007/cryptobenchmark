@@ -12,6 +12,7 @@ from .families import Families
 from .guide_items import carried_recipes, parameter_tree
 from .names import Names, fold
 from .. import paths
+from ..settings import bundled
 from .provider_builds import provider_builds
 from .recipes import load as load_recipes
 from .views import view_for
@@ -126,7 +127,7 @@ def filled(effective: dict, platform: str | None, user_folder: Path | None = Non
     vectors = load(user_folder)
     warnings = checked(vectors)
     names, builds, recipes = Names.load(), provider_builds(), load_recipes()
-    artifacts = {b.get("alias"): b["artifact"] for b in effective.get("bundledProviders") or []}
+    artifacts = {b.get("alias"): b["artifact"] for b in effective.get(bundled.KEY) or []}
     known = {fold(e.id) for e in algorithms().entries}
     user = [v for v in vectors.values() if v["origin"] == USER]
     operations, reached = engine_operations(), set()

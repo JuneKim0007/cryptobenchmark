@@ -24,6 +24,7 @@ data class BundledProvider(
     fun entry(): Map<String, Any> = linkedMapOf<String, Any>(ARTIFACT to artifact, CREATE to create).apply { alias?.let { put(ALIAS, it) } }
 
     companion object {
+        const val KEY = "bundledProviders"
         private const val ARTIFACT = "artifact"
         private const val CREATE = "create"
         private const val ALIAS = "alias"

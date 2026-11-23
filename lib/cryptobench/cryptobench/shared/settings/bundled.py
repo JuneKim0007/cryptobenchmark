@@ -5,7 +5,7 @@ from cryptobench.shared.errors.input_error import InputError
 from cryptobench.shared.settings import bundled_rule
 
 
-KEY = "bundledProviders"   # BundledProviders.KEY and the effective.yaml key
+KEY = "bundledProviders"   # contract's BundledProvider.KEY, the effective.yaml key
 
 
 class BundledError(InputError):

@@ -44,7 +44,6 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
     private const val PROVIDERS = "providers"
     private const val SKIPPED = "skipped"
     private const val WARNINGS = "warnings"
-    private const val BUNDLED_PROVIDERS = "bundledProviders"
 
     private const val PROVIDER_DEFAULTS = "providerDefaults"
     private const val FROM = "from"
@@ -73,7 +72,7 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
         put(RUN, RunDocument.of(value.run))
         put(POLICY, PolicyDocument.of(value.policy))
         put(ANALYSIS, AnalysisDocument.of(value.analysis))
-        if (value.bundledProviders.isNotEmpty()) put(BUNDLED_PROVIDERS, value.bundledProviders.map(BundledProvider::entry))
+        if (value.bundledProviders.isNotEmpty()) put(BundledProvider.KEY, value.bundledProviders.map(BundledProvider::entry))
         put(PROVIDERS, ProviderTree.of(value.providers, ::entry))
     }
 
@@ -94,7 +93,7 @@ object EffectiveDocument : DocumentHandler<EffectiveConfig> {
             providers = ProviderTree.parse(section(document, PROVIDERS), PROVIDERS, ::entryOf),
             warnings = optionalStrings(document, WARNINGS),
             skipped = optionalSections(document, SKIPPED).map(Skip::read),
-            bundledProviders = BundledProvider.parseList(optionalSections(document, BUNDLED_PROVIDERS), BUNDLED_PROVIDERS),
+            bundledProviders = BundledProvider.parseList(optionalSections(document, BundledProvider.KEY), BundledProvider.KEY),
         )
     }
 
