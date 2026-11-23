@@ -57,6 +57,14 @@ class TrialDocumentTest {
         assertThrows(IllegalArgumentException::class.java) { KeystoreSection(report.keystore!!.rows, absent = "x") }
     }
 
+    /** A trial written before the keystore trial is refused. */
+    @Test
+    fun aTrialWithoutTheKeystoreSectionIsRefused() {
+        val older = TrialDocument.of(report).filterKeys { it != "keystore" }
+        val refused = assertThrows(IllegalArgumentException::class.java) { TrialDocument.parse(older) }
+        assertEquals("missing_field: keystore", refused.message)
+    }
+
     /** An outcome carries an error exactly when it fails. */
     @Test
     fun refusesWhatCannotBeTrue() {

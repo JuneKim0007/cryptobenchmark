@@ -1,7 +1,7 @@
 package io.github.junekim0007.cryptobench.config.source
 
-import io.github.junekim0007.cryptobench.contract.capture.CaptureDocument
 import io.github.junekim0007.cryptobench.contract.capture.CapturedEnvironment
+import io.github.junekim0007.cryptobench.contract.capture.RuntimeDocument
 import java.util.Locale
 
 data class CaptureView(
@@ -20,7 +20,7 @@ data class CaptureView(
         fun of(capture: CapturedEnvironment): CaptureView {
             val providers = capture.providers.sortedBy { it.precedence }
             return CaptureView(
-                device = CaptureDocument.runtimeDocument(capture.runtime),
+                device = RuntimeDocument.of(capture.runtime),
                 providers = providers.map { it.name },
                 aliases = providers.associate { provider ->
                     provider.name to provider.services.filter { it.aliases.isNotEmpty() }.associate { service(it.type, it.algorithm) to it.aliases }

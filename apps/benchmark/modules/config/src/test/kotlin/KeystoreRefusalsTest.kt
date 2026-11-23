@@ -4,6 +4,7 @@ import io.github.junekim0007.cryptobench.config.effective.EffectiveBuilder
 import io.github.junekim0007.cryptobench.config.global.GlobalDocument
 import io.github.junekim0007.cryptobench.config.inventory.InventoryBuilder
 import io.github.junekim0007.cryptobench.config.inventory.InventoryDocument
+import io.github.junekim0007.cryptobench.config.source.TrialView
 import io.github.junekim0007.cryptobench.contract.trial.TrialDocument
 import io.github.junekim0007.cryptobench.config.testset.TestSetDocument
 import io.github.junekim0007.cryptobench.document.YamlCodec
@@ -89,11 +90,11 @@ class KeystoreRefusalsTest {
     }
 
     @Test
-    fun theInventoryKeepsTheRowsAndATrialWithoutTheSectionIsRefused() {
+    fun theInventoryKeepsTheRowsAndAReportWithoutTheSectionIsRefused() {
         assertEquals(5, inventory.keystore.size)
         assertEquals(inventory, InventoryDocument.parse(InventoryDocument.of(inventory)))
-        val older = trial.substringBefore("keystore:") + trial.substring(trial.indexOf("services:"))
-        val refused = assertThrows(IllegalArgumentException::class.java) { TrialDocument.parse(codec.load(older)) }
+        val report = TrialDocument.parse(codec.load(trial))
+        val refused = assertThrows(IllegalArgumentException::class.java) { TrialView.of(report.copy(keystore = null)) }
         assertEquals("missing_field: keystore", refused.message)
     }
 }

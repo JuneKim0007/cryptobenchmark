@@ -22,19 +22,6 @@ object CaptureDocument : DocumentReader<CapturedEnvironment> {
     internal const val RUNTIME = "runtime"
     internal const val PROVIDERS = "providers"
 
-    private const val MODEL = "model"
-    private const val MANUFACTURER = "manufacturer"
-    private const val HARDWARE = "hardware"
-    private const val SDK_INT = "sdkInt"
-    private const val RELEASE = "release"
-    private const val JAVA_VERSION = "javaVersion"
-    internal const val DEFAULT_KEY_SIZE_PROPERTY = "defaultKeySizeProperty"
-    internal const val FINGERPRINT = "fingerprint"
-    private const val JAVA_VENDOR = "javaVendor"
-    private const val JAVA_RUNTIME_VERSION = "javaRuntimeVersion"
-    private const val OS_NAME = "osName"
-    private const val OS_ARCH = "osArch"
-
     private const val NAME = "name"
     private const val VERSION = "version"
     private const val PRECEDENCE = "precedence"
@@ -52,7 +39,7 @@ object CaptureDocument : DocumentReader<CapturedEnvironment> {
         SchemaVersion.FIELD to environment.schemaVersion,
         CAPTURED_AT_MILLIS to environment.capturedAtMillis,
         DEVICE_CLOCK_MILLIS to environment.deviceClockMillis,
-        RUNTIME to runtimeDocument(environment.runtime),
+        RUNTIME to RuntimeDocument.of(environment.runtime),
         PROVIDERS to environment.providers.map { providerDocument(it) },
     )
 
@@ -61,43 +48,13 @@ object CaptureDocument : DocumentReader<CapturedEnvironment> {
     override fun parse(document: Map<String, Any>): CapturedEnvironment {
         val schemaVersion = number(document, SchemaVersion.FIELD).toInt()
         return CapturedEnvironment(
-            runtime = runtimeEntry(section(document, RUNTIME)),
+            runtime = RuntimeDocument.parse(section(document, RUNTIME)),
             providers = sections(document, PROVIDERS).map { providerEntry(it) },
             capturedAtMillis = number(document, CAPTURED_AT_MILLIS).toLong(),
             deviceClockMillis = number(document, DEVICE_CLOCK_MILLIS).toLong(),
             schemaVersion = schemaVersion,
         )
     }
-
-    fun runtimeDocument(runtime: RuntimeInfo): Map<String, Any> = linkedMapOf(
-        MODEL to runtime.model,
-        MANUFACTURER to runtime.manufacturer,
-        HARDWARE to runtime.hardware,
-        SDK_INT to runtime.sdkInt,
-        RELEASE to runtime.release,
-        JAVA_VERSION to runtime.javaVersion,
-        DEFAULT_KEY_SIZE_PROPERTY to runtime.defaultKeySizeProperty,
-        FINGERPRINT to runtime.fingerprint,
-        JAVA_VENDOR to runtime.javaVendor,
-        JAVA_RUNTIME_VERSION to runtime.javaRuntimeVersion,
-        OS_NAME to runtime.osName,
-        OS_ARCH to runtime.osArch,
-    )
-
-    private fun runtimeEntry(document: Map<String, Any>): RuntimeInfo = RuntimeInfo(
-        model = string(document, MODEL),
-        manufacturer = string(document, MANUFACTURER),
-        hardware = string(document, HARDWARE),
-        sdkInt = number(document, SDK_INT).toInt(),
-        release = string(document, RELEASE),
-        javaVersion = string(document, JAVA_VERSION),
-        defaultKeySizeProperty = string(document, DEFAULT_KEY_SIZE_PROPERTY),
-        fingerprint = string(document, FINGERPRINT),
-        javaVendor = string(document, JAVA_VENDOR),
-        javaRuntimeVersion = string(document, JAVA_RUNTIME_VERSION),
-        osName = string(document, OS_NAME),
-        osArch = string(document, OS_ARCH),
-    )
 
     private fun providerDocument(provider: ProviderEntry): Map<String, Any> {
         val document = linkedMapOf<String, Any>(
