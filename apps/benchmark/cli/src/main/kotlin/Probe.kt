@@ -56,5 +56,8 @@ private fun run(discoveryDirectory: File, configurationDirectory: File, globalFi
 
 private fun reused(discovery: Discovery): ReusedRun? = when (val found = discovery.reusable()) {
     is ReusedRun -> found
-    is Reprobe -> null.also { System.err.println("warning: reuse_refused: ${found.reason}") }
+    is Reprobe -> {
+        System.err.println("warning: reuse_refused: ${found.reason}")
+        null
+    }
 }
