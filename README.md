@@ -32,7 +32,7 @@ python3 apps/cli/facade.py --settings config/facade/settings.yaml           # be
 
 ## Recommended settings
 
-- **Set `run.thermalGate` on a phone, and find its temperature for your device.** A hot phone slows its CPU without reporting it, so numbers shift silently. Each device slows at its own skin temperature: find its skin sensor's throttling threshold in the device's thermal configuration (`adb shell dumpsys thermalservice` lists the static thresholds; the gate's capability line names the skin sensors it reads) and set `temperatureKeptCelsius` below it.
+- **Set `run.thermalGate` on a phone, and find its temperature for your device.** A phone's power controller starts capping CPU frequency once skin reaches a threshold set in its thermal configuration, without reporting a throttling status, so numbers shift silently. The cap applies while cores are busy and may cover several cores. Find your device's skin threshold in its thermal configuration (`adb shell dumpsys thermalservice` lists the static thresholds, the vendor thermal config file holds the controller's; the gate's capability line names the skin sensors it reads) and set `temperatureKeptCelsius` at or below it.
 - **Give very short algorithms more runs.** A case contains runs and a run contains iters. Fast hashes and MACs vary more from run to run than slow operations do, and more iters do not fix that: the extra launches do. `run.processRepetitions` sets one count for every case.
 
 ## Connected device setup

@@ -91,7 +91,7 @@ Each entry's `variants`, else `run.variants` ([operations.md](../apps/benchmark/
 
 ## Thermal gate
 
-Why: the phone's power controller lowers the CPU limit once skin reaches the device's own threshold. A run that crosses it measures two speeds.
+Why: a phone's power controller starts capping CPU frequency once skin reaches a threshold set in the device's thermal configuration (`adb shell dumpsys thermalservice` lists the static thresholds; the vendor thermal config file holds the controller's). The cap applies while cores are busy and may cover several cores, so a run that crosses the threshold measures two speeds. `temperatureKeptCelsius` is set at or below that threshold.
 
 | step | rule |
 |---|---|
