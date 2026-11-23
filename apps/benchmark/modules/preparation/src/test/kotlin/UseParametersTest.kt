@@ -35,6 +35,7 @@ class UseParametersTest {
         val bound = parameters.of(onQ, listOf("P", "Q"))!!
         assertEquals("secp256r1", (bound.parameters.next() as ECGenParameterSpec).name)
         assertEquals("init r.curve of Q", "$bound")
+        assertEquals("init r.curve of the base entry", "${parameters.of(entry("[{name: curve, recipe: r.curve, value: c, passedTo: init}]"), listOf(null))}")
         val both = entry("[{name: curve, recipe: r.curve, value: secp384r1, passedTo: init}]", "{Q: {required.curve: {name: curve, recipe: r.curve, value: secp256r1, passedTo: init}}}")
         assertEquals("secp384r1", (parameters.of(both, listOf("P", "Q"))!!.parameters.next() as ECGenParameterSpec).name)
         assertEquals("P", parameters.of(both, listOf("P", "Q"))!!.build)

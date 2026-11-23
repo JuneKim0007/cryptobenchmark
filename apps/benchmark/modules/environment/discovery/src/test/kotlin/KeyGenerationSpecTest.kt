@@ -45,8 +45,9 @@ class KeyGenerationSpecTest {
         assertTrue(refusal("{name: curve, recipe: r.pair, value: secp256r1, passedTo: keyGeneration}").startsWith("${Recipes.CODE}: other has no value"))
         assertTrue(refusal("{name: shape, recipe: r.curve, value: secp256r1, passedTo: keyGeneration}").startsWith("${Recipes.CODE}: curve has no value"))
         assertTrue(refusal("{name: curve, recipe: r.absent, value: secp256r1, passedTo: keyGeneration}").startsWith("bind_failed: keyGeneration.r.absent: no class no.such.Spec"))
-        assertTrue(refusal("{name: curve, recipe: r.curve, value: a, passedTo: keyGeneration}", "{name: group, recipe: r.group, value: b, passedTo: keyGeneration}")
-            .startsWith("${Recipes.CODE}: [r.curve, r.group] are several objects"))
+        val several = KeyGenerationSpec.of(entry("{name: curve, recipe: r.curve, value: a, passedTo: keyGeneration}", "{name: group, recipe: r.group, value: b, passedTo: keyGeneration}"), null, recipes) as KeyGenerationSpec.Refused
+        assertEquals("${Recipes.CODE}: [r.curve, r.group] are several objects for one keyGeneration", several.reason)
+        assertEquals("r.curve, r.group", several.recipe)
     }
 
     @Test

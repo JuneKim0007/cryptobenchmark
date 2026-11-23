@@ -15,7 +15,7 @@
 
 ## Outcomes
 
-First matching rule wins. Stages: produce (the producer's own call), setup over an input key, setup over the output key a generator produced, consume.
+First matching rule wins. Stages: produce (the producer's own call), setup over an input key, setup over the output key a generator produced, consume, the parameters of a generated key's use.
 
 | stage | exception | verdict |
 |---|---|---|
@@ -29,6 +29,8 @@ First matching rule wins. Stages: produce (the producer's own call), setup over 
 | consume | `NoSuchAlgorithmException`, `NoSuchPaddingException`, `NoSuchProviderException` | `not_checkable` `peer_unavailable` |
 | consume | `GeneralSecurityException` | `fail` `peer_refused` |
 | consume | any other | `not_checkable` `peer_error` |
+| use parameters | `Recipes.Unbuildable`, `BindException` | `not_checkable` with its own code |
+| use parameters | any other | `not_checkable` `use_parameters_failed` |
 
 ## Keys
 
@@ -58,7 +60,7 @@ First matching rule wins. Stages: produce (the producer's own call), setup over 
 | key type | the generator's own entry in `keygen.none` or `keypairgen.none` (`KeyGenerator\|HmacSHA256` gives `HMAC`), its `key.type` on the producer's build; for a generator with no entry, the key's algorithm name (`getAlgorithm`); each read as its `keyTypes` name of `algorithms/algorithm-names.yaml` (`ECDSA` is `EC`) |
 | entry | the first whose `key.type`, on both builds, is that key type, and whose type and name the capability reports Available on both providers; first `algorithms/groups.yaml`'s exemplars of those families, then, only if none fits, catalogue order, each by type Signature, Cipher, Mac, KeyAgreement (an EC key: `Signature\|SHA256withECDSA`; X25519: `KeyAgreement\|X25519`; an RSASSA-PSS key, `key.type` RSASSA-PSS: `Signature\|RSASSA-PSS`, its key type's one entry) |
 | operation | the first of the entry's `operations` words that begins the name of an operation `engine-operations.yaml` times for its type (`computeMac` COMPUTE_MAC, `agree` AGREE_KEY); `wrap` has none |
-| reason | a `fail` or `not_checkable` by use ends `(use <label>)`; a `pass` by use carries `use <label>`; the label is `<type>\|<name> <OPERATION>`, with `, init <recipe> of <build>` when parameters are bound (`use Signature\|RSASSA-PSS SIGN, init jca.pssSpec of SunRsaSign @ jdk-25`) |
+| reason | a `fail` or `not_checkable` by use ends `(use <label>)`; a `pass` by use carries `use <label>`; the label is `<type>\|<name> <OPERATION>`, with `, init <recipe> of <build>` when parameters are bound (`of the base entry` when no build is known) (`use Signature\|RSASSA-PSS SIGN, init jca.pssSpec of SunRsaSign @ jdk-25`) |
 | none | `not_checkable` `no_key_use`, naming the key types tried (a generator whose type no use has, such as `KeyPairGenerator\|XWING`) |
 | case | seed 0, input 16 |
 | parameters | the use entry's `required` rows passed to `init` on the first build that has any, the producer's then the consumer's: their one recipe made by document's `Recipes` and bound by jca's `ParameterBinder`; none without such a row; several recipes, or one not made or bound, is `not_checkable` with its code (`guide_recipe_unbuildable`, `bind_failed`; any other failure `use_parameters_failed`) |
