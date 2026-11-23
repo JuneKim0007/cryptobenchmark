@@ -1,4 +1,4 @@
-"""Where a site meets the device's primitives: explicit provider, or the first by manifest precedence that registers it."""
+"""Where a site meets the device's primitives: explicit provider, or the first in the manifest's provider list that registers it."""
 from __future__ import annotations
 
 from dataclasses import dataclass
