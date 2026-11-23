@@ -10,6 +10,7 @@ apps/benchmark/modules/environment/discovery/docs/requirements.md : the requirem
 apps/benchmark/modules/environment/discovery/docs/security_contract.md : fields of probe_, trial_ and requirements_ files
 apps/benchmark/modules/environment/discovery/src/main/kotlin/Discovery.kt : facade: probe, reusable, trial over one ProbeDirectory
 apps/benchmark/modules/environment/discovery/src/main/kotlin/DiscoveryRun.kt : probe result: capture, capture file
+apps/benchmark/modules/environment/discovery/src/main/kotlin/Reuse.kt : reusable result: ReusedRun, or Reprobe with the reason; a stored file's refusal as its first line, an uncoded one through FileRefusal
 apps/benchmark/modules/environment/discovery/src/main/kotlin/ReusedRun.kt : reusable result: capture and its files
 apps/benchmark/modules/environment/discovery/src/main/kotlin/TrialFiles.kt : trial result: trial file, requirements file
 apps/benchmark/modules/environment/discovery/src/main/kotlin/adapter/AttributeKind.kt : attribute name to LIST, INT, BOOL or STRING
@@ -84,7 +85,7 @@ apps/benchmark/modules/environment/discovery/src/test/kotlin/ProviderProbeTest.k
 apps/benchmark/modules/environment/discovery/src/test/kotlin/RecipeTreesContractTest.kt : tests/contracts/catalogue/recipe-trees.yaml: document's Recipes makes every recipe row's tree or refusal as Python's parameter_tree
 apps/benchmark/modules/environment/discovery/src/test/kotlin/RequirementTrialTest.kt : requirement trial against the live JVM and made-up providers
 apps/benchmark/modules/environment/discovery/src/test/kotlin/ResetRunTest.kt : reset test against the live JVM
-apps/benchmark/modules/environment/discovery/src/test/kotlin/ReuseTest.kt : reusable tests
+apps/benchmark/modules/environment/discovery/src/test/kotlin/ReuseTest.kt : reusable tests: each Reprobe reason, a requirements file above 3 MiB reused
 apps/benchmark/modules/environment/discovery/src/test/kotlin/ServiceAttributesTest.kt : ServiceAttributes tests
 apps/benchmark/modules/environment/discovery/src/test/kotlin/ServiceKeyTest.kt : ServiceKey tests
 apps/benchmark/modules/environment/discovery/src/test/kotlin/TrialDocumentTest.kt : trial schema tests

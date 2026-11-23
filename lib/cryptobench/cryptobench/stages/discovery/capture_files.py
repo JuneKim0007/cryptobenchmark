@@ -46,6 +46,6 @@ def printed(lines, directory):
 
 
 def reprobed(before, capture):
-    """--discovery reuse probes again when no kept capture fits this JVM; ProbeKt prints the new capture without saying so."""
+    """--discovery reuse probes again when no kept capture is reusable; ProbeKt's reuse_refused line says why."""
     if capture.name not in before:
-        warn(f"discovery_reprobed: no capture in {capture.parent} fits this JVM's runtime; --discovery reuse probed again")
+        warn(f"discovery_reprobed: no capture in {capture.parent} was reused; --discovery reuse probed again")

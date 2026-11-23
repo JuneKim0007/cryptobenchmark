@@ -8,4 +8,4 @@ data class ReusedRun(
     val captureFile: File,
     val trialFile: File,
     val requirementsFile: File,
-)
+) : Reuse

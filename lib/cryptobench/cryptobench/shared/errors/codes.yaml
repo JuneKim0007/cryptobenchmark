@@ -1276,6 +1276,7 @@ codes:
   repeat_differs: {kind: outcome}
   results_in_temp: {kind: notice}
   resumed: {kind: notice}
+  reuse_refused: {kind: notice}
   reverse_differs: {kind: outcome}
   reverse_failed: {kind: outcome}
   root_not_found: {kind: error}

@@ -22,7 +22,7 @@ def test_a_results_root_in_temp(tmp_path, capsys):
 
 def test_a_reuse_that_probed_again(tmp_path, capsys):
     capture_files.reprobed(set(), tmp_path / "probe_20260102T000000Z.yaml")
-    assert capsys.readouterr().out == (f"warning: discovery_reprobed: no capture in {tmp_path} fits this JVM's runtime; "
+    assert capsys.readouterr().out == (f"warning: discovery_reprobed: no capture in {tmp_path} was reused; "
                                        "--discovery reuse probed again\n")
 
 

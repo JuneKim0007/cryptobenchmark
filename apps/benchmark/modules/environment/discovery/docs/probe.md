@@ -9,7 +9,7 @@ File fields: [security_contract.md](security_contract.md). File map: [index.md](
 ```
 Discovery(directory).probe(providers)          -> DiscoveryRun: capture, probe_<utc>.yaml
 Discovery(directory).trial(capture, providers) -> TrialFiles: trial_<utc>.yaml, requirements_<utc>.yaml
-Discovery(directory).reusable(runtime)         -> ReusedRun or null
+Discovery(directory).reusable(runtime)         -> ReusedRun, or Reprobe with its reason
 
 Provider[] -> ProviderProbe -> CapturedEnvironment -> EnvironmentYamlWriter
 CapturedEnvironment -> TrialRunner -> DefaultRunTrial -> TrialReport -> TrialYamlWriter
@@ -111,15 +111,17 @@ Shape and install errors are `BundledProviderException` with a `code`; an entry'
 | newest | greatest file name matching `<prefix>_\d{8}T\d{6}Z.yaml` |
 | YAML | block style, indent 2, a new `Yaml` per call |
 
-`reusable(runtime)` returns null unless every check holds:
+`reusable(runtime)` returns a `Reprobe` at the first check that fails; `ProbeKt --reuse` prints its reason as `warning: reuse_refused: <reason>`:
 
-| check |
-|---|
-| newest `probe_<stamp>.yaml` parses |
-| its `runtime` equals the given runtime |
-| sibling `trial_` and `requirements_` files exist |
-| both parse and their `capturedAtMillis` equals the capture's |
-| the trial has its `keystore` section (a trial written without it is refused) |
+| check | `Reprobe` reason |
+|---|---|
+| a `probe_<stamp>.yaml` exists | `no capture in <directory>` |
+| the newest one reads as a versioned file (`:document` `VersionedFile`, CAPTURE codec) | its refusal: `<code>: <file>: <detail>`, first line |
+| its `runtime` equals the given runtime | `<file>: captured on another runtime` |
+| sibling `trial_` and `requirements_` files read | `missing_file: <path>`, or the refusal |
+| the trial has its `keystore` section | `missing_field: <file>: keystore` |
+| their `capturedAtMillis` equals the capture's | `<trial>, <requirements>: not written with <capture>` |
+| an uncoded failure | `invalid: refusal without a code: <file>: <exception>` |
 
 ## Limits
 

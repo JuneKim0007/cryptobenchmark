@@ -1,5 +1,7 @@
 import io.github.junekim0007.cryptobench.config.Configuration
 import io.github.junekim0007.cryptobench.discovery.Discovery
+import io.github.junekim0007.cryptobench.discovery.Reprobe
+import io.github.junekim0007.cryptobench.discovery.ReusedRun
 import io.github.junekim0007.cryptobench.discovery.write.ProbeDirectory
 import io.github.junekim0007.cryptobench.files.Beside
 import io.github.junekim0007.cryptobench.files.FileNames
@@ -19,7 +21,7 @@ fun main(arguments: Array<String>) = command(arguments,
 private fun run(discoveryDirectory: File, configurationDirectory: File, globalFile: File?, reuse: Boolean) {
     val discovery = Discovery(ProbeDirectory(discoveryDirectory))
     val installed = globalFile?.let(HostBundled::fromGlobal).orEmpty()
-    val reused = if (reuse) discovery.reusable() else null
+    val reused = if (reuse) reused(discovery) else null
     val captureFile: File
     val trialFile: File
     val requirementsFile: File
@@ -50,4 +52,9 @@ private fun run(discoveryDirectory: File, configurationDirectory: File, globalFi
     val effective = configuration.readEffective(effectiveFile)
     effective.warnings.forEach { System.err.println("warning: $it") }
     effective.skipped.forEach { System.err.println("skipped: $it") }
+}
+
+private fun reused(discovery: Discovery): ReusedRun? = when (val found = discovery.reusable()) {
+    is ReusedRun -> found
+    is Reprobe -> null.also { System.err.println("warning: reuse_refused: ${found.reason}") }
 }

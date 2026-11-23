@@ -16,10 +16,14 @@ import io.github.junekim0007.cryptobench.contract.capture.CaptureDocument
 import io.github.junekim0007.cryptobench.discovery.write.EnvironmentYamlWriter
 import io.github.junekim0007.cryptobench.discovery.write.ProbeDirectory
 import io.github.junekim0007.cryptobench.contract.requirements.RequirementDocument
+import io.github.junekim0007.cryptobench.contract.requirements.RequirementReport
 import io.github.junekim0007.cryptobench.discovery.write.RequirementYamlWriter
 import io.github.junekim0007.cryptobench.contract.trial.TrialDocument
+import io.github.junekim0007.cryptobench.contract.trial.TrialReport
 import io.github.junekim0007.cryptobench.discovery.write.TrialYamlWriter
 import io.github.junekim0007.cryptobench.document.YamlCodec
+import io.github.junekim0007.cryptobench.document.versioned.DocumentReader
+import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import io.github.junekim0007.cryptobench.files.StampedName
 import java.io.File
 import java.security.Provider
@@ -40,6 +44,8 @@ class Discovery(
 
     private val requirementWriter = RequirementYamlWriter(directory, codec)
 
+    private val storedFiles = YamlFiles(codec)
+
     fun probe(
         providers: Array<Provider>?,
         runtime: RuntimeInfo = DeviceRuntimeReader.read(),
@@ -53,21 +59,25 @@ class Discovery(
         )
     }
 
-    fun reusable(runtime: RuntimeInfo = DeviceRuntimeReader.read()): ReusedRun? {
-        val captureFile = directory.newest(StampedName.PROBE) ?: return null
-        val capture = Attempt.of { CaptureDocument.parse(codec.load(captureFile.readText())) }.getOrNull() ?: return null
+    fun reusable(runtime: RuntimeInfo = DeviceRuntimeReader.read()): Reuse {
+        val captureFile = directory.newest(StampedName.PROBE) ?: return Reprobe("no capture in ${directory.root.path}")
+        val capture = stored(captureFile, CapturedEnvironment.SCHEMA_VERSION, CaptureDocument::parse).getOrElse { return Reprobe.refused(captureFile, it) }
         if (capture.runtime != runtime) {
-            return null
+            return Reprobe("${captureFile.name}: captured on another runtime")
         }
         val trialFile = directory.named(StampedName.TRIAL, captureFile)
         val requirementsFile = directory.named(StampedName.REQUIREMENTS, captureFile)
-        if (!trialFile.isFile || !requirementsFile.isFile) {
-            return null
-        }
-        val trial = Attempt.of { TrialDocument.parse(codec.load(trialFile.readText())) }.getOrNull() ?: return null
-        val requirements = Attempt.of { RequirementDocument.parse(codec.load(requirementsFile.readText())) }.getOrNull() ?: return null
+        val trial = stored(trialFile, TrialReport.SCHEMA_VERSION, TrialDocument::parse).getOrElse { return Reprobe.refused(trialFile, it) }
+        val requirements = stored(requirementsFile, RequirementReport.SCHEMA_VERSION, RequirementDocument::parse).getOrElse { return Reprobe.refused(requirementsFile, it) }
         val sameCapture = trial.capturedAtMillis == capture.capturedAtMillis && requirements.capturedAtMillis == capture.capturedAtMillis
-        return if (sameCapture) ReusedRun(capture, captureFile, trialFile, requirementsFile) else null
+        return if (sameCapture) ReusedRun(capture, captureFile, trialFile, requirementsFile) else Reprobe("${trialFile.name}, ${requirementsFile.name}: not written with ${captureFile.name}")
+    }
+
+    private fun <T> stored(file: File, version: Int, parser: (Map<String, Any>) -> T): Result<T> = Attempt.of {
+        storedFiles.readOnly(file, object : DocumentReader<T> {
+            override val schemaVersion = version
+            override fun parse(document: Map<String, Any>): T = parser(document)
+        }).read()
     }
 
     fun trial(capture: CapturedEnvironment, providers: Array<Provider>?): TrialFiles {
