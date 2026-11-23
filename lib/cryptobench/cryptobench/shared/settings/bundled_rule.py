@@ -1,4 +1,4 @@
-"""One providers.bundled entry checked as config's ProvidersDocument and contract's BundledProvider check it, in their order."""
+"""One providers.bundled entry checked as contract's BundledProvider.parse checks it for config and discovery, in its order."""
 import re
 import unicodedata
 
