@@ -67,12 +67,9 @@ class DiscoveryCapabilityTest {
     /** A trial describes one capture; pairing it with another would answer for a different device state. */
     @Test
     fun refusesATrialOfAnotherCapture() {
-        val capture = CaptureFile.read(captureFile)
-        val trial = TrialFile.read(trialFile)
-        val error = assertThrows(IllegalArgumentException::class.java) {
-            DiscoveryCapability(capture.copy(capturedAtMillis = trial.capturedAtMillis + 1), trial)
-        }
-        assertTrue(error.message!!.startsWith("mismatched_trial"))
+        val other = File.createTempFile("trial", ".yaml").apply { writeText(trialFile.readText().replace("capturedAtMillis: 1750000000000", "capturedAtMillis: 1")) }
+        val error = assertThrows(IllegalArgumentException::class.java) { DiscoveryCapability(captureFile, other) }
+        assertEquals("mismatched_trial: capture 1750000000000, trial 1", error.message)
     }
 
     /**

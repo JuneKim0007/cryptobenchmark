@@ -10,9 +10,6 @@ import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 class InventoryBuilder {
 
     fun build(capture: CaptureView, trial: TrialView, files: Files): Inventory {
-        require(capture.capturedAtMillis == trial.capturedAtMillis) {
-            "mismatched_trial: capture ${capture.capturedAtMillis}, trial ${trial.capturedAtMillis}"
-        }
         val order = capture.providers + trial.entries.map { it.provider }.distinct().filter { it !in capture.providers }
         val byProvider = trial.entries.groupBy { it.provider }
         val providers = LinkedHashMap<String, Map<String, Map<String, InventoryEntry>>>()

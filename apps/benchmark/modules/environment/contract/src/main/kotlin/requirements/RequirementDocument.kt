@@ -54,7 +54,6 @@ object RequirementDocument : DocumentReader<RequirementReport> {
         KEY_CACHE to linkedMapOf(GENERATED to report.keyCache.generated, REFUSED to report.keyCache.refused, REUSED to report.keyCache.reused, GENERATION_MILLIS to report.keyCache.generationMillis),
     )
 
-    // the one read of a stored file: VersionedFile on the DOCUMENT codec
     fun read(file: File): RequirementReport = YamlFiles().readOnly(file, this).read()
 
     override fun parse(document: Map<String, Any>): RequirementReport {

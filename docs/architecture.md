@@ -32,13 +32,13 @@ config/benchmark/global.yaml + config/benchmark/testsets/*.yaml
 | `:files` | `apps/benchmark/modules/files` | none | none |
 | `:jca` | `apps/benchmark/modules/jca` | none | none |
 | `:document` | `apps/benchmark/modules/document` | none | snakeyaml 2.3 |
-| `:environment:contract` | `apps/benchmark/modules/environment/contract` | `implementation :files`, `implementation :document` | none |
+| `:environment:contract` | `apps/benchmark/modules/environment/contract` | `implementation :document` | none |
 | `:environment:discovery` | `apps/benchmark/modules/environment/discovery` | `api :jca`, `api :environment:contract`, `implementation :files`, `implementation :document` | none |
 | `:settings` | `apps/benchmark/modules/settings` | none | none |
 | `:records` | `apps/benchmark/modules/records` | `implementation :document` | none |
 | `:catalogue` | `apps/benchmark/modules/catalogue` | `api :files` | none |
 | `:config` | `apps/benchmark/modules/config` | `implementation :environment:contract`, `implementation :settings`, `implementation :records`, `implementation :catalogue`, `implementation :files`, `implementation :document` | snakeyaml 2.3 |
-| `:preparation` | `apps/benchmark/modules/preparation` | `api :settings`, `api :records`, `api :catalogue`, `api :jca`, `implementation :files`, `implementation :document` | snakeyaml 2.3 |
+| `:preparation` | `apps/benchmark/modules/preparation` | `api :settings`, `api :records`, `api :catalogue`, `api :jca`, `implementation :environment:contract`, `implementation :files`, `implementation :document` | snakeyaml 2.3 |
 | `:benchmark` | `apps/benchmark/modules/benchmark` | `api :preparation`, `implementation :files`, `implementation :document` | snakeyaml 2.3 |
 | `:android` | `apps/benchmark/modules/android` | `androidTestImplementation :benchmark`, `:environment:discovery`, `:files`, `:document` | benchmark-junit4 1.5.0; androidTest: androidx.test:runner 1.5.2, junit 4.13.2 |
 

@@ -6,6 +6,7 @@
 # (AndroidOpenSSL, AndroidKeyStore, BC); capturing one is #14.
 schemaVersion: 1
 capturedAtMillis: 1750000000000
+deviceClockMillis: 1750000000000
 runtime:
   model: ''
   manufacturer: ''
@@ -23,6 +24,7 @@ providers:
 - name: SUN
   version: '17'
   precedence: 1
+  origin: platform
   services:
   - type: MessageDigest
     algorithm: SHA-256
@@ -40,6 +42,7 @@ providers:
 - name: SunRsaSign
   version: '17'
   precedence: 2
+  origin: platform
   services:
   - type: KeyPairGenerator
     algorithm: RSA
@@ -50,6 +53,7 @@ providers:
 - name: SunJCE
   version: '17'
   precedence: 3
+  origin: platform
   services:
   - type: Cipher
     algorithm: AES

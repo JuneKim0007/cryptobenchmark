@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation.adapter
 
+import io.github.junekim0007.cryptobench.contract.Handoff
 import io.github.junekim0007.cryptobench.preparation.device.CaptureFile
 import io.github.junekim0007.cryptobench.preparation.device.ServiceName
 import io.github.junekim0007.cryptobench.preparation.device.TrialFile
@@ -14,13 +15,8 @@ import java.io.File
 
 class DiscoveryCapability(capture: CapturedDevice, trial: TrialledDevice) : DeviceCapability {
 
-    constructor(captureFile: File, trialFile: File) : this(CaptureFile.read(captureFile), TrialFile.read(trialFile))
-
-    init {
-        require(capture.capturedAtMillis == trial.capturedAtMillis) {
-            "mismatched_trial: capture ${capture.capturedAtMillis}, trial ${trial.capturedAtMillis}"
-        }
-    }
+    // the pair is refused on the contract's read before preparation's own reads
+    constructor(captureFile: File, trialFile: File) : this(Handoff.read(captureFile, trialFile).run { CaptureFile.read(captureFile) }, TrialFile.read(trialFile))
 
     override val sdkInt: Int? = capture.sdkInt
 

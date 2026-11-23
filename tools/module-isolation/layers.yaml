@@ -10,7 +10,6 @@ modules:
     uses: {}
   contract:
     uses:
-      files: [StampedName]
       document: [SchemaVersion, DocumentFields, versioned.DocumentReader, versioned.VersionedFile, versioned.YamlFiles]
   discovery:
     uses:
@@ -28,7 +27,7 @@ modules:
     uses: {}
   config:
     uses:
-      contract: [bundled.BundledProvider]
+      contract: [Handoff, bundled.BundledProvider]
       settings: [EnergySettings, Facts, HarnessSettings, Leaf, Metric, Nested, OnFailure, Phase, RunKeys, Section, Unsupported, Values]
       records: [Skip, StoppedOnFailureException]
       catalogue: [EngineRows]
@@ -36,6 +35,7 @@ modules:
       document: all
   preparation:
     uses:
+      contract: [Handoff]
       jca: [bind.BindException, bind.BindPolicy, bind.BoundParameters, bind.ParameterBinder, failure.Attempt, failure.ErrorText, peer.PeerPair, reflect.Reflect]
       settings: [HarnessSettings, Metric, OnFailure, Phase, RunKeys]
       records: [Skip, StoppedOnFailureException]

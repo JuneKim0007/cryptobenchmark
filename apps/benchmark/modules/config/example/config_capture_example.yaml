@@ -6,6 +6,7 @@
 # (AndroidOpenSSL, AndroidKeyStore, BC); capturing one is #14.
 schemaVersion: 1
 capturedAtMillis: 1750000000000
+deviceClockMillis: 1750000000000
 runtime:
   model: ''
   manufacturer: ''

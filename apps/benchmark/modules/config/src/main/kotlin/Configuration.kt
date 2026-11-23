@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.config
 
+import io.github.junekim0007.cryptobench.contract.Handoff
 import io.github.junekim0007.cryptobench.config.effective.EffectiveBuilder
 import io.github.junekim0007.cryptobench.config.effective.EffectiveDocument
 import io.github.junekim0007.cryptobench.config.effective.ReportDocument
@@ -34,6 +35,8 @@ class Configuration(
 
     fun inventory(captureFile: File, trialFile: File): File {
         Files.deleteIfExists(inventoryFile.toPath())
+        // the pair is refused on the contract's read before config's own reads
+        Handoff.read(captureFile, trialFile)
         val capture = files.readOnly(captureFile, CaptureSource).read()
         val trial = files.readOnly(trialFile, TrialSource).read()
         val inventory = inventoryBuilder.build(capture, trial, InventoryBuilder.Files(captureFile.name, trialFile.name))

@@ -63,7 +63,6 @@ object TrialDocument : DocumentReader<TrialReport> {
         report.keystore?.let { put(KEYSTORE, keystoreDocument(it)) }
     }
 
-    // the one read of a stored file: VersionedFile on the DOCUMENT codec
     fun read(file: File): TrialReport = YamlFiles().readOnly(file, this).read()
 
     override fun parse(document: Map<String, Any>): TrialReport {

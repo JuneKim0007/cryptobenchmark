@@ -2,8 +2,9 @@
 
 ```
 apps/benchmark/modules/environment/contract/README.md : module summary and link to this index
-apps/benchmark/modules/environment/contract/build.gradle : Kotlin/JVM 17 library; :files and :document; no :jca
+apps/benchmark/modules/environment/contract/build.gradle : Kotlin/JVM 17 library; :document only; no :jca
 apps/benchmark/modules/environment/contract/docs/index.md : this map
+apps/benchmark/modules/environment/contract/src/main/kotlin/Handoff.kt : a capture with the trial (and requirements) written with it: read through the readers, paired by capturedAtMillis, mismatched_trial refused
 apps/benchmark/modules/environment/contract/src/main/kotlin/bundled/BundledProvider.kt : one providers.bundled entry and its rule: artifact group:name:version, create Class or Class#factory, alias without whitespace; className and factory
 apps/benchmark/modules/environment/contract/src/main/kotlin/capture/CaptureDocument.kt : capture YAML schema (of) and its one reader (DocumentReader parse; read: VersionedFile on the DOCUMENT codec)
 apps/benchmark/modules/environment/contract/src/main/kotlin/capture/CapturedEnvironment.kt : capture model, SCHEMA_VERSION 1

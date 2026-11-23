@@ -34,10 +34,10 @@ configure(subprojects.filter { it.name in moduleDirectories }) {
         val leaf = name in listOf("files", "jca", "document")
         val sources = listOfNotNull(
             File(moduleDirectory, "src/main/kotlin"),
-            rootDir.resolve(moduleDirectories.getValue("files")).resolve("src/main/kotlin").takeIf { !leaf },
+            rootDir.resolve(moduleDirectories.getValue("files")).resolve("src/main/kotlin").takeIf { !leaf && name != "contract" },
             rootDir.resolve(moduleDirectories.getValue("jca")).resolve("src/main/kotlin").takeIf { !leaf && name != "contract" },
             rootDir.resolve(moduleDirectories.getValue("document")).resolve("src/main/kotlin").takeIf { !leaf },
-            rootDir.resolve(moduleDirectories.getValue("contract")).resolve("src/main/kotlin").takeIf { name in listOf("discovery", "config") },
+            rootDir.resolve(moduleDirectories.getValue("contract")).resolve("src/main/kotlin").takeIf { name in listOf("discovery", "config", "preparation", "benchmark") },
             rootDir.resolve("../../apps/benchmark/modules/settings/src/main/kotlin").takeIf { !leaf && name !in listOf("contract", "discovery") },
             rootDir.resolve("../../apps/benchmark/modules/records/src/main/kotlin").takeIf { !leaf && name !in listOf("contract", "discovery") },
             rootDir.resolve("../../apps/benchmark/modules/catalogue/src/main/kotlin").takeIf { !leaf && name !in listOf("contract", "discovery") },

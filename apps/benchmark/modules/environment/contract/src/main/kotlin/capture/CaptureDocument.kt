@@ -56,7 +56,6 @@ object CaptureDocument : DocumentReader<CapturedEnvironment> {
         PROVIDERS to environment.providers.map { providerDocument(it) },
     )
 
-    // the one read of a stored file: VersionedFile on the DOCUMENT codec
     fun read(file: File): CapturedEnvironment = YamlFiles().readOnly(file, this).read()
 
     override fun parse(document: Map<String, Any>): CapturedEnvironment {

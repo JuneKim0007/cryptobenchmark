@@ -18,6 +18,7 @@ dependencies {
     api project(':records')
     api project(':catalogue')
     api project(':jca')
+    implementation project(':environment:contract')
     implementation project(':files')
     implementation project(':document')
     testImplementation 'junit:junit:4.13.2'

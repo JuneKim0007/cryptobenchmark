@@ -7,7 +7,6 @@ import io.github.junekim0007.cryptobench.config.source.TrialSource
 import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import io.github.junekim0007.cryptobench.document.YamlCodec
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertThrows
 import org.junit.Test
 
 class InventoryBuilderTest {
@@ -45,12 +44,6 @@ class InventoryBuilderTest {
         assertEquals(emptyList<Int>(), cipherOf(trial).getValue("AES").inputSizes)
         assertEquals(listOf(1024), cipherOf(trial.copy(defaultRunInputSize = null)).getValue("AES").inputSizes)
         assertEquals(listOf(1024), cipherOf(trial.copy(defaultRunInputSize = 2048)).getValue("AES").inputSizes)
-    }
-
-    @Test
-    fun aTrialOfAnotherCaptureIsRefused() {
-        val refused = assertThrows(IllegalArgumentException::class.java) { InventoryBuilder().build(capture.copy(capturedAtMillis = 1), trial, names) }.message!!
-        assertEquals("mismatched_trial", refused.substringBefore(':'))
     }
 
     /** A provider that registers a second spelling of a name as its own service: the first is kept, the second is a warning. */

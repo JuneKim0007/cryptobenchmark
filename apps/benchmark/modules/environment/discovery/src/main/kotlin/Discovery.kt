@@ -4,6 +4,7 @@ import io.github.junekim0007.cryptobench.discovery.adapter.DeviceRuntimeReader
 import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
 import io.github.junekim0007.cryptobench.discovery.bundled.InstalledProvider
 import io.github.junekim0007.cryptobench.jca.failure.Attempt
+import io.github.junekim0007.cryptobench.contract.Handoff
 import io.github.junekim0007.cryptobench.contract.capture.CapturedEnvironment
 import io.github.junekim0007.cryptobench.contract.capture.RuntimeInfo
 import io.github.junekim0007.cryptobench.discovery.trial.DefaultRunTrial
@@ -60,8 +61,7 @@ class Discovery(
         val requirementsFile = directory.named(StampedName.REQUIREMENTS, captureFile)
         val trial = Attempt.of { TrialDocument.read(trialFile) }.getOrElse { return Reprobe.refused(trialFile, it) }
         val requirements = Attempt.of { RequirementDocument.read(requirementsFile) }.getOrElse { return Reprobe.refused(requirementsFile, it) }
-        val sameCapture = trial.capturedAtMillis == capture.capturedAtMillis && requirements.capturedAtMillis == capture.capturedAtMillis
-        return if (sameCapture) ReusedRun(capture, captureFile, trialFile, requirementsFile) else Reprobe("${trialFile.name}, ${requirementsFile.name}: not written with ${captureFile.name}")
+        return if (Handoff(capture, trial, requirements).paired()) ReusedRun(capture, captureFile, trialFile, requirementsFile) else Reprobe("${trialFile.name}, ${requirementsFile.name}: not written with ${captureFile.name}")
     }
 
     fun trial(capture: CapturedEnvironment, providers: Array<Provider>?): TrialFiles {

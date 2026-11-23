@@ -70,6 +70,13 @@ class ConfigurationTest {
     }
 
     @Test
+    fun aTrialOfAnotherCaptureIsRefused() {
+        trial.writeText(trial.readText().replace("capturedAtMillis: 1700000000000", "capturedAtMillis: 1"))
+        val refused = assertThrows(IllegalArgumentException::class.java) { configuration.inventory(capture, trial) }.message
+        assertEquals("mismatched_trial: capture 1700000000000, trial 1", refused)
+    }
+
+    @Test
     fun anAbsoluteTestSetPathIsUsedAsGiven() {
         configuration.inventory(capture, trial)
         global.writeText(Fixtures.GLOBAL.replace("testsets/default_predefined.yaml", testSet.absolutePath))

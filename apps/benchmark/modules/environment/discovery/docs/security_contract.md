@@ -6,7 +6,7 @@ Fields of the files discovery writes. Key names live on `CaptureDocument`, `Tria
 |---|---|
 | version check | each `parse` rejects another `schemaVersion`: `unsupported_schema_version: <v>, this build reads <n>` |
 | read failures | `missing_field: <key>`, `wrong_type: <key>` |
-| pairing | a trial or requirements file belongs to the capture with the same `capturedAtMillis`; config refuses a mismatch with `mismatched_trial: capture <a>, trial <b>` |
+| pairing | a trial or requirements file belongs to the capture with the same `capturedAtMillis`; contract's `Handoff` owns the rule; config and preparation refuse a mismatch with `mismatched_trial: capture <a>, trial <b>` |
 
 ## capture
 

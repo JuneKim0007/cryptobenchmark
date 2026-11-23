@@ -183,8 +183,8 @@ class PathsAndKeySourceTest {
     /** key.algorithm may be any alias the capture lists for the generator, an OID too; inventory.yaml carries the aliases. */
     @Test
     fun aGeneratorAliasFromTheCaptureIsAccepted() {
-        val capture = Fixtures.CAPTURE.replace("{name: SunJCE, version: '25', precedence: 2, services: []}",
-            "{name: SunJCE, version: '25', precedence: 2, services: [{type: KeyGenerator, algorithm: AES, aliases: [2.16.840.1.101.3.4.1]}]}")
+        val capture = Fixtures.CAPTURE.replace("{name: SunJCE, version: '25', precedence: 2, origin: platform, services: []}",
+            "{name: SunJCE, version: '25', precedence: 2, origin: platform, services: [{type: KeyGenerator, algorithm: AES, aliases: [2.16.840.1.101.3.4.1]}]}")
         val aliased = InventoryBuilder().build(CaptureSource.parse(codec.load(capture)), TrialSource.parse(codec.load(Fixtures.TRIAL + GENERATORS)),
             InventoryBuilder.Files("probe_x.yaml", "trial_x.yaml"))
         assertEquals(listOf("2.16.840.1.101.3.4.1"), aliased.providers.getValue("SunJCE").getValue("KeyGenerator").getValue("AES").aliases)
@@ -201,8 +201,8 @@ class PathsAndKeySourceTest {
     /** A captured type without a setup-catalog row is a coded skip, never a case on a guessed path. */
     @Test
     fun aTypeWithoutACatalogueRowIsSkipped() {
-        val capture = Fixtures.CAPTURE.replace("{name: SunJCE, version: '25', precedence: 2, services: []}",
-            "{name: SunJCE, version: '25', precedence: 2, services: [{type: KEM, algorithm: DHKEM}]}")
+        val capture = Fixtures.CAPTURE.replace("{name: SunJCE, version: '25', precedence: 2, origin: platform, services: []}",
+            "{name: SunJCE, version: '25', precedence: 2, origin: platform, services: [{type: KEM, algorithm: DHKEM}]}")
         val trial = Fixtures.TRIAL + "- provider: SunJCE\n  type: KEM\n  algorithm: DHKEM\n  instantiates: true\n  defaultRun: {works: true}\n"
         val withKem = InventoryBuilder().build(CaptureSource.parse(codec.load(capture)), TrialSource.parse(codec.load(trial)), InventoryBuilder.Files("probe_x.yaml", "trial_x.yaml"))
         val effective = EffectiveBuilder().build(GlobalDocument.parse(codec.load(Fixtures.seeded("schemaVersion: 1\nselection: {testSet: t.yaml}\n"))),

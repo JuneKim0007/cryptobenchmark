@@ -119,6 +119,14 @@ class ReuseTest {
         assertEquals("${sibling(captureFile, "trial_").name}, ${sibling(captureFile, "requirements_").name}: not written with ${captureFile.name}", reason())
     }
 
+    @Test
+    fun requirementsOfAnotherCaptureAreNotReused() {
+        val captureFile = written(FIRST, withTrial = false)
+        TrialYamlWriter(directory).write(TrialReport(FIRST, keystore = KeystoreSection(absent = "not_supported: x")))
+        RequirementYamlWriter(directory).write(RequirementReport(FIRST + 1_000, FIRST + 1_000)).renameTo(sibling(captureFile, "requirements_"))
+        assertEquals("${sibling(captureFile, "trial_").name}, ${sibling(captureFile, "requirements_").name}: not written with ${captureFile.name}", reason())
+    }
+
     /** A host requirements file is above SnakeYAML's 3 MiB default; one past the codec's limit is refused by name. */
     @Test
     fun aRequirementsFileAboveThreeMebibytesIsReusedAndOnePastTheLimitIsRefused() {
