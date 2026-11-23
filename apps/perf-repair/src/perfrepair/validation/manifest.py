@@ -13,9 +13,9 @@ def validate_manifest(manifest: BenchmarkManifest, base: Path) -> list[str]:
         for rel in value if isinstance(value, list) else [value]:
             if not (Path(base) / rel).is_file():
                 problems.append(f"files.{key}: {rel} does not exist")
-    precedence = sorted(p.precedence for p in manifest.providers)
+    precedence = [p.precedence for p in manifest.providers]
     if precedence != list(range(1, len(precedence) + 1)):
-        problems.append(f"provider precedence {precedence} is not 1..{len(precedence)}")
+        problems.append(f"providers precedence {precedence}, not 1..{len(precedence)} in list order")
     if len({p.name for p in manifest.providers}) != len(manifest.providers):
         problems.append("a provider is listed twice")
     for count, key in COUNTED_BY.items():

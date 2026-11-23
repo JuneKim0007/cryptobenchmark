@@ -17,7 +17,7 @@ from cryptobench.shared.errors.input_error import InputError
 
 def default_provider(probe: Probe, providers: list[ProviderEntry], engine_type: str,
                      algorithm: str) -> tuple[str, str] | None:
-    for p in sorted(providers, key=lambda p: p.precedence):
+    for p in providers:
         name = probe.index.registered(p.name, engine_type, algorithm)
         if name is not None:
             return p.name, name

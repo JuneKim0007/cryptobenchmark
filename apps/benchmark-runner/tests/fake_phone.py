@@ -12,8 +12,8 @@ from cryptobench.shared.device import timeouts  # noqa: E402
 # the probe capture the phone reports: its runtime and providers
 RUNTIME = {"model": "probed", "sdkInt": 36, "fingerprint": "a/b/c:16/X/1:user/release-keys"}
 PROBE = {"schemaVersion": 1, "runtime": RUNTIME, "providers": [
-    {"name": "second", "precedence": 2, "services": [{"type": "t", "algorithm": "a"}]},
     {"name": "first", "precedence": 1, "services": [{"type": "t", "algorithm": "a"}, {"type": "t", "algorithm": "b"}]},
+    {"name": "second", "precedence": 2, "services": [{"type": "t", "algorithm": "a"}]},
     {"name": "empty", "precedence": 3, "services": []},
 ]}
 

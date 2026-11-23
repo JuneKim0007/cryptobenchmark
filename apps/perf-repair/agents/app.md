@@ -46,7 +46,7 @@ src/perfrepair/app/find/ignored.yaml : tooling folders no app step enters
 src/perfrepair/app/find/imports.py : whether a type name is the java.security / javax.crypto class
 src/perfrepair/app/find/scan.py : getInstance calls in one file, across lines; Site and Argument
 src/perfrepair/app/find/sources.py : source files tagged main, test or generated; build files; ignored folders: ignored.yaml's tooling and the apps.copies setting
-src/perfrepair/app/resolve.py : the only meeting of a site and the device: Primitives (probe, names, providers from the manifest); a site's provider and canonical algorithm, explicit or by manifest precedence
+src/perfrepair/app/resolve.py : the only meeting of a site and the device: Primitives (probe, names, providers from the manifest); a site's provider and canonical algorithm, explicit or the first in the manifest's provider list
 src/perfrepair/catalog/sdk-constants.yaml : data: platform constants an app passes as a name (KeyProperties fields, KeyStore.getDefaultType()) and their values, sourced
 src/perfrepair/catalog/sdk_constants.py : reader of sdk-constants.yaml: every row a value and a listed source
 src/perfrepair/scope/__init__.py : docstring only

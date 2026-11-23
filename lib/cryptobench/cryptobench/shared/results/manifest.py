@@ -68,7 +68,7 @@ def manifest(results, mode, configuration, files, problems=(), partial=None, res
         **({"run": run} if run else {}),
         "runtime": runtime(measured, captured, files),
         "providers": [{"name": p["name"], "precedence": p["precedence"], "serviceCount": len(p.get("services") or [])}
-                      for p in sorted(probe.get("providers") or [], key=lambda p: p["precedence"])],
+                      for p in probe.get("providers") or []],
         "files": {key: [path.relative_to(results).as_posix() for path in value] if isinstance(value, list)
                   else value.relative_to(results).as_posix() for key, value in files.items()},
         "counts": {count: len((measured if key == "benchmark" else load(key)).get(field) or [])

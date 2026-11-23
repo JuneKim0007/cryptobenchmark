@@ -48,7 +48,7 @@ src/perfrepair/validation/grouping/output.py : groups.json (schema 3): one group
 src/perfrepair/validation/invariants/__init__.py : run_invariants over a device folder; app_gate, the guide's check before replace; the app's source root; the items rows.json's fixed variant inits per call
 src/perfrepair/validation/invariants/__main__.py : command: every invariant of a device folder, one line each and counts; exit 1 on a blocking one
 src/perfrepair/validation/json_reply.py : any model reply: JSON, and an object; check_reply: parsed and walked against its schema
-src/perfrepair/validation/manifest.py : manifest: listed files exist, a counted key has its file, unique provider names, precedence 1..n
+src/perfrepair/validation/manifest.py : manifest: listed files exist, a counted key has its file, unique provider names, precedence 1..n in list order (the capture contract's rule)
 src/perfrepair/validation/measurements.py : measurements: known rows, registry metrics only, required ones present, ordered finite summaries, positive medians and kinds as the registry says
 src/perfrepair/validation/parse/algorithm_classify.py : gate C of algorithm-classify: one answer per listed id, allowed values, a reason
 src/perfrepair/validation/parse/grouping_assign.py : gate C of grouping-assign: an agent answer against its item, the knowledge and the signatures; a catalog group joined, never amended; an unknown generator joins no group

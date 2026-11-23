@@ -97,7 +97,7 @@ Paths relative to the device folder.
 | `run` | the run record ([Resuming a stopped run](#resuming-a-stopped-run)) of a probing or measuring run; absent from `--check` and `--interop` units |
 | `units` | `analysis.units` from `effective.yaml`: `{latency: ms\|us\|ns, throughput: MB/s\|MiB/s\|ops/s}`; every view of the run reads it (charts, summaries, perf-repair's report and renders); absent when `effective.yaml` has none, read as `{latency: ms, throughput: MB/s}` |
 | `runtime` | `benchmark.json` runtime if measured, else the probe runtime; `cpuLocked` added when clocks exist |
-| `providers` | `name`, `precedence`, `serviceCount`, sorted by precedence |
+| `providers` | `name`, `precedence`, `serviceCount`, in the capture's list order (precedence 1..n) |
 | `files` | stage outputs, paths relative to the device folder |
 | `counts` | `prepared` (`prepared.cases`), `skipped` (`skipped.skipped`), `measured` (`benchmark.cases`) |
 | `operations` | per engine type the operations the harness times, from `algorithms/engine-operations.yaml`; a type absent falls back to `TYPE_DEFAULT`, which times nothing |

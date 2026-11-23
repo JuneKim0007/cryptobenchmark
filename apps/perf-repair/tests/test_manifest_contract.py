@@ -9,6 +9,7 @@ from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.results.manifest import manifest
 from perfrepair.device.delta_merge import merge_delta
 from perfrepair.dto import BenchmarkManifest
+from perfrepair.validation import validate_manifest
 
 PROBE = {"schemaVersion": 1, "runtime": {"model": "probed", "sdkInt": 36, "fingerprint": "a/b/c:16/X/1:user/release-keys"},
          "providers": [{"name": "P", "precedence": 1, "services": [{"type": "t", "algorithm": "a"}]}]}
@@ -62,3 +63,16 @@ def test_a_delta_merge_keeps_every_field_and_writes_through_the_runner(tmp_path)
            {k: before[k] for k in ("problems", "partial", "energy", "resumed", "units", "operations")}
     assert after["files"]["benchmark"] == str(Path("benchmark/merged-s2/benchmark.json")) and after["counts"]["measured"] == 2
     assert (stored / "manifest.yaml").stat().st_mode & 0o777 == 0o600
+
+
+@pytest.mark.parametrize("precedence, problem", [
+    ([1, 2], None), ([], None),
+    ([2, 1], "providers precedence [2, 1], not 1..2 in list order"),
+    ([1, 3], "providers precedence [1, 3], not 1..2 in list order"),
+    ([0, 1], "providers precedence [0, 1], not 1..2 in list order"),
+    ([1, 1], "providers precedence [1, 1], not 1..2 in list order"),
+])
+def test_providers_precedence_is_1_to_n_in_list_order(tmp_path, precedence, problem):
+    doc = runner_manifest(tmp_path) | {"providers": [{"name": f"P{i}", "precedence": n, "serviceCount": 0} for i, n in enumerate(precedence)]}
+    problems = validate_manifest(BenchmarkManifest.from_json(doc), tmp_path)
+    assert problems == ([problem] if problem else [])
