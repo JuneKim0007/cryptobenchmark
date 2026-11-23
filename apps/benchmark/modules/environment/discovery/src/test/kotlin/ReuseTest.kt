@@ -87,9 +87,28 @@ class ReuseTest {
     }
 
     @Test
-    fun anEmptyCaptureIsRefusedWithoutACode() {
-        written(FIRST).writeText("")
-        assertTrue(reason(), reason().startsWith("invalid: refusal without a code: probe_"))
+    fun anEmptyCaptureIsNotAMapping() {
+        val captureFile = written(FIRST)
+        captureFile.writeText("")
+        assertEquals("not_a_mapping: ${captureFile.name}: the document is not a set of key: value entries", reason())
+    }
+
+    @Test
+    fun aStoredFileWithADuplicateKeyOrAnotherSchemaIsRefusedByName() {
+        val captureFile = written(FIRST)
+        val trialFile = sibling(captureFile, "trial_")
+        trialFile.appendText("capturedAtMillis: $FIRST\n")
+        assertTrue(reason(), reason().startsWith("unreadable_yaml: ${trialFile.name}: while constructing a mapping"))
+        captureFile.writeText(captureFile.readText().replace("schemaVersion: 1", "schemaVersion: 99"))
+        assertEquals("unsupported_schema_version: ${captureFile.name}: 99, this build reads 1", reason())
+    }
+
+    /** An unreadable file fails outside the versioned read's codes: Reprobe names it and the exception. */
+    @Test
+    fun anUnreadableCaptureIsRefusedWithoutACode() {
+        val captureFile = written(FIRST)
+        captureFile.setReadable(false)
+        assertTrue(reason(), reason().startsWith("invalid: refusal without a code: ${captureFile.name}: FileNotFoundException: "))
     }
 
     @Test

@@ -1,6 +1,5 @@
 package io.github.junekim0007.cryptobench.discovery
 
-import io.github.junekim0007.cryptobench.document.SchemaVersion
 import io.github.junekim0007.cryptobench.contract.trial.DefaultRunOutcome
 import io.github.junekim0007.cryptobench.contract.trial.KeystoreRow
 import io.github.junekim0007.cryptobench.contract.trial.KeystoreSection
@@ -10,10 +9,12 @@ import io.github.junekim0007.cryptobench.contract.trial.TrialOutcome
 import io.github.junekim0007.cryptobench.contract.trial.TrialReport
 import io.github.junekim0007.cryptobench.contract.trial.TriedKey
 import io.github.junekim0007.cryptobench.contract.trial.TrialDocument
-import io.github.junekim0007.cryptobench.document.YamlCodec
+import io.github.junekim0007.cryptobench.discovery.write.ProbeDirectory
+import io.github.junekim0007.cryptobench.discovery.write.TrialYamlWriter
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Test
+import java.nio.file.Files
 
 class TrialDocumentTest {
 
@@ -40,9 +41,10 @@ class TrialDocumentTest {
     )
 
     @Test
-    fun roundTripsThroughYaml() {
-        val codec = YamlCodec.CAPTURE
-        assertEquals(report, TrialDocument.parse(codec.load(codec.dump(TrialDocument.of(report)))))
+    fun roundTripsThroughTheWrittenFile() {
+        val folder = Files.createTempDirectory("trial").toFile()
+        assertEquals(report, TrialDocument.read(TrialYamlWriter(ProbeDirectory(folder)).write(report)))
+        folder.deleteRecursively()
     }
 
     @Test
@@ -55,13 +57,9 @@ class TrialDocumentTest {
         assertThrows(IllegalArgumentException::class.java) { KeystoreSection(report.keystore!!.rows, absent = "x") }
     }
 
-    /** Another schema is refused, and an outcome carries an error exactly when it fails. */
+    /** An outcome carries an error exactly when it fails. */
     @Test
     fun refusesWhatCannotBeTrue() {
-        val document = LinkedHashMap(TrialDocument.of(report))
-        document[SchemaVersion.FIELD] = TrialReport.SCHEMA_VERSION + 1
-        val error = assertThrows(IllegalArgumentException::class.java) { TrialDocument.parse(document) }
-        assertEquals("unsupported_schema_version", error.message!!.substringBefore(':'))
         assertThrows(IllegalArgumentException::class.java) { TrialOutcome(instantiates = true, error = "x") }
         assertThrows(IllegalArgumentException::class.java) { TrialOutcome(instantiates = false) }
     }

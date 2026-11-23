@@ -11,7 +11,7 @@ modules:
   contract:
     uses:
       files: [StampedName]
-      document: [SchemaVersion, DocumentFields]
+      document: [SchemaVersion, DocumentFields, versioned.DocumentReader, versioned.VersionedFile, versioned.YamlFiles]
   discovery:
     uses:
       jca: [bind.BindException, bind.BindPolicy, bind.BoundParameters, bind.ParameterBinder, failure.Attempt, failure.ErrorText, peer.PeerPair, reflect.Reflect]

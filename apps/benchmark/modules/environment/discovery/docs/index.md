@@ -85,7 +85,7 @@ apps/benchmark/modules/environment/discovery/src/test/kotlin/ProviderProbeTest.k
 apps/benchmark/modules/environment/discovery/src/test/kotlin/RecipeTreesContractTest.kt : tests/contracts/catalogue/recipe-trees.yaml: document's Recipes makes every recipe row's tree or refusal as Python's parameter_tree
 apps/benchmark/modules/environment/discovery/src/test/kotlin/RequirementTrialTest.kt : requirement trial against the live JVM and made-up providers
 apps/benchmark/modules/environment/discovery/src/test/kotlin/ResetRunTest.kt : reset test against the live JVM
-apps/benchmark/modules/environment/discovery/src/test/kotlin/ReuseTest.kt : reusable tests: each Reprobe reason, a requirements file above 3 MiB reused
+apps/benchmark/modules/environment/discovery/src/test/kotlin/ReuseTest.kt : reusable tests: each Reprobe reason (not_a_mapping, duplicate key, schemaVersion 99, unreadable file), a requirements file above 3 MiB reused
 apps/benchmark/modules/environment/discovery/src/test/kotlin/ServiceAttributesTest.kt : ServiceAttributes tests
 apps/benchmark/modules/environment/discovery/src/test/kotlin/ServiceKeyTest.kt : ServiceKey tests
 apps/benchmark/modules/environment/discovery/src/test/kotlin/TrialDocumentTest.kt : trial schema tests

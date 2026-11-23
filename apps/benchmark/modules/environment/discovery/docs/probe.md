@@ -116,9 +116,9 @@ Shape and install errors are `BundledProviderException` with a `code`; an entry'
 | check | `Reprobe` reason |
 |---|---|
 | a `probe_<stamp>.yaml` exists | `no capture in <directory>` |
-| the newest one reads as a versioned file (`:document` `VersionedFile`, CAPTURE codec) | its refusal: `<code>: <file>: <detail>`, first line |
+| the newest one reads through contract's `CaptureDocument.read` (`:document` `VersionedFile`, DOCUMENT codec: duplicate keys and non-mappings refused) | its refusal: `<code>: <file>: <detail>`, first line |
 | its `runtime` equals the given runtime | `<file>: captured on another runtime` |
-| sibling `trial_` and `requirements_` files read | `missing_file: <path>`, or the refusal |
+| sibling `trial_` and `requirements_` files read (`TrialDocument.read`, `RequirementDocument.read`) | `missing_file: <path>`, or the refusal |
 | the trial has its `keystore` section | `missing_field: <file>: keystore` |
 | their `capturedAtMillis` equals the capture's | `<trial>, <requirements>: not written with <capture>` |
 | an uncoded failure | `invalid: refusal without a code: <file>: <exception>` |

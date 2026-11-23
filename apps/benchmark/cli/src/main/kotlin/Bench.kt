@@ -4,7 +4,6 @@ import io.github.junekim0007.cryptobench.benchmark.report.BenchmarkJson
 import io.github.junekim0007.cryptobench.benchmark.report.ResultRow
 import io.github.junekim0007.cryptobench.benchmark.run.HostHarness
 import io.github.junekim0007.cryptobench.contract.capture.CaptureDocument
-import io.github.junekim0007.cryptobench.document.YamlCodec
 import io.github.junekim0007.cryptobench.files.FileNames
 import java.io.File
 import java.lang.management.ManagementFactory
@@ -14,7 +13,7 @@ import java.lang.management.ManagementFactory
 fun main(arguments: Array<String>) = command(arguments, "<capture> <trial> <${FileNames.EFFECTIVE}> <benchmark output directory> <preparation directory> <order file>", { it.size == 6 }) {
     val preparationDirectory = File(arguments[4])
     val plan = hostPlan(File(arguments[0]), File(arguments[1]), File(arguments[2]), preparationDirectory.apply { mkdirs() })
-    val capture = CaptureDocument.parse(YamlCodec.CAPTURE.load(File(arguments[0]).readText()))
+    val capture = CaptureDocument.read(File(arguments[0]))
     val output = BenchmarkJson(File(arguments[3]).apply { mkdirs() })
     val orderText = File(arguments[5]).readText()
     val runnable = plan.preparedAll(File(arguments[2]))

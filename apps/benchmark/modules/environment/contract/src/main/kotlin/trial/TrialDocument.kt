@@ -1,7 +1,8 @@
 package io.github.junekim0007.cryptobench.contract.trial
 
-import io.github.junekim0007.cryptobench.files.StampedName
 import io.github.junekim0007.cryptobench.document.SchemaVersion
+import io.github.junekim0007.cryptobench.document.versioned.DocumentReader
+import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import io.github.junekim0007.cryptobench.document.DocumentFields.boolean
 import io.github.junekim0007.cryptobench.document.DocumentFields.number
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalBoolean
@@ -12,8 +13,11 @@ import io.github.junekim0007.cryptobench.document.DocumentFields.section
 import io.github.junekim0007.cryptobench.document.DocumentFields.sections
 import io.github.junekim0007.cryptobench.document.DocumentFields.sectionsIfKeyPresent
 import io.github.junekim0007.cryptobench.document.DocumentFields.string
+import java.io.File
 
-object TrialDocument {
+object TrialDocument : DocumentReader<TrialReport> {
+
+    override val schemaVersion = TrialReport.SCHEMA_VERSION
 
     private const val CAPTURED_AT_MILLIS = "capturedAtMillis"
     private const val SERVICES = "services"
@@ -59,8 +63,10 @@ object TrialDocument {
         report.keystore?.let { put(KEYSTORE, keystoreDocument(it)) }
     }
 
-    fun parse(document: Map<String, Any>): TrialReport {
-        SchemaVersion.require(document, TrialReport.SCHEMA_VERSION, StampedName.TRIAL)
+    // the one read of a stored file: VersionedFile on the DOCUMENT codec
+    fun read(file: File): TrialReport = YamlFiles().readOnly(file, this).read()
+
+    override fun parse(document: Map<String, Any>): TrialReport {
         val schemaVersion = number(document, SchemaVersion.FIELD).toInt()
         return TrialReport(
             capturedAtMillis = number(document, CAPTURED_AT_MILLIS).toLong(),

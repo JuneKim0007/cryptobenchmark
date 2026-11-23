@@ -1,7 +1,8 @@
 package io.github.junekim0007.cryptobench.contract.capture
 
-import io.github.junekim0007.cryptobench.files.StampedName
 import io.github.junekim0007.cryptobench.document.SchemaVersion
+import io.github.junekim0007.cryptobench.document.versioned.DocumentReader
+import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import io.github.junekim0007.cryptobench.document.DocumentFields.number
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSection
 import io.github.junekim0007.cryptobench.document.DocumentFields.sectionsIfKeyPresent
@@ -10,8 +11,11 @@ import io.github.junekim0007.cryptobench.document.DocumentFields.section
 import io.github.junekim0007.cryptobench.document.DocumentFields.sections
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalString
 import io.github.junekim0007.cryptobench.document.DocumentFields.string
+import java.io.File
 
-object CaptureDocument {
+object CaptureDocument : DocumentReader<CapturedEnvironment> {
+
+    override val schemaVersion = CapturedEnvironment.SCHEMA_VERSION
 
     private const val CAPTURED_AT_MILLIS = "capturedAtMillis"
     private const val DEVICE_CLOCK_MILLIS = "deviceClockMillis"
@@ -52,8 +56,10 @@ object CaptureDocument {
         PROVIDERS to environment.providers.map { providerDocument(it) },
     )
 
-    fun parse(document: Map<String, Any>): CapturedEnvironment {
-        SchemaVersion.require(document, CapturedEnvironment.SCHEMA_VERSION, StampedName.PROBE)
+    // the one read of a stored file: VersionedFile on the DOCUMENT codec
+    fun read(file: File): CapturedEnvironment = YamlFiles().readOnly(file, this).read()
+
+    override fun parse(document: Map<String, Any>): CapturedEnvironment {
         val schemaVersion = number(document, SchemaVersion.FIELD).toInt()
         return CapturedEnvironment(
             runtime = runtimeEntry(section(document, RUNTIME)),

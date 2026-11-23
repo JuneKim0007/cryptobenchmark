@@ -1,17 +1,17 @@
 package io.github.junekim0007.cryptobench.discovery
 
-import io.github.junekim0007.cryptobench.document.SchemaVersion
 import io.github.junekim0007.cryptobench.discovery.adapter.DeviceRuntimeReader
 import io.github.junekim0007.cryptobench.discovery.adapter.ProviderProbe
-import io.github.junekim0007.cryptobench.contract.capture.CapturedEnvironment
 import io.github.junekim0007.cryptobench.contract.capture.ProviderOrigin
 import io.github.junekim0007.cryptobench.contract.capture.RuntimeInfo
 import io.github.junekim0007.cryptobench.contract.capture.CaptureDocument
-import io.github.junekim0007.cryptobench.document.YamlCodec
+import io.github.junekim0007.cryptobench.discovery.write.EnvironmentYamlWriter
+import io.github.junekim0007.cryptobench.discovery.write.ProbeDirectory
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.nio.file.Files
 import java.security.Security
 
 /** Encode and decode live on one object so a key renamed on one side fails here, not in a reader. */
@@ -20,16 +20,16 @@ class CaptureDocumentTest {
     private val capture = CAPTURE
 
     @Test
-    fun roundTripsThroughTheDocumentAndThroughYaml() {
-        val codec = YamlCodec.CAPTURE
+    fun roundTripsThroughTheDocumentAndThroughTheWrittenFile() {
         assertEquals(capture, CaptureDocument.parse(CaptureDocument.of(capture)))
-        assertEquals(capture, CaptureDocument.parse(codec.load(codec.dump(CaptureDocument.of(capture)))))
+        val folder = Files.createTempDirectory("capture").toFile()
+        assertEquals(capture, CaptureDocument.read(EnvironmentYamlWriter(ProbeDirectory(folder)).write(capture)))
+        folder.deleteRecursively()
     }
 
     @Test
     fun refusesAndNamesWhatIsWrong() {
         val damages: List<Pair<(MutableMap<String, Any>) -> Unit, String>> = listOf(
-            { document: MutableMap<String, Any> -> document[SchemaVersion.FIELD] = CapturedEnvironment.SCHEMA_VERSION + 1 } to "unsupported_schema_version",
             { document: MutableMap<String, Any> -> document.remove("providers"); Unit } to "missing_field: providers",
             { document: MutableMap<String, Any> -> document["runtime"] = "not a section" } to "wrong_type: runtime",
             { document: MutableMap<String, Any> -> document["providers"] = providersWithout(document, "origin") } to "missing_field: origin",

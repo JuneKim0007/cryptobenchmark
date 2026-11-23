@@ -1,7 +1,8 @@
 package io.github.junekim0007.cryptobench.contract.requirements
 
-import io.github.junekim0007.cryptobench.files.StampedName
 import io.github.junekim0007.cryptobench.document.SchemaVersion
+import io.github.junekim0007.cryptobench.document.versioned.DocumentReader
+import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import io.github.junekim0007.cryptobench.document.DocumentFields.number
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalSection
 import io.github.junekim0007.cryptobench.document.DocumentFields.optionalString
@@ -10,8 +11,11 @@ import io.github.junekim0007.cryptobench.document.DocumentFields.section
 import io.github.junekim0007.cryptobench.document.DocumentFields.sections
 import io.github.junekim0007.cryptobench.document.DocumentFields.sectionsIfKeyPresent
 import io.github.junekim0007.cryptobench.document.DocumentFields.string
+import java.io.File
 
-object RequirementDocument {
+object RequirementDocument : DocumentReader<RequirementReport> {
+
+    override val schemaVersion = RequirementReport.SCHEMA_VERSION
 
     private const val CAPTURED_AT_MILLIS = "capturedAtMillis"
     private const val DEVICE_CLOCK_MILLIS = "deviceClockMillis"
@@ -50,8 +54,10 @@ object RequirementDocument {
         KEY_CACHE to linkedMapOf(GENERATED to report.keyCache.generated, REFUSED to report.keyCache.refused, REUSED to report.keyCache.reused, GENERATION_MILLIS to report.keyCache.generationMillis),
     )
 
-    fun parse(document: Map<String, Any>): RequirementReport {
-        SchemaVersion.require(document, RequirementReport.SCHEMA_VERSION, StampedName.REQUIREMENTS)
+    // the one read of a stored file: VersionedFile on the DOCUMENT codec
+    fun read(file: File): RequirementReport = YamlFiles().readOnly(file, this).read()
+
+    override fun parse(document: Map<String, Any>): RequirementReport {
         val schemaVersion = number(document, SchemaVersion.FIELD).toInt()
         val cache = section(document, KEY_CACHE)
         return RequirementReport(

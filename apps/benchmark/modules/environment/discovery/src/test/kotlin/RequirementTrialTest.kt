@@ -162,6 +162,7 @@ class RequirementTrialTest {
         val codec = YamlCodec.CAPTURE
         val file = RequirementYamlWriter(ProbeDirectory(folder)).write(JVM)
         assertEquals(codec.dump(RequirementDocument.of(JVM)), file.readText())
+        assertEquals(JVM, RequirementDocument.read(file))
         folder.deleteRecursively()
     }
 

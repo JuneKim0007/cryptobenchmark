@@ -28,15 +28,14 @@ class SchemaRefusalsTest {
 
     @Test
     fun everyReaderRefusesAnUnsupportedVersionWithOneText() {
-        val wrong = mapOf<String, Any>("schemaVersion" to 99)
         val file = folder.newFile("probe_x.yaml").apply { writeText("schemaVersion: 99\n") }
         val table = linkedMapOf(
             "document AlgorithmNames" to refusal { AlgorithmNames.read("schemaVersion: 99\n") },
             "config VersionedFile" to refusal { YamlFiles().readOnly(file, CaptureSource).read() },
             "preparation SkipFile" to refusal { SkipFile(folder.newFolder().apply { resolve("skipped.yaml").writeText("schemaVersion: 99\n") }).read() },
-            "discovery CaptureDocument" to refusal { CaptureDocument.parse(wrong) },
-            "discovery TrialDocument" to refusal { TrialDocument.parse(wrong) },
-            "discovery RequirementDocument" to refusal { RequirementDocument.parse(wrong) },
+            "contract CaptureDocument" to refusal { CaptureDocument.read(file) },
+            "contract TrialDocument" to refusal { TrialDocument.read(folder.newFile("trial_x.yaml").apply { writeText("schemaVersion: 99\n") }) },
+            "contract RequirementDocument" to refusal { RequirementDocument.read(folder.newFile("requirements_x.yaml").apply { writeText("schemaVersion: 99\n") }) },
             "benchmark EnergyWindows" to refusal { EnergyWindows.read("{\"schemaVersion\": 99}") },
             "benchmark EnergyCapability" to refusal { EnergyCapability.parse("{\"schemaVersion\": 99}") },
         ).entries.joinToString("\n") { (reader, text) -> "$reader | $text" }
@@ -49,9 +48,9 @@ class SchemaRefusalsTest {
             document AlgorithmNames | unsupported_schema_version: algorithm-names.yaml: 99, this build reads 1
             config VersionedFile | unsupported_schema_version: probe_x.yaml: 99, this build reads 1
             preparation SkipFile | unsupported_schema_version: skipped.yaml: 99, this build reads 2
-            discovery CaptureDocument | unsupported_schema_version: probe: 99, this build reads 1
-            discovery TrialDocument | unsupported_schema_version: trial: 99, this build reads 3
-            discovery RequirementDocument | unsupported_schema_version: requirements: 99, this build reads 1
+            contract CaptureDocument | unsupported_schema_version: probe_x.yaml: 99, this build reads 1
+            contract TrialDocument | unsupported_schema_version: trial_x.yaml: 99, this build reads 3
+            contract RequirementDocument | unsupported_schema_version: requirements_x.yaml: 99, this build reads 1
             benchmark EnergyWindows | unsupported_schema_version: energy.json: 99, this build reads 3
             benchmark EnergyCapability | unsupported_schema_version: energy.yaml: 99, this build reads 3
         """.trimIndent()
