@@ -14,8 +14,6 @@ Authored settings: `config/benchmark/global.yaml` and `config/benchmark/testsets
 
 The tests' own global and test-set files (`global-check.yaml` for CI's end-to-end check, `global-smoke.yaml`) are in `apps/benchmark-runner/tests/fixtures/config/`.
 
-Primitive and provider catalogue: `docs/cryptography/primitives.md`.
-
 ## global.yaml
 
 `selection.knownVectors` (optional): a folder of `<family>.yaml` known answers read by `--check` beside the packaged ones, relative to the global file; a missing folder stops the run. A user vector needs no catalogue link: it reaches every case it matches by type, algorithm or an alias, operation and key size, and one that matches no case of the run is an `orphan_vector` warning.

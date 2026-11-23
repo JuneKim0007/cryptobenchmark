@@ -27,7 +27,6 @@ python3 apps/cli/facade.py --settings config/facade/settings.yaml           # be
 | [docs/run.md](docs/run.md) | prerequisites, `apps/benchmark-runner/pipeline.py` flags, device runs |
 | [docs/architecture.md](docs/architecture.md) | modules, dependencies, stage files |
 | [docs/results.md](docs/results.md) | `results/<device_id>/` layout and `manifest.yaml` |
-| [docs/cryptography/index.md](docs/cryptography/index.md) | configured primitives and providers |
 | [docs/index.md](docs/index.md) | every cross-module doc |
 | [apps/perf-repair/README.md](apps/perf-repair/README.md) | crypto replacements worth testing in an app |
 

@@ -6,7 +6,7 @@
 - reviews and refactors: complexity, dead code, duplication, coverage, dependency commands → `docs/contributing/review.md`
 - device runs: prerequisites, adb, `--suppress-errors`, core pinning, energy on a device → `docs/contributing/device.md`
 - docs, guides, file maps, READMEs, any `.md` change → `docs/contributing/writing.md`
-- cross-module facts: architecture, run, results, energy, tools, cryptography catalogue → `docs/index.md`
+- cross-module facts: architecture, run, results, energy, tools → `docs/index.md`
 - contract: capture, trial and requirements models and their YAML schemas → `apps/benchmark/modules/environment/contract/docs/index.md`
 - discovery: probe, trial, capture fields → `apps/benchmark/modules/environment/discovery/docs/index.md`
 - config: authored files, inventory, effective, precedence → `apps/benchmark/modules/config/docs/index.md`

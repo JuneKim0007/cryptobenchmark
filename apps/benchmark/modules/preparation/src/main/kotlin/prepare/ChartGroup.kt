@@ -2,7 +2,7 @@ package io.github.junekim0007.cryptobench.preparation.prepare
 
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
 
-/** Which cases a chart may compare. Ids are stable; names follow docs/cryptography/primitives.md. Unidentified is always 0. */
+/** Which cases a chart may compare. Ids are stable. Unidentified is always 0. */
 enum class ChartGroup(val id: Int, val label: String) {
     UNIDENTIFIED(0, "unidentified"),
     SYMMETRIC_CIPHER(1, "symmetric-cipher"),
