@@ -23,7 +23,9 @@ class VersionedFile<T> internal constructor(
         val document = try {
             codec.load(text)
         } catch (failure: YAMLException) {
-            throw IllegalArgumentException("unreadable_yaml: ${file.name}: ${failure.message}", failure)
+            throw IllegalArgumentException(FileRefusal.of(file.name, "unreadable_yaml: ${failure.message}"), failure)
+        } catch (failure: IllegalArgumentException) {
+            throw IllegalArgumentException(FileRefusal.of(file.name, failure.message.orEmpty()), failure)
         }
         SchemaVersion.require(document, reader.schemaVersion, file.name)
         return try {

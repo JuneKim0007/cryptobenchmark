@@ -35,6 +35,18 @@ class DocumentIoTest {
     }
 
     @Test
+    fun aDocumentThatIsNotAMappingIsRefusedNamingTheFile() {
+        val reader = object : DocumentReader<Unit> {
+            override val schemaVersion = 1
+            override fun parse(document: Map<String, Any>) = Unit
+        }
+        listOf("", "- a\n- b\n").forEach { text ->
+            val refused = assertThrows(IllegalArgumentException::class.java) { YamlFiles().readOnly(File("x.yaml"), reader).read(text) }
+            assertEquals("not_a_mapping: x.yaml: the document is not a set of key: value entries", refused.message)
+        }
+    }
+
+    @Test
     fun aRefusalWithoutACodeIsRefusedAsItIsAndADetailKeepsItsColons() {
         assertEquals("invalid: refusal without a code: x.yaml: precedence is 1-based, was 0", FileRefusal.of("x.yaml", "precedence is 1-based, was 0"))
         assertEquals("invalid: refusal without a code: x.yaml: ", FileRefusal.of("x.yaml", ""))
