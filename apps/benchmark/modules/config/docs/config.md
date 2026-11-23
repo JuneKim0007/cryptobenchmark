@@ -10,7 +10,7 @@ Authored settings: `config/benchmark/global.yaml` and `config/benchmark/testsets
 
 | test set | contents |
 |---|---|
-| `testsets/default_predefined.yaml` | paper tiers 1–4 on AndroidOpenSSL, BundledConscrypt, BundledBC and AndroidKeyStore: operations `variants: [fixed, notFixed]`, software key generation `[fixed]`, AndroidKeyStore `[secure]`; then breadth, BouncyCastle-only, legacy, post-quantum and AndroidKeyStore rows; one provider-less rule per JCA type adds every other inventory primitive at provider-chosen parameters; per-row overrides, `Cipher RSA/*` inputSizes `[32]`; no excludes |
+| `testsets/default_predefined.yaml` | one provider-less rule per JCA type: every inventory primitive at provider-chosen parameters; one example row, `Cipher AES/GCM/NoPadding` with `variants: [fixed, notFixed]` and its override of key sizes, operations and input size; no excludes |
 
 The tests' own global and test-set files (`global-check.yaml` for CI's end-to-end check, `global-smoke.yaml`) are in `apps/benchmark-runner/tests/fixtures/config/`.
 
