@@ -67,19 +67,6 @@ def test_probe_aliases_add_names_the_catalog_lacks(names):
     assert merged.canonical("Cipher", "vendorgcm") == Canonical("AES/GCM/NoPadding")
 
 
-def test_a_probe_alias_the_catalog_names_otherwise_keeps_the_catalog_name(names):
-    merged = _probe(("P", "Cipher", "RSA/ECB/OAEPWithSHA-256AndMGF1Padding",
-                     ["RSA/None/OAEPWithSHA-224AndMGF1Padding"])).names(names)
-    assert merged.conflicts[("Cipher", "RSA/NONE/OAEPWITHSHA-224ANDMGF1PADDING")].startswith("catalog says")
-    assert merged.canonical("Cipher", "RSA/None/OAEPWithSHA-224AndMGF1Padding").name == "RSA/ECB/OAEPWithSHA-224AndMGF1Padding"
-
-
-def test_two_providers_that_alias_one_spelling_apart_conflict(names):
-    merged = _probe(("P", "KeyStore", "Foo", ["Bar"]), ("Q", "KeyStore", "Baz", ["bar"])).names(names)
-    with pytest.raises(NamesError, match="P says Foo, Q says Baz"):
-        merged.canonical("KeyStore", "BAR")
-
-
 def test_key_formats_resolve_case_insensitively(names):
     assert names.key_format("pkcs#8") == Canonical("PKCS#8")
     assert not names.key_format("PEM").known

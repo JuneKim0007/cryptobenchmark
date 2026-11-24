@@ -1,0 +1,22 @@
+# The capture's provider aliases over the names file, as both languages merge them in capture order. A user lookup (a rule
+# name) gives canonical or refused; a registered lookup (a service's own name) gives key, never a refusal.
+schemaVersion: 1
+capture:
+- {provider: P, type: Cipher, algorithm: AES/GCM/NoPadding, aliases: [VENDORGCM]}
+- {provider: Q, type: Cipher, algorithm: AES_128/GCM/NoPadding, aliases: [vendorgcm128]}
+- {provider: Q, type: Cipher, algorithm: aes/gcm/nopadding, aliases: [vendorgcm]}
+- {provider: P, type: Cipher, algorithm: RSA/ECB/OAEPWithSHA-256AndMGF1Padding, aliases: [RSA/None/OAEPWithSHA-224AndMGF1Padding]}
+- {provider: P, type: MessageDigest, algorithm: SHA-256, aliases: [SHA256]}
+- {provider: P, type: KeyStore, algorithm: Foo, aliases: [Bar]}
+- {provider: Q, type: KeyStore, algorithm: Baz, aliases: [bar]}
+conflicts:
+- {type: Cipher, alias: RSA/NONE/OAEPWITHSHA-224ANDMGF1PADDING, why: "catalog says RSA/ECB/OAEPWithSHA-224AndMGF1Padding; P says RSA/ECB/OAEPWithSHA-256AndMGF1Padding"}
+- {type: KeyStore, alias: BAR, why: "P says Foo, Q says Baz"}
+lookups:
+- {type: Cipher, name: vendorgcm, canonical: {name: AES/GCM/NoPadding, keySize: null, known: true}, key: [AES/GCM/NOPADDING, null]}
+- {type: Cipher, name: VendorGcm128, canonical: {name: AES/GCM/NoPadding, keySize: 128, known: true}, key: [AES/GCM/NOPADDING, 128]}
+- {type: Cipher, name: RSA/None/OAEPWithSHA-224AndMGF1Padding, canonical: {name: RSA/ECB/OAEPWithSHA-224AndMGF1Padding, keySize: null, known: true}, key: [RSA/ECB/OAEPWITHSHA-224ANDMGF1PADDING, null]}
+- {type: MessageDigest, name: sha256, canonical: {name: SHA-256, keySize: null, known: true}, key: [SHA-256, null]}
+- {type: KeyStore, name: BAR, refused: "name_conflict: KeyStore BAR: P says Foo, Q says Baz", key: [BAR, null]}
+- {type: KeyStore, name: Foo, canonical: {name: Foo, keySize: null, known: false}, key: [FOO, null]}
+- {type: Mac, name: VENDORGCM, canonical: {name: VENDORGCM, keySize: null, known: false}, key: [VENDORGCM, null]}

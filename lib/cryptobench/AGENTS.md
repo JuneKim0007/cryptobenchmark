@@ -37,12 +37,14 @@ cryptobench/shared/catalogue/groups.py : reader of groups.yaml, checked whole: o
 cryptobench/shared/catalogue/guide_items.py : guide_items: what the guide says for one effective.yaml's items at this device's builds
 cryptobench/shared/catalogue/interchange.py : reader of interchange.yaml: engines, rules by canonical name; a component outside its splits is refused
 cryptobench/shared/catalogue/key_types.py : a spelling's catalogue entry; its key.type as every build of a provider gives it, none when they differ; two key types compared through the names file's keyTypes
+cryptobench/shared/catalogue/name_layers.py : merged: the capture's provider aliases over the names file in capture order; the base answers every spelling it knows; conflicts recorded (base-known: catalog wins; base-unknown meant two ways: name_conflict on a user lookup)
 cryptobench/shared/catalogue/names.py : the names reader: Canonical (name, keySize, known), engine types (what detection scans), fold, same_engine, key formats, key types, linkage refusals (sized and named, OID. split), name_conflict, key_or_spelling (a conflict keys by its spelling)
 cryptobench/shared/catalogue/overrides.py : a provider override's path in an entry, and one build's differences applied to a copy
 cryptobench/shared/catalogue/provider_builds.py : reads provider-builds.yaml, registered ids canonical; a build key from what a probe records; a name resolves to one key or is provider_build_unknown
 cryptobench/shared/catalogue/recipes.py : reads recipes.yaml, checked whole: one form per recipe, every word and each role's make and lives against the glossary, typed arguments, nested recipes present; the roles a recipe passes
 cryptobench/shared/catalogue/reinit.py : whether init runs before every use of an operation, from one build's view of an entry
 cryptobench/shared/catalogue/signature.py : Signature and its components, known, convention or unknown; decided, assumed, identity, differing
+cryptobench/shared/catalogue/tests/ : pytest tests of the name layers over tests/contracts/catalogue/name-layers-cases.yaml
 cryptobench/shared/catalogue/types.py : TypeRow: an algorithm's output kind, Properties, Strength, minSdk and their sources
 cryptobench/shared/catalogue/vectors.py : known answers: read and checked whole, user vectors matched to cases by name, filled per provider for one run, --check's coverage lines
 cryptobench/shared/catalogue/views.py : what an agent is shown: one entry with only its provider build's overrides (view_for), the groups' ids, descriptions and exemplars (list_groups), one group's members a page at a time (get_group)

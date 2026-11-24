@@ -8,7 +8,7 @@ from typing import Callable
 from cryptobench.shared.catalogue.names import Names
 from ....files import read_document
 from ._index import ProbeIndex, index_of
-from ._names import merged
+from ._names import capture_names
 from ._services import attributes_of, class_names_of, generator_kind
 
 
@@ -30,7 +30,7 @@ class Probe:
         return index_of(self._document, self._source)
 
     def names(self, base: Names) -> Names:
-        return merged(base, self._document)
+        return capture_names(base, self._document)
 
     def attributes(self, provider: str, engine_type: str, algorithm: str) -> dict:
         return self._attributes.get((provider, engine_type, algorithm), {})
