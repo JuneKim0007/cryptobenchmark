@@ -33,12 +33,14 @@ def test_a_spelling_under_two_canonical_names_is_refused(tmp_path):
         Names.load(path)
 
 
-def test_a_names_file_without_spellings_is_refused_with_a_code(tmp_path):
+@pytest.mark.parametrize("body,said", [("sized: {}\n", "no spellings: section"), ("spellings: [SHA-1]\n", "spellings: is not a mapping"),
+                                       ("spellings: SHA-1\n", "spellings: is not a mapping")])
+def test_a_names_file_without_a_spellings_mapping_is_refused_with_a_code(tmp_path, body, said):
     path = tmp_path / "names.yaml"
-    path.write_text("schemaVersion: 2\nsized: {}\n")
+    path.write_text("schemaVersion: 2\n" + body)
     with pytest.raises(NamesError) as refused:
         Names.load(path)
-    assert str(refused.value) == f"names_schema: {path}: no spellings: section"
+    assert str(refused.value) == f"names_schema: {path}: {said}"
 
 
 @pytest.mark.parametrize("body,code", [

@@ -91,7 +91,9 @@ class Names:
     @classmethod
     def load(cls, path: Path = CATALOG) -> "Names":
         doc = NAMES_DOC.read(path, "names_schema")
-        problems = names_problems(doc) + ([] if isinstance(doc.get(SPELLINGS), dict) else [f"no {SPELLINGS}: section"])
+        if not isinstance(doc.get(SPELLINGS), dict):
+            raise NamesError(f"names_schema: {path}: " + (f"no {SPELLINGS}: section" if doc.get(SPELLINGS) is None else f"{SPELLINGS}: is not a mapping"))
+        problems = names_problems(doc)
         if problems:
             raise NamesError(f"names_schema: {path}: " + "; ".join(problems))
         names = {t: _folded(spellings) for t, spellings in doc[SPELLINGS].items()}

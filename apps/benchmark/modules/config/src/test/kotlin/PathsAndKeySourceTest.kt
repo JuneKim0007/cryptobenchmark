@@ -210,6 +210,7 @@ class PathsAndKeySourceTest {
                 "- match: {name: RSA}\n  set: {key: {algorithm: VENDORAES, provider: SUN}}\n")), aliased, names)
         assertEquals(listOf("AES", "RSA"), effective.providers.getValue("SunJCE").getValue("Cipher").keys.toList())
         assertEquals(listOf("no_key_generator: SunJCE registers no KeyGenerator or KeyPairGenerator VENDORAES"), effective.skipped.map { it.reason })
+        assertEquals(emptyList<String>(), effective.warnings.filter { "alias_conflict" in it })
     }
 
     /** A captured type without a setup-catalog row is a coded skip, never a case on a guessed path. */
