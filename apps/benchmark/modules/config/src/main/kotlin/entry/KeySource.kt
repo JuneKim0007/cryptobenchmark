@@ -1,6 +1,7 @@
 package io.github.junekim0007.cryptobench.config.entry
 
 import io.github.junekim0007.cryptobench.config.inventory.dto.Inventory
+import io.github.junekim0007.cryptobench.contract.trial.KeystoreRow
 import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 
 /** An entry key's algorithm, provider and backing, beside its spec: written ones checked; neither algorithm nor provider written leaves the measured key. */
@@ -12,14 +13,12 @@ object KeySource {
     const val ANY = "any"
     const val BACKING = "backing"
     val KEYS = listOf(ALGORITHM, PROVIDER, BACKING)
-    // where a secure key is born: tee unless strongbox is written
-    val BACKINGS = listOf("tee", "strongbox")
 
     fun named(key: Map<String, Any>): Boolean = KEYS.mapNotNull { key[it] }.all { it is String && it.isNotBlank() }
 
     /** The refusal of a written key source on this device, null when it holds or nothing is written. */
     fun refusal(key: Map<String, Any>, located: Inventory.Located, inventory: Inventory): String? {
-        key[BACKING]?.takeIf { it !in BACKINGS }?.let { return "invalid: key.$BACKING $it, one of $BACKINGS" }
+        key[BACKING]?.takeIf { it !in KeystoreRow.BACKINGS }?.let { return "invalid: key.$BACKING $it, one of ${KeystoreRow.BACKINGS}" }
         val written = key[PROVIDER] as String?
         if (written == null && key[ALGORITHM] == null) return null
         val candidates = when {

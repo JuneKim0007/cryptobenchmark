@@ -23,7 +23,7 @@ class ConfigurationTest {
         val globalBefore = global.readText()
         configuration.inventory(capture, trial).appendText("# stale\n")
         configuration.inventory(capture, trial)
-        configuration.effective(global)
+        configuration.effective(global, notes = emptyList())
         assertTrue(!configuration.inventoryFile.readText().contains("# stale"))
         assertEquals(globalBefore, global.readText())
     }
@@ -33,15 +33,15 @@ class ConfigurationTest {
     fun aBadFileIsNamed() {
         configuration.inventory(capture, trial)
         val missingGlobal = File(directory, "nowhere/global.yaml")
-        assertEquals("missing_file: ${missingGlobal.path}", assertThrows(IllegalArgumentException::class.java) { configuration.effective(missingGlobal) }.message)
+        assertEquals("missing_file: ${missingGlobal.path}", assertThrows(IllegalArgumentException::class.java) { configuration.effective(missingGlobal, notes = emptyList()) }.message)
 
         global.writeText(Fixtures.GLOBAL.replace("testsets/default_predefined.yaml", "testsets/predefine.yaml"))
-        val missingTestSet = assertThrows(IllegalArgumentException::class.java) { configuration.effective(global) }.message!!
+        val missingTestSet = assertThrows(IllegalArgumentException::class.java) { configuration.effective(global, notes = emptyList()) }.message!!
         assertTrue(missingTestSet, missingTestSet.startsWith("missing_file: ") && missingTestSet.endsWith("(global.yaml selection.testSet: testsets/predefine.yaml)"))
 
         global.writeText(Fixtures.GLOBAL)
         testSet.writeText(Fixtures.TEST_SET.replace("- {type: Cipher, name: RSA}", "- {type: Cipher, nme: RSA}"))
-        val insideTheFile = assertThrows(IllegalArgumentException::class.java) { configuration.effective(global) }.message!!
+        val insideTheFile = assertThrows(IllegalArgumentException::class.java) { configuration.effective(global, notes = emptyList()) }.message!!
         assertTrue(insideTheFile, insideTheFile.startsWith("unknown_keys: default_predefined.yaml: include[1] [nme]"))
     }
 
@@ -49,10 +49,10 @@ class ConfigurationTest {
     @Test
     fun aFailedRunLeavesNoStaleEffectiveFile() {
         configuration.inventory(capture, trial)
-        configuration.effective(global)
+        configuration.effective(global, notes = emptyList())
         assertTrue(configuration.effectiveFile.exists())
         global.writeText(Fixtures.GLOBAL.replace("policy: {onFailure: skip}", "policy: {onFailure: stop}"))
-        assertThrows(IllegalStateException::class.java) { configuration.effective(global) }
+        assertThrows(IllegalStateException::class.java) { configuration.effective(global, notes = emptyList()) }
         assertFalse(configuration.effectiveFile.exists())
         assertFalse(configuration.reportFile.exists())
     }
@@ -68,7 +68,7 @@ class ConfigurationTest {
     @Test
     fun whatTheRunNoticedIsWrittenBesideTheSettingsAndJoinedOnRead() {
         configuration.inventory(capture, trial)
-        configuration.effective(global)
+        configuration.effective(global, notes = emptyList())
         assertTrue(configuration.reportFile.exists())
         val settings = configuration.effectiveFile.readText()
         assertTrue(settings, !settings.contains("warnings:") && !settings.contains("skipped:"))
@@ -87,6 +87,6 @@ class ConfigurationTest {
     fun anAbsoluteTestSetPathIsUsedAsGiven() {
         configuration.inventory(capture, trial)
         global.writeText(Fixtures.GLOBAL.replace("testsets/default_predefined.yaml", testSet.absolutePath))
-        assertEquals("effective.yaml", configuration.effective(global).name)
+        assertEquals("effective.yaml", configuration.effective(global, notes = emptyList()).name)
     }
 }

@@ -41,7 +41,7 @@ class Configuration(
     }
 
     /** notes: what the runtime left out before configuring, such as a host's skipped bundled providers; written first among the warnings. */
-    fun effective(globalFile: File, inventoryFile: File = this.inventoryFile, factsFile: File? = null, notes: List<String> = emptyList()): File {
+    fun effective(globalFile: File, inventoryFile: File = this.inventoryFile, factsFile: File? = null, notes: List<String>): File {
         Files.deleteIfExists(effectiveFile.toPath())
         Files.deleteIfExists(reportFile.toPath())
         val (global, testSet, _, stack) = AuthoredFiles(files).read(globalFile)

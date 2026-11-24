@@ -21,7 +21,7 @@ fun main(arguments: Array<String>) = command(arguments,
         System.err.println("warning: no ${FileNames.GLOBAL} given; ${FileNames.EFFECTIVE} not written")
         return@command
     }
-    val effectiveFile = configuration.effective(globalFile, inventoryFile, factsFile)
+    val effectiveFile = configuration.effective(globalFile, inventoryFile, factsFile, notes = emptyList())
     println(effectiveFile)
     val effective = configuration.readEffective(effectiveFile)
     effective.warnings.forEach { System.err.println("warning: $it") }

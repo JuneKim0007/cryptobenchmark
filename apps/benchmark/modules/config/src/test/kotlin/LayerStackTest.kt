@@ -50,7 +50,7 @@ class LayerStackTest {
         file("overlays/energy.yaml", "run: {passes: {energy: {samples: 7, thermalGate: {temperatureKeptCelsius: 35.0}}}}\n")
         val composition = file("energy.yaml", "schemaVersion: 1\nlayers: [base.yaml, overlays/energy.yaml]\n")
         val configuration = Configuration(folder.newFolder("out")).apply { inventory(File(folder.root, "config_capture_example.yaml"), File(folder.root, "config_trial_example.yaml")) }
-        val effective = YamlCodec.DOCUMENT.load(configuration.effective(composition).readText())
+        val effective = YamlCodec.DOCUMENT.load(configuration.effective(composition, notes = emptyList()).readText())
         @Suppress("UNCHECKED_CAST")
         val energy = (((effective["run"] as Map<String, Any>)["passes"]) as Map<String, Map<String, Any>>).getValue("energy")
         assertEquals(null, energy["caseCooldownSeconds"])
@@ -81,8 +81,8 @@ class LayerStackTest {
         val composition = file("composed.yaml", "schemaVersion: 1\nlayers: [config_global_example.yaml]\n")
         val plain = Configuration(folder.newFolder("plain")).apply { inventory(File(example, "config_capture_example.yaml"), File(example, "config_trial_example.yaml")) }
         val composed = Configuration(folder.newFolder("composed")).apply { inventory(File(example, "config_capture_example.yaml"), File(example, "config_trial_example.yaml")) }
-        plain.effective(File(folder.root, "config_global_example.yaml"))
-        composed.effective(composition)
+        plain.effective(File(folder.root, "config_global_example.yaml"), notes = emptyList())
+        composed.effective(composition, notes = emptyList())
         val read = { file: File -> YamlCodec.DOCUMENT.load(file.readText()) }
         assertEquals(read(plain.effectiveFile) - "generatedFrom", read(composed.effectiveFile) - "generatedFrom")
         @Suppress("UNCHECKED_CAST")

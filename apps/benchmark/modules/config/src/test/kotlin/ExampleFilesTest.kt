@@ -23,7 +23,7 @@ class ExampleFilesTest {
     fun theExamplesProduceTheCommittedInventoryEffectiveAndReport() {
         val configuration = Configuration(output.root)
         configuration.inventory(File(example, "config_capture_example.yaml"), File(example, "config_trial_example.yaml"))
-        configuration.effective(File(example, "config_global_example.yaml"))
+        configuration.effective(File(example, "config_global_example.yaml"), notes = emptyList())
 
         assertExample("config_inventory_example.yaml", configuration.inventoryFile)
         assertExample("config_effective_example.yaml", configuration.effectiveFile)
