@@ -188,12 +188,12 @@ def load(path: Path = CATALOG, families: Families | None = None, names: Names | 
     unidentified = tuple(held.get("algorithms") or ()) if isinstance(held, dict) else ()
     problems += [f"{f}: not a family of families.yaml" for f in doc["groups"] if f != UNIDENTIFIED and f not in families.by_id]
     sections = [f for f in doc["groups"] if f in families.by_id and f != UNIDENTIFIED]
-    for family in sections + [f.id for f in families.all if f.id not in doc["groups"]]:
-        members = [e.id for e in catalogue.entries if e.family == family]
-        raw = doc["groups"].get(family, {"exemplars": []})
+    problems += [f"{f.id}: entries and no section" for f in families.all if f.id not in doc["groups"] and catalogue.family(f.id)]
+    for family in sections:
+        members, raw = [e.id for e in catalogue.family(family)], doc["groups"][family]
         found = _group_problems(family, raw, members)
         problems += found
-        if not found and (members or family in doc["groups"]):
+        if not found:
             groups.append(FamilyGroup(family, tuple(split_id(i)[1] for i in members), tuple(raw["exemplars"])))
             rows += _rows(family, families.by_id[family].type, members, catalogue)
     both = {fold(algorithm_id(families.by_id[g.family].type, n)) for g in groups for n in g.algorithms} & {fold(i) for i in unidentified}

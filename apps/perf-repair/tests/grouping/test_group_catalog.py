@@ -271,17 +271,22 @@ def test_a_bad_group_is_refused(tmp_path, group, code):
         load(path)
 
 
-def test_a_family_s_members_are_its_catalogue_entries_in_order_and_a_family_without_a_section_is_grouped(tmp_path):
+def test_a_family_s_members_are_its_catalogue_entries_in_order():
     entries = algorithms()
-    catalogue = Algorithms(tuple(e for e in entries.entries if e.id != "Mac|HmacSHA256"), entries.common)
-    path = tmp_path / "groups.yaml"
-    path.write_text(yaml.safe_dump({"schemaVersion": 4, "source": "t", "groups": {"mac.secret": {"exemplars": []}}}))
-    loaded = load(path, catalogue=catalogue)
+    catalogue = Algorithms(tuple(e for e in entries.entries if e.id != "Mac|HmacSHA512"), entries.common)
+    loaded = load(catalogue=catalogue)
     mac = next(g for g in loaded.families if g.family == "mac.secret")
     assert list(mac.algorithms) == [e.id.split("|", 1)[1] for e in catalogue.entries if e.family == "mac.secret"]
-    assert "HmacSHA256" not in mac.algorithms
-    assert {g.family for g in loaded.families} == {f.id for f in FAMILIES.all}
-    assert next(g for g in loaded.families if g.family == "cipher.pair").exemplars == ()
+    assert "HmacSHA512" not in mac.algorithms
+
+
+def test_a_family_with_entries_and_no_section_is_refused(tmp_path):
+    doc = yaml.safe_load(CATALOG.read_text())
+    doc["groups"].pop("cipher.pair")
+    path = tmp_path / "groups.yaml"
+    path.write_text(yaml.safe_dump(doc))
+    with pytest.raises(GroupsError, match="groups_invalid: cipher.pair: entries and no section"):
+        load(path)
 
 
 def test_a_stray_family_and_an_old_schema_are_refused(tmp_path):
