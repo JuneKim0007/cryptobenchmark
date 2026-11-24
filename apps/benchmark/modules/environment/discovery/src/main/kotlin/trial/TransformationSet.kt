@@ -26,9 +26,8 @@ internal class TransformationSet(capture: CapturedEnvironment) {
 
     companion object {
         private const val PARTS = 3
-        private val CIPHER = AlgorithmNames.fold("Cipher")
 
-        fun isCipher(service: ServiceEntry): Boolean = AlgorithmNames.fold(service.type) == CIPHER
+        fun isCipher(service: ServiceEntry): Boolean = AlgorithmNames.fold(service.type) == EngineTypes.CIPHER
 
         private fun declared(service: ServiceEntry): List<String> =
             service.attributes.supportedModes.flatMap { mode -> service.attributes.supportedPaddings.map { padding -> service.algorithm + "/" + mode + "/" + padding } }

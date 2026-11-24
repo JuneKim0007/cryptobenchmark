@@ -5,6 +5,7 @@ import io.github.junekim0007.cryptobench.contract.trial.KeystoreRow
 import io.github.junekim0007.cryptobench.contract.trial.KeystoreSection
 import io.github.junekim0007.cryptobench.contract.requirements.RequirementReport
 import io.github.junekim0007.cryptobench.contract.requirements.ServiceRequirement
+import io.github.junekim0007.cryptobench.discovery.trial.EngineTypes
 import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 import io.github.junekim0007.cryptobench.jca.failure.Attempt
 import io.github.junekim0007.cryptobench.jca.failure.ErrorText
@@ -21,7 +22,7 @@ class KeystoreTrial internal constructor(private val maker: KeystoreMaker, priva
     fun run(capture: CapturedEnvironment, requirements: RequirementReport, providers: Array<Provider>?): KeystoreSection {
         maker.missing()?.let { return KeystoreSection(absent = it) }
         val installed = providers.orEmpty().associateBy { it.name }
-        val generators = requirements.services.filter { it.reason == ServiceRequirement.KEYSTORE_BORN_KEY && it.transformationOf.isEmpty() && AlgorithmNames.fold(it.type) in GENERATORS }
+        val generators = requirements.services.filter { it.reason == ServiceRequirement.KEYSTORE_BORN_KEY && it.transformationOf.isEmpty() && AlgorithmNames.fold(it.type) in EngineTypes.GENERATORS }
         if (generators.isEmpty()) return KeystoreSection()
         val strongBox = maker.strongBox()
         val blocks = catalogue()
@@ -77,6 +78,5 @@ class KeystoreTrial internal constructor(private val maker: KeystoreMaker, priva
         const val STRONGBOX_FEATURE = "android.hardware.strongbox_keystore"
         const val STRONGBOX_UNAVAILABLE = "StrongBoxUnavailableException"
         const val NANOS_PER_MILLI = 1_000_000L
-        val GENERATORS = setOf(AlgorithmNames.fold("KeyGenerator"), AlgorithmNames.fold("KeyPairGenerator"))
     }
 }

@@ -1,6 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery.trial.call
 
 import io.github.junekim0007.cryptobench.contract.capture.CapturedEnvironment
+import io.github.junekim0007.cryptobench.discovery.trial.EngineTypes
 import io.github.junekim0007.cryptobench.document.catalogue.CatalogueOverlays
 import io.github.junekim0007.cryptobench.document.catalogue.FamilyCatalogue
 import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
@@ -57,13 +58,12 @@ internal class KeyCandidates(private val catalogue: FamilyCatalogue, private val
 
     companion object {
 
-        private val GENERATOR_TYPES = setOf("KEYGENERATOR", "KEYPAIRGENERATOR", "SECRETKEYFACTORY")
         private val bundled: FamilyCatalogue by lazy { FamilyCatalogue.bundled(FamilyCatalogue.KEYED + FamilyCatalogue.GENERATORS) }
 
         fun of(capture: CapturedEnvironment, catalogue: FamilyCatalogue = bundled): KeyCandidates = KeyCandidates(
             catalogue,
             CatalogueOverlays.platform(capture.runtime.sdkInt, capture.runtime.javaVersion),
-            capture.providers.flatMap { it.services }.filter { AlgorithmNames.fold(it.type) in GENERATOR_TYPES }.map { it.type to it.algorithm },
+            capture.providers.flatMap { it.services }.filter { AlgorithmNames.fold(it.type) in EngineTypes.KEY_MAKERS }.map { it.type to it.algorithm },
         )
     }
 }

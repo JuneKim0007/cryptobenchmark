@@ -19,8 +19,10 @@ data class Rule(
     /** names: the names file with the capture's aliases over it (NameLayers), the rule's name a user-written spelling. */
     fun matches(names: AlgorithmNames, provider: String, type: String, name: String): Boolean =
         (this.provider == null || AlgorithmNames.fold(this.provider) == AlgorithmNames.fold(provider)) &&
-            (this.type == null || AlgorithmNames.fold(this.type) == AlgorithmNames.fold(type)) &&
+            matchesType(type) &&
             (this.name == null || names.matches(type, this.name, name))
+
+    fun matchesType(type: String): Boolean = this.type == null || AlgorithmNames.fold(this.type) == AlgorithmNames.fold(type)
 
     fun appliesTo(group: String?): Boolean = this.group == null || this.group == group
 

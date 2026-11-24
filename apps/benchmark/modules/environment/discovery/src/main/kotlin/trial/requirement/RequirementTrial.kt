@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
+import io.github.junekim0007.cryptobench.discovery.trial.EngineTypes
 import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 import io.github.junekim0007.cryptobench.jca.failure.Attempt
 import io.github.junekim0007.cryptobench.contract.capture.CapturedEnvironment
@@ -20,8 +21,8 @@ class RequirementTrial {
         val live = providers.orEmpty().toList()
         val installed = live.associateBy { it.name }
         val sources = KeySources(live, keys)
-        val digests = namesOf(capture, DIGEST)
-        val secretNames = namesOf(capture, SECRET_GENERATOR)
+        val digests = namesOf(capture, EngineTypes.DIGEST)
+        val secretNames = namesOf(capture, EngineTypes.GENERATOR)
         val trialled = trial.services.associateBy { Triple(it.provider, AlgorithmNames.fold(it.type), AlgorithmNames.fold(it.algorithm)) }
         val services = capture.providers.flatMap { entry ->
             entry.services.flatMap { service ->
@@ -102,8 +103,6 @@ class RequirementTrial {
         capture.providers.flatMap { it.services }.filter { AlgorithmNames.fold(it.type) == type }.map { it.algorithm }.distinctBy { AlgorithmNames.fold(it) }
 
     private companion object {
-        val DIGEST = AlgorithmNames.fold("MessageDigest")
-        val SECRET_GENERATOR = AlgorithmNames.fold("KeyGenerator")
         const val NANOS_PER_MILLI = 1_000_000L
     }
 }

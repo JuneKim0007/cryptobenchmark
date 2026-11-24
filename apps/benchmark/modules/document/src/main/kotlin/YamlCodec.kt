@@ -8,10 +8,7 @@ import org.yaml.snakeyaml.constructor.Constructor
 import org.yaml.snakeyaml.constructor.SafeConstructor
 import org.yaml.snakeyaml.representer.Representer
 
-// SnakeYAML's 3 MiB default refuses host requirements files (3.76 MB measured); 16 MiB still refuses a runaway file.
-private const val CODE_POINT_LIMIT = 16 * 1024 * 1024
-
-private fun loaderOptions(): LoaderOptions = LoaderOptions().apply { codePointLimit = CODE_POINT_LIMIT }
+private fun loaderOptions(): LoaderOptions = LoaderOptions().apply { codePointLimit = YamlCodec.CODE_POINT_LIMIT }
 
 /** The one SnakeYAML setup, by profile; a profile's bytes and load failures are part of what its files promise. */
 enum class YamlCodec {
@@ -67,4 +64,9 @@ enum class YamlCodec {
     protected abstract fun yaml(): Yaml
 
     protected abstract fun mapping(loaded: Any?): Map<String, Any>
+
+    companion object {
+        // SnakeYAML's 3 MiB default refuses host requirements files (3.76 MB measured); 16 MiB still refuses a runaway file.
+        const val CODE_POINT_LIMIT = 16 * 1024 * 1024
+    }
 }

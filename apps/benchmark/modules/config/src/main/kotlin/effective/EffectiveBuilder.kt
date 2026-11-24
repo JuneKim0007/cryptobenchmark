@@ -95,9 +95,8 @@ class EffectiveBuilder {
     // a rule's name the names file knows while a provider's capture aliases it to another service: the names file's answer stands
     private fun aliasConflicts(names: AlgorithmNames, rules: List<Rule>, all: List<Inventory.Located>): List<String> {
         val types = all.map { it.type }.distinct()
-        return rules.mapNotNull { rule -> rule.name?.let { rule.type to it } }.distinct().flatMap { (type, name) ->
-            types.filter { type == null || AlgorithmNames.fold(it) == AlgorithmNames.fold(type) }
-                .mapNotNull { t -> names.aliasConflict(t, name)?.let { "alias_conflict: $t|$name: $it" } }
+        return rules.mapNotNull { rule -> rule.name?.let { rule to it } }.distinctBy { (rule, name) -> rule.type to name }.flatMap { (rule, name) ->
+            types.filter(rule::matchesType).mapNotNull { t -> names.aliasConflict(t, name)?.let { "alias_conflict: $t|$name: $it" } }
         }
     }
 
