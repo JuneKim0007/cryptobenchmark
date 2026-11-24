@@ -4,8 +4,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from ..catalog.types import Types
-from ..dto.change import (FIELD_BOUND, LOCAL_EDIT, MIGRATION, REACH_REVIEW, REJECTED, SAME, Change, PairDiff,
-                          output_changes)
+from ..dto.change import (FIELD_BOUND, KEY_TYPE_PER_BUILD, LOCAL_EDIT, MIGRATION, REACH_REVIEW, REJECTED, SAME, Change,
+                          PairDiff, output_changes)
 from ..dto.site import Scope
 from cryptobench.shared.catalogue.key_types import same_key_type
 from cryptobench.shared.catalogue.types import NO_NONCE, NO_PARAMETERS, TypeRow
@@ -61,15 +61,16 @@ def _input(scope: Scope, current: TypeRow, candidate: TypeRow) -> str:
     return "reshaped" if theirs == NO_PARAMETERS or _origin(scope, "parameters") in RESHAPEABLE else "new_parameter"
 
 
-def _key(current: TypeRow, candidate: TypeRow) -> str:
-    if not same_key_type(current.properties.keyType, candidate.properties.keyType):
+def _key(keys: tuple[str | None, str | None], current: TypeRow, candidate: TypeRow) -> str:
+    """keys: each side's key.type on its provider's builds; None, builds that disagree, counts as another type."""
+    if None in keys or not same_key_type(*keys):
         return "type"
     return "size" if current.strength.key != candidate.strength.key else SAME
 
 
-def diff(scope: Scope, current: TypeRow, candidate: TypeRow, foreign: bool = False) -> PairDiff:
+def diff(scope: Scope, current: TypeRow, candidate: TypeRow, keys: tuple[str | None, str | None], foreign: bool = False) -> PairDiff:
     output = "kind" if current.outputKind != candidate.outputKind else "bytes"
-    return PairDiff(_input(scope, current, candidate), _key(current, candidate), output, reach(scope), foreign)
+    return PairDiff(_input(scope, current, candidate), _key(keys, current, candidate), output, reach(scope), foreign)
 
 
 def _floor(types: Types, scope: Scope, current: TypeRow, candidate: TypeRow) -> list[str]:
@@ -117,13 +118,14 @@ def _class(scope: Scope, d: PairDiff) -> str:
     return LOCAL_EDIT
 
 
-def classify(types: Types, scope: Scope, current: TypeRow | None, c: Candidate, min_sdk: int | None) -> Change:
+def classify(types: Types, scope: Scope, current: TypeRow | None, c: Candidate, min_sdk: int | None,
+             keys: tuple[str | None, str | None]) -> Change:
     """A candidate outside the current item's group: rejected with every reason found, else its class from the diff."""
     found = rejects(types, scope, current, c, min_sdk)
     if found:
-        d = diff(scope, current, c.row) if current is not None and c.row is not None else PairDiff.same(reach(scope))
+        d = diff(scope, current, c.row, keys) if current is not None and c.row is not None else PairDiff.same(reach(scope))
         return Change(c.item, REJECTED, d, tuple(found))
-    d = diff(scope, current, c.row, c.foreign)
+    d = diff(scope, current, c.row, keys, c.foreign)
     return Change(c.item, _class(scope, d), d)
 
 
@@ -134,13 +136,15 @@ def _length_changes(current: TypeRow | None, candidate: TypeRow | None) -> bool:
     return current.outputKind != candidate.outputKind or mine is None or mine != theirs
 
 
-def needs_review(scope: Scope, d: PairDiff | None, current: TypeRow | None, candidate: TypeRow | None) -> tuple[str, ...]:
+def needs_review(scope: Scope, d: PairDiff | None, current: TypeRow | None, candidate: TypeRow | None,
+                 keys: tuple[str | None, str | None]) -> tuple[str, ...]:
     """What the code could not settle about a swap, from facts only; an output that stays the same needs none of it."""
     found = ["adds_dependency"] if d is not None and d.addsDependency else []
     if not output_changes(d):
         return tuple(found)
     found = [REACH_REVIEW[d.reach]] + [FIELD_BOUND] * field_bound(scope) + found
     found += ["output_length_changes"] * _length_changes(current, candidate) + ["key_changes"] * (d.key != SAME)
+    found += [KEY_TYPE_PER_BUILD] * (None in keys)
     keyed = current is not None and current.properties.keyType != NO_KEY
     return tuple(found + ["key_size_unknown"] * (keyed and scope.keySize is None) + ["parameter_changes"] * (d.input != SAME))
 

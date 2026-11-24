@@ -25,8 +25,10 @@ REJECT_REASONS = ("type_unknown", "strength_below", "strength_unknown", "authent
 REACH_REVIEW = {"local": "reach_local_unverified", "return": "reach_return_unverified", "unknown": "reach_unknown",
                 "persist": "reach_persist"}
 FIELD_BOUND = "field_bound"
+# a side's provider builds give its key.type differently, so the key a swap needs is not one fact
+KEY_TYPE_PER_BUILD = "key_type_per_build"
 NEEDS_REVIEW = (*REACH_REVIEW.values(), FIELD_BOUND, "output_length_changes", "key_changes", "key_size_unknown",
-                "parameter_changes", "adds_dependency", "resolved_by_order")
+                "parameter_changes", "adds_dependency", "resolved_by_order", KEY_TYPE_PER_BUILD)
 
 
 # provider_path: the same canonical name from another provider the app has; the only kind a swap can be applied as

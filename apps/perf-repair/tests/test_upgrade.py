@@ -300,8 +300,8 @@ def test_a_refused_accepted_measured_member_is_a_persons_with_that_reason(tmp_pa
     import perfrepair.result.candidates as candidates
     real = candidates.classify
 
-    def refuse(types_, s, mine, c, min_sdk):
-        found = real(types_, s, mine, c, min_sdk)
+    def refuse(types_, s, mine, c, min_sdk, keys):
+        found = real(types_, s, mine, c, min_sdk, keys)
         return replace(found, change="rejected", reasons=(reason,))
     monkeypatch.setattr(candidates, "classify", refuse)
     doc = _doc(tmp_path)
@@ -315,8 +315,8 @@ def test_no_secure_option_only_when_the_family_has_no_accepted_measured_member(t
     import perfrepair.result.candidates as candidates
     real = candidates.classify
 
-    def refuse(types_, s, mine, c, min_sdk):
-        return replace(real(types_, s, mine, c, min_sdk), change="rejected", reasons=("deterministic_lost",))
+    def refuse(types_, s, mine, c, min_sdk, keys):
+        return replace(real(types_, s, mine, c, min_sdk, keys), change="rejected", reasons=("deterministic_lost",))
     monkeypatch.setattr(candidates, "classify", refuse)
     doc = _doc(tmp_path, names=(MD5, MD5_OTHER, SHA1))
     assert [n["reason"] for n in doc["noOptions"]] == ["no_secure_option"]

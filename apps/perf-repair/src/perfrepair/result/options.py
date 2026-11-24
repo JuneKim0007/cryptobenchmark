@@ -107,10 +107,11 @@ class Joined:
         found, absent = estimates(*sides)
         d = change.diff if change is not None else None
         rows = (self.family.row(current), self.family.row(q)) if self.family else (None, None)
+        keys = self.family.keys(current, q) if self.family else (None, None)
         return Option(f"{OPTION_PREFIX}{n}", q, pinned, pair_status(self.groups, current, q), found,
                       None if self.verdicts is None else self.verdicts[q].status, absent, **classed,
                       outputChanges=output_changes(d), reach=reach(s),
-                      needsReview=needs_review(s, d, *rows) + (BY_ORDER,) * by_order
+                      needsReview=needs_review(s, d, *rows, keys) + (BY_ORDER,) * by_order
                       + (CROSS_SESSION,) * cross_session(used, mine, theirs), track=self._track(current, q, change))
 
     def others(self, current: str) -> list[str] | None:

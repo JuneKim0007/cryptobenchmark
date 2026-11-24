@@ -7,7 +7,8 @@ from perfrepair.dto.change import CHANGES, REJECT_REASONS, admits
 from perfrepair.dto.lifecycle import BOUNDED, Lifecycle, Requirement, Settled
 from perfrepair.dto.site import Scope, scope_id
 from cryptobench.shared.catalogue.types import Properties, Strength, TypeRow
-from perfrepair.result.change import Candidate, classify, reach
+from perfrepair.result import change
+from perfrepair.result.change import Candidate, needs_review, reach
 
 TYPES = Types({}, {"blockKey": {128: 128, 256: 256}}, frozenset({"digest", "ciphertext"}))
 
@@ -26,6 +27,12 @@ def scope(sinks=("return",), params_origin=None, key_source="unknown", key_size=
 
 def cand(r, measured=True, bundled=False, lowers=False) -> Candidate:
     return Candidate(f"TypeA|{r.canonical}|P1", r, measured, bundled, lowers)
+
+
+def classify(types, s, current, c, min_sdk):
+    """Each side's key type is its row's: the fixture's names have no catalogue entry."""
+    keys = tuple(r.properties.keyType if r is not None else None for r in (current, c.row))
+    return change.classify(types, s, current, c, min_sdk, keys)
 
 
 WEAK, STRONG = row("HASH-A", out=16, strength=Strength(bits=0)), row("HASH-B", out=32, strength=Strength(bits=128))
@@ -182,3 +189,27 @@ def test_max_change_admits_its_class_and_those_before_it():
 def test_a_family_candidate_only_the_harness_has_is_a_migration_that_adds_a_dependency():
     c = classify(TYPES, scope(("local",)), WEAK, Candidate("TypeA|HASH-B|P9", STRONG, True, False, False, True), 21)
     assert (c.change, c.diff.addsDependency) == ("migration", True)
+
+
+def test_a_key_type_its_builds_give_alike_is_compared_not_the_row_s():
+    a, b = row("ALG-A", "ciphertext", key="PBE"), row("ALG-B", "ciphertext", key="AES")
+    assert change.classify(TYPES, scope(("local",)), a, cand(b), 21, ("AES", "AES")).diff.key == "same"
+
+
+def test_builds_that_disagree_on_a_key_type_are_a_key_change_a_person_reviews():
+    a, b = row("ALG-A", "ciphertext", key="AES"), row("ALG-B", "ciphertext", key="AES", out=48)
+    c = change.classify(TYPES, scope(("local",)), a, cand(b), 21, ("AES", None))
+    assert (c.change, c.diff.key) == ("migration", "type")
+    assert "key_type_per_build" in needs_review(scope(("local",)), c.diff, a, b, ("AES", None))
+    assert "key_type_per_build" not in needs_review(scope(("local",)), c.diff, a, b, ("AES", "AES"))
+
+
+def test_a_family_reads_each_item_s_key_type_on_its_provider_s_builds():
+    from perfrepair.catalog.types import types
+    from perfrepair.result.candidates import Family
+    pbe, aes = "Cipher|PBEWithHmacSHA256AndAES_128|{}", "Cipher|AES/CBC/PKCS5Padding|{}"
+    items = [pbe.format("AndroidOpenSSL"), pbe.format("SunJCE"), aes.format("AndroidOpenSSL")]
+    canonical = dict(zip(items, ("PBEWithHmacSHA256AndAES_128", "PBEWithHmacSHA256AndAES_128", "AES/CBC/PKCS5Padding")))
+    f = Family({q: "cipher.secret" for q in items}, canonical, types(), 21)
+    assert f.keys(items[0], items[2]) == ("AES", "AES")
+    assert f.keys(items[1], items[2]) == ("PBEWithHmacSHA256AndAES_128", "AES")
