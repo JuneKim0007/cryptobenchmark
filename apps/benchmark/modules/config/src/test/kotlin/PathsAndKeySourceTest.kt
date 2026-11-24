@@ -196,6 +196,22 @@ class PathsAndKeySourceTest {
         assertEquals(listOf("no_key_generator: SunJCE registers no KeyGenerator or KeyPairGenerator 1.2.840.113549.1.1.1"), effective.skipped.map { it.reason })
     }
 
+    /** An alias another provider lists is not one the key provider registers: getInstance(alias, provider) would not find it. */
+    @Test
+    fun anotherProvidersGeneratorAliasIsRefused() {
+        val capture = Fixtures.CAPTURE.replace("{name: SUN, version: '25', precedence: 1, origin: platform, services: []}",
+            "{name: SUN, version: '25', precedence: 1, origin: platform, services: [{type: KeyGenerator, algorithm: AES, className: x, aliases: [VENDORAES]}]}")
+        val trial = Fixtures.TRIAL + GENERATORS + GENERATORS.replace("provider: SunJCE", "provider: SUN").replace("keyProvider: SunJCE", "keyProvider: SUN")
+        val aliased = InventoryBuilder().build(Fixtures.capture(capture), Fixtures.trial(trial), InventoryBuilder.Files("probe_x.yaml", "trial_x.yaml"))
+        val effective = EffectiveBuilder().build(
+            GlobalDocument.parse(codec.load(Fixtures.seeded("schemaVersion: 1\nselection: {testSet: t.yaml}\n"))),
+            TestSetDocument.parse(codec.load("schemaVersion: 1\ndescription: d\ninclude:\n- {type: Cipher}\noverrides:\n" +
+                "- match: {name: AES/CBC/PKCS5PADDING}\n  set: {key: {algorithm: VENDORAES}}\n" +
+                "- match: {name: RSA}\n  set: {key: {algorithm: VENDORAES, provider: SUN}}\n")), aliased, names)
+        assertEquals(listOf("AES", "RSA"), effective.providers.getValue("SunJCE").getValue("Cipher").keys.toList())
+        assertEquals(listOf("no_key_generator: SunJCE registers no KeyGenerator or KeyPairGenerator VENDORAES"), effective.skipped.map { it.reason })
+    }
+
     /** A captured type without a setup-catalog row is a coded skip, never a case on a guessed path. */
     @Test
     fun aTypeWithoutACatalogueRowIsSkipped() {
