@@ -19,6 +19,8 @@ EMITTED = {"error:", "usage:", "warning:", "skipped:", "reused:", "energy_not_jo
            "allocation_runs_changed:", "not_merged:", "runtime_differs:"}
 # codes of exception messages: a main prints them after error:, never as their own line
 RAISED = {"missing_field:", "missing_file:", "nothing_converted:", "nothing_measured:", "nothing_merged:", "nothing_prepared:", "unequal_samples:"}
+# codes of notes a main prints after warning: and writes into report.yaml
+NOTED = {"bundled_android_only:"}
 
 
 def emitted():
@@ -31,7 +33,7 @@ def test_the_coded_lines_the_mains_print_are_today_s_set():
 
 def test_every_coded_literal_is_a_printed_or_raised_code():
     literals = {code for path in PRINTED for code in LITERAL.findall(path.read_text())}
-    assert literals == EMITTED | RAISED
+    assert literals == EMITTED | RAISED | NOTED
 
 
 def test_current_behaviour_every_printed_code_is_passed_on_but_runtime_differs():

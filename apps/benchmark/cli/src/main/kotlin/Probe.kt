@@ -20,7 +20,7 @@ fun main(arguments: Array<String>) = command(arguments,
 
 private fun run(discoveryDirectory: File, configurationDirectory: File, globalFile: File?, reuse: Boolean) {
     val discovery = Discovery(ProbeDirectory(discoveryDirectory))
-    val installed = globalFile?.let(HostBundled::fromGlobal).orEmpty()
+    val installed = globalFile?.let(HostBundled::fromGlobal) ?: HostBundled.Installed(emptyList(), emptyList())
     val reused = if (reuse) reused(discovery) else null
     val captureFile: File
     val trialFile: File
@@ -31,7 +31,7 @@ private fun run(discoveryDirectory: File, configurationDirectory: File, globalFi
         requirementsFile = reused.requirementsFile
         System.err.println("reused: ${reused.captureFile.name}")
     } else {
-        val probe = discovery.probe(Security.getProviders(), bundled = installed)
+        val probe = discovery.probe(Security.getProviders(), bundled = installed.providers)
         captureFile = probe.captureFile
         val files = discovery.trial(probe.capture, Security.getProviders())
         trialFile = files.trialFile
@@ -47,7 +47,7 @@ private fun run(discoveryDirectory: File, configurationDirectory: File, globalFi
         System.err.println("warning: no ${FileNames.GLOBAL} given; ${FileNames.EFFECTIVE} not written")
         return
     }
-    val effectiveFile = configuration.effective(globalFile, inventoryFile)
+    val effectiveFile = configuration.effective(globalFile, inventoryFile, notes = installed.notes)
     println(effectiveFile)
     val effective = configuration.readEffective(effectiveFile)
     effective.warnings.forEach { System.err.println("warning: $it") }

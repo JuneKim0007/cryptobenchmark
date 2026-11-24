@@ -1012,6 +1012,7 @@ codes:
   block_unverified: {kind: notice}
   boot_changed: {kind: notice}
   bundled_alias_taken: {kind: error}
+  bundled_android_only: {kind: notice}
   bundled_catalog: {kind: error}
   bundled_class_not_found: {kind: error}
   bundled_create_failed: {kind: error}

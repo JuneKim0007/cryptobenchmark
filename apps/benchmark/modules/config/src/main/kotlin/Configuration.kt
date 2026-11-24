@@ -40,14 +40,15 @@ class Configuration(
         return files.at(inventoryFile, InventoryDocument).write(inventory)
     }
 
-    fun effective(globalFile: File, inventoryFile: File = this.inventoryFile, factsFile: File? = null): File {
+    /** notes: what the runtime left out before configuring, such as a host's skipped bundled providers; written first among the warnings. */
+    fun effective(globalFile: File, inventoryFile: File = this.inventoryFile, factsFile: File? = null, notes: List<String> = emptyList()): File {
         Files.deleteIfExists(effectiveFile.toPath())
         Files.deleteIfExists(reportFile.toPath())
         val (global, testSet, _, stack) = AuthoredFiles(files).read(globalFile)
         val inventory = files.at(inventoryFile, InventoryDocument).read()
         val facts = factsFile?.let(::readFacts) ?: Facts.UNKNOWN
         val built = effectiveBuilder.build(global, testSet, inventory, EffectiveBuilder.Files(globalFile.name, global.selection.testSet, inventoryFile.name), facts)
-        val effective = built.copy(generatedFrom = built.generatedFrom.copy(layers = stack.layers,
+        val effective = built.copy(warnings = notes + built.warnings, generatedFrom = built.generatedFrom.copy(layers = stack.layers,
             settings = Provenance.settings(EffectiveDocument.settingsOf(built), stack, RunDocument.inherited(built.run, "run"))))
         files.at(reportFile, ReportDocument).write(Report(effective.runId, effective.warnings, effective.skipped))
         return files.at(effectiveFile, EffectiveDocument).write(effective)

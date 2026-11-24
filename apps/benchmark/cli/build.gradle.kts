@@ -1,5 +1,8 @@
 // The host commands (probe, configure, bench, convert, merges, interop) and :discovery's JCA contract test on a JDK matrix.
 // Standalone: configuring the root build needs the Android SDK.
+import org.gradle.api.artifacts.result.ResolvedArtifactResult
+import org.gradle.maven.MavenModule
+import org.gradle.maven.MavenPomArtifact
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -49,8 +52,21 @@ sourceSets {
 // -PbundledArtifacts=group:name:version,... : the providers.bundled of global.yaml on this JVM's classpath, as modules/android/build.gradle does.
 val bundledArtifacts = providers.gradleProperty("bundledArtifacts").orElse("").get().split(',').map { it.trim() }.filter { it.isNotEmpty() }
 
+// An artifact whose own POM declares aar packaging holds no class files a host JVM loads; HostBundled records each one it leaves out.
+fun packaging(coordinates: String): String? {
+    val (group, name, version) = coordinates.split(':')
+    val component = dependencies.createArtifactResolutionQuery().forModule(group, name, version)
+        .withArtifacts(MavenModule::class.java, MavenPomArtifact::class.java).execute().resolvedComponents.singleOrNull() ?: return null
+    val pom = component.getArtifacts(MavenPomArtifact::class.java).filterIsInstance<ResolvedArtifactResult>().singleOrNull() ?: return null
+    return Regex("<packaging>\\s*([^<\\s]+)\\s*</packaging>").find(pom.file.readText())?.groupValues?.get(1) ?: "jar"
+}
+val androidOnly = bundledArtifacts.filter { packaging(it) == "aar" }
+fun JavaForkOptions.androidOnlyProperty() = systemProperty("bundled.androidOnly", androidOnly.joinToString(","))
+tasks.withType<Test>().configureEach { androidOnlyProperty() }
+tasks.withType<JavaExec>().configureEach { androidOnlyProperty() }
+
 dependencies {
-    bundledArtifacts.forEach { implementation(it) }
+    (bundledArtifacts - androidOnly.toSet()).forEach { implementation(it) }
     implementation(libs.snakeyaml)
     testImplementation("junit:junit:4.13.2")
 }

@@ -57,6 +57,13 @@ class ConfigurationTest {
         assertFalse(configuration.reportFile.exists())
     }
 
+    @Test
+    fun theRuntimeNotesLeadTheReportWarnings() {
+        configuration.inventory(capture, trial)
+        configuration.effective(global, notes = listOf("bundled_android_only: g:a:1 (A): not installed"))
+        assertEquals("bundled_android_only: g:a:1 (A): not installed", configuration.readEffective().warnings.first())
+    }
+
     /** Warnings and skips live in report.yaml beside effective.yaml, and reading the effective settings joins them back. */
     @Test
     fun whatTheRunNoticedIsWrittenBesideTheSettingsAndJoinedOnRead() {
