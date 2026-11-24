@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.document.names
 
-/** Per provider, in capture order, each service's registered name and the aliases the capture lists for it. */
+/** Per provider, each service's registered name and the aliases the capture lists for it. */
 data class CaptureSpellings(val services: Map<String, List<Service>>) {
 
     data class Service(val type: String, val name: String, val aliases: List<String>)

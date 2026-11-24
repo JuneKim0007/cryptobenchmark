@@ -109,7 +109,8 @@ class AlgorithmNames private constructor(
 
         @Suppress("UNCHECKED_CAST")
         override fun parse(document: Map<String, Any>): AlgorithmNames {
-            val names = (document[SPELLINGS] as Map<String, Map<String, List<String>?>>).mapValues { (_, spellings) -> folded(spellings) }
+            val written = document[SPELLINGS] as? Map<String, Map<String, List<String>?>> ?: throw IllegalArgumentException("names_schema: no $SPELLINGS: section")
+            val names = written.mapValues { (_, spellings) -> folded(spellings) }
             val sized = (document["sized"] as Map<String, Map<String, Map<String, Any>>>? ?: emptyMap()).mapValues { (_, rows) ->
                 rows.entries.associate { (spelling, row) -> fold(spelling) to Canonical(row["name"] as String, row["keySize"] as Int) }
             }

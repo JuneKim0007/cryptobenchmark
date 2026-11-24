@@ -37,7 +37,7 @@ cryptobench/shared/catalogue/groups.py : reader of groups.yaml, checked whole: o
 cryptobench/shared/catalogue/guide_items.py : guide_items: what the guide says for one effective.yaml's items at this device's builds
 cryptobench/shared/catalogue/interchange.py : reader of interchange.yaml: engines, rules by canonical name; a component outside its splits is refused
 cryptobench/shared/catalogue/key_types.py : a spelling's catalogue entry; its key.type as every build of a provider gives it, none when they differ; two key types compared through the names file's keyTypes
-cryptobench/shared/catalogue/name_layers.py : merged: the capture's provider aliases over the names file in capture order; the base answers every spelling it knows; conflicts recorded (base-known: catalog wins; base-unknown meant two ways: name_conflict on a user lookup)
+cryptobench/shared/catalogue/name_layers.py : merged: the capture's provider aliases over the names file; the base answers every spelling it knows; conflicts recorded, each naming every row in any row order (base-known: catalog wins; base-unknown meant two ways: name_conflict on a user lookup)
 cryptobench/shared/catalogue/names.py : the names reader: Canonical (name, keySize, known), engine types (what detection scans), fold, same_engine, key formats, key types, linkage refusals (sized and named, OID. split), name_conflict, key_or_spelling (a conflict keys by its spelling)
 cryptobench/shared/catalogue/overrides.py : a provider override's path in an entry, and one build's differences applied to a copy
 cryptobench/shared/catalogue/provider_builds.py : reads provider-builds.yaml, registered ids canonical; a build key from what a probe records; a name resolves to one key or is provider_build_unknown

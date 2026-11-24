@@ -27,12 +27,13 @@ class CaptureLayerTest {
     @Test
     fun theSharedCasesMergeAlike() {
         val rows = DocumentFields.sections(cases, "capture")
-        val capture = CaptureSpellings(rows.groupBy({ DocumentFields.string(it, "provider") }) {
+        fun layered(rows: List<Map<String, Any>>) = NameLayers.merged(AlgorithmNames.catalog, CaptureSpellings(rows.groupBy({ DocumentFields.string(it, "provider") }) {
             CaptureSpellings.Service(DocumentFields.string(it, "type"), DocumentFields.string(it, "algorithm"), DocumentFields.strings(it, "aliases"))
-        })
-        val layered = NameLayers.merged(AlgorithmNames.catalog, capture)
-        assertEquals(DocumentFields.sections(cases, "conflicts").associate { (DocumentFields.string(it, "type") to DocumentFields.string(it, "alias")) to DocumentFields.string(it, "why") },
-            layered.conflicts)
+        }))
+        val layered = layered(rows)
+        val conflicts = DocumentFields.sections(cases, "conflicts").associate { (DocumentFields.string(it, "type") to DocumentFields.string(it, "alias")) to DocumentFields.string(it, "why") }
+        assertEquals(conflicts, layered.conflicts)
+        assertEquals(conflicts, layered(rows.reversed()).conflicts)
         for (case in DocumentFields.sections(cases, "lookups")) {
             val type = DocumentFields.string(case, "type")
             val name = DocumentFields.string(case, "name")

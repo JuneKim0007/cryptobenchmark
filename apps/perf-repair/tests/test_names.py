@@ -33,6 +33,14 @@ def test_a_spelling_under_two_canonical_names_is_refused(tmp_path):
         Names.load(path)
 
 
+def test_a_names_file_without_spellings_is_refused_with_a_code(tmp_path):
+    path = tmp_path / "names.yaml"
+    path.write_text("schemaVersion: 2\nsized: {}\n")
+    with pytest.raises(NamesError) as refused:
+        Names.load(path)
+    assert str(refused.value) == f"names_schema: {path}: no spellings: section"
+
+
 @pytest.mark.parametrize("body,code", [
     ("spellings:\n  Cipher:\n    AES: [AES_128]\nsized:\n  Cipher:\n    AES_128: {name: AES, keySize: 128}\n", "names_catalog_duplicate: Cipher AES_128 is sized and named"),
     ("spellings:\n  KeyPairGenerator:\n    XDH: [1.3.101.110]\n    X25519: [OID.1.3.101.110]\n", "names_oid_split: KeyPairGenerator OID.1.3.101.110"),

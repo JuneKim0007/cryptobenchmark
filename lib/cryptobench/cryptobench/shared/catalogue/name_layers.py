@@ -16,11 +16,11 @@ class ServiceSpellings:
 
 
 def merged(base: Names, capture: Iterable[ServiceSpellings] | None = None) -> Names:
-    """One left fold in capture order: a base-known alias meant otherwise is a conflict the base wins; a base-unknown one meant
-    two ways is a conflict a user-written lookup refuses."""
+    """A base-known alias meant otherwise is a conflict the base wins; a base-unknown one meant two ways is a conflict a
+    user-written lookup refuses. A conflict's text names every row, in any row order."""
     added: dict[tuple[str, str], Canonical] = {}
     said: dict[tuple[str, str], set[str]] = {}
-    conflicts: dict[tuple[str, str], str] = {}
+    split: dict[tuple[str, str], str] = {}
     for service in capture or ():
         target = base.catalogued(service.type, service.algorithm)
         for alias in service.aliases:
@@ -28,7 +28,7 @@ def merged(base: Names, capture: Iterable[ServiceSpellings] | None = None) -> Na
             static = base.catalogued(service.type, alias)
             said.setdefault(at, set()).add(f"{service.provider} says {target.name}")
             if static.known and static.key != target.key:
-                conflicts[at] = f"catalog says {static.name}; " + ", ".join(sorted(said[at]))
+                split[at] = f"catalog says {static.name}; "
             elif not static.known and added.setdefault(at, target).key != target.key:
-                conflicts[at] = ", ".join(sorted(said[at]))
-    return replace(base, probe=added, conflicts=conflicts)
+                split[at] = ""
+    return replace(base, probe=added, conflicts={at: prefix + ", ".join(sorted(said[at])) for at, prefix in split.items()})

@@ -77,6 +77,16 @@ class AlgorithmNamesTest {
     }
 
     @Test
+    fun aSchemaOneNamesFileOrOneWithoutSpellingsIsRefusedWithACode() {
+        for ((text, message) in listOf(
+            "schemaVersion: 1\nnames:\n  MessageDigest:\n    SHA-256: [SHA256]\n" to "unsupported_schema_version: name-index.yaml: 1, this build reads 2",
+            "schemaVersion: 2\nsized: {}\n" to "names_schema: name-index.yaml: no spellings: section",
+        )) {
+            assertEquals(message, assertThrows(IllegalArgumentException::class.java) { AlgorithmNames.read(text) }.message)
+        }
+    }
+
+    @Test
     fun aSpellingSizedAndNamedOrAnOidApartFromItsBareFormIsRefused() {
         for ((body, code) in listOf(
             "spellings:\n  Cipher:\n    AES: [AES_128]\nsized:\n  Cipher:\n    AES_128: {name: AES, keySize: 128}\n" to "names_catalog_duplicate: Cipher AES_128 is sized and named",

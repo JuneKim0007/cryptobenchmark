@@ -8,14 +8,17 @@ from cryptobench.shared.catalogue.names import Canonical, Names, NamesError
 CASES = yaml.safe_load((paths.repo().contract_catalogue / "name-layers-cases.yaml").read_text())
 
 
+ROWS = [ServiceSpellings(r["provider"], r["type"], r["algorithm"], tuple(r["aliases"])) for r in CASES["capture"]]
+
+
 @pytest.fixture(scope="module")
 def layered():
-    rows = (ServiceSpellings(r["provider"], r["type"], r["algorithm"], tuple(r["aliases"])) for r in CASES["capture"])
-    return merged(Names.load(), rows)
+    return merged(Names.load(), ROWS)
 
 
-def test_the_shared_conflicts_are_the_merged_ones(layered):
-    assert layered.conflicts == {(c["type"], c["alias"]): c["why"] for c in CASES["conflicts"]}
+@pytest.mark.parametrize("rows", [ROWS, ROWS[::-1]], ids=["capture order", "reversed"])
+def test_the_shared_conflicts_are_the_merged_ones_in_any_row_order(rows):
+    assert merged(Names.load(), rows).conflicts == {(c["type"], c["alias"]): c["why"] for c in CASES["conflicts"]}
 
 
 @pytest.mark.parametrize("case", CASES["lookups"], ids=lambda c: f"{c['type']}:{c['name']}")
