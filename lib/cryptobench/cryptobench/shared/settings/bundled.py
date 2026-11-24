@@ -49,6 +49,11 @@ def instrumentation_arguments(bundled):
     return ["-e", KEY, shlex.quote(json.dumps({KEY: bundled}))] if bundled else []
 
 
+def artifacts(effective):
+    """effective.yaml's bundled providers, artifact by alias."""
+    return {b.get("alias"): b["artifact"] for b in effective.get(KEY) or []}
+
+
 def recorded(effective_file):
     return read_yaml(effective_file).get(KEY) or []
 

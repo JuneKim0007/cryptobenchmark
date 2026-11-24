@@ -119,6 +119,11 @@ class Names:
             return single
         return self._transformation(engine_type, name)
 
+    def is_canonical(self, engine_type: str, name: str) -> bool:
+        """The names file's own spelling for the type, without a key size."""
+        found = self.catalogued(engine_type, name)
+        return found.known and found.name == name and found.keySize is None
+
     def canonical(self, engine_type: str, name: str) -> Canonical:
         """The catalog's name wins over any device alias; only an uncatalogued name the providers disagree on conflicts."""
         found = self.catalogued(engine_type, name)

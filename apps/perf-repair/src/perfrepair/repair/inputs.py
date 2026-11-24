@@ -9,6 +9,7 @@ from cryptobench.shared.catalogue.names import fold
 from ..dto.site import Scope
 from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.errors.input_error import InputError
+from cryptobench.shared.settings import effective_view
 
 
 def read_effective(manifest: Path) -> dict:
@@ -23,7 +24,7 @@ def _entries(effective: dict, item: str) -> list[dict]:
     """Every `name` and `name@group` entry of the item; names match case-insensitively, as JCA names do."""
     engine_type, name, provider = parse_qualified(item)
     by_name = effective["providers"].get(provider, {}).get(engine_type, {})
-    entries = [e or {} for key, e in by_name.items() if fold(key.split("@")[0]) == fold(name)]
+    entries = [e or {} for key, e in by_name.items() if fold(effective_view.entry_name(key)) == fold(name)]
     if not entries:
         raise InputError(f"item_not_configured: {item} has no providers.{provider}.{engine_type}.{name} entry "
                          f"in effective.yaml; the results are not the run the groups were built from")

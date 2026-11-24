@@ -20,6 +20,11 @@ def read(effective_file):
     }
 
 
+def entry_name(key):
+    """A providers entry key's name: `name`, or `name@group` measured more than once."""
+    return key.split("@")[0]
+
+
 def entry_count(document):
     return sum(len(names) for types in (document.get("providers") or {}).values() for names in types.values())
 

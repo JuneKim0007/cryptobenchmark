@@ -389,9 +389,9 @@ def _digest_problems(names: Names, e: Entry) -> list[str]:
 
 def canonical_problems(entry: Entry, names: Names) -> list[str]:
     """The id's name is the names file's canonical for its type, without a key size."""
-    found = names.catalogued(entry.type, entry.canonical)
-    if found.known and found.name == entry.canonical and found.keySize is None:
+    if names.is_canonical(entry.type, entry.canonical):
         return []
+    found = names.catalogued(entry.type, entry.canonical)
     if not found.known:
         return [f"id not canonical, the names file has no {entry.type} {entry.canonical}"]
     return [f"id not canonical, the names file gives {found.name} keySize {found.keySize}"]

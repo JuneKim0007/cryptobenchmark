@@ -102,8 +102,8 @@ class _Reader:
         return Rule(raw.get("status"), raw.get("reason") or "", self._source(where, raw.get("source")))
 
     def _key(self, where: str, engine_type: str, name: str) -> tuple[str, str]:
-        found = self.names.catalogued(engine_type, str(name))
-        if not found.known or found.keySize is not None or found.name != name:
+        if not self.names.is_canonical(engine_type, str(name)) or str(name) != name:
+            found = self.names.catalogued(engine_type, str(name))
             said = f"canonical is {found.name}" if found.known else "not in name-index.yaml"
             self.problems.append(f"screening_key_not_canonical: {where} {engine_type} {name}: {said}")
         return engine_type, fold(str(name))

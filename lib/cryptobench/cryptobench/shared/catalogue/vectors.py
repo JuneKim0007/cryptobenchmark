@@ -12,7 +12,7 @@ from .families import Families
 from .guide_items import carried_recipes, parameter_tree
 from .names import Names, fold
 from .. import paths
-from ..settings import bundled
+from ..settings import bundled, effective_view
 from .provider_builds import provider_builds
 from .recipes import load as load_recipes
 from .views import view_for
@@ -127,7 +127,7 @@ def filled(effective: dict, platform: str | None, user_folder: Path | None = Non
     vectors = load(user_folder)
     warnings = checked(vectors)
     names, builds, recipes = Names.load(), provider_builds(), load_recipes()
-    artifacts = {b.get("alias"): b["artifact"] for b in effective.get(bundled.KEY) or []}
+    artifacts = bundled.artifacts(effective)
     known = {fold(e.id) for e in algorithms().entries}
     user = [v for v in vectors.values() if v["origin"] == USER]
     operations, reached = engine_operations(), set()
@@ -135,13 +135,13 @@ def filled(effective: dict, platform: str | None, user_folder: Path | None = Non
     for provider, types in (effective.get("providers") or {}).items():
         build, _ = builds.nearest(provider, platform, artifacts.get(provider))
         for engine_type, entries in types.items():
-            for name in dict.fromkeys(k.split("@")[0] for k in entries):
+            for name in dict.fromkeys(effective_view.entry_name(k) for k in entries):
                 canonical = names.canonical(engine_type, name)
                 identifier = algorithm_id(engine_type, canonical.name)
                 if fold(identifier) not in known:
                     continue
                 view = view_for(identifier, build, builds=builds) if build else view_for(identifier)
-                key_sizes = {size for k, entry in entries.items() if k.split("@")[0] == name for size in (entry or {}).get("keySizes") or []}
+                key_sizes = {size for k, entry in entries.items() if effective_view.entry_name(k) == name for size in (entry or {}).get("keySizes") or []}
                 key_sizes |= {canonical.keySize} if canonical.keySize else set()
                 mine = [v for v in user if _matches(v, engine_type, identifier, key_sizes, names, operations)]
                 for vector in mine:

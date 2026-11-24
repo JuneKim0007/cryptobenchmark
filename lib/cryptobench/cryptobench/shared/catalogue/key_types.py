@@ -25,8 +25,7 @@ def entry_of(engine_type: str, name: str, names: Names | None = None, catalogue:
 def build_key_types(entry: Entry, provider: str | None, catalogue: Algorithms | None = None, builds: ProviderBuilds | None = None) -> frozenset[str]:
     """Every key.type the provider's builds give the entry; the base's with no build."""
     builds = builds or provider_builds()
-    keys = [provider] if provider in builds.builds else sorted(k for k, b in builds.builds.items() if b["name"] == provider)
-    return frozenset(view_for(entry.id, k, catalogue, builds)["key"]["type"] for k in keys) or frozenset({entry.raw["key"]["type"]})
+    return frozenset(view_for(entry.id, k, catalogue, builds)["key"]["type"] for k in builds.builds_of(provider)) or frozenset({entry.raw["key"]["type"]})
 
 
 def key_type(engine_type: str, name: str, provider: str | None = None, names: Names | None = None,

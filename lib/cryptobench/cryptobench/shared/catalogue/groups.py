@@ -157,11 +157,10 @@ def _rows(family: str, engine_type: str, ids: list[str], catalogue: Algorithms) 
                          row[0][1][CONTRACT_KEY] == KEY_PASSWORD) for row in alike.values()]
 
 
-def _group_problems(family: str, raw, members: list[str]) -> list[str]:
+def _group_problems(family: str, raw, catalogue: Algorithms) -> list[str]:
     if not isinstance(raw, dict) or set(raw) != FAMILY_FIELDS or not isinstance(raw["exemplars"], list):
         return [f"{family}: fields {sorted(raw) if isinstance(raw, dict) else raw!r} are not {sorted(FAMILY_FIELDS)}, a list"]
-    listed = {fold(m) for m in members}
-    return [f"{family}: exemplar {e} has no entry in {family}'s catalogue" for e in raw["exemplars"] if fold(str(e)) not in listed]
+    return [f"{family}: exemplar {e} has no entry in {family}'s catalogue" for e in raw["exemplars"] if catalogue.of(family, str(e)) is None]
 
 
 def _unidentified_problems(held) -> list[str]:
@@ -190,7 +189,7 @@ def load(path: Path = CATALOG, families: Families | None = None, names: Names | 
     problems += [f"{f.id}: entries and no section" for f in families.all if f.id not in doc["groups"] and catalogue.family(f.id)]
     for family in sections:
         members, raw = [e.id for e in catalogue.family(family)], doc["groups"][family]
-        found = _group_problems(family, raw, members)
+        found = _group_problems(family, raw, catalogue)
         problems += found
         if not found:
             groups.append(FamilyGroup(family, tuple(split_id(i)[1] for i in members), tuple(raw["exemplars"])))

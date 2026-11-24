@@ -29,11 +29,15 @@ class ProviderBuilds:
     builds: dict[str, dict]
     providers: dict[str, dict] = field(default_factory=dict)
 
+    def builds_of(self, word: str | None) -> list[str]:
+        """A build key as it stands, or every build of a provider name; empty for another word."""
+        return [word] if word in self.builds else sorted(k for k, b in self.builds.items() if b["name"] == word)
+
     def expanded(self, words: list[str]) -> tuple[str, ...]:
         """Each word a build key, or a provider name meaning every build of it; another word is coded."""
         found: list[str] = []
         for word in words:
-            named = [word] if word in self.builds else sorted(k for k, b in self.builds.items() if b["name"] == word)
+            named = self.builds_of(word)
             if not named:
                 raise ProviderBuildError(f"{UNKNOWN}: {word!r} is no build or provider")
             found += named
@@ -50,16 +54,14 @@ class ProviderBuilds:
 
     def resolve(self, provider: str) -> str:
         """A build key as it stands; a bare name only when one build carries it (BundledBC); anything else is refused, naming the candidates."""
-        if provider in self.builds:
-            return provider
-        named = sorted(k for k, b in self.builds.items() if b["name"] == provider)
+        named = self.builds_of(provider)
         if len(named) == 1:
             return named[0]
         raise ProviderBuildError(f"{UNKNOWN}: {provider!r} is {'one of ' + str(named) if named else 'no build the catalogues have measured'}")
 
     def nearest(self, provider: str, platform: str | None, artifact: str | None) -> tuple[str | None, bool]:
         """The build of a provider here and whether it is exactly this one; else the nearest at or below this platform, else its latest."""
-        keys = sorted(k for k, b in self.builds.items() if b["name"] == provider)
+        keys = self.builds_of(provider)
         for exact in (f"{provider} @ {platform}", f"{provider} @ {artifact}"):
             if exact in keys:
                 return exact, True
@@ -75,9 +77,8 @@ def _registered_problems(doc: dict, names: Names) -> list[str]:
     for provider, row in (doc.get("providers") or {}).items():
         for name in (n for r in row.get("registers") or [] for n in r.get("names") or []):
             engine_type, _, canonical = name.partition("|")
-            found = names.catalogued(engine_type, canonical)
-            if not found.known or found.name != canonical or found.keySize is not None:
-                problems.append(f"{provider}.registers: {name} is not a canonical id, the names file gives {found.name}")
+            if not names.is_canonical(engine_type, canonical):
+                problems.append(f"{provider}.registers: {name} is not a canonical id, the names file gives {names.catalogued(engine_type, canonical).name}")
     return problems
 
 
