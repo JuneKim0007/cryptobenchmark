@@ -13,7 +13,7 @@ A family (`../../algorithms/families.yaml`, engine type × key kind, 8 of them) 
 - Boundary: the family (`../../algorithms/families.yaml`: engine type × key kind); items of two families are never compared.
 - Not a contract: key size, IV size, tag length (dossier `pins`), provider identity, whether it runs on this device.
 
-Catalog and signature: `../../algorithms/groups.yaml` and the signature ([signature.md](signature.md)) exist only to reduce model calls. A listed name whose signature is decided is placed in a contract row without a model; a listed name it leaves open, and an unlisted name, go to the model. The signature also checks rows; it never places an unlisted item. A contract row is the `drop-in` class; beyond it, type, floor, availability, class: [change-classes.md](change-classes.md).
+Catalog and signature: the family catalogues and the signature ([signature.md](signature.md)) exist only to reduce model calls. A listed name whose signature is decided is placed in a contract row without a model; a listed name it leaves open, and an unlisted name, go to the model. The signature also checks rows; it never places an unlisted item. A contract row is the `drop-in` class; beyond it, type, floor, availability, class: [change-classes.md](change-classes.md).
 
 ## Key contract
 

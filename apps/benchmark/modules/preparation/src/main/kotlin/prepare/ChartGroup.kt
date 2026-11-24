@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation.prepare
 
+import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 import io.github.junekim0007.cryptobench.preparation.key.plan.KeyRecipe
 
 /** Which cases a chart may compare. Ids are stable. Unidentified is always 0. */
@@ -17,7 +18,7 @@ enum class ChartGroup(val id: Int, val label: String) {
     companion object {
 
         // The JCA service type decides; Cipher covers both kinds, so its key kind splits it.
-        fun of(type: String, key: KeyRecipe): ChartGroup = when (type.uppercase()) {
+        fun of(type: String, key: KeyRecipe): ChartGroup = when (AlgorithmNames.fold(type)) {
             "CIPHER" -> when (key) {
                 is KeyRecipe.Secret -> SYMMETRIC_CIPHER
                 is KeyRecipe.Pair -> ASYMMETRIC_CIPHER

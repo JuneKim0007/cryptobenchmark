@@ -3,7 +3,6 @@ package io.github.junekim0007.cryptobench.discovery
 import io.github.junekim0007.cryptobench.discovery.adapter.ServiceKey
 import io.github.junekim0007.cryptobench.discovery.adapter.ServiceKeyException
 
-import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertThrows
@@ -29,7 +28,7 @@ class ServiceKeyTest {
         val original = Locale.getDefault()
         try {
             Locale.setDefault(Locale.forLanguageTag("tr"))
-            assertEquals("CIPHER", AlgorithmNames.fold("Cipher"))
+            assertEquals("CIPHER", ServiceKey("cipher", "AES").type)
             assertEquals(ServiceKey("Cipher", "AES"), ServiceKey("cipher", "aes"))
         } finally {
             Locale.setDefault(original)

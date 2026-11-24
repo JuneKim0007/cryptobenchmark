@@ -1,4 +1,4 @@
-"""group-candidates.yaml: model answers in groups.yaml's row shape plus provenance, for a person to promote; written by report."""
+"""group-candidates.yaml: model answers in the contract row shape plus provenance, for a person to promote; written by report."""
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -11,7 +11,7 @@ from ...dto.grouping_state import Answer, Knowledge
 from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.log.attach import run_id
 
-SOURCE = "model answers of grouping assign, unreviewed; a person adds a name to a group of algorithms/groups.yaml"
+SOURCE = "model answers of grouping assign, unreviewed; a person adds an entry to its family's algorithms/ catalogue"
 MODEL, CATALOG = "model", "catalog"
 # its own shape: contract rows, not groups.yaml's ids
 SCHEMA_VERSION = 2

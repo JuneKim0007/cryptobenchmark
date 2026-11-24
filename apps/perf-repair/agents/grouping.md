@@ -7,14 +7,14 @@
 - `agents/validation.md` : the validators the gates run
 
 ## Rules
-- family: static; the catalogue list holding the name, else a catalog entry keyed by engine type + key kind; neither is `unidentified`.
+- family: static; the catalogue holding the name's entry, else a catalog entry keyed by engine type + key kind; neither is `unidentified`.
 - group: interchangeable items inside one family: a catalog group (a contract row at one key contract), a code-made `code_` group, or a model-made group; code places every identified item, the model only the rest; `docs/grouping.md` Criterion.
 - criterion: input, key and output contracts inside one family; `docs/grouping.md` Criterion.
 - capabilities: key size, tag length and availability are static; never group identity.
 - key contract: derived in `grouping/build/key_contract.py` from probe attributes, a generator's from its trial's produced key cross-checked with its provider's consumers; never from a provider name or a registered `KeyStore`; doubt is `unknown`, never a guess, and an unknown generator joins no group.
 - classify: with `device.screening.aiReview` the build asks the classify model about unknown items only, before screen.json is written; `docs/screening.md` Model review.
-- identified: a screened-out item or a name with a contract row in `../../algorithms/groups.yaml` is placed without a model and never asked (`probe/identified.py`, the one test); every other item is one model call; `docs/grouping.md` Identified items.
-- catalog: it and the signature exist only to reduce model calls; nothing writes it at run time; a person adds names from `group-candidates.yaml`.
+- identified: a screened-out item or a name with a contract row is placed without a model and never asked (`probe/identified.py`, the one test); every other item is one model call; `docs/grouping.md` Identified items.
+- catalog: it and the signature exist only to reduce model calls; nothing writes it at run time; a person adds entries from `group-candidates.yaml`.
 - signature: evidence, never the decision: it derives the contract rows of listed names and checks groups; what splits a row is data in `../../algorithms/interchange.yaml`, derived in `catalog/signature.py`; missing evidence is `unknown`, never the name's default.
 - items: ids `1..n` per run; `items.json` is never edited after build; the agent sees one YAML block: the family, its groups (catalog and this run's) and the item, facts under input, key and output.
 - commit: the outbox record is the commit; knowledge, cursor and errors are projections rebuilt from it; nothing writes knowledge directly.

@@ -2,7 +2,6 @@ package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
 import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 
-
 internal object RequirementCalls {
 
     private val CALLS: Map<String, RequirementCall> = mapOf(

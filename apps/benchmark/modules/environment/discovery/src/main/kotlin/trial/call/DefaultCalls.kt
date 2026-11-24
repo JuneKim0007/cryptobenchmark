@@ -2,7 +2,6 @@ package io.github.junekim0007.cryptobench.discovery.trial.call
 
 import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 
-
 internal object DefaultCalls {
 
     private val CALLS: Map<String, DefaultCall> = mapOf(

@@ -5,7 +5,7 @@
 schemaVersion: 1
 group:
   schemaVersion: {means: The version of this file's shape., format: number}
-  source: {means: Who keeps the list and how a name joins it., format: text}
+  source: {means: Where the exemplars and the members come from., format: text}
   groups: {means: The groups by id, each a family or unidentified., format: text}
   family:
     means: The group's id, which says what kind of algorithm it holds.
@@ -22,7 +22,7 @@ group:
   description: {means: 'What the group is: the family value''s meaning, kept in families.yaml and returned by list_groups, not by groups.yaml.', format: text}
   exemplars: {means: Member ids chosen to show the group's range; facts about the group, not definitions., format: algorithmId}
   algorithms: {means: 'Every id the group holds: a family''s are its catalogue''s entries, never listed; unidentified lists its own.', format: algorithmId}
-  members: {means: The ids get_group returns a page at a time; the same ids as `algorithms`, not a word of groups.yaml., format: algorithmId}
+  members: {means: The ids get_group returns a page at a time; a family's catalogue entries, or the ids `unidentified` lists; not a word of groups.yaml., format: algorithmId}
   unidentified: {means: 'The group of ids nobody could identify: `algorithms` lists them and `exemplars` stays empty; the reason and sources tried are the decision''s log.', format: algorithmId}
 algorithm:
   schemaVersion: {means: The version of this file's shape., format: number}
