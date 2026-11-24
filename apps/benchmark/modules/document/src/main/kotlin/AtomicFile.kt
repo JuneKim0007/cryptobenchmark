@@ -6,7 +6,7 @@ import java.io.Writer
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
-/** Whole or not at all: written to a unique temporary file beside the target, then renamed over it, or linked when it must not exist. */
+/** Whole or not at all: written to a unique temporary file beside the target, then renamed over it; when it must not exist, the target is first claimed by an exclusive create. */
 object AtomicFile {
 
     fun write(file: File, text: String, replace: Boolean = true): File = write(file, replace) { it.write(text) }
@@ -19,9 +19,9 @@ object AtomicFile {
         val partial = File.createTempFile(".${file.name}.", ".partial", directory)
         try {
             Files.newBufferedWriter(partial.toPath(), Charsets.UTF_8).use(write)
-            // a rename replaces silently; a hard link fails when the target exists, so it is the one atomic no-overwrite step
-            if (replace) Files.move(partial.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE)
-            else Files.createLink(file.toPath(), partial.toPath())
+            // the exclusive create is the atomic no-overwrite step (hard links are refused on Android FUSE); a crash before the rename leaves the target empty
+            if (!replace) Files.createFile(file.toPath())
+            Files.move(partial.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE)
         } finally {
             partial.delete()
         }

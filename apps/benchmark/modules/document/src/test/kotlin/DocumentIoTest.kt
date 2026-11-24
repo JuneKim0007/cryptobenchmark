@@ -64,10 +64,26 @@ class DocumentIoTest {
     }
 
     @Test
-    fun aWriteThatMustNotReplaceRefusesAnExistingFile() {
-        val file = folder.newFile("c.yaml")
+    fun aWriteThatMustNotReplaceRefusesAnExistingFileAndLeavesNoTemporaryFile() {
+        val file = folder.root.resolve("c.yaml").apply { writeText("kept\n") }
         assertThrows(FileAlreadyExistsException::class.java) { AtomicFile.write(file, "x", replace = false) }
-        assertEquals("", file.readText())
+        assertEquals("kept\n", file.readText())
+        assertEquals(listOf("c.yaml"), folder.root.list()!!.toList())
+    }
+
+    @Test
+    fun aWriteThatMustNotReplaceWritesAFreshFileWhole() {
+        val file = folder.root.resolve("d/e.yaml")
+        AtomicFile.write(file, "fresh\n", replace = false)
+        assertEquals("fresh\n", file.readText())
+        assertEquals(listOf("e.yaml"), file.parentFile.list()!!.toList())
+    }
+
+    @Test
+    fun aWriteThatFailsClaimsNothing() {
+        val file = folder.root.resolve("f.yaml")
+        assertThrows(IllegalStateException::class.java) { AtomicFile.write(file, replace = false) { error("boom") } }
+        assertEquals(emptyList<String>(), folder.root.list()!!.toList())
     }
 
     @Test
