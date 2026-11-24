@@ -104,7 +104,7 @@ class _Reader:
     def _key(self, where: str, engine_type: str, name: str) -> tuple[str, str]:
         found = self.names.catalogued(engine_type, str(name))
         if not found.known or found.keySize is not None or found.name != name:
-            said = f"canonical is {found.name}" if found.known else "not in algorithm-names.yaml"
+            said = f"canonical is {found.name}" if found.known else "not in name-index.yaml"
             self.problems.append(f"screening_key_not_canonical: {where} {engine_type} {name}: {said}")
         return engine_type, fold(str(name))
 
@@ -117,7 +117,7 @@ class _Reader:
         for t, raw in (self.doc.get("components") or {}).items():
             transformation = self.names.transformations.get(t)
             if transformation is None:
-                self.problems.append(f"screening_component_type: {t} has no transformations in algorithm-names.yaml")
+                self.problems.append(f"screening_component_type: {t} has no transformations in name-index.yaml")
                 continue
             bases = {self._key("components base", t, b)[1]: self._component(f"{t} base {b}", r)
                      for b, r in (raw.get("base") or {}).items()}

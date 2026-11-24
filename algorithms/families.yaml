@@ -1,4 +1,4 @@
-# The 8 families say what an algorithm is; whether two can swap comes from the contract rows of groups.yaml, not from here.
+# The 8 families say what an algorithm is; whether two can swap comes from the contract rows groups.py builds from the catalogue entries' contracts, not from here.
 # Agents may not change these descriptions; prompts read them. Key kind: secret | pair | none | peer. An engine type with one
 # family has that key kind; Cipher's comes from the catalogue, else from evidence (grouping/build/key_kind.py).
 # unidentified sits outside the families: no engine type, no catalogue, no contract, so it is never a swap candidate.

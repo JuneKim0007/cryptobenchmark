@@ -179,7 +179,7 @@ def test_a_host_manifest_runtime_recomputes_the_host_device_id():
 
 
 def test_the_names_file_name_is_one_in_both_languages():
-    assert paths.ALGORITHM_NAMES == const("document/src/main/kotlin/names/AlgorithmNames.kt", "FILE")
+    assert paths.NAME_INDEX == const("document/src/main/kotlin/names/AlgorithmNames.kt", "FILE")
 
 
 def test_schema_versions_across_the_boundary():

@@ -30,7 +30,7 @@ TRIAL = {"services": [{"provider": "P", "type": "Cipher", "algorithm": NAME, "in
 def catalogs(tmp_path):
     """Copies of the names and catalogues; the names copy holds the name, which no catalogue builds yet."""
     names = yaml.safe_load(NAMES_CATALOG.read_text())
-    names["names"]["Cipher"][NAME] = []
+    names["spellings"]["Cipher"][NAME] = []
     shutil.copytree(DIRECTORY, tmp_path / "algorithms")
     names_path = tmp_path / "algorithms" / NAMES_CATALOG.name
     names_path.write_text(yaml.safe_dump(names))

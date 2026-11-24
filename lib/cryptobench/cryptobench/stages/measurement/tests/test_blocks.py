@@ -1,5 +1,7 @@
 """Block ranges, identity differences and the partial move-aside a resumed publish makes."""
-import pathlib, types
+import pathlib, re, types
+
+from cryptobench.shared import paths
 
 from cryptobench.shared.results import identity, layout
 from cryptobench.stages.measurement.session import blocks
@@ -20,6 +22,13 @@ def test_a_changed_identity_names_run_and_device_keys_by_their_dotted_name():
 
 def test_the_timed_code_digest_covers_every_pattern():
     assert len(identity.timed_code()) == 64
+
+
+def test_every_guide_file_the_apk_carries_is_timed_code():
+    repo = paths.repo()
+    gradle = (repo.gradle_root / "gradle/guide-resources.gradle").read_text()
+    carried = set(re.findall(r"'([^']+\.yaml)'", gradle[gradle.index("if (catalogues)"):gradle.index("if (!guideTables)")]))
+    assert carried and carried <= {pattern.rsplit("/", 1)[1] for pattern in repo.timed_code if pattern.startswith("algorithms/")}
 
 
 def test_a_runner_edit_changes_only_code_runner_and_bytecode_is_not_code(tmp_path):

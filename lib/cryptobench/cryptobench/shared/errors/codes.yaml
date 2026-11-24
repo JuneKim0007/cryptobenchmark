@@ -955,7 +955,7 @@ codes:
     stops:
       settable: []
       exit: 1
-      next: "nothing; a catalogued name keeps the catalog's function, any other is asked; settle the alias in algorithm-names.yaml"
+      next: "nothing; a catalogued name keeps the catalog's function, any other is asked; settle the alias in name-index.yaml"
       why: "a notice; nothing to choose"
   perf_mode_extra:
     kind: notice

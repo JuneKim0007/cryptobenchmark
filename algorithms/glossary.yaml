@@ -1,4 +1,4 @@
-# One defined meaning for every word of groups.yaml, the catalogues, recipes.yaml, deviations.yaml, provider-builds.yaml and algorithm-names.yaml: a tree by real structure; a term
+# One defined meaning for every word of groups.yaml, the catalogues, recipes.yaml, deviations.yaml, provider-builds.yaml and name-index.yaml: a tree by real structure; a term
 # holds `means` and either closed `values` or an open `format` (number, url, text, algorithmId, requiredName, boolean, role, recipeId,
 # className, deviationId, operation, outputFormula). `nullable`: null is allowed. `unused`: why a listed value, or the term itself, nothing holds yet
 # stays. `derived`: computed from other terms, never stored. A role holds `make`, `lives`, one word for both directions or one per direction, and `goesTo`, the calls a required row of it may name per engine type. Read through catalog/glossary.py.
@@ -27,7 +27,7 @@ group:
 algorithm:
   schemaVersion: {means: The version of this file's shape., format: number}
   family: {means: The family a catalogue file holds; one of group.family., format: text}
-  id: {means: 'One entry''s key: <engine type>|<canonical name> of algorithm-names.yaml.', format: algorithmId}
+  id: {means: 'One entry''s key: <engine type>|<canonical name> of name-index.yaml.', format: algorithmId}
   source:
     means: Where this value comes from.
     values:
@@ -36,7 +36,7 @@ algorithm:
       inferred: Reasoned only; no run or citation backs it yet.
   url: {means: The citation of a sourced value., format: url}
   key:
-    type: {means: 'The key type the call accepts: a `keyTypes` name of algorithm-names.yaml, or none when the call takes no key.', format: text}
+    type: {means: 'The key type the call accepts: a `keyTypes` name of name-index.yaml, or none when the call takes no key.', format: text}
     bytes: {means: Accepted secret key lengths in bytes, each listed., format: number}
     origin:
       means: Where the key comes from.
@@ -423,7 +423,7 @@ build:
       names: {means: The ids., format: algorithmId}
 names:
   schemaVersion: {means: The version of this file's shape., format: number}
-  names: {means: 'Per engine type, each canonical name and its spellings.', format: text}
+  spellings: {means: 'Per engine type, each canonical name and its spellings.', format: text}
   engine:
     means: An engine type the names are kept for.
     values:

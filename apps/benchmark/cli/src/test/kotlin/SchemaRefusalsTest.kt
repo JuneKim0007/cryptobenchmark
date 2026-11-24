@@ -42,7 +42,7 @@ class SchemaRefusalsTest {
     private companion object {
         // reader | refusal
         val EXPECTED = """
-            document AlgorithmNames | unsupported_schema_version: algorithm-names.yaml: 99, this build reads 1
+            document AlgorithmNames | unsupported_schema_version: name-index.yaml: 99, this build reads 2
             preparation SkipFile | unsupported_schema_version: skipped.yaml: 99, this build reads 2
             contract CaptureDocument | unsupported_schema_version: probe_x.yaml: 99, this build reads 1
             contract TrialDocument | unsupported_schema_version: trial_x.yaml: 99, this build reads 3

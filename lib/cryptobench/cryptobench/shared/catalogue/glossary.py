@@ -311,9 +311,9 @@ def deviation_problems(doc: dict) -> list[str]:
 
 
 def names_problems(doc: dict) -> list[str]:
-    """Every key of algorithm-names.yaml a glossary term; each engine type a listed one."""
+    """Every key of name-index.yaml a glossary term; each engine type a listed one."""
     found = _stray(NAMES, doc)
-    for section in (NAMES, "sized", "transformations"):
+    for section in ("spellings", "sized", "transformations"):
         for engine, rows in (doc.get(section) or {}).items():
             found += _check(f"{NAMES}.engine", engine)
             if section == "sized":

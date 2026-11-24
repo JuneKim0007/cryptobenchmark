@@ -4,7 +4,7 @@
 
 ## Entry
 
-Keyed by the algorithm id `<type>|<canonical>`, the canonical name of `../../algorithms/algorithm-names.yaml`. Spellings live only there, never in an entry. A family's group in `../../algorithms/groups.yaml` holds its catalogue's ids, in catalogue order; the file states only the exemplars per group. Every key and value is defined in `../../algorithms/glossary.yaml`.
+Keyed by the algorithm id `<type>|<canonical>`, the canonical name of `../../algorithms/name-index.yaml`. Spellings live only there, never in an entry. A family's group in `../../algorithms/groups.yaml` holds its catalogue's ids, in catalogue order; the file states only the exemplars per group. Every key and value is defined in `../../algorithms/glossary.yaml`.
 
 | Field | Holds |
 |---|---|
@@ -39,14 +39,14 @@ Two forms state a fact once for many entries. Reading applies them, so an entry'
 
 ## Glossary (`../../lib/cryptobench/cryptobench/shared/catalogue/glossary.py`)
 
-`../../algorithms/glossary.yaml` is a tree: `group` holds the words of `groups.yaml`, `algorithm` the words of the catalogues, `recipe` those of `recipes.yaml`, `plan` those of the build plans, `deviation` those of `deviations.yaml`, `build` those of `provider-builds.yaml`, `names` those of `algorithm-names.yaml`, nested by their real structure. A term holds `means` and either closed `values` or an open `format` (number, url, text, algorithmId, requiredName, boolean, role, recipeId, className, deviationId, operation, outputFormula); `unused` says why a listed value or term that nothing holds stays; `derived` marks a term computed and never stored, refused in a catalogue.
+`../../algorithms/glossary.yaml` is a tree: `group` holds the words of `groups.yaml`, `algorithm` the words of the catalogues, `recipe` those of `recipes.yaml`, `plan` those of the build plans, `deviation` those of `deviations.yaml`, `build` those of `provider-builds.yaml`, `names` those of `name-index.yaml`, nested by their real structure. A term holds `means` and either closed `values` or an open `format` (number, url, text, algorithmId, requiredName, boolean, role, recipeId, className, deviationId, operation, outputFormula); `unused` says why a listed value or term that nothing holds stays; `derived` marks a term computed and never stored, refused in a catalogue.
 
 | Function | Returns |
 |---|---|
 | `what_is(path)` | that term or subtree: `what_is("algorithm.required")`, `what_is("group")` |
 | `what_is(path, value)` | the value's one meaning: `what_is("algorithm.required.name", "peerPublicKey")`; an unknown key or value is `glossary_unknown`, naming the valid ones |
 
-`tests/test_glossary.py` closes the catalogues, `recipes.yaml`, `deviations.yaml`, `groups.yaml`, `provider-builds.yaml` and `algorithm-names.yaml` over the tree; the last two are refused at load. A role's `goesTo` lists the calls a required row of it may name per engine type; `output.bytes` is null on generators and agreements and, when stated, what `formula` fixes.
+`tests/test_glossary.py` closes the catalogues, `recipes.yaml`, `deviations.yaml`, `groups.yaml`, `provider-builds.yaml` and `name-index.yaml` over the tree; the last two are refused at load. A role's `goesTo` lists the calls a required row of it may name per engine type; `output.bytes` is null on generators and agreements and, when stated, what `formula` fixes.
 
 ## Agent views (`../../lib/cryptobench/cryptobench/shared/catalogue/views.py`)
 

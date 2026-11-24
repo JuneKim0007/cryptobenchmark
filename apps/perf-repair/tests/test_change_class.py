@@ -216,3 +216,13 @@ def test_a_family_reads_each_item_s_key_types_once_on_its_provider_s_builds(monk
     want = [{"AES"}, {"PBEWithHmacSHA256AndAES_128"}, {"AES"}, None]
     assert [f.key_types(q) for q in items] == want and [f.key_types(q) for q in items] == want
     assert len(read) == 3
+
+
+def test_a_family_s_key_types_keep_no_row_no_entry_and_disagreeing_builds_apart(monkeypatch):
+    items = ["Cipher|NoSuch|P", "Cipher|AES/GCM/NoPadding|P", "Cipher|AES/CBC/PKCS5Padding|Split", "Cipher|AES/CBC/PKCS5Padding|SunJCE"]
+    monkeypatch.setattr(candidates, "entry_of", lambda t, n: None if n == "AES/GCM/NoPadding" else key_types.entry_of(t, n))
+    real = candidates.build_key_types
+    monkeypatch.setattr(candidates, "build_key_types", lambda entry, provider: frozenset({"AES", "DES"}) if provider == "Split" else real(entry, provider))
+    f = candidates.Family({q: "cipher.secret" for q in items}, {q: q.split("|")[1] for q in items}, types(), 21)
+    assert [f.key_types(q) for q in items] == [None, frozenset(), {"AES", "DES"}, {"AES"}]
+

@@ -12,7 +12,7 @@ tasks.matching { it.name == 'processResources' }.configureEach {
             include 'keygen.none_catalogue.yaml', 'keypairgen.none_catalogue.yaml', 'cipher.secret_catalogue.yaml', 'cipher.pair_catalogue.yaml', 'signature.pair_catalogue.yaml', 'mac.secret_catalogue.yaml', 'agreement.peer_catalogue.yaml', 'provider-builds.yaml', 'deviations.yaml', 'groups.yaml', 'families.yaml', 'recipes.yaml'
             into 'io/github/junekim0007/cryptobench/document/catalogue'
         }
-        from(guide) { include 'algorithm-names.yaml'; into 'io/github/junekim0007/cryptobench/document/names' }
+        from(guide) { include 'name-index.yaml'; into 'io/github/junekim0007/cryptobench/document/names' }
     }
     if (!guideTables) return
     from(guide) { include 'setup-catalog.yaml' }

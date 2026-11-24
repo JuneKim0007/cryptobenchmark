@@ -6,17 +6,21 @@ from pathlib import Path
 
 from . import roots
 from .names import (BENCHMARK_CONFIG, CONFIG_FOLDER, CONTRACT_CATALOGUE, CONTRACT_DOCUMENTS, CONTRACT_RUNNER, CONTRACT_YAML_CODEC, CONTRACTS, ENGINE_OPERATIONS,
-                    EXAMPLE, FACADE_CONFIG, GLOBAL, PERF_REPAIR_CONFIG, SETUP_CATALOG, TESTS)
+                    EXAMPLE, FACADE_CONFIG, GLOBAL, NAME_INDEX, PERF_REPAIR_CONFIG, SETUP_CATALOG, TESTS)
 
 _KOTLIN_NAME_USERS = ("modules/environment/contract/src/main/kotlin", "modules/environment/discovery/src/main/kotlin", "modules/catalogue/src/main/kotlin", "modules/config/src/main/kotlin",
                       "modules/preparation/src/main/kotlin", "modules/benchmark/src/main/kotlin", "modules/android/src/androidTest/kotlin",
                       "cli/src/main/kotlin")
 _APK = "modules/android/build/outputs/apk/release/android-release.apk"
+# the guide files :document carries into the APK (apps/benchmark/gradle/guide-resources.gradle)
+_APK_GUIDE = ("keygen.none_catalogue.yaml", "keypairgen.none_catalogue.yaml", "cipher.secret_catalogue.yaml", "cipher.pair_catalogue.yaml", "signature.pair_catalogue.yaml",
+              "mac.secret_catalogue.yaml", "agreement.peer_catalogue.yaml", "provider-builds.yaml", "deviations.yaml", "groups.yaml", "families.yaml", "recipes.yaml", NAME_INDEX)
 # the code that runs in the measuring process, its dependency versions and the catalogues it reads
 _TIMED_CODE = (*(f"apps/benchmark/modules/{m}/src/main/**/*" for m in ("jca", "settings", "records", "catalogue", "files", "document",
                                                                        "environment/contract", "environment/discovery", "preparation", "benchmark")),
                "apps/benchmark/modules/android/src/**/*", "apps/benchmark/modules/android/build.gradle", "apps/benchmark/cli/src/main/**/*",
-               "apps/benchmark/gradle/libs.versions.toml", f"{roots.ALGORITHMS}/{SETUP_CATALOG}", f"{roots.ALGORITHMS}/{ENGINE_OPERATIONS}")
+               "apps/benchmark/gradle/libs.versions.toml", f"{roots.ALGORITHMS}/{SETUP_CATALOG}", f"{roots.ALGORITHMS}/{ENGINE_OPERATIONS}",
+               *(f"{roots.ALGORITHMS}/{name}" for name in _APK_GUIDE))
 # what launches, orders, retries, gates and reads energy around the timed code
 _RUNNER_CODE = ("lib/cryptobench/cryptobench/stages/measurement/**/*.py", f"{roots.RUNNER}/energy/**/*.py", f"{roots.RUNNER}/energy/*.pbtx")
 

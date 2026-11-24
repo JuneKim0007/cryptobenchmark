@@ -4,10 +4,10 @@ The Python library of `apps/benchmark-runner` and `apps/perf-repair`: `shared/` 
 
 ```
 ../../algorithms/ : data: `<family>_catalogue.yaml` per family, one entry per id `<type>|<canonical>` (key, required, optional, conditions, lifecycle, operations, contract, sourcedOnly, providers, provenance); `common.yaml` sources, keyStrength maps, deterministicRelied; `recipes.yaml` how each parameter object a row names is made; `deviations.yaml` facts shared by a set of names and builds, stated once;
-../../algorithms/algorithm-names.yaml : canonical name ← spellings per engine type; key-size suffixes; transformation modes, paddings, per-algorithm synonyms; key formats
+../../algorithms/name-index.yaml : canonical name ← spellings per engine type; key-size suffixes; transformation modes, paddings, per-algorithm synonyms; key formats
 ../../algorithms/engine-operations.yaml : data: per JCA engine type the operations the harness times; read by preparation EngineTypes and copied into each manifest's operations
 ../../algorithms/families.yaml : predefined families with fixed descriptions, the one copy
-../../algorithms/glossary.yaml : data: one defined meaning per key and value of groups.yaml, the catalogues, recipes.yaml, deviations.yaml, provider-builds.yaml and algorithm-names.yaml, a tree with sections group, algorithm, recipe, plan, deviation, build and names
+../../algorithms/glossary.yaml : data: one defined meaning per key and value of groups.yaml, the catalogues, recipes.yaml, deviations.yaml, provider-builds.yaml and name-index.yaml, a tree with sections group, algorithm, recipe, plan, deviation, build and names
 ../../algorithms/groups.yaml : data: per family its exemplars, and the unidentified ids; a family's members are its catalogue's entries
 ../../algorithms/interchange.yaml : data: per engine type the components that split a group, the rules that read them from a canonical name, what a missing key contract means, and which contract each component states
 ../../algorithms/provider-builds.yaml : data: every provider build the catalogues' measured facts ran on, keyed <name> @ <build>, with what each says of itself; a behaviour true of a provider and the ids it reaches

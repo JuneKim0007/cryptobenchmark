@@ -62,6 +62,15 @@ These are not settings.
 - One run at a time per phone.
 - Every skipped case is recorded with its code in `skipped.yaml`.
 
+## Adding an algorithm
+
+1. Spellings: its canonical name and every spelling under its engine type in `algorithms/name-index.yaml` (`spellings`, a key-size spelling under `sized`), from a source the file's header lists.
+2. Entry: `<type>|<canonical>` in its family's `algorithms/<family>_catalogue.yaml`; the family's group members are its catalogue's entries.
+3. Exemplar, optional: the family's `exemplars` in `algorithms/groups.yaml`.
+4. Build differences: the entry's `providers` section, or its id in a deviation of `algorithms/deviations.yaml`.
+5. Provider aliases come from the capture, never copied into these files.
+6. Checks: `make -C apps/perf-repair check`, `apps/benchmark/gradlew -p apps/benchmark :document:test :config:test`, `python3 tools/docs_lint.py`.
+
 ## Assumptions
 
 - Real apps start JIT- or profile-compiled; these numbers are ahead-of-time compiled.

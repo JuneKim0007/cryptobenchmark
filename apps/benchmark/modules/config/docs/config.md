@@ -105,7 +105,7 @@ On a host run the list goes to the host CLI build the same way (`apps/benchmark/
 | blank part | refused |
 | `group` | needs `name`; may not contain `@` |
 | `provider`, `type` | equal ignoring case; missing = any |
-| `name` | same canonical name and key size (`algorithms/algorithm-names.yaml`): `SHA256` matches `SHA-256`; missing = any |
+| `name` | same canonical name and key size (`algorithms/name-index.yaml`): `SHA256` matches `SHA-256`; missing = any |
 | `name` with `*` | case-insensitive pattern, `*` = any text, against the given or the canonical spelling |
 | error path | e.g. `include[0]`, `overrides[2].match`, `selection.exclude[0]` |
 

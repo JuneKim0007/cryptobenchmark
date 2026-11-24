@@ -9,9 +9,10 @@ from ..document.document import DocumentKind
 from .grouping import provider_of
 from .glossary import names_problems
 
-CATALOG = paths.repo().algorithms / paths.ALGORITHM_NAMES
-SCHEMA_VERSION = 1
+CATALOG = paths.repo().algorithms / paths.NAME_INDEX
+SCHEMA_VERSION = 2
 NAME_CONFLICT = "name_conflict"
+SPELLINGS = "spellings"
 OID_PREFIX = "OID."
 
 
@@ -93,7 +94,7 @@ class Names:
         problems = names_problems(doc)
         if problems:
             raise NamesError(f"names_schema: {path}: " + "; ".join(problems))
-        names = {t: _folded(spellings) for t, spellings in doc["names"].items()}
+        names = {t: _folded(spellings) for t, spellings in doc[SPELLINGS].items()}
         sized = {t: {fold(s): Canonical(v["name"], v["keySize"]) for s, v in rows.items()} for t, rows in (doc.get("sized") or {}).items()}
         _check_links(names, sized)
         return cls(

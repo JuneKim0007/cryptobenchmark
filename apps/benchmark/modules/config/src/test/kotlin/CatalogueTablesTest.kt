@@ -6,7 +6,7 @@ import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-/** Every setup-catalog type has its section in algorithm-names.yaml. */
+/** Every setup-catalog type has its section in name-index.yaml. */
 class CatalogueTablesTest {
 
     private fun keys(resource: String, section: String, beside: Class<*> = javaClass) =
@@ -14,6 +14,6 @@ class CatalogueTablesTest {
 
     @Test
     fun everyCatalogueTypeHasCanonicalNames() {
-        assertEquals(emptySet<String>(), keys("/setup-catalog.yaml", "engines") - keys(AlgorithmNames.FILE, "names", AlgorithmNames::class.java))
+        assertEquals(emptySet<String>(), keys("/setup-catalog.yaml", "engines") - keys(AlgorithmNames.FILE, AlgorithmNames.SPELLINGS, AlgorithmNames::class.java))
     }
 }

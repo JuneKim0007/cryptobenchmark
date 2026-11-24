@@ -37,7 +37,7 @@ def test_every_shipped_row_holds_only_status_reason_and_source():
 
 
 @pytest.mark.parametrize("name, said", [("SHA1", "canonical is SHA-1"), ("sha-1", "canonical is SHA-1"),
-                                        ("NOPE", "not in algorithm-names.yaml")])
+                                        ("NOPE", "not in name-index.yaml")])
 def test_a_non_canonical_key_is_refused(tmp_path, name, said):
     with pytest.raises(ScreeningError, match=f"screening_key_not_canonical: crypto MessageDigest {name}: {said}"):
         load(tmp_path, crypto={"MessageDigest": {name: row()}})

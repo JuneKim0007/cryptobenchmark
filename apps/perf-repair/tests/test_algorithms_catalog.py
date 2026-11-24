@@ -104,7 +104,7 @@ def _fact(name: str, **values):
     ("digest.none_catalogue.yaml", _fact("minSdk", value=True), "minSdk"),
     ("digest.none_catalogue.yaml", _fact("minSdk", source="unsourced"), "source 'unsourced'"),
     ("digest.none_catalogue.yaml", _md5(lambda e: e.update(colour="red")), "unknown \\['colour'\\]"),
-    # spellings live only in algorithm-names.yaml
+    # spellings live only in name-index.yaml
     ("digest.none_catalogue.yaml", _md5(lambda e: e.update(aliases=["MD-5"])), "unknown \\['aliases'\\]"),
     ("digest.none_catalogue.yaml", _md5(lambda e: e.pop("providers")), "missing \\['providers'\\]"),
     ("digest.none_catalogue.yaml", _fact("strengthBits", value={"key": "rot13"}), "keyStrength map"),
@@ -154,7 +154,7 @@ def test_a_key_algorithm_spelling_as_key_type_is_refused_naming_its_key_type(tmp
 
 
 def _names(change):
-    return lambda d: change(d["names"], d["sized"])
+    return lambda d: change(d["spellings"], d["sized"])
 
 
 @pytest.mark.parametrize("mutate,code", [
@@ -165,7 +165,7 @@ def _names(change):
 ])
 def test_a_names_file_that_links_past_the_catalogues_is_refused(tmp_path, mutate, code):
     with pytest.raises(AlgorithmsError, match=code):
-        load(_copy(tmp_path, "algorithm-names.yaml", mutate))
+        load(_copy(tmp_path, "name-index.yaml", mutate))
 
 
 def test_a_stray_catalogue_a_missing_one_and_an_old_schema_are_refused(tmp_path):

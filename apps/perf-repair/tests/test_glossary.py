@@ -10,7 +10,6 @@ from cryptobench.shared.catalogue.glossary import (ALL, DERIVED, GlossaryError, 
                                         recipe_terms, role_problems, roles, term_problems, tree, what_is)
 from cryptobench.shared.catalogue.recipes import CATALOG as RECIPES
 from cryptobench.shared.catalogue.groups import CATALOG as GROUPS
-from cryptobench.shared.catalogue.names import Names
 from cryptobench.shared.catalogue.names import CATALOG as NAMES_FILE, Names, NamesError, fold
 from cryptobench.shared.catalogue.deviations import CATALOG as DEVIATIONS
 from cryptobench.shared.catalogue.provider_builds import CATALOG as PROVIDER_BUILDS, ProviderBuildError, load as load_builds
@@ -115,7 +114,7 @@ def test_every_term_and_closed_value_is_used_or_justified():
         used[path].update(value if isinstance(value, list) else [value])
     used["build.origin"].update(row["origin"] for row in builds["builds"].values())
     used.update({f"names.{k}": {None} for k in names})
-    used["names.engine"].update(names["names"])
+    used["names.engine"].update(names["spellings"])
     used.update({f"names.sized.{k}": {None} for k in ("name", "keySize")})
     used.update({f"names.transformations.{k}": {None} for k in names["transformations"]["Cipher"]})
     used["algorithm.direction"].update(tree()["algorithm"]["operations"]["value"]["directions"].values())
@@ -226,13 +225,13 @@ def test_provider_builds_is_closed_at_load(tmp_path, change, word):
 
 @pytest.mark.parametrize("change,word", [
     (lambda d: d.update(colour=1), "names.colour"),
-    (lambda d: d["names"].update(Colour={"A": []}), "no value 'Colour'"),
+    (lambda d: d["spellings"].update(Colour={"A": []}), "no value 'Colour'"),
     (lambda d: d["sized"]["Cipher"]["AES_128"].update(colour=1), "names.sized.colour"),
     (lambda d: d["transformations"]["Cipher"].update(colour=[]), "names.transformations.colour")])
-def test_algorithm_names_is_closed_at_load(tmp_path, change, word):
+def test_the_name_index_is_closed_at_load(tmp_path, change, word):
     doc = yaml.safe_load(NAMES_FILE.read_text())
     change(doc)
-    path = tmp_path / "algorithm-names.yaml"
+    path = tmp_path / "name-index.yaml"
     path.write_text(yaml.safe_dump(doc))
     with pytest.raises(NamesError, match=word):
         Names.load(path)

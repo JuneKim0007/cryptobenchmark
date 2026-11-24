@@ -86,9 +86,9 @@ With `device.screening.aiReview: true`, `grouping build` asks the classify role 
 |---|---|
 | `missing_field`, `unsupported_schema_version` | `schemaVersion` is absent or not 1 |
 | `screening_yaml`, `screening_shape` | the file is not YAML or not a mapping; a section is not the mapping or list it must be (a configured `device.screening.catalog` can be any file) |
-| `screening_key_not_canonical` | a key is not the canonical spelling in `algorithm-names.yaml`, carries a key size, or a mode is not a catalog mode |
+| `screening_key_not_canonical` | a key is not the canonical spelling in `name-index.yaml`, carries a key size, or a mode is not a catalog mode |
 | `screening_status`, `screening_reason` | a status outside `deprecated`, `accepted`; a row with no reason |
-| `screening_component_type` | a `components` engine type with no transformations in `algorithm-names.yaml` |
+| `screening_component_type` | a `components` engine type with no transformations in `name-index.yaml` |
 | `screening_source` | a source key absent from `sources`; `unsourced` is allowed |
 | `screening_component_status` | a component rule that does not deprecate |
 | `screening_platform` | no provider; `removedApi` not after `deprecatedApi` |
@@ -101,7 +101,7 @@ With `device.screening.aiReview: true`, `grouping build` asks the classify role 
 - conflicts follow NIST SP 800-131A r2 (final), stricter where Android's pages say so: SHA-1 digest `deprecated`; PKCS#1 v1.5 signatures `accepted`; CBC `accepted`.
 - platform rows come from AOSP `Providers.java` `DEPRECATED_ALGORITHMS`; OIDs and aliases resolve to the canonical names listed; `AlgorithmParameters` and `CertificateFactory` are not item engine types.
 - DSA follows FIPS 186-5 (final), which r2 predates: signature rows and DSA key pairs are `deprecated`; a final standard that is stricter than r2 wins over r2.
-- a row needs type facts in its family's `../../algorithms/` catalogue and a name in `algorithm-names.yaml`.
+- a row needs type facts in its family's `../../algorithms/` catalogue and a name in `name-index.yaml`.
 
 ## Names with no row
 

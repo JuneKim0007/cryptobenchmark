@@ -67,14 +67,14 @@ apps/benchmark/modules/config/src/main/kotlin/testset/dto/Override.kt : one over
 apps/benchmark/modules/config/src/main/kotlin/testset/dto/Rule.kt : rule matching through the names it is given (the merged names), and specificity
 apps/benchmark/modules/config/src/main/kotlin/testset/dto/TestSet.kt : test-set model
 apps/benchmark/modules/config/src/main/kotlin/yaml/ProviderTree.kt : provider to type to name map, both directions
-apps/benchmark/modules/config/src/test/kotlin/AlgorithmNamesTest.kt : document's AlgorithmNames: the cases shared with perf-repair, every catalogued spelling, key types, linkage refusals, inventory duplicates, rule names
+apps/benchmark/modules/config/src/test/kotlin/AlgorithmNamesTest.kt : document's AlgorithmNames: the cases shared with perf-repair (tests/contracts/catalogue/name-index-cases.yaml), every catalogued spelling, key types, linkage refusals, inventory duplicates, rule names
 apps/benchmark/modules/config/src/test/kotlin/AuthoredFilesTest.kt : a typo key or a bad providers.bundled stops the parse-only read
 apps/benchmark/modules/config/src/test/kotlin/BesideAuthoredParityTest.kt : tests/contracts/documents/beside-authored.json: Beside.authored gives each stated test-set path text; Python's paths.beside the same location
 apps/benchmark/modules/config/src/test/kotlin/BundledCasesParityTest.kt : tests/contracts/documents/bundled-cases.json: the providers section and its bundled entries, read as GlobalDocument reads them, each refused with its code or accepted; Python's bundled.entries the same
 apps/benchmark/modules/config/src/test/kotlin/CaptureLayerTest.kt : tests/contracts/catalogue/name-layers-cases.yaml as Python reads it; rule names through the merged names: a device-only alias, name_conflict, alias_conflict
 apps/benchmark/modules/config/src/test/kotlin/CommittedConfigTest.kt : committed config/ files parse
 apps/benchmark/modules/config/src/test/kotlin/ConfigurationTest.kt : facade tests
-apps/benchmark/modules/config/src/test/kotlin/ContractsTest.kt : config's global and effective examples, tests/contracts/ facts and scalars read to their .json values; algorithm-names.yaml resolves as Python resolves it; the duplicate-key refusal and exponent read
+apps/benchmark/modules/config/src/test/kotlin/ContractsTest.kt : config's global and effective examples, tests/contracts/ facts and scalars read to their .json values; name-index.yaml resolves as Python resolves it; the duplicate-key refusal and exponent read
 apps/benchmark/modules/config/src/test/kotlin/DefaultsFileTest.kt : lib/cryptobench/cryptobench/shared/settings/defaults.yaml is what DefaultsDocument writes; -Dexamples.update rewrites it
 apps/benchmark/modules/config/src/test/kotlin/DocumentFixture.kt : built documents shared by the schema tests
 apps/benchmark/modules/config/src/test/kotlin/DocumentRoundTripTest.kt : every document round-trips; schemaVersion stamp and check
@@ -92,5 +92,4 @@ apps/benchmark/modules/config/src/test/kotlin/OverrideResolverTest.kt : override
 apps/benchmark/modules/config/src/test/kotlin/PathsAndKeySourceTest.kt : variants precedence, fallback, notFixed and secure notices, a trial-failed generator on the secure path, a written key source and backing checked
 apps/benchmark/modules/config/src/test/kotlin/RuleTest.kt : rule matching tests
 apps/benchmark/modules/config/src/test/kotlin/WarmupJobsTest.kt : warm-up jobs resolved to entries; nothing selected turns it off
-apps/benchmark/modules/config/src/test/resources/algorithm-names-cases.yaml : name cases both readers resolve alike; perf-repair's tests/test_names.py reads it here
 ```

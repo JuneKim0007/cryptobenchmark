@@ -39,8 +39,8 @@ def test_every_kind_s_code_is_in_the_table():
 
 
 def test_a_wrong_version_raises_the_kind_s_error_with_the_file_name(tmp_path):
-    with pytest.raises(NamesError, match=r"^unsupported_schema_version: n.yaml: 2, this build reads 1$") as e:
-        NAMES_DOC.check({"schemaVersion": 2}, tmp_path / "n.yaml")
+    with pytest.raises(NamesError, match=r"^unsupported_schema_version: n.yaml: 1, this build reads 2$") as e:
+        NAMES_DOC.check({"schemaVersion": 1}, tmp_path / "n.yaml")
     assert (e.value.code, e.value.path) == ("unsupported_schema_version", tmp_path / "n.yaml")
 
 

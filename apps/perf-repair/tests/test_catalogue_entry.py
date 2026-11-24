@@ -38,11 +38,13 @@ def test_a_new_entry_already_held_is_refused():
     assert "id is in 2 catalogues: ['digest.none', 'digest.none']" in entry_check(entry, _with(entry), FAMILIES, NAMES)
 
 
-@pytest.mark.parametrize("name, given", [("SHA256", "SHA-256"), ("2.16.840.1.101.3.4.2.1", "SHA-256"), ("sha-256", "SHA-256"),
-                                         ("SHA-999", "SHA-999")])
-def test_an_id_that_is_not_the_names_file_s_canonical_is_refused(name, given):
+@pytest.mark.parametrize("name, said", [("SHA256", "the names file gives SHA-256 keySize None"),
+                                        ("2.16.840.1.101.3.4.2.1", "the names file gives SHA-256 keySize None"),
+                                        ("sha-256", "the names file gives SHA-256 keySize None"),
+                                        ("SHA-999", "the names file has no MessageDigest SHA-999")])
+def test_an_id_that_is_not_the_names_file_s_canonical_is_refused(name, said):
     entry = _sha(identifier=f"MessageDigest|{name}")
-    assert f"id not canonical, the names file gives {given} keySize None" in entry_check(entry, _with(entry), FAMILIES, NAMES)
+    assert f"id not canonical, {said}" in entry_check(entry, _with(entry), FAMILIES, NAMES)
 
 
 def test_a_family_that_does_not_fit_the_engine_type_is_refused():

@@ -10,8 +10,8 @@
 - dto: no I/O; every file-level document carries `schemaVersion`, one constant per artifact, and every read site refuses another through its `DocumentKind` (`../../lib/cryptobench/cryptobench/shared/document/document.py`), declared beside the artifact's DTO, never a hand-written check (`run_dir.read_scopes`, `read_sites`, `read_edits`, `read_dossiers`: `unsupported_schema_version`).
 - numbers: summarised once in `inbound/results.py`; nothing downstream recomputes them.
 - gate: the inbound command writes nothing until the manifest, rows, measurements and run log validate.
-- names: every algorithm-name comparison goes through `../../lib/cryptobench/cryptobench/shared/catalogue/names.py`; document's `AlgorithmNames.kt` reads the same file and must resolve `../benchmark/modules/config/src/test/resources/algorithm-names-cases.yaml` alike; a spelling goes in `../../algorithms/algorithm-names.yaml` with a cited source; parameters (OAEP, MGF1, provider defaults) never do.
-- names: the benchmark owns `algorithm-names-cases.yaml`; `tests/test_names.py` reads it there.
+- names: every algorithm-name comparison goes through `../../lib/cryptobench/cryptobench/shared/catalogue/names.py`; document's `AlgorithmNames.kt` reads the same file and must resolve `../../tests/contracts/catalogue/name-index-cases.yaml` alike; a spelling goes in `../../algorithms/name-index.yaml` with a cited source; parameters (OAEP, MGF1, provider defaults) never do.
+- names: `tests/test_names.py` reads `name-index-cases.yaml` in `../../tests/contracts/catalogue/`, as config's AlgorithmNamesTest does.
 - names: the catalog's name wins over a probe alias; an uncatalogued alias two providers contradict is `name_conflict` where it is used, never a pick.
 - inputs: every setting is chosen by `inputs/resolve.py` from its `inputs/table.py` row; library code logs, only a `__main__` attaches a handler.
 - bundled: a row in `catalog/bundled-providers.yaml` cites a source; its version is never there, it is the app's pin.

@@ -93,8 +93,8 @@ def test_the_facts_writer_writes_the_shared_facts(tmp_path, monkeypatch):
 
 
 def test_the_names_file_passes_the_python_reader_and_resolves_as_kotlin_resolves_it():
-    assert NAMES_DOC.read(paths.repo().algorithms / paths.ALGORITHM_NAMES)["schemaVersion"] == 1
-    names = Names.load(paths.repo().algorithms / paths.ALGORITHM_NAMES)
+    assert NAMES_DOC.read(paths.repo().algorithms / paths.NAME_INDEX)["schemaVersion"] == 2
+    names = Names.load(paths.repo().algorithms / paths.NAME_INDEX)
     # the same five lookups AlgorithmNames answers in the config module's ContractsTest
     assert names.canonical("MessageDigest", "sha") == Canonical("SHA-1")
     assert names.canonical("Cipher", "tripledes") == Canonical("DESede")

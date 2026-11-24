@@ -89,10 +89,11 @@ class AlgorithmNames private constructor(
 
     companion object : DocumentReader<AlgorithmNames> {
 
-        const val FILE = "algorithm-names.yaml"
-        private const val SCHEMA_VERSION = 1
+        const val FILE = "name-index.yaml"
+        private const val SCHEMA_VERSION = 2
         private const val OID_PREFIX = "OID."
         const val NAME_CONFLICT = "name_conflict"
+        const val SPELLINGS = "spellings"
 
         override val schemaVersion: Int = SCHEMA_VERSION
 
@@ -108,7 +109,7 @@ class AlgorithmNames private constructor(
 
         @Suppress("UNCHECKED_CAST")
         override fun parse(document: Map<String, Any>): AlgorithmNames {
-            val names = (document["names"] as Map<String, Map<String, List<String>?>>).mapValues { (_, spellings) -> folded(spellings) }
+            val names = (document[SPELLINGS] as Map<String, Map<String, List<String>?>>).mapValues { (_, spellings) -> folded(spellings) }
             val sized = (document["sized"] as Map<String, Map<String, Map<String, Any>>>? ?: emptyMap()).mapValues { (_, rows) ->
                 rows.entries.associate { (spelling, row) -> fold(spelling) to Canonical(row["name"] as String, row["keySize"] as Int) }
             }

@@ -392,6 +392,8 @@ def canonical_problems(entry: Entry, names: Names) -> list[str]:
     found = names.catalogued(entry.type, entry.canonical)
     if found.known and found.name == entry.canonical and found.keySize is None:
         return []
+    if not found.known:
+        return [f"id not canonical, the names file has no {entry.type} {entry.canonical}"]
     return [f"id not canonical, the names file gives {found.name} keySize {found.keySize}"]
 
 
@@ -427,7 +429,7 @@ def load(directory: Path = DIRECTORY, families: Families | None = None, names: N
         entries += found
         problems += more
     problems += deviations.problems({fold(e.id) for e in entries})
-    problems += _linkage_problems(entries, names or Names.load(directory / paths.ALGORITHM_NAMES),
+    problems += _linkage_problems(entries, names or Names.load(directory / paths.NAME_INDEX),
                                   {f.type for f in families.all if f.id in files})
     if problems:
         raise AlgorithmsError(f"{INVALID}: " + "; ".join(problems))

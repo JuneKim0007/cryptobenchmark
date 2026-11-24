@@ -7,11 +7,13 @@ import io.github.junekim0007.cryptobench.config.testset.dto.Rule
 import io.github.junekim0007.cryptobench.document.YamlCodec
 import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 import io.github.junekim0007.cryptobench.document.names.dto.Canonical
+import io.github.junekim0007.cryptobench.files.RepositoryFiles
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.io.File
 import java.security.Security
 import javax.crypto.KeyGenerator
 
@@ -22,7 +24,7 @@ class AlgorithmNamesTest {
     @Suppress("UNCHECKED_CAST")
     @Test
     fun theCasesSharedWithPerfRepairResolveAlike() {
-        val text = javaClass.getResource("/algorithm-names-cases.yaml")?.readText() ?: error("no algorithm-names-cases.yaml on the test classpath")
+        val text = File(RepositoryFiles.catalogue, "name-index-cases.yaml").readText()
         val cases = YamlCodec.DOCUMENT.load(text)["cases"] as List<Map<String, Any?>>
         assertTrue(cases.size > 20)
         for (case in cases) {
@@ -45,7 +47,7 @@ class AlgorithmNamesTest {
     @Test
     fun everyCataloguedSpellingResolvesToItsCanonicalName() {
         val text = AlgorithmNames::class.java.getResource(AlgorithmNames.FILE)!!.readText()
-        val catalog = YamlCodec.DOCUMENT.load(text)["names"] as Map<String, Map<String, List<String>?>>
+        val catalog = YamlCodec.DOCUMENT.load(text)[AlgorithmNames.SPELLINGS] as Map<String, Map<String, List<String>?>>
         for ((type, spellings) in catalog) {
             for ((canonical, aliases) in spellings) {
                 for (spelling in listOf(canonical, canonical.lowercase()) + aliases.orEmpty()) {
@@ -69,7 +71,7 @@ class AlgorithmNamesTest {
 
     @Test
     fun aSpellingUnderTwoCanonicalNamesIsRefused() {
-        val document = YamlCodec.DOCUMENT.load("schemaVersion: 1\nnames:\n  MessageDigest:\n    SHA-1: [SHA]\n    SHA-0: [sha]\n")
+        val document = YamlCodec.DOCUMENT.load("schemaVersion: 2\nspellings:\n  MessageDigest:\n    SHA-1: [SHA]\n    SHA-0: [sha]\n")
         val error = assertThrows(IllegalArgumentException::class.java) { AlgorithmNames.parse(document) }
         assertTrue(error.message!!.startsWith("names_catalog_duplicate:"))
     }
@@ -77,10 +79,10 @@ class AlgorithmNamesTest {
     @Test
     fun aSpellingSizedAndNamedOrAnOidApartFromItsBareFormIsRefused() {
         for ((body, code) in listOf(
-            "names:\n  Cipher:\n    AES: [AES_128]\nsized:\n  Cipher:\n    AES_128: {name: AES, keySize: 128}\n" to "names_catalog_duplicate: Cipher AES_128 is sized and named",
-            "names:\n  KeyPairGenerator:\n    XDH: [1.3.101.110]\n    X25519: [OID.1.3.101.110]\n" to "names_oid_split: KeyPairGenerator OID.1.3.101.110",
+            "spellings:\n  Cipher:\n    AES: [AES_128]\nsized:\n  Cipher:\n    AES_128: {name: AES, keySize: 128}\n" to "names_catalog_duplicate: Cipher AES_128 is sized and named",
+            "spellings:\n  KeyPairGenerator:\n    XDH: [1.3.101.110]\n    X25519: [OID.1.3.101.110]\n" to "names_oid_split: KeyPairGenerator OID.1.3.101.110",
         )) {
-            val error = assertThrows(IllegalArgumentException::class.java) { AlgorithmNames.parse(YamlCodec.DOCUMENT.load("schemaVersion: 1\n$body")) }
+            val error = assertThrows(IllegalArgumentException::class.java) { AlgorithmNames.parse(YamlCodec.DOCUMENT.load("schemaVersion: 2\n$body")) }
             assertTrue(error.message!!, code in error.message!!)
         }
     }
@@ -94,7 +96,7 @@ class AlgorithmNamesTest {
         assertEquals(Canonical("RSASSA-PSS"), names.keyType("rsassa-pss"))
         assertEquals(Canonical("RSA"), names.keyType("rsa"))
         val error = assertThrows(IllegalArgumentException::class.java) {
-            AlgorithmNames.parse(YamlCodec.DOCUMENT.load("schemaVersion: 1\nnames: {}\nkeyTypes:\n  EC: [ECDSA]\n  ECDSA: []\n"))
+            AlgorithmNames.parse(YamlCodec.DOCUMENT.load("schemaVersion: 2\nspellings: {}\nkeyTypes:\n  EC: [ECDSA]\n  ECDSA: []\n"))
         }
         assertTrue(error.message!!, error.message!!.startsWith("names_catalog_duplicate:"))
     }

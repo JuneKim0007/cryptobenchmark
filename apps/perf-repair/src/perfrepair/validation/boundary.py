@@ -88,7 +88,7 @@ def catalogs_agree(items: list[dict], verdicts: dict[str, dict], names: Names) -
             unlisted.append(f"{i['family']} {said}")
         elif said and types.of(i["family"], said) is None:
             untyped.append(f"{i['family']} {said}")
-    return (_found("names_agree", ADVISORY, "catalogs", conflict, "settle the name in screening.yaml or algorithm-names.yaml")
+    return (_found("names_agree", ADVISORY, "catalogs", conflict, "settle the name in screening.yaml or name-index.yaml")
             + _found("name_is_in_its_group", ADVISORY, "catalogs", unlisted, "add its entry to its family's algorithms/ catalogue")
             + _found("name_has_facts", ADVISORY, "catalogs", untyped, "add its type facts to its algorithms/ entry"))
 
