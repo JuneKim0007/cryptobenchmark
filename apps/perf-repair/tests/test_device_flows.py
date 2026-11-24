@@ -14,7 +14,6 @@ from perfrepair.ai.runtime.engine.outbox import active_fingerprint
 from perfrepair.check.run import validate_run
 from perfrepair.files import read_json
 from cryptobench.shared.catalogue import groups as group_catalog_file
-from cryptobench.shared.catalogue.algorithms import algorithms
 from perfrepair.catalog import signature
 from perfrepair.app.facts.path_id import path_id
 from perfrepair.guide.command import main as guide
@@ -26,15 +25,14 @@ FOLDER = "fake-api36-00000000"
 BUNDLED_FIRST = "bundled: [{artifact: 'g:a:1', create: g.Aaa, alias: Aaa}]"
 OLD_ITEMS = 4
 INTERCHANGE = signature.interchange
-GROUPS = group_catalog_file.CATALOG
+LOAD = group_catalog_file.load
 pytestmark = pytest.mark.usefixtures("asked_by_model")
 
 
 def _real_catalog(monkeypatch):
     """Undo asked_by_model for a test of what the catalog groups across providers."""
     monkeypatch.setattr(signature, "interchange", INTERCHANGE)
-    monkeypatch.setattr(group_catalog_file, "CATALOG", GROUPS)
-    monkeypatch.setattr(group_catalog_file, "algorithms", algorithms)
+    monkeypatch.setattr(group_catalog_file, "load", LOAD)
     group_catalog_file.group_catalog.cache_clear()
 
 

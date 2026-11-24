@@ -5,7 +5,6 @@ from pathlib import Path
 import pytest
 
 from cryptobench.shared.catalogue import groups as group_catalog_file
-from cryptobench.shared.catalogue.algorithms import Algorithms, algorithms
 from cryptobench.shared.catalogue.interchange import Interchange
 from perfrepair.config import current, device_results, dotenv, load
 from perfrepair.failure import last_failure
@@ -65,12 +64,9 @@ def detached_log():
 
 
 @pytest.fixture
-def no_group_catalog(monkeypatch, tmp_path_factory):
-    """An empty groups.yaml over catalogues without entries, so a fixture's names are all unidentified."""
-    empty = tmp_path_factory.mktemp("no-group-catalog") / "groups.yaml"
-    empty.write_text('{schemaVersion: 4, source: test, groups: {}}')
-    monkeypatch.setattr(group_catalog_file, "CATALOG", empty)
-    monkeypatch.setattr(group_catalog_file, "algorithms", lambda: Algorithms((), algorithms().common))
+def no_group_catalog(monkeypatch):
+    """A group catalog with no family, so a fixture's names are all unidentified."""
+    monkeypatch.setattr(group_catalog_file, "load", lambda path: group_catalog_file.GroupCatalog("test", ()))
     group_catalog_file.group_catalog.cache_clear()
     yield
     group_catalog_file.group_catalog.cache_clear()

@@ -113,7 +113,7 @@ flowchart TD
 | `agreement.peer` | KeyAgreement | peer |
 
 Outside the families: `unidentified`, for an item no catalogue entry or key evidence places; it has no engine type, catalogue or contract and is never a swap candidate.
-A names-file canonical with no catalogue entry and not listed in `unidentified` loads with the warning `name_unbuilt` and is grouped `unidentified`.
+A names-file canonical with no catalogue entry and not listed in `unidentified` is refused at load (`groups_invalid`): every catalogue entry is a names-file canonical, so dropping an entry is refused.
 
 ## Static findings
 

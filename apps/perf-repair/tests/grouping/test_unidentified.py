@@ -1,4 +1,5 @@
 """A name a person moves out of `unidentified` into a family is identified from then on: no model call, no key evidence."""
+import re
 import shutil
 
 import pytest
@@ -67,12 +68,17 @@ def _run(catalog, names, monkeypatch):
     return items[0], profiles, verdicts
 
 
-def test_a_name_in_no_list_and_without_evidence_is_unidentified_and_asked(catalogs, monkeypatch, capsys):
-    tmp_path, names = catalogs
+def test_a_name_in_no_list_and_without_evidence_is_unidentified_and_asked(monkeypatch):
+    names = Names.load()
     item, profiles, verdicts = _run(load(CATALOG, FAMILIES, names), names, monkeypatch)
     assert (item.family, profiles[item.id].keyKind, profiles[item.id].keyKindFrom) == (UNIDENTIFIED, "unknown", "none")
     assert not identified(item, verdicts)
-    assert f"warning: name_unbuilt: {ID}: names-file canonical with no catalogue entry, not in unidentified" in capsys.readouterr().out
+
+
+def test_a_names_file_canonical_with_no_entry_and_not_unidentified_is_refused(catalogs):
+    tmp_path, names = catalogs
+    with pytest.raises(GroupsError, match=f"{re.escape(ID)}: names-file canonical with no catalogue entry, not in unidentified"):
+        load(CATALOG, FAMILIES, names)
 
 
 def test_a_name_held_in_unidentified_stays_there(catalogs, monkeypatch):

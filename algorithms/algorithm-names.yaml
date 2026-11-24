@@ -1611,6 +1611,32 @@ names:
     - OID.2.16.840.1.101.3.4.1.27
     - OID.2.16.840.1.101.3.4.1.47
     - OID.2.16.840.1.101.3.4.1.7
+    AES/CBC/NoPadding: []
+    AES/CBC/PKCS5Padding: []
+    AES/CFB/NoPadding: []
+    AES/CTR/NoPadding: []
+    AES/ECB/NoPadding: []
+    AES/ECB/PKCS5Padding: []
+    AES/GCM-SIV/NoPadding: []
+    AES/KW/PKCS5Padding: []
+    AES/OFB/NoPadding: []
+    ARIA/CBC/PKCS5Padding: []
+    ARIA/CFB/NoPadding: []
+    ARIA/ECB/PKCS5Padding: []
+    ARIA/OFB/NoPadding: []
+    CAMELLIA/CBC/PKCS5Padding: []
+    DESede/CBC/NoPadding: []
+    DESede/ECB/NoPadding: []
+    DESede/ECB/PKCS5Padding: []
+    RSA/ECB/OAEPWithSHA-1AndMGF1Padding: []
+    RSA/ECB/OAEPWithSHA-224AndMGF1Padding: []
+    RSA/ECB/OAEPWithSHA-256AndMGF1Padding: []
+    RSA/ECB/OAEPWithSHA-384AndMGF1Padding: []
+    RSA/ECB/OAEPWithSHA-512AndMGF1Padding: []
+    Serpent/CBC/PKCS5Padding: []
+    Serpent/CFB/NoPadding: []
+    Serpent/ECB/PKCS5Padding: []
+    Serpent/OFB/NoPadding: []
     AES/GCM/NoPadding:
     - GCM
     - 2.16.840.1.101.3.4.1.26

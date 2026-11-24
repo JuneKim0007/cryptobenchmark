@@ -1,5 +1,6 @@
 """Who is asked: a listed name never, an unlisted one once; catalog groups by key contract; candidates; gate C on the facts."""
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -272,12 +273,16 @@ def test_a_bad_group_is_refused(tmp_path, group, code):
 
 
 def test_a_family_s_members_are_its_catalogue_entries_in_order():
+    mac = next(g for g in load().families if g.family == "mac.secret")
+    assert list(mac.algorithms) == [e.canonical for e in algorithms().entries if e.family == "mac.secret"]
+
+
+@pytest.mark.parametrize("dropped", ["Mac|HmacSHA512", "Cipher|AES/CBC/PKCS5Padding"])
+def test_a_dropped_catalogue_entry_is_refused(dropped):
     entries = algorithms()
-    catalogue = Algorithms(tuple(e for e in entries.entries if e.id != "Mac|HmacSHA512"), entries.common)
-    loaded = load(catalogue=catalogue)
-    mac = next(g for g in loaded.families if g.family == "mac.secret")
-    assert list(mac.algorithms) == [e.id.split("|", 1)[1] for e in catalogue.entries if e.family == "mac.secret"]
-    assert "HmacSHA512" not in mac.algorithms
+    catalogue = Algorithms(tuple(e for e in entries.entries if e.id != dropped), entries.common)
+    with pytest.raises(GroupsError, match=f"{re.escape(dropped)}: names-file canonical with no catalogue entry, not in unidentified"):
+        load(catalogue=catalogue)
 
 
 def test_a_family_with_entries_and_no_section_is_refused(tmp_path):
