@@ -55,6 +55,18 @@ class AlgorithmNamesTest {
         }
     }
 
+    // one fold per language agrees with ignore-case equality only on ASCII
+    @Test
+    fun everySpellingOfTheNamesFileIsAscii() {
+        fun words(value: Any?): List<String> = when (value) {
+            is Map<*, *> -> value.entries.flatMap { words(it.key) + words(it.value) }
+            is List<*> -> value.flatMap(::words)
+            else -> listOf(value.toString())
+        }
+        val text = AlgorithmNames::class.java.getResource(AlgorithmNames.FILE)!!.readText()
+        assertEquals(emptyList<String>(), words(YamlCodec.DOCUMENT.load(text)).filter { word -> word.any { it.code > 127 } })
+    }
+
     @Test
     fun aSpellingUnderTwoCanonicalNamesIsRefused() {
         val document = YamlCodec.DOCUMENT.load("schemaVersion: 1\nnames:\n  MessageDigest:\n    SHA-1: [SHA]\n    SHA-0: [sha]\n")

@@ -3,7 +3,6 @@ package io.github.junekim0007.cryptobench.document.catalogue
 import io.github.junekim0007.cryptobench.document.DocumentFields
 import io.github.junekim0007.cryptobench.document.YamlCodec
 import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
-import java.util.Locale
 
 /** algorithms/<family>_catalogue.yaml read whole: each entry by type and any spelling of its name, its fields as one provider build runs it, the entry's own providers section over [CatalogueOverlays] as the guide's reader applies them. */
 class FamilyCatalogue(val entries: List<Entry>, private val overlays: CatalogueOverlays = CatalogueOverlays.NONE, val names: AlgorithmNames = AlgorithmNames.catalog) {
@@ -26,15 +25,15 @@ class FamilyCatalogue(val entries: List<Entry>, private val overlays: CatalogueO
         fun keyType(build: String? = null): String? = section("key", build)?.get("type") as? String
     }
 
-    private val byId = entries.associateBy { fold(it.id) }
+    private val byId = entries.associateBy { AlgorithmNames.fold(it.id) }
 
-    fun of(type: String, name: String): Entry? = byId[fold("$type|${names.canonical(type, name).name}")]
+    fun of(type: String, name: String): Entry? = byId[AlgorithmNames.fold("$type|${names.canonical(type, name).name}")]
 
     /** The generator entries whose key type, as [build] sees it, is [entry]'s: the key type's canonical first, then the entry's own, then catalogue order. */
     fun generatorsOf(entry: Entry, build: String?): List<Entry> {
-        val wanted = entry.keyType(build)?.let { fold(names.keyType(it).name) } ?: return emptyList()
-        return entries.filter { it.family in GENERATORS && it.keyType(build)?.let { type -> fold(names.keyType(type).name) } == wanted }
-            .sortedBy { when (fold(it.name)) { wanted -> 0; fold(entry.name) -> 1; else -> 2 } }
+        val wanted = entry.keyType(build)?.let { AlgorithmNames.fold(names.keyType(it).name) } ?: return emptyList()
+        return entries.filter { it.family in GENERATORS && it.keyType(build)?.let { type -> AlgorithmNames.fold(names.keyType(type).name) } == wanted }
+            .sortedBy { when (AlgorithmNames.fold(it.name)) { wanted -> 0; AlgorithmNames.fold(entry.name) -> 1; else -> 2 } }
     }
 
     /** The build a provider runs as on this platform, whose view [Entry.fields] gives; null: the base entry. */
@@ -54,8 +53,6 @@ class FamilyCatalogue(val entries: List<Entry>, private val overlays: CatalogueO
         val KEYED: List<String> by lazy {
             DocumentFields.sections(YamlCodec.DOCUMENT.load(resource(FAMILIES)), "families").filter { DocumentFields.string(it, "keyKind") != "none" }.map { DocumentFields.string(it, "id") }
         }
-
-        fun fold(name: String): String = name.uppercase(Locale.ROOT)
 
         fun file(family: String) = "${family}_catalogue.yaml"
 

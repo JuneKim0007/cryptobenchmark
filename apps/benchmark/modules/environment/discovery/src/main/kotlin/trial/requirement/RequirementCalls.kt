@@ -1,6 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
-import io.github.junekim0007.cryptobench.discovery.adapter.ServiceKey
+import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
+
 
 internal object RequirementCalls {
 
@@ -13,7 +14,7 @@ internal object RequirementCalls {
         "KeyPairGenerator" to GeneratorFacts,
         "KeyAgreement" to AgreementFacts,
         "SecretKeyFactory" to FactoryFacts,
-    ).mapKeys { (type, _) -> ServiceKey.fold(type) }
+    ).mapKeys { (type, _) -> AlgorithmNames.fold(type) }
 
-    fun of(type: String): RequirementCall? = CALLS[ServiceKey.fold(type)]
+    fun of(type: String): RequirementCall? = CALLS[AlgorithmNames.fold(type)]
 }

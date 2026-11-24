@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
+import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 import io.github.junekim0007.cryptobench.jca.failure.Attempt
 import io.github.junekim0007.cryptobench.jca.failure.ErrorText
 import java.security.spec.AlgorithmParameterSpec
@@ -58,8 +59,8 @@ internal class CipherEffects(private val service: ProbedService, private val eng
 
     private fun oaepVariants(spec: OAEPParameterSpec): List<Pair<String, AlgorithmParameterSpec>> {
         val mgf1 = (spec.mgfParameters as? MGF1ParameterSpec)?.digestAlgorithm ?: spec.digestAlgorithm
-        val otherDigest = service.digests.firstOrNull { !it.equals(spec.digestAlgorithm, ignoreCase = true) && accepted(ParameterSpecs.oaep(it, mgf1, ByteArray(0))) }
-        val otherMgf1 = service.digests.firstOrNull { !it.equals(mgf1, ignoreCase = true) && accepted(ParameterSpecs.oaep(spec.digestAlgorithm, it, ByteArray(0))) }
+        val otherDigest = service.digests.firstOrNull { AlgorithmNames.fold(it) != AlgorithmNames.fold(spec.digestAlgorithm) && accepted(ParameterSpecs.oaep(it, mgf1, ByteArray(0))) }
+        val otherMgf1 = service.digests.firstOrNull { AlgorithmNames.fold(it) != AlgorithmNames.fold(mgf1) && accepted(ParameterSpecs.oaep(spec.digestAlgorithm, it, ByteArray(0))) }
         return listOfNotNull(
             otherDigest?.let { "digestChanged" to ParameterSpecs.oaep(it, mgf1, ByteArray(0)) },
             otherMgf1?.let { "mgf1Changed" to ParameterSpecs.oaep(spec.digestAlgorithm, it, ByteArray(0)) },

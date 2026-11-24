@@ -1,6 +1,7 @@
 package io.github.junekim0007.cryptobench.preparation.adapter
 
 import io.github.junekim0007.cryptobench.contract.Handoff
+import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 import io.github.junekim0007.cryptobench.preparation.device.ServiceName
 import io.github.junekim0007.cryptobench.preparation.device.dto.CapturedDevice
 import io.github.junekim0007.cryptobench.preparation.device.dto.CapturedService
@@ -66,7 +67,7 @@ class DiscoveryCapability private constructor(capture: CapturedDevice, trial: Tr
         }
         val base = algorithm.substringBefore('/', missingDelimiterValue = "").ifEmpty { return null }
         val baseService = serviceOf(provider, type, base) ?: return null
-        val transformation = trials?.get(ServiceName.of(type, baseService.algorithm))?.transformations?.firstOrNull { it.name.equals(algorithm, ignoreCase = true) }
+        val transformation = trials?.get(ServiceName.of(type, baseService.algorithm))?.transformations?.firstOrNull { AlgorithmNames.fold(it.name) == AlgorithmNames.fold(algorithm) }
         return Trialled(transformation?.instantiates, transformation?.error.orEmpty(), transformation?.keyAlgorithm.orEmpty(), transformation?.fixedKeySize, "transformation_fails")
     }
 

@@ -14,5 +14,6 @@ kotlin {
 
 dependencies {
     api project(':files')
+    implementation project(':document')
     testImplementation 'junit:junit:4.13.2'
 }

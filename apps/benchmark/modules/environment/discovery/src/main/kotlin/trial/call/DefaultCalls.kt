@@ -1,6 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery.trial.call
 
-import io.github.junekim0007.cryptobench.discovery.adapter.ServiceKey
+import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
+
 
 internal object DefaultCalls {
 
@@ -12,7 +13,7 @@ internal object DefaultCalls {
         "KeyGenerator" to GeneratorCall(pair = false),
         "KeyPairGenerator" to GeneratorCall(pair = true),
         "KeyAgreement" to AgreementCall,
-    ).mapKeys { (type, _) -> ServiceKey.fold(type) }
+    ).mapKeys { (type, _) -> AlgorithmNames.fold(type) }
 
-    fun of(type: String): DefaultCall? = CALLS[ServiceKey.fold(type)]
+    fun of(type: String): DefaultCall? = CALLS[AlgorithmNames.fold(type)]
 }

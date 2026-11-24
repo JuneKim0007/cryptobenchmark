@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.benchmark.verify.known
 
+import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 
@@ -27,6 +28,6 @@ class KnownAnswer(
     }
 
     fun matches(case: BenchmarkCase): Boolean =
-        (provider == null || provider == case.provider) && type.equals(case.type, ignoreCase = true) && algorithms.any { it.equals(case.algorithm, ignoreCase = true) } && case.operation in operations &&
+        (provider == null || provider == case.provider) && AlgorithmNames.fold(type) == AlgorithmNames.fold(case.type) && algorithms.any { AlgorithmNames.fold(it) == AlgorithmNames.fold(case.algorithm) } && case.operation in operations &&
             (case.keySize == null || key !is RawKey.Secret || key.bytes.size * Byte.SIZE_BITS == case.keySize)
 }

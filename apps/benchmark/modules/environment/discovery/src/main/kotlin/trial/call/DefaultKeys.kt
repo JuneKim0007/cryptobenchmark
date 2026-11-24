@@ -1,9 +1,9 @@
 package io.github.junekim0007.cryptobench.discovery.trial.call
 
+import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 import io.github.junekim0007.cryptobench.jca.peer.PeerPair
 import io.github.junekim0007.cryptobench.jca.failure.Attempt
 import io.github.junekim0007.cryptobench.contract.requirements.KeyCacheStats
-import io.github.junekim0007.cryptobench.discovery.adapter.ServiceKey
 import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.NoSuchAlgorithmException
@@ -110,7 +110,7 @@ internal class DefaultKeys(private val providers: List<Provider>, val candidates
     }
 
     private fun cacheKey(provider: Provider, algorithm: String, keySize: Int?): String =
-        provider.name + "|" + ServiceKey.fold(algorithm) + "|" + keySize
+        provider.name + "|" + AlgorithmNames.fold(algorithm) + "|" + keySize
 
     private companion object {
         val PASSWORD = "requirement-probe".toCharArray()

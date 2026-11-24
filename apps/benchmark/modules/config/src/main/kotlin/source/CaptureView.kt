@@ -2,7 +2,7 @@ package io.github.junekim0007.cryptobench.config.source
 
 import io.github.junekim0007.cryptobench.contract.capture.CapturedEnvironment
 import io.github.junekim0007.cryptobench.contract.capture.RuntimeDocument
-import java.util.Locale
+import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 
 data class CaptureView(
     val device: Map<String, Any>,
@@ -15,7 +15,7 @@ data class CaptureView(
         aliases[provider]?.get(service(type, name)).orEmpty()
 
     companion object {
-        fun service(type: String, name: String): Pair<String, String> = type to name.uppercase(Locale.ROOT)
+        fun service(type: String, name: String): Pair<String, String> = type to AlgorithmNames.fold(name)
 
         fun of(capture: CapturedEnvironment): CaptureView = CaptureView(
             device = RuntimeDocument.of(capture.runtime),

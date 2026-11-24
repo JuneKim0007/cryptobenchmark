@@ -1,12 +1,12 @@
 package io.github.junekim0007.cryptobench.preparation.operation
 
 import io.github.junekim0007.cryptobench.catalogue.EngineRows
+import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.measurement.Variant
 import io.github.junekim0007.cryptobench.document.DocumentFields
 import io.github.junekim0007.cryptobench.document.YamlCodec
 import io.github.junekim0007.cryptobench.document.catalogue.FamilyCatalogue
-import java.util.Locale
 
 /** setup-catalog.yaml: per engine type what a fixed call still does, a byMode or bySuffix type's catalogued entry by its catalogue rows as its provider's build sees them; notFixed always makes the instance per call. */
 internal class SetupCatalog(document: Map<String, Any>, private val catalogue: FamilyCatalogue = FamilyCatalogue(emptyList())) {
@@ -24,11 +24,11 @@ internal class SetupCatalog(document: Map<String, Any>, private val catalogue: F
         if (case.variant == Variant.NOT_FIXED) return PerCall.INSTANCE_INIT_AND_OPERATION
         val fixed = DocumentFields.string(row, FIXED)
         if (fixed == BY_SUFFIX || fixed == BY_MODE) catalogued(case, platform)?.let { return it }
-        if (fixed == BY_SUFFIX) return bySuffix(row, case.algorithm.uppercase(Locale.ROOT))
+        if (fixed == BY_SUFFIX) return bySuffix(row, AlgorithmNames.fold(case.algorithm))
         if (fixed != BY_MODE) return PerCall.of(fixed)
-        val mode = case.algorithm.split('/').getOrNull(1)?.uppercase(Locale.ROOT)
+        val mode = case.algorithm.split('/').getOrNull(1)?.let(AlgorithmNames::fold)
             ?: return PerCall.of(DocumentFields.string(DocumentFields.section(row, "withoutMode"), if (hasIv()) "iv" else "noIv"))
-        val modes = DocumentFields.section(row, "modes").mapKeys { it.key.uppercase(Locale.ROOT) }
+        val modes = DocumentFields.section(row, "modes").mapKeys { AlgorithmNames.fold(it.key) }
         return PerCall.of(modes[mode]?.toString() ?: DocumentFields.string(row, "otherMode"))
     }
 
@@ -47,7 +47,7 @@ internal class SetupCatalog(document: Map<String, Any>, private val catalogue: F
     }
 
     private fun bySuffix(row: Map<String, Any>, algorithm: String): PerCall {
-        val suffixes = DocumentFields.section(row, "suffixes").entries.firstOrNull { algorithm.endsWith(it.key.uppercase(Locale.ROOT)) }
+        val suffixes = DocumentFields.section(row, "suffixes").entries.firstOrNull { algorithm.endsWith(AlgorithmNames.fold(it.key)) }
         return PerCall.of(suffixes?.value?.toString() ?: DocumentFields.string(row, "otherSuffix"))
     }
 

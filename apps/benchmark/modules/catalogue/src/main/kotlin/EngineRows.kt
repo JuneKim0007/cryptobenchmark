@@ -1,17 +1,17 @@
 package io.github.junekim0007.cryptobench.catalogue
 
+import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 import io.github.junekim0007.cryptobench.files.FileNames
 import io.github.junekim0007.cryptobench.files.VariantLabels
-import java.util.Locale
 
 /** setup-catalog.yaml's per-type rows, config's and preparation's one reading: the paths a type applies, the key generators. */
 class EngineRows(document: Map<String, *>) {
 
     private val rows: Map<String, Pair<String, Map<String, *>>> = section(document[ENGINES], ENGINES).entries
-        .associate { (type, row) -> fold(type) to (type to section(row, "$ENGINES.$type")) }
+        .associate { (type, row) -> AlgorithmNames.fold(type) to (type to section(row, "$ENGINES.$type")) }
 
     /** The row of [type], or null when the catalogue lacks it. */
-    fun row(type: String): Map<String, *>? = rows[fold(type)]?.second
+    fun row(type: String): Map<String, *>? = rows[AlgorithmNames.fold(type)]?.second
 
     /** A row's `variants`, or [fixed, notFixed] without one; a type the catalogue lacks applies none. */
     fun applicable(type: String): List<String> {
@@ -48,8 +48,6 @@ class EngineRows(document: Map<String, *>) {
 
         /** The refusal of a type the catalogue lacks. */
         fun notInCatalogue(type: String): String = "not_in_catalogue: $type has no row in $RESOURCE"
-
-        private fun fold(type: String) = type.uppercase(Locale.ROOT)
 
         private fun section(value: Any?, path: String): Map<String, *> {
             val map = value as? Map<*, *> ?: throw IllegalArgumentException(if (value == null) "missing_field: $RESOURCE $path" else "wrong_type: $RESOURCE $path")

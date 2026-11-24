@@ -1,11 +1,11 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
+import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 import io.github.junekim0007.cryptobench.jca.failure.Attempt
 import io.github.junekim0007.cryptobench.contract.capture.CapturedEnvironment
 import io.github.junekim0007.cryptobench.jca.failure.ErrorText
 import io.github.junekim0007.cryptobench.contract.requirements.RequirementReport
 import io.github.junekim0007.cryptobench.contract.capture.ServiceEntry
-import io.github.junekim0007.cryptobench.discovery.adapter.ServiceKey
 import io.github.junekim0007.cryptobench.contract.requirements.ServiceRequirement
 import io.github.junekim0007.cryptobench.contract.trial.ServiceTrialEntry
 import io.github.junekim0007.cryptobench.contract.trial.TrialReport
@@ -22,10 +22,10 @@ class RequirementTrial {
         val sources = KeySources(live, keys)
         val digests = namesOf(capture, DIGEST)
         val secretNames = namesOf(capture, SECRET_GENERATOR)
-        val trialled = trial.services.associateBy { Triple(it.provider, ServiceKey.fold(it.type), ServiceKey.fold(it.algorithm)) }
+        val trialled = trial.services.associateBy { Triple(it.provider, AlgorithmNames.fold(it.type), AlgorithmNames.fold(it.algorithm)) }
         val services = capture.providers.flatMap { entry ->
             entry.services.flatMap { service ->
-                val attempt = trialled.getValue(Triple(entry.name, ServiceKey.fold(service.type), ServiceKey.fold(service.algorithm)))
+                val attempt = trialled.getValue(Triple(entry.name, AlgorithmNames.fold(service.type), AlgorithmNames.fold(service.algorithm)))
                 listOf(record(entry.name, installed[entry.name], service, attempt, sources, live, digests, secretNames, "")) +
                     attempt.transformations.filter { it.outcome.instantiates }.map { transformation ->
                         val own = attempt.copy(algorithm = transformation.name, defaultRun = transformation.defaultRun, transformations = emptyList())
@@ -99,11 +99,11 @@ class RequirementTrial {
     }
 
     private fun namesOf(capture: CapturedEnvironment, type: String): List<String> =
-        capture.providers.flatMap { it.services }.filter { ServiceKey.fold(it.type) == type }.map { it.algorithm }.distinctBy { ServiceKey.fold(it) }
+        capture.providers.flatMap { it.services }.filter { AlgorithmNames.fold(it.type) == type }.map { it.algorithm }.distinctBy { AlgorithmNames.fold(it) }
 
     private companion object {
-        val DIGEST = ServiceKey.fold("MessageDigest")
-        val SECRET_GENERATOR = ServiceKey.fold("KeyGenerator")
+        val DIGEST = AlgorithmNames.fold("MessageDigest")
+        val SECRET_GENERATOR = AlgorithmNames.fold("KeyGenerator")
         const val NANOS_PER_MILLI = 1_000_000L
     }
 }

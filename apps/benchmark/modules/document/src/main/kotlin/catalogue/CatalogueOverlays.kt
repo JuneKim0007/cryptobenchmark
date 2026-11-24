@@ -2,6 +2,7 @@ package io.github.junekim0007.cryptobench.document.catalogue
 
 import io.github.junekim0007.cryptobench.document.DocumentFields
 import io.github.junekim0007.cryptobench.document.YamlCodec
+import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 
 /** algorithms/provider-builds.yaml and deviations.yaml: per build, what a provider-wide behaviour or a deviation states of one entry, and the build a provider runs as here. */
 class CatalogueOverlays(private val builds: Map<String, String>, private val behaviours: List<Statement>, private val deviations: List<Statement>) {
@@ -14,7 +15,7 @@ class CatalogueOverlays(private val builds: Map<String, String>, private val beh
         for (behaviour in behaviours.filter { id in it.ids }) {
             behaviour.builds.forEach { found.getOrPut(it) { linkedMapOf() }.putAll(behaviour.set.filterKeys { path -> Overrides.parent(entry, path) != null }) }
         }
-        for (deviation in deviations.filter { FamilyCatalogue.fold(id) in it.ids }) {
+        for (deviation in deviations.filter { AlgorithmNames.fold(id) in it.ids }) {
             deviation.builds.forEach { found.getOrPut(it) { linkedMapOf() }.putAll(deviation.set) }
         }
         return found
@@ -53,7 +54,7 @@ class CatalogueOverlays(private val builds: Map<String, String>, private val beh
             }
             val stated = DocumentFields.section(YamlCodec.DOCUMENT.load(deviations), "deviations").map { (key, value) ->
                 val row = DocumentFields.asSection(value, key)
-                Statement(expanded(DocumentFields.strings(row, "builds")), DocumentFields.strings(row, "names").mapTo(HashSet(), FamilyCatalogue::fold), DocumentFields.section(row, "set"))
+                Statement(expanded(DocumentFields.strings(row, "builds")), DocumentFields.strings(row, "names").mapTo(HashSet(), AlgorithmNames::fold), DocumentFields.section(row, "set"))
             }
             return CatalogueOverlays(builds, behaviours, stated)
         }

@@ -1,14 +1,12 @@
 package io.github.junekim0007.cryptobench.preparation.device
 
-import java.util.Locale
+import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 
 internal data class ServiceName(val type: String, val algorithm: String) {
 
     companion object {
 
         fun of(type: String, algorithm: String): ServiceName =
-            ServiceName(fold(type), fold(algorithm))
-
-        private fun fold(value: String): String = value.uppercase(Locale.ROOT)
+            ServiceName(AlgorithmNames.fold(type), AlgorithmNames.fold(algorithm))
     }
 }

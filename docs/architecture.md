@@ -36,7 +36,7 @@ config/benchmark/global.yaml + config/benchmark/testsets/*.yaml
 | `:environment:discovery` | `apps/benchmark/modules/environment/discovery` | `api :jca`, `api :environment:contract`, `implementation :files`, `implementation :document` | none |
 | `:settings` | `apps/benchmark/modules/settings` | none | none |
 | `:records` | `apps/benchmark/modules/records` | `implementation :document` | none |
-| `:catalogue` | `apps/benchmark/modules/catalogue` | `api :files` | none |
+| `:catalogue` | `apps/benchmark/modules/catalogue` | `api :files`, `implementation :document` | none |
 | `:config` | `apps/benchmark/modules/config` | `implementation :environment:contract`, `implementation :settings`, `implementation :records`, `implementation :catalogue`, `implementation :files`, `implementation :document` | snakeyaml 2.3 |
 | `:preparation` | `apps/benchmark/modules/preparation` | `api :settings`, `api :records`, `api :catalogue`, `api :jca`, `implementation :environment:contract`, `implementation :files`, `implementation :document` | snakeyaml 2.3 |
 | `:benchmark` | `apps/benchmark/modules/benchmark` | `api :preparation`, `implementation :files`, `implementation :document` | snakeyaml 2.3 |

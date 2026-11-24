@@ -1,8 +1,8 @@
 package io.github.junekim0007.cryptobench.discovery.trial.keystore
 
-import io.github.junekim0007.cryptobench.discovery.adapter.ServiceKey
 import io.github.junekim0007.cryptobench.document.DocumentFields
 import io.github.junekim0007.cryptobench.document.catalogue.FamilyCatalogue
+import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 
 /** The generator catalogues' keystore blocks: the builder authorizations, and the key sizes or curves the trial generates. */
 internal class KeystoreCatalogue(private val blocks: Map<Pair<String, String>, Block>) {
@@ -10,7 +10,7 @@ internal class KeystoreCatalogue(private val blocks: Map<Pair<String, String>, B
     data class Block(val authorizations: Map<String, Any>, val keySizes: List<Int> = emptyList(), val curves: List<String> = emptyList())
 
     /** The block of the first name the catalogue holds for this type, case-folded. */
-    fun of(type: String, names: List<String>): Block? = names.firstNotNullOfOrNull { blocks[ServiceKey.fold(type) to ServiceKey.fold(it)] }
+    fun of(type: String, names: List<String>): Block? = names.firstNotNullOfOrNull { blocks[AlgorithmNames.fold(type) to AlgorithmNames.fold(it)] }
 
     companion object {
 
@@ -24,7 +24,7 @@ internal class KeystoreCatalogue(private val blocks: Map<Pair<String, String>, B
         fun of(catalogue: FamilyCatalogue): KeystoreCatalogue = KeystoreCatalogue(catalogue.entries.mapNotNull { entry ->
             @Suppress("UNCHECKED_CAST")
             val block = entry.section(KEYSTORE) as Map<String, Any>? ?: return@mapNotNull null
-            (ServiceKey.fold(entry.type) to ServiceKey.fold(entry.name)) to Block(block.filterKeys { it !in LEAVES },
+            (AlgorithmNames.fold(entry.type) to AlgorithmNames.fold(entry.name)) to Block(block.filterKeys { it !in LEAVES },
                 DocumentFields.optionalNumbers(block, TRIAL_KEY_SIZES), DocumentFields.optionalStrings(block, TRIAL_CURVES))
         }.toMap())
     }

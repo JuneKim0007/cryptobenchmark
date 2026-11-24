@@ -1,6 +1,7 @@
 package io.github.junekim0007.cryptobench.preparation.key.plan
 
 import io.github.junekim0007.cryptobench.catalogue.EngineRows
+import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 import io.github.junekim0007.cryptobench.preparation.measurement.BenchmarkCase
 import io.github.junekim0007.cryptobench.preparation.operation.KeyShape
 import io.github.junekim0007.cryptobench.preparation.operation.OperationDefinitions
@@ -20,7 +21,7 @@ class KeyPlanner(
             return KeyRecipe.None
         }
         val measured = capability.measuredKey(case.provider, case.type, case.algorithm)
-        val key = case.keySource.algorithm?.let { written -> measured?.takeIf { it.algorithm.equals(written, ignoreCase = true) } ?: KeyCandidate(written) }
+        val key = case.keySource.algorithm?.let { written -> measured?.takeIf { AlgorithmNames.fold(it.algorithm) == AlgorithmNames.fold(written) } ?: KeyCandidate(written) }
             ?: measured ?: return KeyRecipe.Unavailable("no_measured_key: ${case.type}.${case.algorithm}")
         return when (shape) {
             KeyShape.NONE -> KeyRecipe.None

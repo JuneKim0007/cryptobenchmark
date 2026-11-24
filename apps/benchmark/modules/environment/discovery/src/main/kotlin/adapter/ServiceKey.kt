@@ -1,6 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery.adapter
 
-import java.util.Locale
+import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 
 internal class ServiceKey(type: String, algorithm: String) {
 
@@ -17,13 +17,11 @@ internal class ServiceKey(type: String, algorithm: String) {
 
     companion object {
 
-        fun fold(value: String): String = value.uppercase(Locale.ROOT)
-
         private fun validated(field: String, value: String): String {
             if (value.isBlank()) {
                 throw ServiceKeyException("missing_field: $field")
             }
-            return fold(value)
+            return AlgorithmNames.fold(value)
         }
     }
 }

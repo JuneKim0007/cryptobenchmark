@@ -23,6 +23,7 @@ modules:
   catalogue:
     uses:
       files: [FileNames, VariantLabels]
+      document: [names.AlgorithmNames]
   settings:
     uses: {}
   config:
@@ -53,7 +54,7 @@ modules:
       settings: [HarnessSettings, EnergySettings, CpuSettings, Metric, OnFailure]
       records: [Skip, StoppedOnFailureException]
       files: all
-      document: [AtomicFile, DocumentFields, YamlCodec, versioned.DocumentReader, versioned.MapDocument, versioned.VersionedFile, versioned.YamlFile, versioned.YamlFiles]
+      document: [AtomicFile, DocumentFields, YamlCodec, names.AlgorithmNames, versioned.DocumentReader, versioned.MapDocument, versioned.VersionedFile, versioned.YamlFile, versioned.YamlFiles]
 
 # The one file that may name each androidx entry point: a second config or loop would bypass the collection between samples.
 owned:

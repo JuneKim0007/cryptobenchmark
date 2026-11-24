@@ -1,7 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery.trial.keystore
 
 import io.github.junekim0007.cryptobench.contract.trial.KeystoreRow
-import io.github.junekim0007.cryptobench.discovery.adapter.ServiceKey
+import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 import io.github.junekim0007.cryptobench.jca.failure.Attempt
 import io.github.junekim0007.cryptobench.jca.reflect.Reflect
 import java.security.KeyPairGenerator
@@ -21,7 +21,7 @@ internal object ReflectiveKeystore : KeystoreMaker {
     private const val CURVE = "curve"
     private const val STRONGBOX_FEATURE = "android.hardware.strongbox_keystore"
     private const val KEY_STORE = "KeyStore"
-    private val PAIR = ServiceKey.fold("KeyPairGenerator")
+    private val PAIR = AlgorithmNames.fold("KeyPairGenerator")
 
     override fun missing(): String? = try {
         Class.forName(BUILDER)
@@ -38,7 +38,7 @@ internal object ReflectiveKeystore : KeystoreMaker {
 
     override fun generate(provider: Provider, request: KeystoreRequest, alias: String, sdkInt: Int) {
         val spec = spec(alias, request, sdkInt)
-        if (ServiceKey.fold(request.type) == PAIR) {
+        if (AlgorithmNames.fold(request.type) == PAIR) {
             KeyPairGenerator.getInstance(request.algorithm, provider).apply { initialize(spec) }.generateKeyPair()
         } else {
             KeyGenerator.getInstance(request.algorithm, provider).apply { init(spec) }.generateKey()

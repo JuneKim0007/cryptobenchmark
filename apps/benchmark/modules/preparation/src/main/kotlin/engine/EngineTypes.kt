@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.preparation.engine
 
+import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 import io.github.junekim0007.cryptobench.files.FileNames
 import io.github.junekim0007.cryptobench.preparation.measurement.Operation
 import io.github.junekim0007.cryptobench.document.DocumentFields
@@ -10,7 +11,7 @@ class EngineTypes private constructor(
     private val fallback: List<Operation>,
 ) {
 
-    fun operationsOf(type: String): List<Operation> = types[EngineTypeName.fold(type)] ?: fallback
+    fun operationsOf(type: String): List<Operation> = types[AlgorithmNames.fold(type)] ?: fallback
 
     companion object {
 
@@ -22,7 +23,7 @@ class EngineTypes private constructor(
                 ?: throw IllegalStateException("missing_resource: $RESOURCE beside ${EngineTypes::class.java.name}")
             val document = YamlCodec.DOCUMENT.load(text)
             val types = DocumentFields.section(document, "types").entries.associate { (type, _) ->
-                EngineTypeName.fold(type) to DocumentFields.strings(DocumentFields.section(document, "types"), type).map(Operation::valueOf)
+                AlgorithmNames.fold(type) to DocumentFields.strings(DocumentFields.section(document, "types"), type).map(Operation::valueOf)
             }
             EngineTypes(types, DocumentFields.strings(document, "fallback").map(Operation::valueOf))
         }
