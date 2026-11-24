@@ -10,6 +10,10 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.io.File
 import java.nio.file.FileAlreadyExistsException
+import java.nio.file.NoSuchFileException
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 class DocumentIoTest {
 
@@ -84,6 +88,39 @@ class DocumentIoTest {
         val file = folder.root.resolve("f.yaml")
         assertThrows(IllegalStateException::class.java) { AtomicFile.write(file, replace = false) { error("boom") } }
         assertEquals(emptyList<String>(), folder.root.list()!!.toList())
+    }
+
+    // The writer removes its own partial, so the claim succeeds and the rename then fails with no test seam.
+    @Test
+    fun aRenameThatFailsAfterTheClaimReleasesTheClaim() {
+        val file = folder.root.resolve("g.yaml")
+        assertThrows(NoSuchFileException::class.java) {
+            AtomicFile.write(file, replace = false) { folder.root.listFiles()!!.single { it.name.endsWith(".partial") }.delete() }
+        }
+        assertEquals(emptyList<String>(), folder.root.list()!!.toList())
+        AtomicFile.write(file, "later\n", replace = false)
+        assertEquals("later\n", file.readText())
+    }
+
+    @Test
+    fun twoConcurrentWritesThatMustNotReplaceHaveExactlyOneWinner() {
+        val file = folder.root.resolve("h.yaml")
+        val start = CountDownLatch(1)
+        val pool = Executors.newFixedThreadPool(2)
+        val outcomes = listOf("a\n", "b\n").map { text ->
+            pool.submit<Any> {
+                start.await()
+                try { AtomicFile.write(file, text, replace = false); text } catch (exists: FileAlreadyExistsException) { exists }
+            }
+        }
+        start.countDown()
+        val results = outcomes.map { it.get(10, TimeUnit.SECONDS) }
+        pool.shutdown()
+        val winners = results.filterIsInstance<String>()
+        assertEquals(1, winners.size)
+        assertEquals(1, results.filterIsInstance<FileAlreadyExistsException>().size)
+        assertEquals(winners.single(), file.readText())
+        assertEquals(listOf("h.yaml"), folder.root.list()!!.toList())
     }
 
     @Test
