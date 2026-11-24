@@ -65,6 +65,9 @@ class Repo:
     contract_runner = property(lambda self: self.contracts / CONTRACT_RUNNER)
     contract_catalogue = property(lambda self: self.contracts / CONTRACT_CATALOGUE)
 
+    def kotlin_source(self, module: str, source_set: str, file: str) -> Path:
+        return self.gradle_root / "modules" / module / "src" / source_set / "kotlin" / file
+
     def module_example(self, module: str, name: str) -> Path:
         return self.gradle_root / "modules" / module / EXAMPLE / name
 

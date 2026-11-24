@@ -3,7 +3,7 @@ import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
-from names_check import MODULE, ROOT, SOURCES, disagreements, kotlin_names, literal_violations  # noqa: E402
+from names_check import MIRRORS, MODULE, ROOT, SOURCES, disagreements, kotlin_names, literal_violations, mirror_problems  # noqa: E402
 
 from cryptobench.shared import paths  # noqa: E402
 
@@ -75,3 +75,21 @@ def test_a_file_built_from_a_literal_is_found(tmp_path):
 def test_a_file_named_from_values_passes(tmp_path):
     source(tmp_path, 'val a = File(folder, "${recipe.algorithm}.key")\nval b = File(out, FileNames.EFFECTIVE)\n')
     assert scanned(tmp_path) == set()
+
+
+def test_the_mirrored_constants_agree():
+    assert mirror_problems() == []
+
+
+def test_a_changed_kotlin_copy_fails(tmp_path):
+    def copied(module, source_set, file):
+        return tmp_path / module / source_set / file
+    for _, _, kotlin, _ in MIRRORS:
+        copied(*kotlin).parent.mkdir(parents=True, exist_ok=True)
+        copied(*kotlin).write_text(paths.repo().kotlin_source(*kotlin).read_text(encoding="utf-8"), encoding="utf-8")
+    probe, chart = copied(*MIRRORS[0][2]), copied(*MIRRORS[-1][2])
+    probe.write_text(probe.read_text().replace('ARGUMENT = "case"', 'ARGUMENT = "caseId"'))
+    chart.write_text(chart.read_text().replace("UNIDENTIFIED(0, ", "UNIDENTIFIED(9, "))
+    assert mirror_problems(copied) == [
+        f"mirror differs: {MIRRORS[0][0]}.CASE_ARGUMENT ('case',), {MIRRORS[0][2][2]} ('caseId',)",
+        f"mirror differs: analysis.chart_input.UNIDENTIFIED ('0', 'unidentified'), {MIRRORS[-1][2][2]} ('9', 'unidentified')"]

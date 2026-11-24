@@ -24,6 +24,7 @@ from ..dto.benchmark_coverage import (
     Gap,
 )
 from cryptobench.shared.catalogue.grouping import parse_qualified, qualified
+from ..dto import run_log
 from ..dto.metrics import METRICS
 from ..dto.perf_mode import PerfMode
 from ..dto.used import UsedItem, UsedSet
@@ -32,7 +33,7 @@ from ..result.estimate import MIN_RUNS
 
 NO_HARNESS_OPERATION = "no_harness_operation: the harness times no operation of this engine type"
 NOT_IN_PLAN = "not_in_plan: the selection never planned it"
-REFUSING = ("skipped", "not_runnable")
+REFUSING = (run_log.SKIPPED, run_log.NOT_RUNNABLE)
 ENERGY_CAPTURES = ("measured",)
 PLANNED = "planned"
 # what differs between the variants of one planned case
@@ -64,8 +65,8 @@ class _Run:
         self.rows = {r.rowId: r for r in rd.load_rows(device)}
         self.summaries = rd.load_measurements(device).byRow
         log = rd.load_run_log(device).entries
-        self.refused_case = {i: e.reason or e.status for e in log if e.status == "skipped" for i in e.rowIds}
-        self.lost_case = {i: e.reason or e.status for e in log if e.status == "unmeasured" for i in e.rowIds}
+        self.refused_case = {i: e.reason or e.status for e in log if e.status == run_log.SKIPPED for i in e.rowIds}
+        self.lost_case = {i: e.reason or e.status for e in log if e.status == run_log.UNMEASURED for i in e.rowIds}
         self.refused_item = {qualified(e.type, e.algorithm, e.provider): e.reason or e.status for e in log
                              if e.status in REFUSING and e.type and e.algorithm and e.provider}
         # a case a delta already measured again: the run that lost it twice ended, and no later run spends another delta

@@ -5,12 +5,10 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from cryptobench.shared.paths import RunTree
-from cryptobench.shared.catalogue.names import Names, NamesError
+from cryptobench.shared.catalogue.names import NAME_CONFLICT, Names, NamesError
 from ..data_handler.inbound import Probe, RunContext
 from ..dto import ProviderEntry
 from ..dto.dossier import NOT_ON_DEVICE
-
-NAME_CONFLICT = "name_conflict"
 from .find.scan import Site
 from cryptobench.shared.errors.input_error import InputError
 

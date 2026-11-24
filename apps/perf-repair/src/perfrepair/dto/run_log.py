@@ -6,7 +6,8 @@ from cryptobench.shared.document.document import DocumentKind
 
 SCHEMA_VERSION = 1
 RUN_LOG_DOC = DocumentKind("run log", SCHEMA_VERSION)
-STATUSES = ("measured", "skipped", "refused", "unmeasured", "not_runnable")
+MEASURED, SKIPPED, REFUSED, UNMEASURED, NOT_RUNNABLE = "measured", "skipped", "refused", "unmeasured", "not_runnable"
+STATUSES = (MEASURED, SKIPPED, REFUSED, UNMEASURED, NOT_RUNNABLE)
 
 
 @dataclass(frozen=True)

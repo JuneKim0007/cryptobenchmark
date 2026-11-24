@@ -28,6 +28,7 @@ from ..dto.primitives_missing import (
     STOPPED,
     MissingRow,
 )
+from ..dto import run_log
 from ..dto.run_log import RunLog
 from ..dto.shipped import shipped, shipped_names
 from ..dto.used import UsedSet
@@ -42,7 +43,7 @@ HOST_NEXT = f"a host cannot build it: {ONLY_DEVICE_BUILDS}; run the guide with -
 NO_ITEM_NEXT = "the run has no item for it: add it to the test set, or check the provider registers it"
 VARIANT_NEXT = "the benchmark measured it only in the other variant, so this site gets no option; check run.variants and the test set"
 RESOLVED = ("default", "explicit")
-UNMEASURED_STATUSES = ("skipped", "unmeasured", "not_runnable")
+UNMEASURED_STATUSES = (run_log.SKIPPED, run_log.UNMEASURED, run_log.NOT_RUNNABLE)
 
 
 def _action_of(code: str) -> str:
@@ -149,7 +150,7 @@ def measured_rows(device: Path, app: str) -> list[MissingRow]:
     if not path.is_file():
         return []
     entries = RunLog.from_json(read_json(path)).entries
-    done = {qualified(e.type, e.algorithm, e.provider) for e in entries if e.status == "measured"}
+    done = {qualified(e.type, e.algorithm, e.provider) for e in entries if e.status == run_log.MEASURED}
     lost = {qualified(e.type, e.algorithm, e.provider): e.reason or e.status for e in entries
             if e.status in UNMEASURED_STATUSES and e.type and e.algorithm and e.provider}
     sites = [s for s in _resolved(_sites(device, app)) if _name(s) in lost and _name(s) not in done]

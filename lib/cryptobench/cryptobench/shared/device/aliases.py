@@ -29,7 +29,3 @@ def read(path: Path) -> dict[str, str]:
     if twice:
         raise InputError(f"duplicate_alias: {path}: {', '.join(twice)} named by more than one alias", path)
     return dict(aliases)
-
-
-def alias_of(aliases: dict[str, str]) -> dict[str, str]:
-    return {key: alias for alias, key in aliases.items()}

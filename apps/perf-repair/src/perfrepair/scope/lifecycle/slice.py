@@ -69,7 +69,7 @@ def _escape(n: Node) -> Escape | None:
     return None
 
 
-def _on_object(n: Node, name: str, out: Slice) -> None:
+def _on_object(n: Node, out: Slice) -> None:
     use = use_of(n)
     if use.kind == RECEIVER and use.call is not None:
         call = use.call
@@ -97,7 +97,7 @@ def scan(scope: Node, name: str, start: int) -> Slice:
             stack.extend(reversed([c for c in n.children if redeclared is None or c.start < redeclared.start]))
             continue
         if n.start >= start and refers_to(n, name) and n.kind in (g.IDENTIFIER, g.MEMBER):
-            _on_object(n, name, out)
+            _on_object(n, out)
             if n.kind == g.MEMBER:
                 continue
         stack.extend(reversed(n.children))

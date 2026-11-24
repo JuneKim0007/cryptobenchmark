@@ -1,6 +1,5 @@
 """Print the settings a run resolved to, and where each came from: effective.yaml's generatedFrom.settings, which :config writes."""
 import argparse
-import pathlib
 import sys
 
 

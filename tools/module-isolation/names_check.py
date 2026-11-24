@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
-"""Kotlin file names: the :files module equals Python's CONTRACT, and no file name is written by hand outside it."""
+"""Kotlin file names: the :files module equals Python's CONTRACT, and no file name is written by hand outside it.
+Mirrored constants: each Python copy of a Kotlin value equals it."""
 from __future__ import annotations
 
+import importlib.util
 import pathlib
 import re
 import sys
@@ -15,6 +17,22 @@ OWNER = re.compile(r"^object (\w+)", re.M)
 CONSTANT = re.compile(r'^\s*const val (\w+) = "([^"]*)"', re.M)
 LITERAL = re.compile(r'"(?:[^"\\]|\\.)*"')
 HAND_BUILT = re.compile(r'\bFile\([^"]*,\s*"[\w.]')
+PACKAGE = "io/github/junekim0007/cryptobench/"
+# python module, name -> Kotlin (module, source set, file), pattern whose groups are the value
+MIRRORS = (
+    ("cryptobench.stages.measurement.session.case_isolation", "CASE_ARGUMENT", ("android", "androidTest", PACKAGE + "CaseFilter.kt"), r'const val ARGUMENT = "([^"]*)"'),
+    ("cryptobench.stages.measurement.session.case_isolation", "REFUSED_PLAN", ("benchmark", "main", "RefusedPlanException.kt"), r'IllegalStateException\("(\w+:)'),
+    ("cryptobench.stages.measurement.session.case_isolation", "LISTED", ("android", "androidTest", PACKAGE + "CryptoBenchmark.kt"), r"fun (measure)\(\)"),
+    ("cryptobench.stages.measurement.benchmark", "DRY_CASE", ("android", "androidTest", PACKAGE + "EnergyDryBenchmark.kt"), r"fun (capture)\(\)"),
+    ("cryptobench.stages.measurement.session.passes", "PASS_ARGUMENT", ("android", "androidTest", PACKAGE + "PassArguments.kt"), r'const val PASS = "([^"]*)"'),
+    ("cryptobench.stages.measurement.session.passes", "SAMPLES_ARGUMENT", ("android", "androidTest", PACKAGE + "PassArguments.kt"), r'const val SAMPLES = "([^"]*)"'),
+    ("cryptobench.stages.measurement.session.passes", "TIMING", ("config", "main", "global/dto/MeasurePass.kt"), r'const val TIMING = "([^"]*)"'),
+    ("cryptobench.stages.measurement.session.passes", "ENERGY", ("config", "main", "global/dto/MeasurePass.kt"), r'const val ENERGY = "([^"]*)"'),
+    ("cryptobench.stages.measurement.session.passes", "ALLOCATION", ("config", "main", "global/dto/MeasurePass.kt"), r'const val ALLOCATION = "([^"]*)"'),
+    ("cryptobench.stages.discovery.probe", "HOST_MILLIS", ("android", "androidTest", PACKAGE + "DeviceProbe.kt"), r'const val HOST_MILLIS = "([^"]*)"'),
+    ("analysis.chart_input", "UNIDENTIFIED", ("preparation", "main", "prepare/ChartGroup.kt"), r'UNIDENTIFIED\((\d+), "([^"]*)"\)'),
+)
+INSTRUMENTED = re.compile(r"test=(\w+)\\\[")
 
 
 def kotlin_names(module: pathlib.Path) -> dict[str, str]:
@@ -52,9 +70,38 @@ def literal_violations(repo: pathlib.Path, sources: tuple[pathlib.Path, ...], ko
     return found
 
 
+def python_value(value) -> tuple[str, ...]:
+    if isinstance(value, re.Pattern):
+        found = INSTRUMENTED.search(value.pattern)
+        return (found.group(1),) if found else (value.pattern,)
+    return tuple(map(str, value)) if isinstance(value, tuple) else (str(value),)
+
+
+def _module(name: str):
+    if name.startswith("cryptobench."):
+        return importlib.import_module(name)
+    spec = importlib.util.spec_from_file_location(name, paths.repo().runner.joinpath(*name.split(".")).with_suffix(".py"))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def mirror_problems(kotlin_source=paths.repo().kotlin_source, mirrors=MIRRORS) -> list[str]:
+    problems = []
+    for module, name, kotlin, pattern in mirrors:
+        python = python_value(getattr(_module(module), name))
+        found = re.search(pattern, kotlin_source(*kotlin).read_text(encoding="utf-8"))
+        if found is None:
+            problems.append(f"mirror missing: {kotlin[2]} has no {pattern}")
+        elif found.groups() != python:
+            problems.append(f"mirror differs: {module}.{name} {python}, {kotlin[2]} {found.groups()}")
+    return problems
+
+
 def main() -> int:
     kotlin = kotlin_names(MODULE)
     problems = disagreements(kotlin, paths.CONTRACT | paths.CONTRACT_PARTS) + sorted(literal_violations(ROOT, SOURCES, kotlin))
+    problems += mirror_problems()
     for line in problems:
         print(line)
     print("names: ok" if not problems else f"names: {len(problems)} problem(s)", file=sys.stderr)
