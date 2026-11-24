@@ -9,6 +9,8 @@ import io.github.junekim0007.cryptobench.discovery.write.EnvironmentYamlWriter
 import io.github.junekim0007.cryptobench.discovery.write.ProbeDirectory
 import io.github.junekim0007.cryptobench.discovery.write.RequirementYamlWriter
 import io.github.junekim0007.cryptobench.discovery.write.TrialYamlWriter
+import io.github.junekim0007.cryptobench.document.YamlCodec
+import io.github.junekim0007.cryptobench.files.StampedName
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -34,8 +36,6 @@ class ReuseTest {
 
     private fun reason(runtime: RuntimeInfo = RUNTIME): String = (discovery.reusable(runtime) as Reprobe).reason
 
-    private fun sibling(captureFile: File, prefix: String): File = File(captureFile.parentFile, captureFile.name.replace("probe_", prefix))
-
     /** A capture describes one device: another device must probe for itself. */
     @Test
     fun onlyThisDevicesCaptureIsReused() {
@@ -51,9 +51,9 @@ class ReuseTest {
     fun nothingToReuseWithoutATrialOrAnyCapture() {
         assertEquals("no capture in ${directory.root.path}", reason())
         val captureFile = written(FIRST, withTrial = false)
-        assertEquals("missing_file: ${sibling(captureFile, "trial_").path}", reason())
-        sibling(captureFile, "trial_").writeText("broken: [")
-        assertEquals("unreadable_yaml: ${sibling(captureFile, "trial_").name}: while parsing a flow node", reason())
+        assertEquals("missing_file: ${directory.named(StampedName.TRIAL, captureFile).path}", reason())
+        directory.named(StampedName.TRIAL, captureFile).writeText("broken: [")
+        assertEquals("unreadable_yaml: ${directory.named(StampedName.TRIAL, captureFile).name}: while parsing a flow node", reason())
     }
 
     /** A trial written before the keystore trial has no keystore section: it is refused and the device probes again. */
@@ -62,14 +62,14 @@ class ReuseTest {
         val captureFile = written(FIRST, withTrial = false)
         TrialYamlWriter(directory).write(TrialReport(FIRST))
         RequirementYamlWriter(directory).write(RequirementReport(FIRST, FIRST))
-        assertEquals("missing_field: ${sibling(captureFile, "trial_").name}: keystore", reason())
+        assertEquals("missing_field: ${directory.named(StampedName.TRIAL, captureFile).name}: keystore", reason())
     }
 
     @Test
     fun aCaptureWithoutItsRequirementsIsNotReused() {
         val captureFile = written(FIRST)
-        sibling(captureFile, "requirements_").delete()
-        assertEquals("missing_file: ${sibling(captureFile, "requirements_").path}", reason())
+        directory.named(StampedName.REQUIREMENTS, captureFile).delete()
+        assertEquals("missing_file: ${directory.named(StampedName.REQUIREMENTS, captureFile).path}", reason())
     }
 
     @Test
@@ -96,7 +96,7 @@ class ReuseTest {
     @Test
     fun aStoredFileWithADuplicateKeyOrAnotherSchemaIsRefusedByName() {
         val captureFile = written(FIRST)
-        val trialFile = sibling(captureFile, "trial_")
+        val trialFile = directory.named(StampedName.TRIAL, captureFile)
         trialFile.appendText("capturedAtMillis: $FIRST\n")
         assertTrue(reason(), reason().startsWith("unreadable_yaml: ${trialFile.name}: while constructing a mapping"))
         captureFile.writeText(captureFile.readText().replace("schemaVersion: 1", "schemaVersion: 99"))
@@ -114,27 +114,27 @@ class ReuseTest {
     @Test
     fun aTrialOfAnotherCaptureIsNotReused() {
         val captureFile = written(FIRST, withTrial = false)
-        TrialYamlWriter(directory).write(TrialReport(FIRST + 1_000, keystore = KeystoreSection(absent = "not_supported: x"))).renameTo(sibling(captureFile, "trial_"))
-        RequirementYamlWriter(directory).write(RequirementReport(FIRST + 1_000, FIRST + 1_000)).renameTo(sibling(captureFile, "requirements_"))
-        assertEquals("${sibling(captureFile, "trial_").name}, ${sibling(captureFile, "requirements_").name}: not written with ${captureFile.name}", reason())
+        TrialYamlWriter(directory).write(TrialReport(FIRST + 1_000, keystore = KeystoreSection(absent = "not_supported: x"))).renameTo(directory.named(StampedName.TRIAL, captureFile))
+        RequirementYamlWriter(directory).write(RequirementReport(FIRST + 1_000, FIRST + 1_000)).renameTo(directory.named(StampedName.REQUIREMENTS, captureFile))
+        assertEquals("${directory.named(StampedName.TRIAL, captureFile).name}, ${directory.named(StampedName.REQUIREMENTS, captureFile).name}: not written with ${captureFile.name}", reason())
     }
 
     @Test
     fun requirementsOfAnotherCaptureAreNotReused() {
         val captureFile = written(FIRST, withTrial = false)
         TrialYamlWriter(directory).write(TrialReport(FIRST, keystore = KeystoreSection(absent = "not_supported: x")))
-        RequirementYamlWriter(directory).write(RequirementReport(FIRST + 1_000, FIRST + 1_000)).renameTo(sibling(captureFile, "requirements_"))
-        assertEquals("${sibling(captureFile, "trial_").name}, ${sibling(captureFile, "requirements_").name}: not written with ${captureFile.name}", reason())
+        RequirementYamlWriter(directory).write(RequirementReport(FIRST + 1_000, FIRST + 1_000)).renameTo(directory.named(StampedName.REQUIREMENTS, captureFile))
+        assertEquals("${directory.named(StampedName.TRIAL, captureFile).name}, ${directory.named(StampedName.REQUIREMENTS, captureFile).name}: not written with ${captureFile.name}", reason())
     }
 
     /** A host requirements file is above SnakeYAML's 3 MiB default; one past the codec's limit is refused by name. */
     @Test
     fun aRequirementsFileAboveThreeMebibytesIsReusedAndOnePastTheLimitIsRefused() {
-        val requirementsFile = sibling(written(FIRST), "requirements_")
+        val requirementsFile = directory.named(StampedName.REQUIREMENTS, written(FIRST))
         requirementsFile.appendText("padding:\n" + LINE.repeat(4 * MIB / LINE.length))
         assertEquals(requirementsFile.name, reused().requirementsFile.name)
         requirementsFile.appendText(LINE.repeat(12 * MIB / LINE.length + 1))
-        assertEquals("unreadable_yaml: ${requirementsFile.name}: The incoming YAML document exceeds the limit: ${16 * MIB} code points.", reason())
+        assertEquals("unreadable_yaml: ${requirementsFile.name}: The incoming YAML document exceeds the limit: ${YamlCodec.CODE_POINT_LIMIT} code points.", reason())
     }
 
     private companion object {

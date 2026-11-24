@@ -65,8 +65,8 @@ class YamlCodecTest {
             override fun parse(document: Map<String, Any>) = document
         }
         YamlCodec.values().forEach {
-            val refused = assertThrows(IllegalArgumentException::class.java) { YamlFiles(it).readOnly(File("requirements_x.yaml"), reader).read(sized(16 * MIB + 1)) }
-            assertEquals(it.name, "unreadable_yaml: requirements_x.yaml: The incoming YAML document exceeds the limit: ${16 * MIB} code points.", refused.message)
+            val refused = assertThrows(IllegalArgumentException::class.java) { YamlFiles(it).readOnly(File("requirements_x.yaml"), reader).read(sized(YamlCodec.CODE_POINT_LIMIT + 1)) }
+            assertEquals(it.name, "unreadable_yaml: requirements_x.yaml: The incoming YAML document exceeds the limit: ${YamlCodec.CODE_POINT_LIMIT} code points.", refused.message)
         }
     }
 
