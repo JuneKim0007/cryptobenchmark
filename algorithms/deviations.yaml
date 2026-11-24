@@ -71,6 +71,16 @@ deviations:
     builds: [AndroidKeyStoreBCWorkaround @ android-33, AndroidKeyStoreBCWorkaround @ android-36]
     names: [Cipher|RSA/ECB/OAEPWithSHA-224AndMGF1Padding, Cipher|RSA/ECB/OAEPWithSHA-256AndMGF1Padding, Cipher|RSA/ECB/OAEPWithSHA-384AndMGF1Padding, Cipher|RSA/ECB/OAEPWithSHA-512AndMGF1Padding]
     set: {optional.mgf1.default: SHA-1}
+  keystore.oaep224RunsSha256:
+    fact: "The keystore's OAEP SHA-224 spelling is its SHA-256 OAEP service: the digest is SHA-256."
+    builds: [AndroidKeyStoreBCWorkaround @ android-33, AndroidKeyStoreBCWorkaround @ android-36]
+    names: [Cipher|RSA/ECB/OAEPWithSHA-224AndMGF1Padding]
+    set: {optional.digest: {name: digest, default: SHA-256, affects: [outputBytes, decrypt], source: measured}}
+  keystore.oaep224RunsSha256Inferred:
+    fact: "The keystore's OAEP SHA-224 spelling is its SHA-256 OAEP service on API 26 and 30, inferred from API 33 and 36."
+    builds: [AndroidKeyStoreBCWorkaround @ android-26, AndroidKeyStoreBCWorkaround @ android-30]
+    names: [Cipher|RSA/ECB/OAEPWithSHA-224AndMGF1Padding]
+    set: {optional.digest: {name: digest, default: SHA-256, affects: [outputBytes, decrypt], source: inferred}}
   bc.mlDsaDeterministic:
     fact: "BC 1.79 signs ML-DSA deterministically by default."
     builds: [BC @ jdk-25, BundledBC]

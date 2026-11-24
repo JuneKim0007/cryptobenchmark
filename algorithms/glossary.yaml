@@ -184,8 +184,6 @@ algorithm:
           false: It did not.
         unused:
           false: A run that failed is a suspicious result, not a stated fact; kept for an agent's run check.
-    spellingRuns:
-      value: {means: 'On this build, a spelling of the id that is another service of the provider; one id cannot state both.', format: text}
     wrapOnly:
       value:
         means: The cipher only wraps keys; doFinal on data is refused, so a caller uses Cipher.wrap and unwrap.

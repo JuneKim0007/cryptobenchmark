@@ -10,6 +10,7 @@ import yaml
 from cryptobench.shared.catalogue.algorithms import DIRECTORY, AlgorithmsError, algorithms, load
 from cryptobench.shared.catalogue.families import Families
 from cryptobench.shared.catalogue.names import fold
+from cryptobench.shared.catalogue.views import view_for
 from perfrepair.catalog.screening import SCREENING
 from perfrepair.catalog.types import types
 
@@ -275,9 +276,10 @@ def test_a_base_and_a_build_differ_only_where_a_kept_fix_says_so_never_by_count(
                     keystore = build.startswith("AndroidKeyStore") and path in ("key.origin", "contract.key")
                     standard = path == "conditions.deterministic" and e.raw["conditions"]["deterministic"]["source"] == "sourced"
                     password_alias = e.canonical.startswith("PBEWithHmac") and ("AndroidOpenSSL" in build or "BundledConscrypt" in build)
+                    oaep_alias = e.canonical == "RSA/ECB/OAEPWithSHA-224AndMGF1Padding" and build.startswith("AndroidKeyStore") and path == "optional.digest"
                     reset = path.startswith("lifecycle.reset.") and over[path]["source"] == "measured"
                     made_key = path == "key.type" and e.raw["key"]["source"] == "measured"
-                    if not (keystore or standard or password_alias or reset or made_key):
+                    if not (keystore or standard or password_alias or oaep_alias or reset or made_key):
                         differing.add((e.id, build, path))
     assert differing == set()
 
@@ -289,9 +291,11 @@ def test_a_type_row_reads_a_parameter_object_only_builds_carry():
 
 
 def test_a_spelling_that_is_another_service_is_measured_only_where_it_ran():
-    providers = algorithms().of("cipher.pair", "Cipher|RSA/ECB/OAEPWithSHA-224AndMGF1Padding").raw["providers"]
-    sources = {a: providers[f"AndroidKeyStoreBCWorkaround @ android-{a}"]["conditions.spellingRuns"]["source"] for a in (26, 30, 33, 36)}
-    assert sources == {26: "inferred", 30: "inferred", 33: "measured", 36: "measured"}
+    identifier = "Cipher|RSA/ECB/OAEPWithSHA-224AndMGF1Padding"
+    digests = {a: view_for(identifier, f"AndroidKeyStoreBCWorkaround @ android-{a}")["optional"] for a in (26, 30, 33, 36)}
+    rows = {a: next(r for r in rows if r["name"] == "digest") for a, rows in digests.items()}
+    assert {a: (r["default"], r["source"]) for a, r in rows.items()} == {
+        26: ("SHA-256", "inferred"), 30: ("SHA-256", "inferred"), 33: ("SHA-256", "measured"), 36: ("SHA-256", "measured")}
 
 
 def test_the_conscrypt_password_refusal_is_measured_on_the_alias():
