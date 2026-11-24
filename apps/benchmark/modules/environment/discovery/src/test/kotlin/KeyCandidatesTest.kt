@@ -28,6 +28,9 @@ class KeyCandidatesTest {
     fun aPssSignatureTakesThePssGeneratorAndAnRsaSignatureTheRsaOne() {
         assertEquals(listOf("RSASSA-PSS"), candidates.of("Signature", "RSASSA-PSS", "SunRsaSign").map { it.name }.distinct())
         assertEquals(listOf("RSA"), candidates.of("Signature", "SHA256withRSA", "SunRsaSign").map { it.name }.distinct())
+        for (provider in listOf("AndroidOpenSSL", "BundledConscrypt")) {
+            assertEquals(provider, listOf("RSA"), candidates.of("Signature", "SHA256withRSA/PSS", provider).map { it.name }.distinct())
+        }
     }
 
     @Test
