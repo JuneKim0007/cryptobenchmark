@@ -14,6 +14,7 @@ from perfrepair.ai.runtime.engine.outbox import active_fingerprint
 from perfrepair.check.run import validate_run
 from perfrepair.files import read_json
 from cryptobench.shared.catalogue import groups as group_catalog_file
+from cryptobench.shared.catalogue.algorithms import algorithms
 from perfrepair.catalog import signature
 from perfrepair.app.facts.path_id import path_id
 from perfrepair.guide.command import main as guide
@@ -33,6 +34,7 @@ def _real_catalog(monkeypatch):
     """Undo asked_by_model for a test of what the catalog groups across providers."""
     monkeypatch.setattr(signature, "interchange", INTERCHANGE)
     monkeypatch.setattr(group_catalog_file, "CATALOG", GROUPS)
+    monkeypatch.setattr(group_catalog_file, "algorithms", algorithms)
     group_catalog_file.group_catalog.cache_clear()
 
 

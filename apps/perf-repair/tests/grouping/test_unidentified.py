@@ -38,7 +38,8 @@ def catalogs(tmp_path):
 
 def _catalog(tmp_path, family: str, entry: dict | None):
     doc = yaml.safe_load(CATALOG.read_text())
-    doc["groups"][family]["algorithms"].append(ID)
+    if family == UNIDENTIFIED:
+        doc["groups"][family]["algorithms"].append(ID)
     path = tmp_path / f"groups-{family}.yaml"
     path.write_text(yaml.safe_dump(doc))
     if entry is not None:

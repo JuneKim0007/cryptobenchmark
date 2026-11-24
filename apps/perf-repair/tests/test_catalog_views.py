@@ -1,4 +1,4 @@
-"""An agent's view of one entry holds only its provider build's facts; the group reads hold exactly what groups.yaml holds."""
+"""An agent's view of one entry holds only its provider build's facts; the group reads hold exactly what groups.yaml and the catalogues hold."""
 import json
 import shutil
 
@@ -135,8 +135,8 @@ def test_list_groups_is_exactly_each_group_s_id_description_and_exemplars():
     assert list_groups() == [{"id": g, "description": families.by_id[g].description, "exemplars": raw["exemplars"]} for g, raw in doc.items()]
 
 
-def test_get_group_returns_the_yaml_s_members_a_page_at_a_time():
-    ids = yaml.safe_load(GROUPS.read_text())["groups"]["cipher.pair"]["algorithms"]
+def test_get_group_returns_the_catalogue_s_entries_a_page_at_a_time():
+    ids = [e.id for e in algorithms().entries if e.family == "cipher.pair"]
     first = get_group("cipher.pair", items=3)
     assert first == {"id": "cipher.pair", "members": ids[:3], "remaining": len(ids) - 3}
     assert get_group("cipher.pair", items=3, after=first["members"][-1])["members"] == ids[3:6]
@@ -161,5 +161,5 @@ def test_get_group_refuses_a_page_size_below_one(items):
 
 
 def test_get_group_reads_the_cursor_case_folded_like_view_for():
-    ids = yaml.safe_load(GROUPS.read_text())["groups"]["cipher.pair"]["algorithms"]
+    ids = [e.id for e in algorithms().entries if e.family == "cipher.pair"]
     assert get_group("cipher.pair", items=2, after=ids[0].upper())["members"] == ids[1:3]

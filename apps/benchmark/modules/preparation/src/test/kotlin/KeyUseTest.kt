@@ -156,7 +156,7 @@ class KeyUseTest {
 
     @Test
     fun catalogueOrderByTypeOnlyWhenNoExemplarFits() {
-        assertEquals("Cipher|XIES ENCRYPT", KeyUse(capability, exemplars = GroupExemplars.parse("schemaVersion: 3\ngroups: {}")).of("X25519", "P", "Q").toString())
+        assertEquals("Cipher|XIES ENCRYPT", KeyUse(capability, exemplars = GroupExemplars.parse("schemaVersion: 4\ngroups: {}")).of("X25519", "P", "Q").toString())
         assertEquals("Signature|NONEwithECDSA SIGN", KeyUse(lacking("SHA256withECDSA", "ECIES", "SM2", "ECDH")).of("EC", "P", "Q").toString())
     }
 }

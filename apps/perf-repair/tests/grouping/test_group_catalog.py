@@ -258,38 +258,39 @@ def test_the_committed_catalog_loads_and_each_row_agrees_with_the_signature():
 
 
 @pytest.mark.parametrize("group, code", [
-    ({"algorithms": ["Mac|HmacSHA256"], "exemplars": [], "description": "d"}, "unknown"),
-    ({}, "missing"),
-    ({"exemplars": [], "algorithms": ["HmacSHA256"]}, "no Mac|<canonical> id"),
-    ({"exemplars": [], "algorithms": ["Cipher|HmacSHA256"]}, "no Mac|<canonical> id"),
-    ({"exemplars": [], "algorithms": ["Mac|HMAC-SHA256"]}, "no canonical"),
-    ({"exemplars": [], "algorithms": ["Mac|AES"]}, "no canonical"),
-    ({"exemplars": [], "algorithms": ["Mac|HmacSHA256", "Mac|HMACSHA256"]}, "no canonical|listed twice"),
-    ({"exemplars": ["Mac|HmacMD5"], "algorithms": ["Mac|HmacSHA256"]}, "exemplar .* is no member"),
+    ({"algorithms": ["Mac|HmacSHA256"], "exemplars": []}, "fields"),
+    ({}, "fields"),
+    ({"exemplars": "Mac|HmacSHA256"}, "fields"),
+    ({"exemplars": ["Mac|AES"]}, "exemplar Mac|AES has no entry in mac.secret's catalogue"),
+    ({"exemplars": ["Cipher|AES"]}, "exemplar Cipher|AES has no entry"),
 ])
 def test_a_bad_group_is_refused(tmp_path, group, code):
     path = tmp_path / "groups.yaml"
-    path.write_text(yaml.safe_dump({"schemaVersion": 3, "source": "t", "groups": {"mac.secret": group}}))
+    path.write_text(yaml.safe_dump({"schemaVersion": 4, "source": "t", "groups": {"mac.secret": group}}))
     with pytest.raises(GroupsError, match=code):
         load(path)
 
 
-def test_a_member_without_a_catalogue_entry_is_refused(tmp_path):
+def test_a_family_s_members_are_its_catalogue_entries_in_order_and_a_family_without_a_section_is_grouped(tmp_path):
     entries = algorithms()
     catalogue = Algorithms(tuple(e for e in entries.entries if e.id != "Mac|HmacSHA256"), entries.common)
     path = tmp_path / "groups.yaml"
-    path.write_text(yaml.safe_dump({"schemaVersion": 3, "source": "t", "groups": {"mac.secret": {"exemplars": [], "algorithms": ["Mac|HmacSHA256"]}}}))
-    with pytest.raises(GroupsError, match="no entry in mac.secret's catalogue"):
-        load(path, catalogue=catalogue)
+    path.write_text(yaml.safe_dump({"schemaVersion": 4, "source": "t", "groups": {"mac.secret": {"exemplars": []}}}))
+    loaded = load(path, catalogue=catalogue)
+    mac = next(g for g in loaded.families if g.family == "mac.secret")
+    assert list(mac.algorithms) == [e.id.split("|", 1)[1] for e in catalogue.entries if e.family == "mac.secret"]
+    assert "HmacSHA256" not in mac.algorithms
+    assert {g.family for g in loaded.families} == {f.id for f in FAMILIES.all}
+    assert next(g for g in loaded.families if g.family == "cipher.pair").exemplars == ()
 
 
 def test_a_stray_family_and_an_old_schema_are_refused(tmp_path):
     path = tmp_path / "groups.yaml"
-    path.write_text(yaml.safe_dump({"schemaVersion": 3, "source": "t", "groups": {"nope": {"algorithms": []}}}))
+    path.write_text(yaml.safe_dump({"schemaVersion": 4, "source": "t", "groups": {"nope": {"exemplars": []}}}))
     with pytest.raises(GroupsError, match="not a family"):
         load(path)
-    path.write_text(yaml.safe_dump({"schemaVersion": 2, "source": "t", "groups": {}}))
-    with pytest.raises(GroupsError, match="^unsupported_schema_version: groups.yaml: 2, this build reads 3$"):
+    path.write_text(yaml.safe_dump({"schemaVersion": 3, "source": "t", "groups": {}}))
+    with pytest.raises(GroupsError, match="^unsupported_schema_version: groups.yaml: 3, this build reads 4$"):
         load(path)
     assert catalog_file.CATALOG == CATALOG
 
@@ -384,6 +385,6 @@ def test_a_listed_name_with_an_open_contract_has_no_row_so_the_model_decides():
 ])
 def test_a_bad_unidentified_group_is_refused_at_load(tmp_path, held, code):
     path = tmp_path / "groups.yaml"
-    path.write_text(yaml.safe_dump({"schemaVersion": 3, "source": "t", "groups": {"unidentified": held}}))
+    path.write_text(yaml.safe_dump({"schemaVersion": 4, "source": "t", "groups": {"unidentified": held}}))
     with pytest.raises(GroupsError, match=code):
         load(path)

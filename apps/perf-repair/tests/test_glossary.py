@@ -172,25 +172,27 @@ def test_groups_yaml_holds_only_glossary_words_and_its_ids_fit():
     for group, raw in doc["groups"].items():
         assert what_is("group.family", group)
         assert set(raw) <= {"algorithms", "exemplars"}
-        for i in [*raw["algorithms"], *raw["exemplars"]]:
+        for i in [*raw.get("algorithms", []), *raw["exemplars"]]:
             assert what_is("group.algorithms", i)
 
 
 def test_each_exemplar_is_a_member_of_its_group():
-    for group, raw in _groups()["groups"].items():
-        assert [e for e in raw["exemplars"] if e not in raw["algorithms"]] == [], group
+    from cryptobench.shared.catalogue.groups import group_catalog
+    families = Families.load()
+    for g in group_catalog().families:
+        members = {f"{families.by_id[g.family].type}|{n}" for n in g.algorithms}
+        assert [e for e in g.exemplars if e not in members] == [], g.family
 
 
 def test_a_new_entry_with_an_unlisted_term_is_refused_naming_the_term():
     from cryptobench.shared.catalogue.algorithms import Entry, algorithms
-    from cryptobench.shared.catalogue.groups import group_catalog
     from perfrepair.validation.catalogue_entry import entry_check
     catalogue, families = algorithms(), Families.load()
     entry = catalogue.of("digest.none", "MessageDigest|MD5")
-    assert entry_check(entry, catalogue, group_catalog(), families) == []
+    assert entry_check(entry, catalogue, families) == []
     bad = Entry(entry.id, entry.family, {**entry.raw, "required": [{"name": "colour", "source": "inferred"}]})
     swapped = type(catalogue)(tuple(bad if e.id == entry.id else e for e in catalogue.entries), catalogue.common)
-    assert any("algorithm.required.name: no value 'colour'" in p for p in entry_check(bad, swapped, group_catalog(), families))
+    assert any("algorithm.required.name: no value 'colour'" in p for p in entry_check(bad, swapped, families))
 
 
 def test_common_is_in_the_glossary():

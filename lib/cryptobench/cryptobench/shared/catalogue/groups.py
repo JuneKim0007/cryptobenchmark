@@ -1,5 +1,5 @@
-"""catalog/groups.yaml: one predefined group per family by algorithm id, read and checked whole; contract rows come from
-each member's catalogue contract."""
+"""algorithms/groups.yaml: one predefined group per family, its members the family catalogue's entries, its exemplars read and
+checked whole; contract rows come from each member's catalogue contract."""
 from __future__ import annotations
 
 from .. import paths
@@ -30,11 +30,12 @@ from .interchange import INPUT, KEY, OUTPUT, interchange
 from .names import Names, fold
 
 CATALOG = paths.repo().algorithms / "groups.yaml"
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 PROVIDER_HELD_SUFFIX = ".p"
 APP_HELD_TEXT, PROVIDER_HELD_TEXT = "Keys the application holds.", "Keys inside the provider."
 PASSWORD_TEXT = "A key derived from a password the application holds."
-GROUP_FIELDS = {"algorithms", "exemplars"}
+FAMILY_FIELDS = {"exemplars"}
+UNIDENTIFIED_FIELDS = {"algorithms", "exemplars"}
 ID_LENGTH = 38
 
 
@@ -47,7 +48,7 @@ GROUPS_DOC = DocumentKind("groups", SCHEMA_VERSION, GroupsError)
 
 @dataclass(frozen=True)
 class FamilyGroup:
-    """algorithms: the members' canonical names, in the file's order; exemplars: ids chosen to show its range."""
+    """algorithms: the members' canonical names, in their catalogue's order; exemplars: ids chosen to show its range."""
     family: str
     algorithms: tuple[str, ...]
     exemplars: tuple[str, ...] = ()
@@ -157,31 +158,17 @@ def _rows(family: str, engine_type: str, ids: list[str], catalogue: Algorithms) 
                          row[0][1][CONTRACT_KEY] == KEY_PASSWORD) for row in alike.values()]
 
 
-def _member_problems(family: str, member, engine_type: str, names: Names, catalogue: Algorithms) -> list[str]:
-    parts = split_id(member)
-    if parts is None or parts[0] != engine_type:
-        return [f"{family}: {member!r} is no {engine_type}|<canonical> id"]
-    read = names.catalogued(engine_type, parts[1])
-    found = [f"{family}: {parts[1]} is no canonical {engine_type} name"] * (not (read.known and read.name == parts[1]))
-    return found + [f"{family}: {member} has no entry in {family}'s catalogue"] * (catalogue.of(family, member) is None)
-
-
-def _group_problems(family: str, raw: dict, engine_type: str, names: Names, catalogue: Algorithms) -> list[str]:
-    missing, stray = GROUP_FIELDS - set(raw), set(raw) - GROUP_FIELDS
-    if missing or stray:
-        return [f"{family}: missing {sorted(missing)}, unknown {sorted(stray)}"]
-    found, seen = [f"{family}: exemplar {e} is no member" for e in raw["exemplars"] if e not in raw["algorithms"]], set()
-    for member in raw["algorithms"]:
-        found += _member_problems(family, member, engine_type, names, catalogue)
-        found += [f"{family}: {member} listed twice"] * (fold(str(member)) in seen)
-        seen.add(fold(str(member)))
-    return found
+def _group_problems(family: str, raw, members: list[str]) -> list[str]:
+    if not isinstance(raw, dict) or set(raw) != FAMILY_FIELDS or not isinstance(raw["exemplars"], list):
+        return [f"{family}: fields {sorted(raw) if isinstance(raw, dict) else raw!r} are not {sorted(FAMILY_FIELDS)}, a list"]
+    listed = {fold(m) for m in members}
+    return [f"{family}: exemplar {e} has no entry in {family}'s catalogue" for e in raw["exemplars"] if fold(str(e)) not in listed]
 
 
 def _unidentified_problems(held) -> list[str]:
     """Only the two group fields, no exemplars (nothing in it shows a range), and each item an id listed once."""
-    if not isinstance(held, dict) or set(held) != GROUP_FIELDS:
-        return [f"{UNIDENTIFIED}: fields {sorted(held) if isinstance(held, dict) else held!r} are not {sorted(GROUP_FIELDS)}"]
+    if not isinstance(held, dict) or set(held) != UNIDENTIFIED_FIELDS:
+        return [f"{UNIDENTIFIED}: fields {sorted(held) if isinstance(held, dict) else held!r} are not {sorted(UNIDENTIFIED_FIELDS)}"]
     if not isinstance(held["algorithms"], list) or held["exemplars"] != []:
         return [f"{UNIDENTIFIED}: algorithms is not a list, or exemplars is not empty"]
     found = [f"{UNIDENTIFIED}: {i!r} is no <type>|<name> id" for i in held["algorithms"] if split_id(i) is None]
@@ -199,18 +186,16 @@ def load(path: Path = CATALOG, families: Families | None = None, names: Names | 
     held = doc["groups"].get(UNIDENTIFIED, {"algorithms": [], "exemplars": []})
     problems += _unidentified_problems(held)
     unidentified = tuple(held.get("algorithms") or ()) if isinstance(held, dict) else ()
-    for family, raw in doc["groups"].items():
-        if family == UNIDENTIFIED:
-            continue
-        if family not in families.by_id:
-            problems.append(f"{family}: not a family of families.yaml")
-            continue
-        engine_type = families.by_id[family].type
-        found = _group_problems(family, raw, engine_type, names, catalogue)
+    problems += [f"{f}: not a family of families.yaml" for f in doc["groups"] if f != UNIDENTIFIED and f not in families.by_id]
+    sections = [f for f in doc["groups"] if f in families.by_id and f != UNIDENTIFIED]
+    for family in sections + [f.id for f in families.all if f.id not in doc["groups"]]:
+        members = [e.id for e in catalogue.entries if e.family == family]
+        raw = doc["groups"].get(family, {"exemplars": []})
+        found = _group_problems(family, raw, members)
         problems += found
-        if not found:
-            groups.append(FamilyGroup(family, tuple(split_id(i)[1] for i in raw["algorithms"]), tuple(raw["exemplars"])))
-            rows += _rows(family, engine_type, raw["algorithms"], catalogue)
+        if not found and (members or family in doc["groups"]):
+            groups.append(FamilyGroup(family, tuple(split_id(i)[1] for i in members), tuple(raw["exemplars"])))
+            rows += _rows(family, families.by_id[family].type, members, catalogue)
     both = {fold(algorithm_id(families.by_id[g.family].type, n)) for g in groups for n in g.algorithms} & {fold(i) for i in unidentified}
     problems += [f"{i}: listed in a family and in {UNIDENTIFIED}" for i in sorted(both)]
     held = {fold(i) for i in unidentified} | {fold(e.id) for e in catalogue.entries}

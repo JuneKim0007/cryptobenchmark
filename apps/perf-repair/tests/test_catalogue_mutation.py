@@ -1,4 +1,4 @@
-"""The checks bite: a word no glossary holds or a dropped entry in a copy of the catalogues makes the load or catalogue_check fail; a changed measured value is no longer caught here."""
+"""The checks bite: a word no glossary holds in a copy of the catalogues makes the load or catalogue_check fail; a changed measured value is no longer caught here."""
 import copy
 import random
 import shutil
@@ -32,18 +32,11 @@ def _foreign_word(docs: dict, rng) -> str:
     return family, f"{ident}: a word no glossary holds in {section}"
 
 
-def _dropped_entry(docs: dict, rng) -> str:
-    family = rng.choice(sorted(docs))
-    ident = rng.choice(sorted(docs[family]["algorithms"]))
-    del docs[family]["algorithms"][ident]
-    return family, f"{ident}: entry removed"
-
-
 def _problems(target) -> list[str]:
     try:
         catalogue = load(target)
-        groups = load_groups(GROUPS, catalogue=catalogue)
-        return catalogue_check(catalogue, groups, Families.load())
+        load_groups(GROUPS, catalogue=catalogue)
+        return catalogue_check(catalogue, Families.load())
     except InputError as e:
         return [str(e)]
 
@@ -59,6 +52,6 @@ def test_one_random_change_fails_some_check(tmp_path, seed):
     target = tmp_path / "algorithms"
     shutil.copytree(DIRECTORY, target)
     docs = copy.deepcopy(_originals())
-    name, what = rng.choice((_foreign_word, _dropped_entry))(docs, rng)
+    name, what = _foreign_word(docs, rng)
     (target / name).write_text(yaml.dump(docs[name], Dumper=DUMPER, sort_keys=False))
     assert _problems(target), what

@@ -21,7 +21,7 @@ group:
       unidentified: "Not identified: no catalogue entry and no key evidence place it in a family, so nothing about what it does is known."
   description: {means: 'What the group is: the family value''s meaning, kept in families.yaml and returned by list_groups, not by groups.yaml.', format: text}
   exemplars: {means: Member ids chosen to show the group's range; facts about the group, not definitions., format: algorithmId}
-  algorithms: {means: Every id the group lists., format: algorithmId}
+  algorithms: {means: 'Every id the group holds: a family''s are its catalogue''s entries, never listed; unidentified lists its own.', format: algorithmId}
   members: {means: The ids get_group returns a page at a time; the same ids as `algorithms`, not a word of groups.yaml., format: algorithmId}
   unidentified: {means: 'The group of ids nobody could identify: `algorithms` lists them and `exemplars` stays empty; the reason and sources tried are the decision''s log.', format: algorithmId}
 algorithm:

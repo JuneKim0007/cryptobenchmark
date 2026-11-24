@@ -8,7 +8,7 @@ The Python library of `apps/benchmark-runner` and `apps/perf-repair`: `shared/` 
 ../../algorithms/engine-operations.yaml : data: per JCA engine type the operations the harness times; read by preparation EngineTypes and copied into each manifest's operations
 ../../algorithms/families.yaml : predefined families with fixed descriptions, the one copy
 ../../algorithms/glossary.yaml : data: one defined meaning per key and value of groups.yaml, the catalogues, recipes.yaml, deviations.yaml, provider-builds.yaml and algorithm-names.yaml, a tree with sections group, algorithm, recipe, plan, deviation, build and names
-../../algorithms/groups.yaml : data: per family its exemplars and the listed algorithm ids, from whose catalogue contracts the contract rows come; a person adds ids from group-candidates.yaml
+../../algorithms/groups.yaml : data: per family its exemplars, and the unidentified ids; a family's members are its catalogue's entries
 ../../algorithms/interchange.yaml : data: per engine type the components that split a group, the rules that read them from a canonical name, what a missing key contract means, and which contract each component states
 ../../algorithms/provider-builds.yaml : data: every provider build the catalogues' measured facts ran on, keyed <name> @ <build>, with what each says of itself; a behaviour true of a provider and the ids it reaches
 ../../algorithms/setup-catalog.yaml : data: per JCA engine type the paths it applies, the key it generates, what a fixed call still does per call; read by config and preparation
@@ -33,7 +33,7 @@ cryptobench/shared/catalogue/deviations.py : reads algorithms/deviations.yaml, e
 cryptobench/shared/catalogue/families.py : the family catalog and (engine type, key kind) → family
 cryptobench/shared/catalogue/glossary.py : what_is: a term, a subtree or one value's meaning of glossary.yaml; term_problems: an entry's words checked against it
 cryptobench/shared/catalogue/grouping.py : Family, Item (key: what a record names), Profile (isolated: a generator of unknown key contract); key contract values, labels and sources; items.json (schema 1) and profiles.json (schema 5) documents; provider_of, algorithm_of
-cryptobench/shared/catalogue/groups.py : reader of groups.yaml, checked whole: one group per family by id, contract rows from each member's catalogue contract, a row at each key contract
+cryptobench/shared/catalogue/groups.py : reader of groups.yaml, checked whole: one group per family, its members the family catalogue's entries, contract rows from each member's catalogue contract, a row at each key contract
 cryptobench/shared/catalogue/guide_items.py : guide_items: what the guide says for one effective.yaml's items at this device's builds
 cryptobench/shared/catalogue/interchange.py : reader of interchange.yaml: engines, rules by canonical name; a component outside its splits is refused
 cryptobench/shared/catalogue/key_types.py : a spelling's catalogue entry; its key.type as every build of a provider gives it, none when they differ; two key types compared through the names file's keyTypes

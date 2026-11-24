@@ -4,7 +4,7 @@
 
 ## Entry
 
-Keyed by the algorithm id `<type>|<canonical>`, the canonical name of `../../algorithms/algorithm-names.yaml`. Spellings live only there, never in an entry. `../../algorithms/groups.yaml` lists the same ids per family, with exemplars per group. Every key and value is defined in `../../algorithms/glossary.yaml`.
+Keyed by the algorithm id `<type>|<canonical>`, the canonical name of `../../algorithms/algorithm-names.yaml`. Spellings live only there, never in an entry. A family's group in `../../algorithms/groups.yaml` holds its catalogue's ids, in catalogue order; the file states only the exemplars per group. Every key and value is defined in `../../algorithms/glossary.yaml`.
 
 | Field | Holds |
 |---|---|
@@ -58,7 +58,7 @@ Two forms state a fact once for many entries. Reading applies them, so an entry'
 
 ## Static checks (`validation/catalogue_entry.py`)
 
-An entry's form, every word against the glossary (naming an unlisted term), its engine type against its family's, its id in exactly one catalogue and listed under exactly one family of `../../algorithms/groups.yaml`.
+An entry's form, every word against the glossary (naming an unlisted term), its engine type against its family's, its id in exactly one catalogue.
 
 `catalogue_check` runs `entry_check` over every entry. Nothing checks that every service a build registers has an entry.
 

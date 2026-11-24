@@ -117,7 +117,7 @@ class FamilyCatalogueTest {
 
     @Test
     fun groupExemplarsByFamily() {
-        val groups = GroupExemplars.parse("schemaVersion: 3\ngroups:\n  f.none: {exemplars: [T|A], algorithms: [A]}\n  unidentified: {exemplars: [], algorithms: []}")
+        val groups = GroupExemplars.parse("schemaVersion: 4\ngroups:\n  f.none: {exemplars: [T|A]}\n  unidentified: {exemplars: [], algorithms: []}")
         assertEquals(listOf("T|A"), groups.of("f.none"))
         assertEquals(emptyList<String>(), groups.of("other"))
     }

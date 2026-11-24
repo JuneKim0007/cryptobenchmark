@@ -25,7 +25,7 @@
 ## Workflow
 - run: `build` (classify inside, with aiReview) → `assign` → `report` → `interop-plan` → cryptobenchmark `--interop` → `interop-read` (`python3 -m perfrepair.grouping`); the guide's interop step does the last three through `device/interop.py`
 - interop: a failed pair leaves evidence and dossier options; a `not_checkable` pair stays, labelled; a pair across key contracts is never planned, the plan marks it `not_checkable`; never edit a group for it.
-- change the catalog: add the id `<type>|<canonical>` to its family in `../../algorithms/groups.yaml` and its entry to `../../algorithms/<family>_catalogue.yaml`, checked by `validation/catalogue_entry.py`; a candidate is promoted by hand
+- change the catalog: add the entry `<type>|<canonical>` to `../../algorithms/<family>_catalogue.yaml` (its family's group follows), checked by `validation/catalogue_entry.py`; a candidate is promoted by hand
 - add a static check: function in `rules.py` → `RULES` → row in `docs/grouping.md`
 - change the answer contract: `ai/parse/grouping_assign/schema.py` → `prompts/parse/grouping-assign.system.md` → `validation/parse/grouping_assign.py` → `docs/grouping.md`
 
