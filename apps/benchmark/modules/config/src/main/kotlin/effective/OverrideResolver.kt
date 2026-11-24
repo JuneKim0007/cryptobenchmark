@@ -7,9 +7,10 @@ import io.github.junekim0007.cryptobench.config.testset.dto.Include
 import io.github.junekim0007.cryptobench.config.testset.dto.Override
 import io.github.junekim0007.cryptobench.config.testset.dto.Rule
 import io.github.junekim0007.cryptobench.config.inventory.dto.Inventory
+import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 
 /** variants: an override's set, else an include's, else none (the run's applies); within each the most specific, then the later, wins. */
-internal class OverrideResolver(private val overrides: List<Override>, private val includes: List<Include> = emptyList()) {
+internal class OverrideResolver(private val names: AlgorithmNames, private val overrides: List<Override>, private val includes: List<Include> = emptyList()) {
 
     fun resolve(located: Inventory.Located, group: String?): EffectiveEntry {
         val applicable = applicable(overrides, Override::match, located, group)
@@ -41,7 +42,7 @@ internal class OverrideResolver(private val overrides: List<Override>, private v
 
     private fun <T> applicable(items: List<T>, rule: (T) -> Rule, located: Inventory.Located, group: String?): List<T> = items
         .withIndex()
-        .filter { (_, item) -> rule(item).matches(located) && rule(item).appliesTo(group) }
+        .filter { (_, item) -> rule(item).matches(names, located) && rule(item).appliesTo(group) }
         .sortedWith(compareBy({ rule(it.value).specificity }, { it.index }))
         .map { it.value }
 }

@@ -17,6 +17,8 @@ import io.github.junekim0007.cryptobench.config.testset.dto.Override
 import io.github.junekim0007.cryptobench.config.testset.dto.Rule
 import io.github.junekim0007.cryptobench.config.testset.dto.TestSet
 import io.github.junekim0007.cryptobench.config.inventory.dto.Inventory
+import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
+import io.github.junekim0007.cryptobench.document.names.NameLayers
 import io.github.junekim0007.cryptobench.files.VariantLabels
 import io.github.junekim0007.cryptobench.settings.Facts
 import io.github.junekim0007.cryptobench.settings.HarnessSettings
@@ -26,24 +28,26 @@ class EffectiveBuilder {
 
     fun build(global: GlobalConfig, testSet: TestSet, inventory: Inventory, files: Files, facts: Facts = Facts.UNKNOWN): EffectiveConfig {
         val (runHarness, runUnsupported) = checkedRun(global, facts)
+        val names = NameLayers.merged(AlgorithmNames.catalog, inventory.spellings)
         val all = inventory.entries()
-        val included = if (testSet.include.isEmpty()) all else all.filter { located -> testSet.include.any { it.rule.matches(located) } }
+        val included = if (testSet.include.isEmpty()) all else all.filter { located -> testSet.include.any { it.rule.matches(names, located) } }
         val excludes = testSet.exclude + global.selection.exclude
-        val selected = included.filter { located -> excludes.none { it.matches(located) } }
-        val resolver = OverrideResolver(testSet.overrides, testSet.include)
-        val groups = selected.associateWith { located -> runnableGroups(testSet, located, resolver, global.run.variants) }.filterValues { it.isNotEmpty() }
-        val skipped = configSkips(testSet, all, selected, groups)
+        val selected = included.filter { located -> excludes.none { it.matches(names, located) } }
+        val resolver = OverrideResolver(names, testSet.overrides, testSet.include)
+        val groups = selected.associateWith { located -> runnableGroups(names, testSet, located, resolver, global.run.variants) }.filterValues { it.isNotEmpty() }
+        val skipped = configSkips(names, testSet, all, selected, groups)
         stopOnSkips(global.policy, skipped)
-        val entries = entries(groups, resolver, global.run.variants, runHarness, facts, inventory) { located, group -> origin(testSet, files.testSet, located, group) }
+        val entries = entries(groups, resolver, global.run.variants, runHarness, facts, inventory) { located, group -> origin(names, testSet, files.testSet, located, group) }
         stopOnSkips(global.policy, skipped + entries.skips)
-        val (warmup, warmupWarnings) = WarmupJobs.resolve(global.run.warmup, entries.providers)
+        val (warmup, warmupWarnings) = WarmupJobs.resolve(global.run.warmup, entries.providers, names)
         return EffectiveConfig(
             generatedFrom = EffectiveSource(files.global, files.testSet, files.inventory, inventory.generatedFrom),
             run = global.run.copy(harness = runHarness, warmup = warmup),
             policy = global.policy,
             providers = entries.providers,
             skipped = skipped + entries.skips,
-            warnings = inventory.warnings + global.notices + testSet.notices + warnings(excludes, included, testSet.overrides, groups) +
+            warnings = inventory.warnings + global.notices + testSet.notices + warnings(names, excludes, included, testSet.overrides, groups) +
+                aliasConflicts(names, testSet.include.map { it.rule } + excludes + testSet.overrides.map { it.match } + global.run.warmup.jobs, all) +
                 runUnsupported.map { it.toString() } + entries.warnings + warmupWarnings +
                 entries.dropped.map { (typePath, count) -> VariantLabels.notApplicable("${typePath.first} ($count ${if (count == 1) "entry" else "entries"})",
                     EngineCatalog.rows.applicable(typePath.first), listOf(typePath.second)) } +
@@ -60,19 +64,19 @@ class EffectiveBuilder {
         return runHarness to runUnsupported
     }
 
-    private fun configSkips(testSet: TestSet, all: List<Inventory.Located>, selected: List<Inventory.Located>,
+    private fun configSkips(names: AlgorithmNames, testSet: TestSet, all: List<Inventory.Located>, selected: List<Inventory.Located>,
                             groups: Map<Inventory.Located, List<String?>>): List<Skip> =
         testSet.include.map { it.rule }
-            .filter { rule -> all.none { rule.matches(it) } }
+            .filter { rule -> all.none { rule.matches(names, it) } }
             .map { rule -> Skip(Skip.CONFIG, rule.provider, rule.type, rule.name, "no_match: nothing on this device matches the include") } +
-            selected.filter { !it.entry.runs && groups[it]?.size != groupsOf(testSet, it).size }.map { Skip(Skip.CONFIG, it.provider, it.type, it.name, "not_runnable: ${it.entry.reason}") }
+            selected.filter { !it.entry.runs && groups[it]?.size != groupsOf(names, testSet, it).size }.map { Skip(Skip.CONFIG, it.provider, it.type, it.name, "not_runnable: ${it.entry.reason}") }
 
     // a generator the default-run trial cannot call (its key is born inside the provider) runs only in the groups that ask secure
-    private fun runnableGroups(testSet: TestSet, located: Inventory.Located, resolver: OverrideResolver, runVariants: List<String>): List<String?> {
-        val names = groupsOf(testSet, located)
-        if (located.entry.runs) return names
+    private fun runnableGroups(names: AlgorithmNames, testSet: TestSet, located: Inventory.Located, resolver: OverrideResolver, runVariants: List<String>): List<String?> {
+        val groups = groupsOf(names, testSet, located)
+        if (located.entry.runs) return groups
         if (Variants.SECURE !in EngineCatalog.rows.applicable(located.type)) return emptyList()
-        return names.filter { Variants.SECURE in resolver.resolve(located, it).variants.ifEmpty { runVariants } }
+        return groups.filter { Variants.SECURE in resolver.resolve(located, it).variants.ifEmpty { runVariants } }
     }
 
     private fun stopOnSkips(policy: Policy, skips: List<Skip>) {
@@ -81,12 +85,21 @@ class EffectiveBuilder {
         }
     }
 
-    private fun warnings(excludes: List<Rule>, included: List<Inventory.Located>, overrides: List<Override>,
+    private fun warnings(names: AlgorithmNames, excludes: List<Rule>, included: List<Inventory.Located>, overrides: List<Override>,
                          groups: Map<Inventory.Located, List<String?>>): List<String> =
-        excludes.filter { rule -> included.none { rule.matches(it) } }.map { "exclude_matches_nothing: $it" } +
+        excludes.filter { rule -> included.none { rule.matches(names, it) } }.map { "exclude_matches_nothing: $it" } +
             overrides
-                .filter { override -> groups.none { (located, names) -> override.match.matches(located) && names.any { override.match.appliesTo(it) } } }
+                .filter { override -> groups.none { (located, ofEntry) -> override.match.matches(names, located) && ofEntry.any { override.match.appliesTo(it) } } }
                 .map { "override_matches_nothing: ${it.match}" }
+
+    // a rule's name the names file knows while a provider's capture aliases it to another service: the names file's answer stands
+    private fun aliasConflicts(names: AlgorithmNames, rules: List<Rule>, all: List<Inventory.Located>): List<String> {
+        val types = all.map { it.type }.distinct()
+        return rules.mapNotNull { rule -> rule.name?.let { rule.type to it } }.distinct().flatMap { (type, name) ->
+            types.filter { type == null || AlgorithmNames.fold(it) == AlgorithmNames.fold(type) }
+                .mapNotNull { t -> names.aliasConflict(t, name)?.let { "alias_conflict: $t|$name: $it" } }
+        }
+    }
 
     private fun entries(groups: Map<Inventory.Located, List<String?>>, resolver: OverrideResolver, runVariants: List<String>, runHarness: HarnessSettings,
                         facts: Facts, inventory: Inventory, origin: (Inventory.Located, String?) -> EntryOrigin): Entries {
@@ -145,16 +158,16 @@ class EffectiveBuilder {
     }
 
     /** One device entry is measured once per group the test set names, and once as itself when no include names a group. */
-    private fun groupsOf(testSet: TestSet, located: Inventory.Located): List<String?> {
+    private fun groupsOf(names: AlgorithmNames, testSet: TestSet, located: Inventory.Located): List<String?> {
         if (testSet.include.isEmpty()) {
             return listOf(null)
         }
-        return testSet.include.map { it.rule }.filter { it.matches(located) }.map { it.group }.distinct()
+        return testSet.include.map { it.rule }.filter { it.matches(names, located) }.map { it.group }.distinct()
     }
 
     // selection is a union: every include that gives this entry its group selected it; none wins
-    private fun origin(testSet: TestSet, file: String, located: Inventory.Located, group: String?): EntryOrigin = EntryOrigin(file,
-        testSet.include.withIndex().filter { (_, include) -> include.rule.matches(located) && include.rule.group == group }.associate { (index, include) -> index to include.rule })
+    private fun origin(names: AlgorithmNames, testSet: TestSet, file: String, located: Inventory.Located, group: String?): EntryOrigin = EntryOrigin(file,
+        testSet.include.withIndex().filter { (_, include) -> include.rule.matches(names, located) && include.rule.group == group }.associate { (index, include) -> index to include.rule })
 
     private fun entryKey(name: String, group: String?): String = if (group == null) name else "$name@$group"
 

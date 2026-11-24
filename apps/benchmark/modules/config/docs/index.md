@@ -17,10 +17,10 @@ apps/benchmark/modules/config/example/config_testset_example.yaml : example inpu
 apps/benchmark/modules/config/example/config_trial_example.yaml : example input trial
 apps/benchmark/modules/config/src/main/kotlin/AuthoredFiles.kt : a global.yaml or composition, merged, and its test set through their parsers; nothing else read or written
 apps/benchmark/modules/config/src/main/kotlin/Configuration.kt : facade: inventory, effective with its report, readEffective
-apps/benchmark/modules/config/src/main/kotlin/effective/EffectiveBuilder.kt : global x test set x inventory x facts to EffectiveConfig
+apps/benchmark/modules/config/src/main/kotlin/effective/EffectiveBuilder.kt : global x test set x inventory x facts to EffectiveConfig; rules match through the names file with the inventory's aliases merged over it, alias_conflict warnings for rule names
 apps/benchmark/modules/config/src/main/kotlin/effective/EffectiveDocument.kt : effective.yaml schema
 apps/benchmark/modules/config/src/main/kotlin/effective/KeystoreRefusals.kt : a secure-only entry against the keystore trial's rows: sizes kept, coded refusals
-apps/benchmark/modules/config/src/main/kotlin/effective/LocatedMatch.kt : Rule.matches(Inventory.Located)
+apps/benchmark/modules/config/src/main/kotlin/effective/LocatedMatch.kt : Rule.matches(names, Inventory.Located)
 apps/benchmark/modules/config/src/main/kotlin/effective/OverrideResolver.kt : merges applicable overrides into one EffectiveEntry; variants from overrides, includes, then the run
 apps/benchmark/modules/config/src/main/kotlin/effective/ReportDocument.kt : report.yaml schema
 apps/benchmark/modules/config/src/main/kotlin/effective/ShadowedSettings.kt : with run.passes set, one shadowed_setting warning per authored run or override harness.iterations; one per authored harness.energy.cooldownSeconds on a measured capture
@@ -52,25 +52,26 @@ apps/benchmark/modules/config/src/main/kotlin/global/dto/Warmup.kt : run.warmup 
 apps/benchmark/modules/config/src/main/kotlin/inventory/InventoryBuilder.kt : capture x trial to inventory
 apps/benchmark/modules/config/src/main/kotlin/inventory/InventoryDocument.kt : inventory.yaml schema
 apps/benchmark/modules/config/src/main/kotlin/inventory/InventorySourceDocument.kt : capture, trial, device block shared by both generated files
-apps/benchmark/modules/config/src/main/kotlin/inventory/dto/Inventory.kt : inventory model with its build warnings; rejects two spellings of one canonical name
+apps/benchmark/modules/config/src/main/kotlin/inventory/dto/Inventory.kt : inventory model with its build warnings; rejects two spellings of one canonical name (names file only); spellings: its entries' capture aliases
 apps/benchmark/modules/config/src/main/kotlin/inventory/dto/InventoryEntry.kt : one observed primitive
 apps/benchmark/modules/config/src/main/kotlin/inventory/dto/InventorySource.kt : inventory provenance
 apps/benchmark/modules/config/src/main/kotlin/layers/LayerStack.kt : a composition's layers merged by MERGE_RULES with each leaf's layer; a plain file is a stack of one; nested layers refused
 apps/benchmark/modules/config/src/main/kotlin/layers/Provenance.kt : generatedFrom.settings from the written sections and the stack; a parse failure named with its layer
-apps/benchmark/modules/config/src/main/kotlin/source/CaptureView.kt : capture fields config uses: runtime, provider order, each service's aliases; of() projects contract's CapturedEnvironment
+apps/benchmark/modules/config/src/main/kotlin/source/CaptureView.kt : capture fields config uses: runtime, provider order, each service's aliases (CaptureSpellings); of() projects contract's CapturedEnvironment
 apps/benchmark/modules/config/src/main/kotlin/source/FactsSource.kt : reads a discovery facts file as settings' Facts
 apps/benchmark/modules/config/src/main/kotlin/source/TrialView.kt : trial fields config uses; of() projects contract's TrialReport
 apps/benchmark/modules/config/src/main/kotlin/testset/RuleDocument.kt : rule {provider, type, name, group} reader and writer
 apps/benchmark/modules/config/src/main/kotlin/testset/TestSetDocument.kt : test-set schema
 apps/benchmark/modules/config/src/main/kotlin/testset/dto/Include.kt : one include: its rule and its variants
 apps/benchmark/modules/config/src/main/kotlin/testset/dto/Override.kt : one override and its validation
-apps/benchmark/modules/config/src/main/kotlin/testset/dto/Rule.kt : rule matching through AlgorithmNames, and specificity
+apps/benchmark/modules/config/src/main/kotlin/testset/dto/Rule.kt : rule matching through the names it is given (the merged names), and specificity
 apps/benchmark/modules/config/src/main/kotlin/testset/dto/TestSet.kt : test-set model
 apps/benchmark/modules/config/src/main/kotlin/yaml/ProviderTree.kt : provider to type to name map, both directions
 apps/benchmark/modules/config/src/test/kotlin/AlgorithmNamesTest.kt : document's AlgorithmNames: the cases shared with perf-repair, every catalogued spelling, key types, linkage refusals, inventory duplicates, rule names
 apps/benchmark/modules/config/src/test/kotlin/AuthoredFilesTest.kt : a typo key or a bad providers.bundled stops the parse-only read
 apps/benchmark/modules/config/src/test/kotlin/BesideAuthoredParityTest.kt : tests/contracts/documents/beside-authored.json: Beside.authored gives each stated test-set path text; Python's paths.beside the same location
 apps/benchmark/modules/config/src/test/kotlin/BundledCasesParityTest.kt : tests/contracts/documents/bundled-cases.json: the providers section and its bundled entries, read as GlobalDocument reads them, each refused with its code or accepted; Python's bundled.entries the same
+apps/benchmark/modules/config/src/test/kotlin/CaptureLayerTest.kt : tests/contracts/catalogue/name-layers-cases.yaml as Python reads it; rule names through the merged names: a device-only alias, name_conflict, alias_conflict
 apps/benchmark/modules/config/src/test/kotlin/CommittedConfigTest.kt : committed config/ files parse
 apps/benchmark/modules/config/src/test/kotlin/ConfigurationTest.kt : facade tests
 apps/benchmark/modules/config/src/test/kotlin/ContractsTest.kt : config's global and effective examples, tests/contracts/ facts and scalars read to their .json values; algorithm-names.yaml resolves as Python resolves it; the duplicate-key refusal and exponent read

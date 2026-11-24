@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.config
 
+import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 import io.github.junekim0007.cryptobench.config.testset.dto.Rule
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -10,16 +11,16 @@ class RuleTest {
 
     @Test
     fun missingPartsMatchAnythingAndNamesIgnoreCase() {
-        assertTrue(Rule(type = "cipher").matches("SunJCE", "Cipher", "AES"))
-        assertTrue(Rule(name = "aes/cbc/pkcs5padding").matches("SunJCE", "Cipher", "AES/CBC/PKCS5PADDING"))
-        assertFalse(Rule(provider = "BC").matches("SunJCE", "Cipher", "AES"))
+        assertTrue(Rule(type = "cipher").matches(AlgorithmNames.catalog, "SunJCE", "Cipher", "AES"))
+        assertTrue(Rule(name = "aes/cbc/pkcs5padding").matches(AlgorithmNames.catalog, "SunJCE", "Cipher", "AES/CBC/PKCS5PADDING"))
+        assertFalse(Rule(provider = "BC").matches(AlgorithmNames.catalog, "SunJCE", "Cipher", "AES"))
     }
 
     @Test
     fun aStarMatchesAnyRunOfCharactersAndNothingElseIsSpecial() {
-        assertTrue(Rule(name = "RSA/ECB/OAEP*").matches("SunJCE", "Cipher", "RSA/ECB/OAEPWithSHA-256AndMGF1Padding"))
-        assertTrue(Rule(name = "*/GCM/*").matches("SunJCE", "Cipher", "AES_128/GCM/NoPadding"))
-        assertFalse(Rule(name = "SHA-2.6").matches("SUN", "MessageDigest", "SHA-256"))
+        assertTrue(Rule(name = "RSA/ECB/OAEP*").matches(AlgorithmNames.catalog, "SunJCE", "Cipher", "RSA/ECB/OAEPWithSHA-256AndMGF1Padding"))
+        assertTrue(Rule(name = "*/GCM/*").matches(AlgorithmNames.catalog, "SunJCE", "Cipher", "AES_128/GCM/NoPadding"))
+        assertFalse(Rule(name = "SHA-2.6").matches(AlgorithmNames.catalog, "SUN", "MessageDigest", "SHA-256"))
     }
 
     /** provider > exact name > name pattern > type: the order overrides are applied in. */

@@ -39,7 +39,7 @@ Host entry `ConfigureKt`: `docs/tools.md`.
 
 | step | rule |
 |---|---|
-| select | include (empty = all), then drop anything matching a test-set or global exclude |
+| select | include (empty = all), then drop anything matching a test-set or global exclude; a rule's name matches through the names file with the inventory's `aliases` over it (`NameLayers`): the names file answers every spelling it knows, an alias only it lists names its service, an alias two services mean apart fails `name_conflict: <type> <name>: <who says what>` |
 | skip | include matching nothing: `no_match: nothing on this device matches the include`; selected with `runs: false`: `not_runnable: <reason>` |
 | stop check | under `stop`, any skip fails `stopped_on_failure: <n>` listing the skips |
 | resolve | overrides per entry, by precedence in [config.md](config.md#override-precedence) |
@@ -97,7 +97,7 @@ An entry is checked as `run.harness` merged with its own harness. When the run s
 | key | holds |
 |---|---|
 | `runId` | as in `effective.yaml` |
-| `warnings` | the inventory's `warnings`, `variants_fallback:` of global.yaml then of the test set, `exclude_matches_nothing: <rule>`, `override_matches_nothing: <rule>`, run-level and entry-level `not_supported:`, then one `path_not_applicable:` per type and dropped path one `secure_path_unavailable:` (entries asking `secure` of a type whose row lacks it), then with `run.passes` one `shadowed_setting: <path> is unused while run.passes sets the samples of a --device run` per `run.harness.iterations` or `overrides[<i>].set.harness.iterations`, then one `shadowed_setting: <path> is unused by a measured capture; the cool-down applies to dry only` per `run.harness.energy.cooldownSeconds` or `overrides[<i>].set.harness.energy.cooldownSeconds` whose capture is `measured` (the run's only when no override sets `dry`) |
+| `warnings` | the inventory's `warnings`, `variants_fallback:` of global.yaml then of the test set, `exclude_matches_nothing: <rule>`, `override_matches_nothing: <rule>`, one `alias_conflict: <type>|<name>: catalog says <canonical>; <who says what>` per rule name (include, exclude, override, warm-up job) the names file knows and a provider aliases to another service, run-level and entry-level `not_supported:`, then one `path_not_applicable:` per type and dropped path one `secure_path_unavailable:` (entries asking `secure` of a type whose row lacks it), then with `run.passes` one `shadowed_setting: <path> is unused while run.passes sets the samples of a --device run` per `run.harness.iterations` or `overrides[<i>].set.harness.iterations`, then one `shadowed_setting: <path> is unused by a measured capture; the cool-down applies to dry only` per `run.harness.energy.cooldownSeconds` or `overrides[<i>].set.harness.energy.cooldownSeconds` whose capture is `measured` (the run's only when no override sets `dry`) |
 | `skipped` | `{stage, provider?, type?, name?, code, reason?}`; preparation writes the same record ([prepared.md](../../preparation/docs/prepared.md#skippedyaml)) |
 
 ## Errors and writes

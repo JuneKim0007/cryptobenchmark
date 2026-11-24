@@ -11,6 +11,9 @@ class AlgorithmNames private constructor(
     private val sized: Map<String, Map<String, Canonical>>,
     private val transformations: Map<String, Transformation>,
     private val keyTypes: Map<String, String>,
+    private val captured: Map<Pair<String, String>, Canonical> = emptyMap(),
+    // (type, folded alias) -> who means what, as NameLayers merged it
+    val conflicts: Map<Pair<String, String>, String> = emptyMap(),
 ) {
 
     private class Transformation(
@@ -20,7 +23,8 @@ class AlgorithmNames private constructor(
         val modeSynonyms: Map<String, Map<String, String>>,
     )
 
-    fun canonical(type: String, name: String): Canonical {
+    /** The names file's answer only, never a capture alias. */
+    fun catalogued(type: String, name: String): Canonical {
         val single = single(type, name)
         if (single.known || type !in transformations || '/' !in name) {
             return single
@@ -28,18 +32,38 @@ class AlgorithmNames private constructor(
         return transformation(type, name)
     }
 
+    /** A user-written name: the names file wins over any capture alias; a capture alias providers mean apart refuses name_conflict. */
+    fun canonical(type: String, name: String): Canonical {
+        val found = catalogued(type, name)
+        if (found.known) return found
+        conflicts[type to fold(name)]?.let { throw IllegalArgumentException("$NAME_CONFLICT: $type $name: $it") }
+        return captured[type to fold(name)] ?: found
+    }
+
+    /** A registered name: a name_conflict keys by its own spelling, never a stop. */
+    fun keyOrSpelling(type: String, name: String): Pair<String, Int?> = registered(type, name).key
+
+    /** The conflict of a capture alias the names file knows: the names file's answer stands. */
+    fun aliasConflict(type: String, name: String): String? = conflicts[type to fold(name)]?.takeIf { catalogued(type, name).known }
+
     /** The key type a Key.getAlgorithm() spelling or a catalogue key.type names. */
     fun keyType(name: String): Canonical = keyTypes[fold(name)]?.let { Canonical(it) } ?: Canonical(name, null, false)
 
-    fun key(type: String, name: String): Pair<String, Int?> = canonical(type, name).let { fold(it.name) to it.keySize }
+    fun key(type: String, name: String): Pair<String, Int?> = canonical(type, name).key
 
     fun matches(type: String, pattern: String, name: String): Boolean {
         if ('*' !in pattern) {
-            return key(type, pattern) == key(type, name)
+            return key(type, pattern) == keyOrSpelling(type, name)
         }
         val glob = Regex(pattern.split('*').joinToString(".*") { Regex.escape(it) }, RegexOption.IGNORE_CASE)
-        return glob.matches(name) || glob.matches(canonical(type, name).name)
+        return glob.matches(name) || glob.matches(registered(type, name).name)
     }
+
+    internal fun layered(captured: Map<Pair<String, String>, Canonical>, conflicts: Map<Pair<String, String>, String>): AlgorithmNames =
+        AlgorithmNames(names, sized, transformations, keyTypes, captured, conflicts)
+
+    private fun registered(type: String, name: String): Canonical =
+        if (!catalogued(type, name).known && (type to fold(name)) in conflicts) Canonical(name, null, false) else canonical(type, name)
 
     private fun single(type: String, name: String): Canonical {
         sized[type]?.get(fold(name))?.let { return it }
@@ -68,6 +92,7 @@ class AlgorithmNames private constructor(
         const val FILE = "algorithm-names.yaml"
         private const val SCHEMA_VERSION = 1
         private const val OID_PREFIX = "OID."
+        const val NAME_CONFLICT = "name_conflict"
 
         override val schemaVersion: Int = SCHEMA_VERSION
 
@@ -126,3 +151,5 @@ class AlgorithmNames private constructor(
             table.orEmpty().entries.associate { (algorithm, pairs) -> fold(algorithm) to pairs.mapKeys { fold(it.key) } }
     }
 }
+
+internal val Canonical.key: Pair<String, Int?> get() = AlgorithmNames.fold(name) to keySize

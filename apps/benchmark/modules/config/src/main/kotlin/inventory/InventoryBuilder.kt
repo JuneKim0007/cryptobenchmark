@@ -24,7 +24,7 @@ class InventoryBuilder {
                     warnings += "duplicate_name: $provider.${entry.type} $winner and ${entry.name} are one name; ${entry.name} left out"
                     continue
                 }
-                types.getOrPut(entry.type) { LinkedHashMap() }[entry.name] = inventoryEntry(entry.run, trial.defaultRunInputSize, capture.aliasesOf(provider, entry.type, entry.name))
+                types.getOrPut(entry.type) { LinkedHashMap() }[entry.name] = inventoryEntry(entry.run, trial.defaultRunInputSize, capture.spellings.aliasesOf(provider, entry.type, entry.name))
             }
             providers[provider] = types
         }

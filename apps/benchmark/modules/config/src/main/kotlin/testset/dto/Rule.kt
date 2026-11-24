@@ -16,10 +16,11 @@ data class Rule(
         require(group == null || !group.contains('@')) { "invalid_group: $group" }
     }
 
-    fun matches(provider: String, type: String, name: String): Boolean =
+    /** names: the names file with the capture's aliases over it (NameLayers), the rule's name a user-written spelling. */
+    fun matches(names: AlgorithmNames, provider: String, type: String, name: String): Boolean =
         (this.provider == null || AlgorithmNames.fold(this.provider) == AlgorithmNames.fold(provider)) &&
             (this.type == null || AlgorithmNames.fold(this.type) == AlgorithmNames.fold(type)) &&
-            (this.name == null || AlgorithmNames.catalog.matches(type, this.name, name))
+            (this.name == null || names.matches(type, this.name, name))
 
     fun appliesTo(group: String?): Boolean = this.group == null || this.group == group
 

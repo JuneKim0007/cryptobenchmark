@@ -1,5 +1,6 @@
 package io.github.junekim0007.cryptobench.config
 
+import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 import io.github.junekim0007.cryptobench.config.effective.WarmupJobs
 import io.github.junekim0007.cryptobench.config.global.dto.Warmup
 import io.github.junekim0007.cryptobench.config.testset.dto.Rule
@@ -14,7 +15,7 @@ class WarmupJobsTest {
         "SunJCE" to mapOf("Cipher" to mapOf("RSA@oaep" to Unit, "RSA" to Unit)),
     )
 
-    private fun resolve(vararg jobs: Rule) = WarmupJobs.resolve(Warmup(10, jobs.toList()), providers)
+    private fun resolve(vararg jobs: Rule) = WarmupJobs.resolve(Warmup(10, jobs.toList()), providers, AlgorithmNames.catalog)
 
     @Test
     fun jobsResolveToTheEntriesTheySelect() {

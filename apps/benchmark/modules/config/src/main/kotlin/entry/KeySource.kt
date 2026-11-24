@@ -40,13 +40,11 @@ object KeySource {
         return key + (PROVIDER to installed)
     }
 
-    // a registered name through the catalogue's spellings, or an alias the capture lists for it (an OID among them)
+    // a registered name through the catalogue's spellings, or an alias this provider's capture lists (an OID among them)
     private fun generates(inventory: Inventory, provider: String, algorithm: String): Boolean {
         val types = inventory.providers[provider].orEmpty()
         return EngineCatalog.rows.generators.any { type ->
-            types[type].orEmpty().any { (name, entry) ->
-                AlgorithmNames.catalog.matches(type, algorithm, name) || entry.aliases.any { AlgorithmNames.fold(it) == AlgorithmNames.fold(algorithm) }
-            }
+            types[type].orEmpty().keys.any { AlgorithmNames.catalog.matches(type, algorithm, it) } || inventory.spellings.registers(provider, type, algorithm)
         }
     }
 }

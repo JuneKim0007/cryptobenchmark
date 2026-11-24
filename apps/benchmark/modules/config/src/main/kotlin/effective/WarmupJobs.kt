@@ -2,14 +2,15 @@ package io.github.junekim0007.cryptobench.config.effective
 
 import io.github.junekim0007.cryptobench.config.global.dto.Warmup
 import io.github.junekim0007.cryptobench.config.testset.dto.Rule
+import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 
 /** run.warmup.jobs resolved to the effective entries they select, each written as an exact rule the runner compares field by field. */
 internal object WarmupJobs {
 
-    fun resolve(warmup: Warmup, providers: Map<String, Map<String, Map<String, *>>>): Pair<Warmup, List<String>> {
+    fun resolve(warmup: Warmup, providers: Map<String, Map<String, Map<String, *>>>, names: AlgorithmNames): Pair<Warmup, List<String>> {
         if (warmup.jobs.isEmpty() || warmup.iterations == 0) return warmup to emptyList()
         val entries = providers.flatMap { (provider, types) ->
-            types.flatMap { (type, keys) -> keys.keys.map { key -> Entry(provider, type, key.substringBefore('@'), key.substringAfter('@', "").ifEmpty { null }) } }
+            types.flatMap { (type, keys) -> keys.keys.map { key -> Entry(names, provider, type, key.substringBefore('@'), key.substringAfter('@', "").ifEmpty { null }) } }
         }
         val selected = entries.filter { entry -> warmup.jobs.any { entry.selectedBy(it) } }
         val warnings = warmup.jobs.filter { job -> entries.none { it.selectedBy(job) } }.map { "warmup_job_matches_nothing: $it" }
@@ -17,8 +18,8 @@ internal object WarmupJobs {
         return (if (selected.isEmpty()) warmup.copy(iterations = 0, jobs = emptyList()) else warmup.copy(jobs = selected.map { it.rule })) to warnings
     }
 
-    private class Entry(val provider: String, val type: String, val name: String, val group: String?) {
-        fun selectedBy(job: Rule): Boolean = job.matches(provider, type, name) && job.appliesTo(group)
+    private class Entry(val names: AlgorithmNames, val provider: String, val type: String, val name: String, val group: String?) {
+        fun selectedBy(job: Rule): Boolean = job.matches(names, provider, type, name) && job.appliesTo(group)
         val rule: Rule get() = Rule(provider, type, name, group)
     }
 }

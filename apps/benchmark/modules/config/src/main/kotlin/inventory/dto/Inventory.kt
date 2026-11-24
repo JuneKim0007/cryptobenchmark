@@ -2,6 +2,7 @@ package io.github.junekim0007.cryptobench.config.inventory.dto
 
 import io.github.junekim0007.cryptobench.contract.trial.KeystoreRow
 import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
+import io.github.junekim0007.cryptobench.document.names.CaptureSpellings
 
 data class Inventory(
     val generatedFrom: InventorySource,
@@ -17,6 +18,13 @@ data class Inventory(
                 require(same.isEmpty()) { "duplicate_name: $provider.$type ${same.values.flatten()}" }
             }
         }
+    }
+
+    /** Each provider's entries that carry capture aliases, in inventory order: the capture layer config's matching reads. */
+    val spellings: CaptureSpellings by lazy {
+        CaptureSpellings(providers.mapValues { (_, types) ->
+            types.flatMap { (type, entries) -> entries.filterValues { it.aliases.isNotEmpty() }.map { (name, entry) -> CaptureSpellings.Service(type, name, entry.aliases) } }
+        })
     }
 
     fun entries(): List<Located> = providers.flatMap { (provider, types) ->

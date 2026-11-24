@@ -121,9 +121,9 @@ class AlgorithmNamesTest {
 
     @Test
     fun aRuleMatchesEverySpellingOfItsName() {
-        assertTrue(Rule(type = "MessageDigest", name = "SHA256").matches("SUN", "MessageDigest", "SHA-256"))
-        assertTrue(Rule(name = "aes/cbc/pkcs7padding").matches("P", "Cipher", "AES/CBC/PKCS5PADDING"))
-        assertFalse(Rule(name = "SHA256").matches("P", "MessageDigest", "SHA-512"))
+        assertTrue(Rule(type = "MessageDigest", name = "SHA256").matches(AlgorithmNames.catalog, "SUN", "MessageDigest", "SHA-256"))
+        assertTrue(Rule(name = "aes/cbc/pkcs7padding").matches(AlgorithmNames.catalog, "P", "Cipher", "AES/CBC/PKCS5PADDING"))
+        assertFalse(Rule(name = "SHA256").matches(AlgorithmNames.catalog, "P", "MessageDigest", "SHA-512"))
     }
 
     @Test
