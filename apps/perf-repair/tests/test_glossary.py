@@ -10,6 +10,7 @@ from cryptobench.shared.catalogue.glossary import (ALL, DERIVED, GlossaryError, 
                                         recipe_terms, role_problems, roles, term_problems, tree, what_is)
 from cryptobench.shared.catalogue.recipes import CATALOG as RECIPES
 from cryptobench.shared.catalogue.groups import CATALOG as GROUPS
+from cryptobench.shared.catalogue.names import Names
 from cryptobench.shared.catalogue.names import CATALOG as NAMES_FILE, Names, NamesError, fold
 from cryptobench.shared.catalogue.deviations import CATALOG as DEVIATIONS
 from cryptobench.shared.catalogue.provider_builds import CATALOG as PROVIDER_BUILDS, ProviderBuildError, load as load_builds
@@ -189,10 +190,10 @@ def test_a_new_entry_with_an_unlisted_term_is_refused_naming_the_term():
     from perfrepair.validation.catalogue_entry import entry_check
     catalogue, families = algorithms(), Families.load()
     entry = catalogue.of("digest.none", "MessageDigest|MD5")
-    assert entry_check(entry, catalogue, families) == []
+    assert entry_check(entry, catalogue, families, Names.load()) == []
     bad = Entry(entry.id, entry.family, {**entry.raw, "required": [{"name": "colour", "source": "inferred"}]})
     swapped = type(catalogue)(tuple(bad if e.id == entry.id else e for e in catalogue.entries), catalogue.common)
-    assert any("algorithm.required.name: no value 'colour'" in p for p in entry_check(bad, swapped, families))
+    assert any("algorithm.required.name: no value 'colour'" in p for p in entry_check(bad, swapped, families, Names.load()))
 
 
 def test_common_is_in_the_glossary():

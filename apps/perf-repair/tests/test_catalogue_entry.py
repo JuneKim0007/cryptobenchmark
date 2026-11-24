@@ -1,11 +1,14 @@
 """Static entry checks: form, family against engine type, one id across the catalogues."""
 import copy
 
+import pytest
+
 from cryptobench.shared.catalogue.algorithms import Algorithms, Entry, algorithms, entry_problems
 from cryptobench.shared.catalogue.families import Families
+from cryptobench.shared.catalogue.names import Names
 from perfrepair.validation.catalogue_entry import catalogue_check, entry_check
 
-FAMILIES = Families.load()
+FAMILIES, NAMES = Families.load(), Names.load()
 SHA = "MessageDigest|SHA-256"
 
 
@@ -22,28 +25,35 @@ def _sha(family="digest.none", identifier=SHA, change=None) -> Entry:
 
 
 def test_the_packaged_catalogues_pass_every_static_check():
-    assert catalogue_check(algorithms(), FAMILIES) == []
+    assert catalogue_check(algorithms(), FAMILIES, NAMES) == []
 
 
 def test_a_listed_entry_passes():
     entry = algorithms().of("digest.none", SHA)
-    assert entry_check(entry, algorithms(), FAMILIES) == []
+    assert entry_check(entry, algorithms(), FAMILIES, NAMES) == []
 
 
 def test_a_new_entry_already_held_is_refused():
     entry = _sha()
-    assert "id is in 2 catalogues: ['digest.none', 'digest.none']" in entry_check(entry, _with(entry), FAMILIES)
+    assert "id is in 2 catalogues: ['digest.none', 'digest.none']" in entry_check(entry, _with(entry), FAMILIES, NAMES)
+
+
+@pytest.mark.parametrize("name, given", [("SHA256", "SHA-256"), ("2.16.840.1.101.3.4.2.1", "SHA-256"), ("sha-256", "SHA-256"),
+                                         ("SHA-999", "SHA-999")])
+def test_an_id_that_is_not_the_names_file_s_canonical_is_refused(name, given):
+    entry = _sha(identifier=f"MessageDigest|{name}")
+    assert f"id not canonical, the names file gives {given} keySize None" in entry_check(entry, _with(entry), FAMILIES, NAMES)
 
 
 def test_a_family_that_does_not_fit_the_engine_type_is_refused():
     entry = _sha(family="mac.secret", identifier="MessageDigest|SHA-998")
-    assert "engine type MessageDigest does not fit family mac.secret (Mac)" in entry_check(entry, _with(entry),
-                                                                                           FAMILIES)
+    assert "engine type MessageDigest does not fit family mac.secret (Mac)" in entry_check(entry, _with(entry), FAMILIES,
+                                                                                       NAMES)
 
 
 def test_a_malformed_entry_names_its_form_problem():
     entry = _sha(identifier="MessageDigest|SHA-997", change=lambda r: r.pop("lifecycle"))
-    assert entry_check(entry, _with(entry), FAMILIES)[0].startswith("fields missing ['lifecycle']")
+    assert entry_check(entry, _with(entry), FAMILIES, NAMES)[0].startswith("fields missing ['lifecycle']")
 
 
 def _problems(family, identifier, change):

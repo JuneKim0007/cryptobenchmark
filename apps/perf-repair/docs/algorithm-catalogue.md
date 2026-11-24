@@ -58,7 +58,7 @@ Two forms state a fact once for many entries. Reading applies them, so an entry'
 
 ## Static checks (`validation/catalogue_entry.py`)
 
-An entry's form, every word against the glossary (naming an unlisted term), its engine type against its family's, its id in exactly one catalogue.
+An entry's form, every word against the glossary (naming an unlisted term), its engine type against its family's, its id in exactly one catalogue and the names file's canonical name of its type.
 
 `catalogue_check` runs `entry_check` over every entry. Nothing checks that every service a build registers has an entry.
 

@@ -10,6 +10,7 @@ import yaml
 from cryptobench.shared.catalogue.algorithms import DIRECTORY, SUFFIX, load
 from cryptobench.shared.catalogue.families import Families
 from cryptobench.shared.catalogue.groups import CATALOG as GROUPS, load as load_groups
+from cryptobench.shared.catalogue.names import Names
 from cryptobench.shared.errors.input_error import InputError
 from perfrepair.validation.catalogue_entry import catalogue_check
 
@@ -36,7 +37,7 @@ def _problems(target) -> list[str]:
     try:
         catalogue = load(target)
         load_groups(GROUPS, catalogue=catalogue)
-        return catalogue_check(catalogue, Families.load())
+        return catalogue_check(catalogue, Families.load(), Names.load())
     except InputError as e:
         return [str(e)]
 

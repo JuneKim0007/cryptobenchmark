@@ -387,14 +387,20 @@ def _digest_problems(names: Names, e: Entry) -> list[str]:
     return [f"contract digest {value} is not canonical" + (f", the names file gives {found.name}" if found is not None and found.known else ", no MessageDigest")]
 
 
+def canonical_problems(entry: Entry, names: Names) -> list[str]:
+    """The id's name is the names file's canonical for its type, without a key size."""
+    found = names.catalogued(entry.type, entry.canonical)
+    if found.known and found.name == entry.canonical and found.keySize is None:
+        return []
+    return [f"id not canonical, the names file gives {found.name} keySize {found.keySize}"]
+
+
 def _linkage_problems(entries: list[Entry], names: Names, engine_types: set[str]) -> list[str]:
     """Each id is its own canonical name, each key.type a keyTypes name on every build (deviations already overlaid) and each contract digest a canonical MessageDigest; each sized spelling of a catalogued type links to an entry that takes its size."""
     by_id = {fold(e.id): e for e in entries}
     problems = []
     for e in (e for e in entries if split_id(e.id)):
-        found = names.catalogued(e.type, e.canonical)
-        if not found.known or found.name != e.canonical or found.keySize is not None:
-            problems.append(f"{e.id}: id not canonical, the names file gives {found.name} keySize {found.keySize}")
+        problems += [f"{e.id}: {p}" for p in canonical_problems(e, names)]
         problems += [f"{e.id}: {p}" for p in (_key_type_problem(names, t) for t in sorted(_key_types(e))) if p]
         problems += [f"{e.id}: {p}" for p in _digest_problems(names, e)]
     for t in sorted(engine_types):
