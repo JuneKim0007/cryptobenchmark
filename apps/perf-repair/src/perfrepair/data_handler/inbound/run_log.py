@@ -8,7 +8,8 @@ from collections import defaultdict
 from pathlib import Path
 
 
-from ...dto import LogEntry, PrimitiveRow, RunLog, run_log
+from ...dto import LogEntry, PrimitiveRow, RunLog
+from ...dto import run_log as statuses
 
 _IDENTITY_HASH = re.compile(r"@[0-9a-f]{6,}\b")
 _LONG_HEX = re.compile(r"\b[0-9a-f]{32,}\b")
@@ -32,13 +33,13 @@ def _yaml(path: Path | None) -> dict:
 def _unmeasured(add, rows: list[PrimitiveRow], prepared: dict[str, dict], lacking: dict[str, dict], unrepaired: list[PrimitiveRow]) -> None:
     """A case benchmark.json has without a required metric's runs, or on a path no pattern maps to, says so; a prepared one it lacks is no_samples."""
     for case_id, c in lacking.items():
-        add(run_log.UNMEASURED, "benchmark", c.get("provider"), c.get("type"), c.get("algorithm"), NO_REQUIRED_METRIC, case_id)
+        add(statuses.UNMEASURED, "benchmark", c.get("provider"), c.get("type"), c.get("algorithm"), NO_REQUIRED_METRIC, case_id)
     for r in unrepaired:
-        add(run_log.UNMEASURED, "benchmark", r.provider, r.type, r.algorithm, VARIANT_UNREPAIRED, r.rowId)
+        add(statuses.UNMEASURED, "benchmark", r.provider, r.type, r.algorithm, VARIANT_UNREPAIRED, r.rowId)
     measured = {r.rowId for r in rows} | set(lacking) | {r.rowId for r in unrepaired}
     for case_id, c in prepared.items():
         if case_id not in measured:
-            add(run_log.UNMEASURED, "benchmark", c.get("provider"), c.get("type"), c.get("algorithm"), NO_SAMPLES, case_id)
+            add(statuses.UNMEASURED, "benchmark", c.get("provider"), c.get("type"), c.get("algorithm"), NO_SAMPLES, case_id)
 
 
 def build_run_log(rows: list[PrimitiveRow], prepared: dict[str, dict] | None = None,
@@ -50,18 +51,18 @@ def build_run_log(rows: list[PrimitiveRow], prepared: dict[str, dict] | None = N
         folded[(status, stage, provider, type_, algorithm, normalise_reason(reason))].append(row_id)
 
     for r in rows:
-        add(run_log.MEASURED, "benchmark", r.provider, r.type, r.algorithm, None, r.rowId)
+        add(statuses.MEASURED, "benchmark", r.provider, r.type, r.algorithm, None, r.rowId)
     _unmeasured(add, rows, prepared or {}, lacking or {}, list(unrepaired))
 
     for s in skipped.records(_yaml(skipped_yaml)):
         reason = ": ".join(str(part) for part in (s.get("code"), s.get("reason")) if part)
-        add(run_log.SKIPPED, s.get("stage"), s.get("provider"), s.get("type"), s.get("name"), reason or None, s.get("caseId"))
+        add(statuses.SKIPPED, s.get("stage"), s.get("provider"), s.get("type"), s.get("name"), reason or None, s.get("caseId"))
 
     for provider, types in (_yaml(inventory_yaml).get("providers") or {}).items():
         for type_, algorithms in (types or {}).items():
             for algorithm, verdict in (algorithms or {}).items():
                 if isinstance(verdict, dict) and verdict.get("runs") is False:
-                    add(run_log.NOT_RUNNABLE, "trial", provider, type_, algorithm, verdict.get("reason"))
+                    add(statuses.NOT_RUNNABLE, "trial", provider, type_, algorithm, verdict.get("reason"))
 
     entries = [LogEntry(*key, occurrences=len(ids), rowIds=tuple(sorted(i for i in ids if i)))
                for key, ids in folded.items()]

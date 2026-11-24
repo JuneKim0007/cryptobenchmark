@@ -20,17 +20,17 @@ HAND_BUILT = re.compile(r'\bFile\([^"]*,\s*"[\w.]')
 PACKAGE = "io/github/junekim0007/cryptobench/"
 # python module, name -> Kotlin (module, source set, file), pattern whose groups are the value
 MIRRORS = (
-    ("cryptobench.stages.measurement.session.case_isolation", "CASE_ARGUMENT", ("android", "androidTest", PACKAGE + "CaseFilter.kt"), r'const val ARGUMENT = "([^"]*)"'),
-    ("cryptobench.stages.measurement.session.case_isolation", "REFUSED_PLAN", ("benchmark", "main", "RefusedPlanException.kt"), r'IllegalStateException\("(\w+:)'),
-    ("cryptobench.stages.measurement.session.case_isolation", "LISTED", ("android", "androidTest", PACKAGE + "CryptoBenchmark.kt"), r"fun (measure)\(\)"),
-    ("cryptobench.stages.measurement.benchmark", "DRY_CASE", ("android", "androidTest", PACKAGE + "EnergyDryBenchmark.kt"), r"fun (capture)\(\)"),
-    ("cryptobench.stages.measurement.session.passes", "PASS_ARGUMENT", ("android", "androidTest", PACKAGE + "PassArguments.kt"), r'const val PASS = "([^"]*)"'),
-    ("cryptobench.stages.measurement.session.passes", "SAMPLES_ARGUMENT", ("android", "androidTest", PACKAGE + "PassArguments.kt"), r'const val SAMPLES = "([^"]*)"'),
-    ("cryptobench.stages.measurement.session.passes", "TIMING", ("config", "main", "global/dto/MeasurePass.kt"), r'const val TIMING = "([^"]*)"'),
-    ("cryptobench.stages.measurement.session.passes", "ENERGY", ("config", "main", "global/dto/MeasurePass.kt"), r'const val ENERGY = "([^"]*)"'),
-    ("cryptobench.stages.measurement.session.passes", "ALLOCATION", ("config", "main", "global/dto/MeasurePass.kt"), r'const val ALLOCATION = "([^"]*)"'),
-    ("cryptobench.stages.discovery.probe", "HOST_MILLIS", ("android", "androidTest", PACKAGE + "DeviceProbe.kt"), r'const val HOST_MILLIS = "([^"]*)"'),
-    ("analysis.chart_input", "UNIDENTIFIED", ("preparation", "main", "prepare/ChartGroup.kt"), r'UNIDENTIFIED\((\d+), "([^"]*)"\)'),
+    ("cryptobench.stages.measurement.session.case_isolation", "CASE_ARGUMENT", ("android", "androidTest", PACKAGE + "CaseFilter.kt"), r'(?m)^\s*const val ARGUMENT = "([^"]*)"'),
+    ("cryptobench.stages.measurement.session.case_isolation", "REFUSED_PLAN", ("benchmark", "main", "RefusedPlanException.kt"), r'(?m)^\s*IllegalStateException\("(\w+:)'),
+    ("cryptobench.stages.measurement.session.case_isolation", "LISTED", ("android", "androidTest", PACKAGE + "CryptoBenchmark.kt"), r"(?m)^\s*fun (measure)\(\)"),
+    ("cryptobench.stages.measurement.benchmark", "DRY_CASE", ("android", "androidTest", PACKAGE + "EnergyDryBenchmark.kt"), r"(?m)^\s*fun (capture)\(\)"),
+    ("cryptobench.stages.measurement.session.passes", "PASS_ARGUMENT", ("android", "androidTest", PACKAGE + "PassArguments.kt"), r'(?m)^\s*const val PASS = "([^"]*)"'),
+    ("cryptobench.stages.measurement.session.passes", "SAMPLES_ARGUMENT", ("android", "androidTest", PACKAGE + "PassArguments.kt"), r'(?m)^\s*const val SAMPLES = "([^"]*)"'),
+    ("cryptobench.stages.measurement.session.passes", "TIMING", ("config", "main", "global/dto/MeasurePass.kt"), r'(?m)^\s*const val TIMING = "([^"]*)"'),
+    ("cryptobench.stages.measurement.session.passes", "ENERGY", ("config", "main", "global/dto/MeasurePass.kt"), r'(?m)^\s*const val ENERGY = "([^"]*)"'),
+    ("cryptobench.stages.measurement.session.passes", "ALLOCATION", ("config", "main", "global/dto/MeasurePass.kt"), r'(?m)^\s*const val ALLOCATION = "([^"]*)"'),
+    ("cryptobench.stages.discovery.probe", "HOST_MILLIS", ("android", "androidTest", PACKAGE + "DeviceProbe.kt"), r'(?m)^\s*const val HOST_MILLIS = "([^"]*)"'),
+    ("analysis.chart_input", "UNIDENTIFIED", ("preparation", "main", "prepare/ChartGroup.kt"), r'(?m)^\s*UNIDENTIFIED\((\d+), "([^"]*)"\)'),
 )
 INSTRUMENTED = re.compile(r"test=(\w+)\\\[")
 
@@ -78,10 +78,10 @@ def python_value(value) -> tuple[str, ...]:
 
 
 def _module(name: str):
-    if name.startswith("cryptobench."):
+    if name.startswith("cryptobench.") or name in sys.modules:
         return importlib.import_module(name)
     spec = importlib.util.spec_from_file_location(name, paths.repo().runner.joinpath(*name.split(".")).with_suffix(".py"))
-    module = importlib.util.module_from_spec(spec)
+    module = sys.modules[name] = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
 

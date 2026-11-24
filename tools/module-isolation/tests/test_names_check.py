@@ -1,5 +1,8 @@
 import pathlib
+import re
 import sys
+
+import pytest
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
@@ -81,15 +84,28 @@ def test_the_mirrored_constants_agree():
     assert mirror_problems() == []
 
 
-def test_a_changed_kotlin_copy_fails(tmp_path):
+def copied_mirrors(tmp_path):
     def copied(module, source_set, file):
         return tmp_path / module / source_set / file
     for _, _, kotlin, _ in MIRRORS:
         copied(*kotlin).parent.mkdir(parents=True, exist_ok=True)
         copied(*kotlin).write_text(paths.repo().kotlin_source(*kotlin).read_text(encoding="utf-8"), encoding="utf-8")
-    probe, chart = copied(*MIRRORS[0][2]), copied(*MIRRORS[-1][2])
-    probe.write_text(probe.read_text().replace('ARGUMENT = "case"', 'ARGUMENT = "caseId"'))
-    chart.write_text(chart.read_text().replace("UNIDENTIFIED(0, ", "UNIDENTIFIED(9, "))
-    assert mirror_problems(copied) == [
-        f"mirror differs: {MIRRORS[0][0]}.CASE_ARGUMENT ('case',), {MIRRORS[0][2][2]} ('caseId',)",
-        f"mirror differs: analysis.chart_input.UNIDENTIFIED ('0', 'unidentified'), {MIRRORS[-1][2][2]} ('9', 'unidentified')"]
+    return copied
+
+
+@pytest.mark.parametrize("mirror", MIRRORS, ids=lambda m: m[1])
+def test_a_changed_kotlin_copy_fails(tmp_path, mirror):
+    copied = copied_mirrors(tmp_path)
+    module, name, kotlin, pattern = mirror
+    path = copied(*kotlin)
+    text = path.read_text()
+    found = re.search(pattern, text)
+    path.write_text(text[:found.start(1)] + "9" + text[found.start(1):])
+    problems = mirror_problems(copied)
+    assert len(problems) == 1 and problems[0].startswith((f"mirror differs: {module}.{name} ", f"mirror missing: {kotlin[2]} "))
+
+
+def test_a_lost_kotlin_definition_is_named(tmp_path):
+    copied = copied_mirrors(tmp_path)
+    copied(*MIRRORS[0][2]).write_text("object CaseFilter")
+    assert mirror_problems(copied) == [f"mirror missing: {MIRRORS[0][2][2]} has no {MIRRORS[0][3]}"]
