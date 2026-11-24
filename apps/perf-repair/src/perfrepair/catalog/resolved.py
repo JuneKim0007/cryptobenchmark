@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 
-from cryptobench.shared.catalogue.names import Names
+from cryptobench.shared.catalogue.names import Names, fold
 
 DIGEST_ENGINE = "MessageDigest"
 FUNCTION_FIXED = ("digest", "mgf1")
@@ -15,7 +15,7 @@ def _names() -> Names:
 
 
 def digest_name(text: str) -> str:
-    return _names().canonical(DIGEST_ENGINE, text).name.upper()
+    return fold(_names().canonical(DIGEST_ENGINE, text).name)
 
 
 def function_parameters(resolved: str | None) -> tuple[tuple[str, str], ...]:

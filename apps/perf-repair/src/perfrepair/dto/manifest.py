@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from cryptobench.shared.catalogue.names import fold
 from cryptobench.shared.results.manifest import MANIFEST_DOC, MODES
 from cryptobench.shared.stats.units import DisplayUnits
 
@@ -58,7 +59,7 @@ class BenchmarkManifest:
         """Empty: the type falls back to TYPE_DEFAULT, whose invocation times nothing; None: not recorded."""
         if self.operations is None:
             return None
-        return {t.upper(): ops for t, ops in self.operations.items()}.get(engine_type.upper(), ())
+        return {fold(t): ops for t, ops in self.operations.items()}.get(fold(engine_type), ())
 
     def to_json(self) -> dict:
         optional = {"units": self.units, "energy": self.energy, "problems": list(self.problems),
