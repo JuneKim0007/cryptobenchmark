@@ -2,12 +2,13 @@ from dataclasses import replace
 
 import pytest
 
-from perfrepair.catalog.types import Types
+from perfrepair.catalog.types import Types, types
 from perfrepair.dto.change import CHANGES, REJECT_REASONS, admits
 from perfrepair.dto.lifecycle import BOUNDED, Lifecycle, Requirement, Settled
 from perfrepair.dto.site import Scope, scope_id
+from cryptobench.shared.catalogue import key_types
 from cryptobench.shared.catalogue.types import Properties, Strength, TypeRow
-from perfrepair.result import change
+from perfrepair.result import candidates, change
 from perfrepair.result.change import Candidate, needs_review, reach
 
 TYPES = Types({}, {"blockKey": {128: 128, 256: 256}}, frozenset({"digest", "ciphertext"}))
@@ -31,7 +32,7 @@ def cand(r, measured=True, bundled=False, lowers=False) -> Candidate:
 
 def classify(types, s, current, c, min_sdk):
     """Each side's key type is its row's: the fixture's names have no catalogue entry."""
-    keys = tuple(r.properties.keyType if r is not None else None for r in (current, c.row))
+    keys = tuple(frozenset({r.properties.keyType}) if r is not None else None for r in (current, c.row))
     return change.classify(types, s, current, c, min_sdk, keys)
 
 
@@ -192,24 +193,26 @@ def test_a_family_candidate_only_the_harness_has_is_a_migration_that_adds_a_depe
 
 
 def test_a_key_type_its_builds_give_alike_is_compared_not_the_row_s():
-    a, b = row("ALG-A", "ciphertext", key="PBE"), row("ALG-B", "ciphertext", key="AES")
-    assert change.classify(TYPES, scope(("local",)), a, cand(b), 21, ("AES", "AES")).diff.key == "same"
+    a, b, aes = row("ALG-A", "ciphertext", key="PBE"), row("ALG-B", "ciphertext", key="AES"), frozenset({"AES"})
+    assert change.classify(TYPES, scope(("local",)), a, cand(b), 21, (aes, aes)).diff.key == "same"
 
 
-def test_builds_that_disagree_on_a_key_type_are_a_key_change_a_person_reviews():
-    a, b = row("ALG-A", "ciphertext", key="AES"), row("ALG-B", "ciphertext", key="AES", out=48)
-    c = change.classify(TYPES, scope(("local",)), a, cand(b), 21, ("AES", None))
+@pytest.mark.parametrize("theirs, reason", [(frozenset({"AES", "DES"}), "key_type_per_build"), (frozenset(), "key_type_unknown")])
+def test_a_key_type_no_one_value_states_is_a_key_change_a_person_reviews(theirs, reason):
+    a, b, aes = row("ALG-A", "ciphertext", key="AES"), row("ALG-B", "ciphertext", key="AES", out=48), frozenset({"AES"})
+    c = change.classify(TYPES, scope(("local",)), a, cand(b), 21, (aes, theirs))
     assert (c.change, c.diff.key) == ("migration", "type")
-    assert "key_type_per_build" in needs_review(scope(("local",)), c.diff, a, b, ("AES", None))
-    assert "key_type_per_build" not in needs_review(scope(("local",)), c.diff, a, b, ("AES", "AES"))
+    assert {"key_type_per_build", "key_type_unknown"} & set(needs_review(scope(("local",)), c.diff, a, b, (aes, theirs))) == {reason}
+    assert not {"key_type_per_build", "key_type_unknown"} & set(needs_review(scope(("local",)), c.diff, a, b, (aes, aes)))
 
 
-def test_a_family_reads_each_item_s_key_type_on_its_provider_s_builds():
-    from perfrepair.catalog.types import types
-    from perfrepair.result.candidates import Family
-    pbe, aes = "Cipher|PBEWithHmacSHA256AndAES_128|{}", "Cipher|AES/CBC/PKCS5Padding|{}"
-    items = [pbe.format("AndroidOpenSSL"), pbe.format("SunJCE"), aes.format("AndroidOpenSSL")]
-    canonical = dict(zip(items, ("PBEWithHmacSHA256AndAES_128", "PBEWithHmacSHA256AndAES_128", "AES/CBC/PKCS5Padding")))
-    f = Family({q: "cipher.secret" for q in items}, canonical, types(), 21)
-    assert f.keys(items[0], items[2]) == ("AES", "AES")
-    assert f.keys(items[1], items[2]) == ("PBEWithHmacSHA256AndAES_128", "AES")
+def test_a_family_reads_each_item_s_key_types_once_on_its_provider_s_builds(monkeypatch):
+    read = []
+    monkeypatch.setattr(candidates, "entry_of", lambda t, n: read.append(n) or key_types.entry_of(t, n))
+    items = ["Cipher|PBEWithHmacSHA256AndAES_128|AndroidOpenSSL", "Cipher|PBEWithHmacSHA256AndAES_128|SunJCE",
+             "Cipher|AES/CBC/PKCS5Padding|AndroidOpenSSL", "Cipher|NoSuch|P"]
+    canonical = {q: q.split("|")[1] for q in items}
+    f = candidates.Family({q: "cipher.secret" for q in items}, canonical, types(), 21)
+    want = [{"AES"}, {"PBEWithHmacSHA256AndAES_128"}, {"AES"}, None]
+    assert [f.key_types(q) for q in items] == want and [f.key_types(q) for q in items] == want
+    assert len(read) == 3

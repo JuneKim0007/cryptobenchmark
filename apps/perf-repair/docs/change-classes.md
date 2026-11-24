@@ -44,7 +44,7 @@ The type facts of each entry in `../../algorithms/<family>_catalogue.yaml` ([alg
 | `input` | `same` | the parameter shape is equal |
 | | `reshaped` | the shape differs and `parameters`' settled origin is `generated`, `literal` or `derived`, or the candidate takes none |
 | | `new_parameter` | otherwise, and whenever the current call passes none |
-| `key` | `same`, `size`, `type` | `keyType` equal and one key-size fact; another key-size fact; another `keyType`; each side's `keyType` is the `key.type` its provider's builds give it (`shared/catalogue/key_types.py`), and builds that disagree count as `type` |
+| `key` | `same`, `size`, `type` | `keyType` equal and one key-size fact; another key-size fact; another `keyType`; each side's `keyType` is the `key.type` its provider's builds give it (`shared/catalogue/key_types.py`), and builds that disagree, or no catalogue entry, count as `type` |
 | `output` | `bytes` | same `outputKind`, other bytes or length |
 | | `kind` | another `outputKind` |
 | `reach` | `local`, `return`, `unknown`, `persist` | the sinks are all `local`; all `local` or `return`; a sink `unknown` or the lifecycle's `binding` `field` (the object outlives the function); any other sink |
@@ -116,6 +116,7 @@ Every option carries three fields code computes; the model is not asked for them
 | `output_length_changes` | another output kind, an output length of null on either side, or two lengths |
 | `key_changes` | the diff's `key` is not `same` |
 | `key_type_per_build` | a side's provider builds give its `key.type` differently |
+| `key_type_unknown` | a side has a type row and no catalogue entry |
 | `key_size_unknown` | the current item takes a key and the scope's key size is unknown |
 | `parameter_changes` | the diff's `input` is not `same` |
 | `adds_dependency` | the candidate's provider is the harness's, not the app's (any output) |

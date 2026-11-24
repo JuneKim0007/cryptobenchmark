@@ -27,8 +27,11 @@ REACH_REVIEW = {"local": "reach_local_unverified", "return": "reach_return_unver
 FIELD_BOUND = "field_bound"
 # a side's provider builds give its key.type differently, so the key a swap needs is not one fact
 KEY_TYPE_PER_BUILD = "key_type_per_build"
+# a side with a type row and no catalogue entry
+KEY_TYPE_UNKNOWN = "key_type_unknown"
 NEEDS_REVIEW = (*REACH_REVIEW.values(), FIELD_BOUND, "output_length_changes", "key_changes", "key_size_unknown",
-                "parameter_changes", "adds_dependency", "resolved_by_order", KEY_TYPE_PER_BUILD)
+                "parameter_changes", "adds_dependency", "resolved_by_order", KEY_TYPE_PER_BUILD,
+                KEY_TYPE_UNKNOWN)
 
 
 # provider_path: the same canonical name from another provider the app has; the only kind a swap can be applied as

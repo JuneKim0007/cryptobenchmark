@@ -107,7 +107,7 @@ class Joined:
         found, absent = estimates(*sides)
         d = change.diff if change is not None else None
         rows = (self.family.row(current), self.family.row(q)) if self.family else (None, None)
-        keys = self.family.keys(current, q) if self.family else (None, None)
+        keys = (self.family.key_types(current), self.family.key_types(q)) if self.family else (None, None)
         return Option(f"{OPTION_PREFIX}{n}", q, pinned, pair_status(self.groups, current, q), found,
                       None if self.verdicts is None else self.verdicts[q].status, absent, **classed,
                       outputChanges=output_changes(d), reach=reach(s),

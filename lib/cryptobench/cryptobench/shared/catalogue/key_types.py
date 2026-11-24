@@ -22,16 +22,21 @@ def entry_of(engine_type: str, name: str, names: Names | None = None, catalogue:
     return next((e for e in (catalogue or algorithms()).entries if fold(e.id) == wanted), None)
 
 
+def build_key_types(entry: Entry, provider: str | None, catalogue: Algorithms | None = None, builds: ProviderBuilds | None = None) -> frozenset[str]:
+    """Every key.type the provider's builds give the entry; the base's with no build."""
+    builds = builds or provider_builds()
+    keys = [provider] if provider in builds.builds else sorted(k for k, b in builds.builds.items() if b["name"] == provider)
+    return frozenset(view_for(entry.id, k, catalogue, builds)["key"]["type"] for k in keys) or frozenset({entry.raw["key"]["type"]})
+
+
 def key_type(engine_type: str, name: str, provider: str | None = None, names: Names | None = None,
              catalogue: Algorithms | None = None, builds: ProviderBuilds | None = None) -> str | None:
     """The entry's key.type as every build of the provider gives it, the base with no build; None: no entry, or builds that disagree."""
     entry = entry_of(engine_type, name, names, catalogue)
     if entry is None:
         return None
-    builds = builds or provider_builds()
-    keys = [provider] if provider in builds.builds else sorted(k for k, b in builds.builds.items() if b["name"] == provider)
-    found = {view_for(entry.id, k, catalogue, builds)["key"]["type"] for k in keys} or {entry.raw["key"]["type"]}
-    return found.pop() if len(found) == 1 else None
+    found = build_key_types(entry, provider, catalogue, builds)
+    return next(iter(found)) if len(found) == 1 else None
 
 
 def same_key_type(a: str, b: str, names: Names | None = None) -> bool:

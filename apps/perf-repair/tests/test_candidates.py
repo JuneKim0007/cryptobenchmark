@@ -14,6 +14,7 @@ from perfrepair.dto.site import Scope, scope_id
 from cryptobench.shared.catalogue.types import Properties, Strength, TypeRow
 from perfrepair.dto.unit import Link, Stay, Unit, UnitDossiers, unit_id
 from perfrepair.report.recommendations import recommendations, summed
+from perfrepair.result import candidates
 from perfrepair.result.candidates import Family
 from perfrepair.result.dossier import available_providers, build_dossiers
 from perfrepair.result.gain import no_gain
@@ -27,14 +28,19 @@ A, B, C, D = "TypeA|WEAK|P1", "TypeA|STRONG|P1", "TypeA|LATE|P1", "TypeA|GONE|P1
 PARAMS = {"mode": "x"}
 
 
+@pytest.fixture(autouse=True)
+def _key_types_of_the_rows(monkeypatch):
+    """The fixture's names have no catalogue entry: every item's key type is its type row's, none."""
+    monkeypatch.setattr(candidates, "entry_of", lambda engine_type, name: name)
+    monkeypatch.setattr(candidates, "build_key_types", lambda entry, provider: frozenset({"none"}))
+
+
 def type_row(name, bits, min_sdk=1, out=32) -> TypeRow:
     return TypeRow("fam", name, "digest", Properties(False, True, "none", "none", out, "none"), Strength(bits=bits), "S", min_sdk, "S")
 
 
 TYPES = Types({("fam", n.upper()): type_row(n, b, s) for n, b, s in
                (("WEAK", 0, 1), ("STRONG", 128, 1), ("LATE", 256, 28), ("GONE", 128, 1))}, {}, frozenset({"digest"}))
-# the fixture's names have no catalogue entry: each item's key type is its type row's
-KEYS = lambda engine_type, name, provider: TYPES.of("fam", name).properties.keyType
 GROUPS = {"groups": [], "interop": {"status": "checked", "pairs": []},
           "items": {str(n): {"qualified": q, "group": None, "runs": q != D} for n, q in enumerate((A, B, C, D), 1)}}
 ROWS = [replace(row(f"r{n}", "P1", algorithm=name), parameters=PARAMS) for n, name in enumerate(("WEAK", "STRONG", "LATE"))]
@@ -47,8 +53,7 @@ def scope(sinks=("return",)) -> Scope:
 
 
 def family(top, min_sdk=21) -> Family:
-    return Family({q: "fam" for q in (A, B, C, D)}, {A: "WEAK", B: "STRONG", C: "LATE", D: "GONE"}, TYPES, min_sdk, frozenset(), top,
-                  key_type_of=KEYS)
+    return Family({q: "fam" for q in (A, B, C, D)}, {A: "WEAK", B: "STRONG", C: "LATE", D: "GONE"}, TYPES, min_sdk, frozenset(), top)
 
 
 def build(tmp_path, top, sinks=("return",)):
@@ -172,7 +177,7 @@ def test_render_shows_the_class_and_diff_of_an_option_above_drop_in():
 
 
 def test_a_candidate_of_the_same_name_is_left_to_grouping():
-    f = Family({A: "fam", "TypeA|weak|P2": "fam"}, {A: "WEAK", "TypeA|weak|P2": "weak"}, TYPES, 21, key_type_of=KEYS)
+    f = Family({A: "fam", "TypeA|weak|P2": "fam"}, {A: "WEAK", "TypeA|weak|P2": "weak"}, TYPES, 21)
     assert f.items(A, set()) == []
 
 
@@ -185,7 +190,7 @@ H_M = {"a": {"timeNs": summary(100)}, "h": {"timeNs": summary(80)}}
 
 def _harness(tmp_path, top, available):
     (tmp_path / "A.java").write_text("void f() {\n  x();\n}\n")
-    f = Family({A: "fam", H: "fam"}, {A: "WEAK", H: "WEAK"}, TYPES, 21, frozenset(), top, key_type_of=KEYS)
+    f = Family({A: "fam", H: "fam"}, {A: "WEAK", H: "WEAK"}, TYPES, 21, frozenset(), top)
     return build_dossiers("app", [scope(("local",))], {"bundled": []}, GROUPED, H_ROWS, H_M, tmp_path, None, TIMING, f, available)
 
 
@@ -252,7 +257,7 @@ def test_an_unchanged_metric_does_not_save_a_proven_slower_option():
 
 def _slow(tmp_path, top="drop-in"):
     (tmp_path / "A.java").write_text("void f() {\n  x();\n}\n")
-    f = Family({A: "fam", H: "fam"}, {A: "WEAK", H: "WEAK"}, TYPES, 21, frozenset(), top, key_type_of=KEYS)
+    f = Family({A: "fam", H: "fam"}, {A: "WEAK", H: "WEAK"}, TYPES, 21, frozenset(), top)
     slow = {"a": {"timeNs": summary(100)}, "h": {"timeNs": summary(2000)}}
     return build_dossiers("app", [scope(("local",))], {"bundled": []}, GROUPED, H_ROWS, slow, tmp_path, None, TIMING, f, {"P1", "HARNESS"})
 
