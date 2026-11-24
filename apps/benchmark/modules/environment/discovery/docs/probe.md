@@ -71,14 +71,14 @@ Install errors are `BundledProviderException` with a `code`; a list refusal is c
 | level | class | does |
 |---|---|---|
 | 1 | `TrialRunner` | each captured service: `provider.getService(type, alg).newInstance(null)`; provider absent from the live list: `provider_not_installed` |
-| 1 | `TrialRunner` | Cipher services also try every declared `TransformationSet` name with `Cipher.getInstance(name, provider)`; a provider declaring no modes and paddings has none |
+| 1 | `TrialRunner` | Cipher services also try every `TransformationSet` name with `Cipher.getInstance(name, provider)` |
 | 2 | `DefaultRunTrial` | one real call per instantiated service and transformation with a default key |
-| 3 | `RequirementTrial` | per registered service and declared transformation, one guarded call per fact ([requirements.md](requirements.md)) |
+| 3 | `RequirementTrial` | per registered service and trialled transformation, one guarded call per fact ([requirements.md](requirements.md)) |
 | 4 | `KeystoreTrial` | per generator the requirement trial labels `keystore_born_key` whose catalogue entry has a `keystore` block: one key per trial key size or curve and hardware path, written as the trial's `keystore` section ([keystore.md](keystore.md)) |
 
 | rule | value |
 |---|---|
-| `TransformationSet` | `alg/mode/padding` for each `SupportedModes` x `SupportedPaddings` |
+| `TransformationSet` | `alg/mode/padding` for each `SupportedModes` x `SupportedPaddings`; a service declaring neither: every `alg/mode/padding` any captured provider registers for its base (folded, first spelling in capture order), less the names and aliases its own provider registers; a refused one is a failed instantiation, so no default run |
 | `Attempt` (`:jca` `failure/`) | every level's one catch: `Exception` and `LinkageError` are the attempt's result, any other `Error` (`OutOfMemoryError`) ends the probe; error text `<SimpleName>: <message>` through `ErrorText`, as at every level ([requirements.md](requirements.md)) |
 | types with a default call | Cipher, Signature, Mac, MessageDigest, KeyGenerator, KeyPairGenerator, KeyAgreement (case-folded) |
 | no default run | type has no call, provider not installed, or the service or transformation failed to instantiate |

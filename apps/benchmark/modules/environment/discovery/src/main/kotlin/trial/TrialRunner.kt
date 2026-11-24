@@ -2,8 +2,8 @@ package io.github.junekim0007.cryptobench.discovery.trial
 
 import io.github.junekim0007.cryptobench.jca.failure.Attempt
 import io.github.junekim0007.cryptobench.contract.capture.CapturedEnvironment
+import io.github.junekim0007.cryptobench.contract.capture.ProviderEntry
 import io.github.junekim0007.cryptobench.contract.capture.ServiceEntry
-import io.github.junekim0007.cryptobench.discovery.adapter.ServiceKey
 import io.github.junekim0007.cryptobench.contract.trial.ServiceTrialEntry
 import io.github.junekim0007.cryptobench.contract.trial.TransformationTrialEntry
 import io.github.junekim0007.cryptobench.contract.trial.TrialOutcome
@@ -16,10 +16,11 @@ class TrialRunner {
 
     fun run(capture: CapturedEnvironment, providers: Array<Provider>?): TrialReport {
         val installed = providers.orEmpty().associateBy { it.name }
+        val transformations = TransformationSet(capture)
         val services = capture.providers.flatMap { entry ->
             val provider = installed[entry.name]
             entry.services.map { service ->
-                if (provider == null) notInstalled(entry.name, service) else trial(provider, service)
+                if (provider == null) notInstalled(entry.name, service) else trial(provider, entry, service, transformations)
             }
         }
         return TrialReport(capturedAtMillis = capture.capturedAtMillis, services = services)
@@ -32,12 +33,12 @@ class TrialRunner {
         outcome = TrialOutcome.failure("provider_not_installed"),
     )
 
-    private fun trial(provider: Provider, service: ServiceEntry): ServiceTrialEntry = ServiceTrialEntry(
+    private fun trial(provider: Provider, entry: ProviderEntry, service: ServiceEntry, set: TransformationSet): ServiceTrialEntry = ServiceTrialEntry(
         provider = provider.name,
         type = service.type,
         algorithm = service.algorithm,
         outcome = TrialOutcome.of(Attempt.of { instantiate(provider, service) }),
-        transformations = if (isCipher(service)) transformations(provider, service) else emptyList(),
+        transformations = if (TransformationSet.isCipher(service)) transformations(provider, set.of(entry, service)) else emptyList(),
     )
 
     private fun instantiate(provider: Provider, service: ServiceEntry) {
@@ -46,14 +47,8 @@ class TrialRunner {
         registered.newInstance(null)
     }
 
-    private fun transformations(provider: Provider, service: ServiceEntry): List<TransformationTrialEntry> =
-        TransformationSet.of(service).map { transformation ->
+    private fun transformations(provider: Provider, names: List<String>): List<TransformationTrialEntry> =
+        names.map { transformation ->
             TransformationTrialEntry(transformation, TrialOutcome.of(Attempt.of { Cipher.getInstance(transformation, provider) }))
         }
-
-    private fun isCipher(service: ServiceEntry): Boolean = ServiceKey.fold(service.type) == CIPHER
-
-    private companion object {
-        val CIPHER = ServiceKey.fold("Cipher")
-    }
 }

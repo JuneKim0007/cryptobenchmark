@@ -48,8 +48,8 @@ def _measured(benchmark: dict | None) -> Callable[[tuple], bool | None]:
 
 
 def _primitives(trial: dict):
-    """(service, name, entry): what the inventory and so the benchmark hold, each service and each declared transformation
-    that ran; a provider declaring modes and paddings has its transformations under no service name of their own."""
+    """(service, name, entry): what the inventory and so the benchmark hold, each service and each trialled transformation
+    that ran; a trialled transformation is under its base service, not a service name of its own."""
     for s in trial["services"]:
         yield s, s["algorithm"], s
         for t in s.get("transformations") or []:

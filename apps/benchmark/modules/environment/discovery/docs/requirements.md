@@ -52,14 +52,14 @@ Measured per service on this device; never a catalogue fact. No host code reads 
 | `capturedAtMillis`, `deviceClockMillis` | long | as in the capture |
 | `millis` | long | level 3's time on the device |
 | `keyCache` | object | `generated`, `refused`, `reused`, `generationMillis` over levels 2 and 3 |
-| `services` | list | one record per captured service, plus one per declared transformation that instantiates |
+| `services` | list | one record per captured service, plus one per trialled transformation that instantiates |
 
 ## services[]
 
 | field | type | description |
 |---|---|---|
 | `provider`, `type`, `algorithm` | string | the service |
-| `transformationOf` | string | the service a declared transformation belongs to |
+| `transformationOf` | string | the service a trialled transformation belongs to |
 | `className`, `classRun` | string | class the capture names; class an instance really has |
 | `status` | string | `runnable`, `not_runnable`, `no_call` |
 | `reason` | string | present unless runnable: `no_call_for_type`, `provider_not_installed`, `instantiation_failed`, `instance_refused` (registered, yet `getInstance` refuses), `no_key`, `key_refused`, `keystore_born_key`, `generation_refused`, `parameters_unknown`, `operation_refused`, `probe_failed` |

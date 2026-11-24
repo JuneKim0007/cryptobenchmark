@@ -31,7 +31,7 @@ apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/InstalledPr
 apps/benchmark/modules/environment/discovery/src/main/kotlin/bundled/ProviderFactory.kt : Provider by reflection: no-argument constructor or static factory
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/DefaultRunTrial.kt : level 2: one real call per instantiated service or transformation
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/Outcomes.kt : TrialOutcome.of and failure, DefaultRunOutcome.failure: a thrown failure as its ErrorText
-apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/TransformationSet.kt : every declared mode x padding of a Cipher service
+apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/TransformationSet.kt : the transformations a Cipher service is tried under: its declared modes x paddings, else what other providers register for its base
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/TrialRunner.kt : level 1: instantiate each captured service
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/call/ : per-type default calls, their registry, default keys, key candidates and key-generation specs from the catalogue and key bits, the one read-back of a spec (ParameterReadBack) for levels 2 and 3
 apps/benchmark/modules/environment/discovery/src/main/kotlin/trial/keystore/KeystoreCatalogue.kt : the generator catalogues' keystore blocks, read through document's FamilyCatalogue: authorizations, trial key sizes and curves

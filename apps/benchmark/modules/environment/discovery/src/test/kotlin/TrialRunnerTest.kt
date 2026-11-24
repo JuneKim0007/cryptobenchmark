@@ -32,6 +32,35 @@ class TrialRunnerTest {
         assertEquals("the report belongs to the capture it was run on", capture.capturedAtMillis, report.capturedAtMillis)
     }
 
+    @Suppress("DEPRECATION")
+    private val bare = object : Provider("Bare", 1.0, "a bare cipher without modes or paddings, and a registered transformation") {
+        init {
+            put("Cipher.AES", javax.crypto.Cipher.getInstance("AES/ECB/NoPadding").provider.getService("Cipher", "AES").className)
+            put("Cipher.AES/CBC/NoPadding", "no.such.Cbc")
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    private val naming = object : Provider("Naming", 1.0, "registers transformations by name") {
+        init {
+            put("Cipher.AES/GCM/NoPadding", "no.such.Gcm")
+            put("Cipher.AES/CBC/NoPadding", "no.such.Cbc")
+            put("Cipher.AES/FOO/NoPadding", "no.such.Foo")
+        }
+    }
+
+    /** A cipher declaring no modes or paddings tries the transformations other providers register for its base, but none its own provider registers. */
+    @Test
+    fun aBareCipherTriesWhatOtherProvidersNameForItsBase() {
+        val capture = ProviderProbe().capture(arrayOf(bare, naming, fake))
+        val report = TrialRunner().run(capture, arrayOf(bare, naming, fake))
+        val aes = report.services.single { it.provider == "Bare" && it.algorithm == "AES" }
+        assertEquals(listOf("AES/FOO/NoPadding", "AES/GCM/NoPadding"), aes.transformations.map { it.name }.sorted())
+        assertFalse("a mode the provider refuses is recorded, not thrown", aes.transformations.single { it.name == "AES/FOO/NoPadding" }.outcome.instantiates)
+        assertEquals(listOf("GHOST/ECB/NOPADDING", "GHOST/CBC/NOPADDING"), report.services.single { it.algorithm == "GHOST" }.transformations.map { it.name })
+        assertTrue(report.services.filter { it.provider == "Naming" }.all { it.transformations.isEmpty() })
+    }
+
     @Test
     fun aCaptureFromAnotherDeviceNamesTheMissingProvider() {
         val capture = ProviderProbe().capture(arrayOf(fake))
