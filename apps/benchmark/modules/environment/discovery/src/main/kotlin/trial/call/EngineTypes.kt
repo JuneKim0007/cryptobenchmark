@@ -1,4 +1,4 @@
-package io.github.junekim0007.cryptobench.discovery.trial
+package io.github.junekim0007.cryptobench.discovery.trial.call
 
 import io.github.junekim0007.cryptobench.discovery.trial.requirement.ProbeKey
 import io.github.junekim0007.cryptobench.document.names.AlgorithmNames

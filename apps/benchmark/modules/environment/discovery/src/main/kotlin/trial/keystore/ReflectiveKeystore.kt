@@ -1,7 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery.trial.keystore
 
 import io.github.junekim0007.cryptobench.contract.trial.KeystoreRow
-import io.github.junekim0007.cryptobench.discovery.trial.EngineTypes
+import io.github.junekim0007.cryptobench.discovery.trial.call.EngineTypes
 import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 import io.github.junekim0007.cryptobench.jca.failure.Attempt
 import io.github.junekim0007.cryptobench.jca.reflect.Reflect

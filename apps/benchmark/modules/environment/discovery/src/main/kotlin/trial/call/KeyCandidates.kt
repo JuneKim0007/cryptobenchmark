@@ -1,7 +1,6 @@
 package io.github.junekim0007.cryptobench.discovery.trial.call
 
 import io.github.junekim0007.cryptobench.contract.capture.CapturedEnvironment
-import io.github.junekim0007.cryptobench.discovery.trial.EngineTypes
 import io.github.junekim0007.cryptobench.document.catalogue.CatalogueOverlays
 import io.github.junekim0007.cryptobench.document.catalogue.FamilyCatalogue
 import io.github.junekim0007.cryptobench.document.names.AlgorithmNames

@@ -3,6 +3,7 @@ package io.github.junekim0007.cryptobench.discovery.trial
 import io.github.junekim0007.cryptobench.contract.capture.CapturedEnvironment
 import io.github.junekim0007.cryptobench.contract.capture.ProviderEntry
 import io.github.junekim0007.cryptobench.contract.capture.ServiceEntry
+import io.github.junekim0007.cryptobench.discovery.trial.call.EngineTypes
 import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 
 internal class TransformationSet(capture: CapturedEnvironment) {

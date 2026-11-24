@@ -1,7 +1,7 @@
 package io.github.junekim0007.cryptobench.discovery.trial.requirement
 
 import io.github.junekim0007.cryptobench.contract.requirements.ServiceRequirement
-import io.github.junekim0007.cryptobench.discovery.trial.EngineTypes
+import io.github.junekim0007.cryptobench.discovery.trial.call.EngineTypes
 import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 
 // A provider with no generator or factory of its own that runs, refusing some key, holds its keys inside; the relabel keeps what the call measured.

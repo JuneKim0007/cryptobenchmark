@@ -5,7 +5,7 @@ import io.github.junekim0007.cryptobench.contract.trial.KeystoreRow
 import io.github.junekim0007.cryptobench.contract.trial.KeystoreSection
 import io.github.junekim0007.cryptobench.contract.requirements.RequirementReport
 import io.github.junekim0007.cryptobench.contract.requirements.ServiceRequirement
-import io.github.junekim0007.cryptobench.discovery.trial.EngineTypes
+import io.github.junekim0007.cryptobench.discovery.trial.call.EngineTypes
 import io.github.junekim0007.cryptobench.document.names.AlgorithmNames
 import io.github.junekim0007.cryptobench.jca.failure.Attempt
 import io.github.junekim0007.cryptobench.jca.failure.ErrorText
