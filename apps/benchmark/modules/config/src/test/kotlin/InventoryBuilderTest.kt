@@ -53,4 +53,23 @@ class InventoryBuilderTest {
         assertEquals(built, document.parse(document.of(built)))
         assertEquals(emptyList<String>(), inventory.warnings)
     }
+
+    private fun kept(vararg entries: TrialView.Entry): Pair<List<String>, List<String>> =
+        InventoryBuilder().build(capture, trial.copy(entries = entries.toList()), names).let { it.providers.getValue("SunJCE").getValue("Cipher").keys.toList() to it.warnings }
+
+    private fun spelling(name: String, works: Boolean, transformation: Boolean = false) = TrialView.Entry("SunJCE", "Cipher", name, TrialView.DefaultRun(works), transformation)
+
+    @Test
+    fun aSpellingThatRunsIsKeptBeforeOneThatDoesNot() {
+        val left = "duplicate_name: SunJCE.Cipher Rijndael and AES are one name; AES left out"
+        assertEquals(listOf("Rijndael") to listOf(left), kept(spelling("AES", false), spelling("Rijndael", true)))
+        assertEquals(listOf("AES"), kept(spelling("AES", false), spelling("Rijndael", false)).first)
+        assertEquals(listOf("AES"), kept(spelling("AES", true), spelling("Rijndael", true)).first)
+    }
+
+    @Test
+    fun aRegisteredNameIsKeptBeforeATransformationUnlessOnlyTheTransformationRuns() {
+        assertEquals(listOf("GCM"), kept(spelling("AES/GCM/NoPadding", true, transformation = true), spelling("GCM", true)).first)
+        assertEquals(listOf("AES/GCM/NoPadding"), kept(spelling("GCM", false), spelling("AES/GCM/NoPadding", true, transformation = true)).first)
+    }
 }

@@ -17,11 +17,11 @@ class InventoryBuilder {
         for (provider in order) {
             val entries = byProvider[provider] ?: continue
             val types = LinkedHashMap<String, LinkedHashMap<String, InventoryEntry>>()
-            val kept = HashMap<Pair<String, Pair<String, Int?>>, String>()
+            val kept = entries.groupBy(::nameKey).mapValues { (_, spellings) -> spellings.minWith(KEPT_FIRST).name }
             for (entry in entries) {
-                val first = kept.putIfAbsent(entry.type to AlgorithmNames.catalog.key(entry.type, entry.name), entry.name)
-                if (first != null && first != entry.name) {
-                    warnings += "duplicate_name: $provider.${entry.type} $first and ${entry.name} are one name; ${entry.name} left out"
+                val winner = kept.getValue(nameKey(entry))
+                if (winner != entry.name) {
+                    warnings += "duplicate_name: $provider.${entry.type} $winner and ${entry.name} are one name; ${entry.name} left out"
                     continue
                 }
                 types.getOrPut(entry.type) { LinkedHashMap() }[entry.name] = inventoryEntry(entry.run, trial.defaultRunInputSize, capture.aliasesOf(provider, entry.type, entry.name))
@@ -32,6 +32,8 @@ class InventoryBuilder {
     }
 
     data class Files(val capture: String, val trial: String)
+
+    private fun nameKey(entry: TrialView.Entry): Pair<String, Pair<String, Int?>> = entry.type to AlgorithmNames.catalog.key(entry.type, entry.name)
 
     private fun inventoryEntry(run: TrialView.DefaultRun, defaultRunInputSize: Int?, aliases: List<String>): InventoryEntry = InventoryEntry(
         runs = run.works,
@@ -44,4 +46,9 @@ class InventoryBuilder {
         reason = if (run.works) "" else run.error.ifEmpty { "failed" },
         aliases = aliases,
     )
+
+    private companion object {
+        // a spelling that runs, then a registered name before a transformation; the first in trial order among equals
+        val KEPT_FIRST: Comparator<TrialView.Entry> = compareBy({ !it.run.works }, { it.transformation })
+    }
 }

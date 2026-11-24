@@ -29,7 +29,7 @@ Host entry `ConfigureKt`: `docs/tools.md`.
 | `inputSizes` | recorded only when the run's input size differs from the trial's `defaultRunInputSize` |
 | `reason` | trial error, else `failed` |
 | `generatedFrom` | `capture`, `trial` file names; `device` = the capture's `runtime` block |
-| duplicate | two names with one canonical name and key size in one provider and type (a provider registering a second spelling as its own service): the first in trial order is kept, the other left out with the warning `duplicate_name: <provider>.<type> <kept> and <left out> are one name; <left out> left out` |
+| duplicate | two names with one canonical name and key size in one provider and type (a provider registering a second spelling as its own service): the one kept is a spelling that runs before one that does not, then a registered name before a transformation, then the first in trial order; the other is left out with the warning `duplicate_name: <provider>.<type> <kept> and <left out> are one name; <left out> left out` |
 | `keystore` | the trial's keystore rows `{provider, type, algorithm, backing, keySize?, curve?, supported, error?}`; omitted when the trial has none (its section absent on a runtime without a keystore) |
 | `warnings` | what the build left out; omitted when empty; `effective` puts them first in `report.yaml` `warnings` |
 | refused | an `inventory.yaml` that holds two spellings of one name: `duplicate_name` |

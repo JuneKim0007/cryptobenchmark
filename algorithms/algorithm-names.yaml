@@ -2,7 +2,7 @@
 # Names only: resolved parameters (OAEP digest, MGF1 digest, provider defaults) are never folded here.
 # Sources: JDK Standard Algorithm Names (docs.oracle.com/en/java/javase/17/docs/specs/security/standard-names.html),
 # Conscrypt OpenSSLProvider aliases (github.com/google/conscrypt), BouncyCastle provider aliases (bouncycastle.org).
-# A provider that registers a second spelling of one name as its own service keeps the first: duplicate_name in the inventory build.
+# A provider that registers a second spelling of one name as its own service keeps one: duplicate_name in the inventory build.
 schemaVersion: 1
 names:
   MessageDigest:

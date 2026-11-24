@@ -15,6 +15,7 @@ data class TrialView(
         val type: String,
         val name: String,
         val run: DefaultRun,
+        val transformation: Boolean = false,
     )
 
     data class DefaultRun(
@@ -34,7 +35,7 @@ data class TrialView(
             val entries = trial.services.flatMap { service ->
                 val own = service.defaultRun?.let { Entry(service.provider, service.type, service.algorithm, defaultRun(it)) }
                 listOfNotNull(own) + service.transformations.mapNotNull { transformation ->
-                    transformation.defaultRun?.let { Entry(service.provider, service.type, transformation.name, defaultRun(it)) }
+                    transformation.defaultRun?.let { Entry(service.provider, service.type, transformation.name, defaultRun(it), transformation = true) }
                 }
             }
             val keystore = requireNotNull(trial.keystore) { "missing_field: keystore" }
