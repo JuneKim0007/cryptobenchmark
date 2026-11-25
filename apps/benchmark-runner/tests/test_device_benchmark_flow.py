@@ -7,7 +7,8 @@ import yaml
 from cryptobench.shared.device.adb import DeviceError  # noqa: E402
 from cryptobench.shared.errors.failures import EnergyError  # noqa: E402
 from cryptobench.shared.device import reconnect  # noqa: E402
-from cryptobench.stages.measurement.session import clocks_hook, cooldown_hook, dynamic_temperature, variant_order  # noqa: E402
+from cryptobench.stages.measurement.session import clocks_hook, dynamic_temperature, variant_order  # noqa: E402
+from fake_clock import FakeClock  # noqa: E402
 import pipeline  # noqa: E402
 from cryptobench.stages.measurement import benchmark, resume  # noqa: E402
 from cryptobench.stages.discovery import discover  # noqa: E402
@@ -420,12 +421,11 @@ def test_a_failed_warm_up_costs_the_run_nothing(tmp_path, monkeypatch):
 
 
 def test_the_cool_down_sleeps_between_cases_never_before_the_first(tmp_path, monkeypatch):
-    slept = []
-    monkeypatch.setattr(cooldown_hook.time, "sleep", slept.append)
+    clock = FakeClock(monkeypatch)
     measured(tmp_path, monkeypatch, {"caseCooldownSeconds": 20})
-    assert slept == [20]
+    assert clock.slept == [20]
     measured(tmp_path / "off", monkeypatch, {})
-    assert slept == [20]
+    assert clock.slept == [20]
 
 
 def test_an_order_seed_launches_each_process_in_its_drawn_order_and_changes_nothing_else(tmp_path, monkeypatch):

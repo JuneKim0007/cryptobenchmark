@@ -5,6 +5,7 @@ import pytest
 
 import test_device_benchmark_flow as flow
 from test_device_benchmark_flow import DUMP, MEASURED, measured
+from fake_clock import FakeClock
 from test_thermal_gate import CASE, Heat
 
 GOLDEN = pathlib.Path(__file__).with_name("golden")
@@ -35,12 +36,11 @@ FLOWS = {
     "gate_energy_passes": lambda tmp_path, monkeypatch: (Heat(monkeypatch, start=35.7, rise=0.2, cooling=0.05),
                                                          measured(tmp_path, monkeypatch, MEASURED | {"thermalGate": CASE["thermalGate"]})),
     "gate_energy_own": lambda tmp_path, monkeypatch: (Heat(monkeypatch, start=35.7, rise=0.2, cooling=0.05),
-                                                      monkeypatch.setattr(flow.cooldown_hook.time, "sleep", lambda _s: None),
                                                       measured(tmp_path, monkeypatch, ENERGY_OWN_GATE)),
     "gate_discard": lambda tmp_path, monkeypatch: (Heat(monkeypatch, start=35.7, rise=0.4, cooling=0.05), measured(tmp_path, monkeypatch, CASE)),
-    "gate_cooldown": lambda tmp_path, monkeypatch: (Heat(monkeypatch), monkeypatch.setattr(flow.cooldown_hook.time, "sleep", lambda _s: None),
+    "gate_cooldown": lambda tmp_path, monkeypatch: (Heat(monkeypatch),
                                                     measured(tmp_path, monkeypatch, CASE | {"caseCooldownSeconds": 4})),
-    "warmup_failed_cooldown": lambda tmp_path, monkeypatch: (monkeypatch.setattr(flow.cooldown_hook.time, "sleep", lambda _s: None), measured(
+    "warmup_failed_cooldown": lambda tmp_path, monkeypatch: (FakeClock(monkeypatch), measured(
         tmp_path, monkeypatch, {"caseCooldownSeconds": 4, "warmup": {"iterations": 5, "jobs": [], "cases": 3}}, crash=("a,b",), thermal=DUMP)),
 }
 

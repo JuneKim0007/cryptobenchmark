@@ -1,13 +1,12 @@
 """Session hook: run.caseCooldownSeconds of host sleep before every measured case but a session's first; one line per pass."""
-import time
-
+from cryptobench.shared.wait import until
 from cryptobench.stages.measurement.session.measure import Hooks
 
 
 class Cooldown(Hooks):
 
-    def __init__(self, seconds, label, sleep=None):
-        self.seconds, self.label, self.sleep = seconds, label, sleep or time.sleep
+    def __init__(self, seconds, label):
+        self.seconds, self.label = seconds, label
         self.started, self.gaps = False, 0
 
     def before_session(self):
@@ -15,7 +14,7 @@ class Cooldown(Hooks):
 
     def before_case(self, _process, _case):
         if self.started and self.seconds:
-            self.sleep(self.seconds)
+            until.SYSTEM.sleep(self.seconds)
             self.gaps += 1
         self.started = True
 
