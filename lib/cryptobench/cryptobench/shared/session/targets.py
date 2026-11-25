@@ -81,9 +81,12 @@ def discovery_of(name: str, kind: str, mode: str | None) -> str | None:
     return why and f"discovery_not_applicable: {name}: discovery {mode}: {why}"
 
 
-def resolve(session: Session, rows: list[DeviceRow], aliases: dict[str, str], config: Callable[[], Path]) -> Resolved:
-    """config() is the run's own global.yaml chain, asked only when neither the target nor defaults name one."""
-    skipped, notices, devices = [], [], {}
+HOST_OFF = "host_benchmark_not_set: host.benchmark is false"
+
+
+def _devices(session: Session, rows: list[DeviceRow], aliases: dict[str, str], skipped: list) -> dict[str, list]:
+    """Each ready device key with the (name, entry, row) naming it; a name adb lists no ready device for is skipped."""
+    devices = {}
     for name, entry in session.targets.items():
         if name == HOST:
             continue
@@ -99,32 +102,37 @@ def resolve(session: Session, rows: list[DeviceRow], aliases: dict[str, str], co
         for row in rows:
             if row.ready and row.key not in devices and (session.emulators or row.kind != EMULATOR):
                 devices[row.key] = [(row.key, {}, row)]
-    targets = []
-    for key, named in devices.items():
+    return devices
+
+
+def resolve(session: Session, rows: list[DeviceRow], aliases: dict[str, str], config: Callable[[], Path]) -> Resolved:
+    """config() is the run's own global.yaml chain, asked only when neither the target nor defaults name one."""
+    skipped, notices, targets = [], [], []
+
+    def add(name: str, key: str, transport: str | None, kind: str, entry: dict, fallback: int | None, unstable: bool = False):
+        """The target, or the line that skips it: discovery's refusal, then the order's, then the files'."""
+        order, files = order_of(name, entry, session.defaults, fallback), files_of(name, entry, session.defaults, config)
+        problem = discovery_of(name, kind, session.discovery) or next((value for value in (order, files) if isinstance(value, str)), None)
+        if problem:
+            skipped.append((name, problem))
+        else:
+            targets.append(TargetSpec(name, key, transport, files[0], files[1], order, unstable))
+
+    for key, named in _devices(session, rows, aliases, skipped).items():
         if len(named) > 1:
             names = " and ".join(n for n, _, _ in named)
             skipped += [(n, f"target_conflict: {names} name one device, {key}") for n, _, _ in named]
             continue
         name, entry, row = named[0]
-        order, files = order_of(name, entry, session.defaults, None), files_of(name, entry, session.defaults, config)
-        problem = discovery_of(name, "device", session.discovery) or next((value for value in (order, files) if isinstance(value, str)), None)
-        if problem:
-            skipped.append((name, problem))
-            continue
-        targets.append(TargetSpec(name, key, row.transport, files[0], files[1], order, row.note is not None))
+        add(name, key, row.transport, "device", entry, None, row.note is not None)
     if not session.host_benchmark:
-        notices.append("host_benchmark_not_set: host.benchmark is false")
+        notices.append(HOST_OFF)
         if HOST in session.targets:
-            skipped.append((HOST, "host_benchmark_not_set: host.benchmark is false"))
+            skipped.append((HOST, HOST_OFF))
     else:
         entry = session.targets.get(HOST, {})
         after_phones = max((t.order for t in targets), default=-1) + 1
-        order, files = order_of(HOST, entry, session.defaults, None if "order" in entry else after_phones), files_of(HOST, entry, session.defaults, config)
-        problem = discovery_of(HOST, "host", session.discovery) or next((value for value in (order, files) if isinstance(value, str)), None)
-        if problem:
-            skipped.append((HOST, problem))
-        else:
-            targets.append(TargetSpec(HOST, HOST, None, files[0], files[1], order))
+        add(HOST, HOST, None, "host", entry, None if "order" in entry else after_phones)
     return Resolved(targets, skipped, notices)
 
 

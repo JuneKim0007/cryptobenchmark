@@ -157,3 +157,10 @@ def test_a_target_whose_worker_refuses_the_discovery_mode_is_skipped(folder, mod
                               "defaults: {suites: [tier1.yaml]}\ntargets: {56301AAAA00001: {}}\n")
     assert result.skipped == skipped
     assert [t.name for t in result.targets] == [n for n in ("56301AAAA00001", "host") if n not in dict(skipped)]
+
+
+def test_a_skipped_target_names_the_discovery_refusal_before_its_order_and_its_files(folder):
+    result = resolved(folder, "discovery: reuse\ndevices: {select: listed}\nhost: {benchmark: true}\n"
+                              "defaults: {suites: [absent.yaml]}\ntargets: {56301AAAA00001: {order: -1}, host: {order: -1}}\n")
+    assert result.skipped == [("56301AAAA00001", "discovery_not_applicable: 56301AAAA00001: discovery reuse: a device run probes the device it measures"),
+                              ("host", "invalid_order: host: -1; use an integer >= 0")]
