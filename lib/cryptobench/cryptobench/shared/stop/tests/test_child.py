@@ -2,10 +2,14 @@
 import subprocess, sys, time
 
 from cryptobench.shared.stop import child
-from cryptobench.shared.wait import until
+from fake_clock import FakeClock
 
 HONOURS = "import time\ntime.sleep(60)\n"
 DEAF = "import signal, sys, time\nsignal.signal(signal.SIGTERM, signal.SIG_IGN)\nprint('deaf', flush=True)\ntime.sleep(60)\n"
+
+
+def interrupt(_seconds):
+    raise KeyboardInterrupt
 
 
 def started(script):
@@ -30,10 +34,7 @@ def test_a_child_deaf_to_sigterm_is_killed_once_the_grace_has_passed():
 def test_a_ctrl_c_during_the_grace_kills_at_once(monkeypatch):
     process, begun = started(DEAF), time.monotonic()
 
-    class Interrupted(until.Clock):
-        def sleep(self, _seconds):
-            raise KeyboardInterrupt
-    monkeypatch.setattr(until, "SYSTEM", Interrupted())
+    FakeClock(monkeypatch, interrupt)
     child.stop(process, 60, 0.05)
     assert process.returncode == -9 and time.monotonic() - begun < 10
 

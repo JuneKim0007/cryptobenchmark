@@ -1,11 +1,12 @@
-"""A fake clock installed as until's system clock: sleeping advances now and calls on_sleep."""
+"""A fake clock: sleeping advances now and calls on_sleep; handed a monkeypatch, it is until's system clock for the test."""
 from cryptobench.shared.wait import until
 
 
 class FakeClock:
-    def __init__(self, monkeypatch, on_sleep=lambda _seconds: None):
+    def __init__(self, monkeypatch=None, on_sleep=lambda _seconds: None):
         self.now, self.slept, self.on_sleep = 0.0, [], on_sleep
-        monkeypatch.setattr(until, "SYSTEM", self)
+        if monkeypatch:
+            monkeypatch.setattr(until, "SYSTEM", self)
 
     def monotonic(self):
         return self.now

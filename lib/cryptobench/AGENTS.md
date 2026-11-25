@@ -135,7 +135,7 @@ cryptobench/shared/stop/tests/ : pytest tests of the code table, halt_of and the
 cryptobench/shared/versions/__init__.py : package of dependency versions
 cryptobench/shared/versions/order.py : a Gradle version: pinned or not; newest of several
 cryptobench/shared/wait/__init__.py : package of the one bounded wait
-cryptobench/shared/wait/tests/ : pytest tests of until on a fake clock
+cryptobench/shared/wait/tests/ : pytest tests of until; fake_clock.py, the one fake clock every until test uses, the runner's too
 cryptobench/shared/wait/until.py : until(check, done, every, within, clock): check first, then sleep min(every, left) until done or within seconds pass; Waited(value, seconds, met); Clock and SYSTEM, the time it reads
 cryptobench/stages/__init__.py : package of the run's stages, one package each, importing none of them
 cryptobench/stages/analysis/__init__.py : package of the analysis stage
