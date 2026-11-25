@@ -4,7 +4,8 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 
-from chart_model import ASYMMETRIC_CIPHER, SYMMETRIC_CIPHER, op_slug, short, size_label, variant  # noqa: E402
+from chart_input import ASYMMETRIC_CIPHER, HASH, KEYGEN_ASYMMETRIC, KEYGEN_SYMMETRIC, MAC, SIGNATURE, SYMMETRIC_CIPHER  # noqa: E402
+from chart_model import op_slug, short, size_label, variant  # noqa: E402
 from cryptobench.shared import paths
 from cryptobench.shared.stats.inference import normal_scores
 
@@ -102,12 +103,12 @@ def label(r):
 
 
 def is_symmetric_cipher(r):
-    return r["group"] == SYMMETRIC_CIPHER
+    return r["group"] == SYMMETRIC_CIPHER[0]
 
 
 GROUPS = [
     ("Symmetric ciphers", is_symmetric_cipher),
-    ("Hash / MAC", lambda r: r["type"] in ("MessageDigest", "Mac")),
+    ("Hash / MAC", lambda r: r["group"] in (HASH[0], MAC[0])),
 ]
 
 
@@ -139,7 +140,7 @@ def throughput(rows, out, units):
 
 def latency(rows, out, units):
     plt.figure(figsize=(8, 4.5))
-    slow = [r for r in rows if r["type"] in ("Signature", "KeyPairGenerator", "KeyGenerator") or r["group"] == ASYMMETRIC_CIPHER]
+    slow = [r for r in rows if r["group"] in (SIGNATURE[0], KEYGEN_ASYMMETRIC[0], KEYGEN_SYMMETRIC[0], ASYMMETRIC_CIPHER[0])]
     slow.sort(key=lambda r: r["latency"])
     names = [f"{label(r)} {r['operation'].lower()}" + (f" {r['inputSize']}B" if r["inputSize"] else "") for r in slow]
     plt.barh(names, [r["latency"] for r in slow], color="#4c72b0")

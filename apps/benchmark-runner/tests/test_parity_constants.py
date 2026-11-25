@@ -10,7 +10,6 @@ import yaml
 
 from cryptobench.shared.settings import bundled
 from cryptobench.shared.settings.effective_view import RunView
-from analysis import chart_input, chart_model
 from cryptobench.stages.measurement.session import case_isolation, passes, thermal_hook, variant_order
 from cryptobench.stages.verification.scope import wrapper
 from cryptobench.stages.verification import check
@@ -114,10 +113,6 @@ def test_labels_both_sides_write():
     # the enum's order names VariantLabels' constants, which hold the labels
     order = re.findall(r'\b[A-Z_]+\(VariantLabels\.(\w+)\)', (KM / "preparation/src/main/kotlin/measurement/Variant.kt").read_text())
     assert order and variant_order.VARIANTS == tuple(const("files/src/main/kotlin/VariantLabels.kt", name) for name in order)
-    group = kotlin("preparation/src/main/kotlin/prepare/ChartGroup.kt", r'UNIDENTIFIED\((\d+), "([^"]+)"\)')
-    assert chart_input.UNIDENTIFIED == (int(group[0]), group[1])
-    ids = dict(re.findall(r'\b([A-Z_]+)\((\d+), "', (KM / "preparation/src/main/kotlin/prepare/ChartGroup.kt").read_text()))
-    assert (chart_model.SYMMETRIC_CIPHER, chart_model.ASYMMETRIC_CIPHER) == (int(ids["SYMMETRIC_CIPHER"]), int(ids["ASYMMETRIC_CIPHER"]))
 
 
 def test_the_case_listing_reads_the_measure_method_by_name():

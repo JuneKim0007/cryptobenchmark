@@ -6,7 +6,10 @@ import pathlib
 from cryptobench.shared.stats.units import DisplayUnits
 from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.settings.effective_view import AnalysisView, found
-UNIDENTIFIED = (0, "unidentified")      # ChartGroup.UNIDENTIFIED in :preparation
+# ChartGroup ids and labels in :preparation; names_check holds each equal to it
+UNIDENTIFIED = (0, "unidentified")
+SYMMETRIC_CIPHER, ASYMMETRIC_CIPHER, SIGNATURE = (1, "symmetric-cipher"), (2, "asymmetric-cipher"), (3, "signature")
+HASH, MAC, KEYGEN_SYMMETRIC, KEYGEN_ASYMMETRIC = (4, "hash"), (5, "mac"), (8, "keygen-symmetric"), (9, "keygen-asymmetric")
 
 
 def _yaml(path):

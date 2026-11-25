@@ -30,7 +30,8 @@ MIRRORS = (
     ("cryptobench.stages.measurement.session.passes", "ENERGY", ("config", "main", "global/dto/MeasurePass.kt"), r'(?m)^\s*const val ENERGY = "([^"]*)"'),
     ("cryptobench.stages.measurement.session.passes", "ALLOCATION", ("config", "main", "global/dto/MeasurePass.kt"), r'(?m)^\s*const val ALLOCATION = "([^"]*)"'),
     ("cryptobench.stages.discovery.probe", "HOST_MILLIS", ("android", "androidTest", PACKAGE + "DeviceProbe.kt"), r'(?m)^\s*const val HOST_MILLIS = "([^"]*)"'),
-    ("analysis.chart_input", "UNIDENTIFIED", ("preparation", "main", "prepare/ChartGroup.kt"), r'(?m)^\s*UNIDENTIFIED\((\d+), "([^"]*)"\)'),
+    *(("analysis.chart_input", group, ("preparation", "main", "prepare/ChartGroup.kt"), rf'(?m)^\s*{group}\((\d+), "([^"]*)"\)')
+      for group in ("UNIDENTIFIED", "SYMMETRIC_CIPHER", "ASYMMETRIC_CIPHER", "SIGNATURE", "HASH", "MAC", "KEYGEN_SYMMETRIC", "KEYGEN_ASYMMETRIC")),
 )
 INSTRUMENTED = re.compile(r"test=(\w+)\\\[")
 

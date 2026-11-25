@@ -10,6 +10,8 @@ import yaml
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 import analyze  # noqa: E402
+import chart_draw  # noqa: E402
+import chart_input  # noqa: E402
 
 FIXTURE, PREPARED = HERE / "fixture_benchmark.json", HERE / "fixture_prepared.yaml"
 
@@ -76,3 +78,12 @@ class ChartFixes(unittest.TestCase):
         header = chart_report.summary_table([]).splitlines()[0]
         self.assertIn("| unit | mean | median | q1 | q3 | cov |", header)
         self.assertNotIn("sd (ns)", header)
+
+
+class GroupPanels(unittest.TestCase):
+
+    def test_a_case_without_a_chart_group_is_on_no_group_panel(self):
+        for kind in ("MessageDigest", "Mac", "Cipher"):
+            row = {"group": chart_input.UNIDENTIFIED[0], "type": kind}
+            self.assertFalse(any(matches(row) for _, matches in chart_draw.GROUPS), kind)
+        self.assertTrue(chart_draw.GROUPS[1][1]({"group": chart_input.HASH[0], "type": "MessageDigest"}))
