@@ -8,20 +8,21 @@ import org.yaml.snakeyaml.constructor.Constructor
 import org.yaml.snakeyaml.constructor.SafeConstructor
 import org.yaml.snakeyaml.representer.Representer
 
-private fun loaderOptions(): LoaderOptions = LoaderOptions().apply { codePointLimit = YamlCodec.CODE_POINT_LIMIT }
+// a load parses a String already in memory, so its own length bounds it; a fixed limit would only refuse our own large files
+private fun loaderOptions(codePoints: Int): LoaderOptions = LoaderOptions().apply { codePointLimit = codePoints }
 
 /** The one SnakeYAML setup, by profile; a profile's bytes and load failures are part of what its files promise. */
 enum class YamlCodec {
 
     // config, preparation and benchmark's YAML files: flow style AUTO, aliases dereferenced, safe constructor, duplicate keys and non-mappings refused
     DOCUMENT {
-        override fun yaml(): Yaml {
+        override fun yaml(codePoints: Int): Yaml {
             val dumperOptions = DumperOptions().apply {
                 defaultFlowStyle = DumperOptions.FlowStyle.AUTO
                 indent = 2
                 isDereferenceAliases = true
             }
-            val loaderOptions = loaderOptions().apply { isAllowDuplicateKeys = false }
+            val loaderOptions = loaderOptions(codePoints).apply { isAllowDuplicateKeys = false }
             return Yaml(SafeConstructor(loaderOptions), Representer(dumperOptions), dumperOptions, loaderOptions)
         }
 
@@ -32,12 +33,12 @@ enum class YamlCodec {
 
     // discovery: block style, aliases kept, SnakeYAML's default constructor (duplicate keys: last wins)
     CAPTURE {
-        override fun yaml(): Yaml {
+        override fun yaml(codePoints: Int): Yaml {
             val dumperOptions = DumperOptions().apply {
                 defaultFlowStyle = DumperOptions.FlowStyle.BLOCK
                 indent = 2
             }
-            val loaderOptions = loaderOptions()
+            val loaderOptions = loaderOptions(codePoints)
             return Yaml(Constructor(loaderOptions), Representer(dumperOptions), dumperOptions, loaderOptions)
         }
 
@@ -48,25 +49,25 @@ enum class YamlCodec {
 
     // benchmark's result inputs (androidx JSON, energy, passes): safe constructor, duplicate keys last-wins; read only
     RESULTS {
-        override fun yaml(): Yaml = Yaml(SafeConstructor(loaderOptions()))
+        override fun yaml(codePoints: Int): Yaml = Yaml(SafeConstructor(loaderOptions(codePoints)))
 
         @Suppress("UNCHECKED_CAST")
         override fun mapping(loaded: Any?): Map<String, Any> =
             loaded as? Map<String, Any> ?: throw IllegalArgumentException("not_a_mapping: $loaded")
     };
 
-    fun dump(document: Any): String = yaml().dump(document)
+    fun dump(document: Any): String = yaml(DUMP).dump(document)
 
-    fun dump(document: Any, into: Writer) = yaml().dump(document, into)
+    fun dump(document: Any, into: Writer) = yaml(DUMP).dump(document, into)
 
-    fun load(text: String): Map<String, Any> = mapping(yaml().load<Any?>(text))
+    fun load(text: String): Map<String, Any> = mapping(yaml(text.length + 1).load<Any?>(text))
 
-    protected abstract fun yaml(): Yaml
+    protected abstract fun yaml(codePoints: Int): Yaml
 
     protected abstract fun mapping(loaded: Any?): Map<String, Any>
 
-    companion object {
-        // SnakeYAML's 3 MiB default refuses host requirements files (3.76 MB measured); 16 MiB still refuses a runaway file.
-        const val CODE_POINT_LIMIT = 16 * 1024 * 1024
+    private companion object {
+        // a dumper never loads
+        const val DUMP = Int.MAX_VALUE
     }
 }

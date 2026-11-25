@@ -3,10 +3,7 @@ package io.github.junekim0007.cryptobench.document
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
-import io.github.junekim0007.cryptobench.document.versioned.DocumentReader
-import io.github.junekim0007.cryptobench.document.versioned.YamlFiles
 import org.junit.Test
-import java.io.File
 import org.yaml.snakeyaml.composer.ComposerException
 
 class YamlCodecTest {
@@ -58,16 +55,11 @@ class YamlCodecTest {
         YamlCodec.values().forEach { assertEquals(it.name, text.length / LINE.length, (it.load(text)["k"] as List<*>).size) }
     }
 
+    /** A load is bounded by its own input, not a fixed limit: N1's 4.4 MB merged pass file broke the old 3 MiB one. */
     @Test
-    fun aDocumentBeyondTheLimitIsUnreadableYamlNamingTheFile() {
-        val reader = object : DocumentReader<Map<String, Any>> {
-            override val schemaVersion = 1
-            override fun parse(document: Map<String, Any>) = document
-        }
-        YamlCodec.values().forEach {
-            val refused = assertThrows(IllegalArgumentException::class.java) { YamlFiles(it).readOnly(File("requirements_x.yaml"), reader).read(sized(YamlCodec.CODE_POINT_LIMIT + 1)) }
-            assertEquals(it.name, "unreadable_yaml: requirements_x.yaml: The incoming YAML document exceeds the limit: ${YamlCodec.CODE_POINT_LIMIT} code points.", refused.message)
-        }
+    fun aResultDocumentPastSixteenMebibytesLoads() {
+        val text = sized(17 * MIB)
+        assertEquals(text.length / LINE.length, (YamlCodec.RESULTS.load(text)["k"] as List<*>).size)
     }
 
     // many short lines: one long scalar makes SnakeYAML's scan quadratic

@@ -127,14 +127,12 @@ class ReuseTest {
         assertEquals("${directory.named(StampedName.TRIAL, captureFile).name}, ${directory.named(StampedName.REQUIREMENTS, captureFile).name}: not written with ${captureFile.name}", reason())
     }
 
-    /** A host requirements file is above SnakeYAML's 3 MiB default; one past the codec's limit is refused by name. */
+    /** A host requirements file is above SnakeYAML's 3 MiB default and is reused. */
     @Test
-    fun aRequirementsFileAboveThreeMebibytesIsReusedAndOnePastTheLimitIsRefused() {
+    fun aRequirementsFileAboveThreeMebibytesIsReused() {
         val requirementsFile = directory.named(StampedName.REQUIREMENTS, written(FIRST))
         requirementsFile.appendText("padding:\n" + LINE.repeat(4 * MIB / LINE.length))
         assertEquals(requirementsFile.name, reused().requirementsFile.name)
-        requirementsFile.appendText(LINE.repeat(12 * MIB / LINE.length + 1))
-        assertEquals("unreadable_yaml: ${requirementsFile.name}: The incoming YAML document exceeds the limit: ${YamlCodec.CODE_POINT_LIMIT} code points.", reason())
     }
 
     private companion object {
