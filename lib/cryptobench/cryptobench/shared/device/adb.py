@@ -70,11 +70,8 @@ class Device:
 
     def run(self, *arguments, check=True):
         result = self.raw(*arguments)
-        if result.returncode != 0 and (reason := lost(result.stderr or result.stdout)):
-            raise DeviceLost(lost_line(arguments, reason))
         if result.returncode != 0:
-            # a transport cut mid-command exits non-zero without adb's words; get-state tells it from a failed command
-            self.attached(f"adb {arguments[0]}")
+            self.confirm_attached(result.stderr or result.stdout, arguments, f"adb {arguments[0]}")
         if check and result.returncode != 0:
             raise DeviceError(f"adb {' '.join(arguments)}: {(result.stderr or result.stdout).strip()}")
         return result
@@ -94,6 +91,13 @@ class Device:
         state = self.state()
         if state != "device":
             raise DeviceLost(lost_line(("get-state", "after", step), state or "no answer"))
+
+    def confirm_attached(self, said, arguments, step, failed=True):
+        """adb's lost words in said raise DeviceLost; a cut transport leaves none, so a failed call is confirmed by get-state."""
+        if reason := lost(said):
+            raise DeviceLost(lost_line(arguments, reason))
+        if failed:
+            self.attached(step)
 
     def require_adb(self):
         if not self.adb.is_file():
@@ -145,10 +149,10 @@ class Device:
     def instrument(self, test_class, *arguments, step="instrument"):
         command = [str(self.adb), "shell", "am", "instrument", "-w", "-r", "-e", "class", f"{PACKAGE}.{test_class}",
                    *arguments, f"{PACKAGE}.test/{RUNNER}"]
+        said = ""
         if not self.stream:
             result = timeouts.run(step, command, capture_output=True, text=True)
-            if result.returncode != 0 and (reason := lost(result.stderr)):
-                raise DeviceLost(lost_line(command[1:4], reason))
+            said = result.stderr if result.returncode != 0 else ""
             output = result.stdout
         else:
             process, lines, shown = subprocess.Popen(command, stdout=subprocess.PIPE, text=True), [], set()
@@ -160,11 +164,11 @@ class Device:
                     lines.append(line)
                 process.wait()
             output = "".join(lines)
-        if not PASSED.search(output):
-            # a dropped transport cuts the output short; a failed test leaves the device attached
-            self.attached(f"am instrument {test_class}")
-            if self.stacktrace:
-                print(output)
+        # a dropped transport cuts the output short; a failed test leaves the device attached
+        passed = PASSED.search(output)
+        self.confirm_attached(said, command[1:4], f"am instrument {test_class}", failed=not passed)
+        if not passed and self.stacktrace:
+            print(output)
         return output
 
     def pull(self, remote, local):

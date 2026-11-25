@@ -113,6 +113,14 @@ def test_a_cut_instrumentation_with_the_device_gone_is_device_lost_not_a_failed_
         device.instrument("CryptoBenchmark", "-e", "case", "a", step="case")
 
 
+@pytest.mark.parametrize("output", [CUT, "OK (1 test)\n"])
+def test_an_instrumentation_exiting_with_adbs_lost_words_is_device_lost_even_after_ok(tmp_path, monkeypatch, output):
+    device = device_module.Device(tmp_path, False, False)
+    monkeypatch.setattr(timeouts, "run", lambda *_a, **_o: types.SimpleNamespace(returncode=1, stdout=output, stderr="error: closed\n"))
+    with pytest.raises(device_module.DeviceLost, match=r"^device_lost: adb shell am instrument: error: closed$"):
+        device.instrument("CryptoBenchmark", step="case")
+
+
 def test_the_lost_attempt_is_kept_in_rejected_with_its_why(tmp_path, monkeypatch):
     _phone, (_p, _files, _problems, results) = lost_run(tmp_path, monkeypatch, polls=3)
     whys = [read_yaml(why) for why in paths.RunTree(results).rejected.rglob(paths.WHY)]
