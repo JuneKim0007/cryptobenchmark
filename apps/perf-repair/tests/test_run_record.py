@@ -90,7 +90,9 @@ def test_the_first_step_of_a_rerun_clears_the_done_mark_and_the_report(tmp_path)
     assert paths.report.exists()
 
 
-@pytest.mark.parametrize("content", ["", '{"tree": ', "[]", "null", '{"tree": "t", "device": false}'])
+# schemaVersion true is a bool, never the number 1, as DocumentKind reads it
+@pytest.mark.parametrize("content", ["", '{"tree": ', "[]", "null", '{"tree": "t", "device": false}',
+                                     '{"schemaVersion": true, "inputs": {"tree": "t", "device": false}}'])
 def test_an_unreadable_or_old_done_mark_is_not_done(tmp_path, content):
     folder = device(tmp_path)
     AppTree(folder, "a").finished.write_text(content)

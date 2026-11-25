@@ -11,7 +11,7 @@ from cryptobench.shared.errors.input_error import InputError
 from ..dto.device import DeviceRecord
 from ..files import read_json
 from cryptobench.shared.document.json_dump import write_json
-from cryptobench.shared.document.document import read_yaml
+from cryptobench.shared.document.document import DocumentKind, read_yaml
 from cryptobench.shared.digest.tree import file_digest
 from cryptobench.shared.document.write import write_text
 from cryptobench.shared.results.lock import DeviceLock
@@ -21,6 +21,7 @@ OVERWRITE, RESUME, SKIP = "overwrite", "resume", "skip"
 ON_EXISTING = (OVERWRITE, RESUME, SKIP)
 RUNNING, DONE, FAILED, STOPPED = "running", "done", "failed", "stopped"
 SCHEMA_VERSION = FINISHED_SCHEMA = 1
+RUN_DOC, FINISHED_DOC = DocumentKind("run record", SCHEMA_VERSION), DocumentKind("finished.json", FINISHED_SCHEMA)
 STAMP = "%Y%m%dT%H%M%SZ"
 
 
@@ -54,15 +55,18 @@ def run_path(device: Path, run_id: str) -> Path:
     return RunTree(device).run_record(run_id)
 
 
-def _finished(paths: AppTree) -> dict | None:
-    """None when absent or unreadable, so a cut or hand-edited file reruns the app instead of failing it every run."""
+def _read(path: Path, kind: DocumentKind) -> dict | None:
     try:
-        doc = read_json(paths.finished)
+        doc = read_json(path)
     except (OSError, ValueError):
         return None
-    ok = isinstance(doc, dict) and doc.get("schemaVersion") == FINISHED_SCHEMA and isinstance(doc.get("inputs"), dict)
-    return doc if ok else None
+    return doc if isinstance(doc, dict) and kind.accepts(doc.get("schemaVersion")) else None
 
+
+def _finished(paths: AppTree) -> dict | None:
+    """None when absent or unreadable, so a cut or hand-edited file reruns the app instead of failing it every run."""
+    doc = _read(paths.finished, FINISHED_DOC)
+    return doc if doc is not None and isinstance(doc.get("inputs"), dict) else None
 
 
 def _stamp(device: Path) -> str:
@@ -73,14 +77,6 @@ def _stamp(device: Path) -> str:
         n += 1
         run_id = f"{base}-{n}"
     return run_id
-
-
-def _read(path: Path) -> dict | None:
-    try:
-        doc = read_json(path)
-    except (OSError, ValueError):
-        return None
-    return doc if isinstance(doc, dict) and doc.get("schemaVersion") == SCHEMA_VERSION else None
 
 
 def _now() -> str:
@@ -111,7 +107,7 @@ class RunRecord:
         try:
             run_id = run_id or _stamp(device)
             path = run_path(device, run_id)
-            kept = _read(path) if path.exists() else None
+            kept = _read(path, RUN_DOC) if path.exists() else None
             if path.exists() and on_existing == SKIP:
                 raise InputError(f"run_exists: run {run_id} has a record ({path}); onExisting skip runs nothing")
             if path.exists() and on_existing == OVERWRITE:
