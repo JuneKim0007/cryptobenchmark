@@ -5,7 +5,7 @@ from cryptobench.shared.wait import until
 class FakeClock:
     def __init__(self, monkeypatch=None, on_sleep=lambda _seconds: None):
         self.now, self.slept, self.on_sleep = 0.0, [], on_sleep
-        if monkeypatch:
+        if monkeypatch is not None:
             monkeypatch.setattr(until, "SYSTEM", self)
 
     def monotonic(self):
