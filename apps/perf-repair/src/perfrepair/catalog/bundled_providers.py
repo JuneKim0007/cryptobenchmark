@@ -8,11 +8,12 @@ from pathlib import Path
 
 from cryptobench.shared import paths
 from cryptobench.shared.errors.input_error import InputError
-from cryptobench.shared.document.document import parse_yaml
+from cryptobench.shared.document.document import DocumentKind, parse_yaml
 from cryptobench.shared.settings import bundled_rule
 
 BUNDLED_PROVIDERS = paths.BUNDLED_PROVIDERS.path
 SCHEMA_VERSION = 1
+BUNDLED_DOC = DocumentKind("bundled providers", SCHEMA_VERSION)
 REQUIRED = ("artifact", "provider", "create", "source")
 OPTIONAL = ("alias", "minSdk", "notes", "blocked", "badVersions")
 # create and names by the providers.bundled rule; the artifact is group:name, the version is the app's pin
@@ -96,7 +97,7 @@ def _duplicates(rows: list) -> list[str]:
 
 
 def catalog_problems(doc) -> list[str]:
-    if not isinstance(doc, dict) or doc.get("schemaVersion") != SCHEMA_VERSION:
+    if not isinstance(doc, dict) or not BUNDLED_DOC.accepts(doc.get("schemaVersion")):
         return [f"schemaVersion is not {SCHEMA_VERSION}"]
     sources, rows = doc.get("sources") or {}, doc.get("providers")
     if not isinstance(sources, dict) or not isinstance(rows, list):

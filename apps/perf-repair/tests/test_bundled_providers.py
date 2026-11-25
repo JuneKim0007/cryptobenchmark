@@ -53,6 +53,7 @@ def test_a_bad_file_raises_every_problem_at_once(tmp_path):
     path.write_text(yaml.safe_dump(doc({**ROW, "create": "Aaa", "minSdk": -1})))
     with pytest.raises(BundledCatalogError, match="create 'Aaa'.*minSdk -1"):
         BundledCatalog.load(path)
-    path.write_text("schemaVersion: 2\n")
-    with pytest.raises(BundledCatalogError, match="schemaVersion is not 1"):
-        BundledCatalog.load(path)
+    for version in ("2", "true"):
+        path.write_text(f"schemaVersion: {version}\n")
+        with pytest.raises(BundledCatalogError, match="schemaVersion is not 1"):
+            BundledCatalog.load(path)
