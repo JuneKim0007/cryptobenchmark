@@ -30,5 +30,5 @@ apps/benchmark/modules/document/src/test/kotlin/DocumentFieldsTest.kt : sections
 apps/benchmark/modules/document/src/test/kotlin/DocumentIoTest.kt : SchemaVersion refusals, not_a_mapping naming the file, a parse refusal as <code>: <file>: <rest> (codeless, empty and colon-in-detail cases), AtomicFile replace and refuse, YamlLine escapes
 apps/benchmark/modules/document/src/test/kotlin/FamilyCatalogueTest.kt : a build's view with behaviours, deviations and the entry's own section, an entry without providers untouched, the nearest build, group exemplars
 apps/benchmark/modules/document/src/test/kotlin/RecipesTest.kt : the one recipe rows passed to one call name, several refused; a recipe's tree from the rows at a build, nested recipes, constants and enums; builder, keyRef and unknown recipes refused with the code
-apps/benchmark/modules/document/src/test/kotlin/YamlCodecTest.kt : every profile's dump style and load failures; every profile loads 4 MiB, a result past 16 MiB loads
+apps/benchmark/modules/document/src/test/kotlin/YamlCodecTest.kt : every profile's dump style and load failures; every profile loads 4 MiB and 17 MiB
 ```

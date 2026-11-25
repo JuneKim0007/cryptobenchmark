@@ -9,7 +9,6 @@ import io.github.junekim0007.cryptobench.discovery.write.EnvironmentYamlWriter
 import io.github.junekim0007.cryptobench.discovery.write.ProbeDirectory
 import io.github.junekim0007.cryptobench.discovery.write.RequirementYamlWriter
 import io.github.junekim0007.cryptobench.discovery.write.TrialYamlWriter
-import io.github.junekim0007.cryptobench.document.YamlCodec
 import io.github.junekim0007.cryptobench.files.StampedName
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

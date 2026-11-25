@@ -8,7 +8,7 @@ import org.yaml.snakeyaml.constructor.Constructor
 import org.yaml.snakeyaml.constructor.SafeConstructor
 import org.yaml.snakeyaml.representer.Representer
 
-// a load parses a String already in memory, so its own length bounds it; a fixed limit would only refuse our own large files
+// a load parses a String already in memory, so its own length bounds it
 private fun loaderOptions(codePoints: Int): LoaderOptions = LoaderOptions().apply { codePointLimit = codePoints }
 
 /** The one SnakeYAML setup, by profile; a profile's bytes and load failures are part of what its files promise. */

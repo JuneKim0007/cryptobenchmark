@@ -55,11 +55,11 @@ class YamlCodecTest {
         YamlCodec.values().forEach { assertEquals(it.name, text.length / LINE.length, (it.load(text)["k"] as List<*>).size) }
     }
 
-    /** A load is bounded by its own input, not a fixed limit: N1's 4.4 MB merged pass file broke the old 3 MiB one. */
+    /** A load is bounded by its own input, not a fixed limit. */
     @Test
-    fun aResultDocumentPastSixteenMebibytesLoads() {
+    fun everyProfileLoadsADocumentPastSixteenMebibytes() {
         val text = sized(17 * MIB)
-        assertEquals(text.length / LINE.length, (YamlCodec.RESULTS.load(text)["k"] as List<*>).size)
+        YamlCodec.values().forEach { assertEquals(it.name, text.length / LINE.length, (it.load(text)["k"] as List<*>).size) }
     }
 
     // many short lines: one long scalar makes SnakeYAML's scan quadratic
