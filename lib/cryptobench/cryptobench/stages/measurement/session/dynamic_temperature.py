@@ -1,6 +1,6 @@
 """The thermal gate's facade, one session per pass and scope: the launch loop asks it what to do; it reads the phone and applies the equations, always in this order:
 settings -> margin -> start limit -> hold -> run -> verdict -> next margin -> record."""
-import dataclasses, math
+import dataclasses, itertools
 
 from cryptobench.stages.measurement import thermal
 from cryptobench.shared.log.warn import warn
@@ -10,7 +10,7 @@ from cryptobench.shared.errors.coded import Coded
 from cryptobench.shared.errors.glossary import STOP
 from cryptobench.shared.errors.policy import resolve
 from cryptobench.shared.settings.effective_view import RUN_GATE, GateView, gate_scopes
-from cryptobench.shared.wait.until import until
+from cryptobench.shared.wait import until as waiting
 
 SECONDS_PER_MINUTE = 60
 UNREADABLE = "unreadable"
@@ -78,9 +78,13 @@ class DynamicTemperature:
 
     def readable(self, read):
         """read, then thermal.poll every readRetrySeconds while unreadable, readRetries times at most."""
-        reads = [read, *[thermal.poll] * self.settings.read_retries]
-        return until(lambda: reads.pop(0)(self.device), lambda reading: reading.skin or not reads,
-                     self.settings.read_retry_seconds, math.inf).value
+        reading = read(self.device)
+        for _ in range(self.settings.read_retries):
+            if reading.skin:
+                break
+            waiting.SYSTEM.sleep(self.settings.read_retry_seconds)
+            reading = thermal.poll(self.device)
+        return reading
 
     def cool(self, reading):
         """An unreadable reading is never cool."""
@@ -88,8 +92,8 @@ class DynamicTemperature:
 
     def hold(self, case):
         """True once the phone may start this run; False when its temperature cannot be read; Terminated past pollTerminateSeconds."""
-        self.started = None
-        reading, limit = self.readable(thermal.read), self.limit()
+        self.started, clock = None, waiting.SYSTEM
+        began, reading, limit = clock.monotonic(), self.readable(thermal.read), self.limit()
         if not reading.skin:
             warn(f"temperature_unreadable: {case}: {reading.reason or 'no skin sensor in this reading'}", self.problems)
             return False
@@ -99,21 +103,24 @@ class DynamicTemperature:
             return True
         poll = self.settings.poll
         say(f"{case}: {reading.skin[1]:.1f} C, start limit {limit:.2f} C => waiting, reading it every {poll} s")
-        first, polls, per_line = [reading], [], max(1, SECONDS_PER_MINUTE // poll)
 
-        def polled():
-            if first:
-                return first.pop()
-            polls.append(thermal.poll(self.device))
-            if len(polls) % per_line == 0 and not self.cool(polls[-1]):
-                now = f"{polls[-1].skin[1]:.1f} C, waiting" if polls[-1].skin else "unreadable, not a pass, waiting"
-                say(f"{case}: poll {len(polls)}: {now}")
-            return polls[-1]
-        waited = until(polled, self.cool, poll, self.settings.terminate)
+        def readings():
+            """The hot reading first, then a poll per call; a progress line at most once a minute."""
+            said = clock.monotonic()
+            yield reading
+            for count in itertools.count(1):
+                latest = self.readable(thermal.poll)
+                if clock.monotonic() - said >= SECONDS_PER_MINUTE and not self.cool(latest):
+                    said = clock.monotonic()
+                    say(f"{case}: poll {count}: " + (f"{latest.skin[1]:.1f} C, waiting" if latest.skin else "unreadable, not a pass, waiting"))
+                yield latest
+        stream, spent = readings(), clock.monotonic() - began
+        waited = waiting.until(lambda: next(stream), self.cool, poll, max(0.0, self.settings.terminate - spent), clock)
+        seconds = spent + waited.seconds
         if not waited.met:
-            raise Terminated(f"temperature_gate_timeout: {case}: {self.label}: still above {limit:.2f} C after {waited.seconds:.0f} s; benchmark stopped")
-        say(f"{case}: passed at {waited.value.skin[1]:.1f} C after {waited.seconds:.0f} s")
-        self.history.passed(case, limit, waited.seconds)
+            raise Terminated(f"temperature_gate_timeout: {case}: {self.label}: still above {limit:.2f} C after {seconds:.0f} s; benchmark stopped")
+        say(f"{case}: passed at {waited.value.skin[1]:.1f} C after {seconds:.0f} s")
+        self.history.passed(case, limit, seconds)
         return True
 
     def take_start(self):

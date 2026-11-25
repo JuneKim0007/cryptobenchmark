@@ -141,7 +141,16 @@ def test_an_unreadable_start_retries_then_moves_to_the_next_case(tmp_path, monke
 def test_an_unreadable_poll_never_counts_as_a_pass(monkeypatch):
     heat = Heat(monkeypatch, start=36.0, cooling=0.05, unreadable={2, 3})  # read 1 is the hold's; 35.5 C from the first poll on
     session = gate_with(GATE).session("timing")
-    assert session.hold("case") and heat.slept == [10, 10, 10] and heat.reads == 4
+    # read 2 is unreadable: retried readRetrySeconds (1) later, read 3 too, read 4 passes
+    assert session.hold("case") and heat.slept == [10, 1, 1] and heat.reads == 4
+
+
+def test_unreadable_polls_say_so_once_a_minute(monkeypatch, capsys):
+    Heat(monkeypatch, start=36.0, cooling=0.0, unreadable=set(range(2, 40)))
+    with pytest.raises(dynamic_temperature.Terminated):
+        gate_with(dict(GATE, pollTerminateSeconds=120)).session("timing").hold("case")
+    lines = [l for l in capsys.readouterr().out.splitlines() if "unreadable, not a pass" in l]
+    assert len(lines) == 2
 
 
 def test_a_host_run_says_it_cannot_poll_once(tmp_path, monkeypatch, capsys):
