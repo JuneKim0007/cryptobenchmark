@@ -105,7 +105,7 @@ def read(device):
 
 
 def poll(device):
-    """The skin sensors alone, for a wait that reads the phone every minute."""
+    """The skin sensors alone, for a wait that reads the phone repeatedly."""
     try:
         return parse(device.shell(SKIN_LINES))
     except DeviceLost:

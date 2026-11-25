@@ -57,10 +57,10 @@ A composition of layers: [layers.md](layers.md).
 
 ```yaml
 run:   # a pass's own gate and cool-down, key by key over the run's; every key: example/config_global_example.yaml
-  thermalGate: {temperatureKeptCelsius: 36.0, cooldownMinutes: 3}
+  thermalGate: {temperatureKeptCelsius: 36.0, pollSeconds: 10}
   passes:
     timing: {samples: 50}                                   # holds under run.thermalGate
-    energy: {samples: 100, thermalGate: {startMargin: {initialCelsius: 0.5}}, caseCooldownSeconds: 5}   # 36.0 C, 3 min, margin 0.5
+    energy: {samples: 100, thermalGate: {startMargin: {initialCelsius: 0.5}}, caseCooldownSeconds: 5}   # 36.0 C, 10 s polls, margin 0.5
 ```
 
 Defaults are `lib/cryptobench/cryptobench/shared/settings/defaults.yaml`, which `DefaultsDocument` writes and the Python readers read. A `--bench` run ignores `passes`, `thermalThrottleSleepSeconds`, `warmup`, `caseCooldownSeconds`, `thermalGate`, `launchRetries`, `energyIdleSeconds` and `harness.warmupIterations`, `profiling`, `cpu`: each set to other than its default is one `ignored_on_host: <key> is set` warning, or its own line for `passes` and `thermalGate` (the `host` column of `lib/cryptobench/cryptobench/shared/settings/effective_view.py` KEYS).

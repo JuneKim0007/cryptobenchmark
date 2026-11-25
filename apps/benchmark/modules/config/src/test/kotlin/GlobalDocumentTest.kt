@@ -111,8 +111,9 @@ class GlobalDocumentTest {
             "run: {warmup: {iterations: -1}}\n" to "negative: run.warmup.iterations",
             "run: {warmup: {cases: 0}}\n" to "not_positive: run.warmup.cases 0",
             "run: {thermalGate: {}}\n" to "missing_field: run.thermalGate.temperatureKeptCelsius",
-            "run: {thermalGate: {temperatureKeptCelsius: 36.0, cooldownMinutes: 1.5}}\n" to "not_whole: cooldownMinutes 1.5 at run.thermalGate",
-            "run: {thermalGate: {temperatureKeptCelsius: 36.0, pollMinutes: 0}}\n" to "not_positive: run.thermalGate.pollMinutes",
+            "run: {thermalGate: {temperatureKeptCelsius: 36.0, pollSeconds: 1.5}}\n" to "not_whole: pollSeconds 1.5 at run.thermalGate",
+            "run: {thermalGate: {temperatureKeptCelsius: 36.0, pollSeconds: 0}}\n" to "not_positive: run.thermalGate.pollSeconds",
+            "run: {thermalGate: {temperatureKeptCelsius: 36.0, cooldownMinutes: 3}}\n" to "unknown_keys: run.thermalGate [cooldownMinutes]",
             "run: {thermalGate: {temperatureKeptCelsius: 36.0, onDiscardLimit: nope}}\n" to "invalid: run.thermalGate.onDiscardLimit",
             "run: {thermalGate: {temperatureKeptCelsius: 36.0, margin: 3}}\n" to "unknown_keys: run.thermalGate [margin]",
             "run: {passes: {timing: {samples: 1}, speed: {samples: 1}}}\n" to "invalid: run.passes.speed",
@@ -132,14 +133,14 @@ class GlobalDocumentTest {
     /** A pass gate is merged key by key over the run's resolved gate; a pass that writes none inherits, and nothing is written for it. */
     @Test
     fun aPassGateOverridesTheRunGateKeyByKey() {
-        val text = "run: {thermalGate: {temperatureKeptCelsius: 36.0, cooldownMinutes: 4}, passes: {timing: {samples: 5}, " +
+        val text = "run: {thermalGate: {temperatureKeptCelsius: 36.0, pollSeconds: 40}, passes: {timing: {samples: 5}, " +
             "energy: {samples: 5, caseCooldownSeconds: 5, thermalGate: {temperatureKeptCelsius: 35.0, startMargin: {initialCelsius: 0.5}}}}}\n"
         val run = run(text)
         val (timing, energy) = run.passes
         assertEquals(null to null, timing.thermalGate to timing.caseCooldownSeconds)
         val margin = StartMargin.DEFAULTS.copy(initialCelsius = 0.5)
         assertEquals(run.thermalGate!!.copy(temperatureKeptCelsius = 35.0, startMargin = margin), energy.thermalGate)
-        assertEquals(4 to 5, energy.thermalGate!!.cooldownMinutes to energy.caseCooldownSeconds)
+        assertEquals(40 to 5, energy.thermalGate!!.pollSeconds to energy.caseCooldownSeconds)
         assertEquals(run, GlobalDocument.parse(codec.load(YamlCodec.DOCUMENT.dump(GlobalDocument.of(global(text))))).run)
         @Suppress("UNCHECKED_CAST")
         val passes = (GlobalDocument.of(global(text))["run"] as Map<String, Any>)["passes"] as Map<String, Map<String, Any>>
@@ -155,9 +156,9 @@ class GlobalDocumentTest {
         assertEquals(ThermalGate.DEFAULTS.copy(temperatureKeptCelsius = 35.0), alone.passes.single().thermalGate)
         assertEquals(null, run("run: {thermalGate: {temperatureKeptCelsius: 36.0}, passes: {energy: {samples: 5, thermalGate: null}}}\n").passes.single().thermalGate)
         listOf(
-            "run: {passes: {energy: {samples: 5, thermalGate: {pollMinutes: 2}}}}\n" to "missing_field: run.passes.energy.thermalGate.temperatureKeptCelsius",
-            "run: {thermalGate: {temperatureKeptCelsius: 36.0, pollTerminateMinutes: 2}, passes: {energy: {samples: 5, thermalGate: {pollMinutes: 3}}}}\n" to
-                "invalid: run.passes.energy.thermalGate.pollTerminateMinutes 2, below pollMinutes 3",
+            "run: {passes: {energy: {samples: 5, thermalGate: {pollSeconds: 20}}}}\n" to "missing_field: run.passes.energy.thermalGate.temperatureKeptCelsius",
+            "run: {thermalGate: {temperatureKeptCelsius: 36.0, pollTerminateSeconds: 20}, passes: {energy: {samples: 5, thermalGate: {pollSeconds: 30}}}}\n" to
+                "invalid: run.passes.energy.thermalGate.pollTerminateSeconds 20, below pollSeconds 30",
             "run: {passes: {energy: {samples: 5, thermalGate: {temperatureKeptCelsius: 35.0, margin: 1}}}}\n" to "unknown_keys: run.passes.energy.thermalGate [margin]",
             "run: {passes: {energy: {samples: 5, caseCooldownSeconds: -1}}}\n" to "negative: run.passes.energy.caseCooldownSeconds -1",
         ).forEach { (text, code) ->

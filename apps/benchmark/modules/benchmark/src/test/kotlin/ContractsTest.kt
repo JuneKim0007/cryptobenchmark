@@ -32,17 +32,17 @@ class ContractsTest {
         val text = File(RepositoryFiles.runner, "thermal.json").readText()
         val readings = JetpackResults.thermalOf(text)
         assertEquals(setOf("a", "b"), readings.keys)
-        assertEquals(mapOf("start" to null, "end" to mapOf("skin" to 33.1), "startStatus" to null, "endStatus" to 0,
-            "note" to "thermal_unavailable: fake", "gate" to mapOf("waitedSeconds" to 240.0, "target" to 35.75, "discards" to 0)), readings.getValue("a"))
+        assertEquals(mapOf("start" to null, "end" to mapOf("skin" to 35.6), "startStatus" to null, "endStatus" to 0,
+            "note" to "thermal_unavailable: fake", "gate" to mapOf("waitedSeconds" to 190.0, "target" to 35.75, "discards" to 0)), readings.getValue("a"))
         val example = File("example")
         val data = File(example, "benchmark_jetpack_example.json").readText()
         val prepared = File(example, "benchmark_prepared_example.yaml").readText()
         val digestId = JetpackResults.convert(data, prepared).rows.single { it.algorithm == "SHA-256" }.id
         val digest = JetpackResults.convert(data, prepared, thermal = JetpackResults.thermalOf(text.replace("\"a\"", "\"$digestId\"")))
             .rows.single { it.id == digestId }
-        assertEquals(mapOf("start" to null, "end" to mapOf("skin" to 33.1), "startStatus" to null, "endStatus" to 0), digest.thermal)
+        assertEquals(mapOf("start" to null, "end" to mapOf("skin" to 35.6), "startStatus" to null, "endStatus" to 0), digest.thermal)
         assertEquals("thermal_unavailable: fake", digest.thermalNote)
-        assertEquals(mapOf("waitedSeconds" to 240.0, "target" to 35.75, "discards" to 0), digest.gate)
+        assertEquals(mapOf("waitedSeconds" to 190.0, "target" to 35.75, "discards" to 0), digest.gate)
     }
 
     @Test

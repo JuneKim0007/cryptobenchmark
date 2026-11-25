@@ -9,7 +9,7 @@ generatedFrom:
     defaultKeySizeProperty: '', fingerprint: '', javaVendor: Eclipse Adoptium, javaRuntimeVersion: 17.0.11+9,
     osName: Linux, osArch: x86_64}
   layers:
-  - {path: config_global_example.yaml, sha256: 899b5b17ea017e353a74e13f8f526fdcc3a291b837cbece02561706a77f9bb6f}
+  - {path: config_global_example.yaml, sha256: 0ce59c78ce89b72a58c97bd85545aceb833f6eb10035303d50f569b10c4a92b6}
   settings: {run.inputSizes: layer 1 config_global_example.yaml, run.phases: layer
       1 config_global_example.yaml, run.metrics: layer 1 config_global_example.yaml,
     run.variants: layer 1 config_global_example.yaml, run.processRepetitions: layer
@@ -20,23 +20,22 @@ generatedFrom:
       1 config_global_example.yaml, run.orderSeed: layer 1 config_global_example.yaml,
     run.warmup.iterations: layer 1 config_global_example.yaml, run.warmup.jobs: layer
       1 config_global_example.yaml, run.warmup.cases: layer 1 config_global_example.yaml,
-    run.thermalGate.temperatureKeptCelsius: layer 1 config_global_example.yaml, run.thermalGate.cooldownMinutes: layer
-      1 config_global_example.yaml, run.thermalGate.pollMinutes: layer 1 config_global_example.yaml,
-    run.thermalGate.pollTerminateMinutes: layer 1 config_global_example.yaml, run.thermalGate.discardLimit: layer
-      1 config_global_example.yaml, run.thermalGate.onDiscardLimit: layer 1 config_global_example.yaml,
-    run.thermalGate.readRetries: layer 1 config_global_example.yaml, run.thermalGate.readRetrySeconds: layer
-      1 config_global_example.yaml, run.thermalGate.startMargin.dynamic: layer 1 config_global_example.yaml,
-    run.thermalGate.startMargin.initialCelsius: layer 1 config_global_example.yaml,
-    run.thermalGate.startMargin.backoffFactor: layer 1 config_global_example.yaml,
-    run.thermalGate.startMargin.maximumCelsius: layer 1 config_global_example.yaml,
-    run.thermalGate.startMargin.cleanRunsToRecover: layer 1 config_global_example.yaml,
-    run.thermalGate.startMargin.recoveryCelsius: layer 1 config_global_example.yaml,
-    run.passes.timing.samples: layer 1 config_global_example.yaml, run.passes.allocation.samples: layer
-      1 config_global_example.yaml, run.passes.energy.samples: layer 1 config_global_example.yaml,
-    run.passes.energy.minWindowSeconds: layer 1 config_global_example.yaml, run.passes.energy.thermalGate.temperatureKeptCelsius: layer
-      1 config_global_example.yaml, run.passes.energy.thermalGate.cooldownMinutes: layer
-      1 config_global_example.yaml via run.thermalGate, run.passes.energy.thermalGate.pollMinutes: layer
-      1 config_global_example.yaml via run.thermalGate, run.passes.energy.thermalGate.pollTerminateMinutes: layer
+    run.thermalGate.temperatureKeptCelsius: layer 1 config_global_example.yaml, run.thermalGate.pollSeconds: layer
+      1 config_global_example.yaml, run.thermalGate.pollTerminateSeconds: layer 1
+      config_global_example.yaml, run.thermalGate.discardLimit: layer 1 config_global_example.yaml,
+    run.thermalGate.onDiscardLimit: layer 1 config_global_example.yaml, run.thermalGate.readRetries: layer
+      1 config_global_example.yaml, run.thermalGate.readRetrySeconds: layer 1 config_global_example.yaml,
+    run.thermalGate.startMargin.dynamic: layer 1 config_global_example.yaml, run.thermalGate.startMargin.initialCelsius: layer
+      1 config_global_example.yaml, run.thermalGate.startMargin.backoffFactor: layer
+      1 config_global_example.yaml, run.thermalGate.startMargin.maximumCelsius: layer
+      1 config_global_example.yaml, run.thermalGate.startMargin.cleanRunsToRecover: layer
+      1 config_global_example.yaml, run.thermalGate.startMargin.recoveryCelsius: layer
+      1 config_global_example.yaml, run.passes.timing.samples: layer 1 config_global_example.yaml,
+    run.passes.allocation.samples: layer 1 config_global_example.yaml, run.passes.energy.samples: layer
+      1 config_global_example.yaml, run.passes.energy.minWindowSeconds: layer 1 config_global_example.yaml,
+    run.passes.energy.thermalGate.temperatureKeptCelsius: layer 1 config_global_example.yaml,
+    run.passes.energy.thermalGate.pollSeconds: layer 1 config_global_example.yaml
+      via run.thermalGate, run.passes.energy.thermalGate.pollTerminateSeconds: layer
       1 config_global_example.yaml via run.thermalGate, run.passes.energy.thermalGate.discardLimit: layer
       1 config_global_example.yaml via run.thermalGate, run.passes.energy.thermalGate.onDiscardLimit: layer
       1 config_global_example.yaml via run.thermalGate, run.passes.energy.thermalGate.readRetries: layer
@@ -83,9 +82,8 @@ run:
     cases: 3
   thermalGate:
     temperatureKeptCelsius: 36.0
-    cooldownMinutes: 3
-    pollMinutes: 1
-    pollTerminateMinutes: 30
+    pollSeconds: 10
+    pollTerminateSeconds: 1800
     discardLimit: 5
     onDiscardLimit: nextCase
     readRetries: 2
@@ -100,9 +98,8 @@ run:
       minWindowSeconds: 5
       thermalGate:
         temperatureKeptCelsius: 35.0
-        cooldownMinutes: 3
-        pollMinutes: 1
-        pollTerminateMinutes: 30
+        pollSeconds: 10
+        pollTerminateSeconds: 1800
         discardLimit: 5
         onDiscardLimit: nextCase
         readRetries: 2

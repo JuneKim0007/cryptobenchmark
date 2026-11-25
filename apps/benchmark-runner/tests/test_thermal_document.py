@@ -10,8 +10,8 @@ GOLDEN = paths.repo().contract_runner / paths.THERMAL
 
 
 def test_a_gated_run_with_one_unreadable_start_writes_the_shared_golden(tmp_path, monkeypatch):
-    # hot start: 240 s of waiting before a; the fifth reading (a's start) is unreadable, so a carries a note
-    Heat(monkeypatch, start=45.0, rise=0.1, cooling=0.05, unreadable=(5,))
+    # hot start: 19 polls, 190 s of waiting before a; reading 22 (a's start, after the process start, the hold and the polls) is unreadable, so a carries a note
+    Heat(monkeypatch, start=45.0, rise=0.1, cooling=0.05, unreadable=(22,))
     _phone, _files, problems, results = measured(tmp_path, monkeypatch, CASE)
     assert problems == []
     assert (results / "benchmark/thermal.json").read_text() == GOLDEN.read_text()
@@ -43,4 +43,4 @@ def test_each_process_writes_only_its_own_gate_records(tmp_path, monkeypatch):
     Heat(monkeypatch, start=45.0, cooling=0.05)
     measured(tmp_path, monkeypatch, CASE | {"processRepetitions": 2})
     gates = [json.loads((tmp_path / f"results/benchmark/process-{n}/thermal.json").read_text())["cases"]["a"]["gate"] for n in (1, 2)]
-    assert gates == [{"waitedSeconds": 240.0, "target": 35.75, "discards": 0}, {"waitedSeconds": 0.0, "target": 35.75, "discards": 0}]
+    assert gates == [{"waitedSeconds": 190.0, "target": 35.75, "discards": 0}, {"waitedSeconds": 0.0, "target": 35.75, "discards": 0}]

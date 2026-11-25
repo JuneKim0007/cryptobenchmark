@@ -64,7 +64,7 @@ cryptobench/shared/device/identity.py : device id from a capture's runtime block
 cryptobench/shared/device/instrumentation.py : Instrumented, one instrumentation step's row (test class, clears before or after, pass rule, pulls); once() runs it, Failed when it did not pass; run() waits out a lost transport and runs it again
 cryptobench/shared/device/plan.py : the device plan: pushed and AOT-compiled, prepared and skipped pulled back, the skips recorded so far, per-run outputs cleared; a run's push with the suppressErrors warning, then the energy pre-flight's files
 cryptobench/shared/device/probe.py : DeviceRow; adb transports classified ready or not with a coded fix, keyed by ro.serialno or emulator:<avd>, unstable_id otherwise; the --devices listing
-cryptobench/shared/device/reconnect.py : a lost adb transport: the bounded wait polling adb get-state, the step or case again, DeviceGone past the bound; Off for no wait
+cryptobench/shared/device/reconnect.py : a lost adb transport: adb get-state polled through until, the step or case again, DeviceGone past the bound; Off for no wait
 cryptobench/shared/device/tests/ : pytest tests of the device listing and the alias file, from hand-written adb and getprop text
 cryptobench/shared/device/timeouts.py : ceilings of the host's subprocess steps (adb, install, instrument, case, gradle, compile, energy, analysis); expiry is one coded error
 cryptobench/shared/digest/__init__.py : package of the digests over bytes
@@ -134,6 +134,9 @@ cryptobench/shared/stop/terminate.py : terminate(): the action resolved, one fin
 cryptobench/shared/stop/tests/ : pytest tests of the code table, halt_of and the child stop
 cryptobench/shared/versions/__init__.py : package of dependency versions
 cryptobench/shared/versions/order.py : a Gradle version: pinned or not; newest of several
+cryptobench/shared/wait/__init__.py : package of the one bounded wait
+cryptobench/shared/wait/tests/ : pytest tests of until on a fake clock
+cryptobench/shared/wait/until.py : until(check, done, every, within, clock): check first, then sleep min(every, left) until done or within seconds pass; Waited(value, seconds, met); Clock and SYSTEM, the time it reads
 cryptobench/stages/__init__.py : package of the run's stages, one package each, importing none of them
 cryptobench/stages/analysis/__init__.py : package of the analysis stage
 cryptobench/stages/analysis/not_measured.py : planned timed cases the final benchmark.json lacks: one not_measured line each, recorded in the manifest

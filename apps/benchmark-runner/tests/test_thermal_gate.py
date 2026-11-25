@@ -11,11 +11,12 @@ from cryptobench.stages.measurement import benchmark, measuring  # noqa: E402
 from cryptobench.stages.measurement import thermal  # noqa: E402
 from cryptobench.shared.device.adb import DeviceError  # noqa: E402
 from cryptobench.stages.measurement.session import blocks, dynamic_temperature, thermal_hook  # noqa: E402
+from fake_clock import FakeClock  # noqa: E402
 from fake_phone import Phone  # noqa: E402
 from test_device_benchmark_flow import RUN, measured  # noqa: E402
 
 MARGIN = {"dynamic": True, "initialCelsius": 0.25, "backoffFactor": 2.0, "maximumCelsius": 3.0, "cleanRunsToRecover": 10, "recoveryCelsius": 0.05}
-GATE = {"temperatureKeptCelsius": 36.0, "cooldownMinutes": 3, "pollMinutes": 1, "pollTerminateMinutes": 30, "discardLimit": 5,
+GATE = {"temperatureKeptCelsius": 36.0, "pollSeconds": 10, "pollTerminateSeconds": 1800, "discardLimit": 5,
         "onDiscardLimit": "nextCase", "readRetries": 2, "readRetrySeconds": 1, "startMargin": MARGIN}
 CASE = {"thermalGate": GATE}
 
@@ -24,13 +25,13 @@ class Heat:
     """Skin starts at `start`, each measuring launch adds `rise`, each second asleep takes `cooling` off."""
 
     def __init__(self, monkeypatch, start=30.0, rise=0.0, cooling=0.05, available=True, reason="ok", unreadable=()):
-        self.celsius, self.rise, self.cooling, self.now, self.slept, self.launches, self.reads = start, rise, cooling, 0.0, [], [], 0
+        self.celsius, self.rise, self.cooling, self.launches, self.reads = start, rise, cooling, [], 0
+        self.slept = FakeClock(monkeypatch, self.cool).slept
         self.unreadable = set(unreadable)
         fake = types.SimpleNamespace(read=self.read, poll=self.read, extremes=thermal.extremes, capability=lambda _device: thermal.Capability(available, reason, ("skin",)))
         monkeypatch.setattr(dynamic_temperature, "thermal", fake)
         monkeypatch.setattr(thermal_hook, "thermal", fake)
         monkeypatch.setattr(measuring, "thermal", fake)
-        monkeypatch.setattr(dynamic_temperature, "time", types.SimpleNamespace(monotonic=lambda: self.now, sleep=self.sleep))
         original = Phone.instrument
 
         def instrument(phone, test_class, *arguments, **options):
@@ -46,9 +47,7 @@ class Heat:
             return thermal.Reading(None, None, None, "thermal_unavailable: fake")
         return thermal.Reading({"skin": self.celsius}, 0, "hal", types={"skin": 3})
 
-    def sleep(self, seconds):
-        self.slept.append(seconds)
-        self.now += seconds
+    def cool(self, seconds):
         self.celsius -= seconds * self.cooling
 
 
@@ -82,18 +81,22 @@ def test_a_cool_phone_starts_at_once(tmp_path, monkeypatch, capsys):
     assert "TEMPERATURE GATE SET: kept 36.0 C on skin" in capsys.readouterr().out
 
 
-def test_a_hot_start_waits_three_minutes_then_polls_each_minute(tmp_path, monkeypatch, capsys):
-    heat = Heat(monkeypatch, start=45.0, cooling=0.05)  # 180 s takes it to 36.0, two polls at 60 s reach 35.75 or below
+def test_a_hot_start_passes_at_the_first_poll_under_the_limit(tmp_path, monkeypatch, capsys):
+    heat = Heat(monkeypatch, start=45.0, cooling=0.05)  # 35.75 C after 185 s: 36.0 C at the poll at 180 s, 35.5 C at 190 s
     _phone, _files, problems, results = measured(tmp_path, monkeypatch, CASE)
-    assert heat.slept[0] == 180 and set(heat.slept[1:]) == {60} and problems == []
-    assert gate_of(results, "a")["waitedSeconds"] == sum(heat.slept)
-    assert "=> waiting 3 minutes to cool down, then polling every 1 min" in capsys.readouterr().out
+    assert heat.slept == [10] * 19 and problems == []
+    assert gate_of(results, "a")["waitedSeconds"] == 190
+    out = capsys.readouterr().out
+    assert "a: 45.0 C, start limit 35.75 C => waiting, reading it every 10 s" in out and "a: passed at 35.5 C after 190 s" in out
+    assert [line.split(": ", 2)[2] for line in out.splitlines() if ": poll " in line] == [
+        "poll 6: 42.0 C, waiting", "poll 12: 39.0 C, waiting", "poll 18: 36.0 C, waiting"]
 
 
-def test_polling_past_the_limit_stops_the_benchmark(tmp_path, monkeypatch):
-    Heat(monkeypatch, start=50.0, cooling=0.0)
-    with pytest.raises(dynamic_temperature.Terminated, match="temperature_gate_timeout"):
+def test_polling_past_poll_terminate_seconds_stops_the_benchmark(tmp_path, monkeypatch):
+    heat = Heat(monkeypatch, start=50.0, cooling=0.0)
+    with pytest.raises(dynamic_temperature.Terminated, match="temperature_gate_timeout: .* still above 35.75 C after 1800 s"):
         measured(tmp_path, monkeypatch, CASE)
+    assert sum(heat.slept) == 1800
 
 
 def test_a_run_ending_hot_is_discarded_measured_again_and_widens_the_margin(tmp_path, monkeypatch, capsys):
@@ -135,10 +138,10 @@ def test_an_unreadable_start_retries_then_moves_to_the_next_case(tmp_path, monke
     assert any(p.startswith("case_failed: a: temperature_unreadable") for p in problems)
 
 
-def test_a_failed_reading_never_counts_as_a_pass(tmp_path, monkeypatch):
-    heat = Heat(monkeypatch, start=45.0, cooling=0.05, unreadable={3, 4, 5})
-    measured(tmp_path, monkeypatch, CASE)
-    assert heat.slept[0] == 180 and sum(heat.slept) > 180
+def test_an_unreadable_poll_never_counts_as_a_pass(monkeypatch):
+    heat = Heat(monkeypatch, start=36.0, cooling=0.05, unreadable={2, 3})  # read 1 is the hold's; 35.5 C from the first poll on
+    session = gate_with(GATE).session("timing")
+    assert session.hold("case") and heat.slept == [10, 10, 10] and heat.reads == 4
 
 
 def test_a_host_run_says_it_cannot_poll_once(tmp_path, monkeypatch, capsys):
@@ -203,9 +206,9 @@ def test_a_reading_from_an_earlier_hold_is_never_a_later_runs_start(monkeypatch)
 
 def test_the_wait_line_names_the_configured_polling_interval(monkeypatch, capsys):
     heat = Heat(monkeypatch, start=45.0)
-    session = gate_with({**GATE, "pollMinutes": 2}).session("timing")
-    assert session.hold("case") and heat.slept[0] == 180
-    assert "then polling every 2 min" in capsys.readouterr().out
+    session = gate_with({**GATE, "pollSeconds": 20}).session("timing")
+    assert session.hold("case") and set(heat.slept) == {20}
+    assert "reading it every 20 s" in capsys.readouterr().out
 
 
 def test_each_process_reports_only_its_own_waits_and_discards(monkeypatch):
@@ -215,9 +218,9 @@ def test_each_process_reports_only_its_own_waits_and_discards(monkeypatch):
     heat.celsius = 40.0
     assert session.verdict("c") == "hot"
     heat.celsius = 45.0
-    assert session.hold("c") and heat.slept == [180, 60]
+    assert session.hold("c") and heat.slept == [10] * 19
     assert session.verdict("c") == "clean"
-    assert session.history.records() == {"c": {"waitedSeconds": 240.0, "target": 35.5, "discards": 1}}
+    assert session.history.records() == {"c": {"waitedSeconds": 190.0, "target": 35.5, "discards": 1}}
     assert session.hold("c") and session.verdict("c") == "clean"
     assert session.history.records() == {"c": {"waitedSeconds": 0.0, "target": 35.5, "discards": 0}}
 
@@ -258,7 +261,7 @@ def test_each_idle_reading_waits_behind_the_gate_and_stamps_the_skin(tmp_path, m
     from test_device_benchmark_flow import MEASURED
     heat = Heat(monkeypatch, start=45.0, cooling=0.05)
     phone, _files, problems, _results = measured(tmp_path, monkeypatch, MEASURED | {"thermalGate": GATE})
-    assert heat.slept[0] == 180 and problems == []
+    assert set(heat.slept) == {10} and problems == []
     start, end = phone.energy.skins
     assert start["start"]["sensor"] == "skin" and start["start"]["celsius"] <= 35.75
     assert end["start"]["celsius"] <= 35.75 and end["end"]["sensor"] == "skin"
@@ -269,6 +272,6 @@ def test_the_idle_readings_hold_under_the_energy_pass_gate(tmp_path, monkeypatch
     heat = Heat(monkeypatch, start=38.0, cooling=0.05)
     passes = {**MEASURED["passes"], "energy": {**MEASURED["passes"]["energy"], "thermalGate": GATE}}
     phone, _files, problems, _results = measured(tmp_path, monkeypatch, MEASURED | {"thermalGate": GATE | {"temperatureKeptCelsius": 40.0}, "passes": passes})
-    assert heat.slept[0] == 180 and problems == []
+    assert set(heat.slept) == {10} and problems == []
     start, end = phone.energy.skins
     assert start["start"]["celsius"] <= 35.75 and end["start"]["celsius"] <= 35.75

@@ -5,7 +5,7 @@
    "skin": 45.0
   },
   "end": {
-   "skin": 33.2
+   "skin": 35.7
   },
   "startStatus": 0,
   "endStatus": 0
@@ -14,23 +14,23 @@
   "a": {
    "start": null,
    "end": {
-    "skin": 33.1
+    "skin": 35.6
    },
    "startStatus": null,
    "endStatus": 0,
    "note": "thermal_unavailable: fake",
    "gate": {
-    "waitedSeconds": 240.0,
+    "waitedSeconds": 190.0,
     "target": 35.75,
     "discards": 0
    }
   },
   "b": {
    "start": {
-    "skin": 33.1
+    "skin": 35.6
    },
    "end": {
-    "skin": 33.2
+    "skin": 35.7
    },
    "startStatus": 0,
    "endStatus": 0,

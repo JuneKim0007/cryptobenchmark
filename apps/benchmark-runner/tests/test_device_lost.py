@@ -1,6 +1,6 @@
 """A lost adb transport mid-run (`device unauthorized`): waited for, the same case held and launched again,
 never a failed case; past the bound the run stops."""
-import json, time, types
+import json, types
 
 import pytest
 
@@ -8,6 +8,7 @@ from cryptobench.shared import paths
 from cryptobench.shared.device import timeouts
 from cryptobench.shared.document.document import read_yaml
 from cryptobench.shared.device import adb as device_module
+from fake_clock import FakeClock
 from fake_phone import Phone
 from test_device_benchmark_flow import OPTIONS, measured
 from test_thermal_gate import GATE
@@ -64,18 +65,8 @@ class LosingPhone(Phone):
         return types.SimpleNamespace(returncode=1, stdout="", stderr=UNAUTHORIZED)
 
 
-class Clock:
-    def __init__(self, monkeypatch):
-        self.now = 0.0
-        monkeypatch.setattr(time, "monotonic", lambda: self.now)
-        monkeypatch.setattr(time, "sleep", self.sleep)
-
-    def sleep(self, seconds):
-        self.now += seconds
-
-
 def lost_run(tmp_path, monkeypatch, polls, wait_minutes=1):
-    Clock(monkeypatch)
+    FakeClock(monkeypatch)
     phone = LosingPhone(tmp_path, "b", polls, cases=("a", "b", "c", "d"))
     monkeypatch.setattr(timeouts, "run", phone.answer)
     monkeypatch.setattr("test_device_benchmark_flow.OPTIONS", types.SimpleNamespace(**{**vars(OPTIONS), "reconnect_wait_minutes": wait_minutes,
@@ -181,7 +172,7 @@ class CuttingPhone(Phone):
 
 
 def test_a_clocks_read_cut_mid_shell_is_waited_out_and_the_process_runs(tmp_path, monkeypatch, capsys):
-    Clock(monkeypatch)
+    FakeClock(monkeypatch)
     phone = CuttingPhone(tmp_path, 2)
     monkeypatch.setattr("test_device_benchmark_flow.OPTIONS", types.SimpleNamespace(**{**vars(OPTIONS), "reconnect_wait_minutes": 1,
                                                                                          "reconnect_poll_seconds": 10}))

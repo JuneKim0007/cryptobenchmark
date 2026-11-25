@@ -25,9 +25,8 @@
   "orderSeed": 20261115,
   "thermalGate": {
    "temperatureKeptCelsius": 36.0,
-   "cooldownMinutes": 3,
-   "pollMinutes": 1,
-   "pollTerminateMinutes": 30,
+   "pollSeconds": 10,
+   "pollTerminateSeconds": 1800,
    "discardLimit": 5,
    "onDiscardLimit": "nextCase",
    "readRetries": 2,

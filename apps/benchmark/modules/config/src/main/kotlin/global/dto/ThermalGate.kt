@@ -9,9 +9,8 @@ import io.github.junekim0007.cryptobench.settings.Values
 // Authored blocks hold only what they set; resolved() merges them over DEFAULTS key by key and checks the result.
 data class ThermalGate(
     val temperatureKeptCelsius: Double? = null,
-    val cooldownMinutes: Int? = null,
-    val pollMinutes: Int? = null,
-    val pollTerminateMinutes: Int? = null,
+    val pollSeconds: Int? = null,
+    val pollTerminateSeconds: Int? = null,
     val discardLimit: Int? = null,
     val onDiscardLimit: String? = null,
     val readRetries: Int? = null,
@@ -25,9 +24,8 @@ data class ThermalGate(
     private fun check(path: String) {
         val kept = temperatureKeptCelsius ?: throw IllegalArgumentException("missing_field: $path.temperatureKeptCelsius")
         require(kept > 0) { "not_positive: $path.temperatureKeptCelsius $kept" }
-        require(cooldownMinutes!! >= 0) { "negative: $path.cooldownMinutes $cooldownMinutes" }
-        require(pollMinutes!! >= 1) { "not_positive: $path.pollMinutes $pollMinutes" }
-        require(pollTerminateMinutes!! >= pollMinutes) { "invalid: $path.pollTerminateMinutes $pollTerminateMinutes, below pollMinutes $pollMinutes" }
+        require(pollSeconds!! >= 1) { "not_positive: $path.pollSeconds $pollSeconds" }
+        require(pollTerminateSeconds!! >= pollSeconds) { "invalid: $path.pollTerminateSeconds $pollTerminateSeconds, below pollSeconds $pollSeconds" }
         require(discardLimit!! >= 1) { "not_positive: $path.discardLimit $discardLimit" }
         require(onDiscardLimit in ON_DISCARD_LIMIT) { "invalid: $path.onDiscardLimit $onDiscardLimit, expected one of $ON_DISCARD_LIMIT" }
         require(readRetries!! >= 0) { "negative: $path.readRetries $readRetries" }
@@ -38,14 +36,13 @@ data class ThermalGate(
     companion object {
         val ON_DISCARD_LIMIT = listOf("nextCase", "stop")
 
-        val DEFAULTS = ThermalGate(null, 3, 1, 30, 5, ON_DISCARD_LIMIT.first(), 2, 1, StartMargin.DEFAULTS)
+        val DEFAULTS = ThermalGate(null, 10, 1800, 5, ON_DISCARD_LIMIT.first(), 2, 1, StartMargin.DEFAULTS)
 
         val GATE: Section<ThermalGate> = Section(ThermalGate(), "") {
             listOf(
                 Leaf("temperatureKeptCelsius", Values.decimal, { it.temperatureKeptCelsius }, { o, v -> o.copy(temperatureKeptCelsius = v) }),
-                Leaf("cooldownMinutes", Values.whole, { it.cooldownMinutes }, { o, v -> o.copy(cooldownMinutes = v) }),
-                Leaf("pollMinutes", Values.whole, { it.pollMinutes }, { o, v -> o.copy(pollMinutes = v) }),
-                Leaf("pollTerminateMinutes", Values.whole, { it.pollTerminateMinutes }, { o, v -> o.copy(pollTerminateMinutes = v) }),
+                Leaf("pollSeconds", Values.whole, { it.pollSeconds }, { o, v -> o.copy(pollSeconds = v) }),
+                Leaf("pollTerminateSeconds", Values.whole, { it.pollTerminateSeconds }, { o, v -> o.copy(pollTerminateSeconds = v) }),
                 Leaf("discardLimit", Values.whole, { it.discardLimit }, { o, v -> o.copy(discardLimit = v) }),
                 Leaf("onDiscardLimit", Values.text(ON_DISCARD_LIMIT), { it.onDiscardLimit }, { o, v -> o.copy(onDiscardLimit = v) }),
                 Leaf("readRetries", Values.whole, { it.readRetries }, { o, v -> o.copy(readRetries = v) }),

@@ -1,6 +1,6 @@
 """The thermal gate's facade, one session per pass and scope: the launch loop asks it what to do; it reads the phone and applies the equations, always in this order:
 settings -> margin -> start limit -> hold -> run -> verdict -> next margin -> record."""
-import dataclasses, time
+import dataclasses, math
 
 from cryptobench.stages.measurement import thermal
 from cryptobench.shared.log.warn import warn
@@ -10,6 +10,7 @@ from cryptobench.shared.errors.coded import Coded
 from cryptobench.shared.errors.glossary import STOP
 from cryptobench.shared.errors.policy import resolve
 from cryptobench.shared.settings.effective_view import RUN_GATE, GateView, gate_scopes
+from cryptobench.shared.wait.until import until
 
 SECONDS_PER_MINUTE = 60
 UNREADABLE = "unreadable"
@@ -26,7 +27,6 @@ def say(line):
 @dataclasses.dataclass(frozen=True)
 class Settings:
     kept: float
-    cooldown: int
     poll: int
     terminate: int
     discard_limit: int
@@ -43,8 +43,7 @@ class Settings:
         initial = gate.initial
         rule = (eq.StartMarginRule(initial, gate.backoff, gate.maximum, gate.clean_runs, gate.recovery)
                 if gate.dynamic else eq.StartMarginRule(initial, 1, initial, 1, 0))
-        return cls(gate.kept, gate.cooldown_minutes * SECONDS_PER_MINUTE, gate.poll_minutes * SECONDS_PER_MINUTE,
-                   gate.terminate_minutes * SECONDS_PER_MINUTE, gate.discard_limit,
+        return cls(gate.kept, gate.poll_seconds, gate.terminate_seconds, gate.discard_limit,
                    resolve("temperature_discard_limit", gate.on_discard_limit, f"{base}.onDiscardLimit"), gate.read_retries, gate.read_retry_seconds, rule)
 
 
@@ -78,43 +77,44 @@ class DynamicTemperature:
         return eq.start_limit(self.settings.kept, self.margin)
 
     def readable(self, read):
-        reading = read(self.device)
-        for _ in range(self.settings.read_retries):
-            if reading.skin:
-                break
-            time.sleep(self.settings.read_retry_seconds)
-            reading = thermal.poll(self.device)
-        return reading
+        """read, then thermal.poll every readRetrySeconds while unreadable, readRetries times at most."""
+        reads = [read, *[thermal.poll] * self.settings.read_retries]
+        return until(lambda: reads.pop(0)(self.device), lambda reading: reading.skin or not reads,
+                     self.settings.read_retry_seconds, math.inf).value
 
-    def cool_enough(self, reading):
-        return reading.skin[1] <= self.limit() and (reading.status or 0) <= 0
+    def cool(self, reading):
+        """An unreadable reading is never cool."""
+        return bool(reading.skin) and reading.skin[1] <= self.limit() and (reading.status or 0) <= 0
 
     def hold(self, case):
-        """True once the phone may start this run; False when its temperature cannot be read; Terminated past the polling limit."""
+        """True once the phone may start this run; False when its temperature cannot be read; Terminated past pollTerminateSeconds."""
         self.started = None
-        began, reading, limit = time.monotonic(), self.readable(thermal.read), self.limit()
+        reading, limit = self.readable(thermal.read), self.limit()
         if not reading.skin:
             warn(f"temperature_unreadable: {case}: {reading.reason or 'no skin sensor in this reading'}", self.problems)
             return False
-        if self.cool_enough(reading):
+        if self.cool(reading):
             self.history.passed(case, limit, 0.0)
             self.started = reading
             return True
-        say(f"{case}: {reading.skin[1]:.1f} C, start limit {limit:.2f} C => waiting {self.settings.cooldown // SECONDS_PER_MINUTE} minutes to cool down, then polling every {self.settings.poll // SECONDS_PER_MINUTE} min")
-        time.sleep(self.settings.cooldown)
-        polls = 0
-        while True:
-            polls += 1
-            reading = self.readable(thermal.poll)
-            waited = time.monotonic() - began
-            if reading.skin and self.cool_enough(reading):
-                say(f"{case}: passed at {reading.skin[1]:.1f} C after {waited:.0f} s")
-                self.history.passed(case, limit, waited)
-                return True
-            if waited >= self.settings.terminate:
-                raise Terminated(f"temperature_gate_timeout: {case}: {self.label}: still above {limit:.2f} C after {waited:.0f} s; benchmark stopped")
-            say(f"{case}: poll {polls}: {reading.skin[1]:.1f} C, waiting" if reading.skin else f"{case}: poll {polls}: unreadable, not a pass, waiting")
-            time.sleep(self.settings.poll)
+        poll = self.settings.poll
+        say(f"{case}: {reading.skin[1]:.1f} C, start limit {limit:.2f} C => waiting, reading it every {poll} s")
+        first, polls, per_line = [reading], [], max(1, SECONDS_PER_MINUTE // poll)
+
+        def polled():
+            if first:
+                return first.pop()
+            polls.append(thermal.poll(self.device))
+            if len(polls) % per_line == 0 and not self.cool(polls[-1]):
+                now = f"{polls[-1].skin[1]:.1f} C, waiting" if polls[-1].skin else "unreadable, not a pass, waiting"
+                say(f"{case}: poll {len(polls)}: {now}")
+            return polls[-1]
+        waited = until(polled, self.cool, poll, self.settings.terminate)
+        if not waited.met:
+            raise Terminated(f"temperature_gate_timeout: {case}: {self.label}: still above {limit:.2f} C after {waited.seconds:.0f} s; benchmark stopped")
+        say(f"{case}: passed at {waited.value.skin[1]:.1f} C after {waited.seconds:.0f} s")
+        self.history.passed(case, limit, waited.seconds)
+        return True
 
     def take_start(self):
         started, self.started = self.started, None

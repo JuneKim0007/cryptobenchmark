@@ -45,7 +45,7 @@ class LayerStackTest {
     fun aPassGateLeafItDoesNotWriteIsNamedFromTheRunGate() {
         listOf("config_capture_example.yaml", "config_trial_example.yaml").forEach { File(example, it).copyTo(File(folder.root, it)) }
         file("t.yaml", "schemaVersion: 1\n")
-        file("base.yaml", "schemaVersion: 1\nselection: {testSet: t.yaml}\nrun: {orderSeed: 1, thermalGate: {temperatureKeptCelsius: 36.0, pollMinutes: 2}, " +
+        file("base.yaml", "schemaVersion: 1\nselection: {testSet: t.yaml}\nrun: {orderSeed: 1, thermalGate: {temperatureKeptCelsius: 36.0, pollSeconds: 20}, " +
             "passes: {energy: {samples: 5, caseCooldownSeconds: 9}}}\n")
         file("overlays/energy.yaml", "run: {passes: {energy: {samples: 7, thermalGate: {temperatureKeptCelsius: 35.0}}}}\n")
         val composition = file("energy.yaml", "schemaVersion: 1\nlayers: [base.yaml, overlays/energy.yaml]\n")
@@ -58,7 +58,7 @@ class LayerStackTest {
         val settings = (effective["generatedFrom"] as Map<String, Any>)["settings"] as Map<String, String>
         val gate = "run.passes.energy.thermalGate"
         assertEquals(listOf("layer 2 overlays/energy.yaml", "layer 1 base.yaml via run.thermalGate", "default"),
-            listOf(settings["$gate.temperatureKeptCelsius"], settings["$gate.pollMinutes"], settings["$gate.discardLimit"]))
+            listOf(settings["$gate.temperatureKeptCelsius"], settings["$gate.pollSeconds"], settings["$gate.discardLimit"]))
     }
 
     @Test
@@ -88,6 +88,6 @@ class LayerStackTest {
         @Suppress("UNCHECKED_CAST")
         val settings = (read(composed.effectiveFile)["generatedFrom"] as Map<String, Any>)["settings"] as Map<String, String>
         assertEquals(listOf("layer 1 config_global_example.yaml", "layer 1 config_global_example.yaml via run.thermalGate"),
-            listOf(settings["run.seed"], settings["run.passes.energy.thermalGate.cooldownMinutes"]))
+            listOf(settings["run.seed"], settings["run.passes.energy.thermalGate.pollSeconds"]))
     }
 }

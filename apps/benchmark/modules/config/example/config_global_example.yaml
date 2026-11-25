@@ -16,9 +16,8 @@ run:                                     # required: orderSeed; every other key 
   orderSeed: 20261115                    # required — each process, device or host, shuffles the case order from (orderSeed, repetition)
   thermalGate:                           # optional, absent = off; --device only
     temperatureKeptCelsius: 36.0         # required: phone skin temperature no run may reach; a run ending at or above it is discarded
-    cooldownMinutes: 3                   # optional, default 3: wait this long, without reading the phone, when it is too hot
-    pollMinutes: 1                       # optional, default 1: then read it this often
-    pollTerminateMinutes: 30             # optional, default 30: still too hot after this long: stop the benchmark
+    pollSeconds: 10                      # optional, default 10: when it is too hot, read it this often until it is cool enough
+    pollTerminateSeconds: 1800           # optional, default 1800: still too hot after this long: stop the benchmark
     discardLimit: 5                      # optional, default 5: runs of one case discarded for heat before giving up on it
     onDiscardLimit: nextCase             # optional, default nextCase: nextCase | stop
     readRetries: 2                       # optional, default 2: extra attempts when a temperature reading fails

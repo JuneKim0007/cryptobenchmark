@@ -126,7 +126,7 @@ Every timing and allocation row (host and device) carries `gcCleanNs` and `gcCou
 
 Every case (host and device) also carries `variant` ([measure.md](../apps/benchmark/modules/benchmark/docs/measure.md#benchmarkjson)): one key after `keyKind`, `"variant": "fixed"` or `"variant": "notFixed"`. A reader (perf-repair's side) groups by the case id without its last part `_<variant>` for the item, and never mixes the two values: `fixed` is the call with the setup the API lets a caller keep, kept (`prepared.yaml` `perCall` names exactly what it still redoes: `operation` or `initAndOperation`), `notFixed` is `getInstance` + init + operation per call. Key generation rows are `fixed` only.
 
-A reader of `gate` (perf-repair's side): `discards` counts the runs of the case thrown away for heat; a wait past `pollTerminateMinutes` ends the benchmark with `temperature_gate_timeout`, so no row records one; `waitedSeconds` is host time outside the timed loop and never part of a metric.
+A reader of `gate` (perf-repair's side): `discards` counts the runs of the case thrown away for heat; a wait past `pollTerminateSeconds` ends the benchmark with `temperature_gate_timeout`, so no row records one; `waitedSeconds` is host time outside the timed loop and never part of a metric.
 
 ## clocks.yaml
 

@@ -1,8 +1,7 @@
 """A device whose adb transport is lost mid-run: a bounded wait polling adb get-state, then the step again; past the bound the run stops."""
-import time
-
 from cryptobench.shared.device.adb import DeviceLost
 from cryptobench.shared.errors.coded import Coded
+from cryptobench.shared.wait.until import until
 
 WAIT_MINUTES, POLL_SECONDS = 60, 10   # the defaults of pipeline.py --reconnect-wait-minutes and --reconnect-poll-seconds
 SECONDS_PER_MINUTE = 60
@@ -36,17 +35,12 @@ class Reconnect:
         if self.gone:
             raise DeviceGone(self.gone) from lost
         say(f"{lost}; waiting up to {self.wait} s for adb get-state to say device")
-        began = time.monotonic()
-        while True:
-            state = self.device.state()
-            waited = time.monotonic() - began
-            if state == "device":
-                say(f"back after {waited:.0f} s; {step} again")
-                return
-            if waited >= self.wait:
-                self.gone = f"{lost}; not back after {waited:.0f} s (adb get-state: {state or 'no answer'}); run stopped"
-                raise DeviceGone(self.gone) from lost
-            time.sleep(min(self.poll, self.wait - waited))
+        waited = until(self.device.state, lambda state: state == "device", self.poll, self.wait)
+        if waited.met:
+            say(f"back after {waited.seconds:.0f} s; {step} again")
+            return
+        self.gone = f"{lost}; not back after {waited.seconds:.0f} s (adb get-state: {waited.value or 'no answer'}); run stopped"
+        raise DeviceGone(self.gone) from lost
 
     def retried(self, step, label):
         while True:

@@ -5,7 +5,8 @@ from __future__ import annotations
 import os
 import signal
 import subprocess
-import time
+
+from cryptobench.shared.wait.until import until
 
 # a pipeline.py child's time to stop its device test and write its partial manifest
 PIPELINE_GRACE_SECONDS = 120
@@ -17,10 +18,8 @@ STOP_SIGNALS = tuple(getattr(signal, name) for name in ("SIGTERM", "SIGHUP") if 
 def stop(process: subprocess.Popen, grace: float, poll: float = POLL_SECONDS) -> None:
     """Returns once the process has ended; a Ctrl-C during the grace kills the group at once."""
     _signal(process, signal.SIGTERM)
-    deadline = time.monotonic() + grace
     try:
-        while process.poll() is None and time.monotonic() < deadline:
-            time.sleep(poll)
+        until(process.poll, lambda code: code is not None, poll, grace)
     except KeyboardInterrupt:
         pass
     if process.poll() is None:
