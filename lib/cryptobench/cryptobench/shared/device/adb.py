@@ -58,6 +58,13 @@ def selection_error(listing, serial):
     return None
 
 
+def call_error(arguments, result):
+    """A failed adb call: DeviceLost on adb's lost words, else DeviceError with what adb said."""
+    said = result.stderr or result.stdout
+    reason = lost(said)
+    return DeviceLost(lost_line(arguments, reason)) if reason else DeviceError(f"adb {' '.join(arguments)}: {said.strip()}")
+
+
 class Device:
 
     def __init__(self, root, stream, stacktrace):
@@ -72,8 +79,8 @@ class Device:
         result = self.raw(*arguments)
         if result.returncode != 0:
             self.confirm_attached(result.stderr or result.stdout, arguments, f"adb {arguments[0]}")
-        if check and result.returncode != 0:
-            raise DeviceError(f"adb {' '.join(arguments)}: {(result.stderr or result.stdout).strip()}")
+            if check:
+                raise call_error(arguments, result)
         return result
 
     def shell(self, command):

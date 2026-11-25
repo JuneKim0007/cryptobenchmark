@@ -6,7 +6,7 @@ import collections
 import dataclasses
 import re
 
-from cryptobench.shared.device.adb import DeviceError, DeviceLost, lost, lost_line
+from cryptobench.shared.device.adb import call_error
 
 READY = "device"
 PHYSICAL, EMULATOR = "physical", "emulator"
@@ -106,7 +106,7 @@ def enumerate_devices(adb) -> list[DeviceRow]:
     """adb(*arguments) returns a finished process; a transport lost between the listing and its getprop is offline."""
     listed = adb("devices", "-l")
     if listed.returncode != 0:
-        raise lost_or_failed(("devices", "-l"), listed)
+        raise call_error(("devices", "-l"), listed)
     rows = []
     for serial, state, fields in transports(listed.stdout):
         props = None
@@ -115,12 +115,6 @@ def enumerate_devices(adb) -> list[DeviceRow]:
             props = properties(answer.stdout) if answer.returncode == 0 else None
         rows.append(classify(serial, state, fields, props))
     return deduplicated(rows)
-
-
-def lost_or_failed(arguments, result):
-    text = result.stderr or result.stdout
-    reason = lost(text)
-    return DeviceLost(lost_line(arguments, reason)) if reason else DeviceError(f"adb {' '.join(arguments)}: {text.strip()}")
 
 
 COLUMNS = ("key", "alias", "kind", "model", "api", "connection", "state")
